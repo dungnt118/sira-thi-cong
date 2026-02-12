@@ -1,0 +1,443 @@
+┌─────────────────────────────────────────────────────────────────────┐
+│                    TEAM MANAGEMENT (MOBILE)                         │
+│ [←] Team                                               [+]          │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ TỔNG QUAN                                                   │    │
+│ │                                                             │    │
+│ │ 👥 Tổng số: 8 người                                         │    │
+│ │ ✅ Đang làm việc: 6 người                                   │    │
+│ │ 🏠 Nghỉ phép: 2 người                                       │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ [Tất cả (8)] [Đang làm (6)] [Nghỉ phép (2)]                        │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ [👤] Nguyễn Văn A                           [✅ Đang làm]   │    │
+│ │                                                             │    │
+│ │ 🔧 Thợ điện                                                 │    │
+│ │ 📅 10/02 - 20/02/2026                                       │    │
+│ │ ⏰ Ca: FULL (8h/ngày)                                       │    │
+│ │ 📞 0901234567                                               │    │
+│ │                                                             │    │
+│ │ [Chi tiết]                                                  │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ [👤] Trần Thị B                             [✅ Đang làm]   │    │
+│ │                                                             │    │
+│ │ 🔧 Thợ điện                                                 │    │
+│ │ 📅 10/02 - 20/02/2026                                       │    │
+│ │ ⏰ Ca: AM (4h/ngày)                                         │    │
+│ │ 📞 0907654321                                               │    │
+│ │                                                             │    │
+│ │ [Chi tiết]                                                  │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ [👤] Lê Văn C                               [🏠 Nghỉ phép]  │    │
+│ │                                                             │    │
+│ │ 🔧 Kỹ thuật viên                                            │    │
+│ │ 📅 10/02 - 20/02/2026                                       │    │
+│ │ ⏰ Ca: FULL (8h/ngày)                                       │    │
+│ │ 📞 0909876543                                               │    │
+│ │                                                             │    │
+│ │ Nghỉ phép: 12/02 - 14/02                                    │    │
+│ │                                                             │    │
+│ │ [Chi tiết]                                                  │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│                    [Đang tải thêm...]                               │
+│                                                                     │
+├─────────────────────────────────────────────────────────────────────┤
+│ [🏗️ Dự án] [📸 Upload] [💬 Chat] [👤 Cá nhân]                    │
+└─────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════
+
+LAYOUT NOTES:
+
+1. TOP BAR (56px height)
+   - Back button (left): Return to project detail
+   - Title: "Team"
+   - Add button (right): Add new member (+ icon)
+
+2. SUMMARY CARD
+   - Title: "TỔNG QUAN"
+   - Total members count
+   - Active members count
+   - On leave count
+   - Padding: 16px
+   - Background: Gray-50
+   - Margin-bottom: 16px
+
+3. FILTER TABS (48px height)
+   - Tất cả (8): All members
+   - Đang làm (6): Active members
+   - Nghỉ phép (2): On leave
+   - Active tab: Primary-500 + bottom border
+   - Badge with count
+
+4. MEMBER CARD
+   - Avatar: 48x48px circle (left)
+   - Name: 16px semibold
+   - Status badge (right):
+     - [✅ Đang làm]: Green
+     - [🏠 Nghỉ phép]: Orange
+     - [❌ Đã rời]: Gray
+   - Role icon + name: 14px
+   - Date range: 14px gray
+   - Shift: 14px gray
+   - Phone: 14px gray (tap to call)
+   - Leave info (if on leave): Orange background
+   - [Chi tiết] button: Secondary style
+   - Padding: 16px
+   - Margin-bottom: 12px
+   - Shadow: 0 2px 8px rgba(0,0,0,0.1)
+   - Border-radius: 8px
+   - Border-left: 4px solid (status color)
+
+═══════════════════════════════════════════════════════════════════════
+
+ADD MEMBER FLOW:
+
+Step 1: Select Staff
+┌─────────────────────────────────────────────────────────────────────┐
+│                    THÊM THÀNH VIÊN                                  │
+│ [✕]                                                                 │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│ [🔍 Tìm kiếm nhân viên...]                                          │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ [👤] Nguyễn Văn D                           [○]             │    │
+│ │                                                             │    │
+│ │ 🔧 Thợ điện                                                 │    │
+│ │ 📞 0901111111                                               │    │
+│ │ ✅ Có thể làm việc                                          │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ [👤] Trần Văn E                             [○]             │    │
+│ │                                             │    │
+│ │ 🔧 Kỹ thuật viên                                            │    │
+│ │ 📞 0902222222                                               │    │
+│ │ ⚠️ Đang làm dự án khác (15/02 - 25/02)                      │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ [👤] Lê Thị F                               [○]             │    │
+│ │                                                             │    │
+│ │ 🔧 Chuyên gia                                               │    │
+│ │ 📞 0903333333                                               │    │
+│ │ ✅ Có thể làm việc                                          │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │                    [TIẾP TỤC]                               │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+
+Staff Selection Features:
+- Search by name
+- Filter: Only staff from OL's company
+- Show availability status:
+  - ✅ Available
+  - ⚠️ Busy (with date range)
+  - ❌ Not available
+- Radio button selection
+- Tap card to select
+- Continue button enabled when selected
+
+Step 2: Assign Details
+┌─────────────────────────────────────────────────────────────────────┐
+│                    CHI TIẾT PHÂN CÔNG                               │
+│ [←]                                                                 │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ NHÂN VIÊN                                                   │    │
+│ │                                                             │    │
+│ │ [👤] Nguyễn Văn D                                           │    │
+│ │ 🔧 Thợ điện                                                 │    │
+│ │ 📞 0901111111                                               │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ Vai trò *                                                           │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ [Chọn vai trò]                                      [▼]     │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ Ca làm việc *                                                       │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ ○ FULL (8h/ngày)                                            │    │
+│ │ ○ AM (4h/sáng)                                              │    │
+│ │ ○ PM (4h/chiều)                                             │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ Thời gian làm việc *                                                │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ Từ ngày: [12/02/2026]                               [📅]   │    │
+│ │ Đến ngày: [20/02/2026]                              [📅]   │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ Ghi chú (tùy chọn)                                                  │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ [Nhập ghi chú...]                                           │    │
+│ │                                                             │    │
+│ │                                                             │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │                    [PHÂN CÔNG]                              │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+
+Role Dropdown Options:
+┌─────────────────────────────────┐
+│ Thợ (Worker)                    │
+│ Kỹ thuật viên (Technician)      │
+│ Chuyên gia (Specialist)         │
+└─────────────────────────────────┘
+
+Validation:
+- Role: Required
+- Shift: Required (default: FULL)
+- Date range: Required
+  - From date >= Project start date
+  - To date <= Project end date
+  - From date <= To date
+- Note: Optional (max 200 characters)
+
+═══════════════════════════════════════════════════════════════════════
+
+MEMBER DETAIL VIEW:
+
+┌─────────────────────────────────────────────────────────────────────┐
+│                    CHI TIẾT THÀNH VIÊN                              │
+│ [←] Nguyễn Văn A                                       [⋮]          │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │          [👤]                                               │    │
+│ │                                                             │    │
+│ │      Nguyễn Văn A                                           │    │
+│ │      [✅ Đang làm việc]                                     │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ THÔNG TIN CƠ BẢN                                            │    │
+│ │                                                             │    │
+│ │ 🔧 Vai trò: Thợ điện                                        │    │
+│ │ 📅 Thời gian: 10/02 - 20/02/2026                            │    │
+│ │ ⏰ Ca làm việc: FULL (8h/ngày)                              │    │
+│ │ 📞 Điện thoại: 0901234567                                   │    │
+│ │ 📧 Email: nguyenvana@company.com                            │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ THỐNG KÊ                                                    │    │
+│ │                                                             │    │
+│ │ Số ngày làm việc: 8/10 ngày                                 │    │
+│ │ Số giờ làm việc: 64/80 giờ                                  │    │
+│ │ Số ngày nghỉ: 2 ngày                                        │    │
+│ │ Evidence upload: 15 ảnh                                     │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ LỊCH SỬ NGHỈ PHÉP                                           │    │
+│ │                                                             │    │
+│ │ 12/02 - 14/02/2026                                          │    │
+│ │ Lý do: Nghỉ phép cá nhân                                    │    │
+│ │ Trạng thái: Đã duyệt                                        │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ GHI CHÚ                                                     │    │
+│ │                                                             │    │
+│ │ Nhân viên làm việc tốt, chuyên môn cao                      │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ [Gọi điện]          [Nhắn tin]          [Xem evidence]      │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │              [EDIT]              [XÓA KHỎI DỰ ÁN]          │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+
+Detail View Features:
+- Full member information
+- Work statistics
+- Leave history
+- Notes
+- Quick actions:
+  - Call phone
+  - Send message (chat)
+  - View evidence uploaded by member
+- Edit assignment
+- Remove from project
+
+═══════════════════════════════════════════════════════════════════════
+
+MORE MENU OPTIONS:
+
+┌─────────────────────────────────┐
+│ Edit assignment                 │
+│ Mark as on leave                │
+│ Remove from project             │
+│ View attendance                 │
+│ View evidence                   │
+└─────────────────────────────────┘
+
+Edit Assignment:
+- Navigate to assignment form
+- Pre-fill current values
+- Allow changes to:
+  - Role
+  - Shift
+  - Date range
+  - Note
+
+Mark as On Leave:
+- Date range picker
+- Reason (optional)
+- Submit
+- Update status
+
+Remove from Project:
+- Confirm dialog
+- Reason (optional)
+- Update team list
+- Notify PM
+
+═══════════════════════════════════════════════════════════════════════
+
+REMOVE MEMBER CONFIRMATION:
+
+┌─────────────────────────────────┐
+│ ⚠️ XÓA THÀNH VIÊN               │
+│                                 │
+│ Bạn có chắc muốn xóa            │
+│ Nguyễn Văn A khỏi dự án?        │
+│                                 │
+│ Lý do (tùy chọn):               │
+│ [________________]              │
+│                                 │
+│ [Hủy]  [Xóa]                    │
+└─────────────────────────────────┘
+
+Remove Actions:
+1. Confirm removal
+2. Update team list
+3. Send notification to PM
+4. Update project statistics
+5. Show success message
+
+═══════════════════════════════════════════════════════════════════════
+
+EMPTY STATES:
+
+No Team Members:
+┌─────────────────────────────────┐
+│                                 │
+│          👥                     │
+│                                 │
+│   Chưa có thành viên nào        │
+│                                 │
+│   Tap nút + để thêm thành viên  │
+│   đầu tiên                      │
+│                                 │
+│   [Thêm ngay]                   │
+│                                 │
+└─────────────────────────────────┘
+
+No Available Staff:
+┌─────────────────────────────────┐
+│                                 │
+│          ⚠️                     │
+│                                 │
+│   Không có nhân viên khả dụng   │
+│                                 │
+│   Tất cả nhân viên đang bận     │
+│   hoặc không phù hợp            │
+│                                 │
+│   [Liên hệ quản lý]             │
+│                                 │
+└─────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════
+
+INTERACTIONS:
+
+Tap Member Card:
+1. Navigate to member detail
+2. Show full information
+3. Show statistics
+
+Tap [Chi tiết] Button:
+1. Navigate to member detail
+2. Same as tap card
+
+Tap Phone Number:
+1. Show call dialog
+2. Option to call or copy
+
+Tap Add Button (+):
+1. Navigate to staff selection
+2. Show available staff
+3. Allow selection
+
+Pull to Refresh:
+1. Reload team list
+2. Update statistics
+3. Show refresh indicator
+
+Swipe Member Card (optional):
+1. Swipe left: Show actions
+   - Edit
+   - Remove
+2. Swipe right: Quick call
+
+═══════════════════════════════════════════════════════════════════════
+
+PERFORMANCE:
+
+Data Loading:
+- Load team list on screen open
+- Cache for 5 minutes
+- Background sync every 30 seconds
+
+Search Optimization:
+- Debounced search (300ms)
+- Local filtering
+- Highlight matches
+
+Offline Support:
+- Cache team list
+- Queue assignments locally
+- Sync when online
+- Show sync status
+
+═══════════════════════════════════════════════════════════════════════
+
+ACCESSIBILITY:
+
+Screen Reader:
+- "Member {name}, {role}, {status}"
+- "Working from {start date} to {end date}"
+- "Shift: {shift}"
+- "Tap to view details"
+
+Focus Order:
+- Top to bottom: Summary → Filter tabs → Member cards → Add button
+
+Keyboard Navigation:
+- Tab to navigate cards
+- Enter to view detail
+- Arrow keys to navigate list

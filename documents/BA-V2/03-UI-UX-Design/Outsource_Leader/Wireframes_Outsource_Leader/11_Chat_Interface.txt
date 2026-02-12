@@ -1,0 +1,593 @@
+┌─────────────────────────────────────────────────────────────────────┐
+│                    CHAT INTERFACE (MOBILE)                          │
+│ [←] Chat                                               [⋮]          │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ [👤] PM John Doe                                            │    │
+│ │ [👤] Supervisor Bob Wilson                                  │    │
+│ │ [👤] OL Nguyễn Văn A (You)                                  │    │
+│ │ [👤] +5 thành viên khác                                     │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │                    HÔM NAY                                  │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ [👤] PM John Doe                                   09:15    │    │
+│ │                                                             │    │
+│ │ Tiến độ dự án thế nào rồi?                                  │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│                 ┌───────────────────────────────────────────┐      │
+│                 │ Đã hoàn thành 70% anh ơi         09:20   │      │
+│                 │                                           │      │
+│                 │ Đang lắp đặt hệ thống điện tầng 3         │      │
+│                 │                                   [👤] You│      │
+│                 └───────────────────────────────────────────┘      │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ [👤] PM John Doe                                   09:22    │    │
+│ │                                                             │    │
+│ │ Tốt! Vật tư có đủ không?                                    │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│                 ┌───────────────────────────────────────────┐      │
+│                 │ Thiếu 20% ổ cắm anh ạ            09:25   │      │
+│                 │                                           │      │
+│                 │ Đã confirm vật tư rồi, anh check giúp em  │      │
+│                 │                                           │      │
+│                 │ [📎 material_confirmation.pdf]            │      │
+│                 │                                   [👤] You│      │
+│                 └───────────────────────────────────────────┘      │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ [👤] PM John Doe                                   09:30    │    │
+│ │                                                             │    │
+│ │ OK, tôi sẽ order thêm. Dự kiến về ngày mai                  │    │
+│ │                                                             │    │
+│ │ @Nguyễn Văn A nhớ nhận hàng nhé                             │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│                 ┌───────────────────────────────────────────┐      │
+│                 │ Dạ em nhớ rồi ạ                  09:32   │      │
+│                 │                                   [👤] You│      │
+│                 └───────────────────────────────────────────┘      │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ [👤] Supervisor Bob Wilson                         14:00    │    │
+│ │                                                             │    │
+│ │ Evidence tầng 3 đã upload chưa?                             │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│                 ┌───────────────────────────────────────────┐      │
+│                 │ Đã upload 15 ảnh rồi anh          14:05  │      │
+│                 │                                           │      │
+│                 │ [📸] [📸] [📸]                             │      │
+│                 │                                   [👤] You│      │
+│                 └───────────────────────────────────────────┘      │
+│                                                                     │
+│                                                                     │
+├─────────────────────────────────────────────────────────────────────┤
+│ [📎] [_________________________] [😊] [🎤] [📤]                     │
+├─────────────────────────────────────────────────────────────────────┤
+│ [🏗️ Dự án] [📸 Upload] [💬 Chat] [👤 Cá nhân]                    │
+└─────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════
+
+LAYOUT NOTES:
+
+1. TOP BAR (56px height)
+   - Back button (left): Return to project detail
+   - Title: "Chat"
+   - More menu (right):
+     - View participants
+     - Search messages
+     - Pin messages
+     - Mute notifications
+     - Leave chat
+
+2. PARTICIPANTS CARD (collapsible)
+   - Show key participants (PM, Supervisor, OL)
+   - "+X thành viên khác" for others
+   - Tap to expand full list
+   - Avatar thumbnails
+   - Online status indicator (green dot)
+   - Padding: 12px
+   - Background: Gray-50
+   - Margin-bottom: 8px
+
+3. DATE SEPARATOR
+   - Centered text
+   - Background: Gray-100
+   - Padding: 4px 12px
+   - Border-radius: 12px
+   - Margin: 16px auto
+
+4. MESSAGE BUBBLES
+   - Other users (left-aligned):
+     - Avatar: 32x32px circle
+     - Name: 12px gray
+     - Bubble: White background
+     - Shadow: 0 1px 2px rgba(0,0,0,0.1)
+     - Border-radius: 16px (rounded corners)
+     - Max width: 75% screen width
+     - Padding: 12px
+     - Timestamp: 11px gray (right)
+   
+   - Own messages (right-aligned):
+     - No avatar
+     - Bubble: Primary-500 background
+     - Text: White
+     - Border-radius: 16px
+     - Max width: 75% screen width
+     - Padding: 12px
+     - Timestamp: 11px white (right)
+     - "You" label: 11px white
+
+5. MESSAGE TYPES
+   - Text: Plain text
+   - File: File icon + name + size
+   - Image: Thumbnail grid (max 3 per row)
+   - @Mention: Highlighted background
+   - Link: Underlined, clickable
+   - Reply: Show original message preview
+
+6. INPUT BAR (56px height, fixed bottom)
+   - Attach button: 📎 icon (left)
+   - Text input: Multiline, auto-expand (max 5 lines)
+   - Emoji button: 😊 icon
+   - Voice button: 🎤 icon
+   - Send button: 📤 icon (right, primary color)
+   - Background: White
+   - Border-top: 1px Gray-200
+   - Padding: 8px
+
+═══════════════════════════════════════════════════════════════════════
+
+PARTICIPANTS VIEW (expanded):
+
+┌─────────────────────────────────────────────────────────────────────┐
+│                    THÀNH VIÊN (8)                                   │
+│ [✕]                                                                 │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ [👤] PM John Doe                                [🟢 Online] │    │
+│ │ Project Manager                                             │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ [👤] Supervisor Bob Wilson                      [🟢 Online] │    │
+│ │ Supervisor                                                  │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ [👤] Nguyễn Văn A (You)                         [🟢 Online] │    │
+│ │ Outsource Leader                                            │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ [👤] Trần Thị B                                 [⚫ Offline]│    │
+│ │ Thợ điện                                                    │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ [👤] Lê Văn C                                   [⚫ Offline]│    │
+│ │ Kỹ thuật viên                                               │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│                    [Đang tải thêm...]                               │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+
+Participants Features:
+- Show all members
+- Online status (real-time)
+- Role/title
+- Tap to view profile
+- Tap to send direct message (optional)
+
+═══════════════════════════════════════════════════════════════════════
+
+MESSAGE TYPES:
+
+Text Message:
+┌─────────────────────────────────────┐
+│ [👤] PM John Doe          09:15    │
+│                                     │
+│ Tiến độ dự án thế nào rồi?          │
+└─────────────────────────────────────┘
+
+File Attachment:
+┌─────────────────────────────────────┐
+│ [👤] PM John Doe          09:20    │
+│                                     │
+│ ┌─────────────────────────────┐    │
+│ │ 📎 material_list.pdf        │    │
+│ │ 2.5 MB                      │    │
+│ │ [Tải xuống]                 │    │
+│ └─────────────────────────────┘    │
+└─────────────────────────────────────┘
+
+Image Attachments:
+┌─────────────────────────────────────┐
+│ [👤] Nguyễn Văn A         14:05    │
+│                                     │
+│ ┌────┬────┬────┐                   │
+│ │[📸]│[📸]│[📸]│                   │
+│ └────┴────┴────┘                   │
+│                                     │
+│ Đã upload 15 ảnh rồi anh            │
+└─────────────────────────────────────┘
+
+@Mention:
+┌─────────────────────────────────────┐
+│ [👤] PM John Doe          09:30    │
+│                                     │
+│ OK, tôi sẽ order thêm               │
+│                                     │
+│ @Nguyễn Văn A nhớ nhận hàng nhé     │
+│ └─────────────┘                     │
+│   (highlighted)                     │
+└─────────────────────────────────────┘
+
+Link:
+┌─────────────────────────────────────┐
+│ [👤] PM John Doe          10:00    │
+│                                     │
+│ Xem tài liệu này:                   │
+│ https://docs.example.com/guide      │
+│ └────────────────────────┘          │
+│   (underlined, clickable)           │
+└─────────────────────────────────────┘
+
+Reply:
+┌─────────────────────────────────────┐
+│ [👤] Nguyễn Văn A         10:05    │
+│                                     │
+│ ┌─────────────────────────────┐    │
+│ │ PM John Doe:                │    │
+│ │ Xem tài liệu này            │    │
+│ └─────────────────────────────┘    │
+│                                     │
+│ Dạ em đã xem rồi ạ                  │
+└─────────────────────────────────────┘
+
+System Message:
+┌─────────────────────────────────────┐
+│     🔔 PM John Doe đã thêm          │
+│     Trần Thị B vào nhóm             │
+│                            10:30    │
+└─────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════
+
+INPUT BAR STATES:
+
+Default State:
+┌─────────────────────────────────────────────────────────────────────┐
+│ [📎] [Nhập tin nhắn...]                        [😊] [🎤] [📤]      │
+└─────────────────────────────────────────────────────────────────────┘
+
+Typing State:
+┌─────────────────────────────────────────────────────────────────────┐
+│ [📎] [Xin chào, tôi đang...]                   [😊] [🎤] [📤]      │
+│      └─ Text expands, max 5 lines                                  │
+└─────────────────────────────────────────────────────────────────────┘
+
+With Text (Send button active):
+┌─────────────────────────────────────────────────────────────────────┐
+│ [📎] [Xin chào, tôi đang làm việc]             [😊] [🎤] [📤]      │
+│                                                             └─ Blue │
+└─────────────────────────────────────────────────────────────────────┘
+
+Voice Recording:
+┌─────────────────────────────────────────────────────────────────────┐
+│ [🔴] [●●●●●●●●●●] 00:15                              [✕] [✓]       │
+│      Recording...                                                   │
+└─────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════
+
+ATTACH MENU:
+
+Tap Attach Button (📎):
+┌─────────────────────────────────┐
+│ 📸 Chụp ảnh                     │
+│ 🖼️ Chọn ảnh từ thư viện         │
+│ 📁 Chọn file                    │
+│ 📍 Chia sẻ vị trí               │
+│ ✕ Hủy                           │
+└─────────────────────────────────┘
+
+Attach Features:
+- Camera: Take photo/video
+- Gallery: Select from device
+- Files: Select document (max 10MB)
+- Location: Share GPS location
+- Cancel: Close menu
+
+═══════════════════════════════════════════════════════════════════════
+
+EMOJI PICKER:
+
+Tap Emoji Button (😊):
+┌─────────────────────────────────────────────────────────────────────┐
+│ [Gần đây] [😀] [🎉] [❤️] [👍] [🔥] [💯]                            │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│ 😀 😃 😄 😁 😆 😅 😂 🤣 😊 😇                                        │
+│ 🙂 🙃 😉 😌 😍 🥰 😘 😗 😙 😚                                        │
+│ 😋 😛 😝 😜 🤪 🤨 🧐 🤓 😎 🤩                                        │
+│ 🥳 😏 😒 😞 😔 😟 😕 🙁 ☹️ 😣                                        │
+│                                                                     │
+│                    [Đang tải thêm...]                               │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+
+Emoji Features:
+- Categories: Recent, Smileys, Objects, etc.
+- Search emoji
+- Tap to insert
+- Recent emojis saved
+
+═══════════════════════════════════════════════════════════════════════
+
+MORE MENU OPTIONS:
+
+┌─────────────────────────────────┐
+│ Xem thành viên                  │
+│ Tìm kiếm tin nhắn               │
+│ Ghim tin nhắn                   │
+│ Tắt thông báo                   │
+│ Xóa lịch sử chat                │
+│ Rời khỏi nhóm                   │
+└─────────────────────────────────┘
+
+Search Messages:
+┌─────────────────────────────────────────────────────────────────────┐
+│ [←] [🔍 Tìm kiếm...]                                       [✕]      │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│ KẾT QUẢ (3)                                                         │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ PM John Doe - 09:15                                         │    │
+│ │ Tiến độ dự án thế nào rồi?                                  │    │
+│ │ └─────────┘                                                 │    │
+│ │   (highlighted)                                             │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ Nguyễn Văn A - 09:20                                        │    │
+│ │ Đã hoàn thành 70% anh ơi                                    │    │
+│ │ Đang lắp đặt hệ thống điện tầng 3                           │    │
+│ │       └─────────┘                                           │    │
+│ │         (highlighted)                                       │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+
+Pinned Messages:
+┌─────────────────────────────────────────────────────────────────────┐
+│                    TIN NHẮN GHIM (2)                                │
+│ [✕]                                                                 │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ 📌 PM John Doe - 08:00                                      │    │
+│ │                                                             │    │
+│ │ Deadline dự án: 20/02/2026                                  │    │
+│ │ Nhớ hoàn thành đúng hạn                                     │    │
+│ │                                                             │    │
+│ │ [Bỏ ghim]                                                   │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ 📌 Supervisor Bob Wilson - 10:00                            │    │
+│ │                                                             │    │
+│ │ Evidence phải upload trước 17:00 hàng ngày                  │    │
+│ │                                                             │    │
+│ │ [Bỏ ghim]                                                   │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════
+
+MESSAGE ACTIONS:
+
+Long Press Message:
+┌─────────────────────────────────┐
+│ Trả lời                         │
+│ Sao chép                        │
+│ Chuyển tiếp                     │
+│ Ghim tin nhắn                   │
+│ Xóa tin nhắn                    │
+│ Báo cáo                         │
+└─────────────────────────────────┘
+
+Reply:
+- Show original message preview
+- Focus input bar
+- Type reply
+- Send
+
+Copy:
+- Copy text to clipboard
+- Show toast: "Đã sao chép"
+
+Forward:
+- Select recipients
+- Send to other chats
+
+Pin:
+- Add to pinned messages
+- Show notification
+
+Delete:
+- Confirm dialog
+- Delete for self or everyone (if allowed)
+
+═══════════════════════════════════════════════════════════════════════
+
+TYPING INDICATOR:
+
+┌─────────────────────────────────┐
+│ PM John Doe đang nhập...        │
+│ ●●●                             │
+└─────────────────────────────────┘
+
+Typing Features:
+- Show when user is typing
+- Real-time via WebSocket
+- Auto-hide after 3 seconds
+- Show multiple users typing
+
+═══════════════════════════════════════════════════════════════════════
+
+OFFLINE SUPPORT:
+
+Offline Indicator:
+┌─────────────────────────────────────────────────────────────────────┐
+│ ⚠️ Không có kết nối. Tin nhắn sẽ được gửi khi có mạng               │
+└─────────────────────────────────────────────────────────────────────┘
+
+Offline Message (queued):
+                 ┌───────────────────────────────────────────┐
+                 │ Xin chào                         10:00   │
+                 │                                           │
+                 │ [⏳ Đang gửi...]                          │
+                 │                                   [👤] You│
+                 └───────────────────────────────────────────┘
+
+Failed Message:
+                 ┌───────────────────────────────────────────┐
+                 │ Xin chào                         10:00   │
+                 │                                           │
+                 │ [❌ Gửi thất bại] [Thử lại]               │
+                 │                                   [👤] You│
+                 └───────────────────────────────────────────┘
+
+Offline Features:
+- Queue messages locally
+- Auto-send when online
+- Show sending status
+- Retry on failure
+- Offline indicator
+
+═══════════════════════════════════════════════════════════════════════
+
+NOTIFICATIONS:
+
+New Message Notification:
+┌─────────────────────────────────┐
+│ 💬 Chat - Dự án ABC             │
+│                                 │
+│ PM John Doe:                    │
+│ Tiến độ dự án thế nào rồi?      │
+│                                 │
+│ 2 phút trước                    │
+└─────────────────────────────────┘
+
+@Mention Notification:
+┌─────────────────────────────────┐
+│ 🔔 Chat - Dự án ABC             │
+│                                 │
+│ PM John Doe mentioned you:      │
+│ @Nguyễn Văn A nhớ nhận hàng nhé │
+│                                 │
+│ Vừa xong                        │
+└─────────────────────────────────┘
+
+Notification Features:
+- Push notifications
+- Sound/vibration
+- Badge count on tab bar
+- @Mention highlights
+- Mute option
+
+═══════════════════════════════════════════════════════════════════════
+
+INTERACTIONS:
+
+Tap Message:
+1. Show message actions (optional)
+2. Or do nothing (default)
+
+Long Press Message:
+1. Show action menu
+2. Select action
+
+Tap File Attachment:
+1. Download file
+2. Show preview
+3. Open in app
+
+Tap Image:
+1. Show full screen
+2. Pinch to zoom
+3. Swipe to navigate
+
+Tap @Mention:
+1. Highlight mention
+2. Scroll to message (if in history)
+
+Tap Link:
+1. Open in browser
+2. Or in-app webview
+
+Pull to Refresh:
+1. Load older messages
+2. Show loading indicator
+
+Scroll to Bottom:
+1. Auto-scroll on new message
+2. Show "New messages" button if scrolled up
+
+═══════════════════════════════════════════════════════════════════════
+
+PERFORMANCE:
+
+Message Loading:
+- Load 50 messages initially
+- Infinite scroll for older messages
+- Lazy load images
+- Preload adjacent messages
+
+Real-time Updates:
+- WebSocket connection
+- Auto-reconnect on disconnect
+- Typing indicators
+- Read receipts (optional)
+
+Offline Caching:
+- Cache last 200 messages
+- Cache attachments (max 50MB)
+- Clear cache on memory warning
+
+Network Optimization:
+- Compress images before send
+- Queue messages when offline
+- Batch API calls
+- Retry failed sends
+
+═══════════════════════════════════════════════════════════════════════
+
+ACCESSIBILITY:
+
+Screen Reader:
+- "Message from {sender} at {time}: {text}"
+- "Attachment: {filename}"
+- "Tap to view details"
+
+Focus Order:
+- Top to bottom: Messages → Input bar
+
+Keyboard Navigation:
+- Tab to navigate messages
+- Enter to open actions
+- Arrow keys to scroll

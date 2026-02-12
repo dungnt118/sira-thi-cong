@@ -1,0 +1,351 @@
+┌─────────────────────────────────────────────────────────────────────┐
+│                    NOTIFICATIONS CENTER (MOBILE)                    │
+│ [←] Thông báo                                          [⋮]          │
+├─────────────────────────────────────────────────────────────────────┤
+│ [Tất cả] [Chưa đọc (3)] [Dự án] [Thanh toán] [Chat]               │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│ HÔM NAY                                                             │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ 🔔 Evidence bị từ chối                          [●]         │    │
+│ │ Dự án ABC Corp - PRJ-2026-001                               │    │
+│ │ Lý do: Ảnh không rõ, vui lòng chụp lại                      │    │
+│ │ 2 giờ trước                                                 │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ 💰 Đã nhận thanh toán                           [✓]         │    │
+│ │ Milestone "Tạm ứng" - 1.500.000 VNĐ                         │    │
+│ │ Dự án ABC Corp                                              │    │
+│ │ 5 giờ trước                                                 │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ 💬 @Mention trong chat                          [●]         │    │
+│ │ John Doe: @NguyenVanA cần check vật tư ngay                 │    │
+│ │ Dự án ABC Corp                                              │    │
+│ │ 8 giờ trước                                                 │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ HÔM QUA                                                             │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ 🏗️ Dự án mới được assign                       [✓]         │    │
+│ │ Dự án DEF Ltd - PRJ-2026-002                                │    │
+│ │ PM: Jane Smith                                              │    │
+│ │ 1 ngày trước                                                │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ ✅ Evidence đã được duyệt                       [✓]         │    │
+│ │ 5 ảnh DURING tại dự án ABC Corp                             │    │
+│ │ Supervisor: Bob Wilson                                      │    │
+│ │ 1 ngày trước                                                │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ 📦 Vật tư cần confirm                           [✓]         │    │
+│ │ Dự án ABC Corp - 3 items                                    │    │
+│ │ PM đã nhập vật tư dự kiến                                   │    │
+│ │ 1 ngày trước                                                │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ TUẦN TRƯỚC                                                          │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ ⚠️ Dự án sắp quá hạn                            [✓]         │    │
+│ │ Dự án GHI Corp - PRJ-2026-003                               │    │
+│ │ Còn 2 ngày đến deadline                                     │    │
+│ │ 5 ngày trước                                                │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│                    [Đã xem hết thông báo]                           │
+│                                                                     │
+├─────────────────────────────────────────────────────────────────────┤
+│ [🏗️ Dự án] [📸 Upload] [💬 Chat] [👤 Cá nhân]                    │
+└─────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════
+
+LAYOUT NOTES:
+
+1. TOP BAR (56px height)
+   - Back button (left): Return to previous screen
+   - Title: "Thông báo"
+   - Menu icon (right): More options
+     - Mark all as read
+     - Clear all notifications
+     - Notification settings
+
+2. FILTER TABS (48px height, horizontal scroll)
+   - Tất cả: All notifications
+   - Chưa đọc (3): Unread only, with badge count
+   - Dự án: Project-related
+   - Thanh toán: Payment-related
+   - Chat: Chat mentions
+   - Active tab: Primary-500 color + bottom border
+   - Inactive: Gray-600 color
+
+3. NOTIFICATION GROUPS
+   - Group by time: Hôm nay | Hôm qua | Tuần trước | Tháng trước
+   - Group header: 14px, Gray-700, uppercase
+   - Spacing: 24px margin top
+
+4. NOTIFICATION CARD
+   - Icon (left): Type indicator (32x32px)
+     - 🔔 General
+     - 💰 Payment
+     - 💬 Chat
+     - 🏗️ Project
+     - ✅ Approval
+     - 📦 Material
+     - ⚠️ Warning
+   - Read indicator (right): 
+     - [●] Unread (Primary-500 dot, 8px)
+     - [✓] Read (Gray-400 checkmark)
+   - Title: 16px semibold
+   - Message: 14px regular, max 2 lines
+   - Timestamp: 12px gray, relative time
+   - Padding: 16px
+   - Border-bottom: 1px solid Gray-200
+   - Background: White (unread), Gray-50 (read)
+
+5. EMPTY STATE (if no notifications)
+   ```
+   ┌─────────────────────────────────┐
+   │                                 │
+   │          🔔                     │
+   │                                 │
+   │   Không có thông báo mới        │
+   │                                 │
+   │   Bạn sẽ nhận được thông báo    │
+   │   khi có hoạt động mới          │
+   │                                 │
+   └─────────────────────────────────┘
+   ```
+
+═══════════════════════════════════════════════════════════════════════
+
+NOTIFICATION TYPES & ACTIONS:
+
+┌─────────────────────────────────────────────────────────────────────┐
+│ TYPE: PROJECT ASSIGNED                                              │
+├─────────────────────────────────────────────────────────────────────┤
+│ Icon: 🏗️                                                           │
+│ Title: "Dự án mới được assign"                                     │
+│ Message: "Dự án {project_name} - {project_code}"                   │
+│ Subtitle: "PM: {pm_name}"                                          │
+│ Action: Tap → Navigate to Project Detail                           │
+│ Priority: High                                                      │
+│ Channel: Push + In-app                                             │
+└─────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────┐
+│ TYPE: EVIDENCE REJECTED                                            │
+├─────────────────────────────────────────────────────────────────────┤
+│ Icon: 🔔                                                           │
+│ Title: "Evidence bị từ chối"                                       │
+│ Message: "Dự án {project_name}"                                    │
+│ Subtitle: "Lý do: {reject_reason}"                                 │
+│ Action: Tap → Navigate to Evidence Gallery → Re-upload             │
+│ Priority: High                                                      │
+│ Channel: Push + In-app                                             │
+└─────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────┐
+│ TYPE: EVIDENCE APPROVED                                            │
+├─────────────────────────────────────────────────────────────────────┤
+│ Icon: ✅                                                           │
+│ Title: "Evidence đã được duyệt"                                    │
+│ Message: "{count} ảnh {stage} tại dự án {project_name}"            │
+│ Subtitle: "Supervisor: {supervisor_name}"                          │
+│ Action: Tap → Navigate to Evidence Gallery                         │
+│ Priority: Medium                                                    │
+│ Channel: In-app only                                               │
+└─────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────┐
+│ TYPE: PAYMENT RECEIVED                                             │
+├─────────────────────────────────────────────────────────────────────┤
+│ Icon: 💰                                                           │
+│ Title: "Đã nhận thanh toán"                                        │
+│ Message: "Milestone \"{milestone_name}\" - {amount} VNĐ"           │
+│ Subtitle: "Dự án {project_name}"                                   │
+│ Action: Tap → Navigate to Payment Status                           │
+│ Priority: High                                                      │
+│ Channel: Push + In-app                                             │
+└─────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────┐
+│ TYPE: CHAT MENTION                                                 │
+├─────────────────────────────────────────────────────────────────────┤
+│ Icon: 💬                                                           │
+│ Title: "@Mention trong chat"                                       │
+│ Message: "{sender_name}: {message_preview}"                        │
+│ Subtitle: "Dự án {project_name}"                                   │
+│ Action: Tap → Navigate to Chat → Scroll to message                 │
+│ Priority: Medium                                                    │
+│ Channel: Push + In-app                                             │
+└─────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────┐
+│ TYPE: MATERIAL CONFIRMATION NEEDED                                 │
+├─────────────────────────────────────────────────────────────────────┤
+│ Icon: 📦                                                           │
+│ Title: "Vật tư cần confirm"                                        │
+│ Message: "Dự án {project_name} - {count} items"                    │
+│ Subtitle: "PM đã nhập vật tư dự kiến"                              │
+│ Action: Tap → Navigate to Material Confirmation                    │
+│ Priority: Medium                                                    │
+│ Channel: In-app only                                               │
+└─────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────┐
+│ TYPE: PROJECT DEADLINE WARNING                                     │
+├─────────────────────────────────────────────────────────────────────┤
+│ Icon: ⚠️                                                           │
+│ Title: "Dự án sắp quá hạn"                                         │
+│ Message: "Dự án {project_name}"                                    │
+│ Subtitle: "Còn {days} ngày đến deadline"                           │
+│ Action: Tap → Navigate to Project Detail                           │
+│ Priority: High                                                      │
+│ Channel: Push + In-app                                             │
+└─────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════
+
+INTERACTIONS:
+
+Tap Notification:
+1. Mark as read (if unread)
+2. Navigate to related screen
+3. Highlight related item (if applicable)
+4. Update badge count
+
+Swipe Left (Delete):
+1. Show delete button (red background)
+2. Tap delete → Remove notification
+3. Animate out
+4. Update badge count
+
+Swipe Right (Mark as read/unread):
+1. Show mark button (blue background)
+2. Tap → Toggle read status
+3. Update UI
+4. Update badge count
+
+Long Press:
+1. Show context menu:
+   - Mark as read/unread
+   - Delete
+   - Mute this type
+   - Cancel
+
+Pull to Refresh:
+1. Pull down from top
+2. Show refresh indicator
+3. Fetch new notifications
+4. Update list
+
+═══════════════════════════════════════════════════════════════════════
+
+BADGE COUNT LOGIC:
+
+Badge Count = Unread notifications count
+
+Update triggers:
+- New notification received → +1
+- Notification marked as read → -1
+- Notification deleted → -1 (if unread)
+- Mark all as read → 0
+- Clear all → 0
+
+Display:
+- 0: Hide badge
+- 1-99: Show number
+- 100+: Show "99+"
+
+═══════════════════════════════════════════════════════════════════════
+
+FILTER BEHAVIOR:
+
+Tất cả:
+- Show all notifications
+- Default filter
+
+Chưa đọc (3):
+- Show only unread notifications
+- Badge shows unread count
+- Empty state if no unread
+
+Dự án:
+- Show: Project assigned, deadline warning
+- Filter by notification type
+
+Thanh toán:
+- Show: Payment received, payment request approved/rejected
+- Filter by notification type
+
+Chat:
+- Show: @Mentions, new messages
+- Filter by notification type
+
+═══════════════════════════════════════════════════════════════════════
+
+SETTINGS (via menu icon):
+
+Mark all as read:
+- Confirmation dialog
+- Update all notifications to read
+- Clear badge count
+- Update UI
+
+Clear all notifications:
+- Confirmation dialog: "Xóa tất cả thông báo?"
+- Delete all notifications
+- Show empty state
+
+Notification settings:
+- Navigate to settings screen
+- Configure:
+  - Push notification on/off
+  - Sound on/off
+  - Vibration on/off
+  - Notification types to receive
+
+═══════════════════════════════════════════════════════════════════════
+
+PERFORMANCE:
+
+Pagination:
+- Load 20 notifications initially
+- Infinite scroll for more
+- Lazy load older notifications
+
+Caching:
+- Cache last 100 notifications
+- Sync on app open
+- Background sync every 5 minutes
+
+Real-time:
+- WebSocket for instant delivery
+- Fallback to polling (30s interval)
+
+═══════════════════════════════════════════════════════════════════════
+
+ACCESSIBILITY:
+
+Screen Reader:
+- "Notification: {title}, {message}, {timestamp}"
+- "Unread" or "Read" status
+- "Tap to view details"
+
+Focus Order:
+- Top to bottom
+- Filter tabs → Notification cards
+
+Keyboard Navigation:
+- Arrow keys to navigate
+- Enter to open
+- Delete key to delete

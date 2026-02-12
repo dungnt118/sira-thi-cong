@@ -1,0 +1,509 @@
+┌─────────────────────────────────────────────────────────────────────┐
+│                    PROGRESS UPDATE (MOBILE)                         │
+│ [←] Cập nhật tiến độ                                   [💾]         │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ TIẾN ĐỘ HIỆN TẠI                                            │    │
+│ │                                                             │    │
+│ │ [████████████████░░░░░░░░] 65%                              │    │
+│ │                                                             │    │
+│ │ Cập nhật lần cuối: 11/02/2026 16:30                         │    │
+│ │ Bởi: Nguyễn Văn A                                           │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ Tiến độ mới (%) *                                                   │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │                                                             │    │
+│ │                    [70]                                     │    │
+│ │                                                             │    │
+│ │ [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░]       │    │
+│ │ 0%                                                     100% │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ Mô tả công việc đã hoàn thành *                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ - Hoàn thành lắp đặt hệ thống điện tầng 3                   │    │
+│ │ - Kiểm tra và test toàn bộ mạch điện                        │    │
+│ │ - Lắp đặt 80% công tắc và ổ cắm                             │    │
+│ │                                                             │    │
+│ │                                                             │    │
+│ │                                                             │    │
+│ │                                                             │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│ │ 150/500 ký tự                                               │    │
+│                                                                     │
+│ Vấn đề gặp phải (nếu có)                                            │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ - Thiếu 20% ổ cắm so với dự kiến                            │    │
+│ │ - Cần bổ sung thêm dây điện 3 pha (5m)                      │    │
+│ │                                                             │    │
+│ │                                                             │    │
+│ │                                                             │    │
+│ │                                                             │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│ │ 80/500 ký tự                                                │    │
+│                                                                     │
+│ Kế hoạch tiếp theo                                                  │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ - Hoàn thành lắp đặt công tắc/ổ cắm còn lại                 │    │
+│ │ - Bắt đầu lắp đặt hệ thống điện tầng 4                      │    │
+│ │ - Kiểm tra nghiệm thu tầng 3                                │    │
+│ │                                                             │    │
+│ │                                                             │    │
+│ │                                                             │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│ │ 120/500 ký tự                                               │    │
+│                                                                     │
+│ Ngày dự kiến hoàn thành                                             │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ [20/02/2026]                                        [📅]   │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ Đính kèm ảnh (tùy chọn)                                             │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ ┌──────┬──────┬──────┬──────┐                               │    │
+│ │ │[IMG1]│[IMG2]│[IMG3]│ [+]  │                               │    │
+│ │ └──────┴──────┴──────┴──────┘                               │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │                    [CẬP NHẬT TIẾN ĐỘ]                       │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+├─────────────────────────────────────────────────────────────────────┤
+│ [🏗️ Dự án] [📸 Upload] [💬 Chat] [👤 Cá nhân]                    │
+└─────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════
+
+LAYOUT NOTES:
+
+1. TOP BAR (56px height)
+   - Back button (left): Return to project detail
+   - Title: "Cập nhật tiến độ"
+   - Save draft button (right): 💾 icon
+
+2. CURRENT PROGRESS CARD
+   - Title: "TIẾN ĐỘ HIỆN TẠI"
+   - Progress bar: Visual representation
+   - Percentage: Large, bold
+   - Last update info:
+     - Date/time
+     - Updater name
+   - Padding: 16px
+   - Background: Gray-50
+   - Margin-bottom: 16px
+
+3. NEW PROGRESS INPUT
+   - Label: "Tiến độ mới (%)" + required indicator (*)
+   - Number input: Large, centered
+   - Slider: Visual feedback
+     - Range: 0-100
+     - Step: 1
+     - Current value highlighted
+   - Validation:
+     - Must be >= current progress
+     - Must be <= 100
+   - Height: 120px
+
+4. DESCRIPTION TEXTAREA
+   - Label: "Mô tả công việc đã hoàn thành" + required (*)
+   - Multiline input
+   - Placeholder: "Nhập mô tả công việc..."
+   - Character counter: "X/500 ký tự"
+   - Min height: 120px
+   - Auto-expand on input
+   - Required field
+
+5. ISSUES TEXTAREA
+   - Label: "Vấn đề gặp phải (nếu có)"
+   - Multiline input
+   - Placeholder: "Nhập vấn đề nếu có..."
+   - Character counter: "X/500 ký tự"
+   - Min height: 120px
+   - Optional field
+
+6. NEXT PLAN TEXTAREA
+   - Label: "Kế hoạch tiếp theo"
+   - Multiline input
+   - Placeholder: "Nhập kế hoạch..."
+   - Character counter: "X/500 ký tự"
+   - Min height: 120px
+   - Optional field
+
+7. COMPLETION DATE
+   - Label: "Ngày dự kiến hoàn thành"
+   - Date picker
+   - Default: Project end date
+   - Validation: Must be <= project end date
+   - Optional field
+
+8. PHOTO ATTACHMENTS
+   - Label: "Đính kèm ảnh (tùy chọn)"
+   - Thumbnail grid (4 columns)
+   - Max 10 photos
+   - [+] button to add more
+   - Tap to view/remove
+   - Optional field
+
+9. SUBMIT BUTTON
+   - Full width
+   - Height: 48px
+   - Primary color
+   - Text: "CẬP NHẬT TIẾN ĐỘ"
+   - Fixed at bottom (above tab bar)
+
+═══════════════════════════════════════════════════════════════════════
+
+PROGRESS SLIDER:
+
+┌─────────────────────────────────────────────────────────────────────┐
+│ Tiến độ mới (%) *                                                   │
+│                                                                     │
+│                    [70]                                             │
+│                                                                     │
+│ [████████████████████████████░░░░░░░░░░░░░░░░░░░░░░]               │
+│ 0%   10%   20%   30%   40%   50%   60%   70%   80%   90%   100%    │
+│                                                                     │
+│ ⚠️ Tiến độ mới phải >= 65% (tiến độ hiện tại)                       │
+└─────────────────────────────────────────────────────────────────────┘
+
+Slider Features:
+- Touch-friendly thumb (48x48px)
+- Visual feedback on drag
+- Snap to 5% increments (optional)
+- Show percentage above thumb
+- Highlight filled portion
+- Validation message if < current progress
+
+Progress Milestones (visual indicators):
+- 0%: Start
+- 25%: Quarter
+- 50%: Half
+- 75%: Three-quarters
+- 100%: Complete
+
+═══════════════════════════════════════════════════════════════════════
+
+PHOTO ATTACHMENT:
+
+Add Photo:
+┌─────────────────────────────────┐
+│ THÊM ẢNH                        │
+│                                 │
+│ [📸 Chụp ảnh]                   │
+│                                 │
+│ [🖼️ Chọn từ thư viện]           │
+│                                 │
+│ [✕ Hủy]                         │
+└─────────────────────────────────┘
+
+Photo Grid:
+┌──────────┬──────────┬──────────┬──────────┐
+│  [IMG1]  │  [IMG2]  │  [IMG3]  │   [+]    │
+│   [✕]    │   [✕]    │   [✕]    │  Thêm    │
+└──────────┴──────────┴──────────┴──────────┘
+
+Photo Features:
+- Thumbnail size: 80x80px
+- Max 10 photos
+- Remove button (✕) on each thumbnail
+- Tap thumbnail to view full size
+- Tap [+] to add more
+- Auto-compress before upload
+
+═══════════════════════════════════════════════════════════════════════
+
+VALIDATION:
+
+Required Fields:
+1. Progress percentage (must be >= current)
+2. Description (min 10 characters)
+
+Optional Fields:
+1. Issues
+2. Next plan
+3. Completion date
+4. Photos
+
+Validation Errors:
+┌─────────────────────────────────┐
+│ ⚠️ VUI LÒNG KIỂM TRA            │
+│                                 │
+│ - Tiến độ mới phải >= 65%       │
+│ - Mô tả công việc quá ngắn      │
+│   (tối thiểu 10 ký tự)          │
+│                                 │
+│ [OK]                            │
+└─────────────────────────────────┘
+
+Progress Validation:
+- Must be number
+- Must be 0-100
+- Must be >= current progress
+- If 100%, require completion confirmation
+
+Description Validation:
+- Required
+- Min 10 characters
+- Max 500 characters
+
+═══════════════════════════════════════════════════════════════════════
+
+SAVE DRAFT:
+
+Tap Save Icon (💾):
+┌─────────────────────────────────┐
+│ 💾 LƯU NHÁP                     │
+│                                 │
+│ Lưu tiến độ này để cập nhật     │
+│ sau?                            │
+│                                 │
+│ [Hủy]  [Lưu]                    │
+└─────────────────────────────────┘
+
+Draft Features:
+- Save locally
+- Auto-save every 30 seconds
+- Restore on return
+- Show draft indicator
+- Clear draft on submit
+
+═══════════════════════════════════════════════════════════════════════
+
+SUBMIT CONFIRMATION:
+
+Normal Update (Progress < 100%):
+┌─────────────────────────────────┐
+│ ✅ XÁC NHẬN CẬP NHẬT            │
+│                                 │
+│ Cập nhật tiến độ từ 65% lên 70%?│
+│                                 │
+│ PM sẽ nhận được thông báo       │
+│                                 │
+│ [Hủy]  [Cập nhật]               │
+└─────────────────────────────────┘
+
+Complete Update (Progress = 100%):
+┌─────────────────────────────────┐
+│ 🎉 HOÀN THÀNH DỰ ÁN?            │
+│                                 │
+│ Bạn đang đánh dấu dự án hoàn    │
+│ thành 100%                      │
+│                                 │
+│ ⚠️ Hành động này cần PM duyệt   │
+│                                 │
+│ [Hủy]  [Hoàn thành]             │
+└─────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════
+
+SUCCESS STATE:
+
+┌─────────────────────────────────────────────────────────────────────┐
+│                    ✅ CẬP NHẬT THÀNH CÔNG!                          │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│                          ✅                                         │
+│                                                                     │
+│                 Tiến độ đã cập nhật lên 70%                         │
+│                                                                     │
+│                 PM đã nhận thông báo                                │
+│                                                                     │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │              [VỀ DỰ ÁN]                                     │    │
+│ │                                                             │    │
+│ │              [XEM LỊCH SỬ TIẾN ĐỘ]                          │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+
+Success Actions:
+1. Save progress update to database
+2. Send notification to PM
+3. Update project progress
+4. Clear draft
+5. Show success message
+6. Navigate to project detail or history
+
+═══════════════════════════════════════════════════════════════════════
+
+PROGRESS HISTORY VIEW:
+
+┌─────────────────────────────────────────────────────────────────────┐
+│                    LỊCH SỬ TIẾN ĐỘ                                  │
+│ [←]                                                                 │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ 12/02/2026 14:30                                [70%]       │    │
+│ │                                                             │    │
+│ │ Bởi: Nguyễn Văn A                                           │    │
+│ │                                                             │    │
+│ │ Công việc hoàn thành:                                       │    │
+│ │ - Hoàn thành lắp đặt hệ thống điện tầng 3                   │    │
+│ │ - Kiểm tra và test toàn bộ mạch điện                        │    │
+│ │                                                             │    │
+│ │ Vấn đề:                                                     │    │
+│ │ - Thiếu 20% ổ cắm so với dự kiến                            │    │
+│ │                                                             │    │
+│ │ [3 ảnh đính kèm]                                            │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ 11/02/2026 16:30                                [65%]       │    │
+│ │                                                             │    │
+│ │ Bởi: Nguyễn Văn A                                           │    │
+│ │                                                             │    │
+│ │ Công việc hoàn thành:                                       │    │
+│ │ - Lắp đặt 80% hệ thống điện tầng 3                          │    │
+│ │                                                             │    │
+│ │ [2 ảnh đính kèm]                                            │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ 10/02/2026 09:00                                [50%]       │    │
+│ │                                                             │    │
+│ │ Bởi: Nguyễn Văn A                                           │    │
+│ │                                                             │    │
+│ │ Công việc hoàn thành:                                       │    │
+│ │ - Bắt đầu lắp đặt hệ thống điện tầng 3                      │    │
+│ │                                                             │    │
+│ │ [1 ảnh đính kèm]                                            │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│                    [Đang tải thêm...]                               │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+
+History Features:
+- Chronological order (newest first)
+- Show all updates
+- Percentage badge
+- Updater name
+- Description
+- Issues (if any)
+- Attached photos count
+- Tap to view full details
+- Infinite scroll
+
+═══════════════════════════════════════════════════════════════════════
+
+PROGRESS CHART (optional):
+
+┌─────────────────────────────────────────────────────────────────────┐
+│                    BIỂU ĐỒ TIẾN ĐỘ                                  │
+│ [←]                                                        [⋮]       │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│ 100% ┤                                                              │
+│      │                                                              │
+│  80% ┤                                               ●              │
+│      │                                         ●                    │
+│  60% ┤                                   ●                          │
+│      │                             ●                                │
+│  40% ┤                       ●                                      │
+│      │                 ●                                            │
+│  20% ┤           ●                                                  │
+│      │     ●                                                        │
+│   0% ┼─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴──    │
+│      10/02 11/02 12/02 13/02 14/02 15/02 16/02 17/02 18/02 19/02   │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ THỐNG KÊ                                                    │    │
+│ │                                                             │    │
+│ │ Tiến độ trung bình: 7%/ngày                                 │    │
+│ │ Dự kiến hoàn thành: 20/02/2026                              │    │
+│ │ Số lần cập nhật: 8 lần                                      │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+
+Chart Features:
+- Line chart showing progress over time
+- X-axis: Dates
+- Y-axis: Percentage (0-100%)
+- Data points: Each update
+- Trend line (optional)
+- Statistics summary
+- Export chart (optional)
+
+═══════════════════════════════════════════════════════════════════════
+
+INTERACTIONS:
+
+Drag Slider:
+1. Update percentage value
+2. Show visual feedback
+3. Validate against current progress
+
+Input Description:
+1. Tap textarea
+2. Keyboard appears
+3. Character counter updates
+4. Auto-expand on input
+
+Add Photo:
+1. Tap [+] button
+2. Show photo source options
+3. Select photo
+4. Compress and preview
+5. Add to grid
+
+Tap Save Draft:
+1. Validate required fields (optional)
+2. Save to local storage
+3. Show confirmation toast
+
+Tap Submit:
+1. Validate all fields
+2. Show confirmation dialog
+3. Submit to server
+4. Show success message
+
+Pull to Refresh (History):
+1. Reload history
+2. Update list
+3. Show refresh indicator
+
+═══════════════════════════════════════════════════════════════════════
+
+PERFORMANCE:
+
+Auto-save Draft:
+- Save every 30 seconds
+- Debounced on input
+- Local storage only
+- Clear on submit
+
+Photo Compression:
+- Max resolution: 1920x1920px
+- Quality: 80%
+- Format: JPEG
+- Max size: 2MB per photo
+
+Offline Support:
+- Queue updates locally
+- Sync when online
+- Show sync status
+- Retry on failure
+
+═══════════════════════════════════════════════════════════════════════
+
+ACCESSIBILITY:
+
+Screen Reader:
+- "Current progress: {percentage}%"
+- "New progress: {percentage}%"
+- "Description: {text}"
+- "Tap to update progress"
+
+Focus Order:
+- Top to bottom: Progress slider → Description → Issues → Plan → Date → Photos → Submit
+
+Keyboard Navigation:
+- Tab to navigate fields
+- Enter to submit
+- Arrow keys for slider

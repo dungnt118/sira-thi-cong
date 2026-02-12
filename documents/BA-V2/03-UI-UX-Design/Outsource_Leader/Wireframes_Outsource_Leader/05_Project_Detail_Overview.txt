@@ -1,0 +1,366 @@
+┌─────────────────────────────────────────────────────────────────────┐
+│                    PROJECT DETAIL - OUTSOURCE LEADER (MOBILE)       │
+│ [←] PRJ-2026-001                                       [⋮]          │
+├─────────────────────────────────────────────────────────────────────┤
+│ [Tổng quan] [Evidence] [Vật tư] [Team] [Tiến độ] [Chat] [Thanh toán]│
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ Dự án ABC Corp                                              │    │
+│ │ [⏳ Đang làm]                                               │    │
+│ │                                                             │    │
+│ │ 📍 Địa chỉ: 123 Nguyễn Huệ, Quận 1, TP HCM                 │    │
+│ │ 🏢 Khách hàng: ABC Corp                                     │    │
+│ │ 👨‍💼 PM: John Doe                                          │    │
+│ │ 📅 Thời gian: 15/02/2026 - 28/02/2026                       │    │
+│ │ ⏰ Còn 14 ngày                                              │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ TIẾN ĐỘ DỰ ÁN                                              │    │
+│ │                                                             │    │
+│ │ ████████████████░░░░ 80%                                    │    │
+│ │                                                             │    │
+│ │ Cập nhật lần cuối: 12/02/2026 14:30                        │    │
+│ │ Bởi: Nguyễn Văn A (OL)                                      │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ THÔNG TIN CÔNG VIỆC                                         │    │
+│ │                                                             │    │
+│ │ 📋 Mô tả:                                                   │    │
+│ │ Thi công hệ thống điện nước cho tòa nhà văn phòng          │    │
+│ │ 5 tầng. Bao gồm:                                            │    │
+│ │ - Lắp đặt hệ thống điện                                     │    │
+│ │ - Lắp đặt hệ thống nước                                     │    │
+│ │ - Kiểm tra và nghiệm thu                                    │    │
+│ │                                                             │    │
+│ │ ⚠️ Lưu ý:                                                   │    │
+│ │ - Phải hoàn thành trước 28/02                               │    │
+│ │ - Upload evidence mỗi ngày                                  │    │
+│ │ - Báo cáo tiến độ hàng tuần                                 │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ TEAM (5 thành viên)                          [Xem chi tiết >]│    │
+│ │                                                             │    │
+│ │ 👤 Nguyễn Văn A (Trưởng nhóm)                               │    │
+│ │ 👤 Trần Văn B (Thợ)                                         │    │
+│ │ 👤 Lê Thị C (Thợ)                                           │    │
+│ │ 👤 Phạm Văn D (Kỹ thuật viên)                               │    │
+│ │ 👤 Hoàng Thị E (Chuyên gia)                                 │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ EVIDENCE (24 files)                          [Xem tất cả >] │    │
+│ │                                                             │    │
+│ │ ┌──────┬──────┬──────┬──────┐                              │    │
+│ │ │ 📸  │ 📸  │ 📸  │ 📸  │                              │    │
+│ │ │BEFORE│DURING│DURING│AFTER │                              │    │
+│ │ └──────┴──────┴──────┴──────┘                              │    │
+│ │                                                             │    │
+│ │ Chờ duyệt: 3 | Đã duyệt: 21                                │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ VẬT TƯ (8 items)                             [Xem chi tiết >]│    │
+│ │                                                             │    │
+│ │ ✅ Đã confirm: 5                                            │    │
+│ │ ⏳ Chờ confirm: 3                                           │    │
+│ │ ⚠️ Chênh lệch > 10%: 1                                      │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ THANH TOÁN                                   [Xem chi tiết >]│    │
+│ │                                                             │    │
+│ │ 💰 Tổng giá trị (outsource): 10.000.000 VNĐ                │    │
+│ │ ✅ Đã nhận: 5.000.000 VNĐ (50%)                            │    │
+│ │ ⏳ Pending: 2.500.000 VNĐ (25%)                            │    │
+│ │ 📅 Còn lại: 2.500.000 VNĐ (25%)                            │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│                                                                     │
+│                       [📸 Upload Evidence]                          │
+│                                                                     │
+├─────────────────────────────────────────────────────────────────────┤
+│ [🏗️ Dự án] [📸 Upload] [💬 Chat] [👤 Cá nhân]                    │
+└─────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════
+
+LAYOUT NOTES:
+
+1. TOP BAR (56px height)
+   - Back button (left): Return to project list
+   - Project code: PRJ-2026-001
+   - More menu (right): 
+     - Share project
+     - Report issue
+     - Contact PM
+
+2. TAB BAR (48px height, horizontal scroll)
+   - Tổng quan (active)
+   - Evidence
+   - Vật tư
+   - Team
+   - Tiến độ
+   - Chat
+   - Thanh toán
+   - Swipe left/right to switch tabs
+
+3. PROJECT HEADER CARD
+   - Project name: 20px semibold
+   - Status badge: Chip component
+   - Info list:
+     - Location with icon
+     - Customer name
+     - PM name
+     - Date range
+     - Days remaining
+   - Padding: 16px
+   - Shadow: 0 2px 8px rgba(0,0,0,0.1)
+
+4. PROGRESS CARD
+   - Title: "TIẾN ĐỘ DỰ ÁN"
+   - Progress bar: 8px height
+   - Percentage: 28px bold
+   - Last updated info: 14px gray
+   - Updater name
+
+5. WORK INFO CARD
+   - Title: "THÔNG TIN CÔNG VIỆC"
+   - Description: Multi-line text
+   - Notes: Warning style (yellow bg)
+   - Expandable if too long
+
+6. TEAM SUMMARY CARD
+   - Title + count + "Xem chi tiết" link
+   - Member list (max 5 shown)
+   - Avatar + name + role
+   - Tap to view full team
+
+7. EVIDENCE SUMMARY CARD
+   - Title + count + "Xem tất cả" link
+   - Image grid (4 columns)
+   - Stage labels (BEFORE/DURING/AFTER)
+   - Status counts: Pending | Approved
+   - Tap to view gallery
+
+8. MATERIAL SUMMARY CARD
+   - Title + count + "Xem chi tiết" link
+   - Status counts:
+     - Confirmed
+     - Pending confirmation
+     - High variance warning
+   - Tap to view material list
+
+9. PAYMENT SUMMARY CARD
+   - Title + "Xem chi tiết" link
+   - Total value (outsource share)
+   - Paid amount + percentage
+   - Pending amount + percentage
+   - Remaining amount + percentage
+   - Tap to view payment detail
+
+10. FLOATING ACTION BUTTON (FAB)
+    - Icon: 📸 Camera
+    - Label: "Upload Evidence"
+    - Size: 56x56px
+    - Position: Bottom right, 16px margin
+    - Color: Secondary-500 (Orange)
+    - Shadow: 0 4px 8px rgba(0,0,0,0.2)
+    - Tap: Open camera directly
+
+═══════════════════════════════════════════════════════════════════════
+
+TAB CONTENT PREVIEWS:
+
+EVIDENCE TAB:
+- Evidence gallery (grid view)
+- Filter by stage: BEFORE | DURING | AFTER
+- Filter by status: All | Pending | Approved | Rejected
+- Upload button (FAB)
+
+VẬT TƯ TAB:
+- Material list (table view)
+- Columns: Tên | Đơn vị | SL Dự kiến | SL Thực tế | Chênh lệch
+- Highlight variance > 10%
+- Confirm button (if pending)
+
+TEAM TAB:
+- Team member list
+- Member cards with:
+  - Avatar
+  - Name
+  - Role
+  - Shift
+  - Date range
+- Add member button (if OL has permission)
+
+TIẾN ĐỘ TAB:
+- Progress history (timeline)
+- Update progress form
+- Progress slider (0-100%)
+- Note field (required if changed)
+- Issues field (optional)
+- Next steps field (optional)
+- Submit button
+
+CHAT TAB:
+- Chat interface
+- Message list
+- Input field
+- Attach file button
+- @Mention support
+- Real-time messaging
+
+THANH TOÁN TAB:
+- Payment milestones list
+- Milestone cards:
+  - Name
+  - Amount
+  - Due date
+  - Status
+  - Paid date (if paid)
+- Request payment button (if eligible)
+
+═══════════════════════════════════════════════════════════════════════
+
+INTERACTIONS:
+
+Tap Summary Card:
+1. Navigate to respective tab
+2. Slide-in animation
+3. Update tab bar active state
+
+Tap FAB (Upload Evidence):
+1. Check camera permission
+2. Open camera interface
+3. Or show permission request
+
+Pull to Refresh:
+1. Reload project data
+2. Update all cards
+3. Show refresh indicator
+
+Swipe Tabs:
+1. Swipe left/right on content
+2. Switch to adjacent tab
+3. Update tab bar
+
+Long Press Project Header:
+1. Show context menu:
+   - Copy project code
+   - Share project
+   - Contact PM
+   - Report issue
+
+═══════════════════════════════════════════════════════════════════════
+
+MORE MENU OPTIONS:
+
+┌─────────────────────────────────┐
+│ Share project                   │
+│ Report issue                    │
+│ Contact PM                      │
+│ View on map                     │
+│ Export report                   │
+└─────────────────────────────────┘
+
+Share Project:
+- Share via: SMS, Email, WhatsApp
+- Share content:
+  - Project code
+  - Project name
+  - Location
+  - Progress
+  - Link to project (if web available)
+
+Report Issue:
+- Open issue form
+- Fields:
+  - Issue type (dropdown)
+  - Description (textarea)
+  - Attach photo (optional)
+  - Priority (dropdown)
+- Submit to PM
+
+Contact PM:
+- Options:
+  - Call PM (if phone available)
+  - Chat with PM
+  - Email PM
+
+View on Map:
+- Open Google Maps
+- Show project location
+- Navigation option
+
+Export Report:
+- Generate PDF report
+- Include:
+  - Project info
+  - Progress
+  - Evidence (thumbnails)
+  - Team
+  - Material status
+- Share or download
+
+═══════════════════════════════════════════════════════════════════════
+
+OFFLINE MODE:
+
+Cached Data:
+- Project info
+- Last known progress
+- Evidence thumbnails
+- Team list
+- Material list
+
+Offline Indicator:
+- Show banner at top
+- "Offline - Dữ liệu có thể không mới nhất"
+
+Queued Actions:
+- Upload evidence → Queue locally
+- Update progress → Queue locally
+- Chat messages → Queue locally
+- Sync when online
+
+═══════════════════════════════════════════════════════════════════════
+
+PERFORMANCE:
+
+Lazy Loading:
+- Load tab content on demand
+- Cache loaded tabs
+- Preload adjacent tabs
+
+Image Optimization:
+- Thumbnails for evidence preview
+- Full size on tap
+- Progressive loading
+
+Data Caching:
+- Cache project data for 5 minutes
+- Background sync every 30 seconds
+- Refresh on pull-to-refresh
+
+═══════════════════════════════════════════════════════════════════════
+
+ACCESSIBILITY:
+
+Screen Reader:
+- "Project {code}, {name}, {status}"
+- "Progress: {percentage}%"
+- "Team: {count} members"
+- "Evidence: {count} files"
+- "Tap to view details"
+
+Focus Order:
+- Top bar → Tab bar → Content cards (top to bottom)
+
+Keyboard Navigation:
+- Arrow keys to navigate cards
+- Tab key to switch tabs
+- Enter to open detail

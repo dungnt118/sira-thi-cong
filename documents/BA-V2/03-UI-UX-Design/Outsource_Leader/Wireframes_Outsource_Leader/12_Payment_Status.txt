@@ -1,0 +1,622 @@
+┌─────────────────────────────────────────────────────────────────────┐
+│                    PAYMENT STATUS (MOBILE)                          │
+│ [←] Thanh toán                                         [⋮]          │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ TỔNG QUAN THANH TOÁN                                        │    │
+│ │                                                             │    │
+│ │ Tổng giá trị (outsource):  500.000.000 đ                    │    │
+│ │ Đã thanh toán:             300.000.000 đ (60%)              │    │
+│ │ Còn lại:                   200.000.000 đ (40%)              │    │
+│ │                                                             │    │
+│ │ [████████████░░░░░░░░] 60%                                  │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ THANH TOÁN KẾ TIẾP                                          │    │
+│ │                                                             │    │
+│ │ 💰 100.000.000 đ                                            │    │
+│ │ 📅 Hạn: 15/02/2026 (3 ngày nữa)                             │    │
+│ │ 📋 Milestone: Tạm ứng lần 2                                 │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ [Tất cả (4)] [Đã thanh toán (2)] [Chờ thanh toán (2)] [Quá hạn (0)]│
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ 1. Đặt cọc                                  [✅ Đã thanh toán]│  │
+│ │                                                             │    │
+│ │ 💰 Số tiền: 100.000.000 đ                                   │    │
+│ │ 📅 Hạn thanh toán: 01/02/2026                               │    │
+│ │ ✅ Đã thanh toán: 01/02/2026                                │    │
+│ │ 📝 Ghi chú: Thanh toán đúng hạn                             │    │
+│ │                                                             │    │
+│ │ [Chi tiết]                                                  │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ 2. Tạm ứng lần 1                            [✅ Đã thanh toán]│  │
+│ │                                                             │    │
+│ │ 💰 Số tiền: 200.000.000 đ                                   │    │
+│ │ 📅 Hạn thanh toán: 08/02/2026                               │    │
+│ │ ✅ Đã thanh toán: 07/02/2026                                │    │
+│ │ 📝 Ghi chú: Thanh toán sớm 1 ngày                           │    │
+│ │                                                             │    │
+│ │ [Chi tiết]                                                  │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ 3. Tạm ứng lần 2                            [⏳ Chờ thanh toán]│ │
+│ │                                                             │    │
+│ │ 💰 Số tiền: 100.000.000 đ                                   │    │
+│ │ 📅 Hạn thanh toán: 15/02/2026                               │    │
+│ │ ⏰ Còn: 3 ngày                                              │    │
+│ │ 📝 Ghi chú: Thanh toán sau khi hoàn thành 70%              │    │
+│ │                                                             │    │
+│ │ [Nhắc nhở PM]                                               │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ 4. Nghiệm thu                               [⏳ Chờ thanh toán]│ │
+│ │                                                             │    │
+│ │ 💰 Số tiền: 100.000.000 đ                                   │    │
+│ │ 📅 Hạn thanh toán: 22/02/2026                               │    │
+│ │ ⏰ Còn: 10 ngày                                             │    │
+│ │ 📝 Ghi chú: Thanh toán sau nghiệm thu                       │    │
+│ │                                                             │    │
+│ │ [Chi tiết]                                                  │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+├─────────────────────────────────────────────────────────────────────┤
+│ [🏗️ Dự án] [📸 Upload] [💬 Chat] [👤 Cá nhân]                    │
+└─────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════
+
+LAYOUT NOTES:
+
+1. TOP BAR (56px height)
+   - Back button (left): Return to project detail
+   - Title: "Thanh toán"
+   - More menu (right):
+     - Export payment report
+     - View payment history
+     - Request payment
+     - Help
+
+2. SUMMARY CARD
+   - Title: "TỔNG QUAN THANH TOÁN"
+   - Total contract value (outsource share only)
+   - Paid amount + percentage
+   - Remaining amount + percentage
+   - Progress bar: Visual representation
+   - Padding: 16px
+   - Background: Gray-50
+   - Margin-bottom: 16px
+
+3. NEXT PAYMENT CARD
+   - Title: "THANH TOÁN KẾ TIẾP"
+   - Amount: Large, bold
+   - Due date: With countdown
+   - Milestone name
+   - Padding: 16px
+   - Background: Primary-50 (light blue)
+   - Border-left: 4px Primary-500
+   - Margin-bottom: 16px
+
+4. FILTER TABS (48px height)
+   - Tất cả (4): All milestones
+   - Đã thanh toán (2): Paid
+   - Chờ thanh toán (2): Pending
+   - Quá hạn (0): Overdue
+   - Active tab: Primary-500 + bottom border
+   - Badge with count
+
+5. MILESTONE CARD
+   - Header:
+     - Number + name (16px semibold)
+     - Status badge (right):
+       - [✅ Đã thanh toán]: Green
+       - [⏳ Chờ thanh toán]: Orange
+       - [⚠️ Quá hạn]: Red
+   - Amount: 💰 icon + value (16px bold)
+   - Due date: 📅 icon + date
+   - Paid date (if paid): ✅ icon + date
+   - Countdown (if pending): ⏰ icon + days remaining
+   - Note: 📝 icon + text
+   - Action button:
+     - [Chi tiết]: View details
+     - [Nhắc nhở PM]: Remind PM (if pending)
+   - Padding: 16px
+   - Margin-bottom: 12px
+   - Shadow: 0 2px 8px rgba(0,0,0,0.1)
+   - Border-radius: 8px
+   - Border-left: 4px solid (status color)
+
+═══════════════════════════════════════════════════════════════════════
+
+MILESTONE STATES:
+
+PAID (Green):
+┌─────────────────────────────────────────────────────────────────────┐
+│ 1. Đặt cọc                                  [✅ Đã thanh toán]      │
+│                                                                     │
+│ 💰 Số tiền: 100.000.000 đ                                           │
+│ 📅 Hạn thanh toán: 01/02/2026                                       │
+│ ✅ Đã thanh toán: 01/02/2026                                        │
+│ 📝 Ghi chú: Thanh toán đúng hạn                                     │
+│                                                                     │
+│ [Chi tiết]                                                          │
+└─────────────────────────────────────────────────────────────────────┘
+
+PENDING (Orange):
+┌─────────────────────────────────────────────────────────────────────┐
+│ 3. Tạm ứng lần 2                            [⏳ Chờ thanh toán]    │
+│                                                                     │
+│ 💰 Số tiền: 100.000.000 đ                                           │
+│ 📅 Hạn thanh toán: 15/02/2026                                       │
+│ ⏰ Còn: 3 ngày                                                      │
+│ 📝 Ghi chú: Thanh toán sau khi hoàn thành 70%                      │
+│                                                                     │
+│ [Nhắc nhở PM]                                                       │
+└─────────────────────────────────────────────────────────────────────┘
+
+OVERDUE (Red):
+┌─────────────────────────────────────────────────────────────────────┐
+│ 5. Final Payment                            [⚠️ Quá hạn]           │
+│                                                                     │
+│ 💰 Số tiền: 50.000.000 đ                                            │
+│ 📅 Hạn thanh toán: 10/02/2026                                       │
+│ ⚠️ Quá hạn: 2 ngày                                                  │
+│ 📝 Ghi chú: Cần thanh toán gấp                                      │
+│                                                                     │
+│ [Nhắc nhở PM] [Liên hệ hỗ trợ]                                      │
+└─────────────────────────────────────────────────────────────────────┘
+
+Countdown Colors:
+- > 7 days: Green
+- 3-7 days: Orange
+- < 3 days: Red
+- Overdue: Red + warning icon
+
+═══════════════════════════════════════════════════════════════════════
+
+PAYMENT DETAIL VIEW:
+
+┌─────────────────────────────────────────────────────────────────────┐
+│                    CHI TIẾT THANH TOÁN                              │
+│ [←] Đặt cọc                                            [⋮]          │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ TRẠNG THÁI                                                  │    │
+│ │                                                             │    │
+│ │          [✅ ĐÃ THANH TOÁN]                                 │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ THÔNG TIN THANH TOÁN                                        │    │
+│ │                                                             │    │
+│ │ Milestone: Đặt cọc                                          │    │
+│ │ Số tiền: 100.000.000 đ                                      │    │
+│ │ Hạn thanh toán: 01/02/2026                                  │    │
+│ │ Ngày thanh toán: 01/02/2026                                 │    │
+│ │ Phương thức: Chuyển khoản                                   │    │
+│ │ Mã giao dịch: TXN-2026-001                                  │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ GHI CHÚ                                                     │    │
+│ │                                                             │    │
+│ │ Thanh toán đúng hạn. Đã nhận đầy đủ số tiền.               │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ LỊCH SỬ                                                     │    │
+│ │                                                             │    │
+│ │ 01/02/2026 14:30                                            │    │
+│ │ ✅ Thanh toán hoàn tất                                      │    │
+│ │ Bởi: PM John Doe                                            │    │
+│ │                                                             │    │
+│ │ 01/02/2026 09:00                                            │    │
+│ │ 📝 PM tạo milestone                                         │    │
+│ │ Bởi: PM John Doe                                            │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │              [XUẤT HÓA ĐƠN]              [CHIA SẺ]         │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+
+Detail View Features:
+- Status badge (large, centered)
+- Full payment information
+- Payment method
+- Transaction ID
+- Notes
+- Payment history timeline
+- Export invoice
+- Share payment info
+
+═══════════════════════════════════════════════════════════════════════
+
+REMIND PM ACTION:
+
+Tap [Nhắc nhở PM]:
+┌─────────────────────────────────┐
+│ 💬 NHẮC NHỞ PM                  │
+│                                 │
+│ Gửi tin nhắn nhắc nhở PM về     │
+│ thanh toán "Tạm ứng lần 2"?     │
+│                                 │
+│ Số tiền: 100.000.000 đ          │
+│ Hạn: 15/02/2026 (còn 3 ngày)    │
+│                                 │
+│ Tin nhắn:                       │
+│ ┌─────────────────────────┐    │
+│ │ Anh ơi, em nhắc anh về  │    │
+│ │ thanh toán Tạm ứng lần 2│    │
+│ │ hạn 15/02 ạ             │    │
+│ │                         │    │
+│ └─────────────────────────┘    │
+│                                 │
+│ [Hủy]  [Gửi]                    │
+└─────────────────────────────────┘
+
+Remind Features:
+- Pre-filled message template
+- Editable message
+- Send to PM via chat
+- Track reminder history
+
+═══════════════════════════════════════════════════════════════════════
+
+MORE MENU OPTIONS:
+
+┌─────────────────────────────────┐
+│ Export payment report           │
+│ View payment history            │
+│ Request payment                 │
+│ Payment terms & conditions      │
+│ Contact support                 │
+│ Help                            │
+└─────────────────────────────────┘
+
+Export Payment Report:
+- Generate PDF report
+- Include:
+  - Summary
+  - All milestones
+  - Payment status
+  - Transaction details
+- Download or share
+
+View Payment History:
+- Timeline view
+- All payment events
+- Filter by date
+- Search by milestone
+
+Request Payment:
+- Select milestone
+- Add note
+- Send request to PM
+- Track request status
+
+═══════════════════════════════════════════════════════════════════════
+
+PAYMENT REPORT (PDF):
+
+┌─────────────────────────────────────────────────────────────────────┐
+│                    BÁO CÁO THANH TOÁN                               │
+│                    Dự án: Lắp đặt điện ABC                          │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│ TỔNG QUAN                                                           │
+│                                                                     │
+│ Tổng giá trị (outsource):  500.000.000 đ                            │
+│ Đã thanh toán:             300.000.000 đ (60%)                      │
+│ Còn lại:                   200.000.000 đ (40%)                      │
+│                                                                     │
+│ CHI TIẾT CÁC MILESTONE                                              │
+│                                                                     │
+│ 1. Đặt cọc                                                          │
+│    Số tiền: 100.000.000 đ                                           │
+│    Hạn: 01/02/2026                                                  │
+│    Đã thanh toán: 01/02/2026                                        │
+│    Trạng thái: Đã thanh toán                                        │
+│                                                                     │
+│ 2. Tạm ứng lần 1                                                    │
+│    Số tiền: 200.000.000 đ                                           │
+│    Hạn: 08/02/2026                                                  │
+│    Đã thanh toán: 07/02/2026                                        │
+│    Trạng thái: Đã thanh toán                                        │
+│                                                                     │
+│ 3. Tạm ứng lần 2                                                    │
+│    Số tiền: 100.000.000 đ                                           │
+│    Hạn: 15/02/2026                                                  │
+│    Trạng thái: Chờ thanh toán                                       │
+│                                                                     │
+│ 4. Nghiệm thu                                                       │
+│    Số tiền: 100.000.000 đ                                           │
+│    Hạn: 22/02/2026                                                  │
+│    Trạng thái: Chờ thanh toán                                       │
+│                                                                     │
+│ ────────────────────────────────────────────────────────────────    │
+│ Ngày xuất: 12/02/2026                                               │
+│ Người xuất: Nguyễn Văn A (Outsource Leader)                         │
+└─────────────────────────────────────────────────────────────────────┘
+
+Report Features:
+- Professional format
+- Company logo (optional)
+- Summary section
+- Detailed milestone list
+- Payment status
+- Export metadata
+- Shareable PDF
+
+═══════════════════════════════════════════════════════════════════════
+
+PAYMENT REQUEST FLOW:
+
+Step 1: Select Milestone
+┌─────────────────────────────────────────────────────────────────────┐
+│                    YÊU CẦU THANH TOÁN                               │
+│ [✕]                                                                 │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│ Chọn milestone cần thanh toán:                                      │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ ○ Tạm ứng lần 2                                             │    │
+│ │   100.000.000 đ - Hạn: 15/02/2026                           │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ ○ Nghiệm thu                                                │    │
+│ │   100.000.000 đ - Hạn: 22/02/2026                           │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │                    [TIẾP TỤC]                               │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+
+Step 2: Add Details
+┌─────────────────────────────────────────────────────────────────────┐
+│                    YÊU CẦU THANH TOÁN                               │
+│ [←]                                                                 │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ MILESTONE                                                   │    │
+│ │                                                             │    │
+│ │ Tạm ứng lần 2                                               │    │
+│ │ 💰 100.000.000 đ                                            │    │
+│ │ 📅 Hạn: 15/02/2026                                          │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ Lý do yêu cầu *                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ Đã hoàn thành 70% công việc theo hợp đồng.                  │    │
+│ │ Cần thanh toán để tiếp tục giai đoạn tiếp theo.             │    │
+│ │                                                             │    │
+│ │                                                             │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│ │ 80/500 ký tự                                                │    │
+│                                                                     │
+│ Đính kèm tài liệu (tùy chọn)                                        │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ ┌──────────┬──────────┬──────────┐                          │    │
+│ │ │[progress]│[evidence]│   [+]    │                          │    │
+│ │ │ _report  │ _photos  │  Thêm    │                          │    │
+│ │ └──────────┴──────────┴──────────┘                          │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │                    [GỬI YÊU CẦU]                            │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+
+Step 3: Confirmation
+┌─────────────────────────────────┐
+│ ✅ GỬI YÊU CẦU?                 │
+│                                 │
+│ Gửi yêu cầu thanh toán          │
+│ "Tạm ứng lần 2" cho PM?         │
+│                                 │
+│ Số tiền: 100.000.000 đ          │
+│                                 │
+│ PM sẽ nhận thông báo            │
+│                                 │
+│ [Hủy]  [Gửi]                    │
+└─────────────────────────────────┘
+
+Step 4: Success
+┌─────────────────────────────────┐
+│ ✅ ĐÃ GỬI YÊU CẦU!              │
+│                                 │
+│ Yêu cầu thanh toán đã được gửi  │
+│ đến PM                          │
+│                                 │
+│ Bạn sẽ nhận thông báo khi PM    │
+│ xử lý yêu cầu                   │
+│                                 │
+│ [OK]                            │
+└─────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════
+
+EMPTY STATES:
+
+No Milestones:
+┌─────────────────────────────────┐
+│                                 │
+│          💰                     │
+│                                 │
+│   Chưa có milestone thanh toán  │
+│                                 │
+│   PM sẽ tạo milestone khi       │
+│   dự án bắt đầu                 │
+│                                 │
+└─────────────────────────────────┘
+
+All Paid:
+┌─────────────────────────────────┐
+│                                 │
+│          ✅                     │
+│                                 │
+│   Đã thanh toán đầy đủ!         │
+│                                 │
+│   Tất cả milestone đã hoàn tất  │
+│                                 │
+└─────────────────────────────────┘
+
+No Overdue:
+┌─────────────────────────────────┐
+│                                 │
+│          ✅                     │
+│                                 │
+│   Không có thanh toán quá hạn   │
+│                                 │
+│   Tuyệt vời! Tiếp tục duy trì   │
+│                                 │
+└─────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════
+
+INTERACTIONS:
+
+Tap Milestone Card:
+1. Navigate to payment detail
+2. Show full information
+3. Show history
+
+Tap [Chi tiết] Button:
+1. Navigate to payment detail
+2. Same as tap card
+
+Tap [Nhắc nhở PM]:
+1. Show remind dialog
+2. Pre-fill message
+3. Send to chat
+
+Tap [Xuất hóa đơn]:
+1. Generate PDF invoice
+2. Download or share
+
+Pull to Refresh:
+1. Reload payment list
+2. Update status
+3. Show refresh indicator
+
+═══════════════════════════════════════════════════════════════════════
+
+NOTIFICATIONS:
+
+Payment Received:
+┌─────────────────────────────────┐
+│ 💰 Thanh toán - Dự án ABC       │
+│                                 │
+│ Đã nhận thanh toán:             │
+│ Tạm ứng lần 2 - 100.000.000 đ  │
+│                                 │
+│ Vừa xong                        │
+└─────────────────────────────────┘
+
+Payment Due Soon:
+┌─────────────────────────────────┐
+│ ⏰ Nhắc nhở thanh toán           │
+│                                 │
+│ Tạm ứng lần 2 sắp đến hạn       │
+│ Hạn: 15/02/2026 (còn 2 ngày)    │
+│                                 │
+│ 1 ngày trước                    │
+└─────────────────────────────────┘
+
+Payment Overdue:
+┌─────────────────────────────────┐
+│ ⚠️ Thanh toán quá hạn           │
+│                                 │
+│ Final Payment đã quá hạn 2 ngày │
+│ Số tiền: 50.000.000 đ           │
+│                                 │
+│ Vừa xong                        │
+└─────────────────────────────────┘
+
+Notification Features:
+- Push notifications
+- Sound/vibration
+- Badge count
+- In-app notifications
+- Email notifications (optional)
+
+═══════════════════════════════════════════════════════════════════════
+
+PERFORMANCE:
+
+Data Loading:
+- Load payment list on screen open
+- Cache for 5 minutes
+- Background sync every 60 seconds
+
+Countdown Updates:
+- Update every minute (if on screen)
+- Update on app resume
+- Local calculation (no API call)
+
+Offline Support:
+- Cache payment data
+- Show last synced time
+- Sync when online
+- Show sync status
+
+═══════════════════════════════════════════════════════════════════════
+
+ACCESSIBILITY:
+
+Screen Reader:
+- "Milestone {name}, {amount}, {status}"
+- "Due date: {date}"
+- "Days remaining: {days}"
+- "Tap to view details"
+
+Focus Order:
+- Top to bottom: Summary → Next payment → Filter tabs → Milestone cards
+
+Keyboard Navigation:
+- Tab to navigate cards
+- Enter to view detail
+- Arrow keys to navigate list
+
+═══════════════════════════════════════════════════════════════════════
+
+BUSINESS RULES:
+
+Payment Visibility:
+- OL can only see outsource share (not full contract value)
+- OL cannot create/edit milestones
+- OL can view payment status
+- OL can request payment
+- OL can remind PM
+
+Payment Status:
+- Pending: Not yet paid
+- Paid: Payment completed
+- Overdue: Past due date
+
+Countdown Rules:
+- Show days remaining if > 0
+- Show "Hôm nay" if due today
+- Show "Quá hạn X ngày" if overdue
+
+Notification Rules:
+- Notify 3 days before due
+- Notify 1 day before due
+- Notify on due date
+- Notify on payment received
+- Notify on overdue (daily)

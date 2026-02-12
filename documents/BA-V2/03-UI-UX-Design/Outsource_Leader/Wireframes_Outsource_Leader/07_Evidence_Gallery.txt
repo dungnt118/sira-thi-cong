@@ -1,0 +1,425 @@
+┌─────────────────────────────────────────────────────────────────────┐
+│                    EVIDENCE GALLERY (MOBILE)                        │
+│ [←] Evidence                                           [🔍] [⋮]     │
+├─────────────────────────────────────────────────────────────────────┤
+│ [Tất cả (24)] [BEFORE (5)] [DURING (15)] [AFTER (4)]               │
+├─────────────────────────────────────────────────────────────────────┤
+│ [Tất cả] [Chờ duyệt (3)] [Đã duyệt (21)] [Bị từ chối (0)]         │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│ HÔM NAY (3 ảnh)                                                     │
+│                                                                     │
+│ ┌──────────┬──────────┬──────────┐                                 │
+│ │  [IMG1]  │  [IMG2]  │  [IMG3]  │                                 │
+│ │  DURING  │  DURING  │  AFTER   │                                 │
+│ │   [⏳]   │   [⏳]   │   [✓]    │                                 │
+│ │  14:30   │  15:45   │  16:20   │                                 │
+│ └──────────┴──────────┴──────────┘                                 │
+│                                                                     │
+│ HÔM QUA (5 ảnh)                                                     │
+│                                                                     │
+│ ┌──────────┬──────────┬──────────┐                                 │
+│ │  [IMG4]  │  [IMG5]  │  [IMG6]  │                                 │
+│ │  DURING  │  DURING  │  BEFORE  │                                 │
+│ │   [✓]    │   [✓]    │   [✓]    │                                 │
+│ │  09:15   │  11:30   │  13:00   │                                 │
+│ └──────────┴──────────┴──────────┘                                 │
+│                                                                     │
+│ ┌──────────┬──────────┬──────────┐                                 │
+│ │  [IMG7]  │  [IMG8]  │          │                                 │
+│ │  DURING  │  AFTER   │          │                                 │
+│ │   [✓]    │   [✓]    │          │                                 │
+│ │  14:20   │  16:45   │          │                                 │
+│ └──────────┴──────────┴──────────┘                                 │
+│                                                                     │
+│ 10/02/2026 (8 ảnh)                                                  │
+│                                                                     │
+│ ┌──────────┬──────────┬──────────┐                                 │
+│ │  [IMG9]  │  [IMG10] │  [IMG11] │                                 │
+│ │  BEFORE  │  BEFORE  │  DURING  │                                 │
+│ │   [✓]    │   [✓]    │   [✓]    │                                 │
+│ │  08:00   │  08:15   │  10:30   │                                 │
+│ └──────────┴──────────┴──────────┘                                 │
+│                                                                     │
+│                    [Đang tải thêm...]                               │
+│                                                                     │
+│                                                                     │
+│                       [📸]                                          │
+│                                                                     │
+├─────────────────────────────────────────────────────────────────────┤
+│ [🏗️ Dự án] [📸 Upload] [💬 Chat] [👤 Cá nhân]                    │
+└─────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════
+
+LAYOUT NOTES:
+
+1. TOP BAR (56px height)
+   - Back button (left): Return to project detail
+   - Title: "Evidence"
+   - Search icon (right): Search by note/date
+   - More menu (far right): 
+     - Download all
+     - Share evidence
+     - Filter options
+
+2. STAGE FILTER TABS (48px height, horizontal scroll)
+   - Tất cả (24): All evidence with count
+   - BEFORE (5): Before photos
+   - DURING (15): During photos
+   - AFTER (4): After photos
+   - Active tab: Primary-500 + bottom border
+   - Inactive: Gray-600
+
+3. STATUS FILTER TABS (48px height, horizontal scroll)
+   - Tất cả: All status
+   - Chờ duyệt (3): Pending approval
+   - Đã duyệt (21): Approved
+   - Bị từ chối (0): Rejected
+   - Active tab: Primary-500 + bottom border
+   - Badge colors:
+     - Pending: Orange
+     - Approved: Green
+     - Rejected: Red
+
+4. DATE GROUPS
+   - Group by date: Hôm nay | Hôm qua | DD/MM/YYYY
+   - Group header: 14px, Gray-700, semibold
+   - Count in parentheses
+   - Spacing: 16px margin top
+
+5. IMAGE GRID (3 columns)
+   - Image card:
+     - Thumbnail: Square (110x110px)
+     - Stage badge: Top left overlay
+       - BEFORE: Blue-500
+       - DURING: Orange-500
+       - AFTER: Green-500
+     - Status icon: Top right overlay
+       - [⏳] Pending: Orange
+       - [✓] Approved: Green
+       - [✕] Rejected: Red
+     - Timestamp: Bottom overlay (HH:mm)
+     - Spacing: 4px gap between cards
+   - Aspect ratio: 1:1 (square)
+   - Border-radius: 8px
+   - Tap to view detail
+
+6. FLOATING ACTION BUTTON (FAB)
+   - Icon: 📸 Camera
+   - Size: 56x56px
+   - Position: Bottom right, 16px margin
+   - Color: Secondary-500 (Orange)
+   - Shadow: 0 4px 8px rgba(0,0,0,0.2)
+   - Tap: Open camera for upload
+
+═══════════════════════════════════════════════════════════════════════
+
+EVIDENCE DETAIL VIEW (when image tapped):
+
+┌─────────────────────────────────────────────────────────────────────┐
+│                    EVIDENCE DETAIL                                  │
+│ [←]                                                        [⋮]      │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│                      [FULL IMAGE PREVIEW]                           │
+│                                                                     │
+│                                                                     │
+│                                                                     │
+│                                                                     │
+│                      [◀ 3/24 ▶]                                     │
+│                                                                     │
+│                                                                     │
+│                                                                     │
+│                                                                     │
+├─────────────────────────────────────────────────────────────────────┤
+│ Stage: [DURING]                                  [✓ Đã duyệt]      │
+│ 📅 12/02/2026 14:30                                                 │
+│ 📍 Quận 1, TP HCM                                                   │
+│ 👤 Upload bởi: Nguyễn Văn A                                         │
+│                                                                     │
+│ Ghi chú:                                                            │
+│ Đang lắp đặt hệ thống điện tầng 3. Tiến độ tốt.                    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ Duyệt bởi: Supervisor Bob Wilson                           │    │
+│ │ Thời gian duyệt: 12/02/2026 15:00                          │    │
+│ │ Nhận xét: OK, tiếp tục                                      │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ [Tải xuống]              [Chia sẻ]              [Xóa]      │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+└─────────────────────────────────────────────────────────────────────┘
+
+Detail View Elements:
+
+1. IMAGE PREVIEW
+   - Full screen image
+   - Pinch to zoom
+   - Swipe left/right to navigate
+   - Double tap to zoom
+   - Image counter: "3/24"
+   - Navigation arrows: ◀ ▶
+
+2. METADATA
+   - Stage badge (colored chip)
+   - Status badge (colored chip)
+   - Upload date/time
+   - GPS location (if available)
+   - Uploader name
+
+3. NOTE
+   - User-entered note
+   - Max 500 characters
+   - Multiline display
+
+4. APPROVAL INFO (if approved/rejected)
+   - Approver name
+   - Approval date/time
+   - Comment (if any)
+   - Background: Green-50 (approved) or Red-50 (rejected)
+
+5. ACTION BUTTONS
+   - [Tải xuống]: Download to device
+   - [Chia sẻ]: Share via apps
+   - [Xóa]: Delete (only if pending or OL uploaded)
+
+═══════════════════════════════════════════════════════════════════════
+
+MORE MENU OPTIONS:
+
+┌─────────────────────────────────┐
+│ Download all evidence           │
+│ Share evidence report           │
+│ Filter by uploader              │
+│ Sort by date (newest/oldest)    │
+│ View as list                    │
+│ View as grid                    │
+└─────────────────────────────────┘
+
+Download All:
+- Confirm dialog: "Tải xuống {count} ảnh?"
+- Show progress
+- Save to device gallery
+- Notification on complete
+
+Share Evidence Report:
+- Generate PDF report
+- Include:
+  - Project info
+  - Evidence thumbnails
+  - Metadata (date, stage, location)
+  - Approval status
+- Share via apps
+
+Filter by Uploader:
+- Show list of uploaders
+- Multi-select
+- Apply filter
+
+Sort Options:
+- Newest first (default)
+- Oldest first
+- By stage (BEFORE → DURING → AFTER)
+- By status (Pending → Approved → Rejected)
+
+View Mode:
+- Grid (3 columns) - default
+- List (1 column, larger thumbnails)
+
+═══════════════════════════════════════════════════════════════════════
+
+SEARCH INTERFACE:
+
+┌─────────────────────────────────────────────────────────────────────┐
+│ [←] [_____________________🔍_____________________] [✕]              │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│ TÌM KIẾM THEO                                                       │
+│                                                                     │
+│ 📅 Ngày: [Chọn ngày]                                                │
+│ 📍 Địa điểm: [Chọn địa điểm]                                        │
+│ 👤 Người upload: [Chọn người]                                       │
+│ 📝 Ghi chú: [Nhập từ khóa]                                          │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │                    [TÌM KIẾM]                               │    │
+│ │                                                             │    │
+│ │                    [ĐẶT LẠI]                                │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+└─────────────────────────────────────────────────────────────────────┘
+
+Search Features:
+- Search by date range
+- Search by location
+- Search by uploader
+- Search by note keywords
+- Combine multiple filters
+- Save search (optional)
+
+═══════════════════════════════════════════════════════════════════════
+
+REJECTED EVIDENCE DETAIL:
+
+┌─────────────────────────────────────────────────────────────────────┐
+│ Stage: [DURING]                                  [✕ Bị từ chối]    │
+│ 📅 12/02/2026 14:30                                                 │
+│ 📍 Quận 1, TP HCM                                                   │
+│ 👤 Upload bởi: Nguyễn Văn A                                         │
+│                                                                     │
+│ Ghi chú:                                                            │
+│ Đang lắp đặt hệ thống điện tầng 3.                                 │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │ ⚠️ BỊ TỪ CHỐI                                               │    │
+│ │                                                             │    │
+│ │ Từ chối bởi: Supervisor Bob Wilson                         │    │
+│ │ Thời gian: 12/02/2026 15:00                                │    │
+│ │                                                             │    │
+│ │ Lý do: Ảnh không rõ, vui lòng chụp lại với ánh sáng tốt    │    │
+│ │ hơn. Cần thấy rõ hệ thống dây điện.                        │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐    │
+│ │              [CHỤP LẠI]              [XÓA]                  │    │
+│ └─────────────────────────────────────────────────────────────┘    │
+└─────────────────────────────────────────────────────────────────────┘
+
+Rejected Evidence Actions:
+
+1. [CHỤP LẠI]:
+   - Open camera
+   - Pre-select same stage
+   - Pre-fill note (optional)
+   - Upload new evidence
+
+2. [XÓA]:
+   - Confirm dialog
+   - Delete rejected evidence
+   - Update count
+
+═══════════════════════════════════════════════════════════════════════
+
+EMPTY STATES:
+
+No Evidence:
+┌─────────────────────────────────┐
+│                                 │
+│          📸                     │
+│                                 │
+│   Chưa có evidence nào          │
+│                                 │
+│   Tap nút 📸 để upload ảnh      │
+│   đầu tiên                      │
+│                                 │
+│   [Upload ngay]                 │
+│                                 │
+└─────────────────────────────────┘
+
+No Search Results:
+┌─────────────────────────────────┐
+│                                 │
+│          🔍                     │
+│                                 │
+│   Không tìm thấy evidence       │
+│                                 │
+│   Thử tìm kiếm với bộ lọc       │
+│   khác                          │
+│                                 │
+│   [Xóa bộ lọc]                  │
+│                                 │
+└─────────────────────────────────┘
+
+All Approved:
+┌─────────────────────────────────┐
+│                                 │
+│          ✅                     │
+│                                 │
+│   Tất cả evidence đã được duyệt │
+│                                 │
+│   Tuyệt vời! Tiếp tục upload    │
+│   thêm evidence                 │
+│                                 │
+└─────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════
+
+INTERACTIONS:
+
+Tap Image Card:
+1. Navigate to detail view
+2. Show full image
+3. Load metadata
+4. Enable swipe navigation
+
+Long Press Image Card:
+1. Show context menu:
+   - View detail
+   - Download
+   - Share
+   - Delete (if allowed)
+
+Pull to Refresh:
+1. Reload evidence list
+2. Update counts
+3. Show refresh indicator
+
+Pinch on Image:
+1. Zoom in/out
+2. Pan to view details
+3. Double tap to reset
+
+Swipe on Detail View:
+1. Swipe left: Next image
+2. Swipe right: Previous image
+3. Swipe down: Close detail view
+
+═══════════════════════════════════════════════════════════════════════
+
+PERFORMANCE:
+
+Pagination:
+- Load 30 images initially
+- Infinite scroll for more
+- Lazy load thumbnails
+- Preload adjacent images in detail view
+
+Caching:
+- Cache thumbnails (max 100)
+- Cache full images (max 20)
+- Clear cache on memory warning
+
+Image Optimization:
+- Thumbnail size: 300x300px
+- Full size: Max 1920x1920px
+- Progressive JPEG loading
+- WebP format (if supported)
+
+Network Optimization:
+- Download thumbnails first
+- Download full images on demand
+- Queue downloads
+- Cancel on scroll away
+
+═══════════════════════════════════════════════════════════════════════
+
+ACCESSIBILITY:
+
+Screen Reader:
+- "Evidence {stage}, {status}, uploaded on {date}"
+- "Tap to view details"
+- "{current} of {total}"
+
+Focus Order:
+- Filter tabs → Image grid (left to right, top to bottom)
+
+Keyboard Navigation:
+- Arrow keys to navigate images
+- Enter to view detail
+- Escape to close detail
+
+Haptic Feedback:
+- Tap image: Light impact
+- Swipe to next: Selection changed
+- Zoom: None
