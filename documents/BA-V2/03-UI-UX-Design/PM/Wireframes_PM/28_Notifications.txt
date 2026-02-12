@@ -1,0 +1,182 @@
+┌──────────────────────────────────────────────────────────────────────┐
+│                      NOTIFICATIONS CENTER                            │
+├──────────────────────────────────────────────────────────────────────┤
+│                                                                      │
+│  [← Back]  Notifications                              [⚙ Settings]  │
+│                                                                      │
+│  ┌─ FILTER & ACTIONS ──────────────────────────────────────────────┐│
+│  │                                                                  ││
+│  │ [All (23)] [Unread (8)] [Priority (3)] [Mentions (2)]          ││
+│  │                                                                  ││
+│  │ [✓ Mark All Read]  [Clear All]                                  ││
+│  │                                                                  ││
+│  └──────────────────────────────────────────────────────────────────┘│
+│                                                                      │
+│  ┌─ NOTIFICATIONS LIST ────────────────────────────────────────────┐│
+│  │                                                                  ││
+│  │ ● Today                                                          ││
+│  │ ───────                                                          ││
+│  │                                                                  ││
+│  │ 🔴 [UNREAD] ⚠️ High Priority                        2 mins ago  ││
+│  │ Budget Variance Alert - PRJ-2026-001                             ││
+│  │ Project is 15% over planned budget. Current costs: 29M VND,      ││
+│  │ planned: 25M VND. Review recommended.                            ││
+│  │ [View Project] [Mark as Read] [Dismiss]                          ││
+│  │                                                                  ││
+│  │ ─────────────────────────────────────────────────────────────    ││
+│  │                                                                  ││
+│  │ 🔴 [UNREAD] 📸 Evidence Approval                    15 mins ago  ││
+│  │ Mike Smith uploaded 15 new evidence images                       ││
+│  │ Project: PRJ-2026-018  |  Location: Site B, Floor 3              ││
+│  │ [Review Evidence] [Approve All] [Mark as Read]                   ││
+│  │                                                                  ││
+│  │ ─────────────────────────────────────────────────────────────    ││
+│  │                                                                  ││
+│  │ 🔴 [UNREAD] 💰 Payment Received                     1 hour ago   ││
+│  │ Payment of 15,000,000 VND received                               ││
+│  │ Contract: CT-2026-01  |  Milestone: ADVANCE                      ││
+│  │ Bank: Vietcombank  |  Ref: VCB20260212123456                     ││
+│  │ [View Payment] [Send Receipt] [Mark as Read]                     ││
+│  │                                                                  ││
+│  │ ─────────────────────────────────────────────────────────────    ││
+│  │                                                                  ││
+│  │ ⚪ [READ] 📋 Project Status Update                  2 hours ago  ││
+│  │ PRJ-2026-025 progress updated to 80%                             ││
+│  │ Updated by: John Doe  |  Status: IN_PROGRESS                     ││
+│  │ [View Project]                                                   ││
+│  │                                                                  ││
+│  │ ─────────────────────────────────────────────────────────────    ││
+│  │                                                                  ││
+│  │ 🔴 [UNREAD] 👤 Customer Comment                     3 hours ago  ││
+│  │ ABC Corp commented on portal                                     ││
+│  │ "Great progress! Please send updated timeline."                  ││
+│  │ Project: PRJ-2026-001  |  Portal Link: portal.sira.com/xyz123   ││
+│  │ [Reply] [View Portal] [Mark as Read]                             ││
+│  │                                                                  ││
+│  │ ─────────────────────────────────────────────────────────────    ││
+│  │                                                                  ││
+│  │ ⚪ [READ] 🎯 Milestone Approaching                  4 hours ago  ││
+│  │ Milestone "Second Coat Application" due in 3 days                ││
+│  │ Project: PRJ-2026-001  |  Current progress: 40%                  ││
+│  │ [View Milestone] [Update Progress]                               ││
+│  │                                                                  ││
+│  │ ● Yesterday                                                      ││
+│  │ ──────────                                                       ││
+│  │                                                                  ││
+│  │ 🔴 [UNREAD] 👥 Team Assignment                    Yesterday 16:30││
+│  │ You were assigned to project PRJ-2026-032                        ││
+│  │ Role: Project Manager  |  Customer: XYZ Ltd                      ││
+│  │ Start Date: March 1, 2026                                        ││
+│  │ [View Project] [Accept] [Mark as Read]                           ││
+│  │                                                                  ││
+│  │ ─────────────────────────────────────────────────────────────    ││
+│  │                                                                  ││
+│  │ ⚪ [READ] 📄 Contract Signed                      Yesterday 14:20││
+│  │ Contract CT-2026-02 has been signed                              ││
+│  │ Customer: DEF Inc  |  Value: 60M VND                             ││
+│  │ Next step: Create project from contract                          ││
+│  │ [View Contract] [Create Project]                                 ││
+│  │                                                                  ││
+│  │ ─────────────────────────────────────────────────────────────    ││
+│  │                                                                  ││
+│  │ 🔴 [UNREAD] 📊 Weekly Report Ready                Yesterday 09:00││
+│  │ Your weekly project summary is ready                             ││
+│  │ Period: Feb 5-11, 2026  |  Projects: 5 active, 2 completed      ││
+│  │ Revenue: 120M VND  |  Profit: 24M VND                            ││
+│  │ [Download Report] [View Dashboard] [Mark as Read]                ││
+│  │                                                                  ││
+│  │ ● February 10, 2026                                              ││
+│  │ ──────────────────                                               ││
+│  │                                                                  ││
+│  │ ⚪ [READ] ⚠️ Schedule Delay Warning                  Feb 10 17:15││
+│  │ Project PRJ-2026-018 is 2 days behind schedule                   ││
+│  │ Expected completion: March 20 → March 22                         ││
+│  │ Action required: Update timeline or add resources                ││
+│  │ [View Project] [Update Timeline]                                 ││
+│  │                                                                  ││
+│  │ ─────────────────────────────────────────────────────────────    ││
+│  │                                                                  ││
+│  │ ⚪ [READ] 📸 Evidence Approved                        Feb 10 15:30││
+│  │ You approved 20 evidence images                                  ││
+│  │ Project: PRJ-2026-001  |  Uploaded by: Mike Smith                ││
+│  │ [View Evidence]                                                  ││
+│  │                                                                  ││
+│  │ ─────────────────────────────────────────────────────────────    ││
+│  │                                                                  ││
+│  │ ⚪ [READ] 🔗 Portal Link Expired                      Feb 10 10:00││
+│  │ Customer portal link has expired                                 ││
+│  │ Project: PRJ-2025-085  |  Last accessed: Feb 1, 2026             ││
+│  │ [Generate New Link] [Archive]                                    ││
+│  │                                                                  ││
+│  │ ● Older                                                          ││
+│  │ ──────                                                           ││
+│  │                                                                  ││
+│  │ ⚪ [READ] 💼 Material Delivery Confirmed               Feb 9 14:00││
+│  │ Material order #MAT-2026-045 delivered                           ││
+│  │ Project: PRJ-2026-001  |  Qty: 50 buckets PU coating             ││
+│  │ [View Materials] [Update Inventory]                              ││
+│  │                                                                  ││
+│  │ ─────────────────────────────────────────────────────────────    ││
+│  │                                                                  ││
+│  │ ⚪ [READ] 👨‍💼 New Customer Added                        Feb 8 11:20││
+│  │ Admin added customer: GHI Corp                                   ││
+│  │ Industry: Real Estate  |  Type: Corporate                        ││
+│  │ [View Customer] [Create Project]                                 ││
+│  │                                                                  ││
+│  │ [Load More Notifications]                                        ││
+│  │                                                                  ││
+│  └──────────────────────────────────────────────────────────────────┘│
+│                                                                      │
+└──────────────────────────────────────────────────────────────────────┘
+
+NOTIFICATION TYPES & PRIORITY:
+
+Priority Levels:
+🔴 HIGH (Red dot):
+- Budget variance alerts (>10%)
+- Schedule delays
+- Payment issues
+- Customer complaints
+- Evidence requiring immediate approval
+- System errors
+
+🟡 MEDIUM (Yellow dot):
+- Evidence uploaded (needs approval)
+- Payment received
+- Milestone approaching
+- Team assignments
+- Customer comments
+
+🟢 LOW (Green dot):
+- Status updates
+- Reports ready
+- Material deliveries
+- Document uploaded
+- General system notifications
+
+Notification Badges:
+- 📋 Projects
+- 📸 Evidence
+- 💰 Payments
+- 📄 Contracts
+- 👤 Customers
+- 👥 Team
+- 🔗 Portal
+- 📊 Reports
+- ⚠️ Alerts
+- 💼 Materials
+- 🎯 Milestones
+
+Notification Actions:
+- View related entity
+- Mark as read/unread
+- Dismiss/archive
+- Quick actions (approve, reply, etc.)
+- Snooze (remind later)
+
+Settings (⚙):
+- Notification preferences
+- Sound settings
+- Desktop notifications
+- Email digest frequency
+- Priority rules
