@@ -1,0 +1,11 @@
+.user-list h1 {
+    margin-bottom: var(--spacing-md);
+}
+
+.user-list-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+}

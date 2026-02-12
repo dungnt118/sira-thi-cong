@@ -1,0 +1,21 @@
+.dashboard {
+    /* Dashboard specific styles */
+}
+
+.dashboard h1 {
+    margin-bottom: var(--spacing-md);
+}
+
+.dashboard .ant-card {
+    height: 100%;
+}
+
+.dashboard .ant-statistic-title {
+    color: var(--color-gray-600);
+    font-size: var(--font-size-small);
+}
+
+.dashboard .ant-statistic-content {
+    font-size: 24px;
+    font-weight: 600;
+}

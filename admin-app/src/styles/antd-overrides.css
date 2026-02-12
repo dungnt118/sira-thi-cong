@@ -1,0 +1,106 @@
+/* Ant Design component overrides */
+
+/* Layout */
+.ant-layout {
+    min-height: 100vh;
+}
+
+.ant-layout-header {
+    background: #FFFFFF;
+    padding: 0 var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+    z-index: 10;
+}
+
+.ant-layout-sider {
+    background: #FFFFFF;
+    box-shadow: var(--shadow-sm);
+}
+
+.ant-layout-content {
+    background: var(--bg-page);
+    padding: var(--spacing-lg);
+    min-height: calc(100vh - var(--topbar-height));
+}
+
+/* Menu */
+.ant-menu-item {
+    height: 48px !important;
+    line-height: 48px !important;
+    margin: var(--spacing-xs) var(--spacing-sm) !important;
+    border-radius: var(--border-radius-md) !important;
+}
+
+.ant-menu-item-selected {
+    background-color: var(--bg-selected) !important;
+    color: var(--color-primary) !important;
+}
+
+.ant-menu-item:hover {
+    background-color: var(--bg-hover) !important;
+}
+
+/* Table */
+.ant-table {
+    background: var(--bg-card);
+    border-radius: var(--border-radius-md);
+}
+
+.ant-table-thead>tr>th {
+    background: var(--color-gray-50);
+    font-weight: 600;
+}
+
+.ant-table-tbody>tr:hover>td {
+    background: var(--bg-hover);
+}
+
+/* Card */
+.ant-card {
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.ant-card-head {
+    border-bottom: 1px solid var(--color-gray-200);
+    font-weight: 600;
+}
+
+/* Button */
+.ant-btn-primary {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+.ant-btn-primary:hover {
+    background-color: var(--color-primary-light);
+    border-color: var(--color-primary-light);
+}
+
+/* Form */
+.ant-form-item-label>label {
+    font-weight: 500;
+}
+
+/* Badge */
+.ant-badge-status-success {
+    background-color: var(--color-success);
+}
+
+.ant-badge-status-error {
+    background-color: var(--color-error);
+}
+
+.ant-badge-status-warning {
+    background-color: var(--color-warning);
+}
+
+.ant-badge-status-processing {
+    background-color: var(--color-info);
+}
+
+/* Breadcrumb */
+.ant-breadcrumb {
+    padding: var(--spacing-sm) 0;
+    font-size: var(--font-size-small);
+}

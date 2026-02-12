@@ -1,0 +1,9 @@
+.sidebar {
+    background: #FFFFFF;
+    box-shadow: var(--shadow-sm);
+}
+
+.sidebar .ant-menu {
+    border-right: 0;
+    padding-top: var(--spacing-md);
+}

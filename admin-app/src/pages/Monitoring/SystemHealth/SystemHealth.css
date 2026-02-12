@@ -1,0 +1,35 @@
+.system-health h1 {
+    margin-bottom: var(--spacing-md);
+}
+
+.health-metric {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.health-metric-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--border-radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.health-metric-content {
+    flex: 1;
+}
+
+.health-metric-value {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--color-gray-900);
+    line-height: 1;
+}
+
+.health-metric-label {
+    font-size: var(--font-size-small);
+    color: var(--color-gray-600);
+    margin-top: var(--spacing-xs);
+}
