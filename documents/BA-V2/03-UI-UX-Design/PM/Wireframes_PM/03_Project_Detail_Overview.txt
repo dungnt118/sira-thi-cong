@@ -1,0 +1,184 @@
+┌──────────────────────────────────────────────────────────────────────┐
+│               PROJECT DETAIL - OVERVIEW TAB                          │
+├──────────────────────────────────────────────────────────────────────┤
+│                                                                      │
+│  [← Projects]  Project #PRJ-2026-001                     [Edit]     │
+│                                                                      │
+│  Customer: ABC Corp  |  Status: [⏳ IN_PROGRESS]  |  Progress: 75%  │
+│                                                                      │
+│  [● Overview] [Evidence] [Financials] [Customer Portal] [Activity]  │
+│                                                                      │
+│  ┌─ PROJECT INFORMATION (Left Column - 8 cols) ───────────────────┐ │
+│  │                                                                  │ │
+│  │  ┌─ BASIC INFO ────────────────────────────────────────────┐   │ │
+│  │  │                                                          │   │ │
+│  │  │ Code:      PRJ-2026-001                                  │   │ │
+│  │  │ Name:      Office Building Waterproofing                 │   │ │
+│  │  │ Customer:  ABC Corp   [View Profile →]                   │   │ │
+│  │  │ Contract:  CT-2026-01 [View Contract →]                  │   │ │
+│  │  │                                                          │   │ │
+│  │  │ Type:      ⚪ INTERNAL Project                           │   │ │
+│  │  │            (All staff are internal SIRA employees)       │   │ │
+│  │  │                                                          │   │ │
+│  │  └──────────────────────────────────────────────────────────┘   │ │
+│  │                                                                  │ │
+│  │  ┌─ LOCATION ──────────────────────────────────────────────┐   │ │
+│  │  │                                                          │   │ │
+│  │  │ Address: 123 Main Street, District 1,                    │   │ │
+│  │  │          Ho Chi Minh City, Vietnam                       │   │ │
+│  │  │                                                          │   │ │
+│  │  │ GPS:     10.7769° N, 106.7009° E       [View on Map]     │   │ │
+│  │  │                                                          │   │ │
+│  │  │ ┌────────────────────────────────────────────────────┐  │   │ │
+│  │  │ │                                                    │  │   │ │
+│  │  │ │         [Embedded Google Map Preview]             │  │   │ │
+│  │  │ │            📍 Project Location                     │  │   │ │
+│  │  │ │                                                    │  │   │ │
+│  │  │ └────────────────────────────────────────────────────┘  │   │ │
+│  │  │                                                          │   │ │
+│  │  └──────────────────────────────────────────────────────────┘   │ │
+│  │                                                                  │ │
+│  │  ┌─ PROJECT SCOPE ─────────────────────────────────────────┐   │ │
+│  │  │                                                          │   │ │
+│  │  │ Waterproofing Type: PU Coating (Polyurethane)            │   │ │
+│  │  │ Total Area:         500 sqm                              │   │ │
+│  │  │ Application Method: Spray coating + Manual touch-up      │   │ │
+│  │  │ Warranty Period:    3 years                              │   │ │
+│  │  │                                                          │   │ │
+│  │  │ Description:                                             │   │ │
+│  │  │ Complete waterproofing solution for office building roof │   │ │
+│  │  │ and balcony areas. Includes surface preparation, primer  │   │ │
+│  │  │ application, 2-coat PU coating, and final inspection.    │   │ │
+│  │  │                                                          │   │ │
+│  │  └──────────────────────────────────────────────────────────┘   │ │
+│  │                                                                  │ │
+│  │  ┌─ TIMELINE ──────────────────────────────────────────────┐   │ │
+│  │  │                                                          │   │ │
+│  │  │ Planned Start:  March 1, 2026                            │   │ │
+│  │  │ Planned End:    June 30, 2026                            │   │ │
+│  │  │ Duration:       4 months (122 days)                      │   │ │
+│  │  │                                                          │   │ │
+│  │  │ Actual Start:   March 1, 2026        ✓ On-time          │   │ │
+│  │  │ Expected End:   June 28, 2026        ✓ On-track         │   │ │
+│  │  │                                                          │   │ │
+│  │  │ Days Elapsed:   43 days (35% of duration)                │   │ │
+│  │  │ Days Remaining: 79 days                                  │   │ │
+│  │  │                                                          │   │ │
+│  │  │ Progress Bar:                                            │   │ │
+│  │  │ ███████████████████████████░░░░░░░░░░░  75%              │   │ │
+│  │  │ (Ahead of schedule: +40% vs time elapsed)                │   │ │
+│  │  │                                                          │   │ │
+│  │  └──────────────────────────────────────────────────────────┘   │ │
+│  │                                                                  │ │
+│  └──────────────────────────────────────────────────────────────────┘ │
+│                                                                      │
+│  ┌─ TEAM & STATUS (Right Column - 4 cols) ─────────────────────────┐ │
+│  │                                                                  │ │
+│  │  ┌─ PROJECT TEAM ──────────────────────────────────────────┐   │ │
+│  │  │                                                          │   │ │
+│  │  │ 👤 Project Manager                                       │   │ │
+│  │  │ [Avatar] John Doe                                        │   │ │
+│  │  │          📧 john@sira.com  📞 0909-111-222              │   │ │
+│  │  │                                                          │   │ │
+│  │  │ ─────────────────────────────────────────────────────── │   │ │
+│  │  │                                                          │   │ │
+│  │  │ Type: INTERNAL Project                                   │   │ │
+│  │  │ (No outsource partners)                                  │   │ │
+│  │  │                                                          │   │ │
+│  │  │ 👷 Staff Members (5)                                     │   │ │
+│  │  │ [Avatar] Mike Smith    - Foreman                         │   │ │
+│  │  │ [Avatar] Jane Lee      - Technician                      │   │ │
+│  │  │ [Avatar] Bob Chen      - Technician                      │   │ │
+│  │  │ [Avatar] Alice Wu      - Assistant                       │   │ │
+│  │  │ [Avatar] Tom Brown     - Assistant                       │   │ │
+│  │  │                                                          │   │ │
+│  │  │              [Manage Team] [Assign More Staff]           │   │ │
+│  │  │                                                          │   │ │
+│  │  └──────────────────────────────────────────────────────────┘   │ │
+│  │                                                                  │ │
+│  │  ┌─ STATUS OVERVIEW ───────────────────────────────────────┐   │ │
+│  │  │                                                          │   │ │
+│  │  │ Current Status:                                          │   │ │
+│  │  │ [⏳ IN_PROGRESS]                                         │   │ │
+│  │  │                                                          │   │ │
+│  │  │ Progress: ███████░░░░  75%                               │   │ │
+│  │  │                                                          │   │ │
+│  │  │ Health Score:  ████████░░  85/100                        │   │ │
+│  │  │ (Good health)                                            │   │ │
+│  │  │                                                          │   │ │
+│  │  │ ┌─ Key Indicators ──────────────────────────────────┐  │   │ │
+│  │  │ │                                                   │  │   │ │
+│  │  │ │ ✅ Timeline:   On-track (+2 days ahead)          │  │   │ │
+│  │  │ │ ✅ Budget:     On-budget (95% utilized)          │  │   │ │
+│  │  │ │ ✅ Quality:    High (98% approval rate)          │  │   │ │
+│  │  │ │ ⚠️  Safety:    1 minor incident (resolved)       │  │   │ │
+│  │  │ │                                                   │  │   │ │
+│  │  │ └───────────────────────────────────────────────────┘  │   │ │
+│  │  │                                                          │   │ │
+│  │  └──────────────────────────────────────────────────────────┘   │ │
+│  │                                                                  │ │
+│  │  ┌─ NEXT MILESTONE ─────────────────────────────────────────┐  │ │
+│  │  │                                                          │   │ │
+│  │  │ 🎯 Second Coat Application                               │   │ │
+│  │  │                                                          │   │ │
+│  │  │ Due Date:    April 15, 2026 (32 days from now)           │   │ │
+│  │  │ Progress:    ████░░░░░░  40%                             │   │ │
+│  │  │ On-track:    ✓ Yes                                       │   │ │
+│  │  │                                                          │   │ │
+│  │  │ [View All Milestones →]                                  │   │ │
+│  │  │                                                          │   │ │
+│  │  └──────────────────────────────────────────────────────────┘   │ │
+│  │                                                                  │ │
+│  │  ┌─ FINANCIAL SNAPSHOT ────────────────────────────────────┐   │ │
+│  │  │                                                          │   │ │
+│  │  │ Contract Value:   50,000,000 VND                         │   │ │
+│  │  │ Total Paid:       30,000,000 VND (60%)                   │   │ │
+│  │  │ Outstanding:      20,000,000 VND (40%)                   │   │ │
+│  │  │                                                          │   │ │
+│  │  │ Current Costs:    28,500,000 VND (95% of paid)           │   │ │
+│  │  │ Profit (YTD):      1,500,000 VND                         │   │ │
+│  │  │                                                          │   │ │
+│  │  │ [View Full Financials →]                                 │   │ │
+│  │  │                                                          │   │ │
+│  │  └──────────────────────────────────────────────────────────┘   │ │
+│  │                                                                  │ │
+│  └──────────────────────────────────────────────────────────────────┘ │
+│                                                                      │
+│  ┌─ QUICK ACTIONS ─────────────────────────────────────────────────┐ │
+│  │                                                                  │ │
+│  │  [📸 View Evidence]  [💰 Record Payment]  [📋 Update Progress]  │ │
+│  │  [🔗 Portal Link]    [📊 Generate Report] [📧 Email Customer]   │ │
+│  │                                                                  │ │
+│  └──────────────────────────────────────────────────────────────────┘ │
+│                                                                      │
+└──────────────────────────────────────────────────────────────────────┘
+
+For OUTSOURCE projects, Team section changes to:
+
+┌─ PROJECT TEAM (OUTSOURCE) ──────────────────┐
+│                                             │
+│ 👤 Project Manager (SIRA)                   │
+│ [Avatar] John Doe (Internal)                │
+│          📧 john@sira.com                   │
+│                                             │
+│ ─────────────────────────────────────────── │
+│                                             │
+│ Type: OUTSOURCE Project                     │
+│                                             │
+│ 🏢 Outsource Partner                        │
+│ Delta Construction Co., Ltd                 │
+│ 📧 contact@delta.com  📞 0909-222-333       │
+│                                             │
+│ 👷 Supervisor (Outsource)                   │
+│ [Avatar] Mr. Tran Van B                     │
+│          📧 tranvb@delta.com                │
+│                                             │
+│ 👨‍🏭 Outsource Leader                         │
+│ [Avatar] Mr. Nguyen Van C                   │
+│          📧 ngvc@delta.com                  │
+│                                             │
+│ 👥 Staff: 8 workers from Delta              │
+│                                             │
+│     [View Outsource Details →]              │
+│                                             │
+└─────────────────────────────────────────────┘

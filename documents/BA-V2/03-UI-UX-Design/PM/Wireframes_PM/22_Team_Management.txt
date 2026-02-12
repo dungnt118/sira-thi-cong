@@ -1,0 +1,120 @@
+┌──────────────────────────────────────────────────────────────────────┐
+│                         TEAM MANAGEMENT                              │
+│ [SIRA Logo]              [Search teams/members...] [🔔 3] [Avatar ▼]│
+├───────┬──────────────────────────────────────────────────────────────┤
+│       │                                                              │
+│ 🏠    │  Home > Teams                                               │
+│ Home  │                                                              │
+│       │  ┌─ FILTERS ─────────────────────────────────────────┐      │
+│ 📋    │  │                                                   │      │
+│ Proj  │  │ Role: [All ▼]  Department: [All ▼]  Avail: [All ▼]│     │
+│       │  │       ├─ PM          ├─ Technical    ├─ Available │      │
+│ 👥    │  │       ├─ Supervisor  ├─ Operations   └─ Assigned  │      │
+│ Teams │  │       ├─ Staff       └─ Admin                     │      │
+│   *   │  │       └─ All                                      │      │
+│       │  │                                                   │      │
+│ 👤    │  │ [Search name/email/phone 🔍]         [Clear]     │      │
+│ Cust  │  └───────────────────────────────────────────────────┘      │
+│       │                                                              │
+│ 💰    │  ┌─ TEAM MEMBERS TABLE ─────────────────────┐  [+ Add]     │
+│ Fin   │  │                                           │              │
+│       │  │ Name     │Role │Dept│Projects│Avail│Skills   │Status│Act││
+│ 📊    │  │ ─────────│─────│────│────────│─────│─────────│──────│──││
+│ Rpts  │  │ John Doe │PM   │Tech│   3    │ 40% │PU,Ep,Mgmt│[✓] │⋮ ││
+│       │  │ 📧📞     │     │    │Active  │     │         │      │  ││
+│ ⚙️     │  │          │     │    │        │     │         │      │  ││
+│ Set   │  │ Mike S.  │Supv │Ops │   5    │ 20% │PU,Insp  │[✓] │⋮ ││
+│       │  │ 📧📞     │     │    │Active  │     │         │      │  ││
+│       │  │          │     │    │        │     │         │      │  ││
+│       │  │ Jane Lee │Staff│Tech│   2    │ 60% │Coating  │[✓] │⋮ ││
+│       │  │ 📧📞     │     │    │Active  │     │         │      │  ││
+│       │  │          │     │    │        │     │         │      │  ││
+│       │  │ Bob Chen │Staff│Ops │   1    │ 80% │Membrane │[✓] │⋮ ││
+│       │  │ 📧📞     │     │    │Active  │     │         │      │  ││
+│       │  │          │     │    │        │     │         │      │  ││
+│       │  │ Alice Wu │PM   │Tech│   0    │100% │All types│[⏳]│⋮ ││
+│       │  │ 📧📞     │     │    │Bench   │     │         │      │  ││
+│       │  │          │     │    │        │     │         │      │  ││
+│       │  │ Showing 5 of 18 members   [◄][1][2][3][►]       │      │
+│       │  │                                                   │      │
+│       │  └───────────────────────────────────────────────────┘      │
+│       │                                                              │
+│       │  ┌─ TEAM STATS ───────────────────────────────────────┐     │
+│       │  │                                                    │     │
+│       │  │ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌────────┐│     │
+│       │  │ │👥 Total  │ │✓ Active  │ │💼 Assigned│ │📊 Avg  ││     │
+│       │  │ │Members   │ │Members   │ │to Projects│ │Capacity││     │
+│       │  │ │    18    │ │    15    │ │    12     │ │  45%   ││     │
+│       │  │ └──────────┘ └──────────┘ └──────────┘ └────────┘│     │
+│       │  │                                                    │     │
+│       │  └────────────────────────────────────────────────────┘     │
+│       │                                                              │
+│       │  ┌─ CAPACITY OVERVIEW ────────────────────────────────┐     │
+│       │  │                                                    │     │
+│       │  │ By Department:                                     │     │
+│       │  │                                                    │     │
+│       │  │ Technical (8 members)                              │     │
+│       │  │ Available: ██████░░░░  45%  (4 members available) │     │
+│       │  │                                                    │     │
+│       │  │ Operations (7 members)                             │     │
+│       │  │ Available: ████░░░░░░  35%  (2 members available) │     │
+│       │  │                                                    │     │
+│       │  │ Admin (3 members)                                  │     │
+│       │  │ Available: ████████░░  80%  (2 members available) │     │
+│       │  │                                                    │     │
+│       │  └────────────────────────────────────────────────────┘     │
+│       │                                                              │
+└───────┴──────────────────────────────────────────────────────────────┘
+
+Actions Dropdown (⋮):
+- View Profile
+- Edit Member
+- Assign to Project (opens modal)
+- View Project History
+- Manage Skills
+- Send Message
+- ---
+- Deactivate (if 0 active projects)
+
+Assign to Project Modal:
+┌─────────────────────────────────────┐
+│ Assign John Doe to Project         │
+├─────────────────────────────────────┤
+│ Project *                           │
+│ [Select project... ▼]               │
+│  ├─ PRJ-26-001 (ABC Corp)           │
+│  ├─ PRJ-26-012 (XYZ Ltd)            │
+│  └─ PRJ-26-018 (DEF Inc)            │
+│                                     │
+│ Role on Project *                   │
+│ ⚪ Project Manager                  │
+│ ⚫ Supervisor                        │
+│ ⚪ Staff                             │
+│                                     │
+│ Allocation (%)                      │
+│ [____] % (Current: 40%, Max: 100%)  │
+│                                     │
+│ Start Date *      End Date          │
+│ [2026-03-01 ▼]    [2026-06-30 ▼]   │
+│                                     │
+│ Notes                               │
+│ [_____________________________]     │
+│                                     │
+│       [Cancel]  [Assign Member]     │
+└─────────────────────────────────────┘
+
+Table Columns Details:
+- Name: Member name + contact icons (📧 email, 📞 phone)
+- Role: PM / Supervisor / Staff
+- Dept: Department abbreviation
+- Projects: Count + status (Active/Bench)
+- Avail: Availability percentage (100% = fully available)
+- Skills: Skill tags (abbreviated)
+- Status: ACTIVE / ON_LEAVE / INACTIVE badge
+- Actions: Dropdown menu
+
+Availability Legend:
+- 100% = Available (green)
+- 60-99% = Partially available (yellow)
+- 0-59% = Mostly assigned (orange)
+- 0% = Fully allocated (red)

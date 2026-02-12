@@ -1,0 +1,69 @@
+┌──────────────────────────────────────────────────────────────────────┐
+│                        CONTRACT MANAGEMENT                           │
+│ [SIRA Logo]              [Search contracts...]  [🔔 3] [Avatar ▼]   │
+├───────┬──────────────────────────────────────────────────────────────┤
+│       │                                                              │
+│ 🏠    │  Home > Customers > Contracts                               │
+│ Home  │                                                              │
+│       │  ┌─ FILTERS ─────────────────────────────────────────┐      │
+│ 📋    │  │                                                   │      │
+│ Proj  │  │ Customer: [All ▼]  Status: [All ▼]  Type: [All ▼]│      │
+│       │  │           ├─ All           ├─ ACTIVE              │      │
+│ 👥    │  │           ├─ ABC Corp      ├─ EXPIRED             │      │
+│ Teams │  │           └─ XYZ Ltd       └─ CANCELLED           │      │
+│       │  │                                                   │      │
+│ 👤    │  │ Start Date: [From ▼] [To ▼]   [Search 🔍] [Clear]│      │
+│ Cust  │  └───────────────────────────────────────────────────┘      │
+│   ▼   │                                                              │
+│ ├Cust │  ┌─ CONTRACTS TABLE ─────────────────────────┐  [+ Create] │
+│ ├Cont │  │                                            │             │
+│       │  │ Code     │Customer │ Value(VND)│Start │End│Status│Act│  │
+│ 💰    │  │ ──────── │──────── │─────────  │───── │───│──────│───│  │
+│ Fin   │  │ CT-26-01 │ABC Corp │50,000,000 │03/01 │06│[✓]   │⋮ │  │
+│       │  │ CT-26-02 │XYZ Ltd  │75,000,000 │03/15 │08│[✓]   │⋮ │  │
+│ 📊    │  │ CT-26-03 │DEF Inc  │30,000,000 │04/01 │07│[⏳]  │⋮ │  │
+│ Rpts  │  │ CT-26-04 │GHI Co   │100,000,000│02/01 │12│[✓]   │⋮ │  │
+│       │  │ CT-26-05 │JKL Ltd  │45,000,000 │05/01 │09│[⏳]  │⋮ │  │
+│ ⚙️     │  │ CT-26-06 │MNO Corp │60,000,000 │01/15 │06│[✓]   │⋮ │  │
+│ Set   │  │ CT-26-07 │PQR Inc  │80,000,000 │03/10 │10│[⏳]  │⋮ │  │
+│       │  │ CT-26-08 │STU Ltd  │55,000,000 │04/20 │08│[⏳]  │⋮ │  │
+│       │  │                                                    │      │
+│       │  │ Showing 8 of 24 contracts   [◄] [1][2][3] [►]    │      │
+│       │  │                                                    │      │
+│       │  └────────────────────────────────────────────────────┘      │
+│       │                                                              │
+│       │  ┌─ SUMMARY STATS ───────────────────────────────────┐      │
+│       │  │                                                    │      │
+│       │  │ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌────────┐│      │
+│       │  │ │📋 Total  │ │✓ Active  │ │⏳ Pending│ │💰 Value││      │
+│       │  │ │Contracts │ │          │ │          │ │        ││      │
+│       │  │ │    24    │ │    12    │ │    8     │ │1.2B VND││      │
+│       │  │ └──────────┘ └──────────┘ └──────────┘ └────────┘│      │
+│       │  │                                                    │      │
+│       │  └────────────────────────────────────────────────────┘      │
+│       │                                                              │
+└───────┴──────────────────────────────────────────────────────────────┘
+
+Actions Dropdown (⋮):
+- View Details
+- Edit Contract
+- Duplicate
+- Create Project from Contract
+- Download PDF
+- ---
+- Cancel Contract (if no active projects)
+
+Legend:
+- [✓] ACTIVE = Green
+- [⏳] PENDING = Orange (not yet started)
+- [✗] EXPIRED = Gray
+- [X] CANCELLED = Red
+
+Table Columns:
+- Code: Contract code (sortable, clickable)
+- Customer: Customer name (sortable, filterable)
+- Value: Total contract value in VND (sortable)
+- Start: Start date (sortable)
+- End: End date (sortable)
+- Status: Contract status badge (filterable)
+- Actions: Dropdown menu

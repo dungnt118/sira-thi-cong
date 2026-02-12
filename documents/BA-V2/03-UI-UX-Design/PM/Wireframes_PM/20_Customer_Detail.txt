@@ -1,0 +1,112 @@
+┌──────────────────────────────────────────────────────────────────────┐
+│                    CUSTOMER DETAIL - ABC Corp                        │
+├──────────────────────────────────────────────────────────────────────┤
+│                                                                      │
+│  [← Back to Customers]                                   [Edit Info] │
+│                                                                      │
+│  ┌─ CUSTOMER INFORMATION ──────────────────────────────────────────┐ │
+│  │                                                                  │ │
+│  │  🏢 ABC Corp                                      Status: [ACTIVE]│ │
+│  │  Type: Corporate                                                 │ │
+│  │                                                                  │ │
+│  │  📞 Contact Information                                          │ │
+│  │  Phone:  0909-123-456          Email: contact@abccorp.com       │ │
+│  │  Address: 123 Main Street, District 1, Ho Chi Minh City         │ │
+│  │                                                                  │ │
+│  │  👤 Primary Contact                                              │ │
+│  │  Name:  Mr. Nguyen Van A       Title: Project Manager           │ │
+│  │  Phone: 0912-345-678           Email: nguyenvana@abccorp.com    │ │
+│  │                                                                  │ │
+│  │  💼 Business Information                                         │ │
+│  │  Tax ID:      0123456789                                         │ │
+│  │  Industry:    Construction & Real Estate                         │ │
+│  │  Company Size: 100-500 employees                                 │ │
+│  │                                                                  │ │
+│  │  📅 Customer Since: March 15, 2024                               │ │
+│  │  Last Contact:     February 10, 2026                             │ │
+│  │                                                                  │ │
+│  └──────────────────────────────────────────────────────────────────┘ │
+│                                                                      │
+│  ┌─ STATISTICS ────────────────────────────────────────────────────┐ │
+│  │                                                                  │ │
+│  │  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌──────────┐ │ │
+│  │  │📋 Projects │  │💰 Total    │  │✓ Completed │  │⏳ Active  │ │ │
+│  │  │            │  │Value       │  │Projects    │  │Projects  │ │ │
+│  │  │     5      │  │250,000,000 │  │     3      │  │    2     │ │ │
+│  │  │            │  │VND         │  │            │  │          │ │ │
+│  │  └────────────┘  └────────────┘  └────────────┘  └──────────┘ │ │
+│  │                                                                  │ │
+│  └──────────────────────────────────────────────────────────────────┘ │
+│                                                                      │
+│  ┌─ TABS ──────────────────────────────────────────────────────────┐ │
+│  │                                                                  │ │
+│  │  [● Projects] [Contracts] [Transactions] [Communications] [Notes]│ │
+│  │                                                                  │ │
+│  │  ─── PROJECTS TAB ─────────────────────────────────────────────  │ │
+│  │                                                                  │ │
+│  │  Code       │ Project Name      │ Status      │ Value    │ PM  ││ │
+│  │  ────────── │ ──────────────── │ ─────────── │ ──────── │ ───││ │
+│  │  PRJ-26-001 │ Office Building   │ [✓] COMPLETE│ 50M VND  │ John││ │
+│  │             │ Waterproofing     │             │          │     ││ │
+│  │             │ Mar 2025 - Jun 25 │             │          │     ││ │
+│  │                                                                  │ │
+│  │  PRJ-26-012 │ Warehouse Coating │ [⏳] ACTIVE  │ 75M VND  │ Mike││ │
+│  │             │ Apr 2025 - Aug 25 │             │          │     ││ │
+│  │                                                                  │ │
+│  │  PRJ-26-018 │ Parking Lot Seal  │ [⏳] ACTIVE  │ 30M VND  │ Jane││ │
+│  │             │ Feb 2026 - May 26 │             │          │     ││ │
+│  │                                                                  │ │
+│  │  PRJ-25-055 │ Rooftop Membrane  │ [✓] COMPLETE│ 45M VND  │ John││ │
+│  │             │ Nov 2024 - Feb 25 │             │          │     ││ │
+│  │                                                                  │ │
+│  │  PRJ-25-023 │ Foundation Repair │ [✓] COMPLETE│ 50M VND  │ Mike││ │
+│  │             │ Aug 2024 - Nov 24 │             │          │     ││ │
+│  │                                                                  │ │
+│  │  [View All Projects]                                             │ │
+│  │                                                                  │ │
+│  └──────────────────────────────────────────────────────────────────┘ │
+│                                                                      │
+│  ┌─ RECENT ACTIVITY ───────────────────────────────────────────────┐ │
+│  │                                                                  │ │
+│  │  📅 Feb 10, 2026 - Payment received: 15,000,000 VND (PRJ-26-018)│ │
+│  │  📧 Feb 05, 2026 - Email sent: Monthly progress report          │ │
+│  │  ✅ Jan 28, 2026 - Project PRJ-26-012 milestone approved         │ │
+│  │  📋 Jan 15, 2026 - New contract CT-26-05 signed (45M VND)       │ │
+│  │  📞 Jan 10, 2026 - Phone call: Discussed new project scope      │ │
+│  │                                                                  │ │
+│  │  [View All Activity]                                             │ │
+│  │                                                                  │ │
+│  └──────────────────────────────────────────────────────────────────┘ │
+│                                                                      │
+│  ┌─ QUICK ACTIONS ────────────────────────────────────────────────┐ │
+│  │                                                                  │ │
+│  │  [📋 Create New Project]  [📄 Create New Contract]              │ │
+│  │  [📧 Send Email]           [🔗 Generate Portal Link]            │ │
+│  │  [💰 Record Payment]       [📊 View Full Report]                │ │
+│  │                                                                  │ │
+│  └──────────────────────────────────────────────────────────────────┘ │
+│                                                                      │
+└──────────────────────────────────────────────────────────────────────┘
+
+Contracts Tab Preview:
+- List of all contracts (active + completed)
+- Contract code, dates, value, status
+- Actions: View, Edit, Download PDF
+
+Transactions Tab Preview:
+- Payment history (deposits, advances, finals)
+- Invoice list
+- Total paid vs outstanding
+- Payment timeline chart
+
+Communications Tab Preview:
+- Email history
+- Phone call logs
+- Meeting notes
+- Portal access logs
+
+Notes Tab Preview:
+- Internal notes (PM only)
+- Customer preferences
+- Special requirements
+- Issue history

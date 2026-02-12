@@ -1,0 +1,194 @@
+┌──────────────────────────────────────────────────────────────────────┐
+│                       ACTIVITY LOG / AUDIT TRAIL                     │
+│ [SIRA Logo]              [Search activities...] [🔔 3] [Avatar ▼]   │
+├───────┬──────────────────────────────────────────────────────────────┤
+│       │                                                              │
+│ 🏠    │  Home > Activity Log                                        │
+│ Home  │                                                              │
+│       │  ┌─ FILTERS ─────────────────────────────────────────────┐  │
+│ 📋    │  │                                                        │  │
+│ Proj  │  │ Date Range: [Last 7 days ▼]                           │  │
+│       │  │             ├─ Today                                   │  │
+│ 👥    │  │             ├─ Last 7 days                             │  │
+│ Teams │  │             ├─ Last 30 days                            │  │
+│       │  │             ├─ Last 90 days                            │  │
+│ 👤    │  │             └─ Custom range...                         │  │
+│ Cust  │  │                                                        │  │
+│       │  │ Activity Type: [All ▼]     User: [All ▼]              │  │
+│ 💰    │  │ ├─ All                     [Search users...▼]          │  │
+│ Fin   │  │ ├─ Projects                                            │  │
+│       │  │ ├─ Evidence                                            │  │
+│ 📊    │  │ ├─ Payments                Entity: [All ▼]             │  │
+│ Rpts  │  │ ├─ Contracts               ├─ All                      │  │
+│       │  │ ├─ Customers               ├─ Projects                 │  │
+│ ⚙️     │  │ ├─ Team                    ├─ Customers                │  │
+│ Set   │  │ ├─ Settings                └─ Contracts                │  │
+│       │  │ └─ System                                              │  │
+│ 📜    │  │                                                        │  │
+│ Log   │  │ [Apply Filters]  [Clear]         [Export to CSV]      │  │
+│   *   │  │                                                        │  │
+│       │  └────────────────────────────────────────────────────────┘  │
+│       │                                                              │
+│       │  ┌─ ACTIVITY TIMELINE ───────────────────────────────────┐  │
+│       │  │                                                        │  │
+│       │  │ Today - February 12, 2026                              │  │
+│       │  │ ─────────────────────────────                          │  │
+│       │  │                                                        │  │
+│       │  │ 14:35  [Avatar] John Doe                               │  │
+│       │  │        📋 Created project PRJ-2026-032                 │  │
+│       │  │        Customer: XYZ Ltd  |  Value: 45M VND            │  │
+│       │  │        [View Project]                                  │  │
+│       │  │                                                        │  │
+│       │  │ 13:20  [Avatar] John Doe                               │  │
+│       │  │        ✅ Approved 15 evidence images                  │  │
+│       │  │        Project: PRJ-2026-001                           │  │
+│       │  │        Uploaded by: Mike Smith (Supervisor)            │  │
+│       │  │        [View Evidence]                                 │  │
+│       │  │                                                        │  │
+│       │  │ 11:45  [Avatar] System                                 │  │
+│       │  │        💰 Payment received: 15,000,000 VND             │  │
+│       │  │        Contract: CT-2026-01  |  Milestone: ADVANCE     │  │
+│       │  │        Method: Bank Transfer                           │  │
+│       │  │        [View Payment]                                  │  │
+│       │  │                                                        │  │
+│       │  │ 10:20  [Avatar] John Doe                               │  │
+│       │  │        📊 Updated project status                       │  │
+│       │  │        PRJ-2026-018: SCHEDULED → IN_PROGRESS           │  │
+│       │  │        Progress: 0% → 5%                               │  │
+│       │  │        [View Project]                                  │  │
+│       │  │                                                        │  │
+│       │  │ 09:15  [Avatar] John Doe                               │  │
+│       │  │        👤 Added customer: DEF Corp                     │  │
+│       │  │        Type: Corporate  |  Industry: Manufacturing     │  │
+│       │  │        [View Customer]                                 │  │
+│       │  │                                                        │  │
+│       │  │ Yesterday - February 11, 2026                          │  │
+│       │  │ ───────────────────────────────                        │  │
+│       │  │                                                        │  │
+│       │  │ 16:40  [Avatar] Admin                                  │  │
+│       │  │        👥 Assigned John Doe to project PRJ-2026-025    │  │
+│       │  │        Role: Project Manager                           │  │
+│       │  │        [View Project]                                  │  │
+│       │  │                                                        │  │
+│       │  │ 15:30  [Avatar] John Doe                               │  │
+│       │  │        📄 Created contract CT-2026-03                  │  │
+│       │  │        Customer: GHI Ltd  |  Value: 80M VND            │  │
+│       │  │        Term: 6 months                                  │  │
+│       │  │        [View Contract]                                 │  │
+│       │  │                                                        │  │
+│       │  │ 14:15  [Avatar] John Doe                               │  │
+│       │  │        🔗 Generated portal link                        │  │
+│       │  │        Project: PRJ-2026-001  |  Valid: 30 days        │  │
+│       │  │        Access: View-only                               │  │
+│       │  │        [Copy Link]                                     │  │
+│       │  │                                                        │  │
+│       │  │ 11:00  [Avatar] Mike Smith                             │  │
+│       │  │        📸 Uploaded 25 evidence images                  │  │
+│       │  │        Project: PRJ-2026-001                           │  │
+│       │  │        Status: Pending Approval                        │  │
+│       │  │        [Review Evidence]                               │  │
+│       │  │                                                        │  │
+│       │  │ 09:30  [Avatar] System                                 │  │
+│       │  │        📧 Project summary email sent                   │  │
+│       │  │        Recipients: john@sira.com, admin@sira.com       │  │
+│       │  │        Projects: 5 active, 2 pending approval          │  │
+│       │  │                                                        │  │
+│       │  │ February 10, 2026                                      │  │
+│       │  │ ────────────────                                       │  │
+│       │  │                                                        │  │
+│       │  │ 17:20  [Avatar] John Doe                               │  │
+│       │  │        ❌ Rejected 3 evidence images                   │  │
+│       │  │        Project: PRJ-2026-018                           │  │
+│       │  │        Reason: Poor image quality, re-upload required  │  │
+│       │  │        [View Evidence]                                 │  │
+│       │  │                                                        │  │
+│       │  │ 15:45  [Avatar] John Doe                               │  │
+│       │  │        💼 Updated material planning                    │  │
+│       │  │        Project: PRJ-2026-001                           │  │
+│       │  │        Added 5 material items, total: 12M VND          │  │
+│       │  │        [View Materials]                                │  │
+│       │  │                                                        │  │
+│       │  │ 13:30  [Avatar] John Doe                               │  │
+│       │  │        ⚙️ Changed settings                              │  │
+│       │  │        Updated notification preferences                │  │
+│       │  │        Enabled 2FA                                     │  │
+│       │  │                                                        │  │
+│       │  │ 10:00  [Avatar] System                                 │  │
+│       │  │        ⚠️ Budget variance alert                        │  │
+│       │  │        Project: PRJ-2026-025                           │  │
+│       │  │        Variance: +12% over planned budget              │  │
+│       │  │        [View Project Financials]                       │  │
+│       │  │                                                        │  │
+│       │  │ [Load More Activities]                                 │  │
+│       │  │                                                        │  │
+│       │  └────────────────────────────────────────────────────────┘  │
+│       │                                                              │
+└───────┴──────────────────────────────────────────────────────────────┘
+
+ACTIVITY DETAIL (when clicked):
+
+┌──────────────────────────────────────────────────────────────┐
+│                    ACTIVITY DETAIL                           │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│ Activity Type:   Created Project                             │
+│ Timestamp:       February 12, 2026 14:35:22                  │
+│ User:            John Doe (john@sira.com)                    │
+│ IP Address:      103.1.2.3                                   │
+│ Device:          Windows PC, Chrome 120                      │
+│                                                              │
+│ ┌─ ACTIVITY DETAILS ────────────────────────────────────┐   │
+│ │                                                        │   │
+│ │ Entity:      Project                                   │   │
+│ │ Entity ID:   PRJ-2026-032                              │   │
+│ │ Action:      CREATE                                    │   │
+│ │                                                        │   │
+│ │ Data Created:                                          │   │
+│ │ {                                                      │   │
+│ │   "code": "PRJ-2026-032",                              │   │
+│ │   "name": "Warehouse Roof Waterproofing",              │   │
+│ │   "customer": "XYZ Ltd",                               │   │
+│ │   "value": 45000000,                                   │   │
+│ │   "type": "INTERNAL",                                  │   │
+│ │   "status": "DRAFT",                                   │   │
+│ │   "pm": "John Doe"                                     │   │
+│ │ }                                                      │   │
+│ │                                                        │   │
+│ └────────────────────────────────────────────────────────┘   │
+│                                                              │
+│ ┌─ RELATED ACTIVITIES ──────────────────────────────────┐   │
+│ │                                                        │   │
+│ │ 14:36 - Assigned team members (3)                      │   │
+│ │ 14:37 - Created material planning                      │   │
+│ │ 14:40 - Created labor planning                         │   │
+│ │                                                        │   │
+│ └────────────────────────────────────────────────────────┘   │
+│                                                              │
+│              [Close]  [View Project]  [Export Log]           │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+
+Activity Icons:
+- 📋 Project actions (create, update, delete)
+- 📸 Evidence actions (upload, approve, reject)
+- 💰 Payment actions (record, void, refund)
+- 📄 Contract actions (create, update, sign)
+- 👤 Customer actions (add, update, delete)
+- 👥 Team actions (assign, remove, update)
+- 🔗 Portal actions (generate link, revoke)
+- 📊 Report actions (generate, download)
+- ⚙️ Settings changes
+- 📧 Email/notification sent
+- ⚠️ System alerts
+- ✅ Approval actions
+- ❌ Rejection actions
+
+Export Options:
+- CSV (all fields)
+- PDF (formatted report)
+- Excel (with filters)
+
+Filter Combinations:
+- By user + date range
+- By entity type + action type
+- By project + activity type

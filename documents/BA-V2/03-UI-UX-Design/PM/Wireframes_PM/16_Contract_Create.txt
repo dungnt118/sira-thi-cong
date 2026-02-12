@@ -1,0 +1,101 @@
+┌──────────────────────────────────────────────────────────────────────┐
+│                      CREATE / EDIT CONTRACT                          │
+├──────────────────────────────────────────────────────────────────────┤
+│                                                                      │
+│  Home > Customers > Contracts > Create New                          │
+│                                                                      │
+│  ┌─ CONTRACT INFORMATION ──────────────────────────────────────────┐ │
+│  │                                                                  │ │
+│  │  Contract Code *              Contract Name *                   │ │
+│  │  [CT-2026-_____ ⓘ]            [_________________________]       │ │
+│  │  (Auto-generated if blank)                                      │ │
+│  │                                                                  │ │
+│  │  Customer *                   Contract Type *                   │ │
+│  │  [Select customer... ▼]       ⚪ CONSTRUCTION ⚫ MAINTENANCE     │ │
+│  │   ├─ ABC Corp                 ⚪ WATERPROOFING ⚪ OTHER          │ │
+│  │   ├─ XYZ Ltd                                                    │ │
+│  │   └─ DEF Inc                                                    │ │
+│  │          [+ Add New Customer]                                   │ │
+│  │                                                                  │ │
+│  │  Total Value (VND) *          Payment Terms *                   │ │
+│  │  [________________]           [Select terms... ▼]               │ │
+│  │  (e.g., 50,000,000)            ├─ 30% Deposit, 70% on completion│ │
+│  │                                ├─ Monthly installments          │ │
+│  │                                └─ Custom                        │ │
+│  │                                                                  │ │
+│  │  Start Date *                 End Date *                        │ │
+│  │  [📅 2026-03-01 ▼]            [📅 2026-06-30 ▼]                │ │
+│  │                                                                  │ │
+│  │  Duration: 4 months (auto-calculated)                           │ │
+│  │                                                                  │ │
+│  └──────────────────────────────────────────────────────────────────┘ │
+│                                                                      │
+│  ┌─ SCOPE OF WORK ────────────────────────────────────────────────┐ │
+│  │                                                                  │ │
+│  │  Description *                                                   │ │
+│  │  ┌────────────────────────────────────────────────────────────┐ │ │
+│  │  │ Waterproofing for residential building at 123 Main St.    │ │ │
+│  │  │ - 500 sqm total area                                       │ │ │
+│  │  │ - PU coating application                                   │ │ │
+│  │  │ - 3-year warranty                                          │ │ │
+│  │  │                                                            │ │ │
+│  │  │ (Rich text editor with formatting)                         │ │ │
+│  │  └────────────────────────────────────────────────────────────┘ │ │
+│  │                                                                  │ │
+│  │  Deliverables                                                    │ │
+│  │  [+ Add Deliverable]                                            │ │
+│  │  ┌────────────────────────────────────────────────────────────┐ │ │
+│  │  │ 1. ✓ Site preparation completed        Due: 2026-03-15    │ │ │
+│  │  │ 2. ⏳ Surface coating applied            Due: 2026-04-30    │ │ │
+│  │  │ 3. ⏳ Final inspection & handover        Due: 2026-06-30    │ │ │
+│  │  │                                                 [Edit] [×]  │ │ │
+│  │  └────────────────────────────────────────────────────────────┘ │ │
+│  │                                                                  │ │
+│  └──────────────────────────────────────────────────────────────────┘ │
+│                                                                      │
+│  ┌─ PAYMENT MILESTONES ───────────────────────────────────────────┐ │
+│  │                                                      [+ Add]     │ │
+│  │  Type      │ %   │ Amount (VND) │ Due Date   │ Description     │ │
+│  │  ──────────│─────│──────────────│────────────│─────────────    │ │
+│  │  💵 DEPOSIT│ 30% │ 15,000,000   │ 2026-03-01 │ Contract signed │ │
+│  │  💰 ADVANCE│ 40% │ 20,000,000   │ 2026-04-15 │ 50% work done   │ │
+│  │  🎯 FINAL  │ 30% │ 15,000,000   │ 2026-06-30 │ Project complete│ │
+│  │  ───────────────────────────────────────────────────────────── │ │
+│  │  TOTAL           100%    50,000,000                             │ │
+│  │                                                                  │ │
+│  └──────────────────────────────────────────────────────────────────┘ │
+│                                                                      │
+│  ┌─ ATTACHMENTS ──────────────────────────────────────────────────┐ │
+│  │                                                                  │ │
+│  │  [📎 Upload Files] (Contract PDF, Technical Specs, etc.)        │ │
+│  │                                                                  │ │
+│  │  📄 Contract_ABC_Corp_signed.pdf          2.3 MB    [×]         │ │
+│  │  📄 Technical_Specifications.docx         1.8 MB    [×]         │ │
+│  │                                                                  │ │
+│  └──────────────────────────────────────────────────────────────────┘ │
+│                                                                      │
+│  ┌─ ADDITIONAL SETTINGS ──────────────────────────────────────────┐ │
+│  │                                                                  │ │
+│  │  ☑ Auto-create project from this contract                      │ │
+│  │  ☑ Send notification to customer on contract activation        │ │
+│  │  ☐ Require approval before activation                          │ │
+│  │                                                                  │ │
+│  │  Notes (Internal only)                                          │ │
+│  │  [________________________________________________]              │ │
+│  │                                                                  │ │
+│  └──────────────────────────────────────────────────────────────────┘ │
+│                                                                      │
+│                                                                      │
+│                   [Cancel]  [Save as Draft]  [Save & Activate]      │
+│                                                                      │
+└──────────────────────────────────────────────────────────────────────┘
+
+Validation Rules:
+- Total contract value must match sum of payment milestones
+- End date must be >= Start date
+- At least 1 deliverable required
+- Payment milestone percentages must sum to 100%
+
+States:
+- Save as Draft → status = DRAFT (editable)
+- Save & Activate → status = ACTIVE (can create projects)

@@ -1,0 +1,162 @@
+┌──────────────────────────────────────────────────────────────────────┐
+│                      REPORTS & ANALYTICS                             │
+│ [SIRA Logo]              [Search...]           [🔔 3] [Avatar ▼]    │
+├───────┬──────────────────────────────────────────────────────────────┤
+│       │                                                              │
+│ 🏠    │  Home > Reports                                             │
+│ Home  │                                                              │
+│       │  ┌─ REPORT CATEGORIES ──────────────────────────────────┐   │
+│ 📋    │  │                                                       │   │
+│ Proj  │  │ [● Project Reports] [Financial Reports] [Team Reports] │ │
+│       │  │ [Customer Reports] [Performance Reports]              │   │
+│ 👥    │  │                                                       │   │
+│ Teams │  └───────────────────────────────────────────────────────┘   │
+│       │                                                              │
+│ 👤    │  ┌─ QUICK REPORTS ───────────────────────────────────────┐  │
+│ Cust  │  │                                                        │  │
+│       │  │  ┌────────────────┐  ┌────────────────┐  ┌──────────┐│  │
+│ 💰    │  │  │📊 Project      │  │💰 Financial    │  │👥 Team   ││  │
+│ Fin   │  │  │Summary         │  │Overview        │  │Performance│  │
+│       │  │  │                │  │                │  │          ││  │
+│ 📊    │  │  │All projects    │  │Revenue & costs │  │Capacity  ││  │
+│ Rpts  │  │  │by status       │  │by month        │  │& workload││  │
+│   *   │  │  │                │  │                │  │          ││  │
+│       │  │  │[Generate]      │  │[Generate]      │  │[Generate]││  │
+│ ⚙️     │  │  └────────────────┘  └────────────────┘  └──────────┘│  │
+│ Set   │  │                                                        │  │
+│       │  │  ┌────────────────┐  ┌────────────────┐  ┌──────────┐│  │
+│       │  │  │👤 Customer     │  │📈 Material     │  │⏱️ Labor   ││  │
+│       │  │  │Analysis        │  │Usage           │  │Cost      ││  │
+│       │  │  │                │  │                │  │          ││  │
+│       │  │  │Top customers   │  │Material planned│  │Planned vs││  │
+│       │  │  │by value        │  │vs actual       │  │actual    ││  │
+│       │  │  │                │  │                │  │          ││  │
+│       │  │  │[Generate]      │  │[Generate]      │  │[Generate]││  │
+│       │  │  └────────────────┘  └────────────────┘  └──────────┘│  │
+│       │  │                                                        │  │
+│       │  └────────────────────────────────────────────────────────┘  │
+│       │                                                              │
+│       │  ┌─ CUSTOM REPORT BUILDER ───────────────────────────────┐  │
+│       │  │                                                        │  │
+│       │  │  Report Type *                                         │  │
+│       │  │  [Select type... ▼]                                   │  │
+│       │  │   ├─ Project Status Report                            │  │
+│       │  │   ├─ Financial P&L Report                             │  │
+│       │  │   ├─ Customer Summary Report                          │  │
+│       │  │   ├─ Material Usage Report                            │  │
+│       │  │   ├─ Labor Cost Report                                │  │
+│       │  │   └─ Custom (Advanced)                                │  │
+│       │  │                                                        │  │
+│       │  │  Date Range *                                          │  │
+│       │  │  From: [📅 2026-01-01 ▼]   To: [📅 2026-02-12 ▼]     │  │
+│       │  │                                                        │  │
+│       │  │  Filters (Optional)                                    │  │
+│       │  │  Projects:  [All ▼]        Customers: [All ▼]         │  │
+│       │  │  PM:        [All ▼]        Status:    [All ▼]         │  │
+│       │  │                                                        │  │
+│       │  │  Group By:  [None ▼]       Sort By:   [Date DESC ▼]   │  │
+│       │  │             ├─ Customer                ├─ Value        │  │
+│       │  │             ├─ PM                      ├─ Status       │  │
+│       │  │             ├─ Status                  └─ Date         │  │
+│       │  │             └─ Month                                   │  │
+│       │  │                                                        │  │
+│       │  │  Output Format:  ⚫ PDF  ⚪ Excel  ⚪ CSV              │  │
+│       │  │                                                        │  │
+│       │  │              [Clear]  [Generate Report] [Save Template]│  │
+│       │  │                                                        │  │
+│       │  └────────────────────────────────────────────────────────┘  │
+│       │                                                              │
+│       │  ┌─ RECENT REPORTS ──────────────────────────────────────┐  │
+│       │  │                                                        │  │
+│       │  │ Report Name      │ Type      │ Date      │ Creator│Act││
+│       │  │ ─────────────────│───────────│───────────│────────│──││
+│       │  │ Jan 2026 Summary │ Project   │ 2026-02-01│ John   │⋮ ││
+│       │  │ Q4 2025 Financial│ Financial │ 2026-01-15│ Admin  │⋮ ││
+│       │  │ Customer Analysis│ Customer  │ 2026-01-10│ Mike   │⋮ ││
+│       │  │ Material Usage   │ Material  │ 2026-01-05│ Jane   │⋮ ││
+│       │  │                                                        │  │
+│       │  │ [View All Reports]                                     │  │
+│       │  │                                                        │  │
+│       │  └────────────────────────────────────────────────────────┘  │
+│       │                                                              │
+└───────┴──────────────────────────────────────────────────────────────┘
+
+SAMPLE REPORT OUTPUT (Project Summary Report):
+
+┌──────────────────────────────────────────────────────────────────────┐
+│                    PROJECT SUMMARY REPORT                            │
+│                 Period: January 1 - February 12, 2026                │
+├──────────────────────────────────────────────────────────────────────┤
+│                                                                      │
+│ ┌─ EXECUTIVE SUMMARY ─────────────────────────────────────────────┐ │
+│ │                                                                  │ │
+│ │ Total Projects: 32          Active: 18         Completed: 12    │ │
+│ │ Total Value:    1.8B VND    Revenue: 1.2B VND  Profit: 240M VND │ │
+│ │                                                                  │ │
+│ │ On-Time Delivery: 85%       Budget Compliance: 92%              │ │
+│ │ Customer Satisfaction: 4.5/5.0 (Based on 24 reviews)            │ │
+│ │                                                                  │ │
+│ └──────────────────────────────────────────────────────────────────┘ │
+│                                                                      │
+│ ┌─ PROJECTS BY STATUS ────────────────────────────────────────────┐ │
+│ │                                                                  │ │
+│ │ Status        │ Count │ % of Total │ Value (VND) │ Avg Value   ││
+│ │ ──────────────│───────│────────────│─────────────│─────────────││
+│ │ DRAFT         │   2   │   6.3%     │  95,000,000 │ 47,500,000  ││
+│ │ SCHEDULED     │   4   │  12.5%     │ 180,000,000 │ 45,000,000  ││
+│ │ IN_PROGRESS   │  12   │  37.5%     │ 720,000,000 │ 60,000,000  ││
+│ │ PENDING_APPR  │   2   │   6.3%     │ 105,000,000 │ 52,500,000  ││
+│ │ COMPLETED     │  12   │  37.5%     │ 700,000,000 │ 58,333,333  ││
+│ │ ──────────────│───────│────────────│─────────────│─────────────││
+│ │ TOTAL         │  32   │  100%      │1,800,000,000│ 56,250,000  ││
+│ │                                                                  │ │
+│ └──────────────────────────────────────────────────────────────────┘ │
+│                                                                      │
+│ ┌─ TOP 5 PROJECTS BY VALUE ───────────────────────────────────────┐ │
+│ │                                                                  │ │
+│ │ Code       │ Customer  │ Value       │ Status      │ PM         ││
+│ │ ───────────│───────────│─────────────│─────────────│────────────││
+│ │ PRJ-26-025 │ GHI Co    │ 100,000,000 │ COMPLETED   │ John Doe   ││
+│ │ PRJ-26-012 │ XYZ Ltd   │  75,000,000 │ IN_PROGRESS │ Mike Smith ││
+│ │ PRJ-26-055 │ ABC Corp  │  50,000,000 │ COMPLETED   │ John Doe   ││
+│ │ PRJ-26-033 │ DEF Inc   │  48,000,000 │ IN_PROGRESS │ Jane Lee   ││
+│ │ PRJ-26-042 │ JKL Ltd   │  45,000,000 │ SCHEDULED   │ Bob Chen   ││
+│ │                                                                  │ │
+│ └──────────────────────────────────────────────────────────────────┘ │
+│                                                                      │
+│ ┌─ REVENUE & COSTS BREAKDOWN ─────────────────────────────────────┐ │
+│ │                                                                  │ │
+│ │ Category          │ Amount (VND) │ % of Revenue │ Trend         ││
+│ │ ──────────────────│──────────────│──────────────│───────────────││
+│ │ Total Revenue     │1,200,000,000 │    100%      │ +15% vs prev ││
+│ │ Material Costs    │  480,000,000 │     40%      │ +8% vs prev  ││
+│ │ Labor Costs       │  360,000,000 │     30%      │ +5% vs prev  ││
+│ │ Overhead          │  120,000,000 │     10%      │ +3% vs prev  ││
+│ │ ──────────────────│──────────────│──────────────│───────────────││
+│ │ Net Profit        │  240,000,000 │     20%      │ +12% vs prev ││
+│ │                                                                  │ │
+│ └──────────────────────────────────────────────────────────────────┘ │
+│                                                                      │
+│ ┌─ CHARTS ────────────────────────────────────────────────────────┐ │
+│ │                                                                  │ │
+│ │ [Project Status Pie Chart]        [Revenue Timeline Chart]      │ │
+│ │ [Team Capacity Bar Chart]         [P&L Comparison Chart]        │ │
+│ │                                                                  │ │
+│ └──────────────────────────────────────────────────────────────────┘ │
+│                                                                      │
+│                         [Download PDF] [Export Excel] [Email]       │
+│                                                                      │
+└──────────────────────────────────────────────────────────────────────┘
+
+Report Actions (⋮):
+- View Report
+- Download (PDF/Excel/CSV)
+- Email Report
+- Duplicate & Edit
+- Schedule Recurring
+- Delete
+
+Scheduled Reports:
+- PM can schedule reports to auto-generate weekly/monthly
+- Email to stakeholders automatically
+- Saved in Reports Library
