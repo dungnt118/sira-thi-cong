@@ -1,0 +1,59 @@
+┌──────────────────────────────────────────────────────────────────────┐
+│                      CREATE PROJECT (Internal Scenario)              │
+├──────────────────────────────────────────────────────────────────────┤
+│                                                                      │
+│  Home > Projects > Create New Project                               │
+│                                                                      │
+│  ┌─ PROJECT DETAILS ──────────────────────────────────────────────┐ │
+│  │                                                                 │ │
+│  │  Project Code *               Project Name *                   │ │
+│  │  [PRJ-2026-______ ⓘ]          [________________________]       │ │
+│  │  (Auto-generated if blank)                                     │ │
+│  │                                                                 │ │
+│  │  Customer *                   Contract *                       │ │
+│  │  [Select customer... ▼]       [Select contract... ▼]          │ │
+│  │   ├─ ABC Corp                  (Filtered by customer)          │ │
+│  │   ├─ XYZ Ltd                                                   │ │
+│  │   └─ DEF Inc                                                   │ │
+│  │                                                                 │ │
+│  │  Project Type *                                                │ │
+│  │  ⚪ INTERNAL  ⚫ OUTSOURCE                                      │ │
+│  │                                                                 │ │
+│  │  ───────────────────────────────────────────────────────────  │ │
+│  │                                                                 │ │
+│  │  Address *                    GPS Coordinates                  │ │
+│  │  [________________________]   Lat: [________] Lng: [________]  │ │
+│  │                               [📍 Pick from Map]               │ │
+│  │                                                                 │ │
+│  │  Waterproofing Type *         Project Manager *                │ │
+│  │  [Select type... ▼]           [Nguyễn Văn A (me) ▼]           │ │
+│  │   ├─ PU coating                                                │ │
+│  │   ├─ Epoxy                                                     │ │
+│  │   └─ Waterproof membrane                                       │ │
+│  │                                                                 │ │
+│  │  Planned Start Date *         Planned End Date *               │ │
+│  │  [📅 2026-03-01 ▼]            [📅 2026-06-30 ▼]               │ │
+│  │                                                                 │ │
+│  └─────────────────────────────────────────────────────────────────┘ │
+│                                                                      │
+│  ┌─ INTERNAL TEAM (will be assigned after creation) ─────────────┐ │
+│  │                                                                 │ │
+│  │  Supervisor                   Staff                            │ │
+│  │  [To be assigned]             [To be assigned]                 │ │
+│  │                                                                 │ │
+│  └─────────────────────────────────────────────────────────────────┘ │
+│                                                                      │
+│                                                                      │
+│                    [Cancel]  [Save as Draft]  [Save & Schedule]     │
+│                                                                      │
+└──────────────────────────────────────────────────────────────────────┘
+
+Validation Rules:
+- Fields with * are required
+- Project code: Auto if blank, else format PRJ-YYYY-XXX
+- Dates: End date must be >= Start date
+- GPS: Optional, but helpful for map features
+
+States:
+- Save as Draft → status = DRAFT (can edit later)
+- Save & Schedule → status = SCHEDULED (ready for execution)
