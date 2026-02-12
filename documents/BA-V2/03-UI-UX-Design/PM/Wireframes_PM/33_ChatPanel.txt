@@ -1,0 +1,242 @@
+┌──────────────────────────────────────────────────────────────────────┐
+│                         CHI TIẾT DỰ ÁN                               │
+│ [SIRA Logo]              [Tìm kiếm...]         [🔔 3] [Avatar ▼]    │
+├───────┬──────────────────────────────────────────────────────────────┤
+│       │                                                              │
+│ 🏠    │  Trang chủ > Dự án > PRJ-2026-001                           │
+│       │                                                              │
+│ 📋    │  PRJ-2026-001 - Chống thấm nhà ABC         [✏️ Sửa] [•••]  │
+│ Dự án │  ───────────────────────────────────────────────────────────  │
+│       │                                                              │
+│ 📝    │  TABS: [Tổng quan] [Hợp đồng] [Tiến độ] [Nhân sự] [Vật tư] │
+│ Hợp   │        [Tài chính] [Ảnh/Video] [💬 Trò chuyện] [Lịch sử]   │
+│ đồng  │  ═══════════════════════════════════════════════════════════  │
+│       │                                                              │
+│ 👥    │  ┌─ TRÒ CHUYỆN DỰ ÁN ─────────────────────┬─ THÀNH VIÊN ──┐│
+│ Khách │  │                                         │                ││
+│ hàng  │  │  📅 Hôm nay, 10/03/2026                │ 👤 John Doe   ││
+│       │  │                                         │    (PM - Bạn) ││
+│ 🏢    │  │  ┌──────────────────────────────────┐  │                ││
+│ Công  │  │  │ John Doe (PM)      09:15  [...]  │  │ 👤 Mike Smith ││
+│ ty    │  │  │ Đã gửi bản vẽ cập nhật, mọi     │  │    (Foreman)   ││
+│ Out   │  │  │ người xem và feedback nhé!       │  │    🟢 Online  ││
+│ source│  │  │                                  │  │                ││
+│       │  │  │ 📎 Ban_ve_cap_nhat_v3.2.dwg     │  │ 👤 Jane Lee   ││
+│ 💰    │  │  │    (2.5 MB)              [Tải]  │  │    (Tech)      ││
+│ Tài   │  │  │                                  │  │    🟡 Away    ││
+│ chính │  │  └──────────────────────────────────┘  │                ││
+│       │  │                                         │ 👤 Bob Chen   ││
+│ 📊    │  │  ┌──────────────────────────────────┐  │    (Worker)    ││
+│ Báo   │  │  │         Mike Smith (Foreman)     │  │    ⚫ Offline  ││
+│ cáo   │  │  │                     09:20  [...] │  │                ││
+│       │  │  │ OK anh, em check rồi. Có 2 chỗ  │  │ [+ Mời thêm]  ││
+│ ⚙️    │  │  │ cần sửa lại:                     │  │                ││
+│ Cài   │  │  │ 1. Lỗ thoát nước nhỏ hơn        │  │ ─── PIN ────  ││
+│ đặt   │  │  │ 2. Thêm lớp cách nhiệt           │  │                ││
+│       │  │  │                                  │  │ 📌 Ban_ve_... ││
+└───────┤  │  └──────────────────────────────────┘  │    v3.2.dwg   ││
+        │  │                                         │    (10/03)    ││
+        │  │  ┌──────────────────────────────────┐  │                ││
+        │  │  │ John Doe (PM)      09:25  [...]  │  │ 📌 Checklist  ││
+        │  │  │ Cảm ơn Mike! Đã note lại và sẽ  │  │    An toàn    ││
+        │  │  │ liên hệ KTS sửa                  │  │    (05/03)    ││
+        │  │  │                                  │  │                ││
+        │  │  │ @Mike Smith vui lòng cập nhật   │  │ 📌 Biên bản   ││
+        │  │  │ tiến độ vào hệ thống nhé         │  │    nghiệm thu ││
+        │  │  └──────────────────────────────────┘  │    (01/03)    ││
+        │  │                                         │                ││
+        │  │  ┌──────────────────────────────────┐  └────────────────┘│
+        │  │  │         Mike Smith (Foreman)     │                    │
+        │  │  │                     09:27  [...] │  ┌─ TỆP ĐÍNH KÈM ┐│
+        │  │  │ Dạ, em update ngay bây giờ ạ ✓  │  │ (15 files)     ││
+        │  │  └──────────────────────────────────┘  │                ││
+        │  │                                         │ 📄 CAD/DWG (3) ││
+        │  │  ──────────── 1 tin nhắn chưa đọc ──── │ 📊 Excel (2)   ││
+        │  │                                         │ 📷 Ảnh (8)     ││
+        │  │  ┌──────────────────────────────────┐  │ 📹 Video (2)   ││
+        │  │  │          Jane Lee (Tech)         │  │                ││
+        │  │  │                     14:30  [...] │  │ [Xem tất cả]  ││
+        │  │  │ Anh ơi, vật tư sơn PU đã        │  └────────────────┘│
+        │  │  │ đến công trường chưa ạ?          │                    │
+        │  │  │ Em cần dùng ngày mai             │  ┌─ LIÊN KẾT ────┐│
+        │  │  │ 🟡 CHƯA ĐỌC                      │  │                ││
+        │  │  └──────────────────────────────────┘  │ 🔗 Task #245   ││
+        │  │                                         │    Sơn lớp PU  ││
+        │  │                                         │                ││
+        │  │  ──────────── Hôm qua, 09/03/2026 ──── │ 🔗 Checklist   ││
+        │  │                                         │    #12         ││
+        │  │  ┌──────────────────────────────────┐  │    An toàn LĐ  ││
+        │  │  │ SYSTEM           16:00           │  │                ││
+        │  │  │ 🤖 Cột mốc "Hoàn thành móng"    │  │ [Tạo task mới]││
+        │  │  │    đã được đánh dấu hoàn thành   │  └────────────────┘│
+        │  │  └──────────────────────────────────┘                    │
+        │  │                                                          │
+        │  │  [Nhìn thêm tin nhắn cũ hơn...]                          │
+        │  │                                                          │
+        │  │  ───────────────────────────────────────────────────────  │
+        │  │  ┌─ SOẠN TIN NHẮN ───────────────────────────────────────┐│
+        │  │  │                                                       ││
+        │  │  │  [_____________________________________________]      ││
+        │  │  │  Aa  Nhập tin nhắn...                                ││
+        │  │  │                                                       ││
+        │  │  │  [📎 Đính kèm]  [@Mention]  [😊 Emoji]  [📸 Ảnh]    ││
+        │  │  │                                         [🎙️ Ghi âm]  ││
+        │  │  │                                                       ││
+        │  │  │                               [Gửi 📤]               ││
+        │  │  └───────────────────────────────────────────────────────┘│
+        │  └──────────────────────────────────────────────────────────┘│
+        │                                                              │
+        └──────────────────────────────────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════════
+                          MODAL: ĐÍNH KÈM TỆP
+═══════════════════════════════════════════════════════════════════════
+
+┌──────────────────────────────────────────────────────────────────┐
+│  ĐÍNH KÈM TỆP VÀO TIN NHẮN                                 [×]  │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌────────────────────────────────────────────────────────────┐ │
+│  │ Kéo thả tệp vào đây hoặc click để chọn                    │ │
+│  │                                                            │ │
+│  │                  📁 CHỌN TỆP TỪ MÁY                       │ │
+│  │                                                            │ │
+│  └────────────────────────────────────────────────────────────┘ │
+│                                                                  │
+│  HOẶC chọn từ thư viện ảnh dự án:                               │
+│                                                                  │
+│  ┌────────────────────────────────────────────────────────────┐ │
+│  │ THƯ VIỆN ẢNH DỰ ÁN                      [🔍 Tìm...]       │ │
+│  │                                                            │ │
+│  │  [📷]  [📷]  [📷]  [📷]  [📷]  [📷]  [📷]  [📷]           │ │
+│  │  IMG_  IMG_  IMG_  IMG_  IMG_  IMG_  IMG_  IMG_           │ │
+│  │  001   002   003   004   005   006   007   008           │ │
+│  │  ☑     ☑     ☐     ☐     ☑     ☐     ☐     ☐            │ │
+│  │                                                            │ │
+│  │                    [Tải thêm ảnh...]                       │ │
+│  └────────────────────────────────────────────────────────────┘ │
+│                                                                  │
+│  ĐÃ CHỌN (3 files):                                             │
+│  ┌────────────────────────────────────────────────────────────┐ │
+│  │ 📄 Ban_ve_v3.2.dwg          2.5 MB               [×]       │ │
+│  │ 📷 IMG_001.jpg              1.2 MB               [×]       │ │
+│  │ 📷 IMG_002.jpg              1.5 MB               [×]       │ │
+│  └────────────────────────────────────────────────────────────┘ │
+│                                                                  │
+│  Ghi chú (Tùy chọn):                                            │
+│  [____________________________________________________________]  │
+│                                                                  │
+│  ☑ Tự động thêm vào thư viện ảnh dự án                          │
+│  ☑ Gửi thông báo cho tất cả thành viên                          │
+│                                                                  │
+│                         [Hủy]  [Đính kèm và gửi]                │
+│                                                                  │
+└──────────────────────────────────────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════════
+                       CONTEXT MENU (Right-click)
+═══════════════════════════════════════════════════════════════════════
+
+Khi click vào [...] hoặc right-click vào tin nhắn:
+
+┌──────────────────────────────────┐
+│  📌 Ghim tin nhắn               │
+│  🔗 Tạo task từ tin nhắn này    │
+│  ↩️ Trả lời                     │
+│  ⏭️ Chuyển tiếp                │
+│  📋 Sao chép                    │
+│  ─────────────────────────────   │
+│  ✏️ Chỉnh sửa (nếu của mình)   │
+│  🗑️ Xóa (nếu của mình)         │
+│  ─────────────────────────────   │
+│  🔍 Tìm tin nhắn liên quan      │
+│  ℹ️ Thông tin chi tiết          │
+└──────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════════
+                        SEARCH / FILTER MESSAGES
+═══════════════════════════════════════════════════════════════════════
+
+[Trong tab Trò chuyện, có search bar ở trên]
+
+┌──────────────────────────────────────────────────────────────────┐
+│  [🔍 Tìm trong chat...___________________________] [⚙️ Lọc]     │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  Lọc theo:                                                       │
+│  ☑ Tin nhắn văn bản                                             │
+│  ☑ Ảnh/Video                                                     │
+│  ☑ Tệp đính kèm                                                 │
+│  ☑ Links                                                         │
+│                                                                  │
+│  Từ người:                                                       │
+│  [Tất cả ▼]                                                      │
+│   ├─ John Doe (PM)                                              │
+│   ├─ Mike Smith (Foreman)                                       │
+│   ├─ Jane Lee (Tech)                                            │
+│   └─ SYSTEM                                                      │
+│                                                                  │
+│  Thời gian:                                                      │
+│  [Tuần này ▼]                                                    │
+│   ├─ Hôm nay                                                     │
+│   ├─ Tuần này                                                    │
+│   ├─ Tháng này                                                   │
+│   └─ Tùy chỉnh...                                               │
+│                                                                  │
+│  Chỉ tin nhắn được ghim: ☐                                      │
+│                                                                  │
+│                       [Đặt lại]  [Áp dụng]                      │
+└──────────────────────────────────────────────────────────────────┘
+
+
+NOTES:
+------
+1. ChatPanel Features:
+   - Real-time messaging (WebSocket hoặc long polling)
+   - File attachment với drag-and-drop
+   - Auto-save to project gallery
+   - @Mention để tag người
+   - Pin important messages
+   - Create task from message
+   - Search và filter messages
+   - Emoji support
+   - Voice recording (optional)
+
+2. Integration với Features khác:
+   - Ảnh uploaded → Auto vào Evidence Gallery
+   - @Mention → Send notification
+   - Create task → Link to Task Management
+   - Pin → Quick access sidebar
+
+3. File Types Support:
+   - Images (JPG, PNG, GIF)
+   - Videos (MP4, MOV)
+   - Documents (PDF, DOC, DOCX)
+   - CAD files (DWG, DXF)
+   - Spreadsheets (XLS, XLSX)
+   - Max file size: 10MB per file
+
+4. Responsive:
+   - Desktop: 3-column layout (Chat | Members | Attachments)
+   - Mobile: Stack vertically, swipe between sections
+
+5. Notifications:
+   - Desktop push notification
+   - Email digest (configurable)
+   - Mobile app push (nếu có)
+   - Badge count trên tab
+
+6. Privacy:
+   - Chỉ thành viên dự án mới thấy
+   - Admin PM có thể mute/remove người
+   - Message có thể edit trong 5 phút
+   - Delete chỉ hide, không xóa hẳn (audit trail)
+
+7. System Messages:
+   - Milestone completed
+   - Staff joined/left
+   - Document uploaded
+   - Status changed

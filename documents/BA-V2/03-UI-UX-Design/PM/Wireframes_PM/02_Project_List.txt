@@ -29,27 +29,33 @@
 │ Set   │  │                                              │            │
 │       │  │ View: [⊞ Card] [≡ List] [📅 Timeline]       │            │
 │       │  │                                              │            │
-│       │  │ Code    │Customer│Status  │Type│PM  │Progress│Actions│   │
-│       │  │ ────────│────────│────────│────│────│────────│───────│   │
-│       │  │ PRJ-26- │ABC Corp│[⏳]    │INT │John│ ██████░│  ⋮    │   │
-│       │  │ 001     │        │ACTIVE  │    │    │ 75%    │       │   │
-│       │  │         │50M VND │        │    │    │        │       │   │
-│       │  │         │                                              │   │
-│       │  │ PRJ-26- │XYZ Ltd │[👁]    │OUT │Mike│ ██████ │  ⋮    │   │
-│       │  │ 012     │        │PENDING │    │    │ 100%   │       │   │
-│       │  │         │75M VND │APPROVAL│    │    │        │       │   │
-│       │  │         │                                              │   │
-│       │  │ PRJ-26- │DEF Inc │[⏳]    │INT │Jane│ ████░░░│  ⋮    │   │
-│       │  │ 018     │        │ACTIVE  │    │    │ 50%    │       │   │
-│       │  │         │30M VND │        │    │    │        │       │   │
-│       │  │         │                                              │   │
-│       │  │ PRJ-26- │GHI Co  │[✓]     │OUT │John│ ██████ │  ⋮    │   │
-│       │  │ 025     │        │COMPLETE│    │    │ 100%   │       │   │
-│       │  │         │100M VND│        │    │    │        │       │   │
-│       │  │         │                                              │   │
-│       │  │ PRJ-26- │JKL Ltd │[📝]    │INT │Bob │ ░░░░░░░│  ⋮    │   │
-│       │  │ 030     │        │DRAFT   │    │    │ 0%     │       │   │
-│       │  │         │45M VND │        │    │    │        │       │   │
+│       │  │ Mã      │Khách hàng│Trạng thái│Loại│Khu vực  │PM  │Tiến độ│   │   │
+  │ ────────│──────────│──────────│────│─────────│────│───────│   │   │
+  │ PRJ-26- │ABC Corp  │[⏳]      │NB  │Quận 1   │John│██████░│📋│⋮ │   │
+  │ 001     │ HD-026-  │ĐANG LÀM  │    │TP HCM   │    │75%    │   │  │   │
+  │         │ 001      │⏰ QUÁ HẠN│    │         │    │       │   │  │   │
+  │         │          │-3 ngày   │    │         │    │       │   │  │   │
+  │         │                                                       │   │
+  │ PRJ-26- │XYZ Ltd   │[👁]      │TN  │Bình     │Mike│██████ │📋│⋮ │   │
+  │ 012     │ HD-026-  │CHỜ DUYỆT │    │Thạnh    │    │100%   │   │  │   │
+  │         │ 005      │          │    │TP HCM   │    │       │   │  │   │
+  │         │                                                       │   │
+  │ PRJ-26- │DEF Inc   │[⏳]      │NB  │Quận 7   │Jane│████░░░│📋│⋮ │   │
+  │ 018     │ HD-026-  │ĐANG LÀM  │    │TP HCM   │    │50%    │   │  │   │
+  │         │ 010      │✓ ĐÚNG HẠN│    │         │    │       │   │  │   │
+  │         │                                                       │   │
+  │ PRJ-26- │GHI Co    │[✓]       │TN  │Củ Chi   │John│██████ │📋│⋮ │   │
+  │ 025     │ HD-026-  │HOÀN      │    │TP HCM   │    │100%   │   │  │   │
+  │         │ 015      │THÀNH     │    │         │    │       │   │  │   │
+  │         │                                                       │   │
+  │ PRJ-26- │JKL Ltd   │[📝]      │NB  │Quận 3   │Bob │░░░░░░░│📋│⋮ │   │
+  │ 030     │ HD-026-  │NHÁP      │    │TP HCM   │    │0%     │   │  │   │
+  │         │ 020      │          │    │         │    │       │   │  │   │
+  │         │                                                       │   │
+  │ PRJ-26- │MNO Co    │[⏳]      │TN  │Thủ Đức  │Jane│█████░░│📋│⋮ │   │
+  │ 035     │ HD-026-  │ĐANG LÀM  │    │TP HCM   │    │65%    │   │  │   │
+  │         │ 022      │📅 GIA HẠN│    │         │    │       │   │  │   │
+  │         │          │+7 ngày   │    │         │    │       │   │  │   │
 │       │  │                                                          │
 │       │  │ Showing 5 of 32 projects   [◄] [1][2][3][4] [►]        │
 │       │  │                                                          │
@@ -129,13 +135,19 @@ Bulk Actions (when items selected):
 - Archive Selected
 
 Status Badge Colors:
-- [📝] DRAFT = Gray
-- [📅] SCHEDULED = Blue
-- [⏳] IN_PROGRESS / ACTIVE = Orange
-- [👁] PENDING_APPROVAL = Purple
-- [✓] COMPLETED = Green
-- [🔒] CLOSED = Black
-- [✗] CANCELLED = Red
+- [📝] NHÁP (DRAFT) = Gray
+- [📅] ĐÃ LÊN LỊCH (SCHEDULED) = Blue
+- [⏳] ĐANG LÀM (IN_PROGRESS) = Orange
+- [👁] CHỜ DUYỆT (PENDING_APPROVAL) = Purple
+- [✓] HOÀN THÀNH (COMPLETED) = Green
+- [🔒] ĐÓNG (CLOSED) = Black
+- [✗] HỦY (CANCELLED) = Red
+
+Status Warnings (shown under status):
+- ⏰ QUÁ HẠN -X ngày = Red (overdue by X days)
+- 📅 GIA HẠN +X ngày = Yellow (extended +X days)
+- ✓ ĐÚNG HẠN = Green (on schedule)
+- ⚠️ SẮP TỚI HẠN = Orange (due within 3 days)
 
 Table Sortable Columns:
 - Code (default sort: DESC)
