@@ -1,0 +1,98 @@
+import React from 'react';
+import { Menu } from 'antd';
+import type { MenuProps } from 'antd';
+import { useNavigate, useLocation } from 'react-router-dom';
+import {
+    DashboardOutlined,
+    ProjectOutlined,
+    UploadOutlined,
+    ShoppingOutlined,
+    TeamOutlined,
+    DollarOutlined,
+} from '@ant-design/icons';
+import { LABELS } from '@utils/constants';
+import { BaseLayout } from '../shared/BaseLayout';
+
+type MenuItem = Required<MenuProps>['items'][number];
+
+const menuItems: MenuItem[] = [
+    {
+        key: '/partner/dashboard',
+        icon: <DashboardOutlined />,
+        label: LABELS.PARTNER.DASHBOARD,
+    },
+    {
+        key: '/partner/my-projects',
+        icon: <ProjectOutlined />,
+        label: LABELS.PARTNER.MY_PROJECTS,
+    },
+    {
+        key: '/partner/upload-evidence',
+        icon: <UploadOutlined />,
+        label: LABELS.PARTNER.UPLOAD_EVIDENCE,
+    },
+    {
+        key: '/partner/materials',
+        icon: <ShoppingOutlined />,
+        label: LABELS.PARTNER.MATERIALS,
+    },
+    {
+        key: '/partner/labor',
+        icon: <TeamOutlined />,
+        label: LABELS.PARTNER.LABOR,
+    },
+    {
+        key: '/partner/payments',
+        icon: <DollarOutlined />,
+        label: LABELS.PARTNER.PAYMENTS,
+    },
+];
+
+const PartnerSidebar: React.FC = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    const handleMenuClick: MenuProps['onClick'] = (e) => {
+        navigate(e.key);
+    };
+
+    return (
+        <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <div
+                style={{
+                    height: 64,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#fff',
+                    fontSize: 18,
+                    fontWeight: 'bold',
+                }}
+            >
+                SIRA Partner
+            </div>
+            <Menu
+                theme="dark"
+                mode="inline"
+                selectedKeys={[location.pathname]}
+                items={menuItems}
+                onClick={handleMenuClick}
+            />
+        </div>
+    );
+};
+
+const PartnerTopBar: React.FC = () => {
+    return (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '0 24px' }}>
+            <div>{/* Breadcrumbs */}</div>
+            <div style={{ display: 'flex', gap: 16 }}>
+                {/* Search, Notifications, Profile */}
+            </div>
+        </div>
+    );
+};
+
+export const PartnerLayout: React.FC = () => {
+    return <BaseLayout sidebar={<PartnerSidebar />} topBar={<PartnerTopBar />} />;
+};

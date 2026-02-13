@@ -1,0 +1,14 @@
+.base-layout-sidebar {
+    background: #001529;
+}
+
+.base-layout-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+}
+
+.base-layout-content {
+    min-height: 280px;
+}
