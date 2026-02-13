@@ -372,7 +372,7 @@ erDiagram
 
 ### 4.1 OUTSOURCE_COMPANY
 
-**Mục đích**: Quản lý công ty outsource
+**Mục đích**: Quản lý Cộng tác viên
 
 **Unique Constraints**:
 - `(tenant_id, tax_code)` unique

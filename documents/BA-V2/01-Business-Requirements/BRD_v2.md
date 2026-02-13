@@ -196,7 +196,7 @@ PM khảo sát → Liên hệ outsource → Assign Supervisor (nội bộ)
 - ❌ Upload evidence
 
 #### 6.1.5 Outsource Leader (Đại diện đội outsource)
-**Mô tả**: Đại diện công ty outsource, báo cáo tiến độ
+**Mô tả**: Đại diện Cộng tác viên, báo cáo tiến độ
 
 **Quyền**:
 - ✅ Xem dự án được assign

@@ -100,15 +100,15 @@ interface MapPickerProps {
 
 const MapPicker: React.FC<MapPickerProps> = ({ lat, lng, onChange }) => {
     const mapRef = useRef<HTMLDivElement>(null);
-    const googleMapRef = useRef<google.maps.Map | null>(null);
-    const markerRef = useRef<google.maps.Marker | null>(null);
+    const googleMapRef = useRef<any>(null);
+    const markerRef = useRef<any>(null);
     const [isLoaded, setIsLoaded] = useState(false);
 
     const defaultCenter = { lat: lat || 10.7769, lng: lng || 106.7009 };
 
     useEffect(() => {
         // Check if Google Maps is already loaded
-        if (window.google?.maps) {
+        if ((window as any).google?.maps) {
             setIsLoaded(true);
             return;
         }
@@ -124,7 +124,7 @@ const MapPicker: React.FC<MapPickerProps> = ({ lat, lng, onChange }) => {
             document.head.appendChild(script);
         } else {
             const checkLoaded = setInterval(() => {
-                if (window.google?.maps) {
+                if ((window as any).google?.maps) {
                     setIsLoaded(true);
                     clearInterval(checkLoaded);
                 }
@@ -135,8 +135,10 @@ const MapPicker: React.FC<MapPickerProps> = ({ lat, lng, onChange }) => {
 
     useEffect(() => {
         if (!isLoaded || !mapRef.current) return;
+        const gMaps = (window as any).google?.maps;
+        if (!gMaps) return;
 
-        const map = new google.maps.Map(mapRef.current, {
+        const map = new gMaps.Map(mapRef.current, {
             center: defaultCenter,
             zoom: 15,
             mapTypeControl: false,
@@ -145,16 +147,16 @@ const MapPicker: React.FC<MapPickerProps> = ({ lat, lng, onChange }) => {
         });
         googleMapRef.current = map;
 
-        const marker = new google.maps.Marker({
+        const marker = new gMaps.Marker({
             position: defaultCenter,
             map,
             draggable: true,
-            animation: google.maps.Animation.DROP,
+            animation: gMaps.Animation?.DROP,
         });
         markerRef.current = marker;
 
         // Click on map to move marker
-        map.addListener('click', (e: google.maps.MapMouseEvent) => {
+        map.addListener('click', (e: any) => {
             if (e.latLng) {
                 marker.setPosition(e.latLng);
                 onChange(e.latLng.lat(), e.latLng.lng());
@@ -170,7 +172,7 @@ const MapPicker: React.FC<MapPickerProps> = ({ lat, lng, onChange }) => {
     }, [isLoaded]);
 
     // Fallback without API key
-    if (!isLoaded || !window.google?.maps) {
+    if (!isLoaded || !(window as any).google?.maps) {
         return (
             <div
                 style={{
@@ -429,7 +431,7 @@ const Teams: React.FC = () => {
                 <Card size="small"><Statistic title="Sẵn sàng" value={internalTeam.filter((m) => m.status === 'available').length} valueStyle={{ color: '#52c41a' }} /></Card>
             </Col>
             <Col xs={12} sm={6}>
-                <Card size="small"><Statistic title="Công ty Outsource" value={outsourceCompanies.length} /></Card>
+                <Card size="small"><Statistic title="Cộng tác viên" value={outsourceCompanies.length} /></Card>
             </Col>
             <Col xs={12} sm={6}>
                 <Card size="small"><Statistic title="Outsource hoạt động" value={outsourceCompanies.filter((c) => c.status === 'active').length} valueStyle={{ color: '#1890ff' }} /></Card>
@@ -468,12 +470,12 @@ const Teams: React.FC = () => {
                         },
                         {
                             key: 'outsource',
-                            label: 'Công ty Outsource',
+                            label: 'Cộng tác viên',
                             children: (
                                 <>
                                     <Row justify="end" style={{ marginBottom: 16 }}>
                                         <Button type="primary" icon={<PlusOutlined />} onClick={() => openCompanyModal()}>
-                                            Thêm Công ty Outsource
+                                            Thêm Cộng tác viên
                                         </Button>
                                     </Row>
                                     <Table
@@ -492,7 +494,7 @@ const Teams: React.FC = () => {
 
             {/* ═══ Outsource Company Modal ═══ */}
             <Modal
-                title={editingCompany ? 'Chỉnh Sửa Công Ty Outsource' : 'Thêm Công Ty Outsource'}
+                title={editingCompany ? 'Chỉnh Sửa Cộng tác viên' : 'Thêm Cộng tác viên'}
                 open={companyModalOpen}
                 onCancel={() => setCompanyModalOpen(false)}
                 onOk={handleSaveCompany}

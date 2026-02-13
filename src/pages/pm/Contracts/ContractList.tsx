@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import {
     Card, Table, Tag, Button, Row, Col, Statistic, Input, Select, Space,
-    Dropdown, Popconfirm, message, DatePicker, Grid, Badge,
+    Dropdown, Grid, Badge,
 } from 'antd';
 import type { MenuProps } from 'antd';
 import {
-    PlusOutlined, SearchOutlined, FilterOutlined, EyeOutlined,
+    PlusOutlined, EyeOutlined,
     EditOutlined, DeleteOutlined, MoreOutlined, ProjectOutlined,
     FileTextOutlined, DollarOutlined, ClockCircleOutlined,
     ExportOutlined,
@@ -14,7 +14,6 @@ import { useNavigate } from 'react-router-dom';
 
 const { Search } = Input;
 const { Option } = Select;
-const { RangePicker } = DatePicker;
 const { useBreakpoint } = Grid;
 
 // ─── Types ─────────────────────────────────────────────────────────

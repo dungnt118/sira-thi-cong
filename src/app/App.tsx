@@ -15,7 +15,12 @@ import PMDashboard from '../pages/pm/Dashboard';
 import ProjectList from '../pages/pm/Projects/ProjectList';
 import ProjectDetail from '../pages/pm/Projects/ProjectDetail';
 import ProjectCreate from '../pages/pm/Projects/ProjectCreate';
+import ContractList from '../pages/pm/Contracts/ContractList';
+import ContractCreate from '../pages/pm/Contracts/ContractCreate';
+import ContractDetail from '../pages/pm/Contracts/ContractDetail';
+import MaintenanceDetail from '../pages/pm/Contracts/MaintenanceDetail';
 import Teams from '../pages/pm/Teams';
+import CollaboratorDetail from '../pages/pm/Teams/CollaboratorDetail';
 import Customers from '../pages/pm/Customers';
 import Financials from '../pages/pm/Financials';
 import PMReports from '../pages/pm/Reports';
@@ -66,11 +71,15 @@ function App() {
                         <Route index element={<Navigate to="/pm/dashboard" replace />} />
                         <Route path="dashboard" element={<PMDashboard />} />
                         <Route path="projects/all" element={<ProjectList />} />
-
                         <Route path="projects/create" element={<ProjectCreate />} />
                         <Route path="projects/:projectId" element={<ProjectDetail />} />
+                        <Route path="contracts/all" element={<ContractList />} />
+                        <Route path="contracts/create" element={<ContractCreate />} />
+                        <Route path="contracts/:contractId" element={<ContractDetail />} />
+                        <Route path="contracts/:contractId/maintenance/:maintenanceId" element={<MaintenanceDetail />} />
                         <Route path="teams/internal" element={<Teams />} />
                         <Route path="teams/outsource" element={<Teams />} />
+                        <Route path="teams/outsource/:id" element={<CollaboratorDetail />} />
                         <Route path="customers" element={<Customers />} />
                         <Route path="financials/milestones" element={<Financials />} />
                         <Route path="financials/transactions" element={<Financials />} />

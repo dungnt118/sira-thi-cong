@@ -172,7 +172,7 @@ export const LABELS = {
         PROGRESS: 'Tiến Độ',
         STATUS: 'Trạng Thái',
         QUALITY_SCORE: 'Điểm Chất Lượng',
-        OUTSOURCE_COMPANY: 'Công Ty Outsource',
+        OUTSOURCE_COMPANY: 'Cộng tác viên',
         OUTSOURCE_LEADER: 'Trưởng Nhóm Outsource',
         SUPERVISOR: 'Giám Sát Viên',
         PM: 'Quản Lý Dự Án',

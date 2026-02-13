@@ -439,7 +439,7 @@ const UserManagement: React.FC = () => {
                     <Form.Item noStyle shouldUpdate={(prev, curr) => prev.role !== curr.role}>
                         {({ getFieldValue }) =>
                             getFieldValue('role') === 'Outsource Leader' ? (
-                                <Form.Item name="outsourceCompanyId" label="Công ty Outsource" rules={[{ required: true, message: 'Vui lòng chọn công ty' }]}>
+                                <Form.Item name="outsourceCompanyId" label="Cộng tác viên" rules={[{ required: true, message: 'Vui lòng chọn công ty' }]}>
                                     <Select placeholder="Chọn công ty">
                                         <Option value="company-a">Công ty TNHH Xây dựng A</Option>
                                         <Option value="company-b">Công ty TNHH Xây dựng B</Option>

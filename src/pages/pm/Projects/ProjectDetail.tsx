@@ -1,33 +1,77 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
-    Card, Row, Col, Descriptions, Tag, Tabs, Table, Progress, Statistic, Button, Space, Timeline, Badge,
+    Card, Row, Col, Descriptions, Tag, Tabs, Table, Progress, Statistic,
+    Button, Space, Timeline, Badge, Typography, Divider, Segmented, Empty,
+    Upload, Image, Steps, Modal, Input, message,
 } from 'antd';
 import {
     ArrowLeftOutlined, EditOutlined, TeamOutlined,
-    EnvironmentOutlined, PhoneOutlined, UserOutlined,
-    EyeOutlined, CalendarOutlined,
+    EnvironmentOutlined, CalendarOutlined, FileTextOutlined,
+    EyeOutlined, ToolOutlined,
+    FolderOpenOutlined, PictureOutlined, VideoCameraOutlined,
+    FileOutlined, UnorderedListOutlined, AppstoreAddOutlined,
+    UploadOutlined, DeleteOutlined, LinkOutlined,
+    LockOutlined, CloseCircleOutlined, CheckCircleOutlined,
+    ExclamationCircleOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 
-/* ====== MOCK DATA ====== */
-const projectDetail = {
-    code: 'DU-2026-001', name: 'Chống thấm Chung cư Sunrise',
-    type: 'Outsource', status: 'Đang thi công', progress: 72, qualityScore: 82,
-    customer: { name: 'Công ty ABC', contact: 'Nguyễn Thanh Hùng', phone: '0901-234-567', email: 'hungnguyen@abc.com' },
-    address: '123 Nguyễn Hữu Thọ, Quận 7, HCM',
-    startDate: '2026-01-15', endDate: '2026-03-15',
-    budget: 120000000, spent: 78000000,
-    pm: 'Nguyễn Văn A', supervisor: 'Trần Thị B',
-    outsourceCompany: 'NTC Construction', outsourceLeader: 'Lê Văn Leader',
-    description: 'Dự án chống thấm toàn bộ khu vực tầng hầm và mái nhà Chung cư Sunrise City. Bao gồm xử lý vết nứt, thi công chống thấm polyurethane, và kiểm tra áp lực nước.',
+const { Text, Title } = Typography;
+const { TextArea } = Input;
+
+/* ====== STATUS CONFIG ====== */
+type ProjectStatus = 'draft' | 'in_progress' | 'completed' | 'cancelled';
+
+const PROJECT_STATUSES: { key: ProjectStatus; label: string }[] = [
+    { key: 'draft', label: 'Bản nháp' },
+    { key: 'in_progress', label: 'Đang thi công' },
+    { key: 'completed', label: 'Hoàn thành' },
+];
+
+const statusTagMap: Record<ProjectStatus, { color: string; label: string }> = {
+    draft: { color: 'default', label: 'Bản nháp' },
+    in_progress: { color: 'processing', label: 'Đang thi công' },
+    completed: { color: 'success', label: 'Hoàn thành' },
+    cancelled: { color: 'error', label: 'Đã hủy' },
 };
 
-const milestones = [
-    { key: '1', name: 'Đặt cọc', type: 'deposit', percentage: 10, amount: 12000000, status: 'Đã thanh toán', paidDate: '2026-01-10' },
-    { key: '2', name: 'Tạm ứng 1', type: 'advance', percentage: 30, amount: 36000000, status: 'Đã thanh toán', paidDate: '2026-01-25' },
-    { key: '3', name: 'Tạm ứng 2', type: 'advance', percentage: 30, amount: 36000000, status: 'Chờ thanh toán', paidDate: '' },
-    { key: '4', name: 'Nghiệm thu', type: 'acceptance', percentage: 25, amount: 30000000, status: 'Chưa đến hạn', paidDate: '' },
-    { key: '5', name: 'Thanh lý', type: 'final', percentage: 5, amount: 6000000, status: 'Chưa đến hạn', paidDate: '' },
+const getStepCurrent = (status: ProjectStatus) => {
+    if (status === 'draft') return 0;
+    if (status === 'in_progress') return 1;
+    if (status === 'completed') return 2;
+    return -1; // cancelled
+};
+
+/* ====== MOCK DATA ====== */
+const projectDetailData = {
+    code: 'DU-2026-001', name: 'Chống thấm Chung cư Sunrise',
+    status: 'draft' as ProjectStatus,
+    progress: 72, qualityScore: 82,
+    contract: {
+        id: 'c1', code: 'HD-2025-001', name: 'Hợp đồng sửa chữa tầng 5',
+        customerName: 'Chung cư Sunrise City', value: 1200000000,
+        startDate: '01/03/2025', endDate: '30/06/2025',
+    },
+    address: '123 Nguyễn Hữu Thọ, Quận 7, TP. Hồ Chí Minh',
+    startDate: '2026-01-15', endDate: '2026-03-15',
+    budget: 120000000, spent: 78000000,
+    constructionSource: 'collaborator' as string,
+    collaboratorName: 'Cty TNHH Xây dựng Phú Thành',
+    supervisor: 'Trần Thị B',
+    description: 'Dự án chống thấm toàn bộ khu vực tầng hầm và mái nhà Chung cư Sunrise City.',
+};
+
+const teamMembers = [
+    { key: '1', name: 'Trần Minh Hoàng', phone: '0912345001', skill: 'Xây dựng', role: 'Tổ trưởng' },
+    { key: '2', name: 'Nguyễn Đức Phong', phone: '0912345002', skill: 'Chống thấm', role: 'Thợ chính' },
+    { key: '3', name: 'Lý Thanh Sơn', phone: '0912345003', skill: 'Ốp lát', role: 'Thợ phụ' },
+];
+
+const materialsList = [
+    { key: '1', name: 'Xi măng PCB40', unit: 'Bao', quantity: 50, unitPrice: 120000 },
+    { key: '2', name: 'Sơn chống thấm', unit: 'Thùng', quantity: 10, unitPrice: 850000 },
+    { key: '3', name: 'Keo chống thấm PU', unit: 'Lít', quantity: 30, unitPrice: 350000 },
+    { key: '4', name: 'Lưới chống nứt', unit: 'Cuộn', quantity: 5, unitPrice: 280000 },
 ];
 
 const evidenceItems = [
@@ -43,121 +87,312 @@ const qualityIssues = [
 
 const activityLog = [
     { time: '2026-02-13 08:30', action: 'Giám sát Trần Thị B tải lên 5 tư liệu mới', type: 'evidence' },
-    { time: '2026-02-12 16:00', action: 'Outsource Leader cập nhật tiến độ: 72%', type: 'progress' },
-    { time: '2026-02-10 10:00', action: 'Phê duyệt thanh toán Tạm ứng 1: 36 triệu', type: 'payment' },
+    { time: '2026-02-12 16:00', action: 'CTV cập nhật tiến độ: 72%', type: 'progress' },
+    { time: '2026-02-10 10:00', action: 'Cập nhật chi phí vật tư: +2.8 triệu', type: 'payment' },
     { time: '2026-02-08 14:00', action: 'Báo cáo vấn đề chất lượng: Vết nứt bề mặt A3', type: 'quality' },
     { time: '2026-02-05 09:00', action: 'Phân công Giám sát viên Trần Thị B', type: 'team' },
 ];
+
+const mockDocuments = [
+    { key: '1', name: 'Bản vẽ mặt bằng tầng 5.pdf', type: 'document', size: '2.4 MB', date: '01/03/2025', category: 'Bản vẽ' },
+    { key: '2', name: 'Hiện trạng sảnh chính.jpg', type: 'image', size: '1.8 MB', date: '02/03/2025', category: 'Khảo sát' },
+    { key: '3', name: 'Video khảo sát thực tế.mp4', type: 'video', size: '45 MB', date: '02/03/2025', category: 'Khảo sát' },
+    { key: '4', name: 'Hợp đồng ký scan.pdf', type: 'document', size: '3.1 MB', date: '28/02/2025', category: 'Hợp đồng' },
+    { key: '5', name: 'Ảnh vết nứt tường B2.jpg', type: 'image', size: '2.1 MB', date: '03/03/2025', category: 'Khảo sát' },
+    { key: '6', name: 'Drone overview block A.mp4', type: 'video', size: '120 MB', date: '03/03/2025', category: 'Khảo sát' },
+];
+
+/* ====== HELPERS ====== */
+const getDocIcon = (type: string) => {
+    if (type === 'image') return <PictureOutlined style={{ fontSize: 24, color: '#52c41a' }} />;
+    if (type === 'video') return <VideoCameraOutlined style={{ fontSize: 24, color: '#fa8c16' }} />;
+    return <FileOutlined style={{ fontSize: 24, color: '#1890ff' }} />;
+};
+const getDocTag = (type: string) => {
+    if (type === 'image') return <Tag color="green">Ảnh</Tag>;
+    if (type === 'video') return <Tag color="orange">Video</Tag>;
+    return <Tag color="blue">Tài liệu</Tag>;
+};
 
 /* ====== COMPONENT ====== */
 const ProjectDetail: React.FC = () => {
     const navigate = useNavigate();
     const { projectId: _projectId } = useParams();
 
-    const statusColor: Record<string, string> = {
-        'Đã thanh toán': 'success', 'Chờ thanh toán': 'warning', 'Chưa đến hạn': 'default', 'Quá hạn': 'error',
-    };
+    /* Status state */
+    const [projectStatus, setProjectStatus] = useState<ProjectStatus>(projectDetailData.status);
+    const [cancelModalOpen, setCancelModalOpen] = useState(false);
+    const [cancelReason, setCancelReason] = useState('');
+
+    const isDraft = projectStatus === 'draft';
+    const isInProgress = projectStatus === 'in_progress';
+    const isCancelled = projectStatus === 'cancelled';
+    const isCompleted = projectStatus === 'completed';
+    const isLocked = !isDraft; // any non-draft is considered locked
 
     const sevColor: Record<string, string> = { 'Nặng': 'red', 'Trung bình': 'orange', 'Nhẹ': 'green' };
 
+    /* Materials totals */
+    const totalMaterialCost = materialsList.reduce((s, m) => s + m.quantity * m.unitPrice, 0);
+    const laborCost = 25000000;
+    const otherCost = 5000000;
+    const totalBudget = totalMaterialCost + laborCost + otherCost;
+
+    /* Document library state */
+    const [docViewMode, setDocViewMode] = useState<'grid' | 'list'>('grid');
+    const [docCategory, setDocCategory] = useState('all');
+    const filteredDocs = docCategory === 'all' ? mockDocuments : mockDocuments.filter((d) => d.type === docCategory);
+    const docTabItems = [
+        { key: 'all', label: 'Tất cả', icon: <FolderOpenOutlined /> },
+        { key: 'image', label: `Ảnh (${mockDocuments.filter((d) => d.type === 'image').length})`, icon: <PictureOutlined /> },
+        { key: 'video', label: `Video (${mockDocuments.filter((d) => d.type === 'video').length})`, icon: <VideoCameraOutlined /> },
+        { key: 'document', label: `Tài liệu (${mockDocuments.filter((d) => d.type === 'document').length})`, icon: <FileOutlined /> },
+    ];
+
+    /* ─── Action Handlers ─── */
+    const handleLock = () => {
+        Modal.confirm({
+            title: 'Xác nhận Khóa Dự án',
+            icon: <LockOutlined style={{ color: '#faad14' }} />,
+            content: 'Sau khi khóa, dự án sẽ chuyển sang trạng thái "Đang thi công" và không thể chỉnh sửa thông tin cơ bản. Bạn có chắc chắn?',
+            okText: 'Khóa dự án',
+            cancelText: 'Hủy',
+            onOk: () => {
+                setProjectStatus('in_progress');
+                message.success('Dự án đã được khóa và chuyển sang "Đang thi công"');
+            },
+        });
+    };
+
+    const handleComplete = () => {
+        Modal.confirm({
+            title: 'Xác nhận Hoàn thành Dự án',
+            icon: <CheckCircleOutlined style={{ color: '#52c41a' }} />,
+            content: 'Xác nhận rằng dự án đã hoàn thành mọi hạng mục và sẵn sàng nghiệm thu?',
+            okText: 'Hoàn thành',
+            cancelText: 'Hủy',
+            onOk: () => {
+                setProjectStatus('completed');
+                message.success('Dự án đã được đánh dấu Hoàn thành');
+            },
+        });
+    };
+
+    const handleCancelSubmit = () => {
+        if (!cancelReason.trim()) {
+            message.warning('Vui lòng nhập lý do hủy dự án');
+            return;
+        }
+        setProjectStatus('cancelled');
+        setCancelModalOpen(false);
+        setCancelReason('');
+        message.success('Dự án đã bị hủy');
+    };
+
     return (
         <div>
-            {/* Header */}
+            {/* ─── Status Steps Bar ─── */}
+            <Card size="small" style={{ marginBottom: 16 }}>
+                {isCancelled ? (
+                    <div style={{ textAlign: 'center', padding: '8px 0' }}>
+                        <Tag color="error" icon={<CloseCircleOutlined />} style={{ fontSize: 14, padding: '4px 16px' }}>
+                            Dự án đã bị HỦY
+                        </Tag>
+                    </div>
+                ) : (
+                    <Steps
+                        current={getStepCurrent(projectStatus)}
+                        size="small"
+                        items={PROJECT_STATUSES.map((s) => ({
+                            title: s.label,
+                            status:
+                                s.key === projectStatus ? 'process' :
+                                    getStepCurrent(s.key) < getStepCurrent(projectStatus) ? 'finish' : 'wait',
+                        }))}
+                    />
+                )}
+            </Card>
+
+            {/* ─── Header ─── */}
             <Row justify="space-between" align="middle" style={{ marginBottom: 24 }}>
-                <Space>
+                <Space wrap>
                     <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/pm/projects/all')}>Quay lại</Button>
-                    <h2 style={{ margin: 0 }}>{projectDetail.code} - {projectDetail.name}</h2>
-                    <Tag color="processing">{projectDetail.status}</Tag>
-                    <Tag color={projectDetail.type === 'Nội bộ' ? 'blue' : 'orange'}>{projectDetail.type}</Tag>
+                    <Title level={4} style={{ margin: 0 }}>{projectDetailData.code} — {projectDetailData.name}</Title>
+                    <Tag color={statusTagMap[projectStatus].color}>
+                        {statusTagMap[projectStatus].label}
+                    </Tag>
+                    <Tag color={projectDetailData.constructionSource === 'internal' ? 'blue' : 'purple'}>
+                        {projectDetailData.constructionSource === 'internal' ? 'Nội bộ' : 'Cộng tác viên'}
+                    </Tag>
                 </Space>
-                <Button type="primary" icon={<EditOutlined />}>Chỉnh sửa</Button>
+                <Space wrap>
+                    {/* Action Buttons */}
+                    {isDraft && (
+                        <Button icon={<LockOutlined />} onClick={handleLock}>Khóa dự án</Button>
+                    )}
+                    {(isDraft || isInProgress) && !isCancelled && !isCompleted && (
+                        <Button danger icon={<CloseCircleOutlined />} onClick={() => setCancelModalOpen(true)}>Hủy dự án</Button>
+                    )}
+                    {isInProgress && (
+                        <Button type="primary" style={{ background: '#52c41a', borderColor: '#52c41a' }} icon={<CheckCircleOutlined />} onClick={handleComplete}>Hoàn thành</Button>
+                    )}
+                    {/* Edit — only for draft */}
+                    {isDraft && (
+                        <Button type="primary" icon={<EditOutlined />}
+                            onClick={() => navigate(`/pm/projects/edit/${_projectId}`)}>
+                            Chỉnh sửa
+                        </Button>
+                    )}
+                    {isLocked && !isDraft && (
+                        <Button type="primary" icon={<EditOutlined />} disabled>Chỉnh sửa</Button>
+                    )}
+                </Space>
             </Row>
 
-            {/* KPI Row */}
+            {/* ─── KPI Row ─── */}
             <Row gutter={16} style={{ marginBottom: 24 }}>
-                <Col span={6}>
-                    <Card size="small"><Statistic title="Tiến độ" value={projectDetail.progress} suffix="%" valueStyle={{ color: '#1890ff' }} /></Card>
+                <Col xs={12} md={6}>
+                    <Card size="small"><Statistic title="Tiến độ" value={projectDetailData.progress} suffix="%" valueStyle={{ color: '#1890ff' }} /></Card>
                 </Col>
-                <Col span={6}>
-                    <Card size="small"><Statistic title="Chất lượng" value={projectDetail.qualityScore} suffix="/ 100" valueStyle={{ color: projectDetail.qualityScore >= 80 ? '#52c41a' : '#fa8c16' }} /></Card>
+                <Col xs={12} md={6}>
+                    <Card size="small"><Statistic title="Chất lượng" value={projectDetailData.qualityScore} suffix="/ 100" valueStyle={{ color: projectDetailData.qualityScore >= 80 ? '#52c41a' : '#fa8c16' }} /></Card>
                 </Col>
-                <Col span={6}>
-                    <Card size="small"><Statistic title="Đã chi" value={projectDetail.spent / 1000000} suffix="triệu" valueStyle={{ color: '#722ed1' }} /></Card>
+                <Col xs={12} md={6}>
+                    <Card size="small"><Statistic title="Đã chi" value={projectDetailData.spent / 1000000} suffix="triệu" valueStyle={{ color: '#722ed1' }} /></Card>
                 </Col>
-                <Col span={6}>
-                    <Card size="small"><Statistic title="Ngân sách" value={projectDetail.budget / 1000000} suffix="triệu" valueStyle={{ color: '#3f8600' }} /></Card>
+                <Col xs={12} md={6}>
+                    <Card size="small"><Statistic title="Ngân sách" value={totalBudget / 1000000} suffix="triệu" valueStyle={{ color: '#3f8600' }} /></Card>
                 </Col>
             </Row>
 
-            {/* Detail Tabs */}
+            {/* ─── Detail Tabs ─── */}
             <Card>
                 <Tabs defaultActiveKey="info" items={[
+                    /* Tab 1: Thông tin chung */
                     {
                         key: 'info',
                         label: 'Thông tin Chung',
                         children: (
                             <Row gutter={24}>
-                                <Col span={14}>
-                                    <Descriptions bordered column={2} size="small">
-                                        <Descriptions.Item label="Mã dự án" span={1}>{projectDetail.code}</Descriptions.Item>
-                                        <Descriptions.Item label="Loại" span={1}><Tag color={projectDetail.type === 'Nội bộ' ? 'blue' : 'orange'}>{projectDetail.type}</Tag></Descriptions.Item>
-                                        <Descriptions.Item label="Địa chỉ" span={2}><EnvironmentOutlined /> {projectDetail.address}</Descriptions.Item>
-                                        <Descriptions.Item label="Ngày bắt đầu" span={1}><CalendarOutlined /> {projectDetail.startDate}</Descriptions.Item>
-                                        <Descriptions.Item label="Ngày kết thúc" span={1}><CalendarOutlined /> {projectDetail.endDate}</Descriptions.Item>
-                                        <Descriptions.Item label="Giám sát viên" span={1}><UserOutlined /> {projectDetail.supervisor}</Descriptions.Item>
-                                        <Descriptions.Item label="Quản lý Dự án" span={1}><UserOutlined /> {projectDetail.pm}</Descriptions.Item>
-                                        {projectDetail.type === 'Outsource' && (
-                                            <>
-                                                <Descriptions.Item label="Công ty Outsource" span={1}><TeamOutlined /> {projectDetail.outsourceCompany}</Descriptions.Item>
-                                                <Descriptions.Item label="Trưởng nhóm" span={1}><UserOutlined /> {projectDetail.outsourceLeader}</Descriptions.Item>
-                                            </>
+                                <Col xs={24} lg={14}>
+                                    <Descriptions bordered column={{ xs: 1, md: 2 }} size="small">
+                                        <Descriptions.Item label="Mã dự án">{projectDetailData.code}</Descriptions.Item>
+                                        <Descriptions.Item label="Nguồn thi công">
+                                            <Tag color={projectDetailData.constructionSource === 'internal' ? 'blue' : 'purple'}>
+                                                {projectDetailData.constructionSource === 'internal' ? 'Nội bộ' : 'Cộng tác viên'}
+                                            </Tag>
+                                        </Descriptions.Item>
+                                        <Descriptions.Item label="Địa chỉ" span={2}><EnvironmentOutlined /> {projectDetailData.address}</Descriptions.Item>
+                                        <Descriptions.Item label="Ngày bắt đầu"><CalendarOutlined /> {projectDetailData.startDate}</Descriptions.Item>
+                                        <Descriptions.Item label="Ngày kết thúc"><CalendarOutlined /> {projectDetailData.endDate}</Descriptions.Item>
+                                        <Descriptions.Item label="Giám sát viên"><TeamOutlined /> {projectDetailData.supervisor}</Descriptions.Item>
+                                        {projectDetailData.constructionSource === 'collaborator' && (
+                                            <Descriptions.Item label="Cộng tác viên"><TeamOutlined /> {projectDetailData.collaboratorName}</Descriptions.Item>
                                         )}
-                                        <Descriptions.Item label="Mô tả" span={2}>{projectDetail.description}</Descriptions.Item>
+                                        <Descriptions.Item label="Mô tả" span={2}>{projectDetailData.description}</Descriptions.Item>
                                     </Descriptions>
+
+                                    <Divider orientation="left" style={{ marginTop: 24 }}>
+                                        <Space><TeamOutlined /> Đội thi công ({teamMembers.length} người)</Space>
+                                    </Divider>
+                                    <Table
+                                        dataSource={teamMembers}
+                                        pagination={false}
+                                        size="small"
+                                        columns={[
+                                            { title: 'Tên', dataIndex: 'name', key: 'name' },
+                                            { title: 'SĐT', dataIndex: 'phone', key: 'phone' },
+                                            { title: 'Chuyên môn', dataIndex: 'skill', key: 'skill' },
+                                            { title: 'Vai trò', dataIndex: 'role', key: 'role' },
+                                        ]}
+                                    />
                                 </Col>
-                                <Col span={10}>
-                                    <Card title="Thông tin Khách hàng" size="small">
+                                <Col xs={24} lg={10}>
+                                    <Card
+                                        title={<Space><FileTextOutlined /> Hợp đồng liên kết</Space>}
+                                        size="small"
+                                        extra={
+                                            <Button type="link" size="small" icon={<LinkOutlined />}
+                                                onClick={() => navigate(`/pm/contracts/${projectDetailData.contract.id}`)}>
+                                                Xem HĐ
+                                            </Button>
+                                        }
+                                    >
                                         <Descriptions column={1} size="small">
-                                            <Descriptions.Item label="Tên">{projectDetail.customer.name}</Descriptions.Item>
-                                            <Descriptions.Item label="Liên hệ">{projectDetail.customer.contact}</Descriptions.Item>
-                                            <Descriptions.Item label="SĐT"><PhoneOutlined /> {projectDetail.customer.phone}</Descriptions.Item>
-                                            <Descriptions.Item label="Email">{projectDetail.customer.email}</Descriptions.Item>
+                                            <Descriptions.Item label="Mã HĐ"><Tag color="blue">{projectDetailData.contract.code}</Tag></Descriptions.Item>
+                                            <Descriptions.Item label="Tên HĐ">{projectDetailData.contract.name}</Descriptions.Item>
+                                            <Descriptions.Item label="Khách hàng">{projectDetailData.contract.customerName}</Descriptions.Item>
+                                            <Descriptions.Item label="Giá trị">
+                                                <Text strong style={{ color: '#1890ff' }}>{projectDetailData.contract.value.toLocaleString('vi-VN')} VNĐ</Text>
+                                            </Descriptions.Item>
+                                            <Descriptions.Item label="Thời gian">{projectDetailData.contract.startDate} — {projectDetailData.contract.endDate}</Descriptions.Item>
                                         </Descriptions>
                                     </Card>
+
                                     <Card title="Tiến độ Tổng quan" size="small" style={{ marginTop: 16 }}>
-                                        <Progress percent={projectDetail.progress} strokeColor="#1890ff" />
-                                        <Progress percent={(projectDetail.spent / projectDetail.budget) * 100} strokeColor="#722ed1" format={() => `Chi phí: ${Math.round((projectDetail.spent / projectDetail.budget) * 100)}%`} style={{ marginTop: 8 }} />
+                                        <Progress percent={projectDetailData.progress} strokeColor="#1890ff" />
+                                        <Progress percent={Math.round((projectDetailData.spent / totalBudget) * 100)} strokeColor="#722ed1"
+                                            format={() => `Chi phí: ${Math.round((projectDetailData.spent / totalBudget) * 100)}%`} style={{ marginTop: 8 }} />
+                                    </Card>
+
+                                    <Card title={<Space><EnvironmentOutlined /> Vị trí</Space>} size="small" style={{ marginTop: 16 }}>
+                                        <div style={{ width: '100%', height: 180, borderRadius: 8, overflow: 'hidden' }}>
+                                            <iframe
+                                                title="map"
+                                                width="100%" height="100%" style={{ border: 0 }}
+                                                loading="lazy" referrerPolicy="no-referrer-when-downgrade"
+                                                src={`https://maps.google.com/maps?q=${encodeURIComponent(projectDetailData.address)}&output=embed`}
+                                            />
+                                        </div>
                                     </Card>
                                 </Col>
                             </Row>
                         )
                     },
+                    /* Tab 2: Vật tư & Ngân sách */
                     {
-                        key: 'milestones',
-                        label: <Badge count={milestones.filter(m => m.status === 'Chờ thanh toán').length} offset={[10, 0]}>Mốc Thanh toán</Badge>,
+                        key: 'materials',
+                        label: <Space><ToolOutlined /> Vật tư & Ngân sách</Space>,
                         children: (
                             <div>
-                                <Row gutter={16} style={{ marginBottom: 16 }}>
-                                    <Col span={6}><Statistic title="Tổng ngân sách" value={120} suffix="triệu" valueStyle={{ fontSize: 18 }} /></Col>
-                                    <Col span={6}><Statistic title="Đã thanh toán" value={48} suffix="triệu" valueStyle={{ fontSize: 18, color: '#52c41a' }} /></Col>
-                                    <Col span={6}><Statistic title="Chờ xử lý" value={36} suffix="triệu" valueStyle={{ fontSize: 18, color: '#fa8c16' }} /></Col>
-                                    <Col span={6}><Statistic title="Còn lại" value={36} suffix="triệu" valueStyle={{ fontSize: 18 }} /></Col>
-                                </Row>
+                                <Title level={5} style={{ marginBottom: 16 }}>Danh sách Vật tư Dự trù</Title>
                                 <Table
-                                    dataSource={milestones}
+                                    dataSource={materialsList}
                                     pagination={false}
                                     size="small"
                                     columns={[
-                                        { title: 'Mốc', dataIndex: 'name', key: 'name' },
-                                        { title: '%', dataIndex: 'percentage', key: 'percentage', render: (v: number) => `${v}%`, width: 60 },
-                                        { title: 'Số tiền', dataIndex: 'amount', key: 'amount', render: (v: number) => `${(v / 1000000).toFixed(0)} triệu`, width: 100 },
-                                        { title: 'Trạng thái', dataIndex: 'status', key: 'status', render: (s: string) => <Tag color={statusColor[s] || 'default'}>{s}</Tag>, width: 140 },
-                                        { title: 'Ngày TT', dataIndex: 'paidDate', key: 'paidDate', render: (d: string) => d || '-', width: 120 },
+                                        { title: 'Tên vật tư', dataIndex: 'name', key: 'name' },
+                                        { title: 'ĐVT', dataIndex: 'unit', key: 'unit', width: 80 },
+                                        { title: 'SL', dataIndex: 'quantity', key: 'quantity', width: 70, align: 'right' as const },
+                                        { title: 'Đơn giá', dataIndex: 'unitPrice', key: 'unitPrice', width: 120, align: 'right' as const, render: (v: number) => v.toLocaleString('vi-VN') },
+                                        { title: 'Thành tiền', key: 'total', width: 140, align: 'right' as const, render: (_: unknown, rec: typeof materialsList[0]) => <Text strong>{(rec.quantity * rec.unitPrice).toLocaleString('vi-VN')}</Text> },
                                     ]}
+                                    summary={() => (
+                                        <Table.Summary.Row>
+                                            <Table.Summary.Cell index={0} colSpan={4}><Text strong>Tổng chi phí vật tư</Text></Table.Summary.Cell>
+                                            <Table.Summary.Cell index={1} align="right"><Text strong style={{ color: '#1890ff' }}>{totalMaterialCost.toLocaleString('vi-VN')}</Text></Table.Summary.Cell>
+                                        </Table.Summary.Row>
+                                    )}
                                 />
+                                <Divider />
+                                <Title level={5}>Ngân sách Tổng hợp</Title>
+                                <Row gutter={16}>
+                                    <Col xs={12} md={6}><Statistic title="Chi phí vật tư" value={totalMaterialCost / 1000000} suffix="triệu" valueStyle={{ color: '#1890ff' }} /></Col>
+                                    <Col xs={12} md={6}><Statistic title="Chi phí nhân công" value={laborCost / 1000000} suffix="triệu" valueStyle={{ color: '#722ed1' }} /></Col>
+                                    <Col xs={12} md={6}><Statistic title="Chi phí khác" value={otherCost / 1000000} suffix="triệu" /></Col>
+                                    <Col xs={12} md={6}><Statistic title="Tổng ngân sách" value={totalBudget / 1000000} suffix="triệu" valueStyle={{ color: '#52c41a', fontWeight: 700 }} /></Col>
+                                </Row>
+                                <Divider dashed />
+                                <Row justify="end">
+                                    <Button type="link" icon={<LinkOutlined />}
+                                        onClick={() => navigate(`/pm/contracts/${projectDetailData.contract.id}`)}>
+                                        Xem tài chính tại Hợp đồng {projectDetailData.contract.code}
+                                    </Button>
+                                </Row>
                             </div>
                         )
                     },
+                    /* Tab 3: Tư liệu */
                     {
                         key: 'evidence',
                         label: <Badge count={evidenceItems.reduce((a, b) => a + b.pending, 0)} offset={[10, 0]}>Tư liệu</Badge>,
@@ -165,7 +400,7 @@ const ProjectDetail: React.FC = () => {
                             <div>
                                 <Row gutter={16} style={{ marginBottom: 16 }}>
                                     {evidenceItems.map((e) => (
-                                        <Col span={8} key={e.key}>
+                                        <Col xs={24} md={8} key={e.key}>
                                             <Card title={e.stage} size="small">
                                                 <Statistic title="Tổng" value={e.count} />
                                                 <Space style={{ marginTop: 8 }}>
@@ -181,6 +416,7 @@ const ProjectDetail: React.FC = () => {
                             </div>
                         )
                     },
+                    /* Tab 4: Chất lượng */
                     {
                         key: 'quality',
                         label: <Badge count={qualityIssues.filter(q => q.status !== 'Đã đóng').length} offset={[10, 0]}>Chất lượng</Badge>,
@@ -199,6 +435,93 @@ const ProjectDetail: React.FC = () => {
                             />
                         )
                     },
+                    /* Tab 5: Thư viện Tài liệu */
+                    {
+                        key: 'documents',
+                        label: <Space><FolderOpenOutlined /> Thư viện ({mockDocuments.length})</Space>,
+                        children: (
+                            <div>
+                                <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
+                                    <Tabs
+                                        activeKey={docCategory}
+                                        onChange={setDocCategory}
+                                        items={docTabItems.map((t) => ({ key: t.key, label: <Space size={4}>{t.icon}{t.label}</Space> }))}
+                                        size="small"
+                                        style={{ marginBottom: 0 }}
+                                    />
+                                    <Space>
+                                        <Segmented
+                                            size="small"
+                                            options={[
+                                                { label: <UnorderedListOutlined />, value: 'list' },
+                                                { label: <AppstoreAddOutlined />, value: 'grid' },
+                                            ]}
+                                            value={docViewMode}
+                                            onChange={(v) => setDocViewMode(v as 'grid' | 'list')}
+                                        />
+                                        <Upload showUploadList={false}>
+                                            <Button type="primary" size="small" icon={<UploadOutlined />}>Tải lên</Button>
+                                        </Upload>
+                                    </Space>
+                                </Row>
+
+                                {docViewMode === 'list' ? (
+                                    <Table
+                                        dataSource={filteredDocs}
+                                        pagination={false}
+                                        size="small"
+                                        locale={{ emptyText: <Empty description="Chưa có tài liệu" /> }}
+                                        columns={[
+                                            {
+                                                title: 'Tên file', dataIndex: 'name', key: 'name',
+                                                render: (name: string, rec: typeof mockDocuments[0]) => (
+                                                    <Space>{getDocIcon(rec.type)}<Text>{name}</Text></Space>
+                                                ),
+                                            },
+                                            { title: 'Loại', dataIndex: 'type', key: 'type', width: 90, render: (t: string) => getDocTag(t) },
+                                            { title: 'Danh mục', dataIndex: 'category', key: 'category', width: 110 },
+                                            { title: 'Kích thước', dataIndex: 'size', key: 'size', width: 100 },
+                                            { title: 'Ngày tải', dataIndex: 'date', key: 'date', width: 110 },
+                                            { title: '', key: 'action', width: 40, render: () => <Button type="text" danger size="small" icon={<DeleteOutlined />} /> },
+                                        ]}
+                                    />
+                                ) : (
+                                    <Row gutter={[12, 12]}>
+                                        {filteredDocs.length === 0 && <Col span={24}><Empty description="Chưa có tài liệu" /></Col>}
+                                        {filteredDocs.map((doc) => (
+                                            <Col xs={12} sm={8} md={6} key={doc.key}>
+                                                <Card
+                                                    hoverable size="small"
+                                                    style={{ textAlign: 'center' }}
+                                                    cover={
+                                                        doc.type === 'image' ? (
+                                                            <div style={{ height: 90, background: '#f0f5ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                                <Image
+                                                                    src="https://placehold.co/200x90/e6f4ff/1890ff?text=Preview"
+                                                                    alt={doc.name} style={{ maxHeight: 90, objectFit: 'cover' }}
+                                                                    preview={false}
+                                                                />
+                                                            </div>
+                                                        ) : (
+                                                            <div style={{ height: 90, background: doc.type === 'video' ? '#fff7e6' : '#f6ffed', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                                {getDocIcon(doc.type)}
+                                                            </div>
+                                                        )
+                                                    }
+                                                >
+                                                    <Card.Meta
+                                                        title={<Text style={{ fontSize: 11 }} ellipsis={{ tooltip: doc.name }}>{doc.name}</Text>}
+                                                        description={<Space size={4}>{getDocTag(doc.type)}<Text type="secondary" style={{ fontSize: 11 }}>{doc.size}</Text></Space>}
+                                                    />
+                                                </Card>
+                                            </Col>
+                                        ))}
+                                    </Row>
+                                )}
+                            </div>
+                        )
+                    },
+                    /* Tab 6: Lịch sử */
                     {
                         key: 'activity',
                         label: 'Lịch sử',
@@ -222,6 +545,27 @@ const ProjectDetail: React.FC = () => {
                     },
                 ]} />
             </Card>
+
+            {/* ─── Cancel Modal ─── */}
+            <Modal
+                title={<Space><ExclamationCircleOutlined style={{ color: '#ff4d4f' }} /> Hủy Dự án</Space>}
+                open={cancelModalOpen}
+                onCancel={() => { setCancelModalOpen(false); setCancelReason(''); }}
+                onOk={handleCancelSubmit}
+                okText="Xác nhận Hủy"
+                okButtonProps={{ danger: true }}
+                cancelText="Đóng"
+            >
+                <p>Bạn đang yêu cầu hủy dự án <Text strong>{projectDetailData.code}</Text>. Hành động này không thể hoàn tác.</p>
+                <Text strong>Lý do hủy <Text type="danger">*</Text></Text>
+                <TextArea
+                    rows={3}
+                    placeholder="Nhập lý do hủy dự án..."
+                    value={cancelReason}
+                    onChange={(e) => setCancelReason(e.target.value)}
+                    style={{ marginTop: 8 }}
+                />
+            </Modal>
         </div>
     );
 };
