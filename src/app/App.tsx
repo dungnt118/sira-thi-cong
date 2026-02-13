@@ -10,7 +10,16 @@ import RoleManagement from '../pages/admin-v2/RoleManagement';
 import AuditLog from '../pages/admin-v2/AuditLog';
 import SystemSettings from '../pages/admin-v2/SystemSettings';
 import Reports from '../pages/admin-v2/Reports';
-// Old Admin Pages (deprecated)
+// PM Pages
+import PMDashboard from '../pages/pm/Dashboard';
+import ProjectList from '../pages/pm/Projects/ProjectList';
+import ProjectDetail from '../pages/pm/Projects/ProjectDetail';
+import ProjectCreate from '../pages/pm/Projects/ProjectCreate';
+import Teams from '../pages/pm/Teams';
+import Customers from '../pages/pm/Customers';
+import Financials from '../pages/pm/Financials';
+import PMReports from '../pages/pm/Reports';
+// Layout imports
 import { AdminLayout } from '@layouts/AdminLayout';
 import { SupervisorLayout } from '@layouts/SupervisorLayout';
 import { PMLayout } from '@layouts/PMLayout';
@@ -50,25 +59,32 @@ function App() {
                     {/* Supervisor Routes */}
                     <Route path="/supervisor/*" element={<SupervisorLayout />}>
                         <Route index element={<Navigate to="/supervisor/dashboard" replace />} />
-                        {/* Supervisor routes will be added */}
                     </Route>
 
                     {/* PM Routes */}
-                    <Route path="/pm/*" element={<PMLayout />}>
+                    <Route path="/pm" element={<PMLayout />}>
                         <Route index element={<Navigate to="/pm/dashboard" replace />} />
-                        {/* PM routes will be added */}
+                        <Route path="dashboard" element={<PMDashboard />} />
+                        <Route path="projects/all" element={<ProjectList />} />
+
+                        <Route path="projects/create" element={<ProjectCreate />} />
+                        <Route path="projects/:projectId" element={<ProjectDetail />} />
+                        <Route path="teams/internal" element={<Teams />} />
+                        <Route path="teams/outsource" element={<Teams />} />
+                        <Route path="customers" element={<Customers />} />
+                        <Route path="financials/milestones" element={<Financials />} />
+                        <Route path="financials/transactions" element={<Financials />} />
+                        <Route path="reports" element={<PMReports />} />
                     </Route>
 
                     {/* Accountant Routes */}
                     <Route path="/accountant/*" element={<AccountantLayout />}>
                         <Route index element={<Navigate to="/accountant/dashboard" replace />} />
-                        {/* Accountant routes will be added */}
                     </Route>
 
                     {/* Partner Routes */}
                     <Route path="/partner/*" element={<PartnerLayout />}>
                         <Route index element={<Navigate to="/partner/dashboard" replace />} />
-                        {/* Partner routes will be added */}
                     </Route>
 
                     {/* Default redirect */}
