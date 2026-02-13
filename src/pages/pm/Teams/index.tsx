@@ -8,6 +8,7 @@ import {
     UserAddOutlined, SearchOutlined, PhoneOutlined, MailOutlined,
     EnvironmentOutlined,
 } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
 
 const { Option } = Select;
 
@@ -229,6 +230,7 @@ const MapPicker: React.FC<MapPickerProps> = ({ lat, lng, onChange }) => {
 
 // ─── Main Component ────────────────────────────────────────────────
 const Teams: React.FC = () => {
+    const navigate = useNavigate();
     const [internalTeam, setInternalTeam] = useState<InternalMember[]>(initialInternalTeam);
     const [outsourceCompanies, setOutsourceCompanies] = useState<OutsourceCompany[]>(initialOutsourceCompanies);
 
@@ -484,6 +486,14 @@ const Teams: React.FC = () => {
                                         rowKey="id"
                                         pagination={{ pageSize: 10 }}
                                         scroll={{ x: 800 }}
+                                        onRow={(record) => ({
+                                            onClick: (e) => {
+                                                // Don't navigate if clicking action buttons
+                                                if ((e.target as HTMLElement).closest('button, .ant-popconfirm')) return;
+                                                navigate(`/pm/teams/outsource/${record.id}`);
+                                            },
+                                            style: { cursor: 'pointer' },
+                                        })}
                                     />
                                 </>
                             ),

@@ -85,5 +85,5 @@ export const Breadcrumbs: React.FC = () => {
         }),
     ];
 
-    return <Breadcrumb items={breadcrumbItems} style={{ margin: '16px 0' }} />;
+    return <Breadcrumb items={breadcrumbItems} style={{ margin: '4px 0 12px' }} />;
 };
