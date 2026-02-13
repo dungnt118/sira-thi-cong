@@ -4,7 +4,6 @@ import { SettingOutlined, SaveOutlined, UploadOutlined } from '@ant-design/icons
 import type { TabsProps } from 'antd';
 
 const { Option } = Select;
-const { TextArea } = Input;
 
 /**
  * System Settings Page - 5 tabs

@@ -53,7 +53,7 @@ interface AuditLogEntry {
 const AuditLog: React.FC = () => {
     const [searchText, setSearchText] = useState('');
     const [filterAction, setFilterAction] = useState<string>('');
-    const [filterUser, setFilterUser] = useState<string>('');
+    const [filterUser, _setFilterUser] = useState<string>('');
     const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
 
     // Mock data - construction-specific audit logs

@@ -281,7 +281,7 @@ const RoleManagement: React.FC = () => {
         });
     };
 
-    const handleDelete = (roleId: string) => {
+    const handleDelete = (_roleId: string) => {
         Modal.confirm({
             title: 'Xác nhận xóa vai trò?',
             content: 'Bạn có chắc muốn xóa vai trò này? Hành động này không thể hoàn tác.',

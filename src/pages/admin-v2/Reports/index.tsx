@@ -12,8 +12,6 @@ import {
     Tag,
     Progress,
     Menu,
-    Tabs,
-    Divider,
 } from 'antd';
 import {
     BarChartOutlined,

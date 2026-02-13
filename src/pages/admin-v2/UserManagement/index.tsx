@@ -261,7 +261,7 @@ const UserManagement: React.FC = () => {
         setIsModalOpen(true);
     };
 
-    const handleDelete = (userId: string) => {
+    const handleDelete = (_userId: string) => {
         message.success('Đã vô hiệu hóa người dùng');
         // TODO: Call API to deactivate user
     };
