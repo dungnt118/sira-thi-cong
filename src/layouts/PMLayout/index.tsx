@@ -5,7 +5,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import {
     DashboardOutlined,
     ProjectOutlined,
-    TeamOutlined,
     UserOutlined,
     DollarOutlined,
     BarChartOutlined,
@@ -13,7 +12,7 @@ import {
     BellOutlined,
     LogoutOutlined,
     SettingOutlined,
-    FileTextOutlined,
+    InboxOutlined,
 } from '@ant-design/icons';
 import { LABELS } from '@utils/constants';
 import { BaseLayout } from '../shared/BaseLayout';
@@ -27,71 +26,48 @@ const menuItems: MenuItem[] = [
     {
         key: '/pm/dashboard',
         icon: <DashboardOutlined />,
-        label: LABELS.PM.DASHBOARD,
+        label: 'Tổng Quan',
     },
     {
-        key: '/pm/projects',
-        icon: <ProjectOutlined />,
-        label: LABELS.PM.PROJECTS,
-        children: [
-            {
-                key: '/pm/projects/all',
-                label: LABELS.PM.ALL_PROJECTS,
-            },
-            {
-                key: '/pm/projects/create',
-                label: LABELS.PM.CREATE_PROJECT,
-            },
-        ],
-    },
-    {
-        key: '/pm/contracts',
-        icon: <FileTextOutlined />,
-        label: LABELS.PM.CONTRACTS,
-        children: [
-            {
-                key: '/pm/contracts/all',
-                label: LABELS.PM.ALL_CONTRACTS,
-            },
-            {
-                key: '/pm/contracts/create',
-                label: LABELS.PM.CREATE_CONTRACT,
-            },
-        ],
-    },
-    {
-        key: '/pm/teams',
-        icon: <TeamOutlined />,
-        label: LABELS.PM.TEAMS,
-        children: [
-            {
-                key: '/pm/teams/internal',
-                label: LABELS.PM.INTERNAL_TEAMS,
-            },
-            {
-                key: '/pm/teams/outsource',
-                label: LABELS.PM.COLLABORATORS,
-            },
-        ],
-    },
-    {
-        key: '/pm/customers',
+        key: '/pm/crm',
         icon: <UserOutlined />,
-        label: LABELS.PM.CUSTOMERS,
+        label: 'CRM Khách hàng',
+        children: [
+            { key: '/pm/crm/customers', label: 'Danh sách KH' },
+            { key: '/pm/crm/pipeline', label: 'Pipeline Kanban' },
+            { key: '/pm/crm/customers/new', label: 'Thêm KH mới' },
+            { key: '/pm/crm/pipeline/settings', label: 'Cấu hình Pipeline' },
+        ],
     },
     {
-        key: '/pm/financials',
-        icon: <DollarOutlined />,
-        label: LABELS.PM.FINANCIALS,
+        key: '/pm/construction',
+        icon: <ProjectOutlined />,
+        label: 'Nhật ký Thi công',
         children: [
-            {
-                key: '/pm/financials/milestones',
-                label: LABELS.PM.PAYMENT_MILESTONES,
-            },
-            {
-                key: '/pm/financials/transactions',
-                label: LABELS.PM.TRANSACTIONS,
-            },
+            { key: '/pm/construction/projects', label: 'Danh sách Dự án' },
+            { key: '/pm/construction/projects/create', label: 'Tạo Dự án' },
+            { key: '/pm/construction/evidence', label: 'Duyệt Ảnh/Video' },
+            { key: '/pm/construction/templates', label: 'Template Checklist' },
+        ],
+    },
+    {
+        key: '/pm/inventory',
+        icon: <InboxOutlined />,
+        label: 'Kho Vật tư',
+        children: [
+            { key: '/pm/inventory/catalog', label: '📦 Danh mục Vật tư' },
+            { key: '/pm/inventory/plan', label: '📐 Định mức Dự án' },
+            { key: '/pm/inventory/request-out', label: '📤 Yêu cầu Xuất kho' },
+            { key: '/pm/inventory/request-in', label: '📥 Yêu cầu Nhập kho' },
+        ],
+    },
+    {
+        key: '/pm/finance',
+        icon: <DollarOutlined />,
+        label: 'Tài chính',
+        children: [
+            { key: '/pm/finance/projects', label: 'Tài chính Dự án' },
+            { key: '/pm/financials/milestones', label: 'Mốc Thanh toán' },
         ],
     },
     {
