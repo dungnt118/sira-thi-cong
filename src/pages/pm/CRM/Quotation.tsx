@@ -10,7 +10,7 @@ import {
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import dayjs from 'dayjs';
-import { mockCustomers, mockStandards } from '../../../data/mockData';
+import { mockServiceRequests, mockCustomers, mockStandards } from '../../../data/mockData';
 import type { QuotationItem } from '../../../types/v3';
 
 const { Title, Text } = Typography;
@@ -35,8 +35,9 @@ interface TableRow extends QuotationItem { _isNew?: boolean; }
 const Quotation: React.FC = () => {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
-    const customer = mockCustomers.find(c => c.id === id);
-    const existingQuote = customer?.quotations?.[0];
+    const serviceRequest = mockServiceRequests.find(sr => sr.id === id);
+    const customer = mockCustomers.find(c => c.id === serviceRequest?.customerId);
+    const existingQuote = serviceRequest?.quotations?.[0];
 
     const [items, setItems] = useState<TableRow[]>(existingQuote?.items || []);
     const [areaM2, setAreaM2] = useState(100);
@@ -162,14 +163,14 @@ const Quotation: React.FC = () => {
         }
     };
 
-    if (!customer) return <div>Không tìm thấy khách hàng</div>;
+    if (!serviceRequest || !customer) return <div>Không tìm thấy yêu cầu dịch vụ hoặc khách hàng</div>;
 
     return (
         <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
-                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(`/pm/crm/customers/${id}`)}>Quay lại</Button>
+                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(`/pm/crm/service-requests/${id}`)}>Quay lại</Button>
                 <div>
-                    <Title level={4} style={{ margin: 0 }}>💰 Lập Báo giá</Title>
+                    <Title level={4} style={{ margin: 0 }}>💰 Lập Báo giá: {serviceRequest.name}</Title>
                     <Text type="secondary">KH: {customer.fullName} | Mã BG: BG-2026-{String(Date.now()).slice(-4)}</Text>
                 </div>
             </div>
@@ -299,8 +300,8 @@ const Quotation: React.FC = () => {
                     <Button key="confirm" type="primary" icon={<CheckCircleOutlined />}
                         onClick={() => {
                             setMilestoneModalOpen(false);
-                            message.success('Đã tạo 3 đợt thanh toán tự động! Pipeline KH chuyển sang "Đã ký HĐ"');
-                            navigate(`/pm/crm/customers/${id}`);
+                            message.success('Đã tạo 3 đợt thanh toán tự động!');
+                            navigate(`/pm/crm/service-requests/${id}`);
                         }}
                     >
                         Xác nhận tạo Milestone

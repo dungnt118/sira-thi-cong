@@ -31,12 +31,13 @@ const menuItems: MenuItem[] = [
     {
         key: '/pm/crm',
         icon: <UserOutlined />,
-        label: 'CRM Khách hàng',
+        label: 'CRM & Bán hàng',
         children: [
-            { key: '/pm/crm/customers', label: 'Danh sách KH' },
+            { key: '/pm/crm/service-requests', label: 'Yêu cầu Dịch vụ (Deals)' },
             { key: '/pm/crm/pipeline', label: 'Pipeline Kanban' },
+            { key: '/pm/crm/customers', label: 'Danh sách Khách hàng' },
             { key: '/pm/crm/customers/new', label: 'Thêm KH mới' },
-            { key: '/pm/crm/pipeline/settings', label: 'Cấu hình Pipeline' },
+            { key: '/pm/crm/pipeline-settings', label: 'Cấu hình Pipeline' },
         ],
     },
     {

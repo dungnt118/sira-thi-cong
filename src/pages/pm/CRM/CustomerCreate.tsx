@@ -9,19 +9,9 @@ import {
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import { mockCustomers } from '../../../data/mockData';
-import type { CustomerPipelineStatus } from '../../../types/v3';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
-
-const STATUS_OPTIONS = [
-    { value: 'NEW', label: 'Khách mới' },
-    { value: 'SURVEYING', label: 'Đang khảo sát' },
-    { value: 'QUOTED', label: 'Đã báo giá' },
-    { value: 'NEGOTIATING', label: 'Đang đàm phán' },
-    { value: 'SIGNED', label: 'Đã ký HĐ' },
-    { value: 'REJECTED', label: 'Từ chối' },
-];
 
 const DISTRICT_OPTIONS = [
     'Quận 1', 'Quận 2', 'Quận 3', 'Quận 4', 'Quận 5', 'Quận 6', 'Quận 7',
@@ -51,7 +41,6 @@ const CustomerCreate: React.FC = () => {
                 address: existing.address,
                 district: existing.district,
                 city: existing.city,
-                pipelineStatus: existing.pipelineStatus,
                 notes: existing.notes,
             });
             if (existing.gpsLat && existing.gpsLng) {
@@ -94,7 +83,7 @@ const CustomerCreate: React.FC = () => {
                 form={form}
                 layout="vertical"
                 onFinish={handleSubmit}
-                initialValues={{ pipelineStatus: 'NEW' as CustomerPipelineStatus, city: 'TP.HCM' }}
+                initialValues={{ city: 'TP.HCM' }}
             >
                 <Row gutter={24}>
                     {/* Left Column: Main Info */}
@@ -183,9 +172,6 @@ const CustomerCreate: React.FC = () => {
                     {/* Right Column: Status & Notes */}
                     <Col xs={24} lg={10}>
                         <Card title="🎯 Trạng thái CRM" style={{ marginBottom: 16 }}>
-                            <Form.Item name="pipelineStatus" label="Trạng thái Pipeline">
-                                <Select options={STATUS_OPTIONS} size="large" />
-                            </Form.Item>
                             <Form.Item name="assignedPmId" label="PM phụ trách">
                                 <Select
                                     defaultValue="U001"

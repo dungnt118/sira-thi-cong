@@ -1,33 +1,31 @@
 import React, { useState } from 'react';
 import {
-    Card, Button, Badge, Tag, Avatar, Typography, Space, Progress,
-    Empty, Tooltip, message, Row, Col
+    Card, Row, Col, Typography, Button, Tag, Space, Badge, Empty, Tooltip, message, Progress
 } from 'antd';
 import {
-    DragOutlined, PlusOutlined, UserOutlined, PhoneOutlined,
-    DollarOutlined, CalendarOutlined
+    PlusOutlined, CalendarOutlined, DragOutlined, DollarOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { Select } from 'antd';
-import { mockCustomers, mockPipelines } from '../../../data/mockData';
-import type { Customer, Pipeline as PipelineType, PipelineStage } from '../../../types/v3';
+import { mockServiceRequests, mockPipelines } from '../../../data/mockData';
+import type { ServiceRequest, Pipeline as PipelineType } from '../../../types/v3';
 
 const { Text, Title } = Typography;
 const { Option } = Select;
 
 interface KanbanCardProps {
-    customer: Customer;
+    request: ServiceRequest;
     pipeline: PipelineType;
-    onMove: (customerId: string, newStageId: string) => void;
+    onMove: (requestId: string, newStageId: string) => void;
 }
 
-const KanbanCard: React.FC<KanbanCardProps> = ({ customer, pipeline, onMove }) => {
+const KanbanCard: React.FC<KanbanCardProps> = ({ request, pipeline, onMove }) => {
     const navigate = useNavigate();
-    const hasQuotation = customer.quotations.length > 0;
-    const latestQuote = hasQuotation ? customer.quotations[customer.quotations.length - 1] : null;
+    const hasQuotation = request.quotations.length > 0;
+    const latestQuote = hasQuotation ? request.quotations[request.quotations.length - 1] : null;
 
     // Find next stage dynamically
-    const currentStage = pipeline.stages.find(s => s.id === customer.stageId);
+    const currentStage = pipeline.stages.find(s => s.id === request.stageId);
     const nextStage = currentStage ? pipeline.stages.find(s => s.order === currentStage.order + 1) : null;
 
     return (
@@ -40,23 +38,23 @@ const KanbanCard: React.FC<KanbanCardProps> = ({ customer, pipeline, onMove }) =
                 boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
                 cursor: 'pointer',
             }}
-            onClick={() => navigate(`/pm/crm/customers/${customer.id}`)}
+            onClick={() => navigate(`/pm/crm/service-requests/${request.id}`)}
             actions={[
-                <Tooltip title="Khảo sát">
-                    <span onClick={e => { e.stopPropagation(); navigate(`/pm/crm/customers/${customer.id}/survey`); }}>
+                <Tooltip title="Khảo sát" key="survey">
+                    <span onClick={e => { e.stopPropagation(); navigate(`/pm/crm/service-requests/${request.id}/survey`); }}>
                         📸
                     </span>
                 </Tooltip>,
-                <Tooltip title="Báo giá">
-                    <span onClick={e => { e.stopPropagation(); navigate(`/pm/crm/customers/${customer.id}/quotation`); }}>
+                <Tooltip title="Báo giá" key="quote">
+                    <span onClick={e => { e.stopPropagation(); navigate(`/pm/crm/service-requests/${request.id}/quotation`); }}>
                         💰
                     </span>
                 </Tooltip>,
                 nextStage ? (
-                    <Tooltip title={`Chuyển sang: ${nextStage.name}`}>
+                    <Tooltip title={`Chuyển sang: ${nextStage.name}`} key="move">
                         <span onClick={e => {
                             e.stopPropagation();
-                            onMove(customer.id, nextStage.id);
+                            onMove(request.id, nextStage.id);
                             message.success(`Đã chuyển sang ${nextStage.name}`);
                         }}>
                             {'→'}
@@ -67,39 +65,33 @@ const KanbanCard: React.FC<KanbanCardProps> = ({ customer, pipeline, onMove }) =
         >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                    <Avatar size={28} style={{ background: '#1976D2', flexShrink: 0 }} icon={<UserOutlined />} />
+                    <div style={{ width: 4, height: 28, background: currentStage?.color || '#1976D2', borderRadius: 2 }} />
                     <div>
-                        <div style={{ fontWeight: 600, fontSize: 13, lineHeight: 1.2 }}>{customer.fullName}</div>
-                        <Text type="secondary" style={{ fontSize: 11 }}>{customer.code}</Text>
+                        <div style={{ fontWeight: 600, fontSize: 13, lineHeight: 1.2 }}>{request.name}</div>
+                        <Text type="secondary" style={{ fontSize: 11 }}>{request.code} • {request.customerName}</Text>
                     </div>
                 </div>
                 <DragOutlined style={{ color: '#bbb', cursor: 'grab' }} />
             </div>
 
             <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 4 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>
-                    <PhoneOutlined style={{ marginRight: 4 }} /> {customer.phone}
-                </div>
-                <div style={{ fontSize: 12, color: '#666' }}>
-                    📍 {customer.district}
-                </div>
                 {latestQuote && (
                     <div style={{ fontSize: 12, color: '#52c41a', fontWeight: 500 }}>
                         <DollarOutlined style={{ marginRight: 4 }} />
                         {(latestQuote.total / 1000000).toFixed(0)} triệu VNĐ
                     </div>
                 )}
-                {customer.surveyImages.length > 0 && (
+                {request.surveyImages.length > 0 && (
                     <Tag color="blue" style={{ fontSize: 11, width: 'fit-content' }}>
-                        📸 {customer.surveyImages.length} ảnh KS
+                        📸 {request.surveyImages.length} ảnh KS
                     </Tag>
                 )}
             </div>
 
             <div style={{ marginTop: 8, fontSize: 11, color: '#aaa' }}>
                 <CalendarOutlined style={{ marginRight: 4 }} />
-                {customer.createdAt}
-                <Text style={{ float: 'right', fontSize: 11 }}>PM: {customer.assignedPmName.split(' ').pop()}</Text>
+                {request.createdAt.split('T')[0]}
+                <Text style={{ float: 'right', fontSize: 11 }}>PM: {request.assignedPmName.split(' ').pop()}</Text>
             </div>
         </Card>
     );
@@ -107,24 +99,24 @@ const KanbanCard: React.FC<KanbanCardProps> = ({ customer, pipeline, onMove }) =
 
 const Pipeline: React.FC = () => {
     const navigate = useNavigate();
-    const [customers, setCustomers] = useState(mockCustomers);
+    const [requests, setRequests] = useState(mockServiceRequests);
     const [activePipelineId, setActivePipelineId] = useState<string>(mockPipelines[0]?.id || '');
 
     const activePipeline = mockPipelines.find(p => p.id === activePipelineId) || mockPipelines[0];
 
-    // Filter customers by active pipeline ONLY
-    const pipelineCustomers = customers.filter(c => c.pipelineId === activePipeline.id);
+    // Filter requests by active pipeline ONLY
+    const pipelineRequests = requests.filter(r => r.pipelineId === activePipeline.id);
 
-    const handleMove = (customerId: string, newStageId: string) => {
-        setCustomers(prev =>
-            prev.map(c => c.id === customerId ? { ...c, stageId: newStageId } : c)
+    const handleMove = (requestId: string, newStageId: string) => {
+        setRequests(prev =>
+            prev.map(r => r.id === requestId ? { ...r, stageId: newStageId } : r)
         );
     };
 
     // Calculate conversion dynamically based on 'WON' systemStage
     const wonStageIds = activePipeline.stages.filter(s => s.systemStage === 'WON').map(s => s.id);
-    const totalConverted = pipelineCustomers.filter(c => c.stageId && wonStageIds.includes(c.stageId)).length;
-    const conversionRate = pipelineCustomers.length > 0 ? Math.round((totalConverted / pipelineCustomers.length) * 100) : 0;
+    const totalConverted = pipelineRequests.filter(r => r.stageId && wonStageIds.includes(r.stageId)).length;
+    const conversionRate = pipelineRequests.length > 0 ? Math.round((totalConverted / pipelineRequests.length) * 100) : 0;
 
     return (
         <div>
@@ -144,13 +136,13 @@ const Pipeline: React.FC = () => {
                         </Select>
                     </div>
                     <Text type="secondary">
-                        Tổng: {pipelineCustomers.length} KH &nbsp;|&nbsp; Thắng: {totalConverted} &nbsp;|&nbsp; Tỉ lệ chuyển đổi: {conversionRate}%
+                        Tổng: {pipelineRequests.length} Yêu cầu &nbsp;|&nbsp; Thắng: {totalConverted} &nbsp;|&nbsp; Tỉ lệ chuyển đổi: {conversionRate}%
                     </Text>
                 </div>
                 <Space>
-                    <Button onClick={() => navigate('/pm/crm/customers')}>Xem dạng Table</Button>
-                    <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/pm/crm/customers/new')}>
-                        Thêm KH mới
+                    <Button onClick={() => navigate('/pm/crm/service-requests')}>Xem dạng Danh sách</Button>
+                    <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/pm/crm/service-requests/new')}>
+                        Tạo Yêu cầu mới
                     </Button>
                 </Space>
             </div>
@@ -169,7 +161,7 @@ const Pipeline: React.FC = () => {
                     <Col>
                         <div style={{ textAlign: 'center' }}>
                             <div style={{ fontSize: 32, fontWeight: 700, color: '#52c41a' }}>{conversionRate}%</div>
-                            <Text type="secondary" style={{ fontSize: 12 }}>{totalConverted}/{customers.length} KH</Text>
+                            <Text type="secondary" style={{ fontSize: 12 }}>{totalConverted}/{pipelineRequests.length} YC</Text>
                         </div>
                     </Col>
                 </Row>
@@ -186,7 +178,7 @@ const Pipeline: React.FC = () => {
                 }}
             >
                 {activePipeline.stages.map(col => {
-                    const colCustomers = pipelineCustomers.filter(c => c.stageId === col.id);
+                    const colRequests = pipelineRequests.filter(r => r.stageId === col.id);
                     // Generate subtle bgColor based on the string color
                     const getBgColor = (c: string) => {
                         const bgMap: Record<string, string> = { blue: '#e6f4ff', gold: '#fffbe6', orange: '#fff7e6', green: '#f6ffed', red: '#fff2f0', volcano: '#fff2e8' };
@@ -221,7 +213,7 @@ const Pipeline: React.FC = () => {
                                     {col.order}. {col.name}
                                 </span>
                                 <Badge
-                                    count={colCustomers.length}
+                                    count={colRequests.length}
                                     style={{ background: col.color }}
                                     showZero
                                 />
@@ -229,15 +221,15 @@ const Pipeline: React.FC = () => {
 
                             {/* Cards */}
                             <div style={{ padding: '8px' }}>
-                                {colCustomers.length === 0 ? (
+                                {colRequests.length === 0 ? (
                                     <Empty
                                         image={Empty.PRESENTED_IMAGE_SIMPLE}
-                                        description="Không có KH"
+                                        description="Không có YC"
                                         style={{ marginTop: 24 }}
                                     />
                                 ) : (
-                                    colCustomers.map(c => (
-                                        <KanbanCard key={c.id} customer={c} pipeline={activePipeline} onMove={handleMove} />
+                                    colRequests.map(c => (
+                                        <KanbanCard key={c.id} request={c} pipeline={activePipeline} onMove={handleMove} />
                                     ))
                                 )}
                             </div>
@@ -249,9 +241,9 @@ const Pipeline: React.FC = () => {
                                     icon={<PlusOutlined />}
                                     style={{ width: '100%', borderColor: col.color, color: col.color }}
                                     size="small"
-                                    onClick={() => navigate('/pm/crm/customers/new')}
+                                    onClick={() => navigate('/pm/crm/service-requests/new')}
                                 >
-                                    Thêm KH
+                                    Thêm Yêu cầu
                                 </Button>
                             </div>
                         </div>

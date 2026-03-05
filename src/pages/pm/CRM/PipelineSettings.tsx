@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import {
     Layout, Menu, Card, Button, Table, Modal, Form, Input, Select,
-    Space, Typography, Tag, message, Popconfirm, Divider, ColorPicker
+    Space, Typography, Tag, message, Popconfirm, ColorPicker
 } from 'antd';
 import {
     PlusOutlined, EditOutlined, DeleteOutlined, SettingOutlined,
     ExclamationCircleOutlined, HolderOutlined
 } from '@ant-design/icons';
-import { mockPipelines, mockCustomers } from '../../../data/mockData';
+import { mockPipelines, mockServiceRequests } from '../../../data/mockData';
 import type { Pipeline, PipelineStage, PipelineSystemStage } from '../../../types/v3';
 
 const { Sider, Content } = Layout;
@@ -59,7 +59,7 @@ const PipelineSettings: React.FC = () => {
     };
 
     const handleDeletePipeline = (id: string) => {
-        const inUse = mockCustomers.some(c => c.pipelineId === id);
+        const inUse = mockServiceRequests.some(c => c.pipelineId === id);
         if (inUse) {
             Modal.error({
                 title: 'Không thể xóa',
@@ -124,7 +124,7 @@ const PipelineSettings: React.FC = () => {
             message.error('Không thể xóa bước Thành Công hoặc Thất Bại (System Stage).');
             return;
         }
-        const inUse = mockCustomers.some(c => c.pipelineId === activePipeline.id && c.stageId === stage.id);
+        const inUse = mockServiceRequests.some(c => c.pipelineId === activePipeline.id && c.stageId === stage.id);
         if (inUse) {
             Modal.error({
                 title: 'Không thể xóa Cột',

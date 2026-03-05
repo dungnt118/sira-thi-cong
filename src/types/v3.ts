@@ -61,9 +61,21 @@ export interface Customer {
     city: string;
     gpsLat?: number;
     gpsLng?: number;
-    pipelineStatus: CustomerPipelineStatus; // Legacy string flag
-    pipelineId?: string; // ID of the dynamic pipeline this customer is in
-    stageId?: string;    // ID of the target stage the customer is currently at
+    assignedPmId: string;
+    assignedPmName: string;
+    createdAt: string;
+    notes?: string;
+}
+
+export interface ServiceRequest {
+    id: string;
+    code: string;           // YC-2026-001
+    customerId: string;
+    customerName: string;
+    name: string;
+    pipelineId: string;
+    stageId: string;
+    status: PipelineSystemStage;
     assignedPmId: string;
     assignedPmName: string;
     surveyImages: SurveyImage[];
@@ -104,7 +116,7 @@ export type QuotationStatus = 'DRAFT' | 'SENT' | 'APPROVED' | 'REJECTED';
 export interface Quotation {
     id: string;
     code: string;       // BG-2026-001
-    customerId: string;
+    serviceRequestId: string;
     items: QuotationItem[];
     subtotal: number;
     discount: number;

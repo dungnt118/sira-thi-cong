@@ -27,11 +27,12 @@ import PMReports from '../pages/pm/Reports';
 
 // V3 CRM Pages
 import CustomerList from '../pages/pm/CRM/CustomerList';
-import CustomerCreate from '../pages/pm/CRM/CustomerCreate';
-import CustomerDetail from '../pages/pm/CRM/CustomerDetail';
-import SurveyUpload from '../pages/pm/CRM/SurveyUpload';
-import QuotationPage from '../pages/pm/CRM/Quotation';
+import ServiceRequestList from '../pages/pm/CRM/ServiceRequestList';
+import ServiceRequestDetail from '../pages/pm/CRM/ServiceRequestDetail';
 import Pipeline from '../pages/pm/CRM/Pipeline';
+import CustomerCreate from '../pages/pm/CRM/CustomerCreate';
+import SurveyUpload from '../pages/pm/CRM/SurveyUpload';
+import Quotation from '../pages/pm/CRM/Quotation';
 import PipelineSettings from '../pages/pm/CRM/PipelineSettings';
 
 // V3 PM Construction Pages
@@ -119,15 +120,21 @@ function App() {
 
                         {/* --- CRM Module --- */}
                         <Route path="crm">
-                            <Route index element={<Navigate to="/pm/crm/customers" replace />} />
+                            <Route index element={<Navigate to="/pm/crm/service-requests" replace />} />
+                            {/* Legacy Customer Routes */}
                             <Route path="customers" element={<CustomerList />} />
                             <Route path="customers/new" element={<CustomerCreate />} />
-                            <Route path="customers/:id" element={<CustomerDetail />} />
-                            <Route path="customers/:id/edit" element={<CustomerCreate />} />
-                            <Route path="customers/:id/survey" element={<SurveyUpload />} />
-                            <Route path="customers/:id/quotation" element={<QuotationPage />} />
+
+                            {/* New Service Request Routes (Deals) */}
+                            <Route path="service-requests" element={<ServiceRequestList />} />
+                            <Route path="service-requests/new" element={<CustomerCreate />} /> {/* Reuse or create specific form */}
+                            <Route path="service-requests/:id" element={<ServiceRequestDetail />} />
+                            <Route path="service-requests/:id/survey" element={<SurveyUpload />} />
+                            <Route path="service-requests/:id/quotation" element={<Quotation />} />
+
+                            {/* Kanban & Settings */}
                             <Route path="pipeline" element={<Pipeline />} />
-                            <Route path="pipeline/settings" element={<PipelineSettings />} />
+                            <Route path="pipeline-settings" element={<PipelineSettings />} />
                         </Route>
 
                         {/* --- Construction Module (PM) --- */}

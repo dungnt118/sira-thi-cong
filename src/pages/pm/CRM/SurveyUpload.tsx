@@ -9,7 +9,7 @@ import {
     SaveOutlined, ArrowLeftOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
-import { mockCustomers } from '../../../data/mockData';
+import { mockServiceRequests, mockCustomers } from '../../../data/mockData';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -23,11 +23,12 @@ interface MoistureRow {
 const SurveyUpload: React.FC = () => {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
-    const customer = mockCustomers.find(c => c.id === id);
+    const serviceRequest = mockServiceRequests.find(sr => sr.id === id);
+    const customer = mockCustomers.find(c => c.id === serviceRequest?.customerId);
 
-    const [images, setImages] = useState(customer?.surveyImages || []);
+    const [images, setImages] = useState(serviceRequest?.surveyImages || []);
     const [moisture, setMoisture] = useState<MoistureRow[]>(
-        customer?.moistureReadings.map((m, i) => ({ key: String(i), location: m.location, value: m.value })) || []
+        serviceRequest?.moistureReadings?.map((m, i) => ({ key: String(i), location: m.location, value: m.value })) || []
     );
     const [newLoc, setNewLoc] = useState('');
     const [newVal, setNewVal] = useState<number>(0);
@@ -74,16 +75,16 @@ const SurveyUpload: React.FC = () => {
         message.success('Đã lưu dữ liệu khảo sát');
     };
 
-    if (!customer) return <div>Không tìm thấy khách hàng</div>;
+    if (!serviceRequest || !customer) return <div>Không tìm thấy yêu cầu dịch vụ hoặc khách hàng</div>;
 
     return (
         <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
-                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(`/pm/crm/customers/${id}`)}>
+                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(`/pm/crm/service-requests/${id}`)}>
                     Quay lại
                 </Button>
                 <div>
-                    <Title level={4} style={{ margin: 0 }}>📸 Khảo sát & Đo ẩm</Title>
+                    <Title level={4} style={{ margin: 0 }}>📸 Khảo sát: {serviceRequest.name}</Title>
                     <Text type="secondary">KH: {customer.fullName} – {customer.address}</Text>
                 </div>
             </div>
@@ -222,7 +223,7 @@ const SurveyUpload: React.FC = () => {
             </Row>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 16 }}>
-                <Button size="large" onClick={() => navigate(`/pm/crm/customers/${id}`)}>Hủy</Button>
+                <Button size="large" onClick={() => navigate(`/pm/crm/service-requests/${id}`)}>Hủy</Button>
                 <Button
                     type="primary"
                     size="large"
@@ -236,7 +237,7 @@ const SurveyUpload: React.FC = () => {
                     type="primary"
                     ghost
                     size="large"
-                    onClick={() => navigate(`/pm/crm/customers/${id}/quotation`)}
+                    onClick={() => navigate(`/pm/crm/service-requests/${id}/quotation`)}
                 >
                     Tiếp: Lập báo giá →
                 </Button>
