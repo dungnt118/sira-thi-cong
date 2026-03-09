@@ -27,6 +27,7 @@ import PMReports from '../pages/pm/Reports';
 
 // V3 CRM Pages
 import CustomerList from '../pages/pm/CRM/CustomerList';
+import CustomerDetail from '../pages/pm/CRM/CustomerDetail';
 import ServiceRequestList from '../pages/pm/CRM/ServiceRequestList';
 import ServiceRequestDetail from '../pages/pm/CRM/ServiceRequestDetail';
 import Pipeline from '../pages/pm/CRM/Pipeline';
@@ -124,6 +125,7 @@ function App() {
                             {/* Legacy Customer Routes */}
                             <Route path="customers" element={<CustomerList />} />
                             <Route path="customers/new" element={<CustomerCreate />} />
+                            <Route path="customers/:id" element={<CustomerDetail />} />
 
                             {/* New Service Request Routes (Deals) */}
                             <Route path="service-requests" element={<ServiceRequestList />} />
