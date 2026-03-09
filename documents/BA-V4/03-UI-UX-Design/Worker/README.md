@@ -1,37 +1,49 @@
 # UI/UX Blueprint - Worker
 
-## Mục tiêu vai trò
+## Vai trò trong phase hiện tại
 
-Worker cần một trải nghiệm mobile-first, cực ít thao tác nhưng rất rõ:
+Folder này được giữ lại để quản lý blueprint theo vai trò, nhưng cần chốt rõ:
 
-- nhận việc
-- ký nhận vật tư
-- làm checklist
-- upload bằng chứng
-- báo sự cố
+- `Worker` hiện là `worker profile`, chưa có tài khoản đăng nhập trực tiếp
+- mọi thao tác số hiện tại đi qua giao diện `Supervisor`
 
-## Màn hình bắt buộc
+Do đó, tài liệu này có 2 mục tiêu:
+
+1. mô tả dữ liệu/ngữ cảnh cần lưu cho worker profile ngay từ bây giờ
+2. giữ blueprint cho phase sau nếu BAC Group mở tài khoản trực tiếp cho Worker
+
+## Nhu cầu dữ liệu hiện tại
+
+Dù chưa có account, hệ thống vẫn phải lưu được cho từng worker profile:
+
+- danh tính cơ bản
+- tổ/đội tham gia
+- task tham gia
+- vật tư đã nhận
+- bằng chứng công việc đã thực hiện
+- sự cố liên quan
+
+## Blueprint phase sau
+
+Nếu mở app riêng cho Worker ở giai đoạn sau, các màn hình mục tiêu sẽ là:
 
 - Việc của tôi
 - Chi tiết task
 - Checklist task
 - Upload ảnh/video
-- Ký nhận vật tư
+- Xác nhận nhận vật tư
 - Báo cáo sự cố
 - Lịch sử việc đã làm
 
-## Flow chính
+## Quy ước cho phase hiện tại
 
-1. Xem task được giao
-2. Ký nhận vật tư
-3. Thực hiện checklist
-4. Upload đủ bằng chứng
-5. Gửi task chờ duyệt
-6. Nhận phản hồi nếu bị từ chối
+- Không xem màn `Worker` hiện có trong prototype là release scope độc lập
+- Các màn worker hiện tại phải được quy hoạch lại thành:
+  - dữ liệu worker profile
+  - hành động proxy trong màn Supervisor
 
 ## Gap còn thiếu trong hiện trạng
 
-- Chưa có task detail chuẩn, mới chủ yếu là checklist dự án
-- Màn vật tư/ký nhận chưa hoàn chỉnh
-- Chưa có lịch sử năng suất cá nhân và luồng retry khi offline
-
+- Chưa có worker profile master rõ ràng
+- Chưa có mapping giữa task, vật tư, evidence và worker profile
+- Prototype đang thể hiện Worker như một user app độc lập, chưa đúng baseline BA-V4

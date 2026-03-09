@@ -1,19 +1,27 @@
 # User Documentation Seed - Worker
 
-## Mục tiêu tài liệu
+## Vai trò của tài liệu này
 
-Worker cần tài liệu ngắn, trực quan, ưu tiên mobile:
+Folder `Worker` vẫn được giữ để tách tài liệu theo vai trò, nhưng ở phase hiện tại tài liệu này phục vụ chủ yếu cho:
 
-- xem việc
-- ký nhận vật tư
-- làm checklist
-- chụp/upload ảnh
-- báo sự cố
+- mô tả thông tin cần thu thập cho worker profile
+- chuẩn bị nội dung onboarding nếu sau này mở account trực tiếp cho Worker
 
-## Tài liệu cần biên soạn
+## Tài liệu cần biên soạn ở phase hiện tại
 
-- Quick start cho Worker
+- Quy chuẩn thông tin hồ sơ worker profile
+- Quy chuẩn chụp ảnh/quay video hiện trường để Supervisor cập nhật hộ
+- Quy trình xác nhận phát vật tư ngoài hiện trường
+- Quy trình báo sự cố cho Supervisor
+
+## Tài liệu dự phòng cho phase sau
+
+- Quick start cho Worker app
 - Hướng dẫn chụp ảnh đúng chuẩn
 - Hướng dẫn xử lý khi bị reject
 - Hướng dẫn báo sự cố
 
+## Lưu ý baseline
+
+- Không mặc định Worker có tài khoản đăng nhập
+- Không build tài liệu training app Worker như release hiện tại nếu chưa có quyết định mở account
