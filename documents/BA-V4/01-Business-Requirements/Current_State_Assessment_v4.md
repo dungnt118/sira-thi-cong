@@ -57,7 +57,7 @@ Kết quả là chưa có một baseline duy nhất cho:
 - Quy tắc tạo dữ liệu
 - Điểm cắt giữa CRM và Delivery
 
-### 3.2 Sai số lớn nhất nằm ở lớp “vận hành thật”
+### 3.2 Sai số lớn nhất nằm ở lớp "vận hành thật"
 
 Code hiện tại cho thấy dự án đã đi khá xa ở mặt trình bày UI, nhưng còn thiếu gần như toàn bộ các lớp để chạy thật:
 
@@ -74,14 +74,14 @@ Code hiện tại cho thấy dự án đã đi khá xa ở mặt trình bày UI,
 
 ### 3.3 Task module là khoảng trống lớn nhất
 
-Người dùng đã nêu đúng một vấn đề trọng tâm: hệ thống đang có `Checklist thi công`, nhưng chưa có `Task module` xuyên vai trò và chưa khóa mô hình `Supervisor thao tác thay Worker profile`.
+Người dùng đã nêu đúng một vấn đề trọng tâm: hệ thống Ä'ang có `Checklist thi công`, nhưng chưa có `Task module` xuyên vai trò và chưa khóa mô hình `Giám sát thao tác thay Worker profile`.
 
 Khoảng trống hiện tại:
 
 - Chưa có `task` cho từng stage CRM
 - Chưa có `work package` cho từng dự án/khu vực
 - Chưa có `owner`, `reviewer`, `due date`, `dependency`, `SLA`
-- Chưa có task cho PM/Supervisor ngoài checklist ảnh
+- Chưa có task cho PM/Giám sát ngoài checklist ảnh
 - Chưa có worker profile, phân công nội bộ và bàn giao liên vai trò ở mức dữ liệu chuẩn
 - Chưa liên thông task với kho, nghiệm thu, bảo dưỡng
 
@@ -93,14 +93,14 @@ PM hiện phải đi qua nhiều cụm màn:
 - Construction
 - Inventory
 - Finance
-- Legacy pages của V2
+- Legacy pages cá»§a V2
 
 Nhưng chưa có:
 
 - Một workbench thống nhất theo ngữ cảnh dự án/yêu cầu dịch vụ
 - Một timeline end-to-end
 - Một task board đa vai trò
-- Một nơi duy nhất để thấy “đang vướng ở đâu”
+- Một nơi duy nhất để thấy "đang vướng ở đâu"
 
 ## 4. Đánh giá trưởng thành hiện tại
 
@@ -132,13 +132,13 @@ BA-V4 đề xuất khóa lại 10 quyết định:
 1. Dùng `Service Request` làm entity chạy pipeline.
 2. Hỗ trợ cả hai hướng tạo dữ liệu: `Customer -> Service Request` và `Service Request -> auto-create Customer`.
 3. Dựng `Task module` làm xương sống vận hành giữa CRM và khối vận hành nội bộ.
-4. Khóa mô hình `Supervisor thao tác thay Worker profile` ở giai đoạn hiện tại.
+4. Khóa mô hình `Giám sát thao tác thay Worker profile` ở giai Ä'oạn hiện tại.
 5. Tách `Pipeline config` thành cấu hình động có `playbook nhiệm vụ`.
 6. Chốt `Google Drive` là lớp lưu trữ cloud, nhưng metadata phải nằm trong hệ thống.
 7. Chuẩn hóa vòng đời `Acceptance -> Warranty/Maintenance -> Financial impact`.
 8. Gộp lại một `Admin control plane` duy nhất, không tiếp tục phát tán giữa `admin-v2` và `admin-app`.
 9. Tạo một `ERD chuẩn` cho toàn hệ thống trước khi phát triển tiếp.
-10. Chuyển từ tư duy “build từng màn” sang “build theo end-to-end workflow”.
+10. Chuyển từ tư duy "build từng màn" sang "build theo end-to-end workflow".
 
 ## 6. Kết luận
 
@@ -151,5 +151,5 @@ Dự án hiện tại không phải là thất bại; ngược lại, nó đã c
 Tuy nhiên, nếu không dừng lại để chuẩn hóa bằng BA-V4, hệ thống sẽ tiếp tục gặp 3 rủi ro:
 
 1. Xây thêm càng nhiều càng rối do thiếu mô hình dữ liệu chuẩn
-2. PM/Supervisor/worker profile không có một flow vận hành thống nhất, dễ sai actor và sai trách nhiệm
+2. PM/Giám sát/worker profile không có một flow vận hành thống nhất, dễ sai actor và sai trách nhiệm
 3. Code UI tiếp tục đi trước tài liệu và đi trước backend, làm tăng chi phí sửa lại

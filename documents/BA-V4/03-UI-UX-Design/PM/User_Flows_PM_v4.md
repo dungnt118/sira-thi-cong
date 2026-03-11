@@ -5,7 +5,7 @@
 Các flow dưới đây mô tả các hành trình PM bắt buộc phải làm được trong V4. Flow được viết theo mô hình mới:
 
 - `Service Request-first`
-- `Supervisor proxy / worker profile`
+- `Giám sát thao tác thay worker profile`
 - `Module B - Vận hành nội bộ`
 - có cả `đội nội bộ` và `partner/outsource`
 
@@ -61,7 +61,7 @@ flowchart TD
   A["Contract Detail"] --> B["PM mở Convert to Project Wizard"]
   B --> C["Kiểm tra dữ liệu bắt buộc"]
   C --> D["Chọn template task/playbook"]
-  D --> E["Chọn PM/Supervisor phụ trách"]
+  D --> E["Chọn PM/Giám sát phụ trách"]
   E --> F["Thiết lập task package, timeline, payment plan"]
   F --> G["Hệ thống sinh Project + Task nền + Assignment"]
   G --> H["PM vào Project Workbench"]
@@ -74,12 +74,12 @@ flowchart TD
 ```mermaid
 flowchart TD
   A["Project Workbench"] --> B["PM mở Workforce Management"]
-  B --> C["Xem capacity của Supervisor và worker profile"]
-  C --> D["Chọn Supervisor chính"]
+  B --> C["Xem capacity cá»§a Giám sát và worker profile"]
+  C --> D["Chọn Giám sát chính"]
   D --> E["Chọn worker profile / tổ đội hỗ trợ"]
   E --> F["Gán vào task package"]
   F --> G["Hệ thống ghi assignment + thời gian hiệu lực"]
-  G --> H["Supervisor nhận được phân công"]
+  G --> H["Giám sát nhận được phân công"]
 ```
 
 ## 6. Flow 5 - Gán nhà thầu liên kết/outsource
@@ -124,7 +124,7 @@ flowchart TD
   D -->|Có| E["Approve evidence"]
   D -->|Không| F["Reject với lý do"]
   E --> G["Checklist/task cập nhật trạng thái"]
-  F --> H["Supervisor nhận feedback để cập nhật lại"]
+  F --> H["Giám sát nhận feedback để cập nhật lại"]
   G --> I["PM kiểm tra incident/blocked reason nếu có"]
   H --> I
 ```

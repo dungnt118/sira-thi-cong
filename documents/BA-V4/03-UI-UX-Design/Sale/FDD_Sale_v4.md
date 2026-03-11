@@ -25,7 +25,7 @@ Sale không chịu trách nhiệm thay PM cho điều phối nội bộ, nhưng 
 | SAL-06 | Quotation Workspace | Lập nhiều phiên bản báo giá, nhận công thức giá, gửi khách, chốt thắng/thua |
 | SAL-07 | Contract Follow-up | Theo dõi hợp đồng, chọn mẫu, phát hành yêu cầu ký, biết đang chờ ai |
 | SAL-08 | Advance & Payment Follow-up | Theo dõi đợt tạm ứng/đề nghị thanh toán, nhắc khách và cập nhật kết quả |
-| SAL-09 | Delivery Incident Coordination | Phối hợp xử lý tình huống với PM/Supervisor trong thi công, nghiệm thu, bảo hành |
+| SAL-09 | Delivery Incident Coordination | Phối hợp xá»­ lý tình huống vá»›i PM/Giám sát trong thi công, nghiệm thu, bảo hành |
 | SAL-10 | After-sales & Upsell | Chăm sóc sau công trình, gợi ý gói dịch vụ bổ sung, lưu cơ hội mới |
 
 ## 3. Mô tả chi tiết theo module
@@ -105,6 +105,9 @@ Sale cần một workspace để ghép và gửi trọn bộ:
 ### 3.6 SAL-06 Quotation Workspace
 
 - Nhận số liệu kỹ thuật, diện tích, ảnh, giá nền
+- Xem `Estimate Version` nội bộ ở mức được phép
+- Xem kết luận `Go/No-Go` trước khi phát hành báo giá
+- Dùng `Quotation Mapping Config` để map đầu mục nội bộ sang báo giá khách hàng
 - Tạo nhiều version báo giá
 - So sánh version
 - Đánh dấu `gửi khách`, `đang đàm phán`, `thắng`, `thua`
@@ -137,7 +140,8 @@ Sale cần một workspace để ghép và gửi trọn bộ:
 ### 3.9 SAL-09 Delivery Incident Coordination
 
 - Nhận cảnh báo khi dự án có phát sinh ảnh hưởng khách hàng
-- Có luồng trao đổi với PM/Supervisor
+- Có luồng trao đổi với PM/Giám sát
+- Có thể mở hoặc theo dõi thread `Portal Chat` với khách hàng
 - Ghi lại hướng xử lý đã chốt với khách
 - Dùng tiếp trong:
   - nghiệm thu
@@ -173,9 +177,13 @@ Sale cần tối thiểu các khu vực sau:
 2. Sale có thể tạo `Service Request` trước, hệ thống tự sinh `Customer` nếu chưa có.
 3. Một `Customer` có thể có nhiều `Service Request`.
 4. Mỗi lần gửi báo giá phải gắn với một `quotation version`.
-5. Sale không được sửa dữ liệu kỹ thuật đã được khóa sau khi đã phát hành hợp đồng, trừ khi có `change order`.
-6. Trạng thái hợp đồng/tạm ứng/thanh toán phải lấy từ nguồn nghiệp vụ chuẩn, không nhập tay rời rạc.
-7. Tất cả tài liệu gửi khách phải sinh từ `template version` hợp lệ hoặc được audit nếu chỉnh tay.
+5. Sale không được phát hành báo giá nếu `Go/No-Go` chưa hợp lệ hoặc đang có cảnh báo chặn.
+6. Một `quotation version` phải truy được về `estimate version` và `quotation mapping`.
+7. Sale có thể thấy các biến động ảnh hưởng khách hàng, nhưng không được sửa giá vốn nội bộ.
+8. Mọi trao đổi quan trọng với khách về tiến độ, thanh toán, bảo hành phải có thể được xác nhận lại trên portal để lưu bằng chứng.
+9. Sale không được sửa dữ liệu kỹ thuật đã được khóa sau khi đã phát hành hợp đồng, trừ khi có `change order`.
+10. Trạng thái hợp đồng/tạm ứng/thanh toán phải lấy từ nguồn nghiệp vụ chuẩn, không nhập tay rời rạc.
+11. Tất cả tài liệu gửi khách phải sinh từ `template version` hợp lệ hoặc được audit nếu chỉnh tay.
 
 ## 6. Gap hiện tại của prototype/code
 

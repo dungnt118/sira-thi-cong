@@ -5,7 +5,7 @@
 Đây là phần được bổ sung riêng vì PM của V4 trước đó chưa làm đủ sâu. Tài liệu này khóa lại cách PM quản lý:
 
 - đội nội bộ
-- supervisor pool
+- đội Giám sát
 - worker profile
 - công ty đối tác/nhà thầu liên kết
 - leader phụ trách của đối tác
@@ -16,7 +16,7 @@
 ### 2.1 Nội bộ
 
 - PM
-- Supervisor
+- Giám sát
 - Worker profile
 - vai trò kỹ thuật/chuyên môn
 - khả năng nhận việc / tải công việc
@@ -36,14 +36,14 @@
 | WF-PM-WP-01 | Dự án dùng hoàn toàn đội nội bộ | Luồng cơ bản |
 | WF-PM-WP-02 | Dự án giao một package cho partner | Giao khoán từng phần |
 | WF-PM-WP-03 | Dự án hybrid nội bộ + partner | Thực tế phổ biến khi scale |
-| WF-PM-WP-04 | Thay Supervisor/leader giữa chừng | Tránh mất ownership |
+| WF-PM-WP-04 | Thay Giám sát/leader giữa chừng | Tránh mất ownership |
 | WF-PM-WP-05 | Block partner vì hiệu suất hoặc vi phạm | Quản trị rủi ro |
 
 ## 4. Đối tượng dữ liệu PM cần nhìn thấy
 
 ### 4.1 Đội nội bộ
 
-- `Supervisor`
+- `Giám sát`
 - `Worker profile`
 - phòng ban/nhóm kỹ thuật
 - kỹ năng chính
@@ -86,16 +86,16 @@
 
 1. PM mở `Project Workbench`
 2. Vào `Workforce Management`
-3. Chọn Supervisor chính
+3. Chọn Giám sát chính
 4. Chọn worker profile hoặc tổ đội
 5. Gán vào `task package`
 6. Lưu allocation, ngày hiệu lực, ghi chú
-7. Supervisor nhận assignment
+7. Giám sát nhận assignment
 
 ### 6.2 Reassign khi quá tải hoặc thay đổi
 
 1. PM xem `Capacity Board`
-2. Phát hiện Supervisor/worker profile quá tải
+2. Phát hiện Giám sát/worker profile quá tải
 3. Chuyển một phần package sang người khác
 4. Hệ thống giữ lịch sử trước/sau
 
@@ -114,7 +114,7 @@
 2. Chọn company `ACTIVE`
 3. Chọn leader phụ trách
 4. Chọn package, deadline, deliverables
-5. Cấu hình handoff rule với Supervisor/PM
+5. Cấu hình handoff rule vá»›i Giám sát/PM
 6. Lưu assignment
 
 ### 7.3 Đánh giá sau dự án
@@ -132,7 +132,7 @@
    - hoặc hybrid có primary owner
 2. Partner `BLOCKED` không được gán mới.
 3. Worker profile vẫn phải được quản lý kể cả khi không có account.
-4. Supervisor là actor số hiện trường trong cả luồng nội bộ và partner.
+4. Giám sát là actor số hiện trường trong cả luồng nội bộ và partner.
 5. PM phải nhìn được ai đang chịu trách nhiệm ở 3 cấp:
    - project
    - package/task
@@ -146,7 +146,7 @@
 
 ## 9. KPI PM cần theo dõi
 
-- utilization của Supervisor và workforce nội bộ
+- utilization cá»§a Giám sát và workforce nội bộ
 - tỷ lệ overload
 - số package đang giao cho partner
 - on-time rate theo partner
@@ -156,7 +156,7 @@
 
 ## 10. Kết luận
 
-PM của V4 sẽ tiếp tục bị “hở” nếu thiếu trục `Workforce & Partners`. Tài liệu này khóa lại rõ rằng:
+PM của V4 sẽ tiếp tục bị "hở" nếu thiếu trục `Workforce & Partners`. Tài liệu này khóa lại rõ rằng:
 
 - quản lý đội nội bộ là scope bắt buộc
 - nhà thầu liên kết là scope phải được thiết kế sẵn

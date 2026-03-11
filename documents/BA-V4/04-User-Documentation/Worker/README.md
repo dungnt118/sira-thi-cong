@@ -10,9 +10,9 @@ Folder `Worker` vẫn được giữ để tách tài liệu theo vai trò, như
 ## Tài liệu cần biên soạn ở phase hiện tại
 
 - Quy chuẩn thông tin hồ sơ worker profile
-- Quy chuẩn chụp ảnh/quay video hiện trường để Supervisor cập nhật hộ
+- Quy chuẩn chụp ảnh/quay video hiện trường để Giám sát cập nhật hộ
 - Quy trình xác nhận phát vật tư ngoài hiện trường
-- Quy trình báo sự cố cho Supervisor
+- Quy trình báo sá»± cố cho Giám sát
 
 ## Tài liệu dự phòng cho phase sau
 

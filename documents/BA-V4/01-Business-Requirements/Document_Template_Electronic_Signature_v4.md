@@ -31,7 +31,7 @@ Capability này không phải màn hình phụ. Đây là lớp nền dùng chun
 | Sale | Chọn mẫu đúng ngữ cảnh khách hàng, xem preview và follow quá trình ký |
 | HanhChinh | Quản lý thư viện mẫu, phát hành hồ sơ, nhận lại hồ sơ, lưu trữ |
 | Accountant | Cấu hình mẫu tài chính, phát hành phiếu tạm ứng/đề nghị thanh toán |
-| PM/Supervisor | Tạo biên bản hiện trường, nghiệm thu, bảo trì |
+| PM/Giám sát | Tạo biên bản hiện trường, nghiệm thu, bảo trì |
 | Director | Ký duyệt các tài liệu cần thẩm quyền |
 | Customer | Ký touch hoặc xác nhận trên thiết bị được chỉ định |
 | Admin | Cấu hình quyền, tích hợp storage, audit, chính sách ký |

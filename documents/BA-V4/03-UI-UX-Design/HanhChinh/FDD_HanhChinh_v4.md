@@ -110,7 +110,7 @@ Hành Chính cần bảng bàn giao để không phụ thuộc chat rời rạc:
 
 - Sale bàn giao hồ sơ chốt
 - Accountant bàn giao chứng từ tài chính
-- PM/Supervisor bàn giao biên bản hiện trường
+- PM/Giám sát bàn giao biên bản hiện trường
 - Director bàn giao trạng thái ký duyệt
 
 ### 3.9 HC-09 Incident Document Support
@@ -138,7 +138,7 @@ Phải tìm được hồ sơ theo:
 |---|---|---|
 | Sale | Phối hợp gửi/nhận hồ sơ, cập nhật trạng thái khách | Không thay Sale tư vấn/chốt deal |
 | Accountant | Phát hành chứng từ theo số liệu tài chính | Không tự quyết thay Kế toán về nội dung tiền |
-| PM/Supervisor | Lấy biên bản hiện trường để phát hành/lưu | Không thay PM xác nhận chất lượng công việc |
+| PM/Giám sát | Lấy biên bản hiện trường để phát hành/lưu | Không thay PM xác nhận chất lượng công việc |
 | Director | Điều phối trạng thái ký | Không thay Giám đốc quyết định ký hay không |
 | Admin | Dùng template/config đã được cấp quyền | Không kiêm cấu hình hệ thống sâu |
 

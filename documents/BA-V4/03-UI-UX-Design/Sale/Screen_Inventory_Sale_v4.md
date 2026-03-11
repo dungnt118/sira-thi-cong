@@ -22,15 +22,19 @@
 | SAL-11 | Consultation Log | Ghi chú gọi điện, kịch bản, kết quả | Chưa có | Chưa có |
 | SAL-12 | Survey Coordination Board | Hẹn khảo sát, theo dõi khảo sát | Chưa có riêng | Chưa có |
 | SAL-13 | Survey Record Detail | Xem và gửi lại dữ liệu khảo sát | `/pm/crm/service-requests/:id/survey` | Có một phần |
+| SAL-13A | Estimate Summary View | Xem tóm tắt dự toán nội bộ ở mức Sale được phép | Chưa có | Chưa có |
+| SAL-13B | Go/No-Go Status Board | Xem trạng thái chốt nhận việc và cảnh báo chặn | Chưa có | Chưa có |
 | SAL-14 | Summary Package Builder | Ghép báo cáo tổng hợp + process làm việc + giải pháp | Chưa có | Chưa có |
 | SAL-15 | Quotation Workspace | Tạo và so sánh version báo giá | `/pm/crm/service-requests/:id/quotation` | Có một phần |
+| SAL-15A | Quotation Mapping Review | Review đầu mục nội bộ sang đầu mục báo giá khách | Chưa có | Chưa có |
 | SAL-16 | Quote Approval / Win-Loss | Chốt thắng thua, lý do, competitor note | Chưa có | Chưa có |
 | SAL-17 | Contract Follow-up Board | Theo dõi tình trạng hợp đồng, chờ ai ký | Chưa có | Chưa có |
 | SAL-18 | Document Template Picker | Chọn mẫu tài liệu để sinh PDF | Chưa có | Chưa có |
+| SAL-18A | Portal Thread Inbox | Theo dõi thread trao đổi với khách hàng trên portal | Chưa có | Chưa có |
 | SAL-19 | Signature Request Tracker | Theo dõi lượt ký của khách/nội bộ | Chưa có | Chưa có |
 | SAL-20 | Advance Follow-up Board | Theo dõi tạm ứng, nhắc khách | Chưa có | Chưa có |
 | SAL-21 | Payment Follow-up Board | Theo dõi đề nghị thanh toán và công nợ cần nhắc | Chưa có | Chưa có |
-| SAL-22 | Incident Coordination Feed | Xử lý phát sinh với PM/Supervisor | Chưa có | Chưa có |
+| SAL-22 | Incident Coordination Feed | Xá»­ lý phát sinh vá»›i PM/Giám sát | Chưa có | Chưa có |
 | SAL-23 | After-sales Workspace | Chăm sóc sau công trình và upsell | Chưa có | Chưa có |
 | SAL-24 | Activity Timeline | Nhật ký tương tác với khách | Chưa có | Chưa có |
 | SAL-25 | KPI & Conversion Report | Tỷ lệ phản hồi, khảo sát, báo giá, ký hợp đồng | Chưa có | Chưa có |

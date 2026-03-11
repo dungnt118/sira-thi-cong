@@ -25,16 +25,16 @@ Workbook có 2 sheet chính:
 |---|---|---|---|
 | 1. Thông tin khách hàng | Tiếp nhận lead từ MKT hoặc nguồn trực tiếp | Chưa thao tác chính | MKT, CRM intake |
 | 2. Liên hệ/Tư vấn | Gọi khách theo SLA, tư vấn sơ bộ, dùng kịch bản gọi điện | Chưa thao tác chính | Customer, MKT |
-| 3. Khảo sát | Hẹn khách, phối hợp kỹ thuật khảo sát | Chưa thao tác chính | Kỹ thuật, Supervisor |
+| 3. Khảo sát | Hẹn khách, phối hợp kỹ thuật khảo sát | Chưa thao tác chính | Kỹ thuật, Giám sát |
 | 4. Xây dựng giải pháp | Gửi báo cáo tổng hợp, gửi process làm việc, duyệt giải pháp với khách | Chưa thao tác chính | Kỹ thuật, Customer |
 | 5. Báo giá | Nhập số liệu, nhận công thức giá nền, lên báo giá gửi khách | Chưa thao tác chính | Accountant |
 | 6. Làm hợp đồng | Follow khách, kiểm tra nháy; chưa là người phát hành cuối | Gửi/nhận hợp đồng, lưu hồ sơ, gửi mail CC nội bộ | Accountant, Director |
 | 7. Tạm ứng | Follow khách và đốc thúc | Gửi phiếu tạm ứng cho khách | Accountant, Director |
-| 8. Triển khai | Phối hợp hiện trường khi phát sinh | Phối hợp xử lý tình huống về hồ sơ/thông tin | PM, Supervisor, Accountant |
-| 9. Nghiệm thu | Phối hợp xử lý tình huống phát sinh | Có thể tham gia phát hành hồ sơ số nếu cần | PM, Supervisor |
+| 8. Triển khai | Phối hợp hiện trường khi phát sinh | Phối hợp xá»­ lý tình huống về hồ sÆ¡/thông tin | PM, Giám sát, Accountant |
+| 9. Nghiệm thu | Phối hợp xá»­ lý tình huống phát sinh | Có thể tham gia phát hành hồ sÆ¡ số nếu cần | PM, Giám sát |
 | 10. Thanh toán | Đốc thúc sau khi gửi đề nghị thanh toán | Gửi đề nghị thanh toán cho khách | Accountant, Director |
-| 11. Bảo trì | Không là owner chính, nhưng có thể chăm sóc khách | Không là owner chính | Supervisor, Accountant |
-| 12. Bảo hành | Phối hợp xử lý tình huống phát sinh và giữ quan hệ khách | Hỗ trợ luân chuyển hồ sơ nếu có | Supervisor, Director |
+| 11. Bảo trì | Không là owner chính, nhưng có thể chăm sóc khách | Không là owner chính | Giám sát, Accountant |
+| 12. Bảo hành | Phối hợp xá»­ lý tình huống phát sinh và giữ quan hệ khách | Há»— trợ luân chuyển hồ sÆ¡ nếu có | Giám sát, Director |
 | 13. Chăm sóc sau công trình | Chăm sóc, bán thêm gói giải pháp khác | Lưu và tra cứu hồ sơ khi cần | Customer, Sale lead pool |
 
 ## 4. Yêu cầu chi tiết phải phản ánh vào BA-V4

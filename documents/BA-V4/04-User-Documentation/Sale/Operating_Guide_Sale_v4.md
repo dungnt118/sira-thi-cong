@@ -42,7 +42,7 @@
 
 ### 2.5 Khi có phát sinh hiện trường
 
-- Nhận thông tin từ PM/Supervisor
+- Nhận thông tin từ PM/Giám sát
 - Thống nhất thông điệp gửi khách
 - Ghi lại cam kết đã trao đổi
 

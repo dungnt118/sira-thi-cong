@@ -1,17 +1,12 @@
-# User Documentation Seed - Customer Portal
+# Customer Portal - User Documentation V4
 
-## Mục tiêu tài liệu
+## Bộ tài liệu hiện có
 
-Portal khách hàng cần tài liệu cực ngắn, thiên về giải thích:
+- `Operating_Guide_CustomerPortal_v4.md`: hướng dẫn sử dụng portal theo baseline V4
 
-- xem tiến độ
-- xem ảnh đã duyệt
-- xem lịch thanh toán
-- xem bảo hành
+## Nội dung tài liệu phải bao phủ
 
-## Tài liệu cần biên soạn
-
-- Hướng dẫn truy cập portal bằng link
-- Giải thích các trạng thái tiến độ
-- Hướng dẫn liên hệ hỗ trợ khi thấy dữ liệu bất thường
-
+- truy cập portal
+- xem tiến độ, minh chứng, chứng từ
+- chat và lưu vết trao đổi
+- gửi yêu cầu bảo hành/bảo trì

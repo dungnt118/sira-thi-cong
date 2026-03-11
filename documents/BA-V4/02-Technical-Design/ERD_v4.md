@@ -6,10 +6,13 @@ ERD v4 được dựng để giải quyết các thiếu hụt của mô hình c
 
 - tách rõ `Customer`, `Service Request`, `Project`
 - hỗ trợ cả hai hướng tạo dữ liệu: `Customer -> Service Request` và `Service Request -> auto-create Customer`
-- phản ánh đúng mô hình `Supervisor thao tác thay Worker profile`
+- phản ánh đúng mô hình `Giám sát thao tác thay Worker profile`
 - liên kết chặt `CRM -> Vận hành nội bộ -> Hiện trường -> Kho -> Tài chính -> Bảo hành/Bảo trì`
+- bổ sung lớp `Estimate - Go/No-Go - Quotation Mapping`
+- bổ sung lớp `Asset - Consumable - Remainder Recovery`
 - bổ sung lớp `File governance + Google Drive sync`
 - bổ sung lớp `Document Template + Digital Signature + Dossier`
+- bổ sung lớp `Portal chat và bằng chứng trao đổi`
 - bổ sung lớp `Revenue - Cost - Debt - Retention` theo công trình
 
 ## 2. Nguyên tắc thiết kế
@@ -17,7 +20,7 @@ ERD v4 được dựng để giải quyết các thiếu hụt của mô hình c
 1. `Service Request` là bản ghi trung tâm của CRM.
 2. `Customer` luôn là master record dài hạn; thao tác tạo `Service Request` có thể đồng thời sinh `Customer` mới trong cùng transaction.
 3. `Worker` ở giai đoạn hiện tại không phải `User`; hệ thống dùng `Worker Profile` để quản lý nguồn lực thực tế.
-4. `Supervisor` là actor số chính của hiện trường, nhưng dữ liệu phải truy vết được worker profile thực hiện thực tế.
+4. `Giám sát` là actor số chính của hiện trường, nhưng dữ liệu phải truy vết được worker profile thực hiện thực tế.
 5. Metadata file nằm trong hệ thống BAC Group; Google Drive chỉ là lớp lưu trữ cloud.
 6. `Warranty/Maintenance` phải nối được với chi phí và khoản phải thu phát sinh.
 7. Hồ sơ phát hành và hồ sơ đã ký phải là aggregate riêng, không chỉ là file đính kèm.
@@ -392,7 +395,7 @@ erDiagram
     uuid id PK
     uuid project_id FK
     uuid worker_profile_id FK
-    uuid supervisor_user_id FK
+    uuid giam_sat_user_id FK
     string assignment_scope
     date start_date
     date end_date
@@ -845,6 +848,58 @@ Chuỗi này giúp phân biệt rõ:
 - case bảo trì tính phí
 - case phải chuyển thành change order
 
+### 4.8 `Estimate`, `Go/No-Go` và `Quotation Mapping` trở thành lớp dữ liệu riêng
+
+ERD v4 cần bổ sung các aggregate sau thay vì trộn vào `QUOTATION`:
+
+- `ESTIMATE_VERSION`
+- `ESTIMATE_LINE`
+- `PRICE_BOOK`
+- `PRICE_BOOK_LINE`
+- `QUOTATION_MAPPING_RULE`
+- `GO_NO_GO_REVIEW`
+- `GO_NO_GO_WARNING`
+
+Mục tiêu là tách rõ:
+
+- dữ liệu tính giá vốn nội bộ
+- dữ liệu quyết định nhận việc
+- dữ liệu thương mại gửi khách
+
+### 4.9 `Inventory` phải phân biệt tài sản, tiêu hao và phần dư hoàn nhập
+
+ERD v4 cần mở rộng lớp kho hiện tại bằng:
+
+- thuộc tính phân loại trên `MATERIAL`
+- `ASSET_REGISTRY`
+- `ASSET_ALLOCATION`
+- `MATERIAL_REMAINDER_LOT`
+- `STOCK_RETURN_INSPECTION`
+
+Nhờ đó hệ thống mới quản lý được:
+
+- tài sản thi công cấp phát và thu hồi
+- vật tư tiêu hao xuất dùng
+- vật tư bán tiêu hao còn phần dư như sơn, hóa chất, phụ gia
+- hao hụt, hỏng, mất và giá trị ảnh hưởng vào cost ledger
+
+### 4.10 `Portal chat` phải có audit và ngữ cảnh nghiệp vụ
+
+Ngoài `PORTAL_LINK`, ERD v4 cần thêm:
+
+- `PORTAL_THREAD`
+- `PORTAL_MESSAGE`
+- `PORTAL_ATTACHMENT`
+- `PORTAL_MESSAGE_RECEIPT`
+- `PORTAL_SLA_EVENT`
+
+Lớp dữ liệu này cho phép:
+
+- chat theo ngữ cảnh công trình, thanh toán, nghiệm thu, bảo hành
+- lưu read receipt
+- lưu file đã publish cho khách
+- trích xuất lịch sử giao tiếp vào dossier
+
 ## 5. Hướng triển khai từ ERD v4
 
 Trước khi build tiếp tính năng, cần khóa các phần sau:
@@ -852,9 +907,10 @@ Trước khi build tiếp tính năng, cần khóa các phần sau:
 1. Domain model chuẩn theo ERD v4
 2. API contract cho các aggregate chính
 3. Rule convert `Service Request -> Contract -> Project`
-4. Rule `Supervisor actor / Worker profile`
-5. Rule đồng bộ `CRM - Interaction Log - Quotation - Contract`
-6. Rule đồng bộ `Task - Inventory - Acceptance - Aftersales`
+4. Rule `Giám sát actor / Worker profile`
+5. Rule đồng bộ `CRM - Estimate - Go/No-Go - Quotation - Contract`
+6. Rule đồng bộ `Task - Inventory - Asset - Remainder - Acceptance - Aftersales`
 7. Rule đồng bộ `Document Record - Signature - Dossier`
 8. Rule `Project Cost Entry - Cash Book - Payment Transaction - Retention`
 9. Rule đồng bộ file với Google Drive và publish portal
+10. Rule `Portal Thread - Portal Message - Warranty/Maintenance Case`

@@ -40,7 +40,10 @@ Liệt kê đầy đủ các màn hình PM cần có trong V4, đồng thời đ
 | ID | Tên màn | Mục tiêu | Route/prototype hiện có | Trạng thái |
 |---|---|---|---|---|
 | PM-13 | Survey Workspace | Upload khảo sát, đo đạc, trạng thái hiện trạng | `src/pages/pm/CRM/SurveyUpload.tsx` | Đã có prototype |
+| PM-13A | Estimate Workbench | Lập `Estimate Version`, tính vật tư, nhân công, vận chuyển | Chưa thấy page riêng | Chưa có |
+| PM-13B | Go/No-Go Review Board | Review cảnh báo nhận việc, điều kiện chốt làm | Chưa thấy page riêng | Chưa có |
 | PM-14 | Quotation Workspace | Tạo/chỉnh sửa báo giá | `src/pages/pm/CRM/Quotation.tsx` | Đã có prototype |
+| PM-14A | Quotation Mapping Config | Map đầu mục nội bộ sang đầu mục báo giá khách | Chưa thấy page riêng | Chưa có |
 | PM-15 | Quotation Version Compare | So version, chọn bản thắng | Chưa thấy page riêng | Chưa có |
 | PM-16 | Contract List | Quản lý hợp đồng | `src/pages/pm/Contracts/ContractList.tsx` | Đã có prototype |
 | PM-17 | Contract Create/Edit | Tạo/sửa hợp đồng | `src/pages/pm/Contracts/ContractCreate.tsx` | Đã có prototype |
@@ -56,14 +59,14 @@ Liệt kê đầy đủ các màn hình PM cần có trong V4, đồng thời đ
 | PM-22 | Project Workbench Overview | Tổng quan dự án, bottleneck, next actions | `src/pages/pm/Construction/ProjectDetail.tsx`, `src/pages/pm/Projects/ProjectDetail.tsx` | Có một phần |
 | PM-23 | Task Board | Quản lý WBS/task package/dependency | Chưa thấy page riêng | Chưa có |
 | PM-24 | Task Package Detail | Xem assignment, checklist, material dependency | Chưa thấy page riêng | Chưa có |
-| PM-25 | Handoff Log | Xem bàn giao PM -> Supervisor -> Accountant | Chưa thấy page riêng | Chưa có |
+| PM-25 | Handoff Log | Xem bàn giao PM -> Giám sát -> Accountant | Chưa thấy page riêng | Chưa có |
 | PM-26 | Change Order / Scope Change | Quản lý phát sinh thay đổi phạm vi | Chưa thấy page riêng | Chưa có |
 
 ## 7. Nhóm Workforce & Partners
 
 | ID | Tên màn | Mục tiêu | Route/prototype hiện có | Trạng thái |
 |---|---|---|---|---|
-| PM-27 | Internal Workforce List | Quản lý đội nội bộ, supervisor, worker profile | `src/pages/pm/Teams/index.tsx` qua route `/pm/teams/internal` | Có một phần |
+| PM-27 | Internal Workforce List | Quản lý đội nội bộ, Giám sát, worker profile | `src/pages/pm/Teams/index.tsx` qua route `/pm/teams/internal` | Có một phần |
 | PM-28 | Capacity & Availability View | Xem tải phân bổ nguồn lực | Chưa thấy page riêng | Chưa có |
 | PM-29 | Worker Profile Directory | Quản lý hồ sơ worker profile | Chưa thấy page riêng | Chưa có |
 | PM-30 | Partner Company List | Quản lý nhà thầu/cộng tác viên liên kết | `src/pages/pm/Teams/index.tsx` qua route `/pm/teams/outsource` | Có một phần |
@@ -82,6 +85,8 @@ Liệt kê đầy đủ các màn hình PM cần có trong V4, đồng thời đ
 | PM-38 | Stock Request In / Return | Đề nghị nhập/hoàn kho | `src/pages/pm/Inventory/StockRequestIn.tsx` | Đã có prototype |
 | PM-39 | Labor Planning | Lập kế hoạch nhân lực nội bộ/outsource | Chưa thấy page riêng | Chưa có |
 | PM-40 | Cost Variance | So planned vs actual vật tư/nhân công | Chưa thấy page riêng | Chưa có |
+| PM-40A | Asset & Consumable Plan | Lập kế hoạch tài sản thi công, vật tư tiêu hao, vật tư bán tiêu hao | Chưa thấy page riêng | Chưa có |
+| PM-40B | Remainder Recovery Review | Theo dõi phần dư hoàn nhập, hao hụt, mất mát | Chưa thấy page riêng | Chưa có |
 
 ## 9. Nhóm Quality, Evidence, Incident
 
@@ -101,6 +106,7 @@ Liệt kê đầy đủ các màn hình PM cần có trong V4, đồng thời đ
 | PM-47 | Finance Snapshot Detail | Xem milestone, estimated margin, aging | `src/pages/pm/Construction/ProjectFinance.tsx` | Đã có prototype |
 | PM-48 | Acceptance Readiness | Kiểm tra điều kiện close/acceptance | Chưa thấy page riêng | Chưa có |
 | PM-49 | Portal Publish Center | Publish/revoke dữ liệu cho khách | Chưa thấy page riêng | Chưa có |
+| PM-49A | Portal Thread Review | Xem và xử lý thread chat với khách hàng | Chưa thấy page riêng | Chưa có |
 | PM-50 | Maintenance Detail | Theo dõi maintenance/warranty case | `src/pages/pm/Contracts/MaintenanceDetail.tsx` | Có một phần |
 | PM-51 | Warranty/Maintenance Oversight | Tổng hợp case hậu mãi theo project | Chưa thấy page riêng | Chưa có |
 

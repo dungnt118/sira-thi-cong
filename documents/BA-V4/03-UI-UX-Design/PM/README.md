@@ -2,7 +2,7 @@
 
 ## Mục tiêu vai trò
 
-PM trong BA-V4 không chỉ là người “quản lý dự án thi công”, mà là owner xuyên suốt chuỗi:
+PM trong BA-V4 không chỉ là người "quản lý dự án thi công", mà là owner xuyên suốt chuỗi:
 
 `Customer/Service Request -> Survey -> Quotation -> Contract -> Project -> Task -> Workforce -> Material/Labor Plan -> Evidence Review -> Acceptance -> Portal -> Warranty Follow-up`
 
@@ -36,7 +36,7 @@ PM trong BA-V4 không chỉ là người “quản lý dự án thi công”, m�
 1. PM phải có một `workbench thống nhất`, không bị chia cắt giữa CRM, Construction, Inventory, Finance.
 2. PM phải nhìn được đồng thời `Service Request` và `Project`, nhưng không được trộn lẫn hai entity này.
 3. PM phải quản lý được cả `đội nội bộ` và `đối tác liên kết`, kể cả khi rollout thực tế ưu tiên internal first.
-4. PM phải thao tác qua `Supervisor` và `worker profile`, không giả định worker có account trực tiếp.
+4. PM phải thao tác qua `Giám sát` và `worker profile`, không giả định worker có account trá»±c tiếp.
 5. PM phải theo dõi được `financial impact` và `aftersales impact`, nhưng có ranh giới quyền rõ với Kế toán.
 
 ## Kết luận

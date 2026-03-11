@@ -9,7 +9,7 @@
 - tư vấn sơ bộ và điều phối khảo sát
 - gửi giải pháp, báo giá, theo hợp đồng
 - đốc thúc tạm ứng và thanh toán
-- phối hợp xử lý phát sinh với PM/Supervisor
+- phối hợp xá»­ lý phát sinh vá»›i PM/Giám sát
 - chăm sóc sau công trình và bán thêm
 
 ## Bộ tài liệu trong folder này

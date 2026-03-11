@@ -42,7 +42,7 @@ flowchart LR
     A["Chọn loại hồ sơ"] --> B["Nạp mail template"]
     B --> C["Nạp danh sách CC mặc định"]
     C --> D["Kiểm tra file đính kèm"]
-    D --> E["Gửi mail"]
+    D --> E["Gá»­i mail"]
     E --> F["Log vào dossier"]
 ```
 
@@ -60,7 +60,7 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["PM/Supervisor/Sale báo cần hồ sơ mới"] --> B["Hành Chính nhận handoff"]
+    A["PM/Giám sát/Sale báo cần hồ sÆ¡ má»›i"] --> B["Hành Chính nhận handoff"]
     B --> C["Kiểm tra template và dữ liệu"]
     C --> D["Phát hành biên bản hoặc chứng từ bổ sung"]
     D --> E["Gửi khách và lưu dossier"]

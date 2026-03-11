@@ -1,29 +1,23 @@
-# UI/UX Blueprint - Customer Portal
+# Customer Portal - UI/UX Blueprint V4
 
 ## Mục tiêu vai trò
 
-Portal là kênh minh bạch tiến độ với khách hàng, nhưng phải an toàn và chỉ đọc.
+Customer Portal trong V4 không còn chỉ là màn hình xem tiến độ. Đây là package gồm:
 
-## Màn hình bắt buộc
+- xem dữ liệu đã được publish
+- xem chứng từ và minh chứng đã duyệt
+- chat chính thức với BAC theo đúng ngữ cảnh nghiệp vụ
+- gửi yêu cầu bảo hành/bảo trì
 
-- Trang tổng quan công trình
-- Tiến độ %
-- Timeline công việc đã công bố
-- Gallery ảnh đã duyệt
-- Lịch thanh toán công bố
-- Thông tin bảo hành
-- Lịch bảo dưỡng
+## Bộ tài liệu trong folder này
 
-## Flow chính
+- `FDD_CustomerPortal_v4.md`: đặc tả chức năng chi tiết
+- `Screen_Inventory_CustomerPortal_v4.md`: danh mục màn hình cần có
+- `User_Flows_CustomerPortal_v4.md`: flow chính của khách hàng trên portal
 
-1. PM tạo portal link
-2. Hệ thống công bố dữ liệu đã được duyệt
-3. Khách hàng truy cập bằng token/link
-4. PM có thể revoke hoặc tạo lại link
+## Nguyên tắc thiết kế
 
-## Gap còn thiếu trong hiện trạng
-
-- Chưa có policy publish dữ liệu rõ ràng
-- Chưa có audit truy cập portal
-- Chưa có quản trị vòng đời token hoàn chỉnh
-
+1. Portal chỉ hiển thị dữ liệu đã được `publish`.
+2. Chat trên portal là bằng chứng giao tiếp, không phải tiện ích tùy chọn.
+3. Không được lộ `Google Drive raw link` cho khách hàng.
+4. Mọi trao đổi ảnh hưởng đến thanh toán, nghiệm thu, bảo hành phải truy xuất lại được trong dossier.

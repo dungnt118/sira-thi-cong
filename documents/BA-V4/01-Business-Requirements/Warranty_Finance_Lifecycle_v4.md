@@ -17,7 +17,7 @@ Tài liệu này đóng chi tiết phần mà BA cũ còn mỏng:
 | Vai trò | Trách nhiệm chính |
 |---|---|
 | PM | Theo dõi chất lượng tổng thể, quyết định change order nếu phát sinh ngoài phạm vi lớn |
-| Supervisor | Khảo sát hiện trường hậu mãi, cập nhật visit, bằng chứng, tình trạng xử lý |
+| Giám sát | Khảo sát hiện trường hậu mãi, cập nhật visit, bằng chứng, tình trạng xá»­ lý |
 | Accountant | Ghi nhận chi phí, khoản phải thu, trạng thái thanh toán, báo cáo tài chính hậu mãi |
 | HanhChinh | Phát hành hồ sơ bảo trì/bảo hành, đề nghị thanh toán phát sinh, lưu dossier |
 | Admin | Cấu hình mẫu warranty, SLA, lý do phân loại, template thông báo |
@@ -182,7 +182,7 @@ Thông tin tối thiểu:
 
 ### 8.3 Khảo sát và kết luận
 
-`Supervisor` là người cập nhật tác nghiệp chính trên hệ thống:
+`Giám sát` là người cập nhật tác nghiệp chính trên hệ thống:
 
 - đặt lịch visit
 - đính kèm bằng chứng

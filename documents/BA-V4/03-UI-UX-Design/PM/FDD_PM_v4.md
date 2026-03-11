@@ -16,7 +16,7 @@ PM là owner của cả:
 PM không thay thế hoàn toàn các role khác:
 
 - không confirm thu/chi thay Kế toán
-- không thao tác checklist hiện trường thay Supervisor trừ tình huống hỗ trợ đặc biệt
+- không thao tác checklist hiện trường thay Giám sát trừ tình huống há»— trợ đặc biệt
 - không quản trị master system như Admin
 
 ## 2. Mục tiêu nghiệp vụ của PM
@@ -66,7 +66,7 @@ PM workbench phải gom được ít nhất:
 | PM-F04 | Contract & Conversion | Convert đúng sang hợp đồng và dự án | Critical |
 | PM-F05 | Project Workbench | Điều hành dự án đầu-cuối | Critical |
 | PM-F06 | Task Orchestration | Quản lý WBS, task package, playbook, handoff | Critical |
-| PM-F07 | Internal Workforce Management | Quản lý đội nội bộ, supervisor pool, worker profile | High |
+| PM-F07 | Internal Workforce Management | Quản lý đội nội bộ, đội Giám sát, worker profile | High |
 | PM-F08 | Partner/Outsource Management | Quản lý công ty liên kết, leader, performance | High |
 | PM-F09 | Material & Labor Planning | Lập kế hoạch nguồn lực và variance | High |
 | PM-F10 | Evidence, Incident & Quality Oversight | Review bằng chứng và can thiệp ngoại lệ | High |
@@ -95,7 +95,7 @@ Cho PM một điểm vào duy nhất để quyết định việc gì phải là
 
 - mở nhanh service request hoặc project
 - giao việc nhanh
-- nhắc Supervisor
+- nhắc Giám sát
 - nhắc Kế toán follow-up thanh toán
 - mở exception center
 
@@ -143,6 +143,8 @@ Chuẩn hóa khâu khảo sát và báo giá để conversion không bị thất
 
 - Survey Workspace
 - Survey Media Review
+- Estimate Workbench
+- Go/No-Go Review Board
 - Quotation Workspace
 - Quotation Compare / Version History
 
@@ -151,12 +153,17 @@ Chuẩn hóa khâu khảo sát và báo giá để conversion không bị thất
 - nhập dữ liệu khảo sát
 - upload ảnh/video/file khảo sát
 - ghi chỉ số đo
+- tạo nhiều `Estimate Version`
+- tính chi phí vật tư, nhân công, vận chuyển, giáo mác/đu dây
+- review cảnh báo `Go/No-Go`
 - tạo nhiều version báo giá
 - gửi lại báo giá và ghi reason của từng lần chỉnh
 
 **Rule**
 
 - tất cả media khảo sát phải vào file governance chung
+- `Estimate Version` và `Quotation Version` phải tách aggregate
+- không được phát hành báo giá nếu chưa có `Estimate Version` hợp lệ và kết luận `Go/No-Go`
 - quotation phải có versioning
 - chỉ một version được đánh dấu `WON`
 
@@ -179,7 +186,7 @@ Chuẩn hóa khâu khảo sát và báo giá để conversion không bị thất
 - cấu hình milestone thanh toán
 - tạo project từ service request/contract
 - chọn template task/playbook
-- assign PM/Supervisor ban đầu
+- assign PM/Giám sát ban đầu
 
 **Rule**
 
@@ -191,7 +198,7 @@ Chuẩn hóa khâu khảo sát và báo giá để conversion không bị thất
 
 **Mục tiêu**
 
-Cho PM một “màn điều hành dự án” thay vì chỉ danh sách dự án.
+Cho PM một "màn điều hành dự án" thay vì chỉ danh sách dự án.
 
 **Màn chính**
 
@@ -227,7 +234,7 @@ Biến `Module B - Vận hành nội bộ` thành năng lực điều hành th�
 **Rule**
 
 - task không complete nếu thiếu checklist/evidence/material condition
-- mọi handoff PM -> Supervisor -> Accountant phải có log
+- mọi handoff PM -> Giám sát -> Accountant phải có log
 - task package có thể do đội nội bộ, đối tác liên kết hoặc hybrid thực hiện
 
 ### 5.7 PM-F07 - Internal Workforce Management
@@ -282,10 +289,15 @@ Cho PM khả năng lập kế hoạch trước, theo dõi sai lệch sau.
 - Material Variance
 - Labor Planning
 - Labor Cost / Allocation View
+- Asset & Consumable Plan
+- Transport Cost Planner
+- Remainder Recovery Review
 
 **Rule**
 
 - kế hoạch vật tư phải gắn project/task package
+- phải phân biệt `tài sản thi công`, `vật tư tiêu hao`, `vật tư bán tiêu hao`
+- PM phải nhìn được chênh lệch `planned -> issued -> used -> returned -> lost`
 - PM xem được planned/estimated cost, nhưng không override ledger của Kế toán
 - labor planning phải phân biệt internal và outsource
 
@@ -306,7 +318,7 @@ Giúp PM giám sát từ xa mà không phải thay thế thao tác hiện trư�
 
 - evidence phải hiển thị được:
   - task/checklist liên quan
-  - Supervisor là actor số
+  - Giám sát là actor số
   - worker profile thực tế nếu có
 - reject phải có reason
 
@@ -322,6 +334,7 @@ Cho PM theo dõi được tác động tài chính và đóng vòng dự án.
 - Milestone Follow-up
 - Acceptance Readiness
 - Portal Publish Center
+- Portal Thread Review
 - Warranty/Maintenance Oversight
 
 **PM không được làm**
@@ -349,12 +362,12 @@ Cho PM nhìn được hệ thống theo góc vận hành và ra quyết định.
 
 ## 6. Ranh giới quyền của PM
 
-| Hạng mục | PM | Supervisor | Accountant | Admin |
+| Hạng mục | PM | Giám sát | Accountant | Admin |
 |---|---|---|---|---|
 | Tạo Service Request | Có | Không | Không | Có |
 | Convert sang Project | Có | Không | Không | Có |
 | Tạo/điều chỉnh task package | Có | Một phần | Không | Có |
-| Giao Supervisor / worker profile | Có | Một phần | Không | Có |
+| Giao Giám sát / worker profile | Có | Một phần | Không | Có |
 | Giao partner/outsource vào project | Có | Không | Một phần | Có |
 | Approve/Reject evidence | Có | Một phần | Không | Có |
 | Xem finance snapshot | Có | Không | Có | Có |
@@ -366,13 +379,16 @@ Cho PM nhìn được hệ thống theo góc vận hành và ra quyết định.
 
 1. PM phải thấy riêng `Service Request` và `Project`; không gộp một bảng mơ hồ.
 2. PM phải quản lý được cả `đội nội bộ` và `partner/outsource` ở mức tài liệu V4.
-3. Mọi assignment hiện trường đều đi qua `Supervisor` và `worker profile`.
+3. Mọi assignment hiện trường đều Ä'i qua `Giám sát` và `worker profile`.
 4. PM chỉ xem tài chính ở mức điều hành, không can thiệp ledger kế toán.
 5. PM chỉ được publish portal khi:
    - dữ liệu đã approved
    - file đã sync thành công
    - token policy hợp lệ
 6. PM phải thấy cả `open aftersales cases` vì hậu mãi ảnh hưởng trực tiếp tới lợi nhuận thực.
+7. PM phải nhìn được chênh lệch giữa `Estimate Version` và `Quotation Version` trước khi chốt nhận việc.
+8. PM phải review được `remainder lot`, thu hồi tài sản và vật tư dở dang vì đây là dữ liệu ảnh hưởng trực tiếp cost thực tế.
+9. Mọi trao đổi portal có ảnh hưởng tới tiến độ, thanh toán, bảo hành phải được PM xem như dữ liệu vận hành chính thức.
 
 ## 8. Kết luận
 

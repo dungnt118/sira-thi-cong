@@ -4,7 +4,7 @@
 
 Đây là file chốt nhanh để dùng khi:
 
-- review với stakeholder
+- review vá»›i stakeholder
 - giao việc cho team dev
 - đối chiếu giữa BA-V4 và codebase hiện tại
 - theo dõi các quyết định đã khóa ở vòng review mới nhất
@@ -21,7 +21,7 @@
 
 ### 2.2 Actor model
 
-- `Supervisor` là actor số hiện trường ở phase hiện tại
+- `Giám sát` là actor số hiện trường ở phase hiện tại
 - `Worker` chưa có account trực tiếp
 - `Worker` được quản lý qua `worker profile`
 
@@ -55,7 +55,7 @@
 | Kế hoạch build | `Implementation_Plan_v4.md` |
 | Tổng kết coverage | `Coverage_Matrix_v4.md` |
 | UAT | `UAT_Backlog_v4.md` |
-| Tài liệu theo vai trò | Folder `Supervisor/Worker` đã được làm sạch lại theo baseline mới |
+| Tài liệu theo vai trò | Folder `GiamSat/` và `Worker/` đã được làm sạch lại theo baseline má»›i |
 
 ## 4. Tỷ lệ ước lượng hiện tại
 
@@ -76,10 +76,10 @@
 - customer portal demo
 - admin pages demo
 
-## 6. Những gì chưa được xem là “đã xây xong”
+## 6. Những gì chưa được xem là "đã xây xong"
 
 - API/service/store thật
-- role model `Supervisor proxy / worker profile`
+- role model `Giám sát thao tác thay worker profile`
 - task orchestration chuẩn cho Module B
 - stage playbook thật
 - stock ledger/reservation thật
@@ -92,7 +92,7 @@
 ## 7. 5 quyết định quan trọng của vòng review mới nhất
 
 1. Không bắt buộc tạo `Customer` trước; có thể tạo `Service Request` trước.
-2. `Supervisor` thao tác trên phần mềm thay `Worker` ở phase hiện tại.
+2. `Giám sát` thao tác trên phần mềm thay `Worker` ở phase hiện tại.
 3. `Module B` phải hiểu là `Vận hành nội bộ`, không bó hẹp vào planning/task.
 4. Quản lý ảnh/video/file phải có chiến lược `Google Drive` chi tiết.
 5. `Warranty/Maintenance` phải gắn trực tiếp với `Finance`.

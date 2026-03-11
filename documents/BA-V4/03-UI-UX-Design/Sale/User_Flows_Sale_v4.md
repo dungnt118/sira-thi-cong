@@ -21,7 +21,7 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Sale hẹn khảo sát"] --> B["Kỹ thuật/Supervisor khảo sát"]
+    A["Sale hẹn khảo sát"] --> B["Kỹ thuật/Giám sát khảo sát"]
     B --> C["Nhập phiếu khảo sát, ảnh, video, số đo"]
     C --> D["Tạo báo cáo tổng hợp công trình"]
     D --> E["Sale gửi process làm việc + giải pháp"]
@@ -70,7 +70,7 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["PM/Supervisor báo phát sinh"] --> B["Sale nắm ảnh hưởng tới khách"]
+    A["PM/Giám sát báo phát sinh"] --> B["Sale nắm ảnh hưởng tá»›i khách"]
     B --> C["Thống nhất cách trao đổi"]
     C --> D["Cập nhật khách hàng"]
     D --> E["Ghi biên bản hoặc note follow-up"]

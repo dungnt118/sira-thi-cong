@@ -7,7 +7,7 @@ Module trong V4 được chia theo `ownership dữ liệu`, `actor ra quyết đ
 Nguyên tắc bắt buộc:
 
 1. `Service Request` là điểm khởi đầu CRM, không dùng `Customer` làm Kanban entity.
-2. `Supervisor` là actor số chính của hiện trường ở giai đoạn hiện tại; `Worker` được quản lý dưới dạng `worker profile`.
+2. `Giám sát` là actor số chính của hiện trường ở giai đoạn hiện tại; `Worker` được quản lý dưới dạng `worker profile`.
 3. `Google Drive` là lớp lưu trữ cloud, nhưng metadata và business permission phải do hệ thống BAC Group sở hữu.
 4. `Warranty/Maintenance` không tách riêng khỏi tài chính; mọi case hậu mãi đều phải nhìn được financial impact.
 5. `Admin` khác `HanhChinh`; một bên cấu hình hệ thống, một bên vận hành hồ sơ và chứng từ.
@@ -16,11 +16,11 @@ Nguyên tắc bắt buộc:
 
 | Module | Sở hữu dữ liệu | Vai trò dùng chính | Kết quả đầu ra |
 |---|---|---|---|
-| Module A - CRM & Sales Orchestration | Customer, Service Request, Pipeline, Survey, Survey Summary, Quotation, Contract, Interaction Log | Sale, PM | Deal được chuẩn hóa, có thể đi từ khách mới hoặc khách cũ, có SLA tiếp nhận và đủ điều kiện tạo dự án |
-| Module B - Vận hành nội bộ | Project, Project Assignment, Worker Profile, Workforce Assignment, Project Task, Stage Playbook, Handoff Rule, SLA | PM, Supervisor | Điều phối nội bộ theo vai trò, có task, bàn giao và trách nhiệm rõ ràng |
-| Module C - Field Execution | Checklist, Evidence, Incident, Acceptance Draft, Site Report | Supervisor, PM | Tiến độ và chất lượng hiện trường được cập nhật có truy vết actor thực hiện thực tế |
-| Module D - Inventory & Procurement | Material, Standard, Reservation, Stock Document, Purchase Request | Accountant, PM, Supervisor | Vật tư được lập kế hoạch, xuất kho, phát cho worker profile và đối soát được |
-| Module E - Finance, Acceptance, Warranty & Maintenance | Payment Schedule, Transaction, Project Cost Entry, Cash Book Entry, Acceptance Record, Warranty Card, Warranty Case, Maintenance Visit, Aftersales Cost, Aftersales Billing | Accountant, PM, Supervisor, Sale, Customer Portal | Dòng tiền, chi phí, nghiệm thu và hậu mãi được đóng vòng đời |
+| Module A - CRM & Sales Orchestration | Customer, Service Request, Pipeline, Survey, Survey Summary, Estimate Version, Price Book, Quotation Mapping, Quotation, Contract, Interaction Log | Sale, PM | Deal được chuẩn hóa, có thể đi từ khách mới hoặc khách cũ, có SLA tiếp nhận, dự toán nội bộ và dữ liệu thương mại rõ ràng |
+| Module B - Vận hành nội bộ | Project, Project Assignment, Worker Profile, Workforce Assignment, Project Task, Stage Playbook, Handoff Rule, SLA, Go/No-Go Review | PM, Giám sát | Điều phối nội bộ theo vai trò, có task, bàn giao, quyết định nhận việc và trách nhiệm rõ ràng |
+| Module C - Field Execution | Checklist, Evidence, Incident, Acceptance Draft, Site Report | Giám sát, PM | Tiến độ và chất lượng hiện trường được cập nhật có truy vết actor thực hiện thực tế |
+| Module D - Inventory & Procurement | Material, Standard, Reservation, Stock Document, Purchase Request, Asset Registry, Remainder Lot | Accountant, PM, Giám sát | Vật tư và tài sản được lập kế hoạch, cấp phát, thu hồi, hoàn nhập và đối soát được |
+| Module E - Finance, Acceptance, Warranty & Maintenance | Payment Schedule, Transaction, Project Cost Entry, Cash Book Entry, Acceptance Record, Portal Thread, Warranty Card, Warranty Case, Maintenance Visit, Aftersales Cost, Aftersales Billing | Accountant, PM, Giám sát, Sale, Customer Portal | Dòng tiền, chi phí, nghiệm thu, giao tiếp portal và hậu mãi được đóng vòng đời |
 | Module F - Admin, Integration & Governance | User, Role, Notification, Audit, Integration Settings, File Governance, Google Drive Sync | Admin | Hệ thống được cấu hình, tích hợp và kiểm soát thống nhất |
 | Module G - Document Automation & Digital Signature | Document Template, Template Version, Document Record, Signature Envelope, Signature Participant, Signature Event, Dossier Checklist | HanhChinh, Sale, Accountant, PM | Hồ sơ số được phát hành đúng mẫu, đúng luồng ký, đủ bộ hồ sơ và lưu trữ có audit |
 
@@ -32,6 +32,8 @@ Sự kiện đầu vào:
 
 - `Service Request Created` từ khách mới hoặc khách cũ
 - `Duplicate Suggested / Confirmed`
+- `Estimate Created`
+- `Go/No-Go Approved`
 - `Quotation Approved`
 - `Contract Signed`
 - `Fast-track Approved`
@@ -40,6 +42,7 @@ Kết quả:
 
 - tạo hoặc tái sử dụng `Customer`
 - khóa `Service Request` với pipeline/stage hợp lệ
+- tạo `Estimate Version`, `Go/No-Go Review` và `Quotation Mapping`
 - tạo `Project`
 - sinh `Project Assignment` mặc định
 - nạp `Stage Playbook`, `Task Template`, `Handoff Rule`
@@ -67,11 +70,14 @@ Sự kiện:
 
 - `Project Task Planned`
 - `Material Requirement Confirmed`
+- `Asset Requirement Confirmed`
+- `Remainder Return Planned`
 - `Need Procurement`
 
 Kết quả:
 
 - tạo reservation vật tư theo project/task
+- tạo kế hoạch cấp phát tài sản thi công và vật tư bán tiêu hao
 - sinh đề nghị xuất kho hoặc đề nghị mua hàng
 - chặn task chưa đủ điều kiện vật tư
 - mở dashboard theo dõi thiếu hụt giữa kế hoạch và tồn thực tế
@@ -83,11 +89,14 @@ Sự kiện:
 - `Stock Document Approved`
 - `Material Issued`
 - `Material Delivered To Site`
+- `Asset Returned`
+- `Remainder Returned`
 
 Kết quả:
 
-- `Supervisor` ký nhận trên hệ thống
+- `Giám sát` ký nhận trên hệ thống
 - ghi nhận phát vật tư cho từng `worker profile` nếu cần
+- ghi nhận cấp phát tài sản, vật tư dở dang và phần dư hoàn nhập
 - mở khóa checklist/task thi công tương ứng
 - ghi audit trail xuất kho, phát vật tư và người chịu trách nhiệm
 
@@ -104,7 +113,7 @@ Kết quả:
 - lưu metadata file tại hệ thống
 - đẩy file vào hàng đợi đồng bộ Google Drive
 - cập nhật trạng thái `PENDING_SYNC`, `SYNCED`, `FAILED`
-- lưu actor số là `Supervisor` và người thực hiện thực tế là `worker profile` nếu có
+- lưu actor số là `Giám sát` và người thá»±c hiện thá»±c tế là `worker profile` nếu có
 
 ### 3.6 Module C -> Module E
 
@@ -177,34 +186,41 @@ Sự kiện:
 - `Payment Milestone Published`
 - `Warranty Activated`
 - `Maintenance Schedule Published`
+- `Portal Thread Created`
+- `Portal Message Sent`
 
 Kết quả:
 
 - khách hàng chỉ thấy dữ liệu đã được công bố
 - không lộ raw link Google Drive
 - toàn bộ publish/revoke có log và token policy
+- thread trao đổi gắn với đúng ngữ cảnh công trình, thanh toán, nghiệm thu hoặc bảo hành
 
 ## 4. Kiến trúc lớp ứng dụng đề xuất
 
 ### 4.1 Lớp giao diện
 
 - Web Admin/PM/Accountant cho toàn bộ nghiệp vụ back-office
-- Mobile-first Web cho `Supervisor`
-- `Worker` chưa có tài khoản trực tiếp trong phase hiện tại; mọi tương tác số đi qua giao diện `Supervisor`
-- Customer Portal chỉ đọc cho khách hàng
+- Mobile-first Web cho `Giám sát`
+- `Worker` chưa có tài khoản trực tiếp trong phase hiện tại; mọi tương tác số đi qua giao diện `Giám sát`
+- Customer Portal là cổng xem dữ liệu đã publish và kênh chat có bằng chứng cho khách hàng
 - Workspace `Sale` và `HanhChinh` có thể dùng chung shell web back-office ở giai đoạn đầu, nhưng permission và navigation phải tách được theo vai trò
 - Các hồ sơ tài chính/chứng từ phải hỗ trợ cả giao dịch qua tài khoản công ty và tài khoản cá nhân theo mô hình kiểm soát nội bộ của doanh nghiệp
 
 ### 4.2 Lớp nghiệp vụ
 
 - CRM service
+- Estimation & pricing service
 - Internal operations orchestration service
+- Go/No-Go decision service
 - Task service
 - Field execution service
 - Inventory & procurement service
+- Asset & remainder recovery service
 - Finance & receivable service
 - Cost ledger & cashbook service
 - Warranty & maintenance service
+- Portal communication service
 - Document automation & e-sign service
 - File governance & Google Drive sync service
 - Notification service
@@ -232,7 +248,7 @@ Hiện trạng code đang có nhiều rule nằm ở component. V4 yêu cầu:
 Ví dụ:
 
 - không hoàn thành task nếu checklist/evidence chưa đủ
-- không mở task thi công nếu phiếu xuất kho chưa được Supervisor xác nhận
+- không mở task thi công nếu phiếu xuất kho chưa được Giám sát xác nhận
 - không phát hành bảo hành nếu nghiệm thu chưa hợp lệ
 - không publish file portal nếu sync Google Drive chưa thành công
 - không phát hành chứng từ số nếu template version hoặc dữ liệu merge chưa hợp lệ
@@ -243,7 +259,7 @@ Ví dụ:
 Codebase phải phản ánh đúng mô hình:
 
 - `Worker` là hồ sơ nguồn lực
-- `Supervisor` là actor số thao tác trên phần mềm
+- `Giám sát` là actor số thao tác trên phần mềm
 - mọi thao tác hiện trường cần lưu cả:
   - người thao tác trên hệ thống
   - worker profile thực tế thực hiện công việc
@@ -310,17 +326,44 @@ Kiến trúc V4 phải hỗ trợ:
 
 Thay vì cố định duy nhất một pattern thanh toán cho mọi loại hợp đồng.
 
+### 5.8 Không dùng một aggregate duy nhất cho cả dự toán và báo giá khách hàng
+
+Kiến trúc V4 phải tách rõ:
+
+- `Estimate Version`
+- `Go/No-Go Review`
+- `Quotation Version`
+
+Nếu tiếp tục dùng chung một aggregate, hệ thống sẽ không kiểm soát được:
+
+- giá vốn nội bộ
+- biên lợi nhuận
+- lý do chốt nhận việc
+- logic map đầu mục nội bộ sang đầu mục thương mại
+
+### 5.9 Không coi kho chỉ là tồn số lượng
+
+Kiến trúc V4 phải hỗ trợ đồng thời:
+
+- vật tư tiêu hao
+- tài sản thi công có thu hồi
+- vật tư bán tiêu hao có phần dư
+- giá trị hao hụt và hoàn nhập phản ánh vào cost ledger
+
 ## 6. Backlog kiến trúc cần khóa trước khi dev tiếp
 
 1. API contract cho các aggregate chính
 2. State machine cho `Service Request`, `Project Task`, `Stock Document`, `Warranty Case`, `Aftersales Billing`
-3. Actor model cho `Supervisor` và `worker profile`
+3. Actor model cho `Giám sát` và `worker profile`
 4. File governance model và Google Drive sync queue
 5. Financial impact model cho warranty/maintenance
 6. Notification rule engine
 7. Document template/e-sign model
 8. Cost ledger và cashbook model
-9. Report data model
+9. Estimate, pricing và quotation mapping model
+10. Asset, remainder và stock recovery model
+11. Portal communication model
+12. Report data model
 
 ## 7. Kết luận
 

@@ -21,7 +21,7 @@ Hướng dẫn này mô tả cách PM vận hành hệ thống theo các kịch 
 
 1. Cập nhật CRM và các request nóng
 2. Convert request thắng sang project khi đủ điều kiện
-3. Điều phối Supervisor, workforce nội bộ hoặc partner
+3. Điều phối Giám sát, workforce nội bộ hoặc partner
 4. Review evidence / incident / bottleneck
 5. Theo dõi vật tư, nhân lực, tài chính ở mức điều hành
 
@@ -69,7 +69,7 @@ Hướng dẫn này mô tả cách PM vận hành hệ thống theo các kịch 
 1. Từ contract hoặc request thắng, mở `Convert to Project Wizard`
 2. Kiểm tra đủ dữ liệu
 3. Chọn template task/playbook
-4. Chọn PM/Supervisor phụ trách
+4. Chọn PM/Giám sát phụ trách
 5. Kiểm tra payment plan
 6. Xác nhận tạo project
 
@@ -83,7 +83,7 @@ Hướng dẫn này mô tả cách PM vận hành hệ thống theo các kịch 
 ### Nội bộ
 
 1. Mở `Workforce Management`
-2. Chọn Supervisor và worker profile phù hợp
+2. Chọn Giám sát và worker profile phù hợp
 3. Kiểm tra capacity trước khi assign
 4. Gán vào task package
 
@@ -129,7 +129,7 @@ Hướng dẫn này mô tả cách PM vận hành hệ thống theo các kịch 
 
 1. Xem open warranty/maintenance cases
 2. Kiểm tra case nào ảnh hưởng khách hàng lớn hoặc chi phí cao
-3. Phối hợp Supervisor và Kế toán để xử lý
+3. Phối hợp Giám sát và Kế toán để xá»­ lý
 4. Theo dõi xem case thuộc:
    - bảo hành
    - bảo trì tính phí

@@ -5,7 +5,7 @@
 Folder này được giữ lại để quản lý blueprint theo vai trò, nhưng cần chốt rõ:
 
 - `Worker` hiện là `worker profile`, chưa có tài khoản đăng nhập trực tiếp
-- mọi thao tác số hiện tại đi qua giao diện `Supervisor`
+- mọi thao tác số hiện tại Ä'i qua giao diện `Giám sát`
 
 Do đó, tài liệu này có 2 mục tiêu:
 
@@ -40,7 +40,7 @@ Nếu mở app riêng cho Worker ở giai đoạn sau, các màn hình mục ti�
 - Không xem màn `Worker` hiện có trong prototype là release scope độc lập
 - Các màn worker hiện tại phải được quy hoạch lại thành:
   - dữ liệu worker profile
-  - hành động proxy trong màn Supervisor
+  - hành động proxy trong màn Giám sát
 
 ## Gap còn thiếu trong hiện trạng
 

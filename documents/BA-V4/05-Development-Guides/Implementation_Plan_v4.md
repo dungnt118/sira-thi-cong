@@ -13,9 +13,11 @@ Plan này nhằm:
 1. Khóa `data model` trước khi mở rộng thêm UI.
 2. Xây theo `end-to-end flow`, không build từng màn rời rạc.
 3. Xây `Task module` song song với CRM và Project, không để làm sau cùng.
-4. Xem `Supervisor` là actor số hiện trường ở phase hiện tại; `Worker` được quản lý qua `worker profile`.
+4. Xem `Giám sát` là actor số hiện trường ở phase hiện tại; `Worker` được quản lý qua `worker profile`.
 5. Xây `file governance + Google Drive sync` như một năng lực lõi, không xem là tiện ích phụ.
 6. Xem `Warranty/Maintenance` là một phần của financial close loop.
+7. Xây `Estimate -> Go/No-Go -> Quotation` như xương sống preconstruction, không gộp vào một màn báo giá chung.
+8. Xây `Asset/Consumable/Remainder` như một phần của inventory thật, không chỉ theo dõi tồn số lượng.
 
 ## 3. Wave triển khai đề xuất
 
@@ -24,7 +26,7 @@ Plan này nhằm:
 **Mục tiêu**
 
 - chốt BA-V4 làm baseline duy nhất
-- chốt role model `Supervisor / Worker profile`
+- chốt role model `Giám sát / Worker profile`
 - chốt ERD v4, file strategy, warranty-finance lifecycle
 - quy hoạch lại app admin
 
@@ -72,6 +74,9 @@ Plan này nhằm:
 - dynamic pipeline
 - stage history
 - survey record
+- estimate versioning
+- internal price book
+- quotation mapping config
 - quotation versioning
 
 **Kết quả mong muốn**
@@ -79,6 +84,24 @@ Plan này nhằm:
 - PM quản lý sale theo `Service Request`
 - không tạo rác customer khi nhập liệu nhanh
 - có nhiều báo giá cho cùng một request
+- có đầu vào đúng cho bước bóc tách dự toán nội bộ
+
+### Wave 2A - Preconstruction Estimation & Go/No-Go
+
+**Chức năng**
+
+- estimate version
+- price book theo thời gian/khu vực
+- quotation mapping từ nội bộ sang khách hàng
+- cost calculation cho vật tư, nhân công, vận chuyển, giáo mác/đu dây
+- warning engine
+- go/no-go review và override
+
+**Kết quả mong muốn**
+
+- tách được `giá vốn nội bộ` và `giá bán khách hàng`
+- chốt được có làm hay không trước khi phát hành báo giá
+- nhìn được biên lợi nhuận dự kiến trước khi ký hợp đồng
 
 ### Wave 3 - Module B: Vận hành nội bộ
 
@@ -89,7 +112,7 @@ Plan này nhằm:
 - stage playbook
 - handoff rule liên vai trò
 - project WBS / task board
-- assignment cho PM/Supervisor
+- assignment cho PM/Giám sát
 - workforce assignment cho worker profile
 - change order tối thiểu
 
@@ -97,13 +120,13 @@ Plan này nhằm:
 
 - mỗi request thắng sinh được project đúng chuẩn
 - PM có board điều phối nội bộ thật
-- luồng giao tiếp và bàn giao giữa PM, Supervisor, Accountant rõ ràng
+- luồng giao tiếp và bàn giao giữa PM, Giám sát, Accountant rõ ràng
 
-### Wave 4 - Field execution theo mô hình Supervisor proxy
+### Wave 4 - Field execution theo mô hình Giám sát thao tác thay worker profile
 
 **Chức năng**
 
-- task detail mobile-first cho Supervisor
+- task detail mobile-first cho Giám sát
 - checklist theo task
 - upload evidence thay mặt worker profile
 - review/approve/reject
@@ -113,7 +136,7 @@ Plan này nhằm:
 
 **Kết quả mong muốn**
 
-- Supervisor chạy được luồng hiện trường thật
+- Giám sát chạy được luồng hiện trường thật
 - mọi evidence lưu đúng actor số và worker profile thực tế
 - file hiện trường đồng bộ được lên cloud có retry
 
@@ -125,7 +148,9 @@ Plan này nhằm:
 - material standard
 - reservation vật tư theo project/task
 - phiếu nhập/xuất/hoàn
-- Supervisor ký nhận trên hệ thống và phát cho worker profile
+- Giám sát ký nhận trên hệ thống và phát cho worker profile
+- asset registry và asset issue/return
+- remainder lot và hoàn nhập phần dư
 - cảnh báo tồn kho
 - đề nghị mua hàng tối thiểu
 
@@ -134,6 +159,7 @@ Plan này nhằm:
 - không mở task thi công khi chưa đủ vật tư
 - kho đối soát được
 - biết vật tư đã giao cho tổ/worker profile nào
+- thu hồi được tài sản thi công và hoàn nhập được phần dư vật tư
 
 ### Wave 6 - Finance, Acceptance, Warranty & Maintenance
 
@@ -148,12 +174,14 @@ Plan này nhằm:
 - aftersales cost capture
 - billing cho bảo trì tính phí
 - portal publish policy
+- portal thread/message/read receipt
 
 **Kết quả mong muốn**
 
 - đóng được vòng đời dự án
 - theo dõi được chi phí hậu mãi
 - có khoản phải thu rõ ràng với case ngoài bảo hành
+- có lịch sử giao tiếp portal dùng làm bằng chứng khi xử lý nghiệm thu, thanh toán, bảo hành
 
 ### Wave 7 - Reports, KPI, governance nâng cao
 
@@ -163,7 +191,7 @@ Plan này nhằm:
 - project P&L
 - KPI dashboard
 - notification preference
-- dashboard file sync / file lỗi
+- dashboard file sync / file lá»—i
 - full audit trail
 - report export
 
@@ -193,13 +221,17 @@ Plan này nhằm:
 
 - `Service Request` lifecycle chuẩn
 - `Dynamic Pipeline + Stage Playbook + Handoff Rule`
+- `Estimate + Price Book + Quotation Mapping`
+- `Go/No-Go warning & decision`
 - `Task module` đa vai trò
 - `Project conversion flow`
-- `Worker profile + Supervisor proxy model`
+- `Worker profile + Giám sát thao tác thay worker profile`
 - `Stock ledger + Reservation`
+- `Asset registry + Remainder recovery`
 - `Payment ledger + Aftersales billing`
 - `Acceptance record`
 - `Warranty + Maintenance + Financial impact`
+- `Portal chat + communication evidence`
 - `File governance + Google Drive sync`
 - `Audit trail`
 
@@ -242,20 +274,21 @@ Các route legacy chỉ để tham chiếu tạm.
 
 - `Lane A`: Data/API/Workflow/Integration
 - `Lane B`: PM/Admin UI
-- `Lane C`: Supervisor mobile + Inventory + Accountant + Aftersales
+- `Lane C`: Giám sát mobile + Inventory + Accountant + Aftersales
 
-### 6.3 Ưu tiên xây “xương sống” trước
+### 6.3 Ưu tiên xây "xương sống" trước
 
 Thứ tự ưu tiên:
 
 1. CRM model
-2. Vận hành nội bộ và task orchestration
-3. File governance + Google Drive sync
-4. Inventory lock/unlock
-5. Finance/acceptance/warranty close loop
+2. Estimate/go-no-go/quotation mapping
+3. Vận hành nội bộ và task orchestration
+4. File governance + Google Drive sync
+5. Inventory lock/unlock + asset/remainder recovery
+6. Finance/acceptance/warranty/portal close loop
 
 ## 7. Kết luận
 
-Plan V4 không khuyến nghị tiếp tục mở rộng theo kiểu “thiếu màn nào thì thêm màn đó”. Thay vào đó, hệ thống cần đi theo trục:
+Plan V4 không khuyến nghị tiếp tục mở rộng theo kiểu "thiếu màn nào thì thêm màn đó". Thay vào đó, hệ thống cần đi theo trục:
 
 `Chuẩn hóa dữ liệu -> Chuẩn hóa workflow -> Chuẩn hóa actor -> Hoàn thiện màn hình -> UAT -> Go-live`

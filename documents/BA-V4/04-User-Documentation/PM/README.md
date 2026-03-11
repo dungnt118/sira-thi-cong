@@ -2,7 +2,7 @@
 
 ## Mục tiêu
 
-Tài liệu người dùng cho PM ở V4 không chỉ dừng ở “quick start”, mà phải đủ để PM hiểu:
+Tài liệu người dùng cho PM ở V4 không chỉ dừng ở "quick start", mà phải đủ để PM hiểu:
 
 - mình làm gì mỗi ngày
 - mình đi theo flow nào
@@ -25,6 +25,6 @@ Tài liệu người dùng cho PM ở V4 không chỉ dừng ở “quick start�
 
 ## Ghi chú baseline
 
-- PM không thao tác hiện trường thay `Supervisor`
+- PM không thao tác hiện trường thay `Giám sát`
 - PM không confirm kế toán thay `Accountant`
 - PM vẫn phải nhìn được đầy đủ bức tranh vận hành để ra quyết định

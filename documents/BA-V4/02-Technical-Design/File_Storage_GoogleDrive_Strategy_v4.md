@@ -115,9 +115,9 @@ Quy tắc:
 
 ### 6.2 Upload từ hiện trường
 
-1. `Supervisor` chụp/upload ảnh hoặc video.
+1. `Giám sát` chụp/upload ảnh hoặc video.
 2. Hệ thống lưu:
-   - actor số là `Supervisor`
+   - actor số là `Giám sát`
    - `worker profile` thực tế nếu có
    - `task/checklist` liên quan
 3. File được sync nền lên Google Drive.
@@ -154,7 +154,7 @@ Luồng tương tự nhưng có thể thêm bước:
 
 - `Admin` cấu hình storage, retention, quyền hệ thống
 - `PM` xem file CRM, project, nghiệm thu, tài chính trong phạm vi dự án
-- `Supervisor` upload và xem file hiện trường thuộc phạm vi phụ trách
+- `Giám sát` upload và xem file hiện trường thuộc phạm vi phụ trách
 - `Accountant` xem chứng từ tài chính, nghiệm thu, bảo hành liên quan
 
 ### 8.2 Đối với khách hàng
@@ -230,7 +230,7 @@ Khi Google Drive lỗi, hệ thống phải:
 
 - duyệt file và publish portal có kiểm soát
 - versioning cho tài liệu chính
-- dashboard file lỗi
+- dashboard file lá»—i
 
 ### Phase 3
 
@@ -240,7 +240,7 @@ Khi Google Drive lỗi, hệ thống phải:
 
 ## 12. Kết luận
 
-Giải pháp đúng cho BAC Group không phải là “lưu file lên Drive cho có”, mà là:
+Giải pháp đúng cho BAC Group không phải là "lưu file lên Drive cho có", mà là:
 
 - hệ thống sở hữu metadata
 - Google Drive sở hữu binary storage

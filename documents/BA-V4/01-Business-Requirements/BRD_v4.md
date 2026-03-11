@@ -4,9 +4,9 @@
 
 Xây dựng một nền tảng vận hành thống nhất cho BAC Group, quản lý trọn vòng đời:
 
-`Khách hàng -> Yêu cầu dịch vụ -> Khảo sát -> Báo giá -> Hợp đồng -> Dự án -> Task/Checklist -> Kho -> Thanh toán -> Nghiệm thu -> Bảo hành/Bảo dưỡng -> Báo cáo`
+`Khách hàng -> Yêu cầu dịch vụ -> Khảo sát -> Dự toán nội bộ -> Go/No-Go -> Báo giá khách hàng -> Hợp đồng -> Dự án -> Task/Checklist -> Kho/Tài sản -> Thanh toán -> Nghiệm thu -> Portal Chat/Evidence -> Bảo hành/Bảo dưỡng -> Báo cáo`
 
-Mục tiêu của BA-V4 không còn là “trình diễn màn hình”, mà là đủ cơ sở để phát triển một hệ thống chạy thật.
+Mục tiêu của BA-V4 không còn là "trình diễn màn hình", mà là đủ cơ sở để phát triển một hệ thống chạy thật.
 
 ## 2. Bài toán kinh doanh cần giải quyết
 
@@ -18,18 +18,26 @@ Mục tiêu của BA-V4 không còn là “trình diễn màn hình”, mà là 
 - Checklist thi công đã có ý tưởng nhưng chưa liên thông với task, kho, nghiệm thu và bảo hành.
 - PM phải dùng nhiều màn hình rời rạc, thiếu một trung tâm điều hành.
 - Chưa có ERD chuẩn để kết nối `Khách hàng`, `Service Request`, `Project`, `Pipeline`, `Task`.
+- Chưa tách rõ `dự toán nội bộ` và `báo giá khách hàng`, dẫn tới khó kiểm soát giá vốn và biên lợi nhuận.
+- Chưa có cơ chế `go/no-go` để quyết định nhận việc dựa trên khảo sát, vật tư, nhân công và deadline khách hàng.
+- Kho hiện mới thiên về tồn số lượng, chưa tách được `tài sản thi công`, `vật tư tiêu hao`, `vật tư dở dang/phần dư`.
+- Customer Portal mới dừng ở hướng hiển thị thông tin, chưa có luồng chat làm bằng chứng giao tiếp.
 
 ### 2.2 Kết quả mong muốn
 
 - Có một CRM đúng chuẩn theo `Service Request/Deal`.
 - Có workspace riêng cho `Sale` và `Hành Chính`, không gộp mờ vào `PM` hay `Admin`.
-- Có `Task module` xuyên vai trò cho `PM`, `Supervisor` và `Worker profile`.
+- Có `Task module` xuyên vai trò cho `PM`, `Giám sát` và `Worker profile`.
 - Có `Dynamic Pipeline` gắn được playbook, checklist, người phụ trách, SLA.
 - Có luồng giao dịch thật cho kho, thanh toán, nghiệm thu, bảo hành.
 - Có capability `Quản lý mẫu tài liệu` và `Chữ ký điện tử` để sinh hồ sơ số, phát hành chứng từ và lưu vết ký.
 - Có mô hình `dossier khách hàng/công trình` chuẩn hóa theo vòng đời triển khai, hoàn thiện, bảo trì và không làm.
 - Có theo dõi đầy đủ `doanh thu - chi phí - công nợ - giữ lại bảo hành - lợi nhuận thực`.
 - Có báo cáo quản trị dựa trên dữ liệu thống nhất.
+- Có `dự toán nội bộ` riêng để bóc tách giá vốn và `báo giá khách hàng` riêng để giao tiếp thương mại.
+- Có `Go/No-Go Control` để chốt có làm hay không, hoặc làm với điều kiện gì.
+- Có mô hình quản lý `tài sản thi công`, `vật tư tiêu hao`, `remainder lot/phần dư hoàn nhập`.
+- Có `portal chat` để mọi trao đổi quan trọng với khách hàng được lưu vết và truy xuất thành bằng chứng.
 
 ## 3. Nguyên tắc thiết kế của V4
 
@@ -48,7 +56,7 @@ Mục tiêu của BA-V4 không còn là “trình diễn màn hình”, mà là 
 | Sale | Tiếp nhận lead, tư vấn, theo báo giá, hợp đồng, tạm ứng, thanh toán và chăm sóc sau công trình | Owner quan hệ khách hàng trước và sau dự án |
 | HanhChinh | Phát hành/giao nhận hồ sơ, mail mẫu, lưu trữ dossier, điều phối ký | Back-office hồ sơ và chứng từ |
 | PM | Điều phối nội bộ, convert dự án, quản lý delivery, phối hợp phát sinh với khách hàng | Nhận baton mạnh từ sau bước chốt |
-| Supervisor | Điều phối hiện trường, nghiệm thu, bảo dưỡng, báo cáo hiện trường | Là actor số chính cho tác nghiệp hiện trường ở giai đoạn hiện tại |
+| Giám sát | Điều phối hiện trường, nghiệm thu, bảo dưỡng, báo cáo hiện trường | Là actor số chính cho tác nghiệp hiện trường ở giai Ä'oạn hiện tại |
 | Worker | Là lực lượng thi công thực địa, được quản lý qua hồ sơ nhân sự/cộng tác viên | Ở giai đoạn hiện tại chưa có tài khoản đăng nhập riêng |
 | Accountant | Kho, thanh toán, đối soát, bảo hành, báo cáo tài chính | Liên thông PM nhưng quyền riêng |
 | Customer Portal | Vai trò thụ động, chỉ xem thông tin được công bố | Không phải tài khoản nội bộ |
@@ -67,25 +75,28 @@ Vai trò mở rộng giai đoạn sau:
 2. Hệ thống kiểm tra trùng/na ná khách hàng theo số điện thoại, email, địa chỉ để tránh tạo bản ghi rác
 3. `Sale` đưa lead vào `SLA queue`, gọi tư vấn theo kịch bản và cập nhật kết quả
 4. `Sale` gán `Pipeline` và `Stage`, tạo lịch khảo sát nếu khách phù hợp
-5. Kỹ thuật/Supervisor thực hiện khảo sát; `Sale` nhận báo cáo tổng hợp và process làm việc với khách
-6. `Sale` lập nhiều phiên bản báo giá nếu cần; mỗi version phải phản ánh được hạng mục, phương án thi công, đơn vị tính, VAT, điều kiện bảo hành và ghi chú thương mại
-7. `HanhChinh` và `Accountant` hỗ trợ kiểm tra bộ hồ sơ; hệ thống sinh hợp đồng/chứng từ từ `template` theo đúng loại giao dịch
-8. `Director`/người có thẩm quyền ký; khách hàng có thể ký touch hoặc ký trên hồ sơ số
-9. Sau khi hợp đồng hợp lệ và điều kiện thương mại đạt yêu cầu, hệ thống convert sang `Project` với `project_type` phù hợp với loại giao dịch
-10. Tự động sinh playbook nhiệm vụ, checklist nền, handoff nội bộ, dossier tài liệu và lịch chứng từ liên quan
+5. Kỹ thuật/Giám sát thực hiện khảo sát; `Sale` nhận báo cáo tổng hợp và process làm việc với khách
+6. `PM` hoặc người được phân quyền tạo `Estimate Version` từ dữ liệu khảo sát, tồn kho, chi phí nhân công, vận chuyển, giáo mác/đu dây và các yếu tố phát sinh
+7. Hệ thống sinh `Go/No-Go Recommendation` để chốt nhận việc, báo giá lại hoặc từ chối
+8. `Sale` chỉ phát hành `Quotation Version` cho khách khi có `Estimate Version` và kết luận `Go/No-Go` hợp lệ; mỗi version phải phản ánh được hạng mục thương mại, phương án thi công, VAT, điều kiện bảo hành và ghi chú thương mại
+9. `HanhChinh` và `Accountant` hỗ trợ kiểm tra bộ hồ sơ; hệ thống sinh hợp đồng/chứng từ từ `template` theo đúng loại giao dịch
+10. `Director`/người có thẩm quyền ký; khách hàng có thể ký touch hoặc ký trên hồ sơ số
+11. Sau khi hợp đồng hợp lệ và điều kiện thương mại đạt yêu cầu, hệ thống convert sang `Project` với `project_type` phù hợp với loại giao dịch
+12. Tự động sinh playbook nhiệm vụ, checklist nền, handoff nội bộ, dossier tài liệu và lịch chứng từ liên quan
 
 ### 5.2 Luồng Project đến Close
 
 1. PM tạo `Project WBS / Task packages`
-2. Giao `Supervisor` và danh sách `Worker profile` tham gia thi công
+2. Giao `Giám sát` và danh sách `Worker profile` tham gia thi công
 3. Sinh checklist thực thi và yêu cầu bằng chứng
-4. Kho xuất vật tư theo reservation/phiếu
-5. `Supervisor` ký nhận và ghi nhận phát vật tư cho từng worker profile nếu cần
-6. `Supervisor` thao tác thay mặt `Worker` trên phần mềm ở giai đoạn hiện tại: cập nhật task, checklist, bằng chứng, sự cố
-7. PM/Supervisor review tiến độ và chất lượng; `Sale` được nhận các mốc ảnh hưởng tới giao tiếp khách hàng
-8. Tạo biên bản nghiệm thu, biên bản số và hồ sơ phát hành liên quan
-9. `HanhChinh` phát hành chứng từ, `Accountant` xác nhận công nợ / thanh toán, `Sale` follow khách
-10. Sinh bảo hành, lịch bảo trì/bảo dưỡng, dossier hậu mãi, chi phí bảo trì và khoản phải thu phát sinh nếu có
+4. Kho xuất vật tư và tài sản thi công theo reservation/phiếu
+5. `Giám sát` ký nhận, ghi nhận phát vật tư cho từng worker profile nếu cần, và quản lý thu hồi tài sản/phần dư hoàn nhập
+6. `Giám sát` thao tác thay mặt `Worker` trên phần mềm ở giai đoạn hiện tại: cập nhật task, checklist, bằng chứng, sự cố
+7. PM/Giám sát review tiến độ và chất lượng; `Sale` được nhận các mốc ảnh hưởng tới giao tiếp khách hàng
+8. Portal công bố dữ liệu đã duyệt và hỗ trợ `chat evidence` giữa khách hàng với BAC theo đúng ngữ cảnh công trình
+9. Tạo biên bản nghiệm thu, biên bản số và hồ sơ phát hành liên quan
+10. `HanhChinh` phát hành chứng từ, `Accountant` xác nhận công nợ / thanh toán, `Sale` follow khách
+11. Sinh bảo hành, lịch bảo trì/bảo dưỡng, dossier hậu mãi, chi phí bảo trì và khoản phải thu phát sinh nếu có
 
 ## 6. Phạm vi chức năng mục tiêu
 
@@ -99,10 +110,12 @@ Vai trò mở rộng giai đoạn sau:
 | CRM-04 | Dynamic Pipeline và stage mapping |
 | CRM-05 | Khảo sát chuẩn hóa: ảnh, đo độ ẩm, form hiện trạng, điều phối khảo sát |
 | CRM-06 | Gói giải pháp và báo cáo tổng hợp gửi khách |
-| CRM-07 | Báo giá nhiều phiên bản với hạng mục, quy trình, vật tư, VAT và điều kiện bảo hành |
-| CRM-08 | Convert báo giá thắng thành hợp đồng và dự án với `project_type` phù hợp |
-| CRM-09 | After-sales, follow-up hợp đồng/tạm ứng/thanh toán và upsell |
-| CRM-10 | Fast-track/override có phê duyệt |
+| CRM-07 | Dự toán nội bộ nhiều phiên bản theo khảo sát, tồn kho, vận chuyển, nhân công, giáo mác/đu dây |
+| CRM-08 | `Quotation Mapping Config`: map đầu mục nội bộ sang đầu mục báo giá khách hàng |
+| CRM-09 | Báo giá nhiều phiên bản với hạng mục thương mại, quy trình, VAT và điều kiện bảo hành |
+| CRM-10 | Convert báo giá thắng thành hợp đồng và dự án với `project_type` phù hợp |
+| CRM-11 | After-sales, follow-up hợp đồng/tạm ứng/thanh toán và upsell |
+| CRM-12 | Fast-track/override có phê duyệt |
 
 ### 6.2 Module B - Vận hành nội bộ
 
@@ -111,11 +124,13 @@ Vai trò mở rộng giai đoạn sau:
 | OPS-01 | Tạo Project từ Service Request/Hợp đồng |
 | OPS-02 | Tạo WBS/Task board theo dự án |
 | OPS-03 | Playbook nhiệm vụ theo Pipeline Stage |
-| OPS-04 | Giao việc cho PM/Supervisor và quản lý worker profile |
+| OPS-04 | Giao việc cho PM/Giám sát và quản lý worker profile |
 | OPS-05 | SLA, reminder, escalation |
 | OPS-06 | Quản lý phụ thuộc giữa nhiệm vụ và điều kiện mở khóa |
-| OPS-07 | Chuẩn hóa quy trình giao tiếp và bàn giao giữa các vai trò |
-| OPS-08 | Change order / thay đổi phạm vi công việc |
+| OPS-07 | `Go/No-Go Control` và quyết định nhận việc có điều kiện |
+| OPS-08 | Chuẩn hóa quy trình giao tiếp và bàn giao giữa các vai trò |
+| OPS-09 | Change order / thay đổi phạm vi công việc |
+| OPS-10 | Điều phối giao tiếp liên vai trò với dữ liệu portal và evidence đã công bố |
 
 ### 6.3 Module C - Field Execution
 
@@ -123,7 +138,7 @@ Vai trò mở rộng giai đoạn sau:
 |---|---|
 | EXE-01 | Template checklist thi công |
 | EXE-02 | Checklist theo task/dự án/khu vực |
-| EXE-03 | Ghi nhận ảnh/video với timestamp/GPS, do Supervisor thao tác thay Worker ở giai đoạn hiện tại |
+| EXE-03 | Ghi nhận ảnh/video vá»›i timestamp/GPS, do Giám sát thao tác thay Worker ở giai Ä'oạn hiện tại |
 | EXE-04 | Review/approve/reject bằng chứng |
 | EXE-05 | Báo cáo sự cố và xử lý sự cố |
 | EXE-06 | Biên bản nghiệm thu |
@@ -139,10 +154,12 @@ Vai trò mở rộng giai đoạn sau:
 | INV-02 | Định mức vật tư theo loại công trình |
 | INV-03 | Reservation vật tư theo dự án/task |
 | INV-04 | Phiếu xuất kho, phiếu nhập kho, hoàn kho |
-| INV-05 | Supervisor ký nhận trên hệ thống và ghi nhận phát vật tư cho worker profile |
+| INV-05 | Giám sát ký nhận trên hệ thống và ghi nhận phát vật tư cho worker profile |
 | INV-06 | Cảnh báo tồn kho thấp |
 | INV-07 | Đề nghị mua hàng / tái bổ sung kho |
-| INV-08 | Lịch sử và đối soát kho |
+| INV-08 | Phân loại `tài sản thi công`, `vật tư tiêu hao`, `vật tư bán tiêu hao` |
+| INV-09 | Thu hồi tài sản, hoàn nhập vật tư, quản lý `remainder lot` cho phần dư |
+| INV-10 | Lịch sử và đối soát kho, cấp phát, thu hồi và hao hụt |
 
 ### 6.5 Module E - Finance, Acceptance, Warranty & Maintenance
 
@@ -155,13 +172,15 @@ Vai trò mở rộng giai đoạn sau:
 | FIN-05 | Biên bản nghiệm thu gắn với thanh toán cuối |
 | FIN-06 | Phiếu bảo hành điện tử |
 | FIN-07 | Lịch bảo dưỡng / nhắc bảo hành |
-| FIN-08 | Customer Portal chỉ đọc |
+| FIN-08 | Customer Portal có kiểm soát publish dữ liệu |
 | FIN-09 | Tiếp nhận và phân loại yêu cầu bảo hành/bảo trì |
 | FIN-10 | Ghi nhận chi phí bảo hành/bảo trì, phân loại miễn phí hay tính phí |
 | FIN-11 | Tạo đợt thanh toán phát sinh cho bảo trì ngoài phạm vi bảo hành |
 | FIN-12 | Cost ledger theo công trình: giám sát, nhân công, vật tư, thiết bị, phát sinh khác |
 | FIN-13 | Theo dõi giữ lại bảo hành/retention và điều kiện giải tỏa |
 | FIN-14 | Phê duyệt chi tiền, phân biệt tài khoản công ty và cá nhân, sổ quỹ và theo dõi lệnh tiền |
+| FIN-15 | Chat portal theo ngữ cảnh công trình/thanh toán/bảo hành và lưu làm bằng chứng |
+| FIN-16 | Kết xuất dossier giao tiếp khách hàng từ lịch sử portal |
 
 ### 6.6 Module F - Admin & Governance
 
@@ -220,10 +239,10 @@ Vai trò mở rộng giai đoạn sau:
 ### 7.3 Rule về Task module
 
 - Task có thể sinh từ:
-  - playbook của stage CRM
+  - playbook cá»§a stage CRM
   - template dự án
   - action phát sinh thủ công
-- Ở giai đoạn hiện tại, `Supervisor` là actor thao tác trên hệ thống thay mặt `Worker`; mọi thao tác vẫn phải lưu được worker profile thực tế khi cần truy vết.
+- Ở giai Ä'oạn hiện tại, `Giám sát` là actor thao tác trên hệ thống thay mặt `Worker`; mọi thao tác vẫn phải lưu được worker profile thá»±c tế khi cần truy vết.
 - Mỗi task phải có:
   - owner
   - reviewer
@@ -239,7 +258,7 @@ Vai trò mở rộng giai đoạn sau:
 - Timestamp phải là server-side hoặc trusted capture.
 - Không hoàn thành bước nếu chưa đạt số lượng bằng chứng tối thiểu.
 - Vật tư chưa ký nhận thì task thi công liên quan bị khóa.
-- Trong giai đoạn hiện tại, ảnh/video/file được upload bởi tài khoản `Supervisor`, nhưng cần lưu được thông tin worker profile thực tế đã thực hiện công việc nếu có.
+- Trong giai Ä'oạn hiện tại, ảnh/video/file được upload bởi tài khoản `Giám sát`, nhưng cần lưu được thông tin worker profile thá»±c tế đã thá»±c hiện công việc nếu có.
 
 ### 7.5 Rule về tài chính và bảo hành
 
@@ -341,12 +360,71 @@ Vai trò mở rộng giai đoạn sau:
   - `AFTERSALES_ACTIVE`
 - Việc đổi bucket phải có log và không được làm mất liên kết tài liệu lịch sử.
 
+### 7.9 Rule về dự toán nội bộ và báo giá khách hàng
+
+- `Estimate Version` và `Quotation Version` là hai aggregate khác nhau.
+- Không được dùng trực tiếp báo giá khách hàng để thay cho lớp dự toán nội bộ.
+- Mỗi `Estimate Version` phải truy ngược được về:
+  - khảo sát
+  - bảng giá nội bộ theo thời điểm
+  - cấu hình vận chuyển
+  - cấu hình nhân công
+- Mỗi `Quotation Version` phải truy ngược được về:
+  - `Estimate Version`
+  - `Quotation Mapping Config`
+  - dữ liệu thương mại đã phát hành
+- Hệ thống phải cho phép gộp nhiều dòng dự toán nội bộ thành một dòng báo giá khách hàng.
+- Không được phát hành báo giá khi chưa có `Estimate Version` hợp lệ, trừ khi có `override` được audit.
+
+### 7.10 Rule về chốt nhận việc và cảnh báo go/no-go
+
+- Kết luận `Go/No-Go` là điều kiện bắt buộc trước bước phát hành báo giá hoặc chốt nhận việc.
+- Cảnh báo phải tối thiểu bao phủ:
+  - vật tư không có hoặc khó kiếm
+  - nhân công không phù hợp hoặc giá tăng mạnh
+  - deadline khách hàng không khả thi
+  - chi phí vận chuyển và điều kiện tiếp cận bất thường
+  - giáo mác, đu dây, vật tư phụ trợ làm thay đổi giá vốn
+- `GO_WITH_CONDITIONS` phải ghi rõ điều kiện và sinh checklist theo dõi cho PM.
+- `NO_GO` phải lưu lý do để dùng cho báo cáo win/loss và học lại rule kinh doanh.
+
+### 7.11 Rule về tài sản thi công, vật tư tiêu hao và phần dư hoàn nhập
+
+- Hệ thống phải phân biệt tối thiểu:
+  - `tài sản thi công`
+  - `vật tư tiêu hao`
+  - `vật tư bán tiêu hao`
+- Tài sản thi công phải có quy trình:
+  - cấp phát
+  - ký nhận
+  - thu hồi
+  - báo mất/hỏng
+- Vật tư bán tiêu hao phải hỗ trợ `remainder lot` cho phần còn dư còn dùng được.
+- Hoàn nhập phần dư chỉ hợp lệ khi có:
+  - số lượng thực
+  - tình trạng chất lượng
+  - vị trí lưu
+  - ngày hoàn nhập
+- Sai lệch giữa `planned -> issued -> used -> returned -> lost` phải được hiển thị cho PM và Kế toán.
+
+### 7.12 Rule về giao tiếp portal và bằng chứng trao đổi
+
+- Customer Portal không còn là màn hình chỉ đọc đơn thuần; phải có `chat evidence` theo ngữ cảnh.
+- Mỗi tin nhắn trên portal phải gắn với:
+  - công trình hoặc case
+  - loại thread
+  - người gửi
+  - thời điểm
+- Attachment trên portal chỉ được lấy từ file đã vào `FILE_ASSET` của hệ thống.
+- Không công khai link cloud raw cho khách hàng qua portal chat.
+- Mọi trao đổi ảnh hưởng đến phạm vi, thanh toán, nghiệm thu, bảo hành phải có thể trích xuất vào dossier.
+
 ## 8. Yêu cầu phi chức năng
 
 | Nhóm | Yêu cầu |
 |---|---|
 | Bảo mật | RBAC rõ, audit trail, token portal có hạn dùng |
-| Khả dụng | Mobile-first cho Supervisor; Worker chưa có tài khoản ở giai đoạn hiện tại |
+| Khả dụng | Mobile-first cho Giám sát; Worker chưa có tài khoản ở giai Ä'oạn hiện tại |
 | Hiệu năng | API nghiệp vụ chính < 500ms, upload có queue/retry |
 | Tin cậy dữ liệu | Transaction cho kho, thanh toán, nghiệm thu |
 | Báo cáo | Có dữ liệu đủ để đối soát theo tháng/quý |
