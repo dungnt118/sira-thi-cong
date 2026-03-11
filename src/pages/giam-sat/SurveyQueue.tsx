@@ -6,7 +6,7 @@ import {
     CalendarOutlined, PhoneOutlined, FormOutlined, EnvironmentOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { mockSurveys } from '../../data/journeyMockData';
+import { mockSurveys, mockJourneys } from '../../data/journeyMockData';
 
 const { Text, Title } = Typography;
 
@@ -24,8 +24,9 @@ const SurveyQueue: React.FC = () => {
         >
             <Row align="middle" gutter={16}>
                 <Col flex="auto">
-                    <Space style={{ marginBottom: 4 }}>
+                    <Space style={{ marginBottom: 4, flexWrap: 'wrap' }}>
                         <Tag color="orange"><CalendarOutlined /> {s.scheduled_date} {s.scheduled_time}</Tag>
+                        <Tag color="blue">{mockJourneys.find(j => j.id === s.journey_id)?.journey_code}</Tag>
                         <Tag>{s.giam_sat_user || 'Chưa phân công'}</Tag>
                     </Space>
                     <Title level={5} style={{ margin: '2px 0' }}>{s.customer_name}</Title>
@@ -47,10 +48,14 @@ const SurveyQueue: React.FC = () => {
                         >
                             Mở Form KS
                         </Button>
-                        <Button icon={<PhoneOutlined />} size="small">
+                        <Button icon={<PhoneOutlined />} size="small" onClick={() => window.open(`tel:${s.contact_phone}`)}>
                             Gọi
                         </Button>
-                        <Button icon={<EnvironmentOutlined />} size="small">
+                        <Button
+                            icon={<EnvironmentOutlined />}
+                            size="small"
+                            onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.site_address)}`, '_blank')}
+                        >
                             Bản đồ
                         </Button>
                     </Space>

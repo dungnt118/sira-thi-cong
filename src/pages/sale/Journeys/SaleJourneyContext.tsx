@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import {
     Card, Tag, Button, Typography, Row, Col, Descriptions, Space,
-    Modal, Form, Input, DatePicker, Timeline, Badge, Divider
+    Modal, Form, Timeline, Badge, Input, DatePicker
 } from 'antd';
-import { ArrowLeftOutlined, UserOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import { mockJourneys } from '../../../data/journeyMockData';
+import { ConsultationLogForm } from '../../../components/journey/SharedModals';
 
 const { Text, Title } = Typography;
 const { TextArea } = Input;
@@ -17,7 +18,6 @@ const SaleJourneyContext: React.FC = () => {
 
     const [showLogModal, setShowLogModal] = useState(false);
     const [showFollowUpModal, setShowFollowUpModal] = useState(false);
-    const [logForm] = Form.useForm();
     const [followForm] = Form.useForm();
 
     if (!journey) return <div>Không tìm thấy hành trình</div>;
@@ -86,9 +86,14 @@ const SaleJourneyContext: React.FC = () => {
                     </Card>
                 </Col>
 
-                {/* Activity log */}
+                {/* Activity / Consultation log */}
                 <Col xs={24} md={12}>
-                    <Card title={<span><ClockCircleOutlined /> Lịch sử hoạt động</span>} size="small" style={{ borderRadius: 8 }}>
+                    <Card
+                        title={<span><ClockCircleOutlined /> Lịch sử tương tác</span>}
+                        extra={<Button size="small" type="primary" onClick={() => setShowLogModal(true)}>+ Ghi log</Button>}
+                        size="small"
+                        style={{ borderRadius: 8, marginBottom: 16 }}
+                    >
                         <Timeline
                             items={journey.activities.slice(0, 4).map(a => ({
                                 children: (
@@ -101,6 +106,24 @@ const SaleJourneyContext: React.FC = () => {
                             }))}
                         />
                     </Card>
+
+                    {/* Survey Readiness */}
+                    <Card title="✅ Survey Readiness (Mức độ sẵn sàng Khảo sát)" size="small" style={{ borderRadius: 8 }}>
+                        <Space direction="vertical" style={{ width: '100%' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <Text>Thông tin KH cơ bản</Text>
+                                {journey.customer_phone ? <Tag color="success">Đạt</Tag> : <Tag color="error">Thiếu</Tag>}
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <Text>Địa chỉ khảo sát</Text>
+                                {journey.site_address ? <Tag color="success">Đạt</Tag> : <Tag color="error">Thiếu</Tag>}
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <Text>Mô tả tình trạng</Text>
+                                {journey.request_description ? <Tag color="success">Đạt</Tag> : <Tag color="warning">Cần làm rõ</Tag>}
+                            </div>
+                        </Space>
+                    </Card>
                 </Col>
             </Row>
 
@@ -108,41 +131,14 @@ const SaleJourneyContext: React.FC = () => {
             <Modal
                 title="Ghi log tư vấn"
                 open={showLogModal}
-                onCancel={() => { setShowLogModal(false); logForm.resetFields(); }}
-                onOk={() => logForm.submit()}
-                okText="Lưu log" cancelText="Hủy"
+                onCancel={() => setShowLogModal(false)}
+                footer={null}
+                width={600}
             >
-                <Form form={logForm} layout="vertical" onFinish={() => { setShowLogModal(false); logForm.resetFields(); }}>
-                    <Row gutter={12}>
-                        <Col span={12}>
-                            <Form.Item label="Thời điểm" name="interaction_at" rules={[{ required: true }]}>
-                                <DatePicker showTime style={{ width: '100%' }} />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item label="Kênh" name="channel" rules={[{ required: true }]}>
-                                <Input.Group compact>
-                                    <span></span>
-                                </Input.Group>
-                                <select style={{ width: '100%', padding: 6, border: '1px solid #d9d9d9', borderRadius: 6 }}>
-                                    <option value="call">📞 Điện thoại</option>
-                                    <option value="zalo">💬 Zalo</option>
-                                    <option value="email">📧 Email</option>
-                                    <option value="meeting">🤝 Gặp mặt</option>
-                                </select>
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                    <Form.Item label="Kết quả" name="outcome" rules={[{ required: true }]}>
-                        <Input placeholder="Kết quả cuộc liên hệ..." />
-                    </Form.Item>
-                    <Form.Item label="Tóm tắt" name="summary" rules={[{ required: true }]}>
-                        <TextArea rows={3} />
-                    </Form.Item>
-                    <Form.Item label="Hành động tiếp theo" name="next_action">
-                        <TextArea rows={2} />
-                    </Form.Item>
-                </Form>
+                <ConsultationLogForm
+                    onSubmit={() => setShowLogModal(false)}
+                    onCancel={() => setShowLogModal(false)}
+                />
             </Modal>
 
             {/* Follow-up Modal */}

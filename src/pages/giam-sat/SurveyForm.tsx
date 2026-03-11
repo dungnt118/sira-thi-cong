@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
     Card, Button, Tag, Typography, Row, Col, Form, Input,
-    Space, Divider, Modal, Tabs, Upload, Checkbox, Select, InputNumber
+    Space, Modal, Upload, Select, InputNumber, Drawer, message
 } from 'antd';
 import {
     ArrowLeftOutlined, PlusOutlined, SaveOutlined, CheckCircleOutlined,
@@ -21,12 +21,86 @@ const SurveyForm: React.FC = () => {
     const survey = mockSurveys.find(s => s.journey_id === journeyId) || mockSurveys[0];
 
     const [areas, setAreas] = useState<SurveyArea[]>(survey?.area_list || []);
+    const [risks, setRisks] = useState<any[]>([]);
+    const [mediaCount, setMediaCount] = useState(0);
     const [showAreaModal, setShowAreaModal] = useState(false);
-    const [showRiskModal, setShowRiskModal] = useState(false);
     const [showSignModal, setShowSignModal] = useState(false);
+    const [showRiskDrawer, setShowRiskDrawer] = useState(false);
     const [areaForm] = Form.useForm();
-    const [riskForm] = Form.useForm();
     const [mainForm] = Form.useForm();
+    const [riskForm] = Form.useForm();
+    
+    // Canvas ref for signature
+    const canvasRef = React.useRef<HTMLCanvasElement>(null);
+    const [isDrawing, setIsDrawing] = useState(false);
+    const [signatureImage, setSignatureImage] = useState<string | null>(null);
+
+    const handleSubmit = () => {
+        if (areas.length === 0) {
+            message.error('Vui lòng thêm ít nhất 1 khu vực khảo sát');
+            return;
+        }
+        if (mediaCount === 0) {
+            message.error('Vui lòng tải lên ít nhất 1 ảnh/video hiện trường');
+            return;
+        }
+        message.success('Nộp khảo sát thành công!');
+        navigate(-1);
+    };
+
+    const handleUploadChange = (info: any) => {
+        setMediaCount(info.fileList.length);
+    };
+
+    const addRisk = () => {
+        riskForm.validateFields().then(values => {
+            setRisks([...risks, values]);
+            setShowRiskDrawer(false);
+            riskForm.resetFields();
+        });
+    };
+
+    const startDrawing = (e: React.MouseEvent | React.TouchEvent) => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        
+        const rect = canvas.getBoundingClientRect();
+        const clientX = 'touches' in e ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
+        const clientY = 'touches' in e ? e.touches[0].clientY : (e as React.MouseEvent).clientY;
+        
+        ctx.beginPath();
+        ctx.moveTo(clientX - rect.left, clientY - rect.top);
+        setIsDrawing(true);
+    };
+
+    const draw = (e: React.MouseEvent | React.TouchEvent) => {
+        if (!isDrawing) return;
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        const rect = canvas.getBoundingClientRect();
+        const clientX = 'touches' in e ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
+        const clientY = 'touches' in e ? e.touches[0].clientY : (e as React.MouseEvent).clientY;
+
+        ctx.lineTo(clientX - rect.left, clientY - rect.top);
+        ctx.stroke();
+    };
+
+    const stopDrawing = () => {
+        setIsDrawing(false);
+    };
+
+    const saveSignature = () => {
+        const canvas = canvasRef.current;
+        if (canvas) {
+            setSignatureImage(canvas.toDataURL());
+        }
+        setShowSignModal(false);
+    };
 
     const addArea = () => {
         areaForm.validateFields().then(values => {
@@ -44,7 +118,7 @@ const SurveyForm: React.FC = () => {
                 </Button>
                 <Space>
                     <Button icon={<SaveOutlined />}>Lưu nháp</Button>
-                    <Button type="primary" icon={<CheckCircleOutlined />}>Nộp khảo sát</Button>
+                    <Button type="primary" icon={<CheckCircleOutlined />} onClick={handleSubmit}>Nộp khảo sát</Button>
                 </Space>
             </div>
 
@@ -104,8 +178,8 @@ const SurveyForm: React.FC = () => {
                 </Card>
 
                 {/* Media Upload */}
-                <Card title="📸 Ảnh/Video khảo sát" size="small" style={{ marginBottom: 16, borderRadius: 8 }}>
-                    <Upload listType="picture-card" multiple>
+                <Card title="📸 Ảnh/Video khảo sát (*)" size="small" style={{ marginBottom: 16, borderRadius: 8 }}>
+                    <Upload listType="picture-card" multiple onChange={handleUploadChange}>
                         <div>
                             <UploadOutlined />
                             <div style={{ marginTop: 4, fontSize: 12 }}>Tải ảnh lên</div>
@@ -115,34 +189,23 @@ const SurveyForm: React.FC = () => {
 
                 {/* Risk Flags */}
                 <Card
-                    title={<span><WarningOutlined style={{ color: '#fa8c16' }} /> Rủi ro hiện trường</span>}
+                    title={<span><WarningOutlined style={{ color: '#fa8c16' }} /> Rủi ro hiện trường ({risks.length})</span>}
                     size="small"
                     style={{ marginBottom: 16, borderRadius: 8 }}
-                    extra={<Button size="small" onClick={() => setShowRiskModal(true)}>Thêm rủi ro</Button>}
+                    extra={<Button size="small" type="dashed" danger onClick={() => setShowRiskDrawer(true)}>+ Thêm rủi ro</Button>}
                 >
-                    <Row gutter={12}>
-                        <Col span={12}>
-                            <Form.Item label="Rủi ro vật tư" name="material_risk">
-                                <Select mode="multiple" options={[
-                                    { value: 'thiếu', label: 'Thiếu vật tư' },
-                                    { value: 'khó kiếm', label: 'Khó kiếm' },
-                                    { value: 'lead time dài', label: 'Lead time dài' },
-                                ]} />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item label="Rủi ro tiếp cận" name="access_risk">
-                                <Select mode="multiple" options={[
-                                    { value: 'giáo', label: 'Cần giàn giáo' },
-                                    { value: 'đu dây', label: 'Cần đu dây' },
-                                    { value: 'khung giờ', label: 'Giới hạn khung giờ' },
-                                ]} />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                    <Form.Item label="Mô tả rủi ro" name="risk_note">
-                        <TextArea rows={2} />
-                    </Form.Item>
+                    {risks.length === 0 && <div style={{ color: '#999', fontSize: 13 }}>Không có rủi ro nào được ghi nhận.</div>}
+                    {risks.map((r, i) => (
+                        <div key={i} style={{ padding: 8, background: '#fff2e8', borderRadius: 6, marginBottom: 8, borderLeft: '3px solid #ff4d4f' }}>
+                            <Space wrap style={{ marginBottom: 4 }}>
+                                {r.material_risk?.map((m: string) => <Tag color="error" key={m}>Vật tư: {m}</Tag>)}
+                                {r.labor_risk?.map((l: string) => <Tag color="error" key={l}>Nhân công: {l}</Tag>)}
+                                {r.access_risk?.map((a: string) => <Tag color="warning" key={a}>Tiếp cận: {a}</Tag>)}
+                                {r.time_risk?.map((t: string) => <Tag color="warning" key={t}>Thời gian: {t}</Tag>)}
+                            </Space>
+                            <div style={{ fontSize: 12, color: '#666' }}>{r.risk_note}</div>
+                        </div>
+                    ))}
                 </Card>
 
                 {/* Solution + Labor + Material */}
@@ -170,13 +233,17 @@ const SurveyForm: React.FC = () => {
                         <Col span={12}>
                             <div style={{ border: '1px dashed #d9d9d9', borderRadius: 8, padding: 16, textAlign: 'center', minHeight: 100, cursor: 'pointer' }}
                                 onClick={() => setShowSignModal(true)}>
-                                <div style={{ color: '#999' }}>Chữ ký Giám sát</div>
-                                <div style={{ fontSize: 11, color: '#ccc' }}>Nhấn để ký</div>
+                                <div style={{ color: '#999', marginBottom: 8 }}>Chữ ký Giám sát</div>
+                                {signatureImage ? (
+                                    <img src={signatureImage} alt="Signature" style={{ maxHeight: 60, maxWidth: '100%' }} />
+                                ) : (
+                                    <div style={{ fontSize: 11, color: '#ccc' }}>Nhấn để ký</div>
+                                )}
                             </div>
                         </Col>
                         <Col span={12}>
                             <div style={{ border: '1px dashed #d9d9d9', borderRadius: 8, padding: 16, textAlign: 'center', minHeight: 100, cursor: 'pointer' }}>
-                                <div style={{ color: '#999' }}>Chữ ký Khách hàng</div>
+                                <div style={{ color: '#999', marginBottom: 8 }}>Chữ ký Khách hàng</div>
                                 <div style={{ fontSize: 11, color: '#ccc' }}>Nhấn để ký</div>
                             </div>
                         </Col>
@@ -224,25 +291,67 @@ const SurveyForm: React.FC = () => {
                 </Form>
             </Modal>
 
-            {/* Signature Modal */}
+            {/* Signature Modal DLG-19 */}
             <Modal title="Vẽ chữ ký" open={showSignModal} onCancel={() => setShowSignModal(false)}
-                onOk={() => setShowSignModal(false)} okText="Xác nhận" cancelText="Hủy">
-                <div style={{ border: '1px solid #d9d9d9', borderRadius: 8, height: 200, background: '#fafafa', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#999' }}>
-                    [Signature Pad Canvas]
+                onOk={saveSignature} okText="Ký xong" cancelText="Hủy">
+                <div style={{ border: '1px solid #d9d9d9', borderRadius: 8, height: 200, background: '#fafafa', overflow: 'hidden' }}>
+                    <canvas
+                        ref={canvasRef}
+                        width={470}
+                        height={200}
+                        style={{ cursor: 'crosshair', touchAction: 'none' }}
+                        onMouseDown={startDrawing}
+                        onMouseMove={draw}
+                        onMouseUp={stopDrawing}
+                        onMouseLeave={stopDrawing}
+                        onTouchStart={startDrawing}
+                        onTouchMove={draw}
+                        onTouchEnd={stopDrawing}
+                    />
                 </div>
-                <Row gutter={12} style={{ marginTop: 12 }}>
-                    <Col span={12}>
-                        <Form.Item label="Tên người ký" name="signer_name">
-                            <Input />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item label="Vai trò" name="signer_role">
-                            <Select options={[{ value: 'Giám sát', label: 'Giám sát' }, { value: 'Khách hàng', label: 'Khách hàng' }]} />
-                        </Form.Item>
-                    </Col>
-                </Row>
+                <div style={{ textAlign: 'right', marginTop: 8 }}>
+                    <Button size="small" onClick={() => {
+                        const canvas = canvasRef.current;
+                        if (canvas) canvas.getContext('2d')?.clearRect(0, 0, canvas.width, canvas.height);
+                    }}>Xóa chữ ký</Button>
+                </div>
             </Modal>
+
+            {/* Risk Drawer DLG-18 */}
+            <Drawer title="Thêm rủi ro hiện trường (DLG-18)" placement="right" onClose={() => setShowRiskDrawer(false)} open={showRiskDrawer} width={400}
+                extra={<Button type="primary" onClick={addRisk}>Lưu rủi ro</Button>}>
+                <Form form={riskForm} layout="vertical">
+                    <Form.Item label="Rủi ro vật tư" name="material_risk">
+                        <Select mode="multiple" placeholder="VD: Khó kiếm, Lead time dài..." options={[
+                            { value: 'thiếu', label: 'Thiếu vật tư' },
+                            { value: 'khó kiếm', label: 'Khó kiếm' },
+                            { value: 'lead time dài', label: 'Lead time dài' },
+                        ]} />
+                    </Form.Item>
+                    <Form.Item label="Rủi ro nhân công" name="labor_risk">
+                        <Select mode="multiple" placeholder="VD: Yêu cầu tay nghề cao..." options={[
+                            { value: 'tay nghề cao', label: 'Yêu cầu thợ tay nghề cao' },
+                            { value: 'thiếu thợ', label: 'Đang thiếu thợ thi công' },
+                        ]} />
+                    </Form.Item>
+                    <Form.Item label="Rủi ro thời gian" name="time_risk">
+                        <Select mode="multiple" placeholder="VD: Gấp rút, phụ thuộc thời tiết..." options={[
+                            { value: 'tiến độ gấp', label: 'Tiến độ rất gấp' },
+                            { value: 'phụ thuộc thời tiết', label: 'Phụ thuộc thời tiết' },
+                        ]} />
+                    </Form.Item>
+                    <Form.Item label="Rủi ro tiếp cận" name="access_risk">
+                        <Select mode="multiple" placeholder="VD: Cần giàn giáo..." options={[
+                            { value: 'giáo', label: 'Cần giàn giáo' },
+                            { value: 'đu dây', label: 'Cần đu dây' },
+                            { value: 'khung giờ', label: 'Giới hạn khung giờ thi công' },
+                        ]} />
+                    </Form.Item>
+                    <Form.Item label="Mô tả chi tiết" name="risk_note" rules={[{ required: true, message: 'Vui lòng nhập mô tả' }]}>
+                        <TextArea rows={3} placeholder="Mô tả cụ thể về rủi ro và đề xuất xử lý..." />
+                    </Form.Item>
+                </Form>
+            </Drawer>
         </div>
     );
 };

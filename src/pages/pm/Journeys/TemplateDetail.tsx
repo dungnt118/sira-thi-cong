@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import {
     Card, Button, Tag, Space, Typography, Row, Col, Descriptions,
-    Modal, Form, Input, Select, Switch, List, Badge, Tooltip, Divider
+    Modal, Form, Input, Select, Switch, List, Badge
 } from 'antd';
 import {
-    ArrowLeftOutlined, PlusOutlined, DragOutlined, EditOutlined,
+    ArrowLeftOutlined, PlusOutlined, EditOutlined,
     SaveOutlined, ReloadOutlined, SettingOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -167,6 +167,9 @@ const TemplateDetail: React.FC = () => {
                                 </Descriptions.Item>
                                 <Descriptions.Item label="Vai trò chính">{selectedStep.owner_role}</Descriptions.Item>
                                 <Descriptions.Item label="SLA (giờ)">{selectedStep.sla_hours ?? '—'}</Descriptions.Item>
+                                <Descriptions.Item label="Quy tắc leo thang">{selectedStep.escalation_rule || '—'}</Descriptions.Item>
+                                <Descriptions.Item label="Tài liệu/Quy trình (Ref)">{selectedStep.process_refs?.join(', ') || '—'}</Descriptions.Item>
+                                <Descriptions.Item label="Checklist (Ref)">{selectedStep.checklist_refs?.join(', ') || '—'}</Descriptions.Item>
                                 <Descriptions.Item label="Điều kiện vào">{selectedStep.entry_criteria || '—'}</Descriptions.Item>
                                 <Descriptions.Item label="Điều kiện hoàn tất">{selectedStep.exit_criteria || '—'}</Descriptions.Item>
                                 <Descriptions.Item label="Publish lên Portal">
@@ -251,6 +254,21 @@ const TemplateDetail: React.FC = () => {
                             </Form.Item>
                         </Col>
                     </Row>
+                    <Form.Item label="Quy tắc leo thang (Escalation Rule)" name="escalation_rule">
+                        <Input placeholder="VD: Báo quản lý sau 4h trễ SLA" />
+                    </Form.Item>
+                    <Row gutter={12}>
+                        <Col span={12}>
+                            <Form.Item label="Tài liệu/Quy trình" name="process_refs">
+                                <Select mode="tags" placeholder="Link hoặc mã TL" />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item label="Checklist" name="checklist_refs">
+                                <Select mode="tags" placeholder="Mã checklist" />
+                            </Form.Item>
+                        </Col>
+                    </Row>
                     <Form.Item label="Điều kiện vào" name="entry_criteria">
                         <TextArea rows={2} />
                     </Form.Item>
@@ -260,12 +278,20 @@ const TemplateDetail: React.FC = () => {
                 </Form>
             </Modal>
 
-            {/* Reset to Default Confirm */}
+            {/* Reset to Default Confirm (DLG-10) */}
             <Modal
                 title="Reset về mặc định"
                 open={showResetModal}
                 onCancel={() => { setShowResetModal(false); resetForm.resetFields(); }}
-                onOk={() => { setSteps(template.steps); setShowResetModal(false); resetForm.resetFields(); }}
+                onOk={() => {
+                    resetForm.validateFields().then(() => {
+                        setSteps(template.steps);
+                        setShowResetModal(false);
+                        resetForm.resetFields();
+                    }).catch(info => {
+                        console.log('Validate Failed:', info);
+                    });
+                }}
                 okText="Xác nhận Reset"
                 okButtonProps={{ danger: true }}
                 cancelText="Hủy"
@@ -275,7 +301,12 @@ const TemplateDetail: React.FC = () => {
                     <Form.Item
                         label="Gõ 'RESET' để xác nhận"
                         name="confirm_text"
-                        rules={[{ required: true, validator: (_, v) => v === 'RESET' ? Promise.resolve() : Promise.reject('Gõ đúng RESET') }]}
+                        rules={[{ required: true, message: 'Vui lòng gõ RESET', validator: async (_, value) => {
+                            if (value !== 'RESET') {
+                                return Promise.reject(new Error('Vui lòng gõ đúng chữ RESET viết hoa'));
+                            }
+                            return Promise.resolve();
+                        }}]}
                     >
                         <Input placeholder="RESET" />
                     </Form.Item>

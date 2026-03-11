@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import {
     Card, Button, Tag, Select, Space, Row, Col, Typography,
-    Badge, Avatar, Tooltip, Drawer, Empty
+    Badge, Avatar, Tooltip, Empty, Modal, Input, Alert
 } from 'antd';
 import {
     UnorderedListOutlined, FilterOutlined, UserOutlined,
-    MessageOutlined, ExclamationCircleOutlined
+    MessageOutlined, ExclamationCircleOutlined, SwapRightOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { mockJourneys } from '../../../data/journeyMockData';
@@ -42,9 +42,10 @@ const JourneyKanbanCard: React.FC<{ journey: Journey; onClick: () => void }> = (
         <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 2, lineHeight: 1.3 }}>{j.customer_name}</div>
         <Text type="secondary" style={{ fontSize: 11 }}>{j.request_title}</Text>
         <div style={{ marginTop: 8, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            {j.survey_status === 'completed' && <Tag style={{ fontSize: 10, margin: 0, padding: '0 4px' }} color="green">Khảo sát ✓</Tag>}
-            {j.estimate_status === 'ready' && <Tag style={{ fontSize: 10, margin: 0, padding: '0 4px' }} color="purple">DT ✓</Tag>}
-            {j.quote_status === 'approved' && <Tag style={{ fontSize: 10, margin: 0, padding: '0 4px' }} color="blue">Báo giá ✓</Tag>}
+            {j.survey_status === 'completed' && <Tag style={{ fontSize: 10, margin: 0, padding: '0 4px' }} color="blue">Khảo sát ✓</Tag>}
+            {j.estimate_status === 'ready' && <Tag style={{ fontSize: 10, margin: 0, padding: '0 4px' }} color="purple">Dự toán ✓</Tag>}
+            {j.quote_status === 'approved' && <Tag style={{ fontSize: 10, margin: 0, padding: '0 4px' }} color="cyan">Báo giá ✓</Tag>}
+            {j.contract_status === 'signed' && <Tag style={{ fontSize: 10, margin: 0, padding: '0 4px' }} color="green">Hợp đồng ✓</Tag>}
         </div>
         <div style={{ marginTop: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Space size={4}>
@@ -85,6 +86,14 @@ const JourneyBoard: React.FC = () => {
     });
 
     const uniqueOwners = [...new Set(mockJourneys.map(j => j.owner_user))];
+
+    // DLG-02 State
+    const [changeStepModal, setChangeStepModal] = useState<{ visible: boolean; journey?: Journey; newStep?: string }>({ visible: false });
+
+    const handleDrop = (journey: Journey, newStepCode: string) => {
+        if (journey.current_step_code === newStepCode) return;
+        setChangeStepModal({ visible: true, journey, newStep: newStepCode });
+    };
 
     return (
         <div>
@@ -176,11 +185,27 @@ const JourneyBoard: React.FC = () => {
                                 <Empty description="Không có hành trình" imageStyle={{ height: 40 }} style={{ opacity: 0.4 }} />
                             )}
                             {stepJourneys.map(j => (
-                                <JourneyKanbanCard
-                                    key={j.id}
-                                    journey={j}
-                                    onClick={() => navigate(`/pm/journeys/${j.id}`)}
-                                />
+                                <div key={j.id} style={{ position: 'relative' }}>
+                                    <JourneyKanbanCard
+                                        journey={j}
+                                        onClick={() => navigate(`/pm/journeys/${j.id}`)}
+                                    />
+                                    {/* Quick move action for demo purposes (simulating drag & drop) */}
+                                    <div style={{ position: 'absolute', top: 4, right: 4 }}>
+                                        <Tooltip title="Chuyển bước (Demo DLG-02)">
+                                            <Button
+                                                size="small"
+                                                type="text"
+                                                icon={<SwapRightOutlined />}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    const nextIdx = Math.min(STEP_ORDER.length - 1, STEP_ORDER.indexOf(stepCode) + 1);
+                                                    handleDrop(j, STEP_ORDER[nextIdx]);
+                                                }}
+                                            />
+                                        </Tooltip>
+                                    </div>
+                                </div>
                             ))}
                         </div>
                     );
@@ -204,6 +229,37 @@ const JourneyBoard: React.FC = () => {
                     })}
                 </Row>
             </Card>
+
+            {/* DLG-02 Change Step Confirm */}
+            <Modal
+                title="Xác nhận chuyển bước"
+                open={changeStepModal.visible}
+                onOk={() => setChangeStepModal({ visible: false })}
+                onCancel={() => setChangeStepModal({ visible: false })}
+                okText="Xác nhận"
+                cancelText="Hủy"
+            >
+                {changeStepModal.journey && changeStepModal.newStep && (
+                    <div>
+                        <p>Bạn đang chuyển hành trình <strong>{changeStepModal.journey.journey_code}</strong> ({changeStepModal.journey.customer_name})</p>
+                        <p>
+                            Từ: <Tag>{STEP_LABELS[changeStepModal.journey.current_step_code]}</Tag> <SwapRightOutlined /> Đến: <Tag color={STEP_COLORS[changeStepModal.newStep]}>{STEP_LABELS[changeStepModal.newStep]}</Tag>
+                        </p>
+                        <div style={{ marginTop: 16 }}>
+                            <Text strong>Ghi chú chuyển bước (tùy chọn):</Text>
+                            <Input.TextArea rows={3} placeholder="Lý do hoặc ghi chú nội bộ..." style={{ marginTop: 8 }} />
+                        </div>
+                        {changeStepModal.journey.blocker_count > 0 && (
+                            <Alert
+                                type="warning"
+                                showIcon
+                                message={`Hành trình này đang có ${changeStepModal.journey.blocker_count} blocker chưa xử lý. Hãy chắc chắn bạn muốn bỏ qua.`}
+                                style={{ marginTop: 16 }}
+                            />
+                        )}
+                    </div>
+                )}
+            </Modal>
         </div>
     );
 };

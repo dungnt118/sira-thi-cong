@@ -20,8 +20,11 @@ const ThreadInbox: React.FC = () => {
     const threads = mockPortalThreads.filter(t => t.journey_id === journey?.id);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [createForm] = Form.useForm();
+    const [filterContext, setFilterContext] = useState<string>('all');
 
     if (!journey) return <div style={{ padding: 40, textAlign: 'center' }}>Không tìm thấy dữ liệu.</div>;
+
+    const filteredThreads = threads.filter(t => filterContext === 'all' || t.context_type === filterContext);
 
     return (
         <div style={{ maxWidth: 680, margin: '0 auto', padding: '24px 16px' }}>
@@ -40,8 +43,23 @@ const ThreadInbox: React.FC = () => {
                 </div>
             </Card>
 
+            <div style={{ marginBottom: 16 }}>
+                <Select
+                    value={filterContext}
+                    onChange={setFilterContext}
+                    style={{ width: 160 }}
+                    options={[
+                        { value: 'all', label: 'Tất cả chủ đề' },
+                        { value: 'survey', label: 'Về khảo sát' },
+                        { value: 'progress', label: 'Về tiến độ' },
+                        { value: 'payment', label: 'Về thanh toán' },
+                        { value: 'general', label: 'Câu hỏi chung' },
+                    ]}
+                />
+            </div>
+
             <List
-                dataSource={threads}
+                dataSource={filteredThreads}
                 locale={{ emptyText: 'Chưa có hội thoại nào. Nhấn "Tạo thread" để bắt đầu.' }}
                 renderItem={(thread: PortalThread) => (
                     <Card

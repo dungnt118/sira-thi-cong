@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import {
     Table, Card, Button, Tag, Input, Select, Space, Row, Col,
-    Statistic, Badge, Avatar, Typography, Tooltip, Grid, Empty
+    Statistic, Badge, Avatar, Typography, Tooltip, Grid, Empty, Drawer
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
     SearchOutlined, AppstoreOutlined, UnorderedListOutlined,
     AlertOutlined, ClockCircleOutlined, ExclamationCircleOutlined,
-    MessageOutlined, ReloadOutlined, UserOutlined, FireOutlined
+    MessageOutlined, ReloadOutlined, UserOutlined, FilterOutlined,
+    StopOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { mockJourneys, getJourneyKPIs } from '../../../data/journeyMockData';
@@ -58,6 +59,14 @@ const JourneyList: React.FC = () => {
         const matchStep = filterStep === 'ALL' || j.current_step_code === filterStep;
         return matchKeyword && matchSla && matchPriority && matchStep;
     });
+
+    const [isFilterVisible, setIsFilterVisible] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleRefresh = () => {
+        setIsLoading(true);
+        setTimeout(() => setIsLoading(false), 500);
+    };
 
     const columns: ColumnsType<Journey> = [
         {
@@ -136,6 +145,14 @@ const JourneyList: React.FC = () => {
             },
         },
         {
+            title: 'Blocker',
+            key: 'blocker',
+            render: (_, j) => j.blocker_count > 0
+                ? <Badge count={j.blocker_count} size="small" color="red"><StopOutlined style={{ color: '#ff4d4f' }} /></Badge>
+                : <StopOutlined style={{ color: '#ccc' }} />,
+            align: 'center',
+        },
+        {
             title: 'Portal',
             key: 'portal',
             render: (_, j) => j.unread_portal_threads > 0
@@ -165,7 +182,7 @@ const JourneyList: React.FC = () => {
                     <Tooltip title="Action Center">
                         <Button icon={<AlertOutlined />} onClick={() => navigate('/pm/journeys/action-center')}>Action Center</Button>
                     </Tooltip>
-                    <Button icon={<ReloadOutlined />}>Làm mới</Button>
+                    <Button icon={<ReloadOutlined />} onClick={handleRefresh}>Làm mới</Button>
                 </Space>
             </div>
 
@@ -271,6 +288,11 @@ const JourneyList: React.FC = () => {
                     <Col>
                         <Button onClick={() => { setKeyword(''); setFilterSla('ALL'); setFilterPriority('ALL'); setFilterStep('ALL'); }}>Xóa lọc</Button>
                     </Col>
+                    {isMobile && (
+                        <Col>
+                            <Button icon={<FilterOutlined />} onClick={() => setIsFilterVisible(true)}>Bộ lọc</Button>
+                        </Col>
+                    )}
                 </Row>
 
                 {isMobile ? (
@@ -306,10 +328,70 @@ const JourneyList: React.FC = () => {
                         pagination={{ pageSize: 10, showTotal: (t) => `${t} hành trình` }}
                         locale={{ emptyText: <Empty description="Không có hành trình nào phù hợp bộ lọc" /> }}
                         size="middle"
+                        loading={isLoading}
                         onRow={(j) => ({ onClick: () => navigate(`/pm/journeys/${j.id}`), style: { cursor: 'pointer' } })}
                     />
                 )}
             </Card>
+
+            {/* DLG-01 Filter Drawer (Mobile) */}
+            <Drawer
+                title="Bộ lọc hành trình"
+                placement="right"
+                onClose={() => setIsFilterVisible(false)}
+                open={isFilterVisible}
+                width={300}
+            >
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    <div>
+                        <Text strong>Bước hiện tại</Text>
+                        <Select
+                            style={{ width: '100%', marginTop: 8 }}
+                            value={filterStep}
+                            onChange={setFilterStep}
+                            options={[
+                                { value: 'ALL', label: 'Tất cả bước' },
+                                { value: 'INTAKE', label: 'Tiếp nhận' },
+                                { value: 'SURVEY', label: 'Khảo sát' },
+                                { value: 'QUOTATION', label: 'Dự toán' },
+                                { value: 'CONTRACT', label: 'Ký kết' },
+                                { value: 'CONSTRUCTION', label: 'Thi công' },
+                                { value: 'PAYMENT', label: 'Thanh toán' },
+                            ]}
+                        />
+                    </div>
+                    <div>
+                        <Text strong>Trạng thái SLA</Text>
+                        <Select
+                            style={{ width: '100%', marginTop: 8 }}
+                            value={filterSla}
+                            onChange={setFilterSla}
+                            options={[
+                                { value: 'ALL', label: 'Tất cả SLA' },
+                                { value: 'ontime', label: 'Đúng hạn' },
+                                { value: 'at_risk', label: 'Có rủi ro' },
+                                { value: 'overdue', label: 'Quá hạn' },
+                            ]}
+                        />
+                    </div>
+                    <div>
+                        <Text strong>Độ ưu tiên</Text>
+                        <Select
+                            style={{ width: '100%', marginTop: 8 }}
+                            value={filterPriority}
+                            onChange={setFilterPriority}
+                            options={[
+                                { value: 'ALL', label: 'Tất cả ưu tiên' },
+                                { value: 'critical', label: '🔴 Khẩn cấp' },
+                                { value: 'high', label: '🟠 Cao' },
+                                { value: 'medium', label: '🔵 Trung bình' },
+                                { value: 'low', label: '⚪ Thấp' },
+                            ]}
+                        />
+                    </div>
+                    <Button block onClick={() => { setKeyword(''); setFilterSla('ALL'); setFilterPriority('ALL'); setFilterStep('ALL'); setIsFilterVisible(false); }}>Xóa bộ lọc</Button>
+                </div>
+            </Drawer>
         </div>
     );
 };

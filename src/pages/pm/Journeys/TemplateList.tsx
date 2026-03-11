@@ -23,7 +23,7 @@ const TemplateList: React.FC = () => {
     const navigate = useNavigate();
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showCloneModal, setShowCloneModal] = useState(false);
-    const [cloneTarget, setCloneTarget] = useState<JourneyTemplate | null>(null);
+    const [_cloneTarget, setCloneTarget] = useState<JourneyTemplate | null>(null);
     const [createForm] = Form.useForm();
     const [cloneForm] = Form.useForm();
     const [filterStatus, setFilterStatus] = useState<string>('ALL');

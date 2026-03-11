@@ -112,7 +112,7 @@ export interface SurveyRecord {
     giam_sat_signature?: string;
     customer_signature?: string;
     submitted_at?: string;
-    review_status: 'pending' | 'reviewed' | 'approved';
+    review_status: 'pending' | 'reviewed' | 'need_update' | 'approved';
     scheduled_date?: string;
     scheduled_time?: string;
     giam_sat_user?: string;

@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
-    Card, Button, Typography, Avatar, Tag, Modal, Form, Input
+    Card, Button, Typography, Avatar, Tag, Form, Input, Upload, message, Tooltip
 } from 'antd';
-import { ArrowLeftOutlined, SendOutlined, UserOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, SendOutlined, UserOutlined, PaperClipOutlined } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
 import { mockPortalThreads, mockJourneys } from '../../../data/journeyMockData';
 
@@ -14,7 +14,6 @@ const ThreadDetail: React.FC = () => {
     const navigate = useNavigate();
     const journey = mockJourneys.find(j => j.portal_token === token);
     const thread = mockPortalThreads.find(t => t.thread_id === threadId) || mockPortalThreads[0];
-    const [showReplyModal, setShowReplyModal] = useState(false);
     const [replyForm] = Form.useForm();
 
     if (!journey || !thread) return <div style={{ padding: 40, textAlign: 'center' }}>Không tìm thấy dữ liệu.</div>;
@@ -67,29 +66,30 @@ const ThreadDetail: React.FC = () => {
                 ))}
             </Card>
 
-            {/* Reply CTA */}
-            {thread.status !== 'closed' && (
-                <Button
-                    type="primary"
-                    block
-                    icon={<SendOutlined />}
-                    onClick={() => setShowReplyModal(true)}
-                    style={{ borderRadius: 8, height: 44 }}
-                >
-                    Gửi phản hồi
-                </Button>
+            {/* Inline Reply Composer */}
+            {thread.status !== 'closed' ? (
+                <Card style={{ borderRadius: 12 }}>
+                    <Form form={replyForm} layout="vertical" onFinish={() => { message.success('Đã gửi phản hồi'); replyForm.resetFields(); }}>
+                        <Form.Item name="message_body" style={{ marginBottom: 12 }} rules={[{ required: true, message: 'Vui lòng nhập nội dung' }]}>
+                            <TextArea rows={3} placeholder="Nhập nội dung phản hồi..." />
+                        </Form.Item>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Tooltip title="Chưa hỗ trợ tải lên trong bản demo">
+                                <Upload showUploadList={false}>
+                                    <Button icon={<PaperClipOutlined />} type="dashed">Đính kèm</Button>
+                                </Upload>
+                            </Tooltip>
+                            <Button type="primary" htmlType="submit" icon={<SendOutlined />}>
+                                Gửi
+                            </Button>
+                        </div>
+                    </Form>
+                </Card>
+            ) : (
+                <div style={{ padding: 24, textAlign: 'center', background: '#f5f5f5', borderRadius: 12 }}>
+                    <Typography.Text type="secondary">Hội thoại này đã được đóng.</Typography.Text>
+                </div>
             )}
-
-            {/* Reply Modal */}
-            <Modal title="Phản hồi" open={showReplyModal}
-                onCancel={() => { setShowReplyModal(false); replyForm.resetFields(); }}
-                onOk={() => replyForm.submit()} okText="Gửi" cancelText="Hủy">
-                <Form form={replyForm} layout="vertical" onFinish={() => { setShowReplyModal(false); replyForm.resetFields(); }}>
-                    <Form.Item label="Nội dung phản hồi" name="message_body" rules={[{ required: true }]}>
-                        <TextArea rows={4} placeholder="Nhập nội dung..." />
-                    </Form.Item>
-                </Form>
-            </Modal>
         </div>
     );
 };

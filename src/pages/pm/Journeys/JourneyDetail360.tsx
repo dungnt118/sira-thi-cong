@@ -1,19 +1,20 @@
 import React, { useState } from 'react';
 import {
     Card, Tabs, Tag, Button, Space, Typography, Row, Col,
-    Badge, Avatar, Statistic, Timeline, Descriptions, Modal,
-    Form, Select, Input, DatePicker, Switch, Empty, Tooltip, Drawer
+    Badge, Statistic, Timeline, Descriptions, Modal,
+    Form, Select, Input, Empty, Drawer, Alert, Checkbox, message
 } from 'antd';
 import {
     ArrowLeftOutlined, UserOutlined, FlagOutlined,
     SendOutlined, ExclamationCircleOutlined, CheckCircleOutlined,
-    ClockCircleOutlined, MessageOutlined, FileTextOutlined,
-    TeamOutlined, DollarOutlined, SettingOutlined,
-    FormOutlined, PaperClipOutlined
+    ClockCircleOutlined, MessageOutlined,
+    TeamOutlined, DollarOutlined,
+    FormOutlined, PaperClipOutlined, StopOutlined
 } from '@ant-design/icons';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { mockJourneys, mockPortalThreads } from '../../../data/journeyMockData';
 import type { GoNoGoStatus, SlaStatus, PortalPublishStatus, PriorityLevel } from '../../../types/journey';
+import { BlockerStrip } from '../../../components/journey/SharedModals';
 
 const { Text, Title } = Typography;
 const { TextArea } = Input;
@@ -39,6 +40,8 @@ const PRIORITY_ICON: Record<PriorityLevel, string> = { low: '⚪', medium: '🔵
 
 const JourneyDetail360: React.FC = () => {
     const { journeyId } = useParams<{ journeyId: string }>();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const activeTab = searchParams.get('tab') || 'request';
     const navigate = useNavigate();
     const journey = mockJourneys.find(j => j.id === journeyId);
     const threads = mockPortalThreads.filter(t => t.journey_id === journeyId);
@@ -124,7 +127,18 @@ const JourneyDetail360: React.FC = () => {
                         <Descriptions.Item label="Tổng dự toán">
                             <Text strong>{journey.estimated_cost_total?.toLocaleString('vi-VN') || '—'}đ</Text>
                         </Descriptions.Item>
-                        <Descriptions.Item label="Tóm tắt Go/No-Go">{journey.go_no_go_summary || '—'}</Descriptions.Item>
+                        <Descriptions.Item label="Tóm tắt Go/No-Go" span={2}>
+                            {journey.go_no_go_summary || '—'}
+                            {journey.go_no_go_status === 'draft' && (
+                                <div style={{ marginTop: 8 }}>
+                                    <Space>
+                                        <Button size="small" type="primary">GO</Button>
+                                        <Button size="small" danger>NO-GO</Button>
+                                        <Button size="small">Tạm hoãn</Button>
+                                    </Space>
+                                </div>
+                            )}
+                        </Descriptions.Item>
                     </Descriptions>
                 </div>
             ),
@@ -282,14 +296,23 @@ const JourneyDetail360: React.FC = () => {
                             </div>
                         </Card>
                     ))}
-                    <Button
-                        type="primary"
-                        ghost
-                        style={{ marginTop: 8 }}
-                        onClick={() => navigate(`/portal/${journey.portal_token}/threads`)}
-                    >
-                        Xem Portal
-                    </Button>
+                    <div style={{ marginTop: 16 }}>
+                        <Space>
+                            <Button
+                                type="primary"
+                                ghost
+                                onClick={() => navigate(`/portal/${journey.portal_token}/threads`)}
+                            >
+                                Xem Portal Review
+                            </Button>
+                            <Button
+                                onClick={() => setShowPublishModal(true)}
+                                icon={<SendOutlined />}
+                            >
+                                Publish cập nhật mới
+                            </Button>
+                        </Space>
+                    </div>
                 </div>
             ),
         },
@@ -305,10 +328,20 @@ const JourneyDetail360: React.FC = () => {
                 <Space wrap>
                     <Button icon={<UserOutlined />} onClick={() => setShowAssignModal(true)}>Phân công</Button>
                     <Button icon={<FlagOutlined />} onClick={() => setShowPriorityModal(true)}>Ưu tiên</Button>
+                    <Button icon={<StopOutlined />} danger>Thêm Blocker</Button>
                     <Button icon={<ClockCircleOutlined />} onClick={() => setShowActivityDrawer(true)}>Lịch sử</Button>
                     <Button type="primary" icon={<SendOutlined />} onClick={() => setShowPublishModal(true)}>Publish Portal</Button>
                 </Space>
             </div>
+
+            {/* DLG-06 Blocker Strip */}
+            {journey.blocker_count > 0 && (
+                <BlockerStrip
+                    blockers={[
+                        { type: 'Customer Delay', summary: 'Khách hàng chưa chốt phương án thi công màng khò', owner: 'Sale', due: '2023-11-20' }
+                    ]}
+                />
+            )}
 
             {/* Journey Header Card */}
             <Card style={{ marginBottom: 16, borderRadius: 10, background: 'linear-gradient(135deg, #1e3a5f 0%, #1976D2 100%)', border: 'none' }}>
@@ -374,15 +407,36 @@ const JourneyDetail360: React.FC = () => {
                 </Row>
             </Card>
 
-            {/* 360 Tabs */}
-            <Card style={{ borderRadius: 10 }}>
-                <Tabs
-                    defaultActiveKey="request"
-                    items={tabItems}
-                    size="small"
-                    tabBarStyle={{ marginBottom: 16 }}
-                />
-            </Card>
+            {/* 360 Tabs & Activity Panel (Desktop) */}
+            <Row gutter={16}>
+                <Col xs={24} lg={18}>
+                    <Card style={{ borderRadius: 10, height: '100%' }}>
+                        <Tabs
+                            activeKey={activeTab}
+                            onChange={(key) => setSearchParams({ tab: key })}
+                            items={tabItems}
+                            size="small"
+                            tabBarStyle={{ marginBottom: 16 }}
+                        />
+                    </Card>
+                </Col>
+                <Col xs={0} lg={6}>
+                    <Card style={{ borderRadius: 10, height: '100%' }} title={<span><ClockCircleOutlined /> Log hoạt động</span>} bodyStyle={{ padding: '12px 16px', maxHeight: 600, overflowY: 'auto' }}>
+                        <Timeline
+                            items={journey.activities.map(a => ({
+                                children: (
+                                    <div>
+                                        <Text strong>{a.activity_action}</Text>
+                                        <div style={{ fontSize: 11, color: '#999' }}>{a.activity_time.split('T')[0]} · {a.activity_actor}</div>
+                                        <div style={{ fontSize: 12 }}>{a.activity_summary}</div>
+                                        <div style={{ fontSize: 11, color: '#ccc', marginTop: 2 }}>{a.activity_context}</div>
+                                    </div>
+                                ),
+                            }))}
+                        />
+                    </Card>
+                </Col>
+            </Row>
 
             {/* Modal Assign Owner */}
             <Modal
@@ -431,29 +485,44 @@ const JourneyDetail360: React.FC = () => {
                 </Form>
             </Modal>
 
-            {/* Modal Publish to Portal */}
+            {/* Modal Publish to Portal (DLG-04) */}
             <Modal
                 title="Publish lên Customer Portal"
                 open={showPublishModal}
                 onCancel={() => setShowPublishModal(false)}
-                onOk={() => setShowPublishModal(false)}
-                okText="Publish"
+                onOk={() => {
+                    message.success("Publish thành công!");
+                    setShowPublishModal(false);
+                }}
+                okText="Publish ngay"
                 cancelText="Hủy"
-                width={480}
+                width={500}
             >
-                <Form layout="vertical">
-                    <Form.Item label="Phạm vi publish" name="publish_scope" rules={[{ required: true }]}>
-                        <Select mode="multiple" placeholder="Chọn nội dung publish">
-                            <Select.Option value="overview">Tổng quan</Select.Option>
-                            <Select.Option value="timeline">Timeline bước</Select.Option>
-                            <Select.Option value="docs">Tài liệu & ảnh</Select.Option>
-                            <Select.Option value="chat">Chat</Select.Option>
-                        </Select>
-                    </Form.Item>
-                    <Form.Item label="Ghi chú publish" name="publish_note">
-                        <TextArea rows={2} />
-                    </Form.Item>
-                </Form>
+                <div>
+                    <Alert type="info" message="Khách hàng sẽ thấy các thay đổi mới trên Portal sau khi bạn publish." style={{ marginBottom: 16 }} />
+                    <Form layout="vertical" initialValues={{ notify_customer: true, attach_documents: ['report.pdf'] }}>
+                        <Form.Item label="Những nội dung sẽ được cập nhật lên Portal" name="publish_scope" rules={[{ required: true }]}>
+                            <Select mode="multiple" placeholder="Chọn nội dung publish" defaultValue={['overview', 'timeline', 'docs']}>
+                                <Select.Option value="overview">Tổng quan hành trình</Select.Option>
+                                <Select.Option value="timeline">Timeline các bước</Select.Option>
+                                <Select.Option value="docs">Tài liệu và hình ảnh</Select.Option>
+                                <Select.Option value="invoice">Báo giá / Hóa đơn</Select.Option>
+                            </Select>
+                        </Form.Item>
+                        <Form.Item label="Tài liệu đính kèm" name="attach_documents">
+                            <Select mode="multiple" placeholder="Chọn file">
+                                <Select.Option value="report.pdf">Báo cáo khảo sát_final.pdf</Select.Option>
+                                <Select.Option value="quote.pdf">Báo giá_v2.pdf</Select.Option>
+                            </Select>
+                        </Form.Item>
+                        <Form.Item label="Ghi chú hiển thị cho khách hàng (Tùy chọn)" name="customer_note">
+                            <TextArea rows={3} placeholder="Ví dụ: Xin chào anh/chị, em đã gửi báo giá chi tiết, anh chị xem qua nhé..." />
+                        </Form.Item>
+                        <Form.Item name="notify_customer" valuePropName="checked">
+                            <Checkbox>Gửi thông báo SMS/Zalo-ZNS cho khách hàng</Checkbox>
+                        </Form.Item>
+                    </Form>
+                </div>
             </Modal>
 
             {/* Activity Drawer (mobile) */}

@@ -1,6 +1,6 @@
-import React from 'react';
-import { Card, Image, Typography, Tag, Button, Row, Col, Space } from 'antd';
-import { FileOutlined, PictureOutlined } from '@ant-design/icons';
+import React, { useState } from 'react';
+import { Card, Image, Typography, Tag, Button, Row, Col, Space, Modal } from 'antd';
+import { FileOutlined, PictureOutlined, DownloadOutlined } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
 import { mockJourneys } from '../../../data/journeyMockData';
 
@@ -10,6 +10,7 @@ const PortalDocuments: React.FC = () => {
     const { token } = useParams<{ token: string }>();
     const navigate = useNavigate();
     const journey = mockJourneys.find(j => j.portal_token === token);
+    const [selectedDoc, setSelectedDoc] = useState<any>(null);
 
     const mockDocs = [
         { id: '1', file_name: 'Báo cáo khảo sát.pdf', file_type: 'pdf', published_context: 'Khảo sát', published_at: '2026-02-15' },
@@ -70,10 +71,33 @@ const PortalDocuments: React.FC = () => {
                                 <Text type="secondary" style={{ fontSize: 11 }}>{doc.published_at}</Text>
                             </Space>
                         </div>
-                        <Button size="small" icon={<FileOutlined />}>Xem</Button>
+                        <Button size="small" icon={<FileOutlined />} onClick={() => setSelectedDoc(doc)}>Xem</Button>
                     </div>
                 ))}
             </Card>
+
+            {/* Document Preview Modal (DLG-21) */}
+            <Modal
+                title={`Xem tài liệu: ${selectedDoc?.file_name}`}
+                open={!!selectedDoc}
+                onCancel={() => setSelectedDoc(null)}
+                footer={[
+                    <Button key="close" onClick={() => setSelectedDoc(null)}>Đóng</Button>,
+                    <Button key="download" type="primary" icon={<DownloadOutlined />}>Tải xuống</Button>
+                ]}
+                width={800}
+                styles={{ body: { height: '60vh', padding: 0 } }}
+            >
+                {selectedDoc && (
+                    <iframe
+                        src={`https://mozilla.github.io/pdf.js/web/viewer.html?file=`}
+                        title={selectedDoc.file_name}
+                        width="100%"
+                        height="100%"
+                        style={{ border: 'none', background: '#f5f5f5' }}
+                    />
+                )}
+            </Modal>
         </div>
     );
 };

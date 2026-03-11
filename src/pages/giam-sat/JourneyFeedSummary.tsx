@@ -10,6 +10,7 @@ const { Text } = Typography;
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
     pending: { label: 'Chờ review', color: 'warning', icon: <ClockCircleOutlined /> },
     reviewed: { label: 'Đã review', color: 'processing', icon: <SyncOutlined /> },
+    need_update: { label: 'Cần cập nhật', color: 'error', icon: <SyncOutlined /> },
     approved: { label: 'Đã phê duyệt', color: 'success', icon: <CheckCircleOutlined /> },
 };
 
@@ -20,6 +21,7 @@ const JourneyFeedSummary: React.FC = () => {
 
     const submitted = mockSurveys.filter(s => s.submitted_at);
     const pending = mockSurveys.filter(s => s.review_status === 'pending');
+    const needUpdate = mockSurveys.filter(s => s.review_status === 'need_update');
     const approved = mockSurveys.filter(s => s.review_status === 'approved');
 
     const columns: ColumnsType<SurveyRecord> = [
@@ -33,11 +35,26 @@ const JourneyFeedSummary: React.FC = () => {
                 </div>
             ),
         },
-        { title: 'Ngày khảo sát', dataIndex: 'survey_date', key: 'date', render: v => v ? v.split('T')[0] : s => s.scheduled_date },
+        { title: 'Ngày khảo sát', dataIndex: 'survey_date', key: 'date', render: (v: string) => v ? v.split('T')[0] : '—' },
         {
-            title: 'Số khu vực',
+            title: 'Khu vực',
             key: 'areas',
             render: (_, s) => <Badge count={s.area_list.length} style={{ background: '#fa8c16' }} showZero />,
+            align: 'center',
+        },
+        {
+            title: 'Media',
+            key: 'media',
+            render: (_, s) => <Badge count={(s as any).attachments?.length || 0} style={{ background: '#1890ff' }} showZero />,
+            align: 'center',
+        },
+        {
+            title: 'Rủi ro',
+            key: 'risks',
+            render: (_, s) => {
+                const count = (s as any).risks?.length || 0;
+                return count > 0 ? <Tag color="error">{count} rủi ro</Tag> : <Text type="secondary">—</Text>;
+            },
             align: 'center',
         },
         {
@@ -65,17 +82,22 @@ const JourneyFeedSummary: React.FC = () => {
             </div>
 
             <Row gutter={16} style={{ marginBottom: 20 }}>
-                <Col span={8}>
+                <Col span={6}>
                     <Card size="small" style={{ borderLeft: '4px solid #1890ff', borderRadius: 8 }}>
                         <Statistic title="Đã nộp" value={submitted.length} valueStyle={{ color: '#1890ff' }} />
                     </Card>
                 </Col>
-                <Col span={8}>
+                <Col span={6}>
                     <Card size="small" style={{ borderLeft: '4px solid #fa8c16', borderRadius: 8 }}>
                         <Statistic title="Chờ review" value={pending.length} valueStyle={{ color: '#fa8c16' }} />
                     </Card>
                 </Col>
-                <Col span={8}>
+                <Col span={6}>
+                    <Card size="small" style={{ borderLeft: '4px solid #ff4d4f', borderRadius: 8 }}>
+                        <Statistic title="Cần cập nhật" value={needUpdate.length} valueStyle={{ color: '#ff4d4f' }} />
+                    </Card>
+                </Col>
+                <Col span={6}>
                     <Card size="small" style={{ borderLeft: '4px solid #52c41a', borderRadius: 8 }}>
                         <Statistic title="Đã phê duyệt" value={approved.length} valueStyle={{ color: '#52c41a' }} />
                     </Card>
@@ -93,6 +115,7 @@ const JourneyFeedSummary: React.FC = () => {
                                 { value: 'ALL', label: 'Tất cả trạng thái' },
                                 { value: 'pending', label: 'Chờ review' },
                                 { value: 'reviewed', label: 'Đã review' },
+                                { value: 'need_update', label: 'Cần cập nhật' },
                                 { value: 'approved', label: 'Đã phê duyệt' },
                             ]}
                         />

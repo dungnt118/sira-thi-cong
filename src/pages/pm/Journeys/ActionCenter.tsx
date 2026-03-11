@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import {
     Card, Table, Tag, Badge, Select, Row, Col, Typography,
-    Space, Button, Statistic, Tooltip
+    Space, Button, Statistic
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
-    ClockCircleOutlined, ExclamationCircleOutlined, MessageOutlined,
+    ClockCircleOutlined, MessageOutlined,
     SendOutlined, StopOutlined, EyeOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
@@ -35,7 +35,11 @@ const ActionCenter: React.FC = () => {
 
     const bucketCounts = (Object.keys(ACTION_BUCKET_CONFIG) as ActionType[]).map(type => ({
         type,
-        count: mockActionItems.filter(a => a.action_type === type).length,
+        count: mockActionItems.filter(a => {
+            // For publish_pending mock logic
+            if (type === 'publish_pending') return a.action_type === 'publish_pending';
+            return a.action_type === type;
+        }).length,
     }));
 
     const filtered = mockActionItems.filter(a => filterType === 'ALL' || a.action_type === filterType);
@@ -57,15 +61,18 @@ const ActionCenter: React.FC = () => {
         {
             title: 'Mã hành trình',
             key: 'journey',
-            render: (_, a) => (
-                <div>
-                    <div style={{ fontWeight: 600, color: '#1976D2', cursor: 'pointer' }}
-                        onClick={() => navigate(`/pm/journeys/${a.journey_id}`)}>
-                        {a.journey_code}
+            render: (_, a) => {
+                const tabKey = a.source_tab === 'Khảo sát' ? 'survey' : a.source_tab === 'Portal/Chat' ? 'portal' : 'request';
+                return (
+                    <div>
+                        <div style={{ fontWeight: 600, color: '#1976D2', cursor: 'pointer' }}
+                            onClick={() => navigate(`/pm/journeys/${a.journey_id}?tab=${tabKey}`)}>
+                            {a.journey_code}
+                        </div>
+                        <Text type="secondary" style={{ fontSize: 12 }}>{a.customer_name}</Text>
                     </div>
-                    <Text type="secondary" style={{ fontSize: 12 }}>{a.customer_name}</Text>
-                </div>
-            ),
+                );
+            },
         },
         {
             title: 'Bước hiện tại',
@@ -102,11 +109,14 @@ const ActionCenter: React.FC = () => {
         {
             title: '',
             key: 'action',
-            render: (_, a) => (
-                <Button size="small" type="primary" ghost onClick={() => navigate(`/pm/journeys/${a.journey_id}`)}>
-                    Xử lý
-                </Button>
-            ),
+            render: (_, a) => {
+                const tabKey = a.source_tab === 'Khảo sát' ? 'survey' : a.source_tab === 'Portal/Chat' ? 'portal' : 'request';
+                return (
+                    <Button size="small" type="primary" ghost onClick={() => navigate(`/pm/journeys/${a.journey_id}?tab=${tabKey}`)}>
+                        Xử lý
+                    </Button>
+                );
+            },
         },
     ];
 

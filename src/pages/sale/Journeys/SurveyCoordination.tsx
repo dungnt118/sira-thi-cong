@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
     Card, Button, Tag, Typography, Row, Col, Space, Modal,
-    Form, Input, DatePicker, Select, List, Badge, Tabs
+    Form, Input, DatePicker, Select, Tabs
 } from 'antd';
 import {
     CalendarOutlined, PlusOutlined, EditOutlined, PhoneOutlined
@@ -14,7 +14,10 @@ const { TextArea } = Input;
 
 const SurveyCoordination: React.FC = () => {
     const [showScheduleModal, setShowScheduleModal] = useState(false);
+    const [showRescheduleModal, setShowRescheduleModal] = useState(false);
+    const [selectedSurvey, setSelectedSurvey] = useState<any>(null);
     const [scheduleForm] = Form.useForm();
+    const [rescheduleForm] = Form.useForm();
 
     const scheduled = mockSurveys.filter(s => s.scheduled_date && !s.submitted_at);
     const unscheduled = mockJourneys.filter(j => j.survey_status === 'not_started');
@@ -54,7 +57,7 @@ const SurveyCoordination: React.FC = () => {
                                             </Col>
                                             <Col>
                                                 <Space direction="vertical" size={4}>
-                                                    <Button size="small" icon={<EditOutlined />}>Đổi lịch</Button>
+                                                    <Button size="small" icon={<EditOutlined />} onClick={() => { setSelectedSurvey(s); setShowRescheduleModal(true); }}>Đổi lịch</Button>
                                                     <Button size="small" icon={<PhoneOutlined />}>Gọi</Button>
                                                 </Space>
                                             </Col>
@@ -130,7 +133,56 @@ const SurveyCoordination: React.FC = () => {
                             </Form.Item>
                         </Col>
                     </Row>
+                    <Form.Item label="Nhắc lịch trước" name="remind_before_minutes" initialValue={30}>
+                        <Select options={[
+                            { value: 15, label: '15 phút' },
+                            { value: 30, label: '30 phút' },
+                            { value: 60, label: '1 tiếng' },
+                            { value: 120, label: '2 tiếng' },
+                        ]} />
+                    </Form.Item>
                     <Form.Item label="Ghi chú" name="note">
+                        <TextArea rows={2} />
+                    </Form.Item>
+                </Form>
+            </Modal>
+
+            {/* Reschedule Modal DLG-13 */}
+            <Modal
+                title={`Đổi lịch khảo sát – ${selectedSurvey?.customer_name || ''}`}
+                open={showRescheduleModal}
+                onCancel={() => { setShowRescheduleModal(false); rescheduleForm.resetFields(); }}
+                onOk={() => rescheduleForm.submit()}
+                okText="Cập nhật lịch"
+                cancelText="Hủy"
+            >
+                <Form form={rescheduleForm} layout="vertical" onFinish={() => { setShowRescheduleModal(false); rescheduleForm.resetFields(); }}>
+                    <Form.Item label="Lý do đổi lịch" name="reschedule_reason" rules={[{ required: true }]}>
+                         <Select options={[
+                             { value: 'customer_request', label: 'Khách hàng yêu cầu' },
+                             { value: 'staff_unavailable', label: 'Nhân viên kẹt lịch' },
+                             { value: 'weather', label: 'Thời tiết xấu' },
+                             { value: 'other', label: 'Lý do khác' },
+                         ]} />
+                    </Form.Item>
+                    <Row gutter={12}>
+                        <Col span={12}>
+                            <Form.Item label="Ngày giờ mới" name="new_scheduled_datetime" rules={[{ required: true }]}>
+                                <DatePicker showTime style={{ width: '100%' }} />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item label="Nhắc lịch trước" name="remind_before_minutes" initialValue={30}>
+                                <Select options={[
+                                    { value: 15, label: '15 phút' },
+                                    { value: 30, label: '30 phút' },
+                                    { value: 60, label: '1 tiếng' },
+                                    { value: 120, label: '2 tiếng' },
+                                ]} />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                    <Form.Item label="Ghi chú thêm" name="note">
                         <TextArea rows={2} />
                     </Form.Item>
                 </Form>

@@ -1,22 +1,21 @@
 import React, { useState } from 'react';
 import {
-    Card, Table, Tag, Button, Badge, Typography, Statistic,
-    Row, Col, Modal, Form, Input, Select, DatePicker, Space
+    Card, Table, Tag, Button, Typography, Statistic,
+    Row, Col, Modal, Space
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { PhoneOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import { mockJourneys } from '../../../data/journeyMockData';
 import type { Journey } from '../../../types/journey';
 import { useNavigate } from 'react-router-dom';
+import { ConsultationLogForm } from '../../../components/journey/SharedModals';
 
 const { Text } = Typography;
-const { TextArea } = Input;
 
 const SLAQueue: React.FC = () => {
     const navigate = useNavigate();
     const [showLogModal, setShowLogModal] = useState(false);
     const [selectedJourney, setSelectedJourney] = useState<Journey | null>(null);
-    const [logForm] = Form.useForm();
 
     const atRisk = mockJourneys.filter(j => j.sla_status === 'at_risk');
     const overdue = mockJourneys.filter(j => j.sla_status === 'overdue');
@@ -100,51 +99,23 @@ const SLAQueue: React.FC = () => {
                     rowKey="id"
                     size="small"
                     pagination={{ pageSize: 10 }}
-                    defaultSortOrder="ascend"
                 />
             </Card>
 
             <Modal
                 title={`Ghi log tư vấn – ${selectedJourney?.customer_name}`}
                 open={showLogModal}
-                onCancel={() => { setShowLogModal(false); logForm.resetFields(); }}
-                onOk={() => logForm.submit()}
-                okText="Lưu log"
-                cancelText="Hủy"
+                onCancel={() => { setShowLogModal(false); }}
+                footer={null}
+                width={600}
             >
-                <Form form={logForm} layout="vertical" onFinish={() => { setShowLogModal(false); logForm.resetFields(); }}>
-                    <Row gutter={12}>
-                        <Col span={12}>
-                            <Form.Item label="Thời điểm liên hệ" name="interaction_at" rules={[{ required: true }]}>
-                                <DatePicker showTime style={{ width: '100%' }} />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item label="Kênh" name="channel" rules={[{ required: true }]}>
-                                <Select options={[
-                                    { value: 'call', label: '📞 Điện thoại' },
-                                    { value: 'zalo', label: '💬 Zalo' },
-                                    { value: 'email', label: '📧 Email' },
-                                    { value: 'meeting', label: '🤝 Gặp mặt' },
-                                ]} />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                    <Form.Item label="Kết quả" name="outcome" rules={[{ required: true }]}>
-                        <Select options={[
-                            { value: 'connected', label: 'Liên hệ được' },
-                            { value: 'no_answer', label: 'Không nghe máy' },
-                            { value: 'qualified', label: 'Đủ điều kiện' },
-                            { value: 'postponed', label: 'Hoãn lại' },
-                        ]} />
-                    </Form.Item>
-                    <Form.Item label="Tóm tắt" name="summary" rules={[{ required: true }]}>
-                        <TextArea rows={3} placeholder="Kết quả cuộc hội thoại..." />
-                    </Form.Item>
-                    <Form.Item label="Hành động tiếp theo" name="next_action">
-                        <TextArea rows={2} />
-                    </Form.Item>
-                </Form>
+                <ConsultationLogForm
+                    onSubmit={() => {
+                        // handle submit logic here
+                        setShowLogModal(false);
+                    }}
+                    onCancel={() => setShowLogModal(false)}
+                />
             </Modal>
         </div>
     );

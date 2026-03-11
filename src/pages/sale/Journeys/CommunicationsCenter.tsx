@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import {
     Card, List, Tag, Button, Typography, Input, Select, Space,
-    Modal, Form, Badge, Row, Col, Avatar
+    Modal, Form, Badge, Row, Col, Avatar, Switch
 } from 'antd';
 import { MessageOutlined, PlusOutlined, SendOutlined, UserOutlined } from '@ant-design/icons';
 import { mockPortalThreads } from '../../../data/journeyMockData';
 import type { PortalThread } from '../../../types/journey';
 
-const { Text, Title } = Typography;
+const { Text } = Typography;
 const { TextArea } = Input;
 
 const STATUS_COLOR: Record<string, string> = { open: 'processing', waiting: 'warning', closed: 'default' };
@@ -17,7 +17,6 @@ const CommunicationsCenter: React.FC = () => {
     const [filterStatus, setFilterStatus] = useState('ALL');
     const [selectedThread, setSelectedThread] = useState<PortalThread | null>(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
-    const [showReplyModal, setShowReplyModal] = useState(false);
     const [createForm] = Form.useForm();
     const [replyForm] = Form.useForm();
 
@@ -90,40 +89,57 @@ const CommunicationsCenter: React.FC = () => {
                 <Col xs={24} md={14}>
                     <Card
                         title={selectedThread ? selectedThread.context_label : 'Chọn thread để xem'}
-                        style={{ borderRadius: 10, minHeight: 400 }}
-                        extra={selectedThread && (
-                            <Button size="small" type="primary" ghost icon={<SendOutlined />} onClick={() => setShowReplyModal(true)}>
-                                Trả lời
-                            </Button>
-                        )}
+                        style={{ borderRadius: 10, height: '100%', display: 'flex', flexDirection: 'column' }}
+                        styles={{ body: { flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' } }}
                     >
                         {selectedThread ? (
-                            <div>
-                                {selectedThread.messages.map(msg => (
-                                    <div key={msg.id} style={{
-                                        marginBottom: 12,
-                                        display: 'flex',
-                                        flexDirection: msg.sender_role === 'pm' || msg.sender_role === 'sale' ? 'row-reverse' : 'row',
-                                        gap: 8,
-                                    }}>
-                                        <Avatar size={28} icon={<UserOutlined />}
-                                            style={{ background: msg.sender_role === 'customer' ? '#722ed1' : '#1976D2', flexShrink: 0 }} />
-                                        <div style={{
-                                            padding: '8px 12px', borderRadius: 10,
-                                            background: msg.sender_role === 'pm' || msg.sender_role === 'sale' ? '#e6f4ff' : '#f5f5f5',
-                                            maxWidth: '75%',
+                            <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                                <div style={{ flex: 1, overflowY: 'auto', marginBottom: 16 }}>
+                                    {selectedThread.messages.map(msg => (
+                                        <div key={msg.id} style={{
+                                            marginBottom: 12,
+                                            display: 'flex',
+                                            flexDirection: msg.sender_role === 'pm' || msg.sender_role === 'sale' ? 'row-reverse' : 'row',
+                                            gap: 8,
                                         }}>
-                                            <div style={{ fontSize: 11, color: '#999', marginBottom: 2 }}>
-                                                {msg.sender} · {msg.sent_at.split('T')[0]}
-                                                {msg.official_response && <Tag color="blue" style={{ marginLeft: 4, fontSize: 9 }}>Official</Tag>}
+                                            <Avatar size={28} icon={<UserOutlined />}
+                                                style={{ background: msg.sender_role === 'customer' ? '#722ed1' : '#1976D2', flexShrink: 0 }} />
+                                            <div>
+                                                <div style={{
+                                                    padding: '8px 12px', borderRadius: 10,
+                                                    background: msg.sender_role === 'pm' || msg.sender_role === 'sale' ? '#e6f4ff' : '#f5f5f5',
+                                                    maxWidth: '100%',
+                                                }}>
+                                                    <div style={{ fontSize: 13 }}>{msg.message_body}</div>
+                                                </div>
+                                                <div style={{ fontSize: 11, color: '#999', marginTop: 4, textAlign: msg.sender_role === 'pm' || msg.sender_role === 'sale' ? 'right' : 'left' }}>
+                                                    {msg.sender} · {msg.sent_at.split('T')[0]}
+                                                    {msg.official_response && <Tag color="blue" style={{ marginLeft: 4, fontSize: 9 }}>Official</Tag>}
+                                                </div>
                                             </div>
-                                            <div style={{ fontSize: 13 }}>{msg.message_body}</div>
                                         </div>
-                                    </div>
-                                ))}
+                                    ))}
+                                </div>
+                                {/* Inline Reply Composer */}
+                                <div style={{ borderTop: '1px solid #f0f0f0', paddingTop: 16 }}>
+                                    <Form form={replyForm} layout="vertical" onFinish={() => replyForm.resetFields()}>
+                                        <Form.Item name="message_body" style={{ marginBottom: 8 }}>
+                                            <TextArea rows={3} placeholder="Nhập câu trả lời..." />
+                                        </Form.Item>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <Form.Item name="official_response" valuePropName="checked" style={{ marginBottom: 0 }}>
+                                                <Space>
+                                                    <Switch size="small" />
+                                                    <Text type="secondary" style={{ fontSize: 12 }}>Phản hồi chính thức</Text>
+                                                </Space>
+                                            </Form.Item>
+                                            <Button type="primary" icon={<SendOutlined />} htmlType="submit">Gửi phản hồi</Button>
+                                        </div>
+                                    </Form>
+                                </div>
                             </div>
                         ) : (
-                            <div style={{ textAlign: 'center', padding: 60, color: '#999' }}>
+                            <div style={{ textAlign: 'center', padding: 60, color: '#999', flex: 1 }}>
                                 <MessageOutlined style={{ fontSize: 40, marginBottom: 8 }} />
                                 <div>Chọn 1 thread để xem tin nhắn</div>
                             </div>
@@ -151,21 +167,6 @@ const CommunicationsCenter: React.FC = () => {
                     </Form.Item>
                     <Form.Item label="Nội dung mở thread" name="message_body" rules={[{ required: true }]}>
                         <TextArea rows={4} />
-                    </Form.Item>
-                </Form>
-            </Modal>
-
-            {/* Reply Modal */}
-            <Modal title="Trả lời thread" open={showReplyModal}
-                onCancel={() => { setShowReplyModal(false); replyForm.resetFields(); }}
-                onOk={() => replyForm.submit()} okText="Gửi" cancelText="Hủy">
-                <Form form={replyForm} layout="vertical"
-                    onFinish={() => { setShowReplyModal(false); replyForm.resetFields(); }}>
-                    <Form.Item label="Nội dung" name="message_body" rules={[{ required: true }]}>
-                        <TextArea rows={4} />
-                    </Form.Item>
-                    <Form.Item label="Phản hồi chính thức" name="official_response" valuePropName="checked">
-                        <input type="checkbox" /> Đánh dấu là phản hồi chính thức
                     </Form.Item>
                 </Form>
             </Modal>

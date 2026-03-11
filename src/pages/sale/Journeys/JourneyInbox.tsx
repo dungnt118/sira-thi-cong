@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import {
-    Card, Button, Tag, Input, Select, Space, Typography, Row, Col,
-    Badge, Avatar, Empty
+    Card, Tag, Input, Select, Space, Typography, Row, Col,
+    Badge, Empty
 } from 'antd';
 import {
-    SearchOutlined, UserOutlined, MessageOutlined, ClockCircleOutlined
+    SearchOutlined, MessageOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { mockJourneys } from '../../../data/journeyMockData';
@@ -43,24 +43,25 @@ const JourneyInbox: React.FC = () => {
             </div>
 
             <Card>
+                <div style={{ marginBottom: 16 }}>
+                    <Space size="small" wrap>
+                        <Tag.CheckableTag checked={filterSla === 'ALL'} onChange={() => setFilterSla('ALL')}>Tất cả SLA</Tag.CheckableTag>
+                        <Tag.CheckableTag checked={filterSla === 'overdue'} onChange={() => setFilterSla('overdue')}>Quá hạn</Tag.CheckableTag>
+                        <Tag.CheckableTag checked={filterSla === 'at_risk'} onChange={() => setFilterSla('at_risk')}>Có rủi ro</Tag.CheckableTag>
+                        <Tag.CheckableTag checked={filterSla === 'ontime'} onChange={() => setFilterSla('ontime')}>Đúng hạn</Tag.CheckableTag>
+                    </Space>
+                </div>
                 <Row gutter={12} style={{ marginBottom: 16 }}>
                     <Col flex="auto">
                         <Input placeholder="Tìm mã, tên KH..." prefix={<SearchOutlined />} value={keyword} onChange={e => setKeyword(e.target.value)} allowClear />
-                    </Col>
-                    <Col>
-                        <Select style={{ width: 140 }} value={filterSla} onChange={setFilterSla} options={[
-                            { value: 'ALL', label: 'Tất cả SLA' },
-                            { value: 'overdue', label: 'Quá hạn' },
-                            { value: 'at_risk', label: 'Có rủi ro' },
-                            { value: 'ontime', label: 'Đúng hạn' },
-                        ]} />
                     </Col>
                     <Col>
                         <Select style={{ width: 140 }} value={filterStep} onChange={setFilterStep} options={[
                             { value: 'ALL', label: 'Tất cả bước' },
                             { value: 'INTAKE', label: 'Tiếp nhận' },
                             { value: 'SURVEY', label: 'Khảo sát' },
-                            { value: 'QUOTATION', label: 'Dự toán' },
+                            { value: 'QUOTATION', label: 'Dự toán/Báo giá' },
+                            { value: 'CONTRACT', label: 'Hợp đồng' }
                         ]} />
                     </Col>
                 </Row>
@@ -88,18 +89,23 @@ const JourneyInbox: React.FC = () => {
                                     </div>
                                     <div style={{ marginTop: 4 }}>
                                         <Text type="secondary" style={{ fontSize: 11 }}>
-                                            Khảo sát: {SURVEY_LABEL[j.survey_status]} ·
-                                            Phụ trách: {j.owner_user}
+                                            Sale phụ trách: <Text strong>{j.owner_user}</Text> ·
+                                            KS: {SURVEY_LABEL[j.survey_status] || '—'}
+                                        </Text>
+                                    </div>
+                                    <div style={{ marginTop: 4 }}>
+                                        <Text type="secondary" style={{ fontSize: 11 }}>
+                                            Next Action: <Text type="warning">{j.current_step === 'Khảo sát hiện trường' ? 'Chờ Kỹ thuật duyệt' : j.current_step === 'Dự toán & Báo giá' ? 'Gửi báo giá cho KH' : 'Liên hệ KH'}</Text>
                                         </Text>
                                     </div>
                                 </Col>
                                 <Col style={{ textAlign: 'right' }}>
-                                    {j.unread_portal_threads > 0 && (
-                                        <Badge count={j.unread_portal_threads} size="small">
+                                    {(j.unread_thread_count || j.unread_portal_threads) > 0 && (
+                                        <Badge count={j.unread_thread_count || j.unread_portal_threads} size="small" title="Tin nhắn chưa đọc">
                                             <MessageOutlined style={{ color: '#1976D2', fontSize: 18 }} />
                                         </Badge>
                                     )}
-                                    <div style={{ fontSize: 11, color: '#999', marginTop: 4 }}>{j.last_activity_at.split('T')[0]}</div>
+                                    <div style={{ fontSize: 11, color: '#999', marginTop: 8 }}>Cập nhật: {j.last_activity_at.split('T')[0]}</div>
                                 </Col>
                             </Row>
                         </Card>
