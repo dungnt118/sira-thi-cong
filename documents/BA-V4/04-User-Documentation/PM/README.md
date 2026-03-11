@@ -1,20 +1,30 @@
-# User Documentation Seed - PM
+# User Documentation - PM V4
 
-## Mục tiêu tài liệu
+## Mục tiêu
 
-Tài liệu người dùng cho PM phải đi theo chuỗi vận hành:
+Tài liệu người dùng cho PM ở V4 không chỉ dừng ở “quick start”, mà phải đủ để PM hiểu:
 
-- tạo service request
-- khảo sát
-- báo giá
-- convert sang project
-- điều phối task
-- theo dõi kho/tài chính/portal
+- mình làm gì mỗi ngày
+- mình đi theo flow nào
+- mình phối hợp với ai
+- mình được phép xem/sửa gì
 
-## Tài liệu cần biên soạn
+## Bộ tài liệu hiện có
 
-- Quick start cho PM
-- Hướng dẫn CRM đến Project
-- Hướng dẫn task board
-- Hướng dẫn publish portal và close dự án
+| File | Mục đích |
+|---|---|
+| `Operating_Guide_PM_v4.md` | Hướng dẫn vận hành PM theo kịch bản thực tế |
 
+## Trục nội dung bắt buộc của PM User Docs
+
+- CRM đến Project
+- Quản lý task và workbench
+- Quản lý đội nội bộ và partner
+- Theo dõi vật tư, nhân lực, tài chính
+- Nghiệm thu, portal và hậu mãi
+
+## Ghi chú baseline
+
+- PM không thao tác hiện trường thay `Supervisor`
+- PM không confirm kế toán thay `Accountant`
+- PM vẫn phải nhìn được đầy đủ bức tranh vận hành để ra quyết định
