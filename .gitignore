@@ -18,7 +18,19 @@ dist-ssr
 .idea
 .DS_Store
 *.suo
+
+# Ignore Office & media files in documents/
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+documents/**/*.doc
+documents/**/*.docx
+documents/**/*.xls
+documents/**/*.xlsx
+documents/**/*.ppt
+documents/**/*.pptx
+documents/**/*.pdf
+documents/**/*.mp4
+documents/**/*.mov
+documents/**/*.avi

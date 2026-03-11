@@ -9,6 +9,8 @@ ERD v4 được dựng để giải quyết các thiếu hụt của mô hình c
 - phản ánh đúng mô hình `Supervisor thao tác thay Worker profile`
 - liên kết chặt `CRM -> Vận hành nội bộ -> Hiện trường -> Kho -> Tài chính -> Bảo hành/Bảo trì`
 - bổ sung lớp `File governance + Google Drive sync`
+- bổ sung lớp `Document Template + Digital Signature + Dossier`
+- bổ sung lớp `Revenue - Cost - Debt - Retention` theo công trình
 
 ## 2. Nguyên tắc thiết kế
 
@@ -18,6 +20,8 @@ ERD v4 được dựng để giải quyết các thiếu hụt của mô hình c
 4. `Supervisor` là actor số chính của hiện trường, nhưng dữ liệu phải truy vết được worker profile thực hiện thực tế.
 5. Metadata file nằm trong hệ thống BAC Group; Google Drive chỉ là lớp lưu trữ cloud.
 6. `Warranty/Maintenance` phải nối được với chi phí và khoản phải thu phát sinh.
+7. Hồ sơ phát hành và hồ sơ đã ký phải là aggregate riêng, không chỉ là file đính kèm.
+8. Tài chính dự án phải nhìn được cả `doanh thu`, `chi phí`, `công nợ`, `retention`.
 
 ## 3. Sơ đồ quan hệ
 
@@ -48,10 +52,15 @@ erDiagram
   SERVICE_REQUEST ||--o{ SURVEY_RECORD : has
   SURVEY_RECORD ||--o{ SURVEY_ATTACHMENT : has
   USER ||--o{ SURVEY_RECORD : creates
+  SERVICE_REQUEST ||--o{ INTERACTION_LOG : records
+  USER ||--o{ INTERACTION_LOG : performs
   SERVICE_REQUEST ||--o{ QUOTATION : has
   QUOTATION ||--o{ QUOTATION_LINE : contains
   QUOTATION ||--o| CONTRACT : wins_as
   CONTRACT ||--o{ CHANGE_ORDER : amends
+  TENANT ||--o{ DOCUMENT_TEMPLATE : owns
+  DOCUMENT_TEMPLATE ||--o{ DOCUMENT_TEMPLATE_VERSION : versions
+  FILE_ASSET ||--o{ DOCUMENT_TEMPLATE_VERSION : sources
 
   CONTRACT ||--o{ PROJECT : creates
   SERVICE_REQUEST ||--o{ PROJECT : source_of
@@ -93,7 +102,15 @@ erDiagram
 
   PROJECT ||--o{ PAYMENT_SCHEDULE : plans
   PAYMENT_SCHEDULE ||--o{ PAYMENT_TRANSACTION : settles
+  PROJECT ||--o{ PROJECT_COST_ENTRY : incurs
+  USER ||--o{ PROJECT_COST_ENTRY : requests
+  USER ||--o{ PROJECT_COST_ENTRY : approves
   AFTERSALES_BILLING ||--o{ PAYMENT_TRANSACTION : settles
+  TENANT ||--o{ CASH_BOOK_ENTRY : owns
+  PAYMENT_TRANSACTION ||--o{ CASH_BOOK_ENTRY : posts
+  PROJECT_COST_ENTRY ||--o{ CASH_BOOK_ENTRY : posts
+  USER ||--o{ CASH_BOOK_ENTRY : creates
+  USER ||--o{ CASH_BOOK_ENTRY : approves
 
   PROJECT ||--o| ACCEPTANCE_RECORD : closes_with
   PROJECT ||--o| PORTAL_LINK : publishes
@@ -103,6 +120,21 @@ erDiagram
   MAINTENANCE_VISIT ||--o{ AFTERSALES_COST : incurs
   WARRANTY_CASE ||--o{ AFTERSALES_BILLING : bills
   USER ||--o{ MAINTENANCE_VISIT : handled_by
+
+  SERVICE_REQUEST ||--o{ DOCUMENT_RECORD : contextualizes
+  CONTRACT ||--o{ DOCUMENT_RECORD : contextualizes
+  PROJECT ||--o{ DOCUMENT_RECORD : contextualizes
+  PAYMENT_SCHEDULE ||--o{ DOCUMENT_RECORD : contextualizes
+  WARRANTY_CASE ||--o{ DOCUMENT_RECORD : contextualizes
+  DOCUMENT_TEMPLATE_VERSION ||--o{ DOCUMENT_RECORD : renders
+  FILE_ASSET ||--o{ DOCUMENT_RECORD : stores
+  DOCUMENT_RECORD ||--o{ SIGNATURE_ENVELOPE : routes
+  USER ||--o{ SIGNATURE_ENVELOPE : initiated_by
+  SIGNATURE_ENVELOPE ||--o{ SIGNATURE_PARTICIPANT : includes
+  SIGNATURE_ENVELOPE ||--o{ SIGNATURE_EVENT : logs
+  USER ||--o{ SIGNATURE_PARTICIPANT : signs_as
+  CUSTOMER ||--o{ SIGNATURE_PARTICIPANT : signs_as
+  FILE_ASSET ||--o{ SIGNATURE_EVENT : captures
 
   DRIVE_FOLDER_MAP ||--o{ FILE_ASSET : routes
   FILE_ASSET ||--o{ FILE_SYNC_JOB : syncs
@@ -169,6 +201,8 @@ erDiagram
     string requested_service
     string source_channel
     string status
+    string lifecycle_bucket
+    string outcome_reason_code
     uuid owner_user_id FK
     date expected_close_date
   }
@@ -246,6 +280,17 @@ erDiagram
     string attachment_type
   }
 
+  INTERACTION_LOG {
+    uuid id PK
+    uuid service_request_id FK
+    uuid actor_user_id FK
+    string interaction_type
+    string channel
+    string outcome
+    datetime interacted_at
+    text note
+  }
+
   QUOTATION {
     uuid id PK
     uuid service_request_id FK
@@ -253,7 +298,10 @@ erDiagram
     string quotation_no
     string status
     decimal subtotal
+    decimal tax_rate
+    decimal tax_amount
     decimal discount_amount
+    decimal gross_amount
     decimal total_amount
     datetime approved_at
   }
@@ -263,18 +311,29 @@ erDiagram
     uuid quotation_id FK
     string line_type
     string item_name
+    string unit_name
+    text current_condition
+    text solution_text
+    text execution_method
     decimal quantity
     decimal unit_price
     decimal total_amount
+    text note
   }
 
   CONTRACT {
     uuid id PK
     uuid quotation_id FK
     string contract_no
+    string contract_type
     string status
     date signed_date
+    decimal tax_rate
+    decimal tax_amount
     decimal contract_value
+    decimal gross_value
+    decimal retention_rate
+    datetime retention_release_at
   }
 
   CHANGE_ORDER {
@@ -286,13 +345,35 @@ erDiagram
     text reason
   }
 
+  DOCUMENT_TEMPLATE {
+    uuid id PK
+    uuid tenant_id FK
+    string template_code
+    string template_name
+    string document_type
+    string scope_type
+    string status
+  }
+
+  DOCUMENT_TEMPLATE_VERSION {
+    uuid id PK
+    uuid document_template_id FK
+    uuid source_file_asset_id FK
+    int version_no
+    text placeholder_schema_json
+    boolean is_active
+    datetime published_at
+  }
+
   PROJECT {
     uuid id PK
     uuid service_request_id FK
     uuid contract_id FK
     string code
     string name
+    string project_type
     string status
+    string lifecycle_bucket
     string address
     decimal area_m2
     date plan_start
@@ -448,9 +529,13 @@ erDiagram
     uuid id PK
     uuid project_id FK
     string direction
+    string milestone_name
+    string schedule_template_code
     int sequence_no
     decimal percentage
     decimal planned_amount
+    decimal retention_amount
+    string release_condition
     date due_date
     string status
   }
@@ -461,14 +546,48 @@ erDiagram
     uuid aftersales_billing_id FK
     string transaction_no
     decimal actual_amount
+    string account_scope
+    string approval_status
     string payment_method
     datetime transacted_at
+  }
+
+  PROJECT_COST_ENTRY {
+    uuid id PK
+    uuid project_id FK
+    uuid requested_by_user_id FK
+    uuid approved_by_user_id FK
+    string cost_category
+    string cost_source
+    string account_scope
+    decimal amount
+    datetime incurred_at
+    text note
+  }
+
+  CASH_BOOK_ENTRY {
+    uuid id PK
+    uuid tenant_id FK
+    string aggregate_type
+    uuid aggregate_id
+    string book_scope
+    string direction
+    decimal amount
+    date entry_date
+    uuid created_by_user_id FK
+    uuid approved_by_user_id FK
+    text note
   }
 
   ACCEPTANCE_RECORD {
     uuid id PK
     uuid project_id FK
     string acceptance_no
+    string acceptance_type
+    string test_method
+    datetime test_started_at
+    datetime test_ended_at
+    text conclusion
     string status
     datetime accepted_at
   }
@@ -527,6 +646,52 @@ erDiagram
     decimal charge_amount
     string payment_status
     datetime issued_at
+  }
+
+  DOCUMENT_RECORD {
+    uuid id PK
+    uuid tenant_id FK
+    uuid template_version_id FK
+    uuid rendered_file_asset_id FK
+    string context_type
+    uuid context_id
+    string lifecycle_bucket
+    string document_no
+    string document_type
+    string status
+    datetime issued_at
+  }
+
+  SIGNATURE_ENVELOPE {
+    uuid id PK
+    uuid document_record_id FK
+    uuid initiated_by_user_id FK
+    string signature_type
+    string status
+    datetime completed_at
+  }
+
+  SIGNATURE_PARTICIPANT {
+    uuid id PK
+    uuid signature_envelope_id FK
+    uuid user_id FK
+    uuid customer_id FK
+    string signer_type
+    string display_name
+    string role_label
+    int signing_order
+    string status
+    datetime signed_at
+  }
+
+  SIGNATURE_EVENT {
+    uuid id PK
+    uuid signature_envelope_id FK
+    uuid participant_id FK
+    uuid capture_file_asset_id FK
+    string event_type
+    string device_info
+    datetime occurred_at
   }
 
   DRIVE_FOLDER_MAP {
@@ -638,7 +803,37 @@ Nhờ đó hệ thống quản được cả:
 - tài liệu bảo hành
 - chứng từ tài chính
 
-### 4.5 `Warranty Case` nối trực tiếp với chi phí và khoản phải thu
+### 4.5 `Document Record` và `Signature Envelope` là hồ sơ số chuẩn
+
+ERD v4 bổ sung lớp mới để chuẩn hóa:
+
+- template mẫu tài liệu
+- version của template
+- tài liệu đã phát hành
+- luồng ký
+- người ký
+- sự kiện ký
+
+Nhờ đó hệ thống không chỉ lưu `file`, mà còn quản được:
+
+- tài liệu phát hành thuộc nghiệp vụ nào
+- dùng template version nào
+- đã ký hay chưa
+- ai ký, ký khi nào, ký bằng hình thức nào
+- hồ sơ nào đang nằm trong dossier của khách/công trình
+
+### 4.6 `Project Cost Entry` và `Cash Book Entry` khóa dữ liệu doanh thu - chi phí - công nợ
+
+ERD v4 mở rộng lớp tài chính để phản ánh đúng các sổ vận hành thực tế:
+
+- theo dõi chi phí theo công trình
+- tách nguồn chi từ tài khoản công ty, cá nhân hoặc quỹ
+- lưu người tạo lệnh, người duyệt, người theo dõi
+- ghi nhận được `đã thu`, `công nợ`, `còn lại`, `retention`
+
+Nhờ đó báo cáo tài chính không còn dừng ở milestone thu tiền, mà đủ dữ liệu để lên P&L thực tế.
+
+### 4.7 `Warranty Case` nối trực tiếp với chi phí và khoản phải thu
 
 ERD v4 bổ sung chuỗi:
 
@@ -652,11 +847,14 @@ Chuỗi này giúp phân biệt rõ:
 
 ## 5. Hướng triển khai từ ERD v4
 
-Trước khi build tiếp tính năng, cần khóa 6 phần sau:
+Trước khi build tiếp tính năng, cần khóa các phần sau:
 
 1. Domain model chuẩn theo ERD v4
 2. API contract cho các aggregate chính
 3. Rule convert `Service Request -> Contract -> Project`
 4. Rule `Supervisor actor / Worker profile`
-5. Rule đồng bộ `Task - Inventory - Acceptance - Aftersales`
-6. Rule đồng bộ file với Google Drive và publish portal
+5. Rule đồng bộ `CRM - Interaction Log - Quotation - Contract`
+6. Rule đồng bộ `Task - Inventory - Acceptance - Aftersales`
+7. Rule đồng bộ `Document Record - Signature - Dossier`
+8. Rule `Project Cost Entry - Cash Book - Payment Transaction - Retention`
+9. Rule đồng bộ file với Google Drive và publish portal

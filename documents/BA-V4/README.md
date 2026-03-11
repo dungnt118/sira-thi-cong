@@ -36,6 +36,8 @@ BA-V4 lấy 6 quyết định làm nền:
 4. `Supervisor` là actor số hiện trường ở giai đoạn hiện tại; `Worker` được quản lý qua `worker profile`.
 5. Cần một `ERD chuẩn` liên kết chặt giữa `Khách hàng`, `Yêu cầu dịch vụ`, `Báo giá`, `Hợp đồng`, `Dự án`, `Task`, `Kho`, `Tài chính`, `Bảo hành`.
 6. Quản lý file phải theo hướng metadata tập trung trong hệ thống và đồng bộ cloud qua `Google Drive`.
+7. `Admin` không đồng nhất với `HanhChinh`; `Sale` cũng không nên bị gộp hoàn toàn vào `PM`.
+8. `Quản lý mẫu tài liệu` và `Chữ ký điện tử` là capability nền, không phải tiện ích phụ.
 
 ## Cấu trúc tài liệu
 
@@ -45,6 +47,9 @@ BA-V4/
 │   ├── Current_State_Assessment_v4.md
 │   ├── BRD_v4.md
 │   ├── Gap_Register_v4.md
+│   ├── Original_Requirements_Audit_v4.md
+│   ├── Customer_Journey_Sale_HanhChinh_Analysis_v4.md
+│   ├── Document_Template_Electronic_Signature_v4.md
 │   └── Warranty_Finance_Lifecycle_v4.md
 ├── 02-Technical-Design/
 │   ├── ERD_v4.md
@@ -52,6 +57,8 @@ BA-V4/
 │   └── File_Storage_GoogleDrive_Strategy_v4.md
 ├── 03-UI-UX-Design/
 │   ├── Admin/
+│   ├── Sale/
+│   ├── HanhChinh/
 │   ├── PM/
 │   ├── Supervisor/
 │   ├── Worker/
@@ -59,6 +66,8 @@ BA-V4/
 │   └── CustomerPortal/
 ├── 04-User-Documentation/
 │   ├── Admin/
+│   ├── Sale/
+│   ├── HanhChinh/
 │   ├── PM/
 │   ├── Supervisor/
 │   ├── Worker/
@@ -77,13 +86,18 @@ BA-V4/
 Lưu ý:
 
 - Folder `Worker/` vẫn được giữ để quản lý blueprint nghiệp vụ cho lực lượng thi công và cho phase sau, nhưng ở giai đoạn hiện tại hệ thống chưa cấp tài khoản đăng nhập trực tiếp cho Worker; `Supervisor` là actor thao tác trên phần mềm thay mặt Worker.
+- Folder `Admin/` là quản trị hệ thống. Folder `HanhChinh/` là vận hành hồ sơ nghiệp vụ. Hai vai trò này không nên trộn lẫn.
+- Folder `Sale/` là vai trò front-office theo workbook hành trình khách hàng; không nên tiếp tục coi toàn bộ phần này chỉ là nhánh phụ của `PM`.
 
 - Nếu cần nhìn toàn cảnh hiện trạng, đọc `Current_State_Assessment_v4.md`.
 - Nếu cần chốt phạm vi và business rule đích, đọc `BRD_v4.md`.
 - Nếu cần biết chỗ nào đang thiếu/gãy, đọc `Gap_Register_v4.md`.
+- Nếu cần đối chiếu lại với dossier, báo cáo doanh thu, hợp đồng, chứng từ và tài liệu vận hành gốc, đọc `Original_Requirements_Audit_v4.md`.
 - Nếu cần khóa mô hình dữ liệu và ranh giới module, đọc `ERD_v4.md` và `Module_Architecture_v4.md`.
 - Nếu cần đi sâu vào quản lý file, cloud sync và Google Drive, đọc `File_Storage_GoogleDrive_Strategy_v4.md`.
 - Nếu cần đóng vòng đời bảo hành/bảo trì gắn với tài chính, đọc `Warranty_Finance_Lifecycle_v4.md`.
+- Nếu cần phân tích riêng luồng `Sale` và `HanhChinh` theo workbook gốc, đọc `Customer_Journey_Sale_HanhChinh_Analysis_v4.md`.
+- Nếu cần chốt capability `Quản lý mẫu tài liệu` và `Chữ ký điện tử`, đọc `Document_Template_Electronic_Signature_v4.md`.
 - Nếu cần lập kế hoạch xây dựng, đọc `Implementation_Plan_v4.md`.
 - Nếu cần một file chốt nhanh các nội dung đã khóa, đã xây và còn thiếu, đọc `Build_Status_Summary_v4.md`.
 - Nếu cần biết mức độ đáp ứng giữa tài liệu và code, đọc `Coverage_Matrix_v4.md`.

@@ -9,6 +9,8 @@ Tài liệu này đóng chi tiết phần mà BA cũ còn mỏng:
 - phân loại trong bảo hành hay tính phí
 - ghi nhận chi phí hậu mãi
 - tạo khoản phải thu phát sinh nếu ngoài phạm vi bảo hành
+- theo dõi `retention/giữ lại bảo hành` nếu hợp đồng áp dụng
+- phản ánh `đã thu`, `công nợ`, `còn lại` và chi phí thực tế theo công trình
 
 ## 2. Vai trò tham gia
 
@@ -17,6 +19,7 @@ Tài liệu này đóng chi tiết phần mà BA cũ còn mỏng:
 | PM | Theo dõi chất lượng tổng thể, quyết định change order nếu phát sinh ngoài phạm vi lớn |
 | Supervisor | Khảo sát hiện trường hậu mãi, cập nhật visit, bằng chứng, tình trạng xử lý |
 | Accountant | Ghi nhận chi phí, khoản phải thu, trạng thái thanh toán, báo cáo tài chính hậu mãi |
+| HanhChinh | Phát hành hồ sơ bảo trì/bảo hành, đề nghị thanh toán phát sinh, lưu dossier |
 | Admin | Cấu hình mẫu warranty, SLA, lý do phân loại, template thông báo |
 | Customer Portal | Gửi/yêu cầu xem tiến độ hậu mãi ở mức được công bố |
 
@@ -46,7 +49,11 @@ flowchart TD
   K --> L{"Có khoản phải thu?"}
   L -->|Có| M["Thu tiền / đối soát"]
   L -->|Không| N["Đóng case"]
-  M --> N
+  M --> O{"Có retention cần giải tỏa?"}
+  N --> O
+  O -->|Có| P["Giải tỏa retention theo điều kiện hợp đồng"]
+  O -->|Không| Q["Đóng vòng đời tài chính"]
+  P --> Q
 ```
 
 ## 5. Các trạng thái nghiệp vụ đề xuất
@@ -113,7 +120,25 @@ Nếu case ngoài phạm vi bảo hành:
 - phải thấy rõ căn cứ tính phí
 - phải liên kết với giao dịch thu tiền
 
-### 7.3 Tác động tới P&L
+### 7.3 Lịch thanh toán và giữ lại bảo hành
+
+Hệ thống phải hỗ trợ:
+
+- nhiều mẫu lịch thanh toán theo hợp đồng
+- thanh toán nhiều đợt
+- partial collection
+- giữ lại bảo hành theo tỷ lệ hoặc số tiền
+- giải tỏa retention khi đạt điều kiện thời gian/chất lượng
+
+Các trường tối thiểu phải nhìn được:
+
+- giá trị hợp đồng
+- đã thu
+- công nợ còn lại
+- retention đang giữ
+- retention đã giải tỏa
+
+### 7.4 Tác động tới P&L
 
 Dashboard tài chính dự án phải nhìn được:
 
@@ -122,6 +147,7 @@ Dashboard tài chính dự án phải nhìn được:
 - chi phí hậu mãi trong bảo hành
 - doanh thu bảo trì tính phí
 - lợi nhuận thực sau hậu mãi
+- phần giữ lại bảo hành chưa giải tỏa
 
 ## 8. Luồng nghiệp vụ chi tiết
 
@@ -162,6 +188,7 @@ Thông tin tối thiểu:
 - đính kèm bằng chứng
 - mô tả nguyên nhân sơ bộ
 - đề xuất coverage result
+- đính kèm `báo cáo hiện trạng/bảo trì` nếu case yêu cầu hồ sơ chính thức
 
 ### 8.4 Xử lý hiện trường
 
@@ -178,6 +205,7 @@ Vì vậy hậu mãi không được xem là module tách rời khỏi `Task`, `
 Khi case thuộc diện tính phí:
 
 - tạo `Aftersales Billing`
+- tạo `Document Record` cho đề nghị thanh toán hoặc hồ sơ phát hành tương ứng
 - công bố cho kế toán/PM
 - thu tiền và đối soát
 - chỉ đóng case hoàn toàn khi trạng thái tài chính rõ ràng
@@ -190,6 +218,8 @@ Khi case thuộc diện tính phí:
 - thời gian xử lý trung bình theo mức ưu tiên
 - tỷ lệ tái phát lỗi
 - doanh thu bảo trì tính phí
+- giá trị retention đang treo theo dự án
+- tỷ lệ case đã hoàn thành kỹ thuật nhưng còn chờ thanh toán
 
 ## 10. Các edge case cần khóa rule
 

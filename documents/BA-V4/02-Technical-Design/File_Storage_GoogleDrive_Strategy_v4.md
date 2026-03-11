@@ -7,6 +7,7 @@ Tài liệu này chuẩn hóa cách BAC Group quản lý:
 - ảnh khảo sát
 - ảnh/video thi công
 - hồ sơ báo giá/hợp đồng
+- hồ sơ dossier khách hàng/công trình theo vòng đời
 - biên bản nghiệm thu
 - chứng từ tài chính
 - tài liệu bảo hành/bảo trì
@@ -26,10 +27,10 @@ Mục tiêu là vừa lưu trữ được trên cloud bằng `Google Drive`, v�
 | Nhóm file | Context chính | Ví dụ |
 |---|---|---|
 | CRM survey | Customer, Service Request | Ảnh hiện trạng, đo độ ẩm, form khảo sát |
-| Sales docs | Service Request, Quotation, Contract | Báo giá PDF, phụ lục, hợp đồng scan |
+| Sales docs | Service Request, Quotation, Contract | Báo cáo tổng hợp, báo giá PDF, phụ lục, hợp đồng scan |
 | Delivery docs | Project, Task, Checklist | Ảnh/video bằng chứng, nhật ký hiện trường |
 | Inventory docs | Stock Document | Phiếu xuất/nhập, ký nhận vật tư |
-| Finance docs | Payment Schedule, Transaction | Phiếu thu/chi, hóa đơn, đối soát |
+| Finance docs | Payment Schedule, Transaction, Cost Entry | Phiếu thu/chi, hóa đơn, đề nghị thanh toán, sổ quỹ, đối soát |
 | Aftersales docs | Warranty Case, Maintenance Visit | Ảnh bảo hành, biên bản bảo trì, phiếu tính phí |
 
 ## 4. Metadata tối thiểu bắt buộc
@@ -60,25 +61,36 @@ Mỗi file phải có các thuộc tính sau trong DB:
 ```text
 BAC-GROUP/
 └── {TENANT_CODE}/
-    ├── Customers/
-    │   └── {CUSTOMER_CODE}/
-    │       └── ServiceRequests/
-    │           └── {SR_CODE}/
-    │               ├── Survey/
-    │               ├── Quotation/
-    │               └── Contract/
-    ├── Projects/
-    │   └── {PROJECT_CODE}/
-    │       ├── Execution/
-    │       │   └── {TASK_CODE}/
-    │       ├── Inventory/
-    │       ├── Acceptance/
-    │       └── Finance/
-    └── Aftersales/
-        └── {WARRANTY_CASE_CODE}/
-            ├── Inspection/
-            ├── Visit/
-            └── Billing/
+    └── Dossiers/
+        ├── ProspectActive/
+        │   └── {CUSTOMER_CODE}_{SR_CODE}/
+        │       ├── Survey/
+        │       ├── Summary/
+        │       ├── Quotation/
+        │       └── Contract/
+        ├── LostNoGo/
+        │   └── {CUSTOMER_CODE}_{SR_CODE}/
+        ├── ProjectInProgress/
+        │   └── {PROJECT_CODE}/
+        │       ├── CRM/
+        │       ├── Execution/
+        │       │   └── {TASK_CODE}/
+        │       ├── Inventory/
+        │       ├── Acceptance/
+        │       ├── Finance/
+        │       └── DeliveryNotes/
+        ├── ProjectCompleted/
+        │   └── {PROJECT_CODE}/
+        │       ├── Contract/
+        │       ├── Acceptance/
+        │       ├── PaymentRequests/
+        │       └── FinalDossier/
+        └── AftersalesActive/
+            └── {WARRANTY_CASE_CODE}/
+                ├── Inspection/
+                ├── MaintenanceReport/
+                ├── CostSheet/
+                └── Billing/
 ```
 
 Quy tắc:
@@ -86,6 +98,7 @@ Quy tắc:
 - tên thư mục phải theo `code`, không theo tên tự do
 - hệ thống quản lý `drive_folder_id` qua bảng `DRIVE_FOLDER_MAP`
 - không cho người dùng tự tạo cấu trúc folder ngoài chuẩn
+- bucket vòng đời trên Drive phải tương ứng với `lifecycle bucket` trong hệ thống, không quản lý rời rạc
 
 ## 6. Luồng upload chuẩn
 
@@ -163,7 +176,11 @@ Không cấp quyền khách hàng trực tiếp lên Google Drive.
 
 - báo giá
 - hợp đồng/phụ lục
+- báo cáo tổng hợp
+- biên bản giao nhận
 - biên bản nghiệm thu
+- đề nghị tạm ứng
+- đề nghị thanh toán
 - tài liệu bảo hành/bảo trì
 
 Quy tắc:

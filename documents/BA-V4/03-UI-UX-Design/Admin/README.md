@@ -11,6 +11,8 @@ Admin là người cấu hình và kiểm soát toàn bộ hệ thống:
 - notification
 - báo cáo quản trị
 
+Vai trò này là `system admin/control plane`, không phải `Hành Chính` vận hành hồ sơ khách hàng.
+
 ## Màn hình bắt buộc
 
 - Dashboard điều hành
@@ -37,4 +39,3 @@ Admin là người cấu hình và kiểm soát toàn bộ hệ thống:
 - Chưa có màn cấu hình `Stage Playbook`
 - `admin-app` và `admin-v2` đang bị trùng vai
 - Audit log mới là màn hình demo, chưa là ledger thật
-

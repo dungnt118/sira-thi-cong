@@ -38,6 +38,10 @@ File này tổng hợp các khoảng trống còn tồn tại sau khi đối chi
 | GAP-22 | Reporting | Chưa có KPI dictionary, monthly report, cross-project report xuất chuẩn | Gap audit mới đề cập rời rạc | Không thể chuẩn hóa báo cáo quản trị | Medium | Xây `report catalog` và data mart logic |
 | GAP-23 | Kỹ thuật | Phần lớn màn hình đang dùng `mockData`, thiếu service/store/API | Code hiện tại xác nhận | Prototype khó chuyển thành sản phẩm thật | Critical | Tạo lớp domain service và API contract |
 | GAP-24 | Chất lượng | Chưa có UAT/regression backlog cho các flow chính | Tài liệu test gần như trống ở V2/V3 | Rủi ro build xong nhưng không go-live được | High | Tạo UAT backlog theo flow V4 |
+| GAP-25 | Hồ sơ | Chưa có `dossier model` chuẩn theo vòng đời `đang triển khai / hoàn thiện / bảo trì / không làm` | Folder gốc khách hàng đang được quản lý theo bucket thủ công ngoài hệ thống | Khó lưu hồ sơ, khó tra cứu và dễ đứt mạch file | High | Chuẩn hóa `lifecycle bucket + dossier` trong BA-V4 |
+| GAP-26 | Tài chính | Logic thanh toán đang mô tả quá cứng, chưa phản ánh nhiều mẫu lịch thanh toán, partial collection và giữ lại bảo hành | Hợp đồng mẫu, sổ doanh thu/chi phí và công nợ thực tế cho thấy nhiều pattern | Sai thực tế thu tiền, sai công nợ và sai báo cáo | Critical | Chuẩn hóa `payment template library + retention + collection status` |
+| GAP-27 | Tài chính | Thiếu cost ledger theo công trình và luồng sổ quỹ/nguồn tiền cá nhân - công ty | Sổ quỹ và sheet doanh thu/chi phí đang theo dõi ngoài hệ thống | Không lên được lợi nhuận thực và thiếu kiểm soát nội bộ | Critical | Bổ sung `Project Cost Entry + Cash Book + approval flow` |
+| GAP-28 | Chứng từ | Chưa chuẩn hóa đầy đủ bộ chứng từ thực tế gồm báo cáo tổng hợp, giao nhận, tạm ứng, đề nghị thanh toán, bảo trì | Tài nguyên gốc và dossier khách hàng cho thấy nhiều loại hồ sơ hơn BA hiện mô tả | Document automation dễ build thiếu bộ và sai luồng ký | High | Chuẩn hóa `document catalog + dossier checklist` |
 
 ## 3. Gap theo mối quan tâm của người dùng
 
@@ -86,6 +90,16 @@ Khoảng trống lớn nhất của bộ BA cũ là mô tả từng phần chứ
 - `Thanh toán`
 - `Bảo hành`
 
+### 3.4 Hồ sơ số và tài chính vận hành thực tế
+
+Khoảng trống mới lộ rõ khi đối chiếu `Orignal-Requirements-Docs` là BA trước đây chưa mô tả đủ:
+
+- bucket hồ sơ theo vòng đời khách hàng/công trình
+- bộ chứng từ bắt buộc theo từng chặng
+- thanh toán nhiều mẫu, thu nhiều lần, giữ lại bảo hành
+- chi phí thực tế theo công trình và sổ quỹ
+- phân vai tạo lệnh, duyệt lệnh và theo dõi dòng tiền
+
 ## 4. Kết luận ưu tiên
 
 ### Nhóm phải xử lý trước khi build tiếp
@@ -97,6 +111,8 @@ Khoảng trống lớn nhất của bộ BA cũ là mô tả từng phần chứ
 - GAP-14
 - GAP-16
 - GAP-23
+- GAP-26
+- GAP-27
 
 ### Nhóm xử lý song song trong giai đoạn build core
 
@@ -108,6 +124,8 @@ Khoảng trống lớn nhất của bộ BA cũ là mô tả từng phần chứ
 - GAP-17
 - GAP-18
 - GAP-24
+- GAP-25
+- GAP-28
 
 ### Nhóm có thể vào wave sau nhưng phải được ghi vào thiết kế ngay
 
