@@ -7,6 +7,8 @@ import {
     ProjectOutlined,
     DollarOutlined,
     TeamOutlined,
+    CustomerServiceOutlined,
+    BankOutlined
 } from '@ant-design/icons';
 import './Login.css';
 
@@ -32,6 +34,22 @@ export const Login: React.FC = () => {
             icon: <UserOutlined />,
             path: '/admin-v2/dashboard',
             color: '#1890ff',
+        },
+        {
+            key: 'hanh-chinh',
+            title: 'Hành Chính',
+            description: 'Công tác văn thư, nhân sự, hành chính',
+            icon: <BankOutlined />,
+            path: '/admin-v2/dashboard',
+            color: '#2f54eb',
+        },
+        {
+            key: 'sale',
+            title: 'Kinh Doanh (Sale)',
+            description: 'Quản lý thông tin, khách hàng và báo giá',
+            icon: <CustomerServiceOutlined />,
+            path: '/sale/journeys',
+            color: '#eb2f96',
         },
         {
             key: 'supervisor',
