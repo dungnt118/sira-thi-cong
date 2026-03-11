@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
-import { Card, Steps, Button, Typography, Space, Tag, Descriptions, Row, Col, Result, Form, message } from 'antd';
-import { ArrowLeftOutlined, CheckCircleOutlined, FormOutlined, FilePdfOutlined, EditOutlined, ClockCircleOutlined, DownloadOutlined } from '@ant-design/icons';
+import React, { useState, useRef } from 'react';
+import { Card, Steps, Button, Typography, Space, Tag, Descriptions, Row, Col, Result, Form, message, Modal } from 'antd';
+import { ArrowLeftOutlined, CheckCircleOutlined, FormOutlined, FilePdfOutlined, EditOutlined, ClockCircleOutlined, DownloadOutlined, HighlightOutlined } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import { mockJourneys } from '../../../data/journeyMockData';
 import DynamicSurveyForm from '../../shared/Surveys/DynamicSurveyForm';
+import SignatureCanvas from 'react-signature-canvas';
+import html2pdf from 'html2pdf.js';
 
 const { Text } = Typography;
 
@@ -22,6 +24,41 @@ const SaleSurveyDetail: React.FC = () => {
     const [formStep, setFormStep] = useState(0);
     const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
     const [surveyDataForm] = Form.useForm();
+    
+    // E-Signature States
+    const [isSigModalOpen, setIsSigModalOpen] = useState(false);
+    const [sigData, setSigData] = useState<string | null>(null);
+    const sigPadRef = useRef<any>(null);
+
+    const handleClearSignature = () => {
+        if (sigPadRef.current) {
+            sigPadRef.current.clear();
+        }
+    };
+
+    const handleSaveSignature = () => {
+        if (sigPadRef.current && !sigPadRef.current.isEmpty()) {
+            setSigData(sigPadRef.current.getTrimmedCanvas().toDataURL('image/png'));
+            setIsSigModalOpen(false);
+            message.success('Đã lưu chữ ký thành công!');
+        } else {
+            message.warning('Vui lòng tạo chữ ký trước khi lưu.');
+        }
+    };
+
+    const handleDownloadPDF = () => {
+        const element = document.getElementById('printable-a4');
+        if (element) {
+            const opt = {
+                margin:       10,
+                filename:     `SURA-Survey-${surveyId || '2024'}.pdf`,
+                image:        { type: 'jpeg' as const, quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+    };
 
     const handleBack = () => navigate(`/sale/journeys/${journey.id}?tab=survey`);
 
@@ -140,12 +177,10 @@ const SaleSurveyDetail: React.FC = () => {
 
                         {/* Thanh công cụ (Không in) */}
                         <Space style={{ marginBottom: 24 }} className="no-print">
-                            <Button icon={<DownloadOutlined />} onClick={() => window.print()}>Xem & In Bản PDF</Button>
-                            <Button type="primary" onClick={() => {
-                                message.success('Khách hàng đã ký xác nhận!');
-                                setOverallStatus('completed');
-                            }}>
-                                Trình KH Ký Điện tử (Mô phỏng)
+                            <Button icon={<DownloadOutlined />} onClick={handleDownloadPDF} type="dashed">Tải Bản PDF</Button>
+                            <Button icon={<FilePdfOutlined />} onClick={() => window.print()}>Xem & In Ấn</Button>
+                            <Button type="primary" icon={<HighlightOutlined />} onClick={() => setIsSigModalOpen(true)}>
+                                Khách hàng Ký trực tiếp
                             </Button>
                         </Space>
 
@@ -207,7 +242,11 @@ const SaleSurveyDetail: React.FC = () => {
                                     <div style={{ width: '40%' }}>
                                         <strong>ĐẠI DIỆN KHÁCH HÀNG</strong>
                                         <div style={{ fontStyle: 'italic', fontSize: 12 }}>(Ký và ghi rõ họ tên)</div>
-                                        <div style={{ height: 100 }}></div>
+                                        <div style={{ height: 120, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                            {sigData ? (
+                                                <img src={sigData} alt="Client Signature" style={{ maxHeight: '100%', maxWidth: '100%' }} />
+                                            ) : null}
+                                        </div>
                                     </div>
                                     <div style={{ width: '40%' }}>
                                         <strong>ĐẠI DIỆN KHẢO SÁT (SIRA)</strong>
@@ -323,11 +362,34 @@ const SaleSurveyDetail: React.FC = () => {
                             <Button type="primary" key="console" onClick={handleBack}>
                                 Quay lại Hành trình
                             </Button>,
-                            <Button key="buy" icon={<FilePdfOutlined />}>Xuất PDF Hồ sơ</Button>,
+                            <Button key="buy" icon={<FilePdfOutlined />} onClick={handleDownloadPDF}>Xuất PDF Hồ sơ</Button>,
                         ]}
                     />
                 </Card>
             )}
+
+            {/* Modal Chữ Ký */}
+            <Modal
+                title="Khách hàng Ký trực tiếp"
+                open={isSigModalOpen}
+                onCancel={() => setIsSigModalOpen(false)}
+                footer={[
+                    <Button key="clear" onClick={handleClearSignature}>Xóa viết lại</Button>,
+                    <Button key="save" type="primary" onClick={handleSaveSignature}>Lưu chữ ký</Button>
+                ]}
+                width={600}
+                centered
+            >
+                <div>
+                    <p style={{ marginBottom: 16 }}>Vui lòng sử dụng chuột hoặc trượt tay trên màn hình cảm ứng để ký vào khung bên dưới.</p>
+                    <div style={{ border: '2px dashed #d9d9d9', borderRadius: 8, background: '#fafafa' }}>
+                        <SignatureCanvas 
+                            ref={sigPadRef}
+                            canvasProps={{ width: 550, height: 250, className: 'sigCanvas' }} 
+                        />
+                    </div>
+                </div>
+            </Modal>
         </div>
     );
 };
