@@ -18,10 +18,6 @@ const SLA_CONFIG: Record<SlaStatus, { label: string; color: string }> = {
     overdue: { label: 'Quá hạn', color: 'error' },
 };
 
-const SURVEY_LABEL: Record<string, string> = {
-    not_started: 'Chưa KS', scheduled: 'Đã lịch', in_progress: 'Đang KS', completed: 'Đã KS'
-};
-
 const JourneyInbox: React.FC = () => {
     const navigate = useNavigate();
     const [keyword, setKeyword] = useState('');
@@ -44,27 +40,29 @@ const JourneyInbox: React.FC = () => {
 
             <Card>
                 <div style={{ marginBottom: 16 }}>
-                    <Space size="small" wrap>
-                        <Tag.CheckableTag checked={filterSla === 'ALL'} onChange={() => setFilterSla('ALL')}>Tất cả SLA</Tag.CheckableTag>
-                        <Tag.CheckableTag checked={filterSla === 'overdue'} onChange={() => setFilterSla('overdue')}>Quá hạn</Tag.CheckableTag>
-                        <Tag.CheckableTag checked={filterSla === 'at_risk'} onChange={() => setFilterSla('at_risk')}>Có rủi ro</Tag.CheckableTag>
-                        <Tag.CheckableTag checked={filterSla === 'ontime'} onChange={() => setFilterSla('ontime')}>Đúng hạn</Tag.CheckableTag>
-                    </Space>
+                    <Row gutter={12}>
+                        <Col flex="auto">
+                            <Input placeholder="Tìm mã, tên KH..." prefix={<SearchOutlined />} value={keyword} onChange={e => setKeyword(e.target.value)} allowClear />
+                        </Col>
+                        <Col>
+                            <Select style={{ width: 140 }} value={filterSla} onChange={setFilterSla} options={[
+                                { value: 'ALL', label: 'Tất cả SLA' },
+                                { value: 'overdue', label: 'Quá hạn' },
+                                { value: 'at_risk', label: 'Có rủi ro' },
+                                { value: 'ontime', label: 'Đúng hạn' },
+                            ]} />
+                        </Col>
+                        <Col>
+                            <Select style={{ width: 160 }} value={filterStep} onChange={setFilterStep} options={[
+                                { value: 'ALL', label: 'Tất cả bước' },
+                                { value: 'INTAKE', label: '1. Tiếp nhận' },
+                                { value: 'SURVEY', label: '2. Khảo sát' },
+                                { value: 'QUOTATION', label: '3. Dự toán/Báo giá' },
+                                { value: 'CONTRACT', label: '4. Hợp đồng' }
+                            ]} />
+                        </Col>
+                    </Row>
                 </div>
-                <Row gutter={12} style={{ marginBottom: 16 }}>
-                    <Col flex="auto">
-                        <Input placeholder="Tìm mã, tên KH..." prefix={<SearchOutlined />} value={keyword} onChange={e => setKeyword(e.target.value)} allowClear />
-                    </Col>
-                    <Col>
-                        <Select style={{ width: 140 }} value={filterStep} onChange={setFilterStep} options={[
-                            { value: 'ALL', label: 'Tất cả bước' },
-                            { value: 'INTAKE', label: 'Tiếp nhận' },
-                            { value: 'SURVEY', label: 'Khảo sát' },
-                            { value: 'QUOTATION', label: 'Dự toán/Báo giá' },
-                            { value: 'CONTRACT', label: 'Hợp đồng' }
-                        ]} />
-                    </Col>
-                </Row>
 
                 <div>
                     {filtered.length === 0 && <Empty description="Không có hành trình" />}
@@ -89,13 +87,12 @@ const JourneyInbox: React.FC = () => {
                                     </div>
                                     <div style={{ marginTop: 4 }}>
                                         <Text type="secondary" style={{ fontSize: 11 }}>
-                                            Sale phụ trách: <Text strong>{j.owner_user}</Text> ·
-                                            KS: {SURVEY_LABEL[j.survey_status] || '—'}
+                                            Kỹ thuật KS: <Text strong>{j.surveyor_name || 'Chưa phân công'}</Text>
                                         </Text>
                                     </div>
                                     <div style={{ marginTop: 4 }}>
                                         <Text type="secondary" style={{ fontSize: 11 }}>
-                                            Next Action: <Text type="warning">{j.current_step === 'Khảo sát hiện trường' ? 'Chờ Kỹ thuật duyệt' : j.current_step === 'Dự toán & Báo giá' ? 'Gửi báo giá cho KH' : 'Liên hệ KH'}</Text>
+                                            Lịch hẹn tiếp theo: <Text style={{ color: '#1677ff' }}>{j.next_milestone_due || j.last_activity_at?.split('T')[0] || '—'}</Text>
                                         </Text>
                                     </div>
                                 </Col>

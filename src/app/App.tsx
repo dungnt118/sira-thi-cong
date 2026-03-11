@@ -66,6 +66,7 @@ import JourneyInbox from '../pages/sale/Journeys/JourneyInbox';
 import SLAQueue from '../pages/sale/Journeys/SLAQueue';
 import SurveyCoordination from '../pages/sale/Journeys/SurveyCoordination';
 import SaleJourneyContext from '../pages/sale/Journeys/SaleJourneyContext';
+import SaleSurveyDetail from '../pages/sale/Journeys/SaleSurveyDetail';
 import CommunicationsCenter from '../pages/sale/Journeys/CommunicationsCenter';
 
 // Giam Sat Layout + Pages
@@ -232,11 +233,14 @@ function App() {
                     {/* ===== SALE ROUTES (Phase 1) ===== */}
                     <Route path="/sale" element={<SaleLayout />}>
                         <Route index element={<Navigate to="/sale/journeys" replace />} />
-                        <Route path="journeys" element={<JourneyInbox />} />
-                        <Route path="journeys/sla" element={<SLAQueue />} />
-                        <Route path="journeys/surveys" element={<SurveyCoordination />} />
-                        <Route path="journeys/communications" element={<CommunicationsCenter />} />
-                        <Route path="journeys/:journeyId" element={<SaleJourneyContext />} />
+                        <Route path="journeys">
+                            <Route index element={<JourneyInbox />} />
+                            <Route path="sla" element={<SLAQueue />} />
+                            <Route path="surveys" element={<SurveyCoordination />} />
+                            <Route path="communications" element={<CommunicationsCenter />} />
+                            <Route path=":journeyId" element={<SaleJourneyContext />} />
+                            <Route path=":journeyId/surveys/:surveyId" element={<SaleSurveyDetail />} />
+                        </Route>
                     </Route>
 
                     {/* ===== GIÁM SÁT ROUTES (Phase 1) ===== */}
