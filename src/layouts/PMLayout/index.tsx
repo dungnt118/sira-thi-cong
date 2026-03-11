@@ -13,6 +13,7 @@ import {
     LogoutOutlined,
     SettingOutlined,
     InboxOutlined,
+    NodeIndexOutlined,
 } from '@ant-design/icons';
 import { LABELS } from '@utils/constants';
 import { BaseLayout } from '../shared/BaseLayout';
@@ -38,6 +39,17 @@ const menuItems: MenuItem[] = [
             { key: '/pm/crm/customers', label: 'Danh sách Khách hàng' },
             { key: '/pm/crm/customers/new', label: 'Thêm KH mới' },
             { key: '/pm/crm/pipeline-settings', label: 'Cấu hình Pipeline' },
+        ],
+    },
+    {
+        key: '/pm/journeys',
+        icon: <NodeIndexOutlined />,
+        label: 'Hành trình Khách hàng',
+        children: [
+            { key: '/pm/journeys', label: 'Danh sách Hành trình' },
+            { key: '/pm/journeys/board', label: 'Board / Kanban' },
+            { key: '/pm/journeys/action-center', label: 'Action Center' },
+            { key: '/pm/journeys/templates', label: 'Template Quy trình' },
         ],
     },
     {

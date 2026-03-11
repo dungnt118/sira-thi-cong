@@ -51,6 +51,35 @@ import InventoryCatalog from '../pages/pm/Inventory/InventoryCatalog';
 import StockRequestOut from '../pages/pm/Inventory/StockRequestOut';
 import StockRequestIn from '../pages/pm/Inventory/StockRequestIn';
 
+// ===== PHASE 1: JOURNEY PAGES =====
+// PM Journey Pages
+import JourneyList from '../pages/pm/Journeys/JourneyList';
+import JourneyBoard from '../pages/pm/Journeys/JourneyBoard';
+import JourneyDetail360 from '../pages/pm/Journeys/JourneyDetail360';
+import ActionCenter from '../pages/pm/Journeys/ActionCenter';
+import TemplateList from '../pages/pm/Journeys/TemplateList';
+import TemplateDetail from '../pages/pm/Journeys/TemplateDetail';
+
+// Sale Layout + Pages
+import { SaleLayout } from '../layouts/SaleLayout';
+import JourneyInbox from '../pages/sale/Journeys/JourneyInbox';
+import SLAQueue from '../pages/sale/Journeys/SLAQueue';
+import SurveyCoordination from '../pages/sale/Journeys/SurveyCoordination';
+import SaleJourneyContext from '../pages/sale/Journeys/SaleJourneyContext';
+import CommunicationsCenter from '../pages/sale/Journeys/CommunicationsCenter';
+
+// Giam Sat Layout + Pages
+import { GiamSatLayout } from '../layouts/GiamSatLayout';
+import SurveyQueue from '../pages/giam-sat/SurveyQueue';
+import SurveyForm from '../pages/giam-sat/SurveyForm';
+import JourneyFeedSummary from '../pages/giam-sat/JourneyFeedSummary';
+
+// Portal Sub-pages
+import PublishedTimeline from '../pages/public/portal/PublishedTimeline';
+import PortalDocuments from '../pages/public/portal/PortalDocuments';
+import ThreadInbox from '../pages/public/portal/ThreadInbox';
+import ThreadDetail from '../pages/public/portal/ThreadDetail';
+
 // V3 Supervisor Pages (replaces 'worker' — Supervisors act on behalf of field workers)
 import SupervisorMobileLayout from '../layouts/WorkerLayout';
 import SupervisorHome from '../pages/worker/WorkerHome';
@@ -91,7 +120,13 @@ function App() {
                 <Routes>
                     {/* ===== PUBLIC ROUTES ===== */}
                     <Route path="/login" element={<Login />} />
+                    {/* Original Portal */}
                     <Route path="/portal/:token" element={<CustomerPortal />} />
+                    {/* Phase 1 Portal Sub-routes */}
+                    <Route path="/portal/:token/timeline" element={<PublishedTimeline />} />
+                    <Route path="/portal/:token/documents" element={<PortalDocuments />} />
+                    <Route path="/portal/:token/threads" element={<ThreadInbox />} />
+                    <Route path="/portal/:token/threads/:threadId" element={<ThreadDetail />} />
 
                     {/* ===== ADMIN V2 ROUTES ===== */}
                     <Route path="/admin" element={<AdminLayout />}>
@@ -118,6 +153,16 @@ function App() {
                     <Route path="/pm" element={<PMLayout />}>
                         <Route index element={<Navigate to="/pm/dashboard" replace />} />
                         <Route path="dashboard" element={<PMDashboard />} />
+
+                        {/* --- Journey Module (PM) --- */}
+                        <Route path="journeys">
+                            <Route index element={<JourneyList />} />
+                            <Route path="board" element={<JourneyBoard />} />
+                            <Route path="action-center" element={<ActionCenter />} />
+                            <Route path="templates" element={<TemplateList />} />
+                            <Route path="templates/:templateId" element={<TemplateDetail />} />
+                            <Route path=":journeyId" element={<JourneyDetail360 />} />
+                        </Route>
 
                         {/* --- CRM Module --- */}
                         <Route path="crm">
@@ -182,6 +227,24 @@ function App() {
                         <Route path="financials/milestones" element={<Financials />} />
                         <Route path="financials/transactions" element={<Financials />} />
                         <Route path="reports" element={<PMReports />} />
+                    </Route>
+
+                    {/* ===== SALE ROUTES (Phase 1) ===== */}
+                    <Route path="/sale" element={<SaleLayout />}>
+                        <Route index element={<Navigate to="/sale/journeys" replace />} />
+                        <Route path="journeys" element={<JourneyInbox />} />
+                        <Route path="journeys/sla" element={<SLAQueue />} />
+                        <Route path="journeys/surveys" element={<SurveyCoordination />} />
+                        <Route path="journeys/communications" element={<CommunicationsCenter />} />
+                        <Route path="journeys/:journeyId" element={<SaleJourneyContext />} />
+                    </Route>
+
+                    {/* ===== GIÁM SÁT ROUTES (Phase 1) ===== */}
+                    <Route path="/giam-sat" element={<GiamSatLayout />}>
+                        <Route index element={<Navigate to="/giam-sat/surveys" replace />} />
+                        <Route path="surveys" element={<SurveyQueue />} />
+                        <Route path="surveys/:journeyId" element={<SurveyForm />} />
+                        <Route path="journey-feed" element={<JourneyFeedSummary />} />
                     </Route>
 
                     {/* ===== SUPERVISOR ROUTES (V3) – Supervisor acts on behalf of field workers ===== */}
