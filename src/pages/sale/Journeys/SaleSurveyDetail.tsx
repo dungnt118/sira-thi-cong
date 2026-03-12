@@ -184,6 +184,26 @@ const SaleSurveyDetail: React.FC = () => {
                             </Button>
                         </Space>
 
+                        <div style={{ 
+                            width: '210mm', 
+                            display: 'flex', 
+                            justifyContent: 'flex-end', 
+                            marginBottom: 24 
+                        }} className="no-print">
+                            <Button 
+                                type="primary" 
+                                size="large" 
+                                icon={<CheckCircleOutlined />} 
+                                style={{ background: '#52c41a', borderColor: '#52c41a' }}
+                                onClick={() => {
+                                    message.success('Hồ sơ khảo sát đã được chốt và lưu vào Hành trình!');
+                                    setOverallStatus('completed');
+                                }}
+                            >
+                                Hoàn thành & Chốt hồ sơ KS
+                            </Button>
+                        </div>
+
                         {/* Giao diện Biên Bản A4 */}
                         <div id="printable-a4" style={{ 
                             width: '210mm', minHeight: '297mm', background: '#fff', 
