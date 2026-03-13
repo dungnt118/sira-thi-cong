@@ -1,0 +1,13 @@
+services:
+  sira-web:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: dungnt118/freepbx:sira-thi-cong_latest
+    ports:
+      - "8080:80"
+    restart: always
+
+networks:
+  default:
+    name: sira-network
