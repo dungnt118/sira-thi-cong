@@ -6,7 +6,8 @@ import {
     FilePdfOutlined, 
     EditOutlined, 
     DownloadOutlined, 
-    HighlightOutlined
+    HighlightOutlined,
+    EyeOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { mockJourneys } from '../../../data/journeyMockData';
@@ -37,6 +38,7 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({ journeyId, isEditabl
     const [formStep, setFormStep] = useState(0);
     const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
     const [surveyDataForm] = Form.useForm();
+    const [isEditing, setIsEditing] = useState(false);
     
     // E-Signature States
     const [isSigModalOpen, setIsSigModalOpen] = useState(false);
@@ -248,6 +250,7 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({ journeyId, isEditabl
                                     }
                                     message.success('Hồ sơ KS đã chốt và đẩy về Sale/Thiết kế thống nhất!');
                                     setOverallStatus('completed');
+                                    setIsEditing(false);
                                     if (onSave) onSave(finalData);
                                 }}
                             >
@@ -334,9 +337,9 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({ journeyId, isEditabl
         }
     };
 
-    if (overallStatus === 'completed') {
-        return (
-            <Card style={{ borderRadius: 8 }} className="ky-card">
+    const renderReadOnly = () => {
+        if (overallStatus === 'completed') {
+            return (
                 <Result
                     status="success"
                     title="Hồ sơ khảo sát đã được hoàn thành!"
@@ -345,41 +348,58 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({ journeyId, isEditabl
                         <Button type="primary" key="back" onClick={() => navigate('/ky-thuat/dashboard')} style={{ backgroundColor: '#13a8a8' }}>
                             Quay lại Dashboard
                         </Button>,
-                        <Button key="download" icon={<DownloadOutlined />} onClick={handleDownloadPDF}>Tải file PDF</Button>,
-                        isEditable && <Button key="re-edit" icon={<EditOutlined />} onClick={() => setOverallStatus('in_progress')}>Cập nhật lại</Button>
+                        <Button key="download" icon={<DownloadOutlined />} onClick={handleDownloadPDF}>Tải file PDF</Button>
                     ]}
                 />
-            </Card>
-        );
-    }
-
-    if (!isEditable) {
+            );
+        }
         return (
-            <Card title="Kết quả khảo sát kỹ thuật" bordered={false} className="ky-card">
-                <Result
-                    status="info"
-                    title="Đang chờ kết quả"
-                    subTitle="Kỹ thuật viên đang thực hiện khảo sát tại hiện trường hoặc hồ sơ đang được soạn thảo."
-                />
-            </Card>
+            <Result
+                status="info"
+                title="Đang chờ kết quả"
+                subTitle="Kỹ thuật viên đang thực hiện khảo sát tại hiện trường hoặc hồ sơ đang được soạn thảo."
+            />
         );
-    }
+    };
 
     return (
-        <Card bordered={false} className="ky-card" bodyStyle={{ padding: 16 }}>
-            <div style={{ marginBottom: 16 }}>
-                <Steps
-                    current={formStep}
-                    size="small"
-                    items={[
-                        { title: 'Mẫu', icon: <FormOutlined /> },
-                        { title: 'Data', icon: <EditOutlined /> },
-                        { title: 'Preview', icon: <CheckCircleOutlined /> },
-                        { title: 'Ký', icon: <FilePdfOutlined /> }
-                    ]}
-                />
-            </div>
-            {renderStepContent()}
+        <Card 
+            title={isEditing ? "Thực hiện: Khảo sát hiện trạng" : "Kết quả khảo sát kỹ thuật"} 
+            bordered={false} 
+            className="ky-card"
+            extra={isEditable && (
+                <Button 
+                    type={isEditing ? "default" : "primary"}
+                    icon={isEditing ? <EyeOutlined /> : <EditOutlined />}
+                    onClick={() => setIsEditing(!isEditing)}
+                >
+                    {isEditing ? "Xem lại" : (overallStatus === 'completed' ? "Cập nhật lại" : "Bắt đầu khảo sát")}
+                </Button>
+            )}
+        >
+            {!isEditable && (
+                <div style={{ marginBottom: 16 }}>
+                    <Text type="secondary">Bạn đang ở chế độ Chỉ đọc (Chưa có quyền KeyRole hoặc chưa được phân công).</Text>
+                </div>
+            )}
+            
+            {isEditing ? (
+                <div>
+                     <div style={{ marginBottom: 16 }}>
+                        <Steps
+                            current={formStep}
+                            size="small"
+                            items={[
+                                { title: 'Mẫu', icon: <FormOutlined /> },
+                                { title: 'Data', icon: <EditOutlined /> },
+                                { title: 'Preview', icon: <CheckCircleOutlined /> },
+                                { title: 'Ký', icon: <FilePdfOutlined /> }
+                            ]}
+                        />
+                    </div>
+                    {renderStepContent()}
+                </div>
+            ) : renderReadOnly()}
 
             <Modal
                 title="Khách hàng Ký trực tiếp"
