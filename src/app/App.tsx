@@ -63,7 +63,7 @@ import EstimateTemplateList from '../pages/pm/Settings/EstimateTemplateList';
 
 // Sale Layout + Pages
 import { SaleLayout } from '../layouts/SaleLayout';
-import JourneyInbox from '../pages/sale/Journeys/JourneyInbox';
+import SaleDashboard from '../pages/sale/Journeys/JourneyInbox';
 import SLAQueue from '../pages/sale/Journeys/SLAQueue';
 import SurveyCoordination from '../pages/sale/Journeys/SurveyCoordination';
 import SaleJourneyContext from '../pages/sale/Journeys/SaleJourneyContext';
@@ -96,12 +96,12 @@ import PaymentDashboard from '../pages/accountant/Finance/PaymentDashboard';
 
 // V4 Ky Thuat Pages
 import KyThuatLayout from '../layouts/KyThuatLayout';
-import { 
-    Dashboard as KTDashboard, 
-    Schedule as KTSchedule, 
-    SurveyForm as KTSurveyForm, 
-    Execution as KTExecution, 
-    JourneyDetail as KTJourneyDetail 
+import {
+    Dashboard as KTDashboard,
+    Schedule as KTSchedule,
+    SurveyForm as KTSurveyForm,
+    Execution as KTExecution,
+    JourneyDetail as KTJourneyDetail
 } from '../pages/ky-thuat';
 
 // V3 Public Pages
@@ -248,15 +248,15 @@ function App() {
 
                     {/* ===== SALE ROUTES (Phase 1) ===== */}
                     <Route path="/sale" element={<SaleLayout />}>
-                        <Route index element={<Navigate to="/sale/journeys" replace />} />
-                        <Route path="journeys">
-                            <Route index element={<JourneyInbox />} />
-                            <Route path="sla" element={<SLAQueue />} />
-                            <Route path="surveys" element={<SurveyCoordination />} />
-                            <Route path="communications" element={<CommunicationsCenter />} />
-                            <Route path=":journeyId" element={<SaleJourneyContext />} />
-                            <Route path=":journeyId/surveys/:surveyId" element={<SaleSurveyDetail />} />
-                        </Route>
+                        <Route index element={<Navigate to="/sale/dashboard" replace />} />
+
+                        <Route path="dashboard" index element={<SaleDashboard />} />
+                        <Route path="sla" element={<SLAQueue />} />
+                        <Route path="surveys" element={<SurveyCoordination />} />
+                        <Route path="communications" element={<CommunicationsCenter />} />
+                        <Route path=":journeyId" element={<SaleJourneyContext />} />
+                        <Route path=":journeyId/surveys/:surveyId" element={<SaleSurveyDetail />} />
+
                     </Route>
 
                     {/* ===== GIÁM SÁT ROUTES (Phase 1) ===== */}

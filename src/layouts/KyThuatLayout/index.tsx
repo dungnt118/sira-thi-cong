@@ -8,6 +8,7 @@ import {
     BellOutlined
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
 import './KyThuatLayout.css';
 
 const { Header, Content } = Layout;
@@ -15,6 +16,18 @@ const { Header, Content } = Layout;
 export const KyThuatLayout: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const { role, user } = useAuth();
+
+    React.useEffect(() => {
+        if (role !== 'ky-thuat') {
+            if (user && user.role) {
+                // Redirect to user's correct dashboard based on their role
+                navigate(`/${user.role}/dashboard`);
+            } else {
+                navigate('/login');
+            }
+        }
+    }, [role, user, navigate]);
     
     // Convert pathname to menu active key
     const getActiveKey = () => {

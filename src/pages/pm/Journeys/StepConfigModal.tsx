@@ -32,9 +32,9 @@ const PROCEDURE_GROUPS = [
 const ROLES_LIST = [
     { value: 'Sale', label: 'Sale / Tư vấn' },
     { value: 'PM', label: 'PM (Dự án)' },
-    { value: 'Giám sát', label: 'Giám sát / Thi công' },
-    { value: 'Kỹ thuật', label: 'Kỹ thuật / Kế hoạch' },
-    { value: 'Kế toán', label: 'Kế toán / Tài chính' },
+    { value: 'giam-sat', label: 'Giám sát / Thi công' },
+    { value: 'ky-thuat', label: 'Kỹ thuật / Kế hoạch' },
+    { value: 'ke-toan', label: 'Kế toán / Tài chính' },
 ];
 
 const StepConfigModal: React.FC<StepConfigModalProps> = ({ open, initialData, onSave, onCancel }) => {
@@ -81,7 +81,7 @@ const StepConfigModal: React.FC<StepConfigModalProps> = ({ open, initialData, on
                         </Form.Item>
                     </Col>
                 </Row>
-                
+
                 <Row gutter={16}>
                     <Col span={16}>
                         <Form.Item label="Mục tiêu của Bước" name="step_goal" rules={[{ required: true }]}>
@@ -101,15 +101,15 @@ const StepConfigModal: React.FC<StepConfigModalProps> = ({ open, initialData, on
 
                 <Divider style={{ margin: '12px 0' }} />
                 <h3>Cấu hình Vai trò tham gia (Sub-workflow)</h3>
-                
+
                 <Form.List name="roleConfigurations">
                     {(fields, { add, remove }) => (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                             {fields.map((field, index) => (
-                                <Card 
-                                    size="small" 
-                                    key={field.key} 
-                                    title={`Vai trò ${index + 1}`} 
+                                <Card
+                                    size="small"
+                                    key={field.key}
+                                    title={`Vai trò ${index + 1}`}
                                     extra={
                                         <Popconfirm title="Xóa vai trò này?" onConfirm={() => remove(field.name)}>
                                             <Button type="text" danger icon={<DeleteOutlined />} size="small" />
@@ -134,7 +134,7 @@ const StepConfigModal: React.FC<StepConfigModalProps> = ({ open, initialData, on
                                             </Form.Item>
                                         </Col>
                                     </Row>
-                                    
+
                                     <Row gutter={12}>
                                         <Col span={18}>
                                             <Form.Item {...field} name={[field.name, 'instructions']} label="Hướng dẫn / Nhiệm vụ cụ thể">

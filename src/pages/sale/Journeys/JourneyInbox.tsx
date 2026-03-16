@@ -18,7 +18,7 @@ const SLA_CONFIG: Record<SlaStatus, { label: string; color: string }> = {
     overdue: { label: 'Quá hạn', color: 'error' },
 };
 
-const JourneyInbox: React.FC = () => {
+const SaleDashboard: React.FC = () => {
     const navigate = useNavigate();
     const [keyword, setKeyword] = useState('');
     const [filterSla, setFilterSla] = useState('ALL');
@@ -72,7 +72,7 @@ const JourneyInbox: React.FC = () => {
                             size="small"
                             hoverable
                             style={{ marginBottom: 10, borderRadius: 8, cursor: 'pointer', borderLeft: `4px solid ${j.sla_status === 'overdue' ? '#ff4d4f' : j.sla_status === 'at_risk' ? '#fa8c16' : '#52c41a'}` }}
-                            onClick={() => navigate(`/sale/journeys/${j.id}`)}
+                            onClick={() => navigate(`/sale/dashboad/${j.id}`)}
                         >
                             <Row gutter={16} align="middle">
                                 <Col flex="auto">
@@ -113,4 +113,4 @@ const JourneyInbox: React.FC = () => {
     );
 };
 
-export default JourneyInbox;
+export default SaleDashboard;

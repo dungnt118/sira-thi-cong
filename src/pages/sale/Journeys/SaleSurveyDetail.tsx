@@ -24,7 +24,7 @@ const SaleSurveyDetail: React.FC = () => {
     const [formStep, setFormStep] = useState(0);
     const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
     const [surveyDataForm] = Form.useForm();
-    
+
     // E-Signature States
     const [isSigModalOpen, setIsSigModalOpen] = useState(false);
     const [sigData, setSigData] = useState<string | null>(null);
@@ -50,17 +50,17 @@ const SaleSurveyDetail: React.FC = () => {
         const element = document.getElementById('printable-a4');
         if (element) {
             const opt = {
-                margin:       10,
-                filename:     `SURA-Survey-${surveyId || '2024'}.pdf`,
-                image:        { type: 'jpeg' as const, quality: 0.98 },
-                html2canvas:  { scale: 2 },
-                jsPDF:        { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
+                margin: 10,
+                filename: `SURA-Survey-${surveyId || '2024'}.pdf`,
+                image: { type: 'jpeg' as const, quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
             };
             html2pdf().set(opt).from(element).save();
         }
     };
 
-    const handleBack = () => navigate(`/sale/journeys/${journey.id}?tab=survey`);
+    const handleBack = () => navigate(`/sale/dashboad/${journey.id}?tab=survey`);
 
     const handleFormSubmit = async () => {
         try {
@@ -152,7 +152,7 @@ const SaleSurveyDetail: React.FC = () => {
                                 </Card>
                             ))}
                         </Card>
-                        
+
                         <div style={{ display: 'flex', justifyContent: 'center', gap: 16 }}>
                             <Button key="back" onClick={() => setFormStep(1)}>Chỉnh sửa lại</Button>
                             <Button key="submit" type="primary" onClick={() => { message.success('Đã lưu kết quả'); setFormStep(3); }}>Submit Biên bản</Button>
@@ -184,16 +184,16 @@ const SaleSurveyDetail: React.FC = () => {
                             </Button>
                         </Space>
 
-                        <div style={{ 
-                            width: '210mm', 
-                            display: 'flex', 
-                            justifyContent: 'flex-end', 
-                            marginBottom: 24 
+                        <div style={{
+                            width: '210mm',
+                            display: 'flex',
+                            justifyContent: 'flex-end',
+                            marginBottom: 24
                         }} className="no-print">
-                            <Button 
-                                type="primary" 
-                                size="large" 
-                                icon={<CheckCircleOutlined />} 
+                            <Button
+                                type="primary"
+                                size="large"
+                                icon={<CheckCircleOutlined />}
                                 style={{ background: '#52c41a', borderColor: '#52c41a' }}
                                 onClick={() => {
                                     message.success('Hồ sơ khảo sát đã được chốt và lưu vào Hành trình!');
@@ -205,24 +205,24 @@ const SaleSurveyDetail: React.FC = () => {
                         </div>
 
                         {/* Giao diện Biên Bản A4 */}
-                        <div id="printable-a4" style={{ 
-                            width: '210mm', minHeight: '297mm', background: '#fff', 
-                            padding: '20mm', boxShadow: '0 0 10px rgba(0,0,0,0.1)', 
+                        <div id="printable-a4" style={{
+                            width: '210mm', minHeight: '297mm', background: '#fff',
+                            padding: '20mm', boxShadow: '0 0 10px rgba(0,0,0,0.1)',
                             fontFamily: '"Times New Roman", Times, serif'
                         }}>
                             <div style={{ textAlign: 'center', marginBottom: 20 }}>
                                 <div style={{ fontSize: 16, fontWeight: 'bold' }}>CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
                                 <div style={{ fontSize: 14, fontWeight: 'bold', textDecoration: 'underline' }}>Độc lập - Tự do - Hạnh phúc</div>
                             </div>
-                            
+
                             <div style={{ textAlign: 'center', margin: '40px 0' }}>
                                 <div style={{ fontSize: 24, fontWeight: 'bold' }}>BIÊN BẢN KHẢO SÁT HIỆN TRẠNG</div>
-                                <div style={{ fontSize: 13, fontStyle: 'italic', marginTop: 5 }}>Số: SUR-{surveyId?.substring(0,6) || '2024'} / SIRA</div>
+                                <div style={{ fontSize: 13, fontStyle: 'italic', marginTop: 5 }}>Số: SUR-{surveyId?.substring(0, 6) || '2024'} / SIRA</div>
                             </div>
 
                             <div style={{ lineHeight: 1.8, fontSize: 14 }}>
                                 <p>Hôm nay, ngày {new Date().getDate()} tháng {new Date().getMonth() + 1} năm {new Date().getFullYear()}, chúng tôi gồm có:</p>
-                                
+
                                 <strong>I. Thành phần Khảo sát (Đại diện SIRA):</strong>
                                 <p style={{ marginLeft: 20, margin: 0 }}>Ông/Bà: Báo cáo viên kỹ thuật</p>
                                 <p style={{ marginLeft: 20, margin: 0 }}>Chức vụ: Chuyên viên Khảo sát - Báo giá</p>
@@ -235,14 +235,14 @@ const SaleSurveyDetail: React.FC = () => {
 
                                 <strong>III. Nội dung Khảo sát:</strong>
                                 <p>Tiến hành khảo sát hiện trạng công trình tại mục tiêu. Kết quả ghi nhận như sau:</p>
-                                
+
                                 <div style={{ marginTop: 10 }}>
                                     {finalData?.zones?.map((z: any, idx: number) => (
                                         <div key={idx} style={{ marginBottom: 15, borderBottom: '1px dashed #ccc', paddingBottom: 10 }}>
                                             <div style={{ fontWeight: 'bold' }}>{idx + 1}. Khu vực: {z?.areaType || '---'} ({z?.zoneCode})</div>
                                             <ul style={{ margin: '5px 0' }}>
                                                 <li><strong>Vị trí:</strong> {z?.location_desc || '---'}</li>
-                                                <li><strong>Khối lượng ước tính (~):</strong> D:{z.dims_length||0}m x R:{z.dims_width||0}m. Diện tích: {z.dims_area||0}m²</li>
+                                                <li><strong>Khối lượng ước tính (~):</strong> D:{z.dims_length || 0}m x R:{z.dims_width || 0}m. Diện tích: {z.dims_area || 0}m²</li>
                                                 <li><strong>Hiện trạng ghi nhận:</strong> {z?.issueTypes?.join(', ') || '---'}</li>
                                                 <li><strong>Nguyên nhân nhận định:</strong> {z?.causeOptions?.join(', ') || '---'}</li>
                                                 <li><strong>Đề xuất xử lý:</strong> {z?.proposed_solution || '---'}</li>
@@ -257,7 +257,7 @@ const SaleSurveyDetail: React.FC = () => {
                                 <br />
                                 <p>Biên bản kết thúc vào lúc .... giờ .... cùng ngày, đã được hai bên đọc, thống nhất ý kiến và cùng ký tên dưới đây.</p>
                                 <p>Biên bản này làm cơ sở lập Phương án thi công và Báo giá chi tiết gửi đến Quý khách hàng.</p>
-                                
+
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 50, textAlign: 'center' }}>
                                     <div style={{ width: '40%' }}>
                                         <strong>ĐẠI DIỆN KHÁCH HÀNG</strong>
@@ -294,7 +294,7 @@ const SaleSurveyDetail: React.FC = () => {
                         <Space size="large">
                             <div>
                                 <Text type="secondary" style={{ fontSize: 12 }}>Mã Khảo Sát</Text>
-                                <div style={{ fontWeight: 600, fontSize: 16 }}>SUR-{surveyId?.substring(0,6) || '2024'}</div>
+                                <div style={{ fontWeight: 600, fontSize: 16 }}>SUR-{surveyId?.substring(0, 6) || '2024'}</div>
                             </div>
                             <div>
                                 <Text type="secondary" style={{ fontSize: 12 }}>Hành trình</Text>
@@ -324,7 +324,7 @@ const SaleSurveyDetail: React.FC = () => {
                         )}
                     </Col>
                 </Row>
-                
+
                 <div style={{ marginTop: 24 }}>
                     <Steps
                         size="small"
@@ -367,7 +367,7 @@ const SaleSurveyDetail: React.FC = () => {
                         ]}
                         style={{ marginBottom: 24 }}
                     />
-                    
+
                     {renderStepContent()}
                 </Card>
             )}
@@ -403,9 +403,9 @@ const SaleSurveyDetail: React.FC = () => {
                 <div>
                     <p style={{ marginBottom: 16 }}>Vui lòng sử dụng chuột hoặc trượt tay trên màn hình cảm ứng để ký vào khung bên dưới.</p>
                     <div style={{ border: '2px dashed #d9d9d9', borderRadius: 8, background: '#fafafa' }}>
-                        <SignatureCanvas 
+                        <SignatureCanvas
                             ref={sigPadRef}
-                            canvasProps={{ width: 550, height: 250, className: 'sigCanvas' }} 
+                            canvasProps={{ width: 550, height: 250, className: 'sigCanvas' }}
                         />
                     </div>
                 </div>

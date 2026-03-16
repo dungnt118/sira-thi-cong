@@ -1,9 +1,9 @@
 import React from 'react';
 import { Layout, Menu, Avatar, Dropdown, Badge, Grid, Input } from 'antd';
-import { 
-    InboxOutlined, 
-    ClockCircleOutlined, 
-    FormOutlined, 
+import {
+    InboxOutlined,
+    ClockCircleOutlined,
+    FormOutlined,
     MessageOutlined,
     UserOutlined,
     BellOutlined,
@@ -11,6 +11,7 @@ import {
     SearchOutlined
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
 import './SaleLayout.css';
 
 const { Header, Content, Sider } = Layout;
@@ -20,16 +21,27 @@ const { Search } = Input;
 export const SaleLayout: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const { role, user } = useAuth();
     const screens = useBreakpoint();
     const isMobile = !screens.md;
-    
+
+    React.useEffect(() => {
+        if (role !== 'sale') {
+            if (user && user.role) {
+                navigate(`/${user.role}/dashboard`);
+            } else {
+                navigate('/login');
+            }
+        }
+    }, [role, user, navigate]);
+
     // Convert pathname to menu active key
     const getActiveKey = () => {
         const path = location.pathname;
-        if (path === '/sale/journeys') return 'journeys';
-        if (path === '/sale/journeys/sla') return 'sla';
-        if (path === '/sale/journeys/surveys') return 'surveys';
-        if (path === '/sale/journeys/communications') return 'communications';
+        if (path === '/sale/dashboard') return 'journeys';
+        if (path === '/sale/sla') return 'sla';
+        if (path === '/sale/surveys') return 'surveys';
+        if (path === '/sale/communications') return 'communications';
         if (path.includes('/sale/profile')) return 'profile';
         return 'journeys';
     };
@@ -39,25 +51,25 @@ export const SaleLayout: React.FC = () => {
             key: 'journeys',
             icon: <InboxOutlined />,
             label: 'Hành trình',
-            onClick: () => navigate('/sale/journeys')
+            onClick: () => navigate('/sale/dashboard')
         },
         {
             key: 'sla',
             icon: <ClockCircleOutlined />,
             label: 'SLA',
-            onClick: () => navigate('/sale/journeys/sla')
+            onClick: () => navigate('/sale/sla')
         },
         {
             key: 'surveys',
             icon: <FormOutlined />,
             label: 'Khảo sát',
-            onClick: () => navigate('/sale/journeys/surveys')
+            onClick: () => navigate('/sale/surveys')
         },
         {
             key: 'communications',
             icon: <MessageOutlined />,
             label: 'Giao tiếp',
-            onClick: () => navigate('/sale/journeys/communications')
+            onClick: () => navigate('/sale/communications')
         },
         {
             key: 'profile',
@@ -73,10 +85,10 @@ export const SaleLayout: React.FC = () => {
             icon: <InboxOutlined />,
             label: 'Hành trình khách hàng',
             children: [
-                { key: '/sale/journeys', label: 'Journey Inbox', onClick: () => navigate('/sale/journeys') },
-                { key: '/sale/journeys/sla', label: 'SLA Queue', onClick: () => navigate('/sale/journeys/sla') },
-                { key: '/sale/journeys/surveys', label: 'Khảo sát', onClick: () => navigate('/sale/journeys/surveys') },
-                { key: '/sale/journeys/communications', label: 'Giao tiếp khách hàng', onClick: () => navigate('/sale/journeys/communications') },
+                { key: '/sale/dashboad', label: 'Journey Inbox', onClick: () => navigate('/sale/dashboad') },
+                { key: '/sale/sla', label: 'SLA Queue', onClick: () => navigate('/sale/sla') },
+                { key: '/sale/surveys', label: 'Khảo sát', onClick: () => navigate('/sale/surveys') },
+                { key: '/sale/communications', label: 'Giao tiếp khách hàng', onClick: () => navigate('/sale/communications') },
             ],
         },
     ];
@@ -119,13 +131,13 @@ export const SaleLayout: React.FC = () => {
                     <div className="header-brand">
                         <span className="brand-text">SIRA Sale</span>
                     </div>
-                    
+
                     {!isMobile && (
-                        <Search 
-                            placeholder="Tìm hành trình..." 
-                            allowClear 
-                            style={{ maxWidth: 400, margin: '0 24px' }} 
-                            prefix={<SearchOutlined />} 
+                        <Search
+                            placeholder="Tìm hành trình..."
+                            allowClear
+                            style={{ maxWidth: 400, margin: '0 24px' }}
+                            prefix={<SearchOutlined />}
                         />
                     )}
 

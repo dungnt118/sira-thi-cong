@@ -2,6 +2,7 @@ import React from 'react';
 import { Menu, Input, Badge, Avatar, Dropdown, Space, Grid } from 'antd';
 import type { MenuProps } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
 import {
     DashboardOutlined,
     ProjectOutlined,
@@ -221,5 +222,18 @@ const PMTopBar: React.FC = () => {
 };
 
 export const PMLayout: React.FC = () => {
+    const navigate = useNavigate();
+    const { role, user } = useAuth();
+    
+    React.useEffect(() => {
+        if (role !== 'pm') {
+            if (user && user.role) {
+                navigate(`/${user.role}/dashboard`);
+            } else {
+                navigate('/login');
+            }
+        }
+    }, [role, user, navigate]);
+
     return <BaseLayout sidebar={<PMSidebar />} topBar={<PMTopBar />} />;
 };

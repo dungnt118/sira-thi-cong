@@ -2,8 +2,9 @@ import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button, Typography, Layout, theme, Empty, Breadcrumb } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
-import { mockJourneys } from '../../data/journeyMockData';
+import { mockJourneys, mockJourneyTemplates } from '../../data/journeyMockData';
 import JourneyStepRenderer from '../shared/JourneySteps/JourneyStepRenderer';
+import { useAuth } from '../../hooks/useAuth';
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
@@ -12,6 +13,7 @@ export const KTJourneyDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const { token } = theme.useToken();
+    const { role } = useAuth();
 
     const journey = mockJourneys.find(j => j.id === id);
 
@@ -26,9 +28,20 @@ export const KTJourneyDetail: React.FC = () => {
         );
     }
 
-    // Technical role can edit certain steps
-    const editableSteps = ['S03_SURVEY', 'S04_SOLUTION', 'S08_CONSTRUCT', 'S09_ACCEPTANCE', 'S11_MAINTAIN', 'S12_WARRANTY'];
-    const isEditable = editableSteps.includes(journey.current_step_code);
+    // Determine editability based on current role and step configuration
+    const isEditable = React.useMemo(() => {
+        if (!role) return false;
+        
+        // Find the template for this journey (fallback to default)
+        const template = mockJourneyTemplates.find(t => t.id === journey.template_id) || mockJourneyTemplates[0];
+        // Find the current step in the template
+        const currentStep = template.steps.find(s => s.step_code === journey.current_step_code);
+        
+        if (!currentStep) return false;
+        
+        // Check if the current user's role is in the roleConfigurations for this step
+        return currentStep.roleConfigurations?.some(config => config.roleId === role) || false;
+    }, [journey.current_step_code, journey.template_id, role]);
 
     return (
         <Content style={{ padding: '0 24px', minHeight: 280 }}>

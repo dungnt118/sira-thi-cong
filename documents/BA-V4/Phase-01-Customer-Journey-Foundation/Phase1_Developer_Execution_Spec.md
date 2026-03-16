@@ -209,10 +209,10 @@ Phase 1 phải dùng được trên desktop + mobile trước khi chốt.
 
 | Menu cấp 1 | Menu cấp 2 | Route đề xuất | Ghi chú |
 |---|---|---|---|
-| Hành trình khách hàng | Journey Inbox | `/sale/journeys` | view theo role Sale |
-| Hành trình khách hàng | SLA Queue | `/sale/journeys/sla` | ưu tiên cuộc gọi |
-| Hành trình khách hàng | Khảo sát | `/sale/journeys/surveys` | điều phối khảo sát |
-| Hành trình khách hàng | Giao tiếp khách hàng | `/sale/journeys/communications` | thread và follow-up |
+| Hành trình khách hàng | Journey Inbox | `/sale/dashboad` | view theo role Sale |
+| Hành trình khách hàng | SLA Queue | `/sale/sla` | ưu tiên cuộc gọi |
+| Hành trình khách hàng | Khảo sát | `/sale/surveys` | điều phối khảo sát |
+| Hành trình khách hàng | Giao tiếp khách hàng | `/sale/communications` | thread và follow-up |
 
 ## 4.3 Giám sát menu
 
@@ -248,11 +248,11 @@ Phase 1 phải dùng được trên desktop + mobile trước khi chốt.
 
 | Route | Page code | Mục đích |
 |---|---|---|
-| `/sale/journeys` | SAL-P1-01 | Journey Inbox |
-| `/sale/journeys/sla` | SAL-P1-02 | SLA Queue |
-| `/sale/journeys/surveys` | SAL-P1-03 | Survey Coordination |
-| `/sale/journeys/:journeyId` | SAL-P1-04 | Sale Journey Context |
-| `/sale/journeys/communications` | SAL-P1-05 | Communications Center |
+| `/sale/dashboad` | SAL-P1-01 | Journey Inbox |
+| `/sale/sla` | SAL-P1-02 | SLA Queue |
+| `/sale/surveys` | SAL-P1-03 | Survey Coordination |
+| `/sale/dashboad/:journeyId` | SAL-P1-04 | Sale Journey Context |
+| `/sale/communications` | SAL-P1-05 | Communications Center |
 
 ## 5.3 Giám sát route map
 
@@ -791,7 +791,7 @@ Phải có tối thiểu 4 card:
 
 ### Route
 
-- `/sale/journeys`
+- `/sale/dashboad`
 
 ### Section bắt buộc
 
@@ -817,7 +817,7 @@ Phải có tối thiểu 4 card:
 
 ### Route
 
-- `/sale/journeys/sla`
+- `/sale/sla`
 
 ### Section bắt buộc
 
@@ -843,7 +843,7 @@ Phải có tối thiểu 4 card:
 
 ### Route
 
-- `/sale/journeys/surveys`
+- `/sale/surveys`
 
 ### Section bắt buộc
 
@@ -864,7 +864,7 @@ Phải có tối thiểu 4 card:
 
 ### Route
 
-- `/sale/journeys/:journeyId`
+- `/sale/dashboad/:journeyId`
 
 ### Section bắt buộc
 
@@ -895,7 +895,7 @@ Phải có tối thiểu 4 card:
 
 ### Route
 
-- `/sale/journeys/communications`
+- `/sale/communications`
 
 ### Section bắt buộc
 

@@ -29,7 +29,7 @@ const SLAQueue: React.FC = () => {
             key: 'customer',
             render: (_, j) => (
                 <div>
-                    <div style={{ fontWeight: 600, cursor: 'pointer', color: '#1976D2' }} onClick={() => navigate(`/sale/journeys/${j.id}`)}>{j.customer_name}</div>
+                    <div style={{ fontWeight: 600, cursor: 'pointer', color: '#1976D2' }} onClick={() => navigate(`/sale/dashboad/${j.id}`)}>{j.customer_name}</div>
                     <Text type="secondary" style={{ fontSize: 12 }}>{j.customer_phone}</Text>
                 </div>
             ),

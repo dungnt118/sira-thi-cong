@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, Button, Typography, Space, Row, Col } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import { setUserData, resetCurrentRole } from '../../../utils/authUtils';
 import {
     UserOutlined,
     EyeOutlined,
@@ -48,7 +49,7 @@ export const Login: React.FC = () => {
             title: 'Kinh Doanh (Sale)',
             description: 'Quản lý thông tin, khách hàng và báo giá',
             icon: <CustomerServiceOutlined />,
-            path: '/sale/journeys',
+            path: '/sale/dashboad',
             color: '#eb2f96',
         },
         {
@@ -93,7 +94,17 @@ export const Login: React.FC = () => {
         },
     ];
 
-    const handleRoleSelect = (path: string) => {
+    React.useEffect(() => {
+        // Reset CURRENT role but keep the object if user lands here
+        resetCurrentRole();
+    }, []);
+
+    const handleRoleSelect = (roleKey: string, path: string) => {
+        setUserData({
+            username: 'test-user',
+            role: roleKey,
+            roles: roles.map(r => r.key)
+        });
         navigate(path);
     };
 
@@ -124,7 +135,7 @@ export const Login: React.FC = () => {
                                     <Card
                                         className="role-card"
                                         hoverable
-                                        onClick={() => handleRoleSelect(role.path)}
+                                        onClick={() => handleRoleSelect(role.key, role.path)}
                                         style={{ borderLeft: `4px solid ${role.color}` }}
                                     >
                                         <Space direction="vertical" size="small" style={{ width: '100%' }}>

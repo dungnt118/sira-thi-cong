@@ -80,12 +80,12 @@ const SaleJourneyContext: React.FC = () => {
                     <Card size="small" style={{ marginBottom: 12, borderRadius: 8 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div>
-                                <Text strong>Khảo sát Lần 1 (Chống thấm Sân thượng)</Text><br/>
+                                <Text strong>Khảo sát Lần 1 (Chống thấm Sân thượng)</Text><br />
                                 <Text type="secondary" style={{ fontSize: 12 }}>Ngày hẹn: {journey.latest_survey_at?.split('T')[0] || '2023-11-20'} · Kỹ thuật: {journey.surveyor_name || 'Chưa phân công'}</Text>
                             </div>
                             <Space>
                                 <Tag color="success">Đã hoàn thành</Tag>
-                                <Button size="small" onClick={() => navigate(`/sale/journeys/${journey.id}/surveys/1`)}>Xem chi tiết</Button>
+                                <Button size="small" onClick={() => navigate(`/sale/dashboad/${journey.id}/surveys/1`)}>Xem chi tiết</Button>
                             </Space>
                         </div>
                     </Card>
@@ -175,7 +175,7 @@ const SaleJourneyContext: React.FC = () => {
 
     return (
         <div>
-            <Button icon={<ArrowLeftOutlined />} type="text" onClick={() => navigate('/sale/journeys')} style={{ marginBottom: 12 }}>
+            <Button icon={<ArrowLeftOutlined />} type="text" onClick={() => navigate('/sale/dashboad')} style={{ marginBottom: 12 }}>
                 Quay lại Inbox
             </Button>
 
@@ -192,8 +192,8 @@ const SaleJourneyContext: React.FC = () => {
                         <Text style={{ color: '#9e1068' }}>{journey.request_title}</Text>
                     </Col>
                     <Col style={{ textAlign: 'right' }}>
-                         <Text type="secondary" style={{ display: 'block', fontSize: 11 }}>Sale: {journey.owner_user}</Text>
-                         {journey.unread_portal_threads > 0 && <Tag color="red" style={{ marginTop: 8 }}>{journey.unread_portal_threads} Tin nhắn Portal</Tag>}
+                        <Text type="secondary" style={{ display: 'block', fontSize: 11 }}>Sale: {journey.owner_user}</Text>
+                        {journey.unread_portal_threads > 0 && <Tag color="red" style={{ marginTop: 8 }}>{journey.unread_portal_threads} Tin nhắn Portal</Tag>}
                     </Col>
                 </Row>
             </Card>
@@ -236,7 +236,7 @@ const SaleJourneyContext: React.FC = () => {
                         setShowSurveyModal(false);
                         surveyForm.resetFields();
                         // Theo luồng, sau khi tạo xong sẽ điều hướng luôn qua trang chi tiết khảo sát mới tạo
-                        navigate(`/sale/journeys/${journey.id}/surveys/new-${Date.now()}`);
+                        navigate(`/sale/dashboad/${journey.id}/surveys/new-${Date.now()}`);
                     });
                 }} okText="Khởi tạo Lịch" cancelText="Hủy">
                 <Form form={surveyForm} layout="vertical">
