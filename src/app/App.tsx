@@ -96,11 +96,13 @@ import PaymentDashboard from '../pages/accountant/Finance/PaymentDashboard';
 
 // V4 Ky Thuat Pages
 import KyThuatLayout from '../layouts/KyThuatLayout';
-import KTDashboard from '../pages/ky-thuat/Dashboard';
-import KTSchedule from '../pages/ky-thuat/Schedule';
-import KTSurveyForm from '../pages/ky-thuat/SurveyForm';
-import KTExecution from '../pages/ky-thuat/Execution';
-import KTJourneyDetail from '../pages/ky-thuat/JourneyDetail';
+import { 
+    Dashboard as KTDashboard, 
+    Schedule as KTSchedule, 
+    SurveyForm as KTSurveyForm, 
+    Execution as KTExecution, 
+    JourneyDetail as KTJourneyDetail 
+} from '../pages/ky-thuat';
 
 // V3 Public Pages
 import CustomerPortal from '../pages/public/CustomerPortal';

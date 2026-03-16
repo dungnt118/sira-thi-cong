@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Form, Input, Button, Typography, Divider, Space, Table, InputNumber, Select, Col, Row, Popconfirm, Modal, Tag } from 'antd';
-import { SaveOutlined, PlusOutlined, DeleteOutlined, CalculatorOutlined, FileTextOutlined } from '@ant-design/icons';
+import { Card, Form, Input, Button, Typography, Divider, Space, InputNumber, Select, Col, Row, Popconfirm, Modal, Tag } from 'antd';
+import { PlusOutlined, DeleteOutlined, CalculatorOutlined, FileTextOutlined } from '@ant-design/icons';
 import { mockEstimateTemplates, mockMaterials } from '../../../data/mockData';
 
 const { Title, Text } = Typography;
@@ -13,7 +13,7 @@ export interface Step04SolutionProps {
     onSave?: (data: any) => void;
 }
 
-export const Step04Solution: React.FC<Step04SolutionProps> = ({ journeyId, isEditable = false, onSave }) => {
+export const Step04Solution: React.FC<Step04SolutionProps> = ({ isEditable = false, onSave }) => {
     const [form] = Form.useForm();
     const [templateForm] = Form.useForm();
     const [subTotal, setSubTotal] = useState(0);
@@ -126,7 +126,7 @@ export const Step04Solution: React.FC<Step04SolutionProps> = ({ journeyId, isEdi
                 </div>
 
                 <Form.List name="groups">
-                    {(groups, { add: addGroup, remove: removeGroup }) => (
+                    {(groups, { remove: removeGroup }) => (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                             {groups.map((groupField, index) => (
                                 <Card 

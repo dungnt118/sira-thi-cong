@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Card, Table, Button, Space, Typography, Tag, Modal, Form, Input, Select, InputNumber, Row, Col, Popconfirm, message } from 'antd';
+import { Card, Table, Button, Space, Typography, Modal, Form, Input, Select, InputNumber, Row, Col, Popconfirm, message } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { mockEstimateTemplates, mockMaterials } from '../../../data/mockData';
-import { EstimateTemplate, EstimateTemplateComponent } from '../../../types/v3';
+import { EstimateTemplate } from '../../../types/v3';
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 const { Option } = Select;
 
 export const EstimateTemplateList: React.FC = () => {
