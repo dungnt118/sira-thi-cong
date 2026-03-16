@@ -2,7 +2,7 @@
 
 ## Mục tiêu vai trò
 
-Giám sát là actor số chính ở hiện trường trong giai đoạn triển khai hiện tại của hệ thống. Vai trò này chịu trách nhiệm biến kế hoạch của PM thành dữ liệu vận hành thực tế tại công trình, đồng thời thao tác trên phần mềm thay cho các `worker profile` chưa có tài khoản riêng.
+Giám sát là actor số chính ở hiện trường trong giai đoạn triển khai hiện tại của hệ thống. Vai trò này chịu trách nhiệm biến kế hoạch của PM thành dữ liệu vận hành thực tế tại công trình, đồng thời thao tác trên phần mềm thay cho các `kỹ thuật profile` chưa có tài khoản riêng.
 
 Giám sát trong V4 không chỉ là người cập nhật checklist. Đây là vai trò sở hữu trọn bộ đầu ra hiện trường:
 
@@ -38,16 +38,16 @@ Bộ tài liệu này được làm sạch và tái cấu trúc theo các chứn
 ## Những điểm được làm rõ trong V4
 
 - Giám sát là tên vai trò nghiệp vụ chính thức của package hiện trường trong BA-V4.
-- Worker vẫn tồn tại dưới dạng `worker profile`, chưa phải user account trực tiếp.
+- Kỹ thuật vẫn tồn tại dưới dạng `kỹ thuật profile`, chưa phải user account trực tiếp.
 - Mọi thao tác checklist, evidence, sự cố, vật tư, nghiệm thu đều phải ghi nhận được:
   - người thao tác số là Giám sát
-  - worker profile thực tế tham gia nếu có
+  - kỹ thuật profile thực tế tham gia nếu có
 - Dữ liệu hiện trường phải đủ cấu trúc để sinh tài liệu số, không chỉ là ảnh đính kèm rời.
 - Ảnh/video/file tại hiện trường là một phần của hồ sơ vận hành, phải đồng bộ với chiến lược Google Drive của hệ thống.
 
 ## Quan hệ với prototype hiện tại
 
-Code hiện tại mới có seed mobile cho một phần vai trò này ở các route `/supervisor/*`, nhưng vẫn còn dùng lại component trong `src/pages/worker/*`. Trong BA-V4, tên vai trò và luồng nghiệp vụ được chuẩn hóa thống nhất là `Giám sát`; phần naming kỹ thuật di sản sẽ được xử lý ở pha refactor code riêng.
+Code hiện tại mới có seed mobile cho một phần vai trò này ở các route `/supervisor/*`, nhưng vẫn còn dùng lại component trong `src/pages/kỹ thuật/*`. Trong BA-V4, tên vai trò và luồng nghiệp vụ được chuẩn hóa thống nhất là `Giám sát`; phần naming kỹ thuật di sản sẽ được xử lý ở pha refactor code riêng.
 
 ## Kết luận
 

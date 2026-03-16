@@ -98,18 +98,18 @@ Tạo ra báo cáo tổng hợp phục vụ PM, Sale hoặc khách hàng ra quy�
 - cùng một công trình có thể có nhiều report theo từng lần khảo sát hoặc visit
 - report phải giữ lịch sử version, không ghi đè mất dữ liệu cũ
 
-## 5. Flow 4 - Thi công và cập nhật checklist thay worker profile
+## 5. Flow 4 - Thi công và cập nhật checklist thay kỹ thuật profile
 
 ### Mục tiêu
 
-Quản lý bước thi công, bằng chứng và trạng thái công việc trong bối cảnh worker chưa có tài khoản.
+Quản lý bước thi công, bằng chứng và trạng thái công việc trong bối cảnh kỹ thuật chưa có tài khoản.
 
 ### Luồng chính
 
 1. Giám sát mở `Danh sách gói việc/task`.
 2. Chọn gói việc hoặc công trình đang thi công.
 3. Hệ thống hiển thị checklist bước thi công.
-4. Giám sát chọn `worker profile` tham gia từng bước hoặc ca làm.
+4. Giám sát chọn `kỹ thuật profile` tham gia từng bước hoặc ca làm.
 5. Trong quá trình thực hiện, Giám sát:
    - cập nhật trạng thái bước
    - ghi chú điều kiện thực tế
@@ -117,7 +117,7 @@ Quản lý bước thi công, bằng chứng và trạng thái công việc tron
    - gửi bước chờ review
 6. Hệ thống ghi:
    - Giám sát thao tác
-   - worker profile thực hiện
+   - kỹ thuật profile thực hiện
    - thời điểm
    - file minh chứng
 7. PM review từ xa nếu cần.

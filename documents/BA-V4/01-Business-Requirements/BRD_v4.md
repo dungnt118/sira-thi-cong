@@ -27,7 +27,7 @@ Mục tiêu của BA-V4 không còn là "trình diễn màn hình", mà là đ�
 
 - Có một CRM đúng chuẩn theo `Service Request/Deal`.
 - Có workspace riêng cho `Sale` và `Hành Chính`, không gộp mờ vào `PM` hay `Admin`.
-- Có `Task module` xuyên vai trò cho `PM`, `Giám sát` và `Worker profile`.
+- Có `Task module` xuyên vai trò cho `PM`, `Giám sát` và `Kỹ thuật profile`.
 - Có `Dynamic Pipeline` gắn được playbook, checklist, người phụ trách, SLA.
 - Có luồng giao dịch thật cho kho, thanh toán, nghiệm thu, bảo hành.
 - Có capability `Quản lý mẫu tài liệu` và `Chữ ký điện tử` để sinh hồ sơ số, phát hành chứng từ và lưu vết ký.
@@ -57,7 +57,7 @@ Mục tiêu của BA-V4 không còn là "trình diễn màn hình", mà là đ�
 | HanhChinh | Phát hành/giao nhận hồ sơ, mail mẫu, lưu trữ dossier, điều phối ký | Back-office hồ sơ và chứng từ |
 | PM | Điều phối nội bộ, convert dự án, quản lý delivery, phối hợp phát sinh với khách hàng | Nhận baton mạnh từ sau bước chốt |
 | Giám sát | Điều phối hiện trường, nghiệm thu, bảo dưỡng, báo cáo hiện trường | Là actor số chính cho tác nghiệp hiện trường ở giai Ä'oạn hiện tại |
-| Worker | Là lực lượng thi công thực địa, được quản lý qua hồ sơ nhân sự/cộng tác viên | Ở giai đoạn hiện tại chưa có tài khoản đăng nhập riêng |
+| Kỹ thuật | Là lực lượng thi công thực địa, được quản lý qua hồ sơ nhân sự/cộng tác viên | Ở giai đoạn hiện tại chưa có tài khoản đăng nhập riêng |
 | Accountant | Kho, thanh toán, đối soát, bảo hành, báo cáo tài chính | Liên thông PM nhưng quyền riêng |
 | Customer Portal | Vai trò thụ động, chỉ xem thông tin được công bố | Không phải tài khoản nội bộ |
 
@@ -87,11 +87,11 @@ Vai trò mở rộng giai đoạn sau:
 ### 5.2 Luồng Project đến Close
 
 1. PM tạo `Project WBS / Task packages`
-2. Giao `Giám sát` và danh sách `Worker profile` tham gia thi công
+2. Giao `Giám sát` và danh sách `Kỹ thuật profile` tham gia thi công
 3. Sinh checklist thực thi và yêu cầu bằng chứng
 4. Kho xuất vật tư và tài sản thi công theo reservation/phiếu
-5. `Giám sát` ký nhận, ghi nhận phát vật tư cho từng worker profile nếu cần, và quản lý thu hồi tài sản/phần dư hoàn nhập
-6. `Giám sát` thao tác thay mặt `Worker` trên phần mềm ở giai đoạn hiện tại: cập nhật task, checklist, bằng chứng, sự cố
+5. `Giám sát` ký nhận, ghi nhận phát vật tư cho từng kỹ thuật profile nếu cần, và quản lý thu hồi tài sản/phần dư hoàn nhập
+6. `Giám sát` thao tác thay mặt `Kỹ thuật` trên phần mềm ở giai đoạn hiện tại: cập nhật task, checklist, bằng chứng, sự cố
 7. PM/Giám sát review tiến độ và chất lượng; `Sale` được nhận các mốc ảnh hưởng tới giao tiếp khách hàng
 8. Portal công bố dữ liệu đã duyệt và hỗ trợ `chat evidence` giữa khách hàng với BAC theo đúng ngữ cảnh công trình
 9. Tạo biên bản nghiệm thu, biên bản số và hồ sơ phát hành liên quan
@@ -124,7 +124,7 @@ Vai trò mở rộng giai đoạn sau:
 | OPS-01 | Tạo Project từ Service Request/Hợp đồng |
 | OPS-02 | Tạo WBS/Task board theo dự án |
 | OPS-03 | Playbook nhiệm vụ theo Pipeline Stage |
-| OPS-04 | Giao việc cho PM/Giám sát và quản lý worker profile |
+| OPS-04 | Giao việc cho PM/Giám sát và quản lý kỹ thuật profile |
 | OPS-05 | SLA, reminder, escalation |
 | OPS-06 | Quản lý phụ thuộc giữa nhiệm vụ và điều kiện mở khóa |
 | OPS-07 | `Go/No-Go Control` và quyết định nhận việc có điều kiện |
@@ -138,7 +138,7 @@ Vai trò mở rộng giai đoạn sau:
 |---|---|
 | EXE-01 | Template checklist thi công |
 | EXE-02 | Checklist theo task/dự án/khu vực |
-| EXE-03 | Ghi nhận ảnh/video vá»›i timestamp/GPS, do Giám sát thao tác thay Worker ở giai Ä'oạn hiện tại |
+| EXE-03 | Ghi nhận ảnh/video vá»›i timestamp/GPS, do Giám sát thao tác thay Kỹ thuật ở giai Ä'oạn hiện tại |
 | EXE-04 | Review/approve/reject bằng chứng |
 | EXE-05 | Báo cáo sự cố và xử lý sự cố |
 | EXE-06 | Biên bản nghiệm thu |
@@ -154,7 +154,7 @@ Vai trò mở rộng giai đoạn sau:
 | INV-02 | Định mức vật tư theo loại công trình |
 | INV-03 | Reservation vật tư theo dự án/task |
 | INV-04 | Phiếu xuất kho, phiếu nhập kho, hoàn kho |
-| INV-05 | Giám sát ký nhận trên hệ thống và ghi nhận phát vật tư cho worker profile |
+| INV-05 | Giám sát ký nhận trên hệ thống và ghi nhận phát vật tư cho kỹ thuật profile |
 | INV-06 | Cảnh báo tồn kho thấp |
 | INV-07 | Đề nghị mua hàng / tái bổ sung kho |
 | INV-08 | Phân loại `tài sản thi công`, `vật tư tiêu hao`, `vật tư bán tiêu hao` |
@@ -242,7 +242,7 @@ Vai trò mở rộng giai đoạn sau:
   - playbook cá»§a stage CRM
   - template dự án
   - action phát sinh thủ công
-- Ở giai Ä'oạn hiện tại, `Giám sát` là actor thao tác trên hệ thống thay mặt `Worker`; mọi thao tác vẫn phải lưu được worker profile thá»±c tế khi cần truy vết.
+- Ở giai Ä'oạn hiện tại, `Giám sát` là actor thao tác trên hệ thống thay mặt `Kỹ thuật`; mọi thao tác vẫn phải lưu được kỹ thuật profile thá»±c tế khi cần truy vết.
 - Mỗi task phải có:
   - owner
   - reviewer
@@ -258,7 +258,7 @@ Vai trò mở rộng giai đoạn sau:
 - Timestamp phải là server-side hoặc trusted capture.
 - Không hoàn thành bước nếu chưa đạt số lượng bằng chứng tối thiểu.
 - Vật tư chưa ký nhận thì task thi công liên quan bị khóa.
-- Trong giai Ä'oạn hiện tại, ảnh/video/file được upload bởi tài khoản `Giám sát`, nhưng cần lưu được thông tin worker profile thá»±c tế đã thá»±c hiện công việc nếu có.
+- Trong giai Ä'oạn hiện tại, ảnh/video/file được upload bởi tài khoản `Giám sát`, nhưng cần lưu được thông tin kỹ thuật profile thá»±c tế đã thá»±c hiện công việc nếu có.
 
 ### 7.5 Rule về tài chính và bảo hành
 
@@ -424,7 +424,7 @@ Vai trò mở rộng giai đoạn sau:
 | Nhóm | Yêu cầu |
 |---|---|
 | Bảo mật | RBAC rõ, audit trail, token portal có hạn dùng |
-| Khả dụng | Mobile-first cho Giám sát; Worker chưa có tài khoản ở giai Ä'oạn hiện tại |
+| Khả dụng | Mobile-first cho Giám sát; Kỹ thuật chưa có tài khoản ở giai Ä'oạn hiện tại |
 | Hiệu năng | API nghiệp vụ chính < 500ms, upload có queue/retry |
 | Tin cậy dữ liệu | Transaction cho kho, thanh toán, nghiệm thu |
 | Báo cáo | Có dữ liệu đủ để đối soát theo tháng/quý |

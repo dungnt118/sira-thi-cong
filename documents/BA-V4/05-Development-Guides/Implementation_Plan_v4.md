@@ -13,7 +13,7 @@ Plan này nhằm:
 1. Khóa `data model` trước khi mở rộng thêm UI.
 2. Xây theo `end-to-end flow`, không build từng màn rời rạc.
 3. Xây `Task module` song song với CRM và Project, không để làm sau cùng.
-4. Xem `Giám sát` là actor số hiện trường ở phase hiện tại; `Worker` được quản lý qua `worker profile`.
+4. Xem `Giám sát` là actor số hiện trường ở phase hiện tại; `Kỹ thuật` được quản lý qua `kỹ thuật profile`.
 5. Xây `file governance + Google Drive sync` như một năng lực lõi, không xem là tiện ích phụ.
 6. Xem `Warranty/Maintenance` là một phần của financial close loop.
 7. Xây `Estimate -> Go/No-Go -> Quotation` như xương sống preconstruction, không gộp vào một màn báo giá chung.
@@ -26,7 +26,7 @@ Plan này nhằm:
 **Mục tiêu**
 
 - chốt BA-V4 làm baseline duy nhất
-- chốt role model `Giám sát / Worker profile`
+- chốt role model `Giám sát / Kỹ thuật profile`
 - chốt ERD v4, file strategy, warranty-finance lifecycle
 - quy hoạch lại app admin
 
@@ -40,7 +40,7 @@ Plan này nhằm:
 **Điều kiện qua wave**
 
 - không còn tranh cãi về `Customer` vs `Service Request`
-- không còn tranh cãi về `Worker account` vs `worker profile`
+- không còn tranh cãi về `Kỹ thuật account` vs `kỹ thuật profile`
 - không còn tranh cãi về Google Drive là storage layer hay source of truth
 
 ### Wave 1 - Foundation, Auth, RBAC, Master Data
@@ -49,7 +49,7 @@ Plan này nhằm:
 
 - auth/session thật
 - user/role/permission
-- worker profile master
+- kỹ thuật profile master
 - master data chuẩn
 - audit log khung
 - integration settings khung
@@ -113,7 +113,7 @@ Plan này nhằm:
 - handoff rule liên vai trò
 - project WBS / task board
 - assignment cho PM/Giám sát
-- workforce assignment cho worker profile
+- workforce assignment cho kỹ thuật profile
 - change order tối thiểu
 
 **Kết quả mong muốn**
@@ -122,13 +122,13 @@ Plan này nhằm:
 - PM có board điều phối nội bộ thật
 - luồng giao tiếp và bàn giao giữa PM, Giám sát, Accountant rõ ràng
 
-### Wave 4 - Field execution theo mô hình Giám sát thao tác thay worker profile
+### Wave 4 - Field execution theo mô hình Giám sát thao tác thay kỹ thuật profile
 
 **Chức năng**
 
 - task detail mobile-first cho Giám sát
 - checklist theo task
-- upload evidence thay mặt worker profile
+- upload evidence thay mặt kỹ thuật profile
 - review/approve/reject
 - incident report
 - acceptance draft
@@ -137,7 +137,7 @@ Plan này nhằm:
 **Kết quả mong muốn**
 
 - Giám sát chạy được luồng hiện trường thật
-- mọi evidence lưu đúng actor số và worker profile thực tế
+- mọi evidence lưu đúng actor số và kỹ thuật profile thực tế
 - file hiện trường đồng bộ được lên cloud có retry
 
 ### Wave 5 - Inventory & procurement vận hành thật
@@ -148,7 +148,7 @@ Plan này nhằm:
 - material standard
 - reservation vật tư theo project/task
 - phiếu nhập/xuất/hoàn
-- Giám sát ký nhận trên hệ thống và phát cho worker profile
+- Giám sát ký nhận trên hệ thống và phát cho kỹ thuật profile
 - asset registry và asset issue/return
 - remainder lot và hoàn nhập phần dư
 - cảnh báo tồn kho
@@ -158,7 +158,7 @@ Plan này nhằm:
 
 - không mở task thi công khi chưa đủ vật tư
 - kho đối soát được
-- biết vật tư đã giao cho tổ/worker profile nào
+- biết vật tư đã giao cho tổ/kỹ thuật profile nào
 - thu hồi được tài sản thi công và hoàn nhập được phần dư vật tư
 
 ### Wave 6 - Finance, Acceptance, Warranty & Maintenance
@@ -225,7 +225,7 @@ Plan này nhằm:
 - `Go/No-Go warning & decision`
 - `Task module` đa vai trò
 - `Project conversion flow`
-- `Worker profile + Giám sát thao tác thay worker profile`
+- `Kỹ thuật profile + Giám sát thao tác thay kỹ thuật profile`
 - `Stock ledger + Reservation`
 - `Asset registry + Remainder recovery`
 - `Payment ledger + Aftersales billing`

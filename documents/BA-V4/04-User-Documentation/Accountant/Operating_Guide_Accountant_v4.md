@@ -146,7 +146,7 @@ Hướng dẫn này mô tả cách Accountant vận hành hệ thống theo các
    - chọn vật tư và số lượng
    - phát hành phiếu
 4. Theo dõi trạng thái ký nhận từ Giám sát.
-5. Nếu có phát cho worker profile cụ thể, ghi đúng người nhận thực tế.
+5. Nếu có phát cho kỹ thuật profile cụ thể, ghi đúng người nhận thực tế.
 6. Sau khi hoàn tất, kiểm tra giá trị vật tư đã đi vào cost ledger.
 
 ### Lưu ý

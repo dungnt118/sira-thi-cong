@@ -39,7 +39,7 @@ Checklist:
 ### 3.2 Workforce & Field Execution
 
 - workforce assignment
-- worker profile
+- kỹ thuật profile
 - checklist thực thi
 - evidence
 - incident
@@ -95,7 +95,7 @@ Checklist:
 ## 6. Tiêu chí hoàn tất phase
 
 - [ ] Project và task chạy được end-to-end nội bộ
-- [ ] Giám sát thao tác thay worker profile đúng mô hình
+- [ ] Giám sát thao tác thay kỹ thuật profile đúng mô hình
 - [ ] Kho khóa/mở task đúng logic
 - [ ] Tài sản và phần dư được đối soát
 - [ ] Kế toán nhìn được thu/chi/cost cơ bản theo công trình

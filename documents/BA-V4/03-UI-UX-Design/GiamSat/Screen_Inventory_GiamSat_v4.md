@@ -15,20 +15,20 @@ Danh mục này chuẩn hóa các màn hình cần có cho vai trò `Giám sát`
 
 | Mã màn | Màn hình | Mục tiêu nghiệp vụ | Route/prototype hiện tại | Trạng thái | Ưu tiên |
 |---|---|---|---|---|---|
-| GS-01 | Trang chủ hiện trường | Xem việc hôm nay, việc trễ, cảnh báo hiện trường | `/supervisor/home` -> `src/pages/worker/WorkerHome.tsx` | Đã có seed | Critical |
-| GS-02 | Danh sách công trình phụ trách | Xem các công trình/visit được giao | `/supervisor/projects` -> đang dùng lại `WorkerHome` | Có một phần | Critical |
+| GS-01 | Trang chủ hiện trường | Xem việc hôm nay, việc trễ, cảnh báo hiện trường | `/supervisor/home` -> `src/pages/kỹ thuật/Kỹ thuậtHome.tsx` | Đã có seed | Critical |
+| GS-02 | Danh sách công trình phụ trách | Xem các công trình/visit được giao | `/supervisor/projects` -> đang dùng lại `Kỹ thuậtHome` | Có một phần | Critical |
 | GS-03 | Lịch hiện trường | Xem lịch khảo sát, thi công, nghiệm thu, bảo trì | Chưa có | Chưa có | High |
 | GS-04 | Tóm tắt công trình | Xem thông tin công trình, khách hàng, trạng thái dossier | Chưa có | Chưa có | High |
 | GS-05 | Danh sách gói việc/task | Xem task package theo công trình | Chưa có | Chưa có | Critical |
-| GS-06 | Checklist bước thi công | Theo dõi và cập nhật trạng thái từng bước | `/supervisor/checklist/:id` -> `src/pages/worker/Checklist.tsx` | Đã có seed | Critical |
-| GS-07 | Upload ảnh/video minh chứng | Chụp/tải file chứng cứ cho từng bước | `/supervisor/evidence/:projectId/:stepId` -> `src/pages/worker/EvidenceUpload.tsx` | Đã có seed | Critical |
+| GS-06 | Checklist bước thi công | Theo dõi và cập nhật trạng thái từng bước | `/supervisor/checklist/:id` -> `src/pages/kỹ thuật/Checklist.tsx` | Đã có seed | Critical |
+| GS-07 | Upload ảnh/video minh chứng | Chụp/tải file chứng cứ cho từng bước | `/supervisor/evidence/:projectId/:stepId` -> `src/pages/kỹ thuật/EvidenceUpload.tsx` | Đã có seed | Critical |
 | GS-08 | Nhật ký hiện trường | Ghi hoạt động, điều kiện thi công, ghi chú trong ngày | Chưa có | Chưa có | High |
-| GS-09 | Chọn worker profile tham gia | Gắn người thực hiện thực tế cho task hoặc evidence | Chưa có | Chưa có | High |
+| GS-09 | Chọn kỹ thuật profile tham gia | Gắn người thực hiện thực tế cho task hoặc evidence | Chưa có | Chưa có | High |
 | GS-10 | Danh sách đội hiện trường | Xem đội tham gia công trình, thay người, ghi lịch sử | Chưa có | Chưa có | High |
 | GS-11 | Ký nhận vật tư | Xác nhận nhận vật tư và tình trạng hàng hóa | `/supervisor/materials` -> `ComingSoon` | Có một phần | Critical |
-| GS-12 | Cấp phát vật tư tại công trình | Ghi vật tư cấp cho hạng mục hoặc worker profile | Chưa có | Chưa có | High |
+| GS-12 | Cấp phát vật tư tại công trình | Ghi vật tư cấp cho hạng mục hoặc kỹ thuật profile | Chưa có | Chưa có | High |
 | GS-12A | Thu hồi tài sản & hoàn nhập phần dư | Ghi tài sản thu hồi, vật tư dở dang, phần dư còn dùng được | Chưa có | Chưa có | High |
-| GS-13 | Báo cáo sự cố | Tạo case sự cố và escalate | `/supervisor/incident` -> `src/pages/worker/IncidentReport.tsx` | Đã có seed | High |
+| GS-13 | Báo cáo sự cố | Tạo case sự cố và escalate | `/supervisor/incident` -> `src/pages/kỹ thuật/IncidentReport.tsx` | Đã có seed | High |
 | GS-14 | Danh sách sự cố & xử lý | Theo dõi tất cả case sự cố đang mở | Chưa có | Chưa có | High |
 | GS-15 | Biên bản khảo sát công trình | Lập biên bản khảo sát từ dữ liệu hiện trường | Chưa có | Chưa có | Critical |
 | GS-15A | Khảo sát rủi ro nhận việc | Ghi yếu tố ảnh hưởng vật tư, nhân công, tiến độ, giáo mác, đu dây | Chưa có | Chưa có | Critical |
@@ -55,7 +55,7 @@ Danh mục này chuẩn hóa các màn hình cần có cho vai trò `Giám sát`
 
 - khảo sát và biên bản khảo sát
 - báo cáo hiện trạng và đề xuất biện pháp
-- quản lý worker profile theo công trình
+- quản lý kỹ thuật profile theo công trình
 - nhận vật tư và cấp phát tại công trình
 - nghiệm thu số có chữ ký điện tử
 - visit bảo hành/bảo trì

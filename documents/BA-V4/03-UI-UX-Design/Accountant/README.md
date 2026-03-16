@@ -25,7 +25,7 @@ Trọng tâm của Accountant trong V4 gồm 6 trục:
 - `Thanh toán & công nợ`: payment schedule, thu tiền từng đợt, partial collection, quá hạn, chứng từ thu
 - `Chi phí & giải ngân`: chi phí công trình, chi nhân công, chi vật tư, chi phát sinh, lệnh chi
 - `Sổ quỹ & nguồn tiền`: quỹ tiền mặt, tài khoản công ty, tài khoản cá nhân, người tạo lệnh, người duyệt, người theo dõi
-- `Kho`: danh mục vật tư, phiếu xuất/nhập, lịch sá»­ kho, ký nhận Giám sát/worker profile
+- `Kho`: danh mục vật tư, phiếu xuất/nhập, lịch sá»­ kho, ký nhận Giám sát/kỹ thuật profile
 - `Bảo hành/bảo trì`: chi phí hậu mãi, yêu cầu tính phí, khoản phải thu phát sinh, retention release
 - `Chứng từ`: đề nghị tạm ứng, đề nghị thanh toán, biên bản nghiệm thu, phiếu bảo hành điện tử, hồ sơ số lưu trữ
 

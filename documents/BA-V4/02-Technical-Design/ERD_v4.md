@@ -6,7 +6,7 @@ ERD v4 được dựng để giải quyết các thiếu hụt của mô hình c
 
 - tách rõ `Customer`, `Service Request`, `Project`
 - hỗ trợ cả hai hướng tạo dữ liệu: `Customer -> Service Request` và `Service Request -> auto-create Customer`
-- phản ánh đúng mô hình `Giám sát thao tác thay Worker profile`
+- phản ánh đúng mô hình `Giám sát thao tác thay Kỹ thuật profile`
 - liên kết chặt `CRM -> Vận hành nội bộ -> Hiện trường -> Kho -> Tài chính -> Bảo hành/Bảo trì`
 - bổ sung lớp `Estimate - Go/No-Go - Quotation Mapping`
 - bổ sung lớp `Asset - Consumable - Remainder Recovery`
@@ -19,8 +19,8 @@ ERD v4 được dựng để giải quyết các thiếu hụt của mô hình c
 
 1. `Service Request` là bản ghi trung tâm của CRM.
 2. `Customer` luôn là master record dài hạn; thao tác tạo `Service Request` có thể đồng thời sinh `Customer` mới trong cùng transaction.
-3. `Worker` ở giai đoạn hiện tại không phải `User`; hệ thống dùng `Worker Profile` để quản lý nguồn lực thực tế.
-4. `Giám sát` là actor số chính của hiện trường, nhưng dữ liệu phải truy vết được worker profile thực hiện thực tế.
+3. `Kỹ thuật` ở giai đoạn hiện tại không phải `User`; hệ thống dùng `Kỹ thuật Profile` để quản lý nguồn lực thực tế.
+4. `Giám sát` là actor số chính của hiện trường, nhưng dữ liệu phải truy vết được kỹ thuật profile thực hiện thực tế.
 5. Metadata file nằm trong hệ thống BAC Group; Google Drive chỉ là lớp lưu trữ cloud.
 6. `Warranty/Maintenance` phải nối được với chi phí và khoản phải thu phát sinh.
 7. Hồ sơ phát hành và hồ sơ đã ký phải là aggregate riêng, không chỉ là file đính kèm.
@@ -36,7 +36,7 @@ erDiagram
 
   TENANT ||--o{ CUSTOMER : owns
   CUSTOMER ||--o{ SERVICE_REQUEST : has
-  TENANT ||--o{ WORKER_PROFILE : owns
+  TENANT ||--o{ KỸ THUẬT_PROFILE : owns
   TENANT ||--o{ DRIVE_FOLDER_MAP : owns
   TENANT ||--o{ FILE_ASSET : owns
 
@@ -70,22 +70,22 @@ erDiagram
   PROJECT ||--o{ PROJECT_ASSIGNMENT : assigns
   USER ||--o{ PROJECT_ASSIGNMENT : works_on
   PROJECT ||--o{ WORKFORCE_ASSIGNMENT : allocates
-  WORKER_PROFILE ||--o{ WORKFORCE_ASSIGNMENT : joins
+  KỸ THUẬT_PROFILE ||--o{ WORKFORCE_ASSIGNMENT : joins
   USER ||--o{ WORKFORCE_ASSIGNMENT : supervised_by
 
   PROJECT ||--o{ PROJECT_TASK : owns
   STAGE_PLAYBOOK_TASK ||--o{ PROJECT_TASK : seeds
   PROJECT_TASK ||--o{ TASK_WORKFORCE_ASSIGNMENT : plans
-  WORKER_PROFILE ||--o{ TASK_WORKFORCE_ASSIGNMENT : executes
+  KỸ THUẬT_PROFILE ||--o{ TASK_WORKFORCE_ASSIGNMENT : executes
   USER ||--o{ TASK_WORKFORCE_ASSIGNMENT : coordinated_by
   PROJECT_TASK ||--o{ TASK_CHECKLIST_ITEM : has
   PROJECT_TASK ||--o{ TASK_EVIDENCE : proves
   FILE_ASSET ||--o{ TASK_EVIDENCE : stores
   USER ||--o{ TASK_EVIDENCE : captured_by
-  WORKER_PROFILE ||--o{ TASK_EVIDENCE : performed_by
+  KỸ THUẬT_PROFILE ||--o{ TASK_EVIDENCE : performed_by
   PROJECT ||--o{ INCIDENT_REPORT : logs
   USER ||--o{ INCIDENT_REPORT : reported_by
-  WORKER_PROFILE ||--o{ INCIDENT_REPORT : involves
+  KỸ THUẬT_PROFILE ||--o{ INCIDENT_REPORT : involves
 
   TENANT ||--o{ MATERIAL : owns
   MATERIAL ||--o{ MATERIAL_STANDARD : parameterized_by
@@ -101,7 +101,7 @@ erDiagram
   MATERIAL ||--o{ STOCK_DOCUMENT_LINE : moves
   STOCK_DOCUMENT ||--o{ STOCK_SIGNATURE : acknowledged_by
   USER ||--o{ STOCK_SIGNATURE : signed_by
-  WORKER_PROFILE ||--o{ STOCK_SIGNATURE : received_for
+  KỸ THUẬT_PROFILE ||--o{ STOCK_SIGNATURE : received_for
 
   PROJECT ||--o{ PAYMENT_SCHEDULE : plans
   PAYMENT_SCHEDULE ||--o{ PAYMENT_TRANSACTION : settles
@@ -184,7 +184,7 @@ erDiagram
     string customer_type
   }
 
-  WORKER_PROFILE {
+  KỸ THUẬT_PROFILE {
     uuid id PK
     uuid tenant_id FK
     string code
@@ -394,7 +394,7 @@ erDiagram
   WORKFORCE_ASSIGNMENT {
     uuid id PK
     uuid project_id FK
-    uuid worker_profile_id FK
+    uuid kỹ thuật_profile_id FK
     uuid giam_sat_user_id FK
     string assignment_scope
     date start_date
@@ -419,7 +419,7 @@ erDiagram
   TASK_WORKFORCE_ASSIGNMENT {
     uuid id PK
     uuid project_task_id FK
-    uuid worker_profile_id FK
+    uuid kỹ thuật_profile_id FK
     uuid coordinator_user_id FK
     string assignment_role
     string status
@@ -441,7 +441,7 @@ erDiagram
     uuid checklist_item_id FK
     uuid file_asset_id FK
     uuid captured_by_user_id FK
-    uuid performed_by_worker_id FK
+    uuid performed_by_kỹ thuật_id FK
     string status
     datetime uploaded_at
   }
@@ -450,7 +450,7 @@ erDiagram
     uuid id PK
     uuid project_id FK
     uuid reported_by_user_id FK
-    uuid worker_profile_id FK
+    uuid kỹ thuật_profile_id FK
     string incident_type
     string severity
     string status
@@ -523,7 +523,7 @@ erDiagram
     uuid id PK
     uuid stock_document_id FK
     uuid signed_by_user_id FK
-    uuid received_for_worker_id FK
+    uuid received_for_kỹ thuật_id FK
     datetime signed_at
     string signature_method
   }
@@ -766,15 +766,15 @@ ERD v4 giữ `Customer` là master data, nhưng cho phép transaction tạo `Ser
 
 Tức là trình tự nhập liệu linh hoạt, nhưng dữ liệu lưu cuối cùng vẫn chuẩn hóa quanh `Customer` và `Service Request`.
 
-### 4.2 `Worker Profile` thay cho tài khoản Worker
+### 4.2 `Kỹ thuật Profile` thay cho tài khoản Kỹ thuật
 
 Điểm mới bắt buộc:
 
-- `WORKER_PROFILE` tách khỏi `USER`
+- `KỸ THUẬT_PROFILE` tách khỏi `USER`
 - `WORKFORCE_ASSIGNMENT` và `TASK_WORKFORCE_ASSIGNMENT` quản lý tổ đội thực tế
 - `TASK_EVIDENCE`, `INCIDENT_REPORT`, `STOCK_SIGNATURE` đều lưu được:
   - ai thao tác trên phần mềm
-  - công việc/vật tư thực tế thuộc worker profile nào
+  - công việc/vật tư thực tế thuộc kỹ thuật profile nào
 
 ### 4.3 `Stage Playbook` và `Handoff Rule` trở thành dữ liệu chuẩn
 
@@ -907,7 +907,7 @@ Trước khi build tiếp tính năng, cần khóa các phần sau:
 1. Domain model chuẩn theo ERD v4
 2. API contract cho các aggregate chính
 3. Rule convert `Service Request -> Contract -> Project`
-4. Rule `Giám sát actor / Worker profile`
+4. Rule `Giám sát actor / Kỹ thuật profile`
 5. Rule đồng bộ `CRM - Estimate - Go/No-Go - Quotation - Contract`
 6. Rule đồng bộ `Task - Inventory - Asset - Remainder - Acceptance - Aftersales`
 7. Rule đồng bộ `Document Record - Signature - Dossier`

@@ -67,7 +67,7 @@ Liệt kê đầy đủ các màn hình Accountant cần có trong V4 và đối
 | ACC-25 | Stock History | Lịch sử kho | `/accountant/inventory/history` - `ComingSoon` | Có một phần |
 | ACC-26 | Inventory Value Detail | Xem giá trị kho theo vật tư/nhóm vật tư | Chưa thấy page riêng | Chưa có |
 | ACC-27 | Pending Signature Queue | Phiếu kho chờ Giám sát ký nhận | Chưa thấy page riêng | Chưa có |
-| ACC-28 | Issue-to-Worker Reconciliation | Đối soát vật tư cấp đến worker profile | Chưa thấy page riêng | Chưa có |
+| ACC-28 | Issue-to-Kỹ thuật Reconciliation | Đối soát vật tư cấp đến kỹ thuật profile | Chưa thấy page riêng | Chưa có |
 | ACC-28A | Asset Registry | Quản lý tài sản thi công có thu hồi | Chưa thấy page riêng | Chưa có |
 | ACC-28B | Asset Return Queue | Hàng đợi thu hồi tài sản từ công trình | Chưa thấy page riêng | Chưa có |
 | ACC-28C | Remainder Lot Detail | Quản lý phần dư vật tư còn dùng được | Chưa thấy page riêng | Chưa có |

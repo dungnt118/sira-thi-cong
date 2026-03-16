@@ -128,7 +128,7 @@ Trong `CustomerJourney Detail`, mỗi khối dữ liệu phải truy ngược ho
 - `Yêu cầu` -> `Service Request`, `Customer`, `Interaction Log`
 - `Khảo sát` -> `Survey Snapshot`, `Survey Media`, `Giám sát`
 - `Dự toán` -> `Estimate Version`, `Price Book`, `Go/No-Go`
-- `Nhân công` -> `Workforce Plan`, `Worker Profile`, `Giám sát phụ trách`
+- `Nhân công` -> `Workforce Plan`, `Kỹ thuật Profile`, `Giám sát phụ trách`
 - `Công trình` -> `Project`, `Task Package`, `Incident`
 - `Thanh toán` -> `Milestone`, `Transaction Status`, `Payment Thread`
 - `Vật tư` -> `Material Summary`, `Need Procurement`, `Asset Need`

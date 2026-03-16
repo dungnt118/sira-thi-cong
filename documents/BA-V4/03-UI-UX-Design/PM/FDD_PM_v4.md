@@ -66,7 +66,7 @@ PM workbench phải gom được ít nhất:
 | PM-F04 | Contract & Conversion | Convert đúng sang hợp đồng và dự án | Critical |
 | PM-F05 | Project Workbench | Điều hành dự án đầu-cuối | Critical |
 | PM-F06 | Task Orchestration | Quản lý WBS, task package, playbook, handoff | Critical |
-| PM-F07 | Internal Workforce Management | Quản lý đội nội bộ, đội Giám sát, worker profile | High |
+| PM-F07 | Internal Workforce Management | Quản lý đội nội bộ, đội Giám sát, kỹ thuật profile | High |
 | PM-F08 | Partner/Outsource Management | Quản lý công ty liên kết, leader, performance | High |
 | PM-F09 | Material & Labor Planning | Lập kế hoạch nguồn lực và variance | High |
 | PM-F10 | Evidence, Incident & Quality Oversight | Review bằng chứng và can thiệp ngoại lệ | High |
@@ -192,7 +192,7 @@ Chuẩn hóa khâu khảo sát và báo giá để conversion không bị thất
 
 - convert wizard phải kiểm tra đủ dữ liệu đầu vào
 - nếu fast-track phải có lý do và audit
-- project mới sinh phải có `task nền`, `worker plan sơ bộ`, `payment plan`
+- project mới sinh phải có `task nền`, `kỹ thuật plan sơ bộ`, `payment plan`
 
 ### 5.5 PM-F05 - Project Workbench
 
@@ -252,9 +252,9 @@ Biến `Module B - Vận hành nội bộ` thành năng lực điều hành th�
 
 **Rule**
 
-- một worker profile có thể tham gia nhiều task nhưng không vượt ngưỡng phân bổ cho phép
+- một kỹ thuật profile có thể tham gia nhiều task nhưng không vượt ngưỡng phân bổ cho phép
 - assignment phải lưu người điều phối và thời gian hiệu lực
-- worker profile không cần account riêng trong phase hiện tại
+- kỹ thuật profile không cần account riêng trong phase hiện tại
 
 ### 5.8 PM-F08 - Partner/Outsource Management
 
@@ -319,7 +319,7 @@ Giúp PM giám sát từ xa mà không phải thay thế thao tác hiện trư�
 - evidence phải hiển thị được:
   - task/checklist liên quan
   - Giám sát là actor số
-  - worker profile thực tế nếu có
+  - kỹ thuật profile thực tế nếu có
 - reject phải có reason
 
 ### 5.11 PM-F11 - Finance Snapshot & Close-out
@@ -367,7 +367,7 @@ Cho PM nhìn được hệ thống theo góc vận hành và ra quyết định.
 | Tạo Service Request | Có | Không | Không | Có |
 | Convert sang Project | Có | Không | Không | Có |
 | Tạo/điều chỉnh task package | Có | Một phần | Không | Có |
-| Giao Giám sát / worker profile | Có | Một phần | Không | Có |
+| Giao Giám sát / kỹ thuật profile | Có | Một phần | Không | Có |
 | Giao partner/outsource vào project | Có | Không | Một phần | Có |
 | Approve/Reject evidence | Có | Một phần | Không | Có |
 | Xem finance snapshot | Có | Không | Có | Có |
@@ -379,7 +379,7 @@ Cho PM nhìn được hệ thống theo góc vận hành và ra quyết định.
 
 1. PM phải thấy riêng `Service Request` và `Project`; không gộp một bảng mơ hồ.
 2. PM phải quản lý được cả `đội nội bộ` và `partner/outsource` ở mức tài liệu V4.
-3. Mọi assignment hiện trường đều Ä'i qua `Giám sát` và `worker profile`.
+3. Mọi assignment hiện trường đều Ä'i qua `Giám sát` và `kỹ thuật profile`.
 4. PM chỉ xem tài chính ở mức điều hành, không can thiệp ledger kế toán.
 5. PM chỉ được publish portal khi:
    - dữ liệu đã approved

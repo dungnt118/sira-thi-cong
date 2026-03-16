@@ -7,7 +7,7 @@ Module trong V4 được chia theo `ownership dữ liệu`, `actor ra quyết đ
 Nguyên tắc bắt buộc:
 
 1. `Service Request` là điểm khởi đầu CRM, không dùng `Customer` làm Kanban entity.
-2. `Giám sát` là actor số chính của hiện trường ở giai đoạn hiện tại; `Worker` được quản lý dưới dạng `worker profile`.
+2. `Giám sát` là actor số chính của hiện trường ở giai đoạn hiện tại; `Kỹ thuật` được quản lý dưới dạng `kỹ thuật profile`.
 3. `Google Drive` là lớp lưu trữ cloud, nhưng metadata và business permission phải do hệ thống BAC Group sở hữu.
 4. `Warranty/Maintenance` không tách riêng khỏi tài chính; mọi case hậu mãi đều phải nhìn được financial impact.
 5. `Admin` khác `HanhChinh`; một bên cấu hình hệ thống, một bên vận hành hồ sơ và chứng từ.
@@ -17,7 +17,7 @@ Nguyên tắc bắt buộc:
 | Module | Sở hữu dữ liệu | Vai trò dùng chính | Kết quả đầu ra |
 |---|---|---|---|
 | Module A - CRM & Sales Orchestration | Customer, Service Request, Pipeline, Survey, Survey Summary, Estimate Version, Price Book, Quotation Mapping, Quotation, Contract, Interaction Log | Sale, PM | Deal được chuẩn hóa, có thể đi từ khách mới hoặc khách cũ, có SLA tiếp nhận, dự toán nội bộ và dữ liệu thương mại rõ ràng |
-| Module B - Vận hành nội bộ | Project, Project Assignment, Worker Profile, Workforce Assignment, Project Task, Stage Playbook, Handoff Rule, SLA, Go/No-Go Review | PM, Giám sát | Điều phối nội bộ theo vai trò, có task, bàn giao, quyết định nhận việc và trách nhiệm rõ ràng |
+| Module B - Vận hành nội bộ | Project, Project Assignment, Kỹ thuật Profile, Workforce Assignment, Project Task, Stage Playbook, Handoff Rule, SLA, Go/No-Go Review | PM, Giám sát | Điều phối nội bộ theo vai trò, có task, bàn giao, quyết định nhận việc và trách nhiệm rõ ràng |
 | Module C - Field Execution | Checklist, Evidence, Incident, Acceptance Draft, Site Report | Giám sát, PM | Tiến độ và chất lượng hiện trường được cập nhật có truy vết actor thực hiện thực tế |
 | Module D - Inventory & Procurement | Material, Standard, Reservation, Stock Document, Purchase Request, Asset Registry, Remainder Lot | Accountant, PM, Giám sát | Vật tư và tài sản được lập kế hoạch, cấp phát, thu hồi, hoàn nhập và đối soát được |
 | Module E - Finance, Acceptance, Warranty & Maintenance | Payment Schedule, Transaction, Project Cost Entry, Cash Book Entry, Acceptance Record, Portal Thread, Warranty Card, Warranty Case, Maintenance Visit, Aftersales Cost, Aftersales Billing | Accountant, PM, Giám sát, Sale, Customer Portal | Dòng tiền, chi phí, nghiệm thu, giao tiếp portal và hậu mãi được đóng vòng đời |
@@ -46,7 +46,7 @@ Kết quả:
 - tạo `Project`
 - sinh `Project Assignment` mặc định
 - nạp `Stage Playbook`, `Task Template`, `Handoff Rule`
-- nạp danh sách `worker profile` sơ bộ nếu đã biết tổ đội thi công
+- nạp danh sách `kỹ thuật profile` sơ bộ nếu đã biết tổ đội thi công
 
 ### 3.2 Module A -> Module G
 
@@ -95,7 +95,7 @@ Sự kiện:
 Kết quả:
 
 - `Giám sát` ký nhận trên hệ thống
-- ghi nhận phát vật tư cho từng `worker profile` nếu cần
+- ghi nhận phát vật tư cho từng `kỹ thuật profile` nếu cần
 - ghi nhận cấp phát tài sản, vật tư dở dang và phần dư hoàn nhập
 - mở khóa checklist/task thi công tương ứng
 - ghi audit trail xuất kho, phát vật tư và người chịu trách nhiệm
@@ -113,7 +113,7 @@ Kết quả:
 - lưu metadata file tại hệ thống
 - đẩy file vào hàng đợi đồng bộ Google Drive
 - cập nhật trạng thái `PENDING_SYNC`, `SYNCED`, `FAILED`
-- lưu actor số là `Giám sát` và người thá»±c hiện thá»±c tế là `worker profile` nếu có
+- lưu actor số là `Giám sát` và người thá»±c hiện thá»±c tế là `kỹ thuật profile` nếu có
 
 ### 3.6 Module C -> Module E
 
@@ -202,7 +202,7 @@ Kết quả:
 
 - Web Admin/PM/Accountant cho toàn bộ nghiệp vụ back-office
 - Mobile-first Web cho `Giám sát`
-- `Worker` chưa có tài khoản trực tiếp trong phase hiện tại; mọi tương tác số đi qua giao diện `Giám sát`
+- `Kỹ thuật` chưa có tài khoản trực tiếp trong phase hiện tại; mọi tương tác số đi qua giao diện `Giám sát`
 - Customer Portal là cổng xem dữ liệu đã publish và kênh chat có bằng chứng cho khách hàng
 - Workspace `Sale` và `HanhChinh` có thể dùng chung shell web back-office ở giai đoạn đầu, nhưng permission và navigation phải tách được theo vai trò
 - Các hồ sơ tài chính/chứng từ phải hỗ trợ cả giao dịch qua tài khoản công ty và tài khoản cá nhân theo mô hình kiểm soát nội bộ của doanh nghiệp
@@ -254,15 +254,15 @@ Ví dụ:
 - không phát hành chứng từ số nếu template version hoặc dữ liệu merge chưa hợp lệ
 - không khóa trạng thái tài chính cuối nếu còn retention/holdback chưa xử lý rõ
 
-### 5.2 Không coi Worker là user account trong phase hiện tại
+### 5.2 Không coi Kỹ thuật là user account trong phase hiện tại
 
 Codebase phải phản ánh đúng mô hình:
 
-- `Worker` là hồ sơ nguồn lực
+- `Kỹ thuật` là hồ sơ nguồn lực
 - `Giám sát` là actor số thao tác trên phần mềm
 - mọi thao tác hiện trường cần lưu cả:
   - người thao tác trên hệ thống
-  - worker profile thực tế thực hiện công việc
+  - kỹ thuật profile thực tế thực hiện công việc
 
 Điều này ảnh hưởng trực tiếp tới:
 
@@ -354,7 +354,7 @@ Kiến trúc V4 phải hỗ trợ đồng thời:
 
 1. API contract cho các aggregate chính
 2. State machine cho `Service Request`, `Project Task`, `Stock Document`, `Warranty Case`, `Aftersales Billing`
-3. Actor model cho `Giám sát` và `worker profile`
+3. Actor model cho `Giám sát` và `kỹ thuật profile`
 4. File governance model và Google Drive sync queue
 5. Financial impact model cho warranty/maintenance
 6. Notification rule engine

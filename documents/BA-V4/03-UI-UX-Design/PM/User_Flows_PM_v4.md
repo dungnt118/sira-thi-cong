@@ -5,7 +5,7 @@
 Các flow dưới đây mô tả các hành trình PM bắt buộc phải làm được trong V4. Flow được viết theo mô hình mới:
 
 - `Service Request-first`
-- `Giám sát thao tác thay worker profile`
+- `Giám sát thao tác thay kỹ thuật profile`
 - `Module B - Vận hành nội bộ`
 - có cả `đội nội bộ` và `partner/outsource`
 
@@ -74,9 +74,9 @@ flowchart TD
 ```mermaid
 flowchart TD
   A["Project Workbench"] --> B["PM mở Workforce Management"]
-  B --> C["Xem capacity cá»§a Giám sát và worker profile"]
+  B --> C["Xem capacity cá»§a Giám sát và kỹ thuật profile"]
   C --> D["Chọn Giám sát chính"]
-  D --> E["Chọn worker profile / tổ đội hỗ trợ"]
+  D --> E["Chọn kỹ thuật profile / tổ đội hỗ trợ"]
   E --> F["Gán vào task package"]
   F --> G["Hệ thống ghi assignment + thời gian hiệu lực"]
   G --> H["Giám sát nhận được phân công"]

@@ -16,12 +16,12 @@ File này tổng hợp các khoảng trống còn tồn tại sau khi đối chi
 |---|---|---|---|---|---|---|
 | GAP-01 | CRM | Kanban đang bị hiểu sai đối tượng theo dõi nếu bám vào `Customer` thay vì `Service Request` | BA-V3 đã nêu nhưng chưa khóa vào ERD chuẩn | Sai dữ liệu sale, trùng khách hàng, khó tái bán | Critical | Chuẩn hóa lại CRM quanh `Service Request` |
 | GAP-02 | CRM | Pipeline mới dừng ở cột trạng thái, chưa có playbook nhiệm vụ/owner/checklist/SLA | Wireframe có dynamic pipeline nhưng chưa xuống data model và backlog build | Không điều hành được công việc theo từng giai đoạn | Critical | Thêm `Stage Playbook + Task Template` |
-| GAP-03 | Delivery | Chưa có `Task module` xuyên vai trò cho PM/Giám sát/worker profile | Code có checklist thi công nhưng không có task orchestration | Không kiểm soát được người làm, người duyệt, deadline, phụ thuộc | Critical | Tạo module `Project Task / Work Package` |
+| GAP-03 | Delivery | Chưa có `Task module` xuyên vai trò cho PM/Giám sát/kỹ thuật profile | Code có checklist thi công nhưng không có task orchestration | Không kiểm soát được người làm, người duyệt, deadline, phụ thuộc | Critical | Tạo module `Project Task / Work Package` |
 | GAP-04 | Delivery | Checklist thi công chưa đủ thay thế task quản lý dự án | V3 mới mạnh ở field checklist | PM thiếu công cụ quản lý ngoài hiện trường | High | Tách `Task` và `Checklist` thành 2 lớp |
 | GAP-05 | CRM -> Delivery | Chưa có quy tắc convert rõ từ báo giá/hợp đồng sang project | Tài liệu và code còn song song nhiều cách | Dễ tạo project sai thời điểm hoặc thiếu dữ liệu | High | Khóa luồng `Quotation -> Contract -> Project` |
 | GAP-06 | Quotation | Thiếu versioning báo giá, duyệt thắng/thua và lý do | Gap audit đã chạm tới nhưng chưa thành baseline | Mất lịch sử thương lượng, khó audit | High | Thiết kế `Quotation Version` |
 | GAP-07 | Change management | Thiếu change order / thay đổi phạm vi sau ký | Gap audit mới khuyến nghị Phase 2 | Gây sai phạm vi, sai vật tư, sai thanh toán | High | Cho vào V4 tối thiểu ở mức controlled request |
-| GAP-08 | Role model | Mô hình vai trò đang mâu thuẫn giữa V2, V3 và code, đặc biệt ở chỗ worker chưa có account nhưng tài liệu/code vẫn đang xen lẫn | V2 có 6 vai trò, V3 gom 4, code lại song song route `supervisor` và page `worker` di sản | Sai phân quyền, sai tracking tác nghiệp hiện trường | Critical | Chốt role model V4 và mapping transition, dùng `Giám sát thao tác thay worker profile` cho giai đoạn hiện tại |
+| GAP-08 | Role model | Mô hình vai trò đang mâu thuẫn giữa V2, V3 và code, đặc biệt ở chỗ kỹ thuật chưa có account nhưng tài liệu/code vẫn đang xen lẫn | V2 có 6 vai trò, V3 gom 4, code lại song song route `supervisor` và page `kỹ thuật` di sản | Sai phân quyền, sai tracking tác nghiệp hiện trường | Critical | Chốt role model V4 và mapping transition, dùng `Giám sát thao tác thay kỹ thuật profile` cho giai đoạn hiện tại |
 | GAP-09 | Admin | Tồn tại đồng thời `admin-v2` trong app chính và `admin-app` riêng | Codebase hiện tại thể hiện rõ | Dễ tạo hai nguồn sự thật về cấu hình | High | Hợp nhất một control plane admin |
 | GAP-10 | PM UX | Màn PM bị chia cắt giữa CRM, construction, inventory, finance và legacy routes | App hiện tại có route mới/cũ cùng tồn tại | PM không có workbench thống nhất | High | Thiết kế lại IA theo ngữ cảnh `Service Request` và `Project` |
 | GAP-11 | Inventory | Chưa có reservation vật tư theo task/dự án | Mới có định mức và phiếu đề nghị/phiếu kho demo | Khó khóa vật tư cho thi công thật | High | Bổ sung `Material Reservation` |
@@ -54,11 +54,11 @@ Khoảng trống không chỉ nằm ở "đổi cột Kanban", mà nằm ở to�
 - checklist nào bắt buộc
 - deadline/SLA
 - điều kiện hoàn thành chặng
-- tá»± động sinh task nào cho PM/Giám sát/worker profile
+- tá»± động sinh task nào cho PM/Giám sát/kỹ thuật profile
 
 Đây là lý do V4 bắt buộc thêm `Stage Playbook`.
 
-### 3.2 Task management cho PM, Giám sát, Worker profile
+### 3.2 Task management cho PM, Giám sát, Kỹ thuật profile
 
 Hiện tại hệ thống mới có:
 
@@ -74,7 +74,7 @@ Nhưng còn thiếu:
 - task nghiệm thu
 - task bảo dưỡng
 - task nội bộ cá»§a PM/Giám sát
-- mô hình Giám sát cập nhật thay Worker nhưng vẫn truy vết đúng người thá»±c hiện thá»±c tế
+- mô hình Giám sát cập nhật thay Kỹ thuật nhưng vẫn truy vết đúng người thá»±c hiện thá»±c tế
 
 ### 3.3 Liên kết chặt giữa các module
 

@@ -22,8 +22,8 @@
 ### 2.2 Actor model
 
 - `Giám sát` là actor số hiện trường ở phase hiện tại
-- `Worker` chưa có account trực tiếp
-- `Worker` được quản lý qua `worker profile`
+- `Kỹ thuật` chưa có account trực tiếp
+- `Kỹ thuật` được quản lý qua `kỹ thuật profile`
 
 ### 2.3 Kiến trúc vận hành
 
@@ -55,7 +55,7 @@
 | Kế hoạch build | `Implementation_Plan_v4.md` |
 | Tổng kết coverage | `Coverage_Matrix_v4.md` |
 | UAT | `UAT_Backlog_v4.md` |
-| Tài liệu theo vai trò | Folder `GiamSat/` và `Worker/` đã được làm sạch lại theo baseline má»›i |
+| Tài liệu theo vai trò | Folder `GiamSat/` và `Kỹ thuật/` đã được làm sạch lại theo baseline má»›i |
 
 ## 4. Tỷ lệ ước lượng hiện tại
 
@@ -79,7 +79,7 @@
 ## 6. Những gì chưa được xem là "đã xây xong"
 
 - API/service/store thật
-- role model `Giám sát thao tác thay worker profile`
+- role model `Giám sát thao tác thay kỹ thuật profile`
 - task orchestration chuẩn cho Module B
 - stage playbook thật
 - stock ledger/reservation thật
@@ -92,7 +92,7 @@
 ## 7. 5 quyết định quan trọng của vòng review mới nhất
 
 1. Không bắt buộc tạo `Customer` trước; có thể tạo `Service Request` trước.
-2. `Giám sát` thao tác trên phần mềm thay `Worker` ở phase hiện tại.
+2. `Giám sát` thao tác trên phần mềm thay `Kỹ thuật` ở phase hiện tại.
 3. `Module B` phải hiểu là `Vận hành nội bộ`, không bó hẹp vào planning/task.
 4. Quản lý ảnh/video/file phải có chiến lược `Google Drive` chi tiết.
 5. `Warranty/Maintenance` phải gắn trực tiếp với `Finance`.

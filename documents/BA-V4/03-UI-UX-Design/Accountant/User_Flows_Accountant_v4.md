@@ -77,8 +77,8 @@ flowchart TD
   B --> C["Nhập số lượng, đơn giá, giá trị"]
   C --> D["Phát hành phiếu xuất"]
   D --> E["Giám sát nhận phiếu và ký nhận"]
-  E --> F{"Có phát tới worker profile cụ thể?"}
-  F -->|Có| G["Ghi received_for_worker_id"]
+  E --> F{"Có phát tới kỹ thuật profile cụ thể?"}
+  F -->|Có| G["Ghi received_for_kỹ thuật_id"]
   F -->|Không| H["Ghi nhận Giám sát là người nhận"]
   G --> I["Hoàn tất phiếu xuất"]
   H --> I

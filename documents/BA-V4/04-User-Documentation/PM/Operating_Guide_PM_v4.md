@@ -83,7 +83,7 @@ Hướng dẫn này mô tả cách PM vận hành hệ thống theo các kịch 
 ### Nội bộ
 
 1. Mở `Workforce Management`
-2. Chọn Giám sát và worker profile phù hợp
+2. Chọn Giám sát và kỹ thuật profile phù hợp
 3. Kiểm tra capacity trước khi assign
 4. Gán vào task package
 

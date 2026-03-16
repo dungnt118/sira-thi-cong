@@ -71,7 +71,7 @@ Màn trung tâm của Accountant phải gom tối thiểu:
 | ACC-F05 | Project Cost Ledger | Ghi nhận chi phí thực tế theo công trình | Critical |
 | ACC-F06 | Cash Book & Fund Governance | Sổ quỹ, tài khoản công ty/cá nhân, luồng duyệt lệnh | Critical |
 | ACC-F07 | Inventory Finance & Stock Documents | Quản lý phiếu xuất/nhập, giá trị vật tư, lịch sử kho | High |
-| ACC-F08 | Stock Signature & Allocation Reconciliation | Đối soát ký nhận vật tư tá»›i Giám sát/worker profile | High |
+| ACC-F08 | Stock Signature & Allocation Reconciliation | Đối soát ký nhận vật tư tá»›i Giám sát/kỹ thuật profile | High |
 | ACC-F09 | Project Financial Summary & P&L | Theo dõi doanh thu - chi phí - lợi nhuận thực theo công trình | Critical |
 | ACC-F10 | Warranty, Maintenance & Aftersales Finance | Theo dõi chi phí hậu mãi và khoản phải thu phát sinh | High |
 | ACC-F11 | Financial Document Dossier | Phát hành và lưu hồ sơ tài chính số | High |
@@ -301,13 +301,13 @@ Cho Accountant nhìn được kho không chỉ ở tồn kho số lượng, mà 
 **Màn chính**
 
 - Stock Signature Detail
-- Issue-to-Worker Reconciliation
+- Issue-to-Kỹ thuật Reconciliation
 - Pending Signature Queue
 
 **Hành động chính**
 
 - ghi nhận Giám sát ký nhận
-- ghi nhận phát vật tư cho worker profile nếu có
+- ghi nhận phát vật tư cho kỹ thuật profile nếu có
 - đối soát vật tư đã cấp với task/package
 - theo dõi hoàn kho hoặc vật tư dư
 - theo dõi thu hồi tài sản thi công
@@ -316,7 +316,7 @@ Cho Accountant nhìn được kho không chỉ ở tồn kho số lượng, mà 
 **Rule**
 
 - trong phase hiện tại, `Giám sát` là actor thao tác chính trên phần mềm
-- hệ thống vẫn phải lưu được `received_for_worker_id` khi vật tư phát cho worker profile cụ thể
+- hệ thống vẫn phải lưu được `received_for_kỹ thuật_id` khi vật tư phát cho kỹ thuật profile cụ thể
 - task thi công có thể bị chặn nếu vật tư chưa có phiếu xuất/ký nhận hợp lệ
 - phần dư hoàn nhập chỉ được cộng lại vào tồn khả dụng sau khi qua bước kiểm tra chất lượng
 

@@ -16,7 +16,7 @@ Giám sát không phải là một lớp quản trị trung gian đứng ngoài 
 - tổ chức lịch khảo sát, lịch thi công, lịch visit hiện trường
 - lập biên bản khảo sát từ dữ liệu tại chỗ
 - lập báo cáo hiện trạng và đề xuất biện pháp xử lý
-- thay mặt worker profile cập nhật task, checklist, ảnh/video, nhật ký
+- thay mặt kỹ thuật profile cập nhật task, checklist, ảnh/video, nhật ký
 - xác nhận nhận vật tư và theo dõi cấp phát tại công trình
 - báo cáo sự cố, chậm tiến độ, thiếu vật tư, rủi ro kỹ thuật
 - phối hợp tạo biên bản nghiệm thu và visit bảo hành/bảo trì
@@ -33,7 +33,7 @@ Giám sát không phải là một lớp quản trị trung gian đứng ngoài 
 Ở phase hiện tại:
 
 - `Giám sát` là actor đăng nhập và thao tác trên phần mềm
-- `worker profile` là hồ sơ nhân sự thực tế tham gia công việc
+- `kỹ thuật profile` là hồ sơ nhân sự thực tế tham gia công việc
 - một hành động hiện trường có thể cần ghi đồng thời:
   - `người thao tác số`
   - `người thực hiện thực tế`
@@ -66,7 +66,7 @@ Giám sát phải giúp hệ thống đạt được 9 kết quả sau:
 1. Không thất lạc dữ liệu hiện trường giữa khảo sát, thi công và hậu mãi.
 2. Mọi công trình đều có hồ sơ số bám đúng thực tế tại hiện trường.
 3. PM nhìn được tiến độ và chất lượng mà không cần có mặt trực tiếp mọi lúc.
-4. Task của worker profile được theo dõi tập trung, không ghi chép rời rạc qua chat.
+4. Task của kỹ thuật profile được theo dõi tập trung, không ghi chép rời rạc qua chat.
 5. Vật tư cấp ra công trình có điểm nhận, điểm sử dụng và điểm xác minh rõ ràng.
 6. Sự cố hiện trường được escalate đúng người và đúng thời điểm.
 7. Nghiệm thu có đủ dữ liệu để sinh biên bản số, ảnh ký và bộ minh chứng đi kèm.
@@ -104,8 +104,8 @@ Giám sát phải giúp hệ thống đạt được 9 kết quả sau:
 | GS-F02 | Assigned Site Management | Quản lý danh sách công trình/visit được giao | Critical |
 | GS-F03 | Survey & Site Inspection | Chuẩn hóa khảo sát, đo đạc, ghi nhận hiện trạng | Critical |
 | GS-F04 | Current Condition Report | Lập báo cáo hiện trạng và đề xuất biện pháp xử lý | Critical |
-| GS-F05 | Task, Checklist & Evidence | Theo dõi bước thi công và minh chứng thay worker profile | Critical |
-| GS-F06 | Workforce Proxy Tracking | Quản lý worker profile tham gia từng hạng mục | High |
+| GS-F05 | Task, Checklist & Evidence | Theo dõi bước thi công và minh chứng thay kỹ thuật profile | Critical |
+| GS-F06 | Workforce Proxy Tracking | Quản lý kỹ thuật profile tham gia từng hạng mục | High |
 | GS-F07 | Material Receipt & Allocation | Ký nhận vật tư, xác minh cấp phát và thiếu hụt | Critical |
 | GS-F08 | Incident & Escalation Center | Xử lý ngoại lệ hiện trường và báo cáo khẩn | High |
 | GS-F09 | Acceptance & Digital Minutes | Tạo dự thảo nghiệm thu và biên bản số có chữ ký | Critical |
@@ -231,7 +231,7 @@ Tạo báo cáo hiện trạng và đề xuất biện pháp theo logic của c�
 
 **Mục tiêu**
 
-Giúp Giám sát thực thi các bước công việc tại công trình và cập nhật trạng thái thay cho worker profile.
+Giúp Giám sát thực thi các bước công việc tại công trình và cập nhật trạng thái thay cho kỹ thuật profile.
 
 **Màn chính**
 
@@ -243,7 +243,7 @@ Giúp Giám sát thực thi các bước công việc tại công trình và c�
 **Hành động chính**
 
 - mở gói việc được giao
-- chọn worker profile tham gia
+- chọn kỹ thuật profile tham gia
 - cập nhật trạng thái từng bước
 - chụp/tải ảnh, video, file minh chứng
 - ghi chú điều kiện thi công, thời tiết, vật tư, ngoại lệ
@@ -251,7 +251,7 @@ Giúp Giám sát thực thi các bước công việc tại công trình và c�
 
 **Rule**
 
-- hệ thống phải ghi được cả `Giám sát thao tác` và `worker profile thực hiện`
+- hệ thống phải ghi được cả `Giám sát thao tác` và `kỹ thuật profile thực hiện`
 - bước chỉ được gửi review khi đủ checklist và số lượng minh chứng tối thiểu
 - nếu bước có sự cố mở hoặc vật tư chưa nhận thì không cho hoàn tất trái rule
 - evidence sau khi gửi phải có trạng thái `đồng bộ`, `chờ duyệt`, `đã duyệt/từ chối`
@@ -260,17 +260,17 @@ Giúp Giám sát thực thi các bước công việc tại công trình và c�
 
 **Mục tiêu**
 
-Cho Giám sát quản lý đội tham gia hiện trường ở mức tác nghiệp, dù worker chưa có tài khoản trực tiếp.
+Cho Giám sát quản lý đội tham gia hiện trường ở mức tác nghiệp, dù kỹ thuật chưa có tài khoản trực tiếp.
 
 **Màn chính**
 
-- Worker Profile Picker
+- Kỹ thuật Profile Picker
 - Site Team Sheet
 - Attendance / Participation Log
 
 **Hành động chính**
 
-- chọn worker profile cho từng hạng mục hoặc ca làm
+- chọn kỹ thuật profile cho từng hạng mục hoặc ca làm
 - ghi nhận ai có mặt tại công trình
 - thay đổi phân công trong ngày
 - đánh dấu ai thực hiện bước nào
@@ -278,7 +278,7 @@ Cho Giám sát quản lý đội tham gia hiện trường ở mức tác nghi�
 **Rule**
 
 - không tạo logic chấm công nhân sự đầy đủ ở đây; mục tiêu là tracking theo công trình
-- một evidence hoặc checklist item có thể gắn nhiều worker profile tham gia
+- một evidence hoặc checklist item có thể gắn nhiều kỹ thuật profile tham gia
 - khi thay người giữa chừng phải giữ được lịch sử người cũ và người mới
 
 ### 5.7 GS-F07 - Material Receipt & Allocation
@@ -299,8 +299,8 @@ Chuẩn hóa toàn bộ quá trình nhận vật tư tại công trình và cấ
 - xem phiếu vật tư chuẩn bị giao
 - xác nhận đã nhận, nhận thiếu hoặc từ chối nhận
 - chụp ảnh kiện hàng/vật tư khi nhận
-- cấp phát vật tư cho hạng mục hoặc worker profile
-- cấp phát tài sản thi công cho tổ/worker profile
+- cấp phát vật tư cho hạng mục hoặc kỹ thuật profile
+- cấp phát tài sản thi công cho tổ/kỹ thuật profile
 - ghi nhận phần dư hoàn nhập khi kết thúc hạng mục
 - báo thiếu, hư hỏng, thất lạc
 
@@ -427,11 +427,11 @@ Một công trình hoặc visit chỉ được coi là hoàn tất từ góc nh�
 
 1. Đủ form bắt buộc theo loại công việc.
 2. Đủ ảnh/video/file minh chứng.
-3. Đủ mapping worker profile tham gia.
+3. Đủ mapping kỹ thuật profile tham gia.
 4. Đủ xác nhận vật tư nếu có sử dụng vật tư.
 5. Không còn sự cố mở ở trạng thái chặn.
 6. Hồ sơ số đã đồng bộ thành công lên dossier cloud.
 
 ## 7. Kết luận
 
-Vai trò `Giám sát` trong V4 là một module vận hành hiện trường hoàn chỉnh, không còn là nhánh con sơ sài của `worker`. Từ tài liệu này, mọi thiết kế UI, API, ERD và workflow cho hiện trường phải ưu tiên mô hình `Giám sát thao tác thay worker profile` và lấy hồ sơ hiện trường số làm đầu ra trung tâm.
+Vai trò `Giám sát` trong V4 là một module vận hành hiện trường hoàn chỉnh, không còn là nhánh con sơ sài của `kỹ thuật`. Từ tài liệu này, mọi thiết kế UI, API, ERD và workflow cho hiện trường phải ưu tiên mô hình `Giám sát thao tác thay kỹ thuật profile` và lấy hồ sơ hiện trường số làm đầu ra trung tâm.

@@ -55,7 +55,7 @@ Trong repo hiện tại không có thư mục/tài liệu `BA-V1`, nên referenc
 
 ## 6. Những gì cần sửa so với cả V2 và V3
 
-- không dùng lại giả định `Worker có account trực tiếp`
+- không dùng lại giả định `Kỹ thuật có account trực tiếp`
 - không để `PM kiêm Giám sát` như giả định first-stage cá»§a V3
 - không để outsource bị biến mất khỏi tài liệu chỉ vì rollout phase đầu ưu tiên internal
 - không chia PM thành nhiều cụm màn rời rạc giữa các module

@@ -1305,10 +1305,10 @@ Mọi page phải có đủ:
 
 ## 10.2 Giám sát prototype có thể reuse một phần
 
-- `src/pages/worker/WorkerHome.tsx`
-- `src/pages/worker/Checklist.tsx`
-- `src/pages/worker/EvidenceUpload.tsx`
-- `src/pages/worker/IncidentReport.tsx`
+- `src/pages/kỹ thuật/Kỹ thuậtHome.tsx`
+- `src/pages/kỹ thuật/Checklist.tsx`
+- `src/pages/kỹ thuật/EvidenceUpload.tsx`
+- `src/pages/kỹ thuật/IncidentReport.tsx`
 
 ## 10.3 Những gì không nên reuse nguyên trạng
 

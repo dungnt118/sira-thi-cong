@@ -6,7 +6,7 @@
 
 - đội nội bộ
 - đội Giám sát
-- worker profile
+- kỹ thuật profile
 - công ty đối tác/nhà thầu liên kết
 - leader phụ trách của đối tác
 - assignment vào project và task package
@@ -17,7 +17,7 @@
 
 - PM
 - Giám sát
-- Worker profile
+- Kỹ thuật profile
 - vai trò kỹ thuật/chuyên môn
 - khả năng nhận việc / tải công việc
 
@@ -44,7 +44,7 @@
 ### 4.1 Đội nội bộ
 
 - `Giám sát`
-- `Worker profile`
+- `Kỹ thuật profile`
 - phòng ban/nhóm kỹ thuật
 - kỹ năng chính
 - allocation %
@@ -68,7 +68,7 @@
 
 - Internal Workforce List
 - Capacity Board
-- Worker Profile Detail
+- Kỹ thuật Profile Detail
 - Assignment Modal
 - Skill Matrix
 
@@ -87,7 +87,7 @@
 1. PM mở `Project Workbench`
 2. Vào `Workforce Management`
 3. Chọn Giám sát chính
-4. Chọn worker profile hoặc tổ đội
+4. Chọn kỹ thuật profile hoặc tổ đội
 5. Gán vào `task package`
 6. Lưu allocation, ngày hiệu lực, ghi chú
 7. Giám sát nhận assignment
@@ -95,7 +95,7 @@
 ### 6.2 Reassign khi quá tải hoặc thay đổi
 
 1. PM xem `Capacity Board`
-2. Phát hiện Giám sát/worker profile quá tải
+2. Phát hiện Giám sát/kỹ thuật profile quá tải
 3. Chuyển một phần package sang người khác
 4. Hệ thống giữ lịch sử trước/sau
 
@@ -131,7 +131,7 @@
    - partner
    - hoặc hybrid có primary owner
 2. Partner `BLOCKED` không được gán mới.
-3. Worker profile vẫn phải được quản lý kể cả khi không có account.
+3. Kỹ thuật profile vẫn phải được quản lý kể cả khi không có account.
 4. Giám sát là actor số hiện trường trong cả luồng nội bộ và partner.
 5. PM phải nhìn được ai đang chịu trách nhiệm ở 3 cấp:
    - project

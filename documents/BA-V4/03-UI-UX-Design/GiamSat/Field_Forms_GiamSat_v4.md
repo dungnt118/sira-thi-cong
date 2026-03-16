@@ -96,7 +96,7 @@ Biến ảnh/video hiện trường thành tài sản dữ liệu có thể truy
 - khu vực/hạng mục
 - step hoặc visit liên quan
 - người thao tác số
-- worker profile thực hiện nếu có
+- kỹ thuật profile thực hiện nếu có
 - thời gian
 - trạng thái đồng bộ
 
@@ -127,7 +127,7 @@ Số hóa quá trình giao nhận vật tư tại công trình và tạo đượ
 **Phần mở rộng cần có**
 
 - ảnh kiện hàng hoặc vật tư khi nhận
-- log cấp phát tiếp theo cho hạng mục hoặc worker profile
+- log cấp phát tiếp theo cho hạng mục hoặc kỹ thuật profile
 - liên kết case sự cố nếu phát hiện thiếu/hư hỏng
 
 ### 4.5 GF-05 - Biên bản nghiệm thu công trình

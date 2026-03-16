@@ -20,11 +20,11 @@ Thiết lập các kịch bản UAT tối thiểu để dự án không lặp l�
 | UAT-06 | Cảnh báo `Go/No-Go` khi thiếu vật tư, thiếu nhân công hoặc deadline không khả thi | PM/Accountant/Giám sát | Cảnh báo hiện đúng, không cho phát hành báo giá khi chưa xử lý |
 | UAT-07 | Tạo 2 báo giá cho cùng một service request | PM/Sale | Lưu đúng version, chỉ một bản thắng |
 | UAT-08 | Convert báo giá thắng sang hợp đồng và project | PM | Dự án sinh đủ dữ liệu nền, task nền được tạo đúng |
-| UAT-09 | Tạo task dự án, giao Giám sát và worker profile | PM | Owner, due date, dependency, worker profile đúng |
-| UAT-10 | Giám sát ký nhận vật tư trên hệ thống và phân bổ cho worker profile rồi mới mở task thi công | Giám sát/Accountant | Task bị khóa/mở đúng theo rule, lưu được người nhận thực tế |
+| UAT-09 | Tạo task dự án, giao Giám sát và kỹ thuật profile | PM | Owner, due date, dependency, kỹ thuật profile đúng |
+| UAT-10 | Giám sát ký nhận vật tư trên hệ thống và phân bổ cho kỹ thuật profile rồi mới mở task thi công | Giám sát/Accountant | Task bị khóa/mở đúng theo rule, lưu được người nhận thực tế |
 | UAT-11 | Xuất 1 thùng 10L cho dự toán 9.5L và hoàn nhập 0.5L phần dư | Giám sát/Accountant | Tạo được `remainder lot`, phản ánh đúng tồn và cost ledger |
 | UAT-12 | Thu hồi tài sản thi công sau khi kết thúc hạng mục | Giám sát/Accountant | Tài sản chuyển đúng trạng thái, có log cấp phát và thu hồi |
-| UAT-13 | Giám sát upload evidence thay worker profile | Giám sát | Evidence gắn đúng task/checklist, audit lưu actor số và worker profile |
+| UAT-13 | Giám sát upload evidence thay kỹ thuật profile | Giám sát | Evidence gắn đúng task/checklist, audit lưu actor số và kỹ thuật profile |
 | UAT-14 | Báo cáo sự cố trong khi task đang chạy | Giám sát/PM | Sự cố vào đúng luồng xử lý và escalation |
 | UAT-15 | Nghiệm thu và đóng dự án | Giám sát/PM/Accountant | Sinh acceptance record, kích hoạt thanh toán cuối |
 | UAT-16 | Kích hoạt bảo hành sau nghiệm thu | Accountant | Có warranty card hợp lệ, đúng ngày bắt đầu/kết thúc |
@@ -45,7 +45,7 @@ Thiết lập các kịch bản UAT tối thiểu để dự án không lặp l�
 | EDGE-05 | Đổi PM/Giám sát giữa chừng | Không mất lịch sá»­ và task ownership |
 | EDGE-06 | Thiếu vật tư ở giữa chừng | Task liên quan bị chặn đúng |
 | EDGE-06A | Giá nhân công thay đổi mạnh sau khi đã lập dự toán | Hệ thống yêu cầu review lại `Go/No-Go` hoặc estimate |
-| EDGE-07 | Giám sát nhập sai worker profile khi cập nhật hiện trường | Có lịch sá»­ chỉnh sá»­a và truy vết ai sá»­a |
+| EDGE-07 | Giám sát nhập sai kỹ thuật profile khi cập nhật hiện trường | Có lịch sá»­ chỉnh sá»­a và truy vết ai sá»­a |
 | EDGE-08 | Đồng bộ Google Drive lỗi | File vào retry queue, chưa được publish portal |
 | EDGE-08A | Vật tư bán tiêu hao còn phần dư nhưng hoàn nhập không đạt chất lượng | Phần dư không cộng lại vào tồn khả dụng và có log kiểm tra |
 | EDGE-09 | Thu tiền sai số so với kế hoạch hoặc billing hậu mãi | Có transaction, reason và audit |

@@ -51,7 +51,7 @@ Mỗi vật tư hoặc tài sản phải có tối thiểu:
 `Giám sát` phải ghi được:
 
 - vật tư/tài sản dùng cho hạng mục nào
-- cấp cho tổ hoặc `worker profile` nào
+- cấp cho tổ hoặc `kỹ thuật profile` nào
 - trạng thái sử dụng
 
 ### 4.3 Thu hồi và hoàn nhập
@@ -94,7 +94,7 @@ Hệ thống phải hỗ trợ:
 | AST-02 | Quản lý `asset tag` hoặc serial cho tài sản thi công |
 | AST-03 | Tạo phiếu cấp phát cho công trình và hạng mục |
 | AST-04 | Ký nhận cấp phát tại hiện trường |
-| AST-05 | Ghi nhận vật tư cấp cho tổ hoặc `worker profile` |
+| AST-05 | Ghi nhận vật tư cấp cho tổ hoặc `kỹ thuật profile` |
 | AST-06 | Thu hồi tài sản sau khi kết thúc công việc |
 | AST-07 | Hoàn nhập vật tư dư/chưa dùng |
 | AST-08 | Quản lý `remainder lot` cho vật tư bán tiêu hao |

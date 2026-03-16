@@ -33,7 +33,7 @@ BA-V4 lấy 10 quyết định làm nền:
 1. `Customer` không còn là đối tượng chạy Kanban. Kanban phải chạy trên `Service Request / Deal`.
 2. Hệ thống phải hỗ trợ cả hai hướng nhập liệu: `Customer -> Service Request` và `Service Request -> auto-create Customer`.
 3. Mỗi `Pipeline Stage` phải cấu hình được `playbook nhiệm vụ`, `người/phòng ban phụ trách`, `checklist`, `SLA`, `điều kiện vào/ra`.
-4. `Giám sát` là actor số hiện trường ở giai đoạn hiện tại; `Worker` được quản lý qua `worker profile`.
+4. `Giám sát` là actor số hiện trường ở giai đoạn hiện tại; `Kỹ thuật` được quản lý qua `kỹ thuật profile`.
 5. Cần một `ERD chuẩn` liên kết chặt giữa `Khách hàng`, `Yêu cầu dịch vụ`, `Báo giá`, `Hợp đồng`, `Dự án`, `Task`, `Kho`, `Tài chính`, `Bảo hành`.
 6. Quản lý file phải theo hướng metadata tập trung trong hệ thống và đồng bộ cloud qua `Google Drive`.
 7. `Admin` không đồng nhất với `HanhChinh`; `Sale` cũng không nên bị gộp hoàn toàn vào `PM`.
@@ -67,7 +67,7 @@ BA-V4/
 │   ├── HanhChinh/
 │   ├── PM/
 │   ├── GiamSat/
-│   ├── Worker/
+│   ├── Kỹ thuật/
 │   ├── Accountant/
 │   └── CustomerPortal/
 ├── 04-User-Documentation/
@@ -76,7 +76,7 @@ BA-V4/
 │   ├── HanhChinh/
 │   ├── PM/
 │   ├── GiamSat/
-│   ├── Worker/
+│   ├── Kỹ thuật/
 │   ├── Accountant/
 │   └── CustomerPortal/
 ├── 05-Development-Guides/
@@ -91,7 +91,7 @@ BA-V4/
 
 Lưu ý:
 
-- Folder `Worker/` vẫn được giữ để quản lý blueprint nghiệp vụ cho lực lượng thi công và cho phase sau, nhưng ở giai đoạn hiện tại hệ thống chưa cấp tài khoản đăng nhập trực tiếp cho Worker; `Giám sát` là actor thao tác trên phần mềm thay mặt Worker.
+- Folder `Kỹ thuật/` vẫn được giữ để quản lý blueprint nghiệp vụ cho lực lượng thi công và cho phase sau, nhưng ở giai đoạn hiện tại hệ thống chưa cấp tài khoản đăng nhập trực tiếp cho Kỹ thuật; `Giám sát` là actor thao tác trên phần mềm thay mặt Kỹ thuật.
 - Folder `Admin/` là quản trị hệ thống. Folder `HanhChinh/` là vận hành hồ sơ nghiệp vụ. Hai vai trò này không nên trộn lẫn.
 - Folder `Sale/` là vai trò front-office theo workbook hành trình khách hàng; không nên tiếp tục coi toàn bộ phần này chỉ là nhánh phụ của `PM`.
 

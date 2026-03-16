@@ -51,7 +51,7 @@ Mỗi file phải có các thuộc tính sau trong DB:
 - `drive_folder_id`
 - `visibility_scope`
 - `uploaded_by_user_id`
-- `performed_by_worker_id` nếu là file hiện trường
+- `performed_by_kỹ thuật_id` nếu là file hiện trường
 - `approved_by_user_id` nếu file cần duyệt
 
 ## 5. Chuẩn cấu trúc thư mục Google Drive
@@ -118,7 +118,7 @@ Quy tắc:
 1. `Giám sát` chụp/upload ảnh hoặc video.
 2. Hệ thống lưu:
    - actor số là `Giám sát`
-   - `worker profile` thực tế nếu có
+   - `kỹ thuật profile` thực tế nếu có
    - `task/checklist` liên quan
 3. File được sync nền lên Google Drive.
 4. Chỉ file đã duyệt và sync thành công mới đủ điều kiện publish portal.

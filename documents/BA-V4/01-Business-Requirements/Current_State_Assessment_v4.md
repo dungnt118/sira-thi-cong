@@ -19,7 +19,7 @@
 | `BA-V2` | Có cấu trúc đầy đủ, phân vai trò rõ | Mạnh về form tài liệu, yếu ở yêu cầu mới của V3 |
 | `BA-V3` | Bổ sung đúng các module CRM, checklist, inventory, finance | Chưa khóa mô hình dữ liệu chuẩn, nhiều bổ sung nằm ở wireframe/gap audit chứ chưa quy về một baseline duy nhất |
 | Wireframe V3 | Bao phủ khá nhiều màn hình thực tế | Một số màn chỉ dừng ở sketch, chưa quy về acceptance criteria và data contract |
-| ERD | `ERD_v2` không còn đủ | Chưa phản ánh đầy đủ `Service Request`, `Dynamic Pipeline`, `Task module`, `Worker profile`, `Google Drive sync`, `Acceptance`, `Warranty/Maintenance` |
+| ERD | `ERD_v2` không còn đủ | Chưa phản ánh đầy đủ `Service Request`, `Dynamic Pipeline`, `Task module`, `Kỹ thuật profile`, `Google Drive sync`, `Acceptance`, `Warranty/Maintenance` |
 
 ### 2.2 Về codebase
 
@@ -74,7 +74,7 @@ Code hiện tại cho thấy dự án đã đi khá xa ở mặt trình bày UI,
 
 ### 3.3 Task module là khoảng trống lớn nhất
 
-Người dùng đã nêu đúng một vấn đề trọng tâm: hệ thống Ä'ang có `Checklist thi công`, nhưng chưa có `Task module` xuyên vai trò và chưa khóa mô hình `Giám sát thao tác thay Worker profile`.
+Người dùng đã nêu đúng một vấn đề trọng tâm: hệ thống Ä'ang có `Checklist thi công`, nhưng chưa có `Task module` xuyên vai trò và chưa khóa mô hình `Giám sát thao tác thay Kỹ thuật profile`.
 
 Khoảng trống hiện tại:
 
@@ -82,7 +82,7 @@ Khoảng trống hiện tại:
 - Chưa có `work package` cho từng dự án/khu vực
 - Chưa có `owner`, `reviewer`, `due date`, `dependency`, `SLA`
 - Chưa có task cho PM/Giám sát ngoài checklist ảnh
-- Chưa có worker profile, phân công nội bộ và bàn giao liên vai trò ở mức dữ liệu chuẩn
+- Chưa có kỹ thuật profile, phân công nội bộ và bàn giao liên vai trò ở mức dữ liệu chuẩn
 - Chưa liên thông task với kho, nghiệm thu, bảo dưỡng
 
 ### 3.4 UI/UX PM đang bị chia cắt
@@ -132,7 +132,7 @@ BA-V4 đề xuất khóa lại 10 quyết định:
 1. Dùng `Service Request` làm entity chạy pipeline.
 2. Hỗ trợ cả hai hướng tạo dữ liệu: `Customer -> Service Request` và `Service Request -> auto-create Customer`.
 3. Dựng `Task module` làm xương sống vận hành giữa CRM và khối vận hành nội bộ.
-4. Khóa mô hình `Giám sát thao tác thay Worker profile` ở giai Ä'oạn hiện tại.
+4. Khóa mô hình `Giám sát thao tác thay Kỹ thuật profile` ở giai Ä'oạn hiện tại.
 5. Tách `Pipeline config` thành cấu hình động có `playbook nhiệm vụ`.
 6. Chốt `Google Drive` là lớp lưu trữ cloud, nhưng metadata phải nằm trong hệ thống.
 7. Chuẩn hóa vòng đời `Acceptance -> Warranty/Maintenance -> Financial impact`.
@@ -151,5 +151,5 @@ Dự án hiện tại không phải là thất bại; ngược lại, nó đã c
 Tuy nhiên, nếu không dừng lại để chuẩn hóa bằng BA-V4, hệ thống sẽ tiếp tục gặp 3 rủi ro:
 
 1. Xây thêm càng nhiều càng rối do thiếu mô hình dữ liệu chuẩn
-2. PM/Giám sát/worker profile không có một flow vận hành thống nhất, dễ sai actor và sai trách nhiệm
+2. PM/Giám sát/kỹ thuật profile không có một flow vận hành thống nhất, dễ sai actor và sai trách nhiệm
 3. Code UI tiếp tục đi trước tài liệu và đi trước backend, làm tăng chi phí sửa lại

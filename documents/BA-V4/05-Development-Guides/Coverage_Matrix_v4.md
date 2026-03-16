@@ -25,7 +25,7 @@ Lưu ý:
 | Chỉ số | Tỷ lệ ước lượng | Ghi chú |
 |---|---:|---|
 | Tài liệu BA hiện hữu phủ nhu cầu nghiệp vụ | 81% | BA-V4 đã khóa phần lớn baseline, còn thiếu story-level backlog chi tiết |
-| Wireframe phủ các flow chính | 76% | Có nhiều màn, nhưng một số flow vẫn lệch mô hình mới `Giám sát thao tác thay worker profile` |
+| Wireframe phủ các flow chính | 76% | Có nhiều màn, nhưng một số flow vẫn lệch mô hình mới `Giám sát thao tác thay kỹ thuật profile` |
 | Code có màn hình prototype tương ứng | 69% | Có page cho nhiều flow, nhưng phần lớn còn dùng mock data |
 | Code có logic nghiệp vụ cục bộ | 42% | Mới ở mức local state/component rule |
 | Hệ thống sẵn sàng vận hành thật | 22% | Thiếu API, transaction, sync, test, audit, migration |
@@ -63,7 +63,7 @@ Lưu ý:
 - cấu hình pipeline động ở mức demo
 - upload khảo sát và báo giá
 - tạo dự án và checklist thi công
-- màn hình route `supervisor` và page `worker` di sản cho checklist/upload ảnh, nhưng cần quy hoạch lại theo mô hình `Giám sát thao tác thay worker profile`
+- màn hình route `supervisor` và page `kỹ thuật` di sản cho checklist/upload ảnh, nhưng cần quy hoạch lại theo mô hình `Giám sát thao tác thay kỹ thuật profile`
 - danh mục vật tư, định mức, phiếu yêu cầu xuất/nhập
 - dashboard thanh toán kế toán
 - customer portal
@@ -82,7 +82,7 @@ Lưu ý:
 - create `Service Request` theo luồng linh hoạt kèm dedupe/auto-create customer thật
 - stage playbook gắn pipeline
 - task board cho PM/Giám sát theo mô hình vận hành nội bộ
-- worker profile và tracking `Giám sát thao tác thay worker profile`
+- kỹ thuật profile và tracking `Giám sát thao tác thay kỹ thuật profile`
 - convert flow quote -> contract -> project
 - acceptance record
 - stock ledger và reservation
@@ -107,7 +107,7 @@ Lưu ý:
 ## 6. Các hiệu chỉnh trọng yếu sau vòng review BRD
 
 - Hỗ trợ hai hướng nhập liệu CRM: tạo `Customer` trước hoặc tạo `Service Request` trước.
-- Chốt `Giám sát` là actor số hiện trường; `Worker` chưa có account ở phase hiện tại.
+- Chốt `Giám sát` là actor số hiện trường; `Kỹ thuật` chưa có account ở phase hiện tại.
 - Đổi trọng tâm module từ `Delivery Planning & Task Management` sang `Vận hành nội bộ`.
 - Bổ sung chiến lược quản lý ảnh/video/file và đồng bộ `Google Drive`.
 - Làm sâu vòng đời `Acceptance -> Warranty/Maintenance -> Financial impact`.

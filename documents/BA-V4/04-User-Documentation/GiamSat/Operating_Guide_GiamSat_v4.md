@@ -55,7 +55,7 @@ Không viết báo cáo kiểu ghi chú rời. Mỗi nhận định quan trọng
 
 1. Mở `Danh sách gói việc/task`.
 2. Chọn công trình và bước đang thi công.
-3. Chọn đúng `worker profile` tham gia.
+3. Chọn đúng `kỹ thuật profile` tham gia.
 4. Cập nhật checklist theo thực tế.
 5. Tải ảnh/video minh chứng.
 6. Ghi chú điều kiện đặc biệt nếu có.
@@ -64,7 +64,7 @@ Không viết báo cáo kiểu ghi chú rời. Mỗi nhận định quan trọng
 ### Rule quan trọng
 
 - không gửi review khi chưa đủ số lượng ảnh tối thiểu
-- không cập nhật thay sai worker profile
+- không cập nhật thay sai kỹ thuật profile
 - không đóng bước nếu đang thiếu vật tư hoặc có sự cố chặn
 
 ## 6. Khi nhận vật tư

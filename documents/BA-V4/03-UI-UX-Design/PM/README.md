@@ -19,7 +19,7 @@ PM trong BA-V4 không chỉ là người "quản lý dự án thi công", mà l�
 ## Những điểm được nâng cấp rõ so với README cũ
 
 - không chỉ mô tả vai trò, mà liệt kê rõ `màn hình`, `tính năng`, `flow`, `ràng buộc nghiệp vụ`
-- bổ sung trục `quản lý đội nội bộ`, `worker profile`, `nhà thầu liên kết/outsource`
+- bổ sung trục `quản lý đội nội bộ`, `kỹ thuật profile`, `nhà thầu liên kết/outsource`
 - phân biệt rõ:
   - `PM workbench`
   - `CRM cho PM`
@@ -36,7 +36,7 @@ PM trong BA-V4 không chỉ là người "quản lý dự án thi công", mà l�
 1. PM phải có một `workbench thống nhất`, không bị chia cắt giữa CRM, Construction, Inventory, Finance.
 2. PM phải nhìn được đồng thời `Service Request` và `Project`, nhưng không được trộn lẫn hai entity này.
 3. PM phải quản lý được cả `đội nội bộ` và `đối tác liên kết`, kể cả khi rollout thực tế ưu tiên internal first.
-4. PM phải thao tác qua `Giám sát` và `worker profile`, không giả định worker có account trá»±c tiếp.
+4. PM phải thao tác qua `Giám sát` và `kỹ thuật profile`, không giả định kỹ thuật có account trá»±c tiếp.
 5. PM phải theo dõi được `financial impact` và `aftersales impact`, nhưng có ranh giới quyền rõ với Kế toán.
 
 ## Kết luận
