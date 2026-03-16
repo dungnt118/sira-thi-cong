@@ -69,7 +69,8 @@ const menuItems: MenuItem[] = [
         label: 'Kho Vật tư',
         children: [
             { key: '/pm/inventory/catalog', label: '📦 Danh mục Vật tư' },
-            { key: '/pm/inventory/plan', label: '📐 Định mức Dự án' },
+            { key: '/pm/settings/estimate-templates', label: '📐 Mẫu định mức Chuẩn' },
+            // { key: '/pm/inventory/plan', label: '📐 Định mức Dự án' },
             { key: '/pm/inventory/request-out', label: '📤 Yêu cầu Xuất kho' },
             { key: '/pm/inventory/request-in', label: '📥 Yêu cầu Nhập kho' },
         ],
