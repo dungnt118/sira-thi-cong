@@ -5,40 +5,31 @@ import {
     EnvironmentOutlined 
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import { mockJourneys } from '../../data/journeyMockData';
 
 const { Title, Text } = Typography;
 
 export const Dashboard: React.FC = () => {
     const navigate = useNavigate();
 
+    const myTasks = mockJourneys.filter(j => j.owner_user_id === 'u-kt-01');
+
     const stats = [
-        { title: 'Chưa khảo sát', value: 2, color: '#faad14' },
-        { title: 'Đang thi công', value: 1, color: '#1890ff' },
-        { title: 'Hoàn thành', value: 15, color: '#52c41a' },
+        { title: 'Cần xử lý mới', value: myTasks.filter(j => ['S03_SURVEY', 'S04_SOLUTION'].includes(j.current_step_code)).length, color: '#faad14' },
+        { title: 'Đang triển khai', value: myTasks.filter(j => ['S08_CONSTRUCT', 'S09_ACCEPTANCE'].includes(j.current_step_code)).length, color: '#1890ff' },
+        { title: 'Bảo trì / Bảo hành', value: myTasks.filter(j => ['S11_MAINTAIN', 'S12_WARRANTY'].includes(j.current_step_code)).length, color: '#52c41a' },
     ];
 
-    const todayTasks = [
-        {
-            id: 'SR-2026-001',
-            type: 'Khảo sát',
-            customer: 'Nguyễn Văn A',
-            phone: '0901234567',
-            address: '123 Nguyễn Thị Minh Khai, Q3, TP.HCM',
-            time: '14:00 - 15:30 Hôm nay',
-            status: 'pending',
-            route: '/ky-thuat/survey/SR-2026-001'
-        },
-        {
-            id: 'PRJ-2026-005',
-            type: 'Thi công',
-            customer: 'Biệt thự Bác Nam',
-            phone: '0987654321',
-            address: 'Khu biệt thự Thảo Điền, Q2',
-            time: '08:00 - 17:00 Hôm nay',
-            status: 'in-progress',
-            route: '/ky-thuat/execution'
-        }
-    ];
+    const todayTasks = myTasks.map(j => ({
+        id: j.journey_code,
+        type: j.current_step,
+        customer: j.customer_name,
+        phone: j.customer_phone,
+        address: j.site_address,
+        time: j.created_at.replace('T', ' '),
+        status: j.project_status === 'active' ? 'in-progress' : 'pending',
+        route: `/ky-thuat/journeys/${j.id}`
+    }));
 
     return (
         <div style={{ paddingBottom: 24 }}>
@@ -97,7 +88,7 @@ export const Dashboard: React.FC = () => {
                             block 
                             style={{ backgroundColor: item.status === 'pending' ? '#13a8a8' : '#1890ff' }}
                         >
-                            {item.status === 'pending' ? 'Bắt đầu Khảo sát' : 'Nhật ký Thi công'}
+                            Chuyển tới xử lý {item.type}
                         </Button>
                     </Card>
                 )}

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
     Card, Tabs, Tag, Button, Space, Typography, Row, Col,
     Badge, Statistic, Timeline, Descriptions, Modal,
-    Form, Select, Input, Empty, Drawer, Alert, Checkbox, message
+    Form, Select, Input, Empty, Drawer, Alert, Checkbox, message, Steps
 } from 'antd';
 import {
     ArrowLeftOutlined, UserOutlined, FlagOutlined,
@@ -12,7 +12,7 @@ import {
     FormOutlined, PaperClipOutlined, StopOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { mockJourneys, mockPortalThreads } from '../../../data/journeyMockData';
+import { mockJourneys, mockPortalThreads, mockJourneyTemplates } from '../../../data/journeyMockData';
 import type { GoNoGoStatus, SlaStatus, PortalPublishStatus, PriorityLevel } from '../../../types/journey';
 import { BlockerStrip } from '../../../components/journey/SharedModals';
 
@@ -45,6 +45,11 @@ const JourneyDetail360: React.FC = () => {
     const navigate = useNavigate();
     const journey = mockJourneys.find(j => j.id === journeyId);
     const threads = mockPortalThreads.filter(t => t.journey_id === journeyId);
+    
+    // Resolve template/steps
+    const template = mockJourneyTemplates.find(t => t.id === journey?.template_id);
+    const journeySteps = template?.steps || [];
+    const currentStepIndex = journeySteps.findIndex(s => s.step_code === journey?.current_step_code);
 
     const [showAssignModal, setShowAssignModal] = useState(false);
     const [showPriorityModal, setShowPriorityModal] = useState(false);
@@ -355,17 +360,21 @@ const JourneyDetail360: React.FC = () => {
                                 {journey.service_request_code}
                             </Tag>
                         </div>
-                        <Title level={4} style={{ color: '#fff', margin: '4px 0' }}>{journey.customer_name}</Title>
+                        <Title level={4} style={{ color: '#fff', margin: '4px 0' }}>{journey.customer_name} - {journey.customer_phone}</Title>
                         <Text style={{ color: 'rgba(255,255,255,0.8)' }}>{journey.request_title}</Text>
                         <div style={{ marginTop: 8 }}>
-                            <Space>
-                                <Tag color="cyan">{journey.current_step}</Tag>
-                                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12 }}>
-                                    <UserOutlined /> {journey.owner_user}
+                            <Space size="large">
+                                <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13 }}>
+                                    <UserOutlined /> Phụ trách: <Text strong style={{ color: '#fff' }}>{journey.owner_user}</Text>
                                 </Text>
-                                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12 }}>
-                                    {PRIORITY_ICON[journey.priority]} {journey.priority}
+                                <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13 }}>
+                                    {PRIORITY_ICON[journey.priority]} Ưu tiên: <Text strong style={{ color: '#fff', textTransform: 'capitalize' }}>{journey.priority}</Text>
                                 </Text>
+                                {journey.site_address && (
+                                    <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13 }}>
+                                        📍 {journey.site_address}
+                                    </Text>
+                                )}
                             </Space>
                         </div>
                     </Col>
@@ -405,6 +414,49 @@ const JourneyDetail360: React.FC = () => {
                         </div>
                     </Col>
                 </Row>
+                
+                {journeySteps.length > 0 && (
+                    <div style={{ marginTop: 24, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.1)', overflowX: 'auto' }}>
+                        <Steps
+                            size="small"
+                            current={currentStepIndex >= 0 ? currentStepIndex : 0}
+                            items={journeySteps.map(s => ({
+                                title: <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: 12, whiteSpace: 'nowrap' }}>{s.step_name}</span>,
+                            }))}
+                            className="journey-dark-steps"
+                        />
+                        <style>{`
+                            .journey-dark-steps .ant-steps-item-wait .ant-steps-item-icon {
+                                background-color: rgba(255,255,255,0.1) !important;
+                                border-color: rgba(255,255,255,0.2) !important;
+                            }
+                            .journey-dark-steps .ant-steps-item-wait .ant-steps-item-icon > .ant-steps-icon {
+                                color: rgba(255,255,255,0.4) !important;
+                            }
+                            .journey-dark-steps .ant-steps-item-wait .ant-steps-item-title::after {
+                                background-color: rgba(255,255,255,0.2) !important;
+                            }
+                            .journey-dark-steps .ant-steps-item-process .ant-steps-item-icon {
+                                background-color: #1890ff !important;
+                                border-color: #1890ff !important;
+                            }
+                            .journey-dark-steps .ant-steps-item-process .ant-steps-item-title {
+                                color: #fff !important;
+                                font-weight: 600 !important;
+                            }
+                            .journey-dark-steps .ant-steps-item-finish .ant-steps-item-icon {
+                                background-color: transparent !important;
+                                border-color: rgba(255,255,255,0.6) !important;
+                            }
+                            .journey-dark-steps .ant-steps-item-finish .ant-steps-item-icon > .ant-steps-icon {
+                                color: rgba(255,255,255,0.6) !important;
+                            }
+                            .journey-dark-steps .ant-steps-item-finish .ant-steps-item-title::after {
+                                background-color: rgba(255,255,255,0.6) !important;
+                            }
+                        `}</style>
+                    </div>
+                )}
             </Card>
 
             {/* 360 Tabs & Activity Panel (Desktop) */}

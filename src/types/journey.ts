@@ -14,20 +14,33 @@ export type QuoteStatusType = 'not_started' | 'draft' | 'sent' | 'approved';
 export type ProjectStatusType = 'not_started' | 'active' | 'completed' | 'cancelled';
 
 // --- Journey Step Definition (Template) ---
+export interface RoleConfiguration {
+    roleId: string;
+    isKeyRole: boolean;
+    slaHours: number;
+    dependencyRole?: string | null;
+    instructions?: string;
+    checklists?: string[];
+}
+
 export interface JourneyStepDef {
     step_code: string;
     step_name: string;
     step_order: number;
     step_goal: string;
-    participant_roles: string[];
-    owner_role: string;
+    standardProcedureGroupCd?: string;
+    roleConfigurations?: RoleConfiguration[];
+    publish_flag: boolean;
+
+    // Legacy fields
+    participant_roles?: string[];
+    owner_role?: string;
     checklist_refs?: string[];
     process_refs?: string[];
     entry_criteria?: string;
     exit_criteria?: string;
     sla_hours?: number;
     escalation_rule?: string;
-    publish_flag: boolean;
 }
 
 // --- Journey Template ---

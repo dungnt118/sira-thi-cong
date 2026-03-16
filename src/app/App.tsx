@@ -99,6 +99,7 @@ import KTDashboard from '../pages/ky-thuat/Dashboard';
 import KTSchedule from '../pages/ky-thuat/Schedule';
 import KTSurveyForm from '../pages/ky-thuat/SurveyForm';
 import KTExecution from '../pages/ky-thuat/Execution';
+import KTJourneyDetail from '../pages/ky-thuat/JourneyDetail';
 
 // V3 Public Pages
 import CustomerPortal from '../pages/public/CustomerPortal';
@@ -300,6 +301,7 @@ function App() {
                         <Route path="schedule" element={<KTSchedule />} />
                         <Route path="survey/:id" element={<KTSurveyForm />} />
                         <Route path="execution" element={<KTExecution />} />
+                        <Route path="journeys/:id" element={<KTJourneyDetail />} />
                         <Route path="profile" element={<ComingSoon title="Hồ sơ Kỹ thuật" />} />
                     </Route>
 

@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
 import {
     Card, Button, Tag, Space, Typography, Row, Col, Descriptions,
-    Modal, Form, Input, Select, Switch, List, Badge
+    Modal, Form, Input, List, Badge
 } from 'antd';
 import {
     ArrowLeftOutlined, PlusOutlined, EditOutlined,
-    SaveOutlined, ReloadOutlined, SettingOutlined
+    SaveOutlined, ReloadOutlined, SettingOutlined, DeleteOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import { mockJourneyTemplates } from '../../../data/journeyMockData';
 import type { JourneyStepDef } from '../../../types/journey';
+import StepConfigModal from './StepConfigModal';
 
 const { Text, Title } = Typography;
-const { TextArea } = Input;
 
 const TemplateDetail: React.FC = () => {
     const { templateId } = useParams<{ templateId: string }>();
@@ -52,21 +52,7 @@ const TemplateDetail: React.FC = () => {
         setShowStepModal(true);
     };
 
-    const handleSaveStep = () => {
-        stepForm.validateFields().then(values => {
-            if (editingStep) {
-                setSteps(prev => prev.map(s => s.step_code === editingStep.step_code ? { ...s, ...values } : s));
-                setSelectedStep({ ...editingStep, ...values });
-            } else {
-                const newStep: JourneyStepDef = {
-                    ...values,
-                    step_order: steps.length + 1,
-                };
-                setSteps(prev => [...prev, newStep]);
-            }
-            setShowStepModal(false);
-        });
-    };
+
 
     return (
         <div>
@@ -131,7 +117,14 @@ const TemplateDetail: React.FC = () => {
                                     }}
                                     onClick={() => setSelectedStep(step)}
                                     actions={[
-                                        <Button key="edit" size="small" icon={<EditOutlined />} onClick={(e) => { e.stopPropagation(); openEditStep(step); }} />
+                                        <Space key="actions" size={4}>
+                                            <Button size="small" icon={<EditOutlined />} onClick={(e) => { e.stopPropagation(); openEditStep(step); }} />
+                                            <Button size="small" danger type="text" icon={<DeleteOutlined />} onClick={(e) => { 
+                                                e.stopPropagation(); 
+                                                setSteps(prev => prev.filter(s => s.step_code !== step.step_code));
+                                                if (selectedStep?.step_code === step.step_code) setSelectedStep(null);
+                                            }} />
+                                        </Space>
                                     ]}
                                 >
                                     <List.Item.Meta
@@ -139,8 +132,10 @@ const TemplateDetail: React.FC = () => {
                                         title={<Text strong style={{ fontSize: 13 }}>{step.step_name}</Text>}
                                         description={
                                             <Space size={2}>
-                                                <Text style={{ fontSize: 10 }}>{step.owner_role}</Text>
-                                                {step.sla_hours && <Tag style={{ fontSize: 9, padding: '0 3px', margin: 0 }}>{step.sla_hours}h</Tag>}
+                                                <Text style={{ fontSize: 10 }}>{step.roleConfigurations?.map(r => r.roleId).join(', ') || step.owner_role}</Text>
+                                                <Tag style={{ fontSize: 9, padding: '0 3px', margin: 0 }}>
+                                                    {step.roleConfigurations ? Math.max(...step.roleConfigurations.map(r => r.slaHours)) : (step.sla_hours || 0)}h
+                                                </Tag>
                                                 {step.publish_flag && <Tag color="blue" style={{ fontSize: 9, padding: '0 3px', margin: 0 }}>Portal</Tag>}
                                             </Space>
                                         }
@@ -162,14 +157,41 @@ const TemplateDetail: React.FC = () => {
                                 <Descriptions.Item label="Mã step">{selectedStep.step_code}</Descriptions.Item>
                                 <Descriptions.Item label="Thứ tự">{selectedStep.step_order}</Descriptions.Item>
                                 <Descriptions.Item label="Mục tiêu">{selectedStep.step_goal}</Descriptions.Item>
-                                <Descriptions.Item label="Vai trò tham gia">
-                                    {selectedStep.participant_roles.map(r => <Tag key={r}>{r}</Tag>)}
+                                {selectedStep.standardProcedureGroupCd && (
+                                    <Descriptions.Item label="Nhóm quy trình chuẩn">
+                                        <Tag color="purple">{selectedStep.standardProcedureGroupCd}</Tag>
+                                    </Descriptions.Item>
+                                )}
+                                <Descriptions.Item label="Cấu hình Vai trò">
+                                    {selectedStep.roleConfigurations ? (
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                            {selectedStep.roleConfigurations.map(r => (
+                                                <Card size="small" key={r.roleId}>
+                                                    <div>
+                                                        <Text strong>{r.roleId}</Text>
+                                                        {r.isKeyRole && <Tag color="orange" style={{ marginLeft: 8 }}>Key Role</Tag>}
+                                                        <Tag style={{ marginLeft: 8 }}>SLA: {r.slaHours}h</Tag>
+                                                        {r.dependencyRole && <Tag>Sau: {r.dependencyRole}</Tag>}
+                                                    </div>
+                                                    {r.instructions && <div style={{ fontSize: 12, marginTop: 4 }}>- HD: {r.instructions}</div>}
+                                                    {r.checklists && r.checklists.length > 0 && (
+                                                        <div style={{ fontSize: 12, marginTop: 4 }}>
+                                                            - Checklist:
+                                                            <ul>
+                                                                {r.checklists.map((c, i) => <li key={i}>{c}</li>)}
+                                                            </ul>
+                                                        </div>
+                                                    )}
+                                                </Card>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <Space>
+                                            {(selectedStep.participant_roles || []).map(r => <Tag key={r}>{r}</Tag>)}
+                                            <Tag color="orange">Key: {selectedStep.owner_role}</Tag>
+                                        </Space>
+                                    )}
                                 </Descriptions.Item>
-                                <Descriptions.Item label="Vai trò chính">{selectedStep.owner_role}</Descriptions.Item>
-                                <Descriptions.Item label="SLA (giờ)">{selectedStep.sla_hours ?? '—'}</Descriptions.Item>
-                                <Descriptions.Item label="Quy tắc leo thang">{selectedStep.escalation_rule || '—'}</Descriptions.Item>
-                                <Descriptions.Item label="Tài liệu/Quy trình (Ref)">{selectedStep.process_refs?.join(', ') || '—'}</Descriptions.Item>
-                                <Descriptions.Item label="Checklist (Ref)">{selectedStep.checklist_refs?.join(', ') || '—'}</Descriptions.Item>
                                 <Descriptions.Item label="Điều kiện vào">{selectedStep.entry_criteria || '—'}</Descriptions.Item>
                                 <Descriptions.Item label="Điều kiện hoàn tất">{selectedStep.exit_criteria || '—'}</Descriptions.Item>
                                 <Descriptions.Item label="Publish lên Portal">
@@ -195,88 +217,24 @@ const TemplateDetail: React.FC = () => {
                 </Col>
             </Row>
 
-            {/* Step Config Editor Modal */}
-            <Modal
-                title={editingStep ? 'Chỉnh sửa bước' : 'Thêm bước mới'}
+            <StepConfigModal
                 open={showStepModal}
-                onCancel={() => { setShowStepModal(false); stepForm.resetFields(); }}
-                onOk={handleSaveStep}
-                okText="Lưu"
-                cancelText="Hủy"
-                width={600}
-            >
-                <Form form={stepForm} layout="vertical">
-                    <Row gutter={12}>
-                        <Col span={12}>
-                            <Form.Item label="Mã step" name="step_code" rules={[{ required: true }]}>
-                                <Input placeholder="VD: HANDOVER" disabled={!!editingStep} />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item label="Tên bước" name="step_name" rules={[{ required: true }]}>
-                                <Input placeholder="VD: Bàn giao công trình" />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                    <Form.Item label="Mục tiêu bước" name="step_goal" rules={[{ required: true }]}>
-                        <TextArea rows={2} />
-                    </Form.Item>
-                    <Row gutter={12}>
-                        <Col span={12}>
-                            <Form.Item label="Vai trò tham gia" name="participant_roles" rules={[{ required: true }]}>
-                                <Select mode="multiple" options={[
-                                    { value: 'PM', label: 'PM' },
-                                    { value: 'Sale', label: 'Sale' },
-                                    { value: 'Giám sát', label: 'Giám sát' },
-                                    { value: 'Kế toán', label: 'Kế toán' },
-                                ]} />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item label="Vai trò chủ chốt" name="owner_role" rules={[{ required: true }]}>
-                                <Select options={[
-                                    { value: 'PM', label: 'PM' },
-                                    { value: 'Sale', label: 'Sale' },
-                                    { value: 'Giám sát', label: 'Giám sát' },
-                                ]} />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                    <Row gutter={12}>
-                        <Col span={12}>
-                            <Form.Item label="SLA (giờ)" name="sla_hours">
-                                <Input type="number" placeholder="24" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item label="Publish lên Portal" name="publish_flag" valuePropName="checked">
-                                <Switch />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                    <Form.Item label="Quy tắc leo thang (Escalation Rule)" name="escalation_rule">
-                        <Input placeholder="VD: Báo quản lý sau 4h trễ SLA" />
-                    </Form.Item>
-                    <Row gutter={12}>
-                        <Col span={12}>
-                            <Form.Item label="Tài liệu/Quy trình" name="process_refs">
-                                <Select mode="tags" placeholder="Link hoặc mã TL" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item label="Checklist" name="checklist_refs">
-                                <Select mode="tags" placeholder="Mã checklist" />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                    <Form.Item label="Điều kiện vào" name="entry_criteria">
-                        <TextArea rows={2} />
-                    </Form.Item>
-                    <Form.Item label="Điều kiện hoàn tất" name="exit_criteria">
-                        <TextArea rows={2} />
-                    </Form.Item>
-                </Form>
-            </Modal>
+                initialData={editingStep}
+                onSave={(values) => {
+                    if (editingStep) {
+                        setSteps(prev => prev.map(s => s.step_code === editingStep.step_code ? { ...s, ...values } : s));
+                        setSelectedStep({ ...editingStep, ...values });
+                    } else {
+                        const newStep: JourneyStepDef = {
+                            ...values,
+                            step_order: steps.length + 1,
+                        };
+                        setSteps(prev => [...prev, newStep]);
+                    }
+                    setShowStepModal(false);
+                }}
+                onCancel={() => setShowStepModal(false)}
+            />
 
             {/* Reset to Default Confirm (DLG-10) */}
             <Modal

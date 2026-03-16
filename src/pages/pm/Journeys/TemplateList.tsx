@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import {
     Card, Table, Tag, Button, Space, Typography, Row, Col,
-    Modal, Form, Input, Select, Switch, Badge, Tooltip
+    Modal, Form, Input, Select, Switch, Badge, Tooltip, Popconfirm
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
-    PlusOutlined, CopyOutlined, StarOutlined, StarFilled, EyeOutlined
+    PlusOutlined, CopyOutlined, StarFilled, EyeOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { mockJourneyTemplates } from '../../../data/journeyMockData';
@@ -91,11 +91,9 @@ const TemplateList: React.FC = () => {
                     >
                         Clone
                     </Button>
-                    {!t.is_default && (
-                        <Tooltip title="Đặt làm mặc định">
-                            <Button size="small" icon={<StarOutlined />} />
-                        </Tooltip>
-                    )}
+                    <Popconfirm title="Đặt template này làm quy trình chuẩn cho dịch vụ này? Các template khác sẽ bị vô hiệu hóa chuẩn.">
+                        <Switch size="small" checked={t.is_default} checkedChildren="Chuẩn" unCheckedChildren="Tùy chọn" />
+                    </Popconfirm>
                 </Space>
             ),
         },
