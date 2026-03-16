@@ -59,6 +59,7 @@ import JourneyDetail360 from '../pages/pm/Journeys/JourneyDetail360';
 import ActionCenter from '../pages/pm/Journeys/ActionCenter';
 import TemplateList from '../pages/pm/Journeys/TemplateList';
 import TemplateDetail from '../pages/pm/Journeys/TemplateDetail';
+import EstimateTemplateList from '../pages/pm/Settings/EstimateTemplateList';
 
 // Sale Layout + Pages
 import { SaleLayout } from '../layouts/SaleLayout';
@@ -171,6 +172,11 @@ function App() {
                             <Route path="templates" element={<TemplateList />} />
                             <Route path="templates/:templateId" element={<TemplateDetail />} />
                             <Route path=":journeyId" element={<JourneyDetail360 />} />
+                        </Route>
+
+                        {/* --- App Settings (PM) --- */}
+                        <Route path="settings">
+                            <Route path="estimate-templates" element={<EstimateTemplateList />} />
                         </Route>
 
                         {/* --- CRM Module --- */}

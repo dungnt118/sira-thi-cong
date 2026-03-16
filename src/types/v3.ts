@@ -368,3 +368,25 @@ export interface WarrantyReminder {
     sentAt?: string;
     status: 'PENDING' | 'SENT' | 'FAILED';
 }
+
+// ---- ESTIMATE TEMPLATE TYPES (Phase 6) ----
+export type EstimateComponentType = 'material' | 'labor' | 'other';
+
+export interface EstimateTemplateComponent {
+    id: string;
+    type: EstimateComponentType;
+    itemId?: string;      // Material ID if type = 'material'
+    name: string;         // 'SIRA PU Lót' / 'Nhân công sơn'
+    unit: string;         // kg / m2 / công
+    quantityPerUnit: number; // Định mức vật tư/nhân công trên 1 ĐVT hạng mục
+    unitPrice: number;    // Đơn giá tiêu chuẩn
+}
+
+export interface EstimateTemplate {
+    id: string;
+    code: string;
+    name: string;         // Hạng mục thi công (vd: Chống thấm màng khò)
+    unit: string;         // m2, cái, gói
+    components: EstimateTemplateComponent[];
+}
+

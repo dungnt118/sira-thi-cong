@@ -599,3 +599,45 @@ export const mockStockRequests: StockRequest[] = [
         createdAt: '2026-03-03T07:00:00',
     },
 ];
+
+// ============================================================
+// ESTIMATE TEMPLATES (PM settings for Step 04 estimation)
+// ============================================================
+import { EstimateTemplate } from '../types/v3';
+
+export const mockEstimateTemplates: EstimateTemplate[] = [
+    {
+        id: 'EST-TMPL-001',
+        code: 'HM-PU-01',
+        name: 'Chống thấm sàn Polyurethane (3 lớp tiêu chuẩn)',
+        unit: 'm²',
+        components: [
+            { id: 'C01', type: 'material', itemId: 'MAT-003', name: 'Primer (lót nền)', unit: 'lít', quantityPerUnit: 0.2, unitPrice: 35000 },
+            { id: 'C02', type: 'material', itemId: 'MAT-001', name: 'SIRA PU (lót)', unit: 'kg', quantityPerUnit: 1.5, unitPrice: 45000 },
+            { id: 'C03', type: 'material', itemId: 'MAT-002', name: 'SIRA PU (phủ)', unit: 'kg', quantityPerUnit: 2.0, unitPrice: 48000 },
+            { id: 'C04', type: 'labor', name: 'Nhân công thi công sàn', unit: 'm²', quantityPerUnit: 1, unitPrice: 35000 },
+            { id: 'C05', type: 'other', name: 'Phí vận chuyển & hao hụt', unit: 'chuyến', quantityPerUnit: 0, unitPrice: 0 }
+        ]
+    },
+    {
+        id: 'EST-TMPL-002',
+        code: 'HM-PU-02',
+        name: 'Chống thấm tường ngoài (Sơn PU)',
+        unit: 'm²',
+        components: [
+            { id: 'C06', type: 'material', itemId: 'MAT-001', name: 'SIRA PU (lót tường)', unit: 'kg', quantityPerUnit: 1.2, unitPrice: 45000 },
+            { id: 'C07', type: 'material', itemId: 'MAT-002', name: 'SIRA PU (phủ bảo vệ)', unit: 'kg', quantityPerUnit: 1.5, unitPrice: 48000 },
+            { id: 'C08', type: 'labor', name: 'Nhân công thi công tường (Đu dây)', unit: 'm²', quantityPerUnit: 1, unitPrice: 50000 }
+        ]
+    },
+    {
+        id: 'EST-TMPL-003',
+        code: 'HM-CRACK-01',
+        name: 'Xử lý vết nứt bằng Sika',
+        unit: 'mdực', // mét dài
+        components: [
+            { id: 'C09', type: 'material', itemId: 'MAT-004', name: 'Sika Latex', unit: 'kg', quantityPerUnit: 0.5, unitPrice: 55000 },
+            { id: 'C10', type: 'labor', name: 'Nhân công đục & trám', unit: 'mdực', quantityPerUnit: 1, unitPrice: 20000 }
+        ]
+    }
+];

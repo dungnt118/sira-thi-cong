@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Form, Input, Button, Typography, Divider, Space, Table, InputNumber, Select, Col, Row, Popconfirm } from 'antd';
-import { SaveOutlined, PlusOutlined, DeleteOutlined, CalculatorOutlined } from '@ant-design/icons';
-import { mockMaterials } from '../../../data/mockData';
+import { Card, Form, Input, Button, Typography, Divider, Space, Table, InputNumber, Select, Col, Row, Popconfirm, Modal, Tag } from 'antd';
+import { SaveOutlined, PlusOutlined, DeleteOutlined, CalculatorOutlined, FileTextOutlined } from '@ant-design/icons';
+import { mockEstimateTemplates, mockMaterials } from '../../../data/mockData';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -15,9 +15,11 @@ export interface Step04SolutionProps {
 
 export const Step04Solution: React.FC<Step04SolutionProps> = ({ journeyId, isEditable = false, onSave }) => {
     const [form] = Form.useForm();
+    const [templateForm] = Form.useForm();
     const [subTotal, setSubTotal] = useState(0);
     const [taxAmount, setTaxAmount] = useState(0);
     const [grandTotal, setGrandTotal] = useState(0);
+    const [isTemplateModalOpen, setTemplateModalOpen] = useState(false);
 
     // Watch values to calculate totals
     const formValues = Form.useWatch([], form);
@@ -25,24 +27,18 @@ export const Step04Solution: React.FC<Step04SolutionProps> = ({ journeyId, isEdi
     useEffect(() => {
         if (!formValues) return;
         
-        let worksTotal = 0;
-        let matsTotal = 0;
+        let newSubTotal = 0;
 
-        const works = formValues.workItems || [];
-        works.forEach((item: any) => {
-            const qty = item?.quantity || 0;
-            const price = item?.unitPrice || 0;
-            worksTotal += (qty * price);
+        const groups = formValues.groups || [];
+        groups.forEach((group: any) => {
+            const components = group?.components || [];
+            components.forEach((comp: any) => {
+                const qty = comp?.quantity || 0;
+                const price = comp?.unitPrice || 0;
+                newSubTotal += (qty * price);
+            });
         });
 
-        const mats = formValues.materials || [];
-        mats.forEach((item: any) => {
-            const qty = item?.quantity || 0;
-            const price = item?.unitPrice || 0;
-            matsTotal += (qty * price);
-        });
-
-        const newSubTotal = worksTotal + matsTotal;
         const taxRate = formValues.taxRate ?? 10;
         const newTaxAmount = newSubTotal * (taxRate / 100);
         
@@ -57,23 +53,65 @@ export const Step04Solution: React.FC<Step04SolutionProps> = ({ journeyId, isEdi
         }
     };
 
-    const handleMaterialChange = (materialId: string, index: number) => {
+    const handleMaterialChange = (materialId: string, groupName: number, compName: number) => {
         const mat = mockMaterials.find(m => m.id === materialId);
         if (mat) {
-            const currentMats = form.getFieldValue('materials') || [];
-            currentMats[index] = {
-                ...currentMats[index],
+            const currentGroups = form.getFieldValue('groups') || [];
+            const comps = currentGroups[groupName]?.components || [];
+            comps[compName] = {
+                ...comps[compName],
                 name: mat.name,
-                code: mat.code,
                 unit: mat.unit,
                 unitPrice: mat.unitCost, // Auto-fill price
             };
-            form.setFieldsValue({ materials: currentMats });
+            currentGroups[groupName].components = comps;
+            form.setFieldsValue({ groups: currentGroups });
         }
+    };
+
+    const handleAddTemplate = () => {
+        templateForm.validateFields().then(values => {
+            const template = mockEstimateTemplates.find(t => t.id === values.templateId);
+            if (template) {
+                const qty = values.quantity || 1;
+                const mappedComponents = template.components.map(c => ({
+                    type: c.type,
+                    itemId: c.itemId,
+                    name: c.name,
+                    unit: c.unit,
+                    quantity: c.quantityPerUnit * qty,
+                    unitPrice: c.unitPrice
+                }));
+
+                const currentGroups = form.getFieldValue('groups') || [];
+                form.setFieldsValue({
+                    groups: [...currentGroups, {
+                        templateId: template.id,
+                        name: template.name,
+                        unit: template.unit,
+                        quantity: qty,
+                        notes: '',
+                        components: mappedComponents
+                    }]
+                });
+                
+                setTemplateModalOpen(false);
+                templateForm.resetFields();
+            }
+        });
     };
 
     // Format currency
     const formatVND = (val: number) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val);
+
+    const getGroupTotal = (groupIndex: number) => {
+        let total = 0;
+        const comps = formValues?.groups?.[groupIndex]?.components || [];
+        comps.forEach((c: any) => {
+            total += (c.quantity || 0) * (c.unitPrice || 0);
+        });
+        return total;
+    };
 
     return (
         <Card title="Thực hiện: Xây Dựng Giải pháp & Dự toán" bordered={false} className="ky-card">
@@ -81,171 +119,142 @@ export const Step04Solution: React.FC<Step04SolutionProps> = ({ journeyId, isEdi
                 form={form} 
                 layout="vertical" 
                 onFinish={handleFinish}
-                initialValues={{ taxRate: 10, workItems: [{}], materials: [{}] }}
+                initialValues={{ taxRate: 10, groups: [] }}
             >
                 <div style={{ marginBottom: 24 }}>
-                    <Text type="secondary">Kỹ thuật viên điền các hạng mục cần thực hiện và vật tư cần thiết để hệ thống tự động tính toán tổng chi phí dự toán làm cơ sở cho Báo giá.</Text>
+                    <Text type="secondary">Thêm các hạng mục thi công từ Mẫu Dự Toán chuẩn. Hệ thống sẽ tự động tính toán chi phí vật tư và nhân công tương ứng.</Text>
                 </div>
 
-                <Divider orientation="left">I. Bảng Hạng Mục Thi Công</Divider>
-                <Form.List name="workItems">
-                    {(fields, { add, remove }) => (
-                        <>
-                            {/* Header for Desktop View */}
-                            {isEditable && fields.length > 0 && (
-                                <Row gutter={8} style={{ fontWeight: 'bold', marginBottom: 8, paddingBottom: 8, borderBottom: '1px solid #f0f0f0' }}>
-                                    <Col span={1}>STT</Col>
-                                    <Col span={5}>Hạng Mục Thi Công</Col>
-                                    <Col span={5}>Cách Thức Thi Công</Col>
-                                    <Col span={2}>ĐVT</Col>
-                                    <Col span={2}>SL</Col>
-                                    <Col span={3}>Đơn Giá (VNĐ)</Col>
-                                    <Col span={3}>Thành Tiền</Col>
-                                    <Col span={2}>Ghi Chú</Col>
-                                    <Col span={1}></Col>
-                                </Row>
-                            )}
-                            {fields.map(({ key, name, ...restField }, index) => (
-                                <Row gutter={8} key={key} style={{ marginBottom: 8, alignItems: 'center' }}>
-                                    <Col span={1}>{index + 1}</Col>
-                                    <Col span={5}>
-                                        <Form.Item {...restField} name={[name, 'name']} rules={[{ required: true, message: 'Nhập tên' }]} style={{ marginBottom: 0 }}>
-                                            <Input placeholder="Tên hạng mục" readOnly={!isEditable} bordered={isEditable} />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={5}>
-                                        <Form.Item {...restField} name={[name, 'method']} style={{ marginBottom: 0 }}>
-                                            <TextArea autoSize={{ minRows: 1, maxRows: 3 }} placeholder="Mô tả cách thức thi công..." readOnly={!isEditable} bordered={isEditable} />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={2}>
-                                        <Form.Item {...restField} name={[name, 'unit']} style={{ marginBottom: 0 }}>
-                                            <Input placeholder="m2/Trọn gói" readOnly={!isEditable} bordered={isEditable} />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={2}>
-                                        <Form.Item {...restField} name={[name, 'quantity']} style={{ marginBottom: 0 }}>
-                                            <InputNumber min={0} style={{ width: '100%' }} disabled={!isEditable} bordered={isEditable} />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={3}>
-                                        <Form.Item {...restField} name={[name, 'unitPrice']} style={{ marginBottom: 0 }}>
-                                            <InputNumber min={0} style={{ width: '100%' }} formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} disabled={!isEditable} bordered={isEditable} />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={3}>
-                                        <Text strong>{formatVND((formValues?.workItems?.[index]?.quantity || 0) * (formValues?.workItems?.[index]?.unitPrice || 0))}</Text>
-                                    </Col>
-                                    <Col span={2}>
-                                        <Form.Item {...restField} name={[name, 'note']} style={{ marginBottom: 0 }}>
-                                            <Input placeholder="Ghi chú" readOnly={!isEditable} bordered={isEditable} />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={1}>
-                                        {isEditable && (
-                                            <Popconfirm title="Xóa dòng này?" onConfirm={() => remove(name)}>
-                                                <Button type="text" danger icon={<DeleteOutlined />} />
-                                            </Popconfirm>
+                <Form.List name="groups">
+                    {(groups, { add: addGroup, remove: removeGroup }) => (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                            {groups.map((groupField, index) => (
+                                <Card 
+                                    key={groupField.key} 
+                                    size="small" 
+                                    type="inner"
+                                    title={
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <Space>
+                                                <Text strong style={{ fontSize: 16 }}>
+                                                    {index + 1}. {formValues?.groups?.[index]?.name || 'Hạng mục mới'}
+                                                </Text>
+                                                <Tag color="blue">{formValues?.groups?.[index]?.quantity} {formValues?.groups?.[index]?.unit}</Tag>
+                                            </Space>
+                                            <Space>
+                                                <Text type="danger" strong>{formatVND(getGroupTotal(index))}</Text>
+                                                {isEditable && (
+                                                    <Popconfirm title="Xóa toàn bộ hạng mục này?" onConfirm={() => removeGroup(groupField.name)}>
+                                                        <Button danger type="text" icon={<DeleteOutlined />} />
+                                                    </Popconfirm>
+                                                )}
+                                            </Space>
+                                        </div>
+                                    }
+                                >
+                                    <Form.List name={[groupField.name, 'components']}>
+                                        {(components, { add: addComp, remove: removeComp }) => (
+                                            <>
+                                                {isEditable && components.length > 0 && (
+                                                    <Row gutter={8} style={{ fontWeight: 'bold', marginBottom: 8, paddingBottom: 8, borderBottom: '1px solid #f0f0f0', fontSize: 13 }}>
+                                                        <Col span={3}>Phân loại</Col>
+                                                        <Col span={7}>Tên Chi Phí (Vật tư/Nhân công)</Col>
+                                                        <Col span={3}>ĐVT</Col>
+                                                        <Col span={3}>SL / Khối lượng</Col>
+                                                        <Col span={4}>Đơn Giá (VNĐ)</Col>
+                                                        <Col span={3}>Thành Tiền</Col>
+                                                        <Col span={1}></Col>
+                                                    </Row>
+                                                )}
+                                                {components.map((compField, compIndex) => (
+                                                    <Row gutter={8} key={compField.key} style={{ marginBottom: 8, alignItems: 'center' }}>
+                                                        <Col span={3}>
+                                                            <Form.Item {...compField} name={[compField.name, 'type']} style={{ marginBottom: 0 }}>
+                                                                <Select disabled={!isEditable} bordered={false} options={[
+                                                                    { label: <Tag color="green">Vật tư</Tag>, value: 'material' },
+                                                                    { label: <Tag color="orange">Nhân công</Tag>, value: 'labor' },
+                                                                    { label: <Tag color="default">Phí khác</Tag>, value: 'other' },
+                                                                ]} />
+                                                            </Form.Item>
+                                                        </Col>
+                                                        <Col span={7}>
+                                                            {isEditable && form.getFieldValue(['groups', groupField.name, 'components', compField.name, 'type']) === 'material' ? (
+                                                                <Form.Item {...compField} name={[compField.name, 'itemId']} style={{ marginBottom: 0 }}>
+                                                                    <Select 
+                                                                        showSearch 
+                                                                        placeholder="Chọn vật tư..." 
+                                                                        onChange={(val) => handleMaterialChange(val, groupField.name, compField.name)}
+                                                                        filterOption={(input, option) =>
+                                                                            (option?.children as unknown as string).toLowerCase().includes(input.toLowerCase())
+                                                                        }
+                                                                        style={{ width: '100%' }}
+                                                                    >
+                                                                        {mockMaterials.map(m => (
+                                                                            <Option key={m.id} value={m.id}>{m.name} ({m.code})</Option>
+                                                                        ))}
+                                                                    </Select>
+                                                                </Form.Item>
+                                                            ) : (
+                                                                <Form.Item {...compField} name={[compField.name, 'name']} style={{ marginBottom: 0 }}>
+                                                                    <Input placeholder="Tên chi phí" readOnly={!isEditable} bordered={isEditable} />
+                                                                </Form.Item>
+                                                            )}
+                                                        </Col>
+                                                        <Col span={3}>
+                                                            <Form.Item {...compField} name={[compField.name, 'unit']} style={{ marginBottom: 0 }}>
+                                                                <Input placeholder="kg, m2..." readOnly={!isEditable} bordered={isEditable} />
+                                                            </Form.Item>
+                                                        </Col>
+                                                        <Col span={3}>
+                                                            <Form.Item {...compField} name={[compField.name, 'quantity']} style={{ marginBottom: 0 }}>
+                                                                <InputNumber min={0} step={0.1} style={{ width: '100%' }} disabled={!isEditable} bordered={isEditable} />
+                                                            </Form.Item>
+                                                        </Col>
+                                                        <Col span={4}>
+                                                            <Form.Item {...compField} name={[compField.name, 'unitPrice']} style={{ marginBottom: 0 }}>
+                                                                <InputNumber min={0} style={{ width: '100%' }} formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} disabled={!isEditable} bordered={isEditable} />
+                                                            </Form.Item>
+                                                        </Col>
+                                                        <Col span={3}>
+                                                            <Text strong type="secondary">
+                                                                {formatVND((formValues?.groups?.[index]?.components?.[compIndex]?.quantity || 0) * (formValues?.groups?.[index]?.components?.[compIndex]?.unitPrice || 0))}
+                                                            </Text>
+                                                        </Col>
+                                                        <Col span={1}>
+                                                            {isEditable && (
+                                                                <Button type="text" danger icon={<DeleteOutlined />} onClick={() => removeComp(compField.name)} />
+                                                            )}
+                                                        </Col>
+                                                    </Row>
+                                                ))}
+                                                {isEditable && (
+                                                    <div style={{ marginTop: 12 }}>
+                                                        <Button type="dashed" size="small" onClick={() => addComp({ type: 'other', unitPrice: 0, quantity: 1 })} icon={<PlusOutlined />}>
+                                                            Thêm phí khác
+                                                        </Button>
+                                                    </div>
+                                                )}
+                                            </>
                                         )}
-                                    </Col>
-                                </Row>
+                                    </Form.List>
+
+                                    <Divider style={{ margin: '16px 0 8px 0' }} />
+                                    <Form.Item {...groupField} name={[groupField.name, 'notes']} label={<span><FileTextOutlined /> Ghi chú nội bộ cho Hạng mục này</span>} style={{ marginBottom: 0 }}>
+                                        <TextArea rows={2} placeholder="Nhập lưu ý thi công đặc biệt cho hạng mục này..." readOnly={!isEditable} />
+                                    </Form.Item>
+                                </Card>
                             ))}
+
                             {isEditable && (
-                                <Form.Item>
-                                    <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />} style={{ marginTop: 8 }}>
-                                        Thêm Hạng Mục Thi Công
-                                    </Button>
-                                </Form.Item>
+                                <Button type="dashed" onClick={() => setTemplateModalOpen(true)} block icon={<PlusOutlined />} style={{ height: 50, fontSize: 16 }}>
+                                    Thêm Hạng Mục Thi Công (Từ Mẫu)
+                                </Button>
                             )}
-                        </>
+                        </div>
                     )}
                 </Form.List>
 
-                <Divider orientation="left">II. Bảng Thống Kê Vật Tư</Divider>
-                <Form.List name="materials">
-                    {(fields, { add, remove }) => (
-                        <>
-                            {isEditable && fields.length > 0 && (
-                                <Row gutter={8} style={{ fontWeight: 'bold', marginBottom: 8, paddingBottom: 8, borderBottom: '1px solid #f0f0f0' }}>
-                                    <Col span={1}>STT</Col>
-                                    <Col span={6}>Tên Vật Tư</Col>
-                                    <Col span={3}>Mã SP</Col>
-                                    <Col span={2}>ĐVT</Col>
-                                    <Col span={3}>SL Dùng</Col>
-                                    <Col span={4}>Đơn Giá (VNĐ)</Col>
-                                    <Col span={4}>Thành Tiền</Col>
-                                    <Col span={1}></Col>
-                                </Row>
-                            )}
-                            {fields.map(({ key, name, ...restField }, index) => (
-                                <Row gutter={8} key={key} style={{ marginBottom: 8, alignItems: 'center' }}>
-                                    <Col span={1}>{index + 1}</Col>
-                                    <Col span={6}>
-                                        {isEditable ? (
-                                            <Form.Item {...restField} name={[name, 'materialId']} rules={[{ required: true, message: 'Chọn' }]} style={{ marginBottom: 0 }}>
-                                                <Select 
-                                                    showSearch 
-                                                    placeholder="Chọn vật tư..." 
-                                                    onChange={(val) => handleMaterialChange(val, name)}
-                                                    filterOption={(input, option) =>
-                                                        (option?.children as unknown as string).toLowerCase().includes(input.toLowerCase())
-                                                    }
-                                                >
-                                                    {mockMaterials.map(m => (
-                                                        <Option key={m.id} value={m.id}>{m.name} ({m.code})</Option>
-                                                    ))}
-                                                </Select>
-                                            </Form.Item>
-                                        ) : (
-                                            <Form.Item {...restField} name={[name, 'name']} style={{ marginBottom: 0 }}>
-                                                <Input readOnly bordered={false} />
-                                            </Form.Item>
-                                        )}
-                                    </Col>
-                                    <Col span={3}>
-                                        <Form.Item {...restField} name={[name, 'code']} style={{ marginBottom: 0 }}>
-                                            <Input readOnly bordered={false} placeholder="Auto" />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={2}>
-                                        <Form.Item {...restField} name={[name, 'unit']} style={{ marginBottom: 0 }}>
-                                            <Input readOnly bordered={false} placeholder="Auto" />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={3}>
-                                        <Form.Item {...restField} name={[name, 'quantity']} rules={[{ required: true, message: 'Nhập SL' }]} style={{ marginBottom: 0 }}>
-                                            <InputNumber min={0} style={{ width: '100%' }} disabled={!isEditable} bordered={isEditable} />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={4}>
-                                        <Form.Item {...restField} name={[name, 'unitPrice']} style={{ marginBottom: 0 }}>
-                                            <InputNumber min={0} disabled={!isEditable} style={{ width: '100%' }} formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} bordered={isEditable} />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={4}>
-                                        <Text strong type="success">{formatVND((formValues?.materials?.[index]?.quantity || 0) * (formValues?.materials?.[index]?.unitPrice || 0))}</Text>
-                                    </Col>
-                                    <Col span={1}>
-                                        {isEditable && (
-                                            <Popconfirm title="Xóa dòng này?" onConfirm={() => remove(name)}>
-                                                <Button type="text" danger icon={<DeleteOutlined />} />
-                                            </Popconfirm>
-                                        )}
-                                    </Col>
-                                </Row>
-                            ))}
-                            {isEditable && (
-                                <Form.Item>
-                                    <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />} style={{ marginTop: 8 }}>
-                                        Thêm Vật Tư
-                                    </Button>
-                                </Form.Item>
-                            )}
-                        </>
-                    )}
-                </Form.List>
-
-                <Divider orientation="left">III. Tổng Hợp Chi Phí</Divider>
+                <Divider />
                 <div style={{ background: '#fafafa', padding: 24, borderRadius: 8 }}>
                     <Row gutter={[16, 16]}>
                         <Col span={18} style={{ textAlign: 'right' }}><Text strong>Cộng Tiền (Subtotal):</Text></Col>
@@ -262,7 +271,7 @@ export const Step04Solution: React.FC<Step04SolutionProps> = ({ journeyId, isEdi
                         <Col span={24}><Divider style={{ margin: '12px 0' }} /></Col>
                         
                         <Col span={18} style={{ textAlign: 'right' }}>
-                            <Title level={4} style={{ margin: 0 }}>Tổng Cộng Thanh Toán:</Title>
+                            <Title level={4} style={{ margin: 0 }}>Tổng Dự Toán (Grand Total):</Title>
                         </Col>
                         <Col span={6} style={{ textAlign: 'right' }}>
                             <Title level={4} type="danger" style={{ margin: 0 }}>{formatVND(grandTotal)}</Title>
@@ -271,8 +280,8 @@ export const Step04Solution: React.FC<Step04SolutionProps> = ({ journeyId, isEdi
                 </div>
 
                 <Divider />
-                <Form.Item label="Ghi chú tổng kết / Khuyến nghị từ Kỹ thuật" name="notes">
-                    <TextArea rows={4} placeholder="Nhập ghi chú thêm về phương án kỹ thuật, các lưu ý thi công đặc biệt..." readOnly={!isEditable} />
+                <Form.Item label="Đánh giá chung / Khuyến nghị kỹ thuật" name="notes">
+                    <TextArea rows={4} placeholder="Nhập ghi chú tổng kết toàn bộ phương án kỹ thuật..." readOnly={!isEditable} />
                 </Form.Item>
 
                 {isEditable && (
@@ -283,6 +292,36 @@ export const Step04Solution: React.FC<Step04SolutionProps> = ({ journeyId, isEdi
                     </Space>
                 )}
             </Form>
+
+            <Modal
+                title="Chọn Mẫu Hạng Mục Thi Công"
+                open={isTemplateModalOpen}
+                onOk={handleAddTemplate}
+                onCancel={() => setTemplateModalOpen(false)}
+                destroyOnClose
+            >
+                <Form form={templateForm} layout="vertical" preserve={false}>
+                    <Form.Item name="templateId" label="Mẫu Dự Toán" rules={[{ required: true, message: 'Vui lòng chọn 1 mẫu' }]}>
+                        <Select placeholder="-- Chọn mẫu tiêu chuẩn --">
+                            {mockEstimateTemplates.map(t => (
+                                <Option key={t.id} value={t.id}>{t.name} ({t.components.length} thành phần)</Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
+                    <Form.Item shouldUpdate={(prev, curr) => prev.templateId !== curr.templateId} noStyle>
+                        {() => {
+                            const tmplId = templateForm.getFieldValue('templateId');
+                            const tmpl = mockEstimateTemplates.find(t => t.id === tmplId);
+                            if (!tmpl) return null;
+                            return (
+                                <Form.Item name="quantity" label={`Khối lượng thi công (${tmpl.unit})`} rules={[{ required: true, message: 'Nhập khối lượng' }]} initialValue={1}>
+                                    <InputNumber min={0.1} step={0.1} style={{ width: '100%' }} />
+                                </Form.Item>
+                            );
+                        }}
+                    </Form.Item>
+                </Form>
+            </Modal>
         </Card>
     );
 };
