@@ -1,8 +1,7 @@
 import React from 'react';
-import { Card, Form, Input, Button, Result, Typography, Divider, Space } from 'antd';
-import { EditOutlined, SaveOutlined } from '@ant-design/icons';
+import { Card, Form, Input, Button, Result, Space, Divider } from 'antd';
+import { SaveOutlined } from '@ant-design/icons';
 
-const { Title, Text } = Typography;
 const { TextArea } = Input;
 
 export interface Step11MaintainProps {
@@ -11,7 +10,7 @@ export interface Step11MaintainProps {
     onSave?: (data: any) => void;
 }
 
-export const Step11Maintain: React.FC<Step11MaintainProps> = ({ journeyId, isEditable = false, onSave }) => {
+export const Step11Maintain: React.FC<Step11MaintainProps> = ({ isEditable = false, onSave }) => {
     const [form] = Form.useForm();
 
     const handleFinish = (values: any) => {

@@ -1,8 +1,7 @@
 import React from 'react';
-import { Card, Form, Input, Button, Result, Typography, Divider, Space } from 'antd';
-import { EditOutlined, SaveOutlined } from '@ant-design/icons';
+import { Card, Form, Input, Button, Result, Space, Divider } from 'antd';
+import { SaveOutlined } from '@ant-design/icons';
 
-const { Title, Text } = Typography;
 const { TextArea } = Input;
 
 export interface Step10PaymentProps {
@@ -11,7 +10,7 @@ export interface Step10PaymentProps {
     onSave?: (data: any) => void;
 }
 
-export const Step10Payment: React.FC<Step10PaymentProps> = ({ journeyId, isEditable = false, onSave }) => {
+export const Step10Payment: React.FC<Step10PaymentProps> = ({ isEditable = false, onSave }) => {
     const [form] = Form.useForm();
 
     const handleFinish = (values: any) => {
