@@ -60,6 +60,14 @@ export const Login: React.FC = () => {
             color: '#52c41a',
         },
         {
+            key: 'ky-thuat',
+            title: 'Kỹ Thuật',
+            description: 'Khảo sát hiện trường, thi công, bảo hành',
+            icon: <ProjectOutlined />, // Using ProjectOutlined for now or ToolOutlined
+            path: '/ky-thuat/dashboard',
+            color: '#13a8a8',
+        },
+        {
             key: 'pm',
             title: 'Quản Lý Dự Án',
             description: 'Quản lý dự án, đội nhóm, khách hàng',

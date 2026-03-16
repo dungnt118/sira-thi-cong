@@ -1,0 +1,102 @@
+.ky-thuat-layout {
+    min-height: 100vh;
+    background-color: #f0f2f5;
+    position: relative;
+    padding-bottom: 60px; /* space for bottom nav */
+}
+
+.ky-thuat-header {
+    background: #fff;
+    padding: 0 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    height: 56px;
+    line-height: 56px;
+}
+
+.header-brand .brand-text {
+    font-size: 18px;
+    font-weight: 600;
+    color: #13a8a8;
+}
+
+.header-icon {
+    font-size: 20px;
+    color: #595959;
+    cursor: pointer;
+}
+
+.ky-thuat-content {
+    padding: 16px;
+    overflow-y: auto;
+}
+
+/* Bottom Navigation Panel */
+.ky-thuat-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #fff;
+    box-shadow: 0 -1px 4px rgba(0,0,0,0.08);
+    z-index: 100;
+}
+
+.ky-thuat-bottom-nav .bottom-menu {
+    display: flex;
+    justify-content: space-around;
+    border-bottom: none;
+    line-height: 1.2;
+}
+
+.ky-thuat-bottom-nav .ant-menu-item {
+    flex: 1;
+    text-align: center;
+    padding: 8px 0 !important;
+    height: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.ky-thuat-bottom-nav .ant-menu-item::after {
+    display: none; /* Hide bottom border underline for active item */
+}
+
+.bottom-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.bottom-nav-icon {
+    font-size: 20px;
+    margin-bottom: 4px;
+}
+
+.bottom-nav-text {
+    font-size: 11px;
+}
+
+/* Active State Customization */
+.ky-thuat-bottom-nav .ant-menu-item-selected {
+    color: #13a8a8 !important;
+}
+
+/* Global utility for Ky Thuat mobile views */
+.ky-thuat-page-title {
+    margin-bottom: 16px;
+    font-weight: 600;
+}
+
+.ky-card {
+    border-radius: 8px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}

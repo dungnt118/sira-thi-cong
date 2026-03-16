@@ -93,6 +93,13 @@ import AccountantV3Layout from '../layouts/AccountantV3Layout';
 import InventoryDashboard from '../pages/accountant/Inventory/Dashboard';
 import PaymentDashboard from '../pages/accountant/Finance/PaymentDashboard';
 
+// V4 Ky Thuat Pages
+import KyThuatLayout from '../layouts/KyThuatLayout';
+import KTDashboard from '../pages/ky-thuat/Dashboard';
+import KTSchedule from '../pages/ky-thuat/Schedule';
+import KTSurveyForm from '../pages/ky-thuat/SurveyForm';
+import KTExecution from '../pages/ky-thuat/Execution';
+
 // V3 Public Pages
 import CustomerPortal from '../pages/public/CustomerPortal';
 
@@ -284,6 +291,16 @@ function App() {
                             <Route path="schedule" element={<ComingSoon title="Lịch Bảo hành" />} />
                         </Route>
                         <Route path="reports" element={<ComingSoon title="Báo cáo Tổng hợp" />} />
+                    </Route>
+
+                    {/* ===== KỸ THUẬT ROUTES (V4) ===== */}
+                    <Route path="/ky-thuat" element={<KyThuatLayout />}>
+                        <Route index element={<Navigate to="/ky-thuat/dashboard" replace />} />
+                        <Route path="dashboard" element={<KTDashboard />} />
+                        <Route path="schedule" element={<KTSchedule />} />
+                        <Route path="survey/:id" element={<KTSurveyForm />} />
+                        <Route path="execution" element={<KTExecution />} />
+                        <Route path="profile" element={<ComingSoon title="Hồ sơ Kỹ thuật" />} />
                     </Route>
 
                     {/* ===== PARTNER ROUTES ===== */}
