@@ -139,62 +139,62 @@ const PMDashboard: React.FC = () => {
     ];
 
     return (
-        <div>
-            <h2 style={{ marginBottom: 24 }}>Tổng Quan Dự Án</h2>
+        <div style={{ padding: 4 }}>
+            <h2 style={{ marginBottom: 24, fontSize: 'clamp(1.2rem, 5vw, 1.5rem)' }}>Tổng Quan Dự Án</h2>
 
             {/* Row 1: KPI Cards */}
-            <Row gutter={16} style={{ marginBottom: 24 }}>
-                <Col span={6}>
-                    <Card hoverable onClick={() => navigate('/pm/projects/all')}>
+            <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+                <Col xs={24} sm={12} lg={6}>
+                    <Card hoverable onClick={() => navigate('/pm/projects/all')} bodyStyle={{ padding: 16 }}>
                         <Statistic
                             title="Tổng Dự án"
                             value={kpiData.totalProjects}
                             prefix={<ProjectOutlined />}
-                            valueStyle={{ color: '#1890ff' }}
+                            valueStyle={{ color: '#1890ff', fontSize: 24 }}
                         />
-                        <Tag color="green" icon={<ArrowUpOutlined />} style={{ marginTop: 8 }}>
-                            +{kpiData.projectsTrend}% so với tháng trước
+                        <Tag color="green" icon={<ArrowUpOutlined />} style={{ marginTop: 8, fontSize: 11 }}>
+                            +{kpiData.projectsTrend}% <span style={{ opacity: 0.8 }}>tháng trước</span>
                         </Tag>
                     </Card>
                 </Col>
-                <Col span={6}>
-                    <Card hoverable onClick={() => navigate('/pm/projects/all')}>
+                <Col xs={24} sm={12} lg={6}>
+                    <Card hoverable onClick={() => navigate('/pm/projects/all')} bodyStyle={{ padding: 16 }}>
                         <Statistic
                             title="Đang Thi công"
                             value={kpiData.activeProjects}
                             prefix={<ClockCircleOutlined />}
-                            valueStyle={{ color: '#fa8c16' }}
+                            valueStyle={{ color: '#fa8c16', fontSize: 24 }}
                         />
                         <div style={{ marginTop: 8, fontSize: 12, color: '#1890ff', cursor: 'pointer' }}>
                             <EyeOutlined /> Xem danh sách
                         </div>
                     </Card>
                 </Col>
-                <Col span={6}>
-                    <Card hoverable onClick={() => navigate('/pm/projects/all')}>
+                <Col xs={24} sm={12} lg={6}>
+                    <Card hoverable onClick={() => navigate('/pm/projects/all')} bodyStyle={{ padding: 16 }}>
                         <Statistic
                             title="Chờ Duyệt Tư liệu"
                             value={kpiData.pendingApprovals}
                             prefix={<FileImageOutlined />}
-                            valueStyle={{ color: '#722ed1' }}
+                            valueStyle={{ color: '#722ed1', fontSize: 24 }}
                         />
                         {kpiData.pendingApprovals > 10 && (
-                            <Tag color="red" icon={<ExclamationCircleOutlined />} style={{ marginTop: 8 }}>
+                            <Tag color="red" icon={<ExclamationCircleOutlined />} style={{ marginTop: 8, fontSize: 11 }}>
                                 Cần xử lý gấp
                             </Tag>
                         )}
                     </Card>
                 </Col>
-                <Col span={6}>
-                    <Card>
+                <Col xs={24} sm={12} lg={6}>
+                    <Card bodyStyle={{ padding: 16 }}>
                         <Statistic
                             title="Doanh thu Tháng này"
                             value={kpiData.revenueThisMonth / 1000000}
                             suffix="triệu"
                             prefix={<DollarOutlined />}
-                            valueStyle={{ color: '#3f8600' }}
+                            valueStyle={{ color: '#3f8600', fontSize: 24 }}
                         />
-                        <Tag color="green" icon={<ArrowUpOutlined />} style={{ marginTop: 8 }}>
+                        <Tag color="green" icon={<ArrowUpOutlined />} style={{ marginTop: 8, fontSize: 11 }}>
                             +{kpiData.revenueTrend}%
                         </Tag>
                     </Card>
@@ -202,10 +202,10 @@ const PMDashboard: React.FC = () => {
             </Row>
 
             {/* Row 2: Project Distribution + Activity Timeline */}
-            <Row gutter={16} style={{ marginBottom: 24 }}>
-                <Col span={16}>
-                    <Card title="Phân bố Trạng thái Dự án" bodyStyle={{ padding: 24 }}>
-                        <Row gutter={16}>
+            <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+                <Col xs={24} lg={16}>
+                    <Card title="Phân bố Trạng thái Dự án" bodyStyle={{ padding: 16 }}>
+                        <Row gutter={[8, 16]}>
                             {[
                                 { label: 'Bản nháp', count: 5, color: '#d9d9d9', total: 48 },
                                 { label: 'Đã lên lịch', count: 8, color: '#1890ff', total: 48 },
@@ -214,10 +214,10 @@ const PMDashboard: React.FC = () => {
                                 { label: 'Hoàn thành', count: 12, color: '#52c41a', total: 48 },
                                 { label: 'Đã đóng', count: 2, color: '#262626', total: 48 },
                             ].map((item, idx) => (
-                                <Col span={4} key={idx}>
+                                <Col xs={8} sm={4} key={idx}>
                                     <div style={{ textAlign: 'center', marginBottom: 8 }}>
-                                        <div style={{ fontSize: 28, fontWeight: 700, color: item.color }}>{item.count}</div>
-                                        <div style={{ fontSize: 12, color: '#666' }}>{item.label}</div>
+                                        <div style={{ fontSize: 24, fontWeight: 700, color: item.color }}>{item.count}</div>
+                                        <div style={{ fontSize: 11, color: '#666', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</div>
                                         <Progress
                                             percent={Math.round((item.count / item.total) * 100)}
                                             strokeColor={item.color}
@@ -231,8 +231,8 @@ const PMDashboard: React.FC = () => {
                         </Row>
                     </Card>
                 </Col>
-                <Col span={8}>
-                    <Card title="Hoạt động Gần đây" bodyStyle={{ padding: '12px 16px', maxHeight: 240, overflow: 'auto' }}>
+                <Col xs={24} lg={8}>
+                    <Card title="Hoạt động Gần đây" bodyStyle={{ padding: '8px 12px', maxHeight: 300, overflow: 'auto' }}>
                         <List
                             size="small"
                             dataSource={notifications}
@@ -271,38 +271,52 @@ const PMDashboard: React.FC = () => {
             </Row>
 
             {/* Row 3: Recent Projects + Payments */}
-            <Row gutter={16} style={{ marginBottom: 24 }}>
-                <Col span={14}>
+            <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+                <Col xs={24} xl={14}>
                     <Card
                         title="Dự án Gần đây"
-                        extra={<Button type="link" onClick={() => navigate('/pm/projects/all')}>Xem tất cả</Button>}
+                        extra={<Button type="link" onClick={() => navigate('/pm/projects/all')} style={{ paddingRight: 0 }}>Xem tất cả</Button>}
+                        bodyStyle={{ padding: 0 }}
                     >
-                        <Table columns={projectColumns} dataSource={recentProjects} pagination={false} size="small" />
+                        <Table 
+                            columns={projectColumns} 
+                            dataSource={recentProjects} 
+                            pagination={false} 
+                            size="small" 
+                            scroll={{ x: 'max-content' }}
+                        />
                     </Card>
                 </Col>
-                <Col span={10}>
+                <Col xs={24} xl={10}>
                     <Card
                         title="Thanh toán Gần đây"
-                        extra={<Button type="link" onClick={() => navigate('/pm/financials/milestones')}>Xem tất cả</Button>}
+                        extra={<Button type="link" onClick={() => navigate('/pm/financials/milestones')} style={{ paddingRight: 0 }}>Xem tất cả</Button>}
+                        bodyStyle={{ padding: 0 }}
                     >
-                        <Table columns={paymentColumns} dataSource={recentPayments} pagination={false} size="small" />
+                        <Table 
+                            columns={paymentColumns} 
+                            dataSource={recentPayments} 
+                            pagination={false} 
+                            size="small" 
+                            scroll={{ x: 'max-content' }}
+                        />
                     </Card>
                 </Col>
             </Row>
 
             {/* Row 4: Quick Actions */}
-            <Card title="Thao tác Nhanh">
-                <Space size="middle" wrap>
-                    <Button type="primary" icon={<PlusOutlined />} size="large" onClick={() => navigate('/pm/projects/create')}>
+            <Card title="Thao tác Nhanh" bodyStyle={{ padding: 16 }}>
+                <Space size={12} wrap style={{ width: '100%' }}>
+                    <Button type="primary" icon={<PlusOutlined />} size="middle" onClick={() => navigate('/pm/projects/create')} block>
                         Tạo Dự án
                     </Button>
-                    <Button icon={<TeamOutlined />} size="large" onClick={() => navigate('/pm/teams/internal')}>
+                    <Button icon={<TeamOutlined />} size="middle" onClick={() => navigate('/pm/teams/internal')} block>
                         Phân công Đội
                     </Button>
-                    <Button icon={<UserOutlined />} size="large" onClick={() => navigate('/pm/customers')}>
+                    <Button icon={<UserOutlined />} size="middle" onClick={() => navigate('/pm/customers')} block>
                         Tạo Cổng KH
                     </Button>
-                    <Button icon={<DollarOutlined />} size="large" onClick={() => navigate('/pm/reports')}>
+                    <Button icon={<DollarOutlined />} size="middle" onClick={() => navigate('/pm/reports')} block>
                         Xem Báo cáo
                     </Button>
                 </Space>
