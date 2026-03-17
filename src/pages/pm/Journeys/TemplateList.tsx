@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
     Card, Table, Tag, Button, Space, Typography, Row, Col,
-    Modal, Form, Input, Select, Switch, Badge, Tooltip, Popconfirm, Grid
+    Modal, Form, Input, Select, Switch, Badge, Tooltip, Popconfirm, Grid, message
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
@@ -174,8 +174,9 @@ const TemplateList: React.FC = () => {
             >
                 <Form form={createForm} layout="vertical"
                     onFinish={(values) => { 
+                    const newId = `TPL-NEW-${Date.now()}`;
                     const newTpl: JourneyTemplate = {
-                        id: `TPL-NEW-${Date.now()}`,
+                        id: newId,
                         ...values,
                         status: 'active',
                         updated_at: new Date().toISOString(),
@@ -184,7 +185,11 @@ const TemplateList: React.FC = () => {
                     };
                     setMockJourneyTemplates([...mockJourneyTemplates, newTpl]);
                     setShowCreateModal(false); 
-                    createForm.resetFields(); 
+                    createForm.resetFields();
+                    message.success('Đã tạo template mới. Đang chuyển đến trang thiết kế bước...');
+                    setTimeout(() => {
+                        navigate(`/pm/journeys/templates/${newId}`);
+                    }, 800);
                 }}>
                     <Form.Item label="Mã template" name="template_code" rules={[{ required: true }]}>
                         <Input placeholder="VD: TMPL-CT-004" />
@@ -229,9 +234,10 @@ const TemplateList: React.FC = () => {
                 <Form form={cloneForm} layout="vertical"
                     onFinish={(values) => { 
                     if (!_cloneTarget) return;
+                    const newId = `TPL-CLONE-${Date.now()}`;
                     const newTpl: JourneyTemplate = {
                         ..._cloneTarget,
-                        id: `TPL-CLONE-${Date.now()}`,
+                        id: newId,
                         template_code: values.new_template_code,
                         template_name: values.new_template_name,
                         status: 'draft',
@@ -242,6 +248,10 @@ const TemplateList: React.FC = () => {
                     setMockJourneyTemplates([...mockJourneyTemplates, newTpl]);
                     setShowCloneModal(false); 
                     cloneForm.resetFields(); 
+                    message.success('Đã clone template thành công');
+                    setTimeout(() => {
+                        navigate(`/pm/journeys/templates/${newId}`);
+                    }, 800);
                 }}>
                     <Form.Item label="Template nguồn" name="source_template">
                         <Input disabled />

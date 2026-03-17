@@ -209,7 +209,7 @@ const JourneyDetail360: React.FC = () => {
             label: <span><ClockCircleOutlined /> Log</span>,
             children: (
                 <Timeline
-                    items={journey.activities.map(a => ({
+                    items={journey.activities.map((a: any) => ({
                         dot: <CheckCircleOutlined style={{ color: '#52c41a' }} />,
                         children: (
                             <div>
@@ -244,7 +244,7 @@ const JourneyDetail360: React.FC = () => {
             children: (
                 <div>
                      <Row gutter={16} style={{ marginBottom: 16 }}>
-                        <Col span={12}><Statistic title="Publish Status" value={PORTAL_CONFIG[journey.portal_publish_status].label} /></Col>
+                        <Col span={12}><Statistic title="Publish Status" value={PORTAL_CONFIG[journey.portal_publish_status as PortalPublishStatus]?.label || journey.portal_publish_status} /></Col>
                         <Col span={12}><Statistic title="Chưa đọc" value={journey.unread_thread_count ?? 0} valueStyle={{ color: journey.unread_thread_count ? '#ff4d4f' : '#52c41a' }} /></Col>
                     </Row>
                     {threads.map(t => (
@@ -317,8 +317,12 @@ const JourneyDetail360: React.FC = () => {
                     </Col>
                     <Col xs={24} md={8} style={{ textAlign: isMobile ? 'left' : 'right' }}>
                         <Space wrap>
-                            <Tag color={SLA_CONFIG[journey.sla_status].color}>{SLA_CONFIG[journey.sla_status].label}</Tag>
-                            <Tag color={GO_NO_GO_CONFIG[journey.go_no_go_status].color}>{GO_NO_GO_CONFIG[journey.go_no_go_status].label}</Tag>
+                            <Tag color={SLA_CONFIG[journey.sla_status as SlaStatus]?.color || 'default'}>
+                                {SLA_CONFIG[journey.sla_status as SlaStatus]?.label || journey.sla_status}
+                            </Tag>
+                            <Tag color={GO_NO_GO_CONFIG[journey.go_no_go_status as GoNoGoStatus]?.color || 'default'}>
+                                {GO_NO_GO_CONFIG[journey.go_no_go_status as GoNoGoStatus]?.label || journey.go_no_go_status}
+                            </Tag>
                         </Space>
                     </Col>
                 </Row>

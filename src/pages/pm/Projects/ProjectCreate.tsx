@@ -154,7 +154,10 @@ const ProjectCreate: React.FC = () => {
     const [mapQuery, setMapQuery] = useState('');
 
     /* ─── Handlers ─── */
-    const handleFinish = (values: any) => {
+    const handleFinish = async (values: any) => {
+        const hide = message.loading('Đang khởi tạo dự án...', 0);
+        await new Promise(r => setTimeout(r, 800));
+
         const newProject = {
             id: values.projectCode || `DA-${Date.now()}`,
             code: values.projectCode,
@@ -174,9 +177,13 @@ const ProjectCreate: React.FC = () => {
 
         const updatedProjects = [...mockProjects, newProject];
         setMockProjects(updatedProjects);
+        hide();
 
         message.success('Dự án đã được tạo thành công!');
-        navigate('/pm/projects/all');
+        
+        setTimeout(() => {
+            navigate('/pm/projects/all');
+        }, 1000);
     };
 
     const handleSaveDraft = () => {

@@ -61,6 +61,7 @@ const CustomerCreate: React.FC = () => {
 
     const handleSubmit = async (values: any) => {
         setLoading(true);
+        const hide = message.loading(isEdit ? 'Đang cập nhật khách hàng...' : 'Đang thêm khách hàng mới...', 0);
         await new Promise(r => setTimeout(r, 600));
         
         const customerData: Partial<Customer> = {
@@ -74,6 +75,7 @@ const CustomerCreate: React.FC = () => {
                 c.id === id ? { ...c, ...customerData } : c
             );
             setMockCustomers(updated);
+            hide();
             message.success('Đã cập nhật khách hàng thành công');
         } else {
             const newCustomer: Customer = {
@@ -93,11 +95,14 @@ const CustomerCreate: React.FC = () => {
                 notes: values.notes || '',
             };
             setMockCustomers([newCustomer, ...mockCustomers]);
+            hide();
             message.success('Đã thêm khách hàng mới thành công');
         }
         
         setLoading(false);
-        navigate('/pm/crm/customers');
+        setTimeout(() => {
+            navigate('/pm/crm/customers');
+        }, 800);
     };
 
     return (

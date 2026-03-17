@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
     Card, Form, Input, InputNumber, Select, Button, Row, Col,
     Typography, DatePicker, Avatar, Tag, Modal, Steps, Alert,
-    Divider, Radio, Space, Checkbox
+    Divider, Radio, Space, Checkbox, message
 } from 'antd';
 import {
     UserOutlined, ArrowLeftOutlined, CheckCircleOutlined,
@@ -70,9 +70,10 @@ const ProjectCreate: React.FC = () => {
         try {
             const values = await form.validateFields();
             setSaving(true);
+            const hide = message.loading('Đang khởi tạo dự án thi công...', 0);
             
             // Artificial delay
-            await new Promise(r => setTimeout(r, 900));
+            await new Promise(r => setTimeout(r, 800));
 
             const template = mockTemplates.find(t => t.id === values.templateId);
             const selectedWorkerNames = mockUsers
@@ -82,6 +83,7 @@ const ProjectCreate: React.FC = () => {
             const projectId = `DA-2026-${String(Date.now()).slice(-3)}`;
             
             const newProject: Project = {
+                // ... same newProject object ...
                 id: projectId,
                 code: projectId,
                 name: values.projectName,
@@ -128,19 +130,19 @@ const ProjectCreate: React.FC = () => {
 
             setMockProjects([newProject, ...mockProjects]);
             setSaving(false);
+            hide();
 
-            Modal.success({
-                title: '✅ Dự án đã được tạo!',
-                content: (
-                    <div>
-                        <p>Dự án <strong>{newProject.code}</strong> đã được tạo với trạng thái <strong>Đã lên lịch</strong>.</p>
-                        <p>📣 Thông báo đã gửi đến thợ được phân công: {selectedWorkerNames.join(', ')}.</p>
-                    </div>
-                ),
-                onOk: () => navigate('/pm/construction/projects'),
-            });
+            message.success('Dự án đã được tạo thành công!');
+            
+            // Navigate after 1s to allow user to see success message
+            setTimeout(() => {
+                navigate('/pm/construction/projects');
+            }, 1000);
+
         } catch (err) {
             console.error('Validation failed:', err);
+            setSaving(false);
+            message.error('Vui lòng kiểm tra lại thông tin form');
         }
     };
 
