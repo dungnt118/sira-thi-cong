@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, Table, Tag, Typography, Button, Space, Row, Col, Statistic, Alert, Divider, Form, Input, InputNumber, Select } from 'antd';
+import { Card, Table, Tag, Typography, Button, Space, Row, Col, Statistic, Alert, Form, Input, InputNumber, Select } from 'antd';
 import { BoxPlotOutlined, WarningOutlined, CheckCircleOutlined, HistoryOutlined, EditOutlined, EyeOutlined, SaveOutlined } from '@ant-design/icons';
 import { mockMaterialDetails } from '../../../data/journeyMockData';
 
@@ -109,9 +109,12 @@ const StepMaterials: React.FC<StepMaterialsProps> = ({ journeyId, isEditable = f
             </Card>
 
             <div style={{ background: '#fafafa', padding: 12, borderRadius: 8 }}>
-                <Text type="secondary" italic icon={<CheckCircleOutlined />}> 
-                    Vật tư chính đã được xác nhận đúng chủng loại kỹ thuật yêu cầu.
-                </Text>
+                <Space>
+                    <CheckCircleOutlined style={{ color: '#52c41a' }} />
+                    <Text type="secondary" italic> 
+                        Vật tư chính đã được xác nhận đúng chủng loại kỹ thuật yêu cầu.
+                    </Text>
+                </Space>
             </div>
         </Space>
     );

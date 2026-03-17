@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, Form, Input, Button, Result, Space, Divider, Typography, Tag, Table, Row, Col, Statistic, Alert } from 'antd';
+import { Card, Form, Input, Button, Result, Space, Divider, Typography, Tag, Table, Row, Col, Statistic, Alert, InputNumber, Select } from 'antd';
 import { SaveOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 
 import { mockPayments } from '../../../data/journeyMockData';
@@ -41,7 +41,7 @@ export const Step10Payment: React.FC<Step10PaymentProps> = ({ journeyId, isEdita
             dataIndex: 'amount', 
             render: (_: any, __: any, index: number) => (
                 <Form.Item name={['milestones', index, 'amount']} style={{ margin: 0 }}>
-                    <InputNumber min={0} style={{ width: '100%' }} formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} />
+                    <InputNumber min={0} style={{ width: '100%' }} formatter={(v: any) => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} />
                 </Form.Item>
             )
         },

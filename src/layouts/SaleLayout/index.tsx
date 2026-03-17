@@ -85,7 +85,7 @@ export const SaleLayout: React.FC = () => {
             icon: <InboxOutlined />,
             label: 'Hành trình khách hàng',
             children: [
-                { key: '/sale/dashboad', label: 'Journey Inbox', onClick: () => navigate('/sale/dashboad') },
+                { key: '/sale/dashboard', label: 'Journey Inbox', onClick: () => navigate('/sale/dashboard') },
                 { key: '/sale/sla', label: 'SLA Queue', onClick: () => navigate('/sale/sla') },
                 { key: '/sale/surveys', label: 'Khảo sát', onClick: () => navigate('/sale/surveys') },
                 { key: '/sale/communications', label: 'Giao tiếp khách hàng', onClick: () => navigate('/sale/communications') },

@@ -254,8 +254,8 @@ function App() {
                         <Route path="sla" element={<SLAQueue />} />
                         <Route path="surveys" element={<SurveyCoordination />} />
                         <Route path="communications" element={<CommunicationsCenter />} />
-                        <Route path=":journeyId" element={<SaleJourneyContext />} />
-                        <Route path=":journeyId/surveys/:surveyId" element={<SaleSurveyDetail />} />
+                        <Route path="dashboard/:journeyId" element={<SaleJourneyContext />} />
+                        <Route path="dashboard/:journeyId/surveys/:surveyId" element={<SaleSurveyDetail />} />
 
                     </Route>
 

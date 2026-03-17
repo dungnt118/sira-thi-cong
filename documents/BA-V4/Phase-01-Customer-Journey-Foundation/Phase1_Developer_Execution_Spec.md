@@ -209,7 +209,7 @@ Phase 1 phải dùng được trên desktop + mobile trước khi chốt.
 
 | Menu cấp 1 | Menu cấp 2 | Route đề xuất | Ghi chú |
 |---|---|---|---|
-| Hành trình khách hàng | Journey Inbox | `/sale/dashboad` | view theo role Sale |
+| Hành trình khách hàng | Journey Inbox | `/sale/dashboard` | view theo role Sale |
 | Hành trình khách hàng | SLA Queue | `/sale/sla` | ưu tiên cuộc gọi |
 | Hành trình khách hàng | Khảo sát | `/sale/surveys` | điều phối khảo sát |
 | Hành trình khách hàng | Giao tiếp khách hàng | `/sale/communications` | thread và follow-up |
@@ -248,10 +248,10 @@ Phase 1 phải dùng được trên desktop + mobile trước khi chốt.
 
 | Route | Page code | Mục đích |
 |---|---|---|
-| `/sale/dashboad` | SAL-P1-01 | Journey Inbox |
+| `/sale/dashboard` | SAL-P1-01 | Journey Inbox |
 | `/sale/sla` | SAL-P1-02 | SLA Queue |
 | `/sale/surveys` | SAL-P1-03 | Survey Coordination |
-| `/sale/dashboad/:journeyId` | SAL-P1-04 | Sale Journey Context |
+| `/sale/dashboard/:journeyId` | SAL-P1-04 | Sale Journey Context |
 | `/sale/communications` | SAL-P1-05 | Communications Center |
 
 ## 5.3 Giám sát route map
@@ -791,7 +791,7 @@ Phải có tối thiểu 4 card:
 
 ### Route
 
-- `/sale/dashboad`
+- `/sale/dashboard`
 
 ### Section bắt buộc
 
@@ -864,7 +864,7 @@ Phải có tối thiểu 4 card:
 
 ### Route
 
-- `/sale/dashboad/:journeyId`
+- `/sale/dashboard/:journeyId`
 
 ### Section bắt buộc
 

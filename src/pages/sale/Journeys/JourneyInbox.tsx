@@ -72,7 +72,7 @@ const SaleDashboard: React.FC = () => {
                             size="small"
                             hoverable
                             style={{ marginBottom: 10, borderRadius: 8, cursor: 'pointer', borderLeft: `4px solid ${j.sla_status === 'overdue' ? '#ff4d4f' : j.sla_status === 'at_risk' ? '#fa8c16' : '#52c41a'}` }}
-                            onClick={() => navigate(`/sale/dashboad/${j.id}`)}
+                            onClick={() => navigate(`/sale/dashboard/${j.id}`)}
                         >
                             <Row gutter={16} align="middle">
                                 <Col flex="auto">

@@ -85,7 +85,7 @@ const SaleJourneyContext: React.FC = () => {
                             </div>
                             <Space>
                                 <Tag color="success">Đã hoàn thành</Tag>
-                                <Button size="small" onClick={() => navigate(`/sale/dashboad/${journey.id}/surveys/1`)}>Xem chi tiết</Button>
+                                <Button size="small" onClick={() => navigate(`/sale/dashboard/${journey.id}/surveys/1`)}>Xem chi tiết</Button>
                             </Space>
                         </div>
                     </Card>
@@ -175,7 +175,7 @@ const SaleJourneyContext: React.FC = () => {
 
     return (
         <div>
-            <Button icon={<ArrowLeftOutlined />} type="text" onClick={() => navigate('/sale/dashboad')} style={{ marginBottom: 12 }}>
+            <Button icon={<ArrowLeftOutlined />} type="text" onClick={() => navigate('/sale/dashboard')} style={{ marginBottom: 12 }}>
                 Quay lại Inbox
             </Button>
 
@@ -236,7 +236,7 @@ const SaleJourneyContext: React.FC = () => {
                         setShowSurveyModal(false);
                         surveyForm.resetFields();
                         // Theo luồng, sau khi tạo xong sẽ điều hướng luôn qua trang chi tiết khảo sát mới tạo
-                        navigate(`/sale/dashboad/${journey.id}/surveys/new-${Date.now()}`);
+                        navigate(`/sale/dashboard/${journey.id}/surveys/new-${Date.now()}`);
                     });
                 }} okText="Khởi tạo Lịch" cancelText="Hủy">
                 <Form form={surveyForm} layout="vertical">

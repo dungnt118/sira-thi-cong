@@ -49,7 +49,7 @@ export const Login: React.FC = () => {
             title: 'Kinh Doanh (Sale)',
             description: 'Quản lý thông tin, khách hàng và báo giá',
             icon: <CustomerServiceOutlined />,
-            path: '/sale/dashboad',
+            path: '/sale/dashboard',
             color: '#eb2f96',
         },
         {

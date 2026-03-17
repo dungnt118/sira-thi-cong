@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Card, Table, Tag, Typography, Button, Space, Timeline, Statistic, Row, Col, Divider, Form, Input, InputNumber, Select } from 'antd';
-import { TeamOutlined, UserOutlined, CheckCircleOutlined, ClockCircleOutlined, EditOutlined, EyeOutlined, SaveOutlined } from '@ant-design/icons';
+import { Card, Table, Tag, Typography, Button, Space, Timeline, Statistic, Row, Col, Form, Input, InputNumber } from 'antd';
+import { TeamOutlined, UserOutlined, ClockCircleOutlined, EditOutlined, EyeOutlined, SaveOutlined } from '@ant-design/icons';
 import { mockLaborPlans } from '../../../data/journeyMockData';
 
 const { Text, Title } = Typography;

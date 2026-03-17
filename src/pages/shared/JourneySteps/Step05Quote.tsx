@@ -40,7 +40,7 @@ export const Step05Quote: React.FC<Step05QuoteProps> = ({ journeyId, isEditable 
             title: 'Tên hạng mục', 
             dataIndex: 'name', 
             key: 'name',
-            render: (_: any, record: any, index: number) => (
+            render: (_: any, __: any, index: number) => (
                 <Form.Item name={['items', index, 'name']} style={{ margin: 0 }} rules={[{ required: true }]}>
                     <Input />
                 </Form.Item>
@@ -51,7 +51,7 @@ export const Step05Quote: React.FC<Step05QuoteProps> = ({ journeyId, isEditable 
             dataIndex: 'unit', 
             key: 'unit',
             width: 100,
-            render: (_: any, record: any, index: number) => (
+            render: (_: any, __: any, index: number) => (
                 <Form.Item name={['items', index, 'unit']} style={{ margin: 0 }}>
                     <Input />
                 </Form.Item>
@@ -62,7 +62,7 @@ export const Step05Quote: React.FC<Step05QuoteProps> = ({ journeyId, isEditable 
             dataIndex: 'qty', 
             key: 'qty',
             width: 80,
-            render: (_: any, record: any, index: number) => (
+            render: (_: any, __: any, index: number) => (
                 <Form.Item name={['items', index, 'qty']} style={{ margin: 0 }}>
                     <InputNumber min={1} style={{ width: '100%' }} />
                 </Form.Item>
