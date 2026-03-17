@@ -55,17 +55,17 @@ const AdminLayoutV2: React.FC = () => {
                 )}
 
                 {/* Main Content Area */}
-                <Layout style={{ padding: isMobile ? '0' : '0 24px 24px' }}>
+                <Layout style={{ padding: isMobile ? '0' : '0 16px 24px', background: '#f0f2f5' }}>
                     <Content
                         style={{
-                            padding: isMobile ? 16 : 24,
-                            margin: isMobile ? 0 : '0',
+                            padding: isMobile ? 8 : 24,
+                            margin: 0,
                             minHeight: 280,
-                            background: '#fff',
+                            background: isMobile ? '#f0f2f5' : '#fff',
                             borderRadius: isMobile ? 0 : '8px',
                         }}
                     >
-                        <Outlet />
+                        <Outlet context={{ isMobile }} />
                     </Content>
                 </Layout>
             </Layout>

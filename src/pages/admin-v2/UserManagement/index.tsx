@@ -43,11 +43,14 @@ interface User {
     createdTime: Date;
 }
 
+import { useOutletContext } from 'react-router-dom';
+
 /**
  * User Management Page - CRUD for 6 roles
  * Roles: Admin, PM, Supervisor, Accountant, Outsource Leader, Staff
  */
 const UserManagement: React.FC = () => {
+    const { isMobile } = useOutletContext<{ isMobile: boolean }>();
     const [searchText, setSearchText] = useState('');
     const [filterRole, setFilterRole] = useState<string>('');
     const [filterStatus, setFilterStatus] = useState<string>('');
@@ -298,32 +301,32 @@ const UserManagement: React.FC = () => {
     };
 
     return (
-        <div style={{ padding: 24 }}>
+        <div style={{ padding: 0 }}>
             {/* Statistics */}
-            <Row gutter={16} style={{ marginBottom: 24 }}>
-                <Col span={6}>
+            <Row gutter={[isMobile ? 8 : 16, isMobile ? 8 : 16]} style={{ marginBottom: isMobile ? 16 : 24 }}>
+                <Col xs={12} sm={6}>
                     <Card>
                         <Statistic title="Tổng người dùng" value={totalUsers} prefix={<UserOutlined />} />
                     </Card>
                 </Col>
-                <Col span={6}>
-                    <Card>
-                        <Statistic title="Đang hoạt động" value={activeUsers} valueStyle={{ color: '#52c41a' }} prefix={<CheckCircleOutlined />} />
+                <Col xs={12} sm={6}>
+                    <Card size="small">
+                        <Statistic title="Đang hoạt động" value={activeUsers} valueStyle={{ color: '#52c41a', fontSize: isMobile ? 18 : 24 }} prefix={<CheckCircleOutlined />} />
                     </Card>
                 </Col>
-                <Col span={6}>
-                    <Card>
-                        <Statistic title="PM" value={usersByRole.PM} />
-                        <div style={{ fontSize: 12, color: '#666', marginTop: 8 }}>
-                            Supervisor: {usersByRole.Supervisor} | Outsource: {usersByRole['Outsource Leader']}
+                <Col xs={12} sm={6}>
+                    <Card size="small">
+                        <Statistic title="PM" value={usersByRole.PM} valueStyle={{ fontSize: isMobile ? 18 : 24 }} />
+                        <div style={{ fontSize: 10, color: '#666', marginTop: 4 }}>
+                            SV: {usersByRole.Supervisor} | Out: {usersByRole['Outsource Leader']}
                         </div>
                     </Card>
                 </Col>
-                <Col span={6}>
-                    <Card>
-                        <Statistic title="Nhân viên" value={usersByRole.Staff} />
-                        <div style={{ fontSize: 12, color: '#666', marginTop: 8 }}>
-                            Admin: {usersByRole.Admin} | Accountant: {usersByRole.Accountant}
+                <Col xs={12} sm={6}>
+                    <Card size="small">
+                        <Statistic title="Nhân viên" value={usersByRole.Staff} valueStyle={{ fontSize: isMobile ? 18 : 24 }} />
+                        <div style={{ fontSize: 10, color: '#666', marginTop: 4 }}>
+                            Adm: {usersByRole.Admin} | Acc: {usersByRole.Accountant}
                         </div>
                     </Card>
                 </Col>

@@ -5,6 +5,8 @@ import type { TabsProps } from 'antd';
 
 const { Option } = Select;
 
+import { useOutletContext } from 'react-router-dom';
+
 /**
  * System Settings Page - 5 tabs
  * 1. General: Company info, timezone, language
@@ -14,6 +16,7 @@ const { Option } = Select;
  * 5. Customer Portal: Link expiry, access levels
  */
 const SystemSettings: React.FC = () => {
+    const { isMobile } = useOutletContext<{ isMobile: boolean }>();
     const [activeTab, setActiveTab] = useState('general');
     const [generalForm] = Form.useForm();
     const [emailForm] = Form.useForm();
@@ -122,13 +125,13 @@ const SystemSettings: React.FC = () => {
             children: (
                 <Card>
                     <Form form={generalForm} layout="vertical" initialValues={initialGeneral}>
-                        <Row gutter={16}>
-                            <Col span={12}>
+                        <Row gutter={[isMobile ? 8 : 16, isMobile ? 8 : 16]}>
+                            <Col xs={24} sm={12}>
                                 <Form.Item name="companyName" label="Tên công ty" rules={[{ required: true }]}>
                                     <Input />
                                 </Form.Item>
                             </Col>
-                            <Col span={12}>
+                            <Col xs={24} sm={12}>
                                 <Form.Item name="timezone" label="Múi giờ" rules={[{ required: true }]}>
                                     <Select>
                                         <Option value="Asia/Ho_Chi_Minh">Vietnam (UTC+7)</Option>
@@ -139,8 +142,8 @@ const SystemSettings: React.FC = () => {
                             </Col>
                         </Row>
 
-                        <Row gutter={16}>
-                            <Col span={12}>
+                        <Row gutter={[isMobile ? 8 : 16, isMobile ? 8 : 16]}>
+                            <Col xs={24} sm={12}>
                                 <Form.Item name="language" label="Ngôn ngữ" rules={[{ required: true }]}>
                                     <Select>
                                         <Option value="vi">Tiếng Việt</Option>
@@ -148,7 +151,7 @@ const SystemSettings: React.FC = () => {
                                     </Select>
                                 </Form.Item>
                             </Col>
-                            <Col span={12}>
+                            <Col xs={24} sm={12}>
                                 <Form.Item name="evidenceRetentionYears" label="Thời gian lưu trữ minh chứng (năm)">
                                     <InputNumber min={1} max={10} style={{ width: '100%' }} />
                                 </Form.Item>
@@ -387,7 +390,7 @@ const SystemSettings: React.FC = () => {
     ];
 
     return (
-        <div style={{ padding: 24 }}>
+        <div style={{ padding: 0 }}>
             <Card title="Cài đặt hệ thống" extra={<SettingOutlined style={{ fontSize: 20, color: '#1890ff' }} />}>
                 <Tabs activeKey={activeTab} items={tabItems} onChange={setActiveTab} />
             </Card>

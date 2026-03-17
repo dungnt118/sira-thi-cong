@@ -46,11 +46,14 @@ interface AuditLogEntry {
     status: 'success' | 'failed';
 }
 
+import { useOutletContext } from 'react-router-dom';
+
 /**
  * Audit Log Page - Construction-specific actions
  * NOT generic schema CRUD, but construction business actions
  */
 const AuditLog: React.FC = () => {
+    const { isMobile } = useOutletContext<{ isMobile: boolean }>();
     const [searchText, setSearchText] = useState('');
     const [filterAction, setFilterAction] = useState<string>('');
     const [filterUser, _setFilterUser] = useState<string>('');
@@ -253,11 +256,11 @@ const AuditLog: React.FC = () => {
     };
 
     return (
-        <div style={{ padding: 24 }}>
+        <div style={{ padding: 0 }}>
             <Card title="Nhật ký hệ thống" extra={<FileTextOutlined style={{ fontSize: 20, color: '#1890ff' }} />}>
                 {/* Filters */}
-                <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-                    <Col span={8}>
+                <Row gutter={[isMobile ? 8 : 16, isMobile ? 8 : 16]} style={{ marginBottom: isMobile ? 16 : 24 }}>
+                    <Col xs={24} sm={8}>
                         <Search
                             placeholder="Tìm theo người dùng, đối tượng, chi tiết..."
                             allowClear
@@ -265,7 +268,7 @@ const AuditLog: React.FC = () => {
                             prefix={<SearchOutlined />}
                         />
                     </Col>
-                    <Col span={8}>
+                    <Col xs={24} sm={8}>
                         <RangePicker
                             style={{ width: '100%' }}
                             placeholder={['Từ ngày', 'Đến ngày']}
@@ -273,7 +276,7 @@ const AuditLog: React.FC = () => {
                             onChange={(dates) => setDateRange(dates as [Dayjs, Dayjs])}
                         />
                     </Col>
-                    <Col span={4}>
+                    <Col xs={12} sm={4}>
                         <Select placeholder="Hành động" allowClear style={{ width: '100%' }} onChange={setFilterAction}>
                             {actionCategories.map((cat) => (
                                 <Select.OptGroup key={cat.value} label={cat.label}>
@@ -286,9 +289,9 @@ const AuditLog: React.FC = () => {
                             ))}
                         </Select>
                     </Col>
-                    <Col span={4}>
+                    <Col xs={12} sm={4}>
                         <Button type="primary" icon={<DownloadOutlined />} onClick={handleExport} block>
-                            Xuất CSV
+                            Xuất
                         </Button>
                     </Col>
                 </Row>

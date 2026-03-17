@@ -41,11 +41,15 @@ interface ActivityLog {
     status: 'success' | 'pending' | 'error';
 }
 
+import { useOutletContext } from 'react-router-dom';
+
 /**
  * Admin Dashboard V2 - Construction SME Focus
  * Metrics: Users, Projects, Evidence, Payments (NOT Server/CPU/Memory)
  */
 const DashboardV2: React.FC = () => {
+    const { isMobile } = useOutletContext<{ isMobile: boolean }>();
+    
     // Derived Metrics
     const totalUsers = mockUsers.length;
     const activeUsers = mockUsers.filter(u => u.isActive).length;
@@ -144,8 +148,8 @@ const DashboardV2: React.FC = () => {
     ];
 
     return (
-        <div style={{ padding: 24 }}>
-            <Title level={3} style={{ marginBottom: 24 }}>
+        <div style={{ padding: isMobile ? '4px 0' : 0 }}>
+            <Title level={isMobile ? 4 : 3} style={{ marginBottom: isMobile ? 16 : 24, paddingLeft: isMobile ? 4 : 0 }}>
                 Dashboard
             </Title>
 

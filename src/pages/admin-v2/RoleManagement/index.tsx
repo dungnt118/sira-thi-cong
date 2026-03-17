@@ -15,12 +15,15 @@ interface Role {
     createdTime: Date;
 }
 
+import { useOutletContext } from 'react-router-dom';
+
 /**
  * Role Management Page - 6 system roles + custom roles
  * System Roles: Admin, PM, Supervisor, Accountant, Outsource Leader, Staff
  * Construction-specific permissions
  */
 const RoleManagement: React.FC = () => {
+    const { isMobile } = useOutletContext<{ isMobile: boolean }>();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingRole, setEditingRole] = useState<Role | null>(null);
     const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
@@ -325,27 +328,27 @@ const RoleManagement: React.FC = () => {
     };
 
     return (
-        <div style={{ padding: 24 }}>
+        <div style={{ padding: 0 }}>
             {/* Statistics */}
-            <Row gutter={16} style={{ marginBottom: 24 }}>
-                <Col span={6}>
+            <Row gutter={[isMobile ? 8 : 16, isMobile ? 8 : 16]} style={{ marginBottom: isMobile ? 16 : 24 }}>
+                <Col xs={12} sm={6}>
                     <Card>
                         <Statistic title="Tổng vai trò" value={totalRoles} prefix={<SafetyOutlined />} />
                     </Card>
                 </Col>
-                <Col span={6}>
-                    <Card>
-                        <Statistic title="Vai trò hệ thống" value={systemRoles} valueStyle={{ color: '#1890ff' }} />
+                <Col xs={12} sm={6}>
+                    <Card size="small">
+                        <Statistic title="Vai trò hệ thống" value={systemRoles} valueStyle={{ color: '#1890ff', fontSize: isMobile ? 18 : 24 }} />
                     </Card>
                 </Col>
-                <Col span={6}>
-                    <Card>
-                        <Statistic title="Vai trò tùy chỉnh" value={customRoles} />
+                <Col xs={12} sm={6}>
+                    <Card size="small">
+                        <Statistic title="Vai trò tùy chỉnh" value={customRoles} valueStyle={{ fontSize: isMobile ? 18 : 24 }} />
                     </Card>
                 </Col>
-                <Col span={6}>
-                    <Card>
-                        <Statistic title="Tổng người dùng" value={totalUsers} prefix={<LockOutlined />} />
+                <Col xs={12} sm={6}>
+                    <Card size="small">
+                        <Statistic title="Tổng người dùng" value={totalUsers} prefix={<LockOutlined />} valueStyle={{ fontSize: isMobile ? 18 : 24 }} />
                     </Card>
                 </Col>
             </Row>

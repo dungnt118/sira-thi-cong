@@ -56,6 +56,8 @@ type ReportType =
     | 'quality_issues'
     | 'material_variance';
 
+import { useOutletContext } from 'react-router-dom';
+
 /**
  * Báo cáo Quản trị - Admin Reports
  * - 20 báo cáo đầy đủ
@@ -63,6 +65,7 @@ type ReportType =
  * - Drilldown thực tế (clickable navigation)
  */
 const Reports: React.FC = () => {
+    const { isMobile } = useOutletContext<{ isMobile: boolean }>();
     const navigate = useNavigate();
     const [selectedCategory, setSelectedCategory] = useState<ReportCategory>('financial');
     const [selectedReport, setSelectedReport] = useState<ReportType>('revenue_overview');
@@ -1378,13 +1381,13 @@ const Reports: React.FC = () => {
     const currentCategory = reportCategories.find((cat) => cat.key === selectedCategory);
 
     return (
-        <div style={{ padding: 24 }}>
+        <div style={{ padding: 0 }}>
             <Card
                 title="Báo cáo Quản trị - Admin Reports"
                 extra={<BarChartOutlined style={{ fontSize: 20, color: '#1890ff' }} />}
             >
                 {/* Category Navigation */}
-                <Row gutter={16} style={{ marginBottom: 24 }}>
+                <Row gutter={[isMobile ? 8 : 16, isMobile ? 8 : 16]} style={{ marginBottom: isMobile ? 16 : 24 }}>
                     <Col span={24}>
                         <Menu
                             mode="horizontal"
