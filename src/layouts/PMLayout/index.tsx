@@ -6,13 +6,21 @@ import { useAuth } from '../../hooks/useAuth';
 import {
     DashboardOutlined,
     ProjectOutlined,
-    UserOutlined,
     DollarOutlined,
     BarChartOutlined,
     SearchOutlined,
     BellOutlined,
     InboxOutlined,
     NodeIndexOutlined,
+    ThunderboltOutlined,
+    UnorderedListOutlined,
+    AppstoreOutlined,
+    TeamOutlined,
+    UserAddOutlined,
+    SettingOutlined,
+    LayoutOutlined,
+    ExportOutlined,
+    ImportOutlined,
 } from '@ant-design/icons';
 import { LABELS } from '@utils/constants';
 import { BaseLayout } from '../shared/BaseLayout';
@@ -30,26 +38,16 @@ const menuItems: MenuItem[] = [
         label: 'Tổng Quan',
     },
     {
-        key: '/pm/crm',
-        icon: <UserOutlined />,
-        label: 'CRM & Bán hàng',
-        children: [
-            { key: '/pm/crm/service-requests', label: 'Yêu cầu Dịch vụ (Deals)' },
-            { key: '/pm/crm/pipeline', label: 'Pipeline Kanban' },
-            { key: '/pm/crm/customers', label: 'Danh sách Khách hàng' },
-            { key: '/pm/crm/customers/new', label: 'Thêm KH mới' },
-            { key: '/pm/crm/pipeline-settings', label: 'Cấu hình Pipeline' },
-        ],
-    },
-    {
         key: '/pm/journeys',
         icon: <NodeIndexOutlined />,
         label: 'Hành trình Khách hàng',
         children: [
-            { key: '/pm/journeys', label: 'Danh sách Hành trình' },
-            { key: '/pm/journeys/board', label: 'Board / Kanban' },
-            { key: '/pm/journeys/action-center', label: 'Action Center' },
-            { key: '/pm/journeys/templates', label: 'Template Quy trình' },
+            { key: '/pm/journeys/action-center', label: 'Action Center', icon: <ThunderboltOutlined /> },
+            { key: '/pm/journeys', label: 'Danh sách Hành trình', icon: <UnorderedListOutlined /> },
+            { key: '/pm/journeys/board', label: 'Board / Kanban', icon: <AppstoreOutlined /> },
+            { key: '/pm/crm/customers', label: 'Danh sách Khách hàng', icon: <TeamOutlined /> },
+            { key: '/pm/crm/customers/new', label: 'Thêm Khách hàng mới', icon: <UserAddOutlined /> },
+            { key: '/pm/journeys/templates', label: 'Template Quy trình', icon: <SettingOutlined /> },
         ],
     },
     {
@@ -68,11 +66,11 @@ const menuItems: MenuItem[] = [
         icon: <InboxOutlined />,
         label: 'Kho Vật tư',
         children: [
-            { key: '/pm/inventory/catalog', label: '📦 Danh mục Vật tư' },
-            { key: '/pm/settings/estimate-templates', label: '📐 Mẫu định mức Chuẩn' },
+            { key: '/pm/inventory/catalog', label: 'Danh mục Vật tư', icon: <InboxOutlined /> },
+            { key: '/pm/settings/estimate-templates', label: 'Mẫu định mức Chuẩn', icon: <LayoutOutlined /> },
             // { key: '/pm/inventory/plan', label: '📐 Định mức Dự án' },
-            { key: '/pm/inventory/request-out', label: '📤 Yêu cầu Xuất kho' },
-            { key: '/pm/inventory/request-in', label: '📥 Yêu cầu Nhập kho' },
+            { key: '/pm/inventory/request-out', label: 'Yêu cầu Xuất kho', icon: <ExportOutlined /> },
+            { key: '/pm/inventory/request-in', label: 'Yêu cầu Nhập kho', icon: <ImportOutlined /> },
         ],
     },
     {
