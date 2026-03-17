@@ -12,9 +12,10 @@ export interface Step10PaymentProps {
     journeyId: string;
     isEditable?: boolean;
     onSave?: (data: any) => void;
+    onEditStateChange?: (isEditing: boolean) => void;
 }
 
-export const Step10Payment: React.FC<Step10PaymentProps> = ({ journeyId, isEditable = false, onSave }) => {
+export const Step10Payment: React.FC<Step10PaymentProps> = ({ journeyId, isEditable = false, onSave, onEditStateChange }) => {
     const [form] = Form.useForm();
     const [isEditing, setIsEditing] = useState(false);
 
@@ -24,6 +25,7 @@ export const Step10Payment: React.FC<Step10PaymentProps> = ({ journeyId, isEdita
     const handleFinish = (values: any) => {
         if (onSave) onSave(values);
         setIsEditing(false);
+        if (onEditStateChange) onEditStateChange(false);
     };
 
     const milestoneColumns = [
@@ -176,7 +178,11 @@ export const Step10Payment: React.FC<Step10PaymentProps> = ({ journeyId, isEdita
                 <Button 
                     type={isEditing ? "default" : "primary"}
                     icon={isEditing ? <EyeOutlined /> : <EditOutlined />}
-                    onClick={() => setIsEditing(!isEditing)}
+                    onClick={() => {
+                        const newEdit = !isEditing;
+                        setIsEditing(newEdit);
+                        if (onEditStateChange) onEditStateChange(newEdit);
+                    }}
                 >
                     {isEditing ? "Xem lại" : "Cập nhật"}
                 </Button>

@@ -16,7 +16,8 @@ export type ProjectStatusType = 'not_started' | 'active' | 'completed' | 'cancel
 // --- Journey Step Definition (Template) ---
 export interface RoleConfiguration {
     roleId: string;
-    isKeyRole: boolean;
+    isKeyRole: boolean; // Acts as "Finalizer" (authority to close step)
+    isEditable: boolean; // Acts as "Editor" (authority to modify content)
     slaHours: number;
     dependencyRole?: string | null;
     instructions?: string;

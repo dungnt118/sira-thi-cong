@@ -12,9 +12,10 @@ export interface Step04SolutionProps {
     journeyId: string;
     isEditable?: boolean;
     onSave?: (data: any) => void;
+    onEditStateChange?: (isEditing: boolean) => void;
 }
 
-export const Step04Solution: React.FC<Step04SolutionProps> = ({ journeyId, isEditable = false, onSave }) => {
+export const Step04Solution: React.FC<Step04SolutionProps> = ({ journeyId, isEditable = false, onSave, onEditStateChange }) => {
     const [form] = Form.useForm();
     const [templateForm] = Form.useForm();
     const [subTotal, setSubTotal] = useState(0);
@@ -371,7 +372,10 @@ export const Step04Solution: React.FC<Step04SolutionProps> = ({ journeyId, isEdi
                         <Button type="primary" htmlType="submit" icon={<CalculatorOutlined />} size="large">
                             Lưu Dự Toán Giải Pháp
                         </Button>
-                        <Button onClick={() => setIsEditing(false)}>Hủy</Button>
+                        <Button onClick={() => {
+                            setIsEditing(false);
+                            if (onEditStateChange) onEditStateChange(false);
+                        }}>Hủy</Button>
                     </Space>
                 </Form>
             ) : (

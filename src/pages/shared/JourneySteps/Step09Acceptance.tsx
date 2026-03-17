@@ -9,11 +9,14 @@ export interface Step09AcceptanceProps {
     journeyId: string;
     isEditable?: boolean;
     onSave?: (data: any) => void;
+    onEditStateChange?: (isEditing: boolean) => void;
 }
 
-export const Step09Acceptance: React.FC<Step09AcceptanceProps> = ({ isEditable = false, onSave }) => {
+export const Step09Acceptance: React.FC<Step09AcceptanceProps> = ({ journeyId, isEditable = false, onSave, onEditStateChange }) => {
     const [form] = Form.useForm();
     const [isEditing, setIsEditing] = useState(false);
+
+    console.log(`Rendering Step09Acceptance for journey: ${journeyId}`);
 
     // Simulated acceptance data (since we don't have a dedicated mockAcceptances yet, we'll derive it)
     const acceptance = {
@@ -29,6 +32,7 @@ export const Step09Acceptance: React.FC<Step09AcceptanceProps> = ({ isEditable =
     const handleFinish = (values: any) => {
         if (onSave) onSave(values);
         setIsEditing(false);
+        if (onEditStateChange) onEditStateChange(false);
     };
 
     const renderReadOnly = () => {
@@ -104,7 +108,11 @@ export const Step09Acceptance: React.FC<Step09AcceptanceProps> = ({ isEditable =
                 <Button 
                     type={isEditing ? "default" : "primary"}
                     icon={isEditing ? <EyeOutlined /> : <EditOutlined />}
-                    onClick={() => setIsEditing(!isEditing)}
+                    onClick={() => {
+                        const newEdit = !isEditing;
+                        setIsEditing(newEdit);
+                        if (onEditStateChange) onEditStateChange(newEdit);
+                    }}
                 >
                     {isEditing ? "Xem lại" : "Cập nhật"}
                 </Button>

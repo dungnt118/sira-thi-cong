@@ -136,13 +136,18 @@ const StepConfigModal: React.FC<StepConfigModalProps> = ({ open, initialData, on
                                     </Row>
 
                                     <Row gutter={12}>
-                                        <Col span={18}>
+                                        <Col span={12}>
                                             <Form.Item {...field} name={[field.name, 'instructions']} label="Hướng dẫn / Nhiệm vụ cụ thể">
                                                 <TextArea rows={2} placeholder="Ví dụ: Lên danh sách vật tư cần dùng" />
                                             </Form.Item>
                                         </Col>
                                         <Col span={6}>
                                             <Form.Item {...field} name={[field.name, 'isKeyRole']} valuePropName="checked" label="Vai trò chốt?">
+                                                <Switch checkedChildren="Có" unCheckedChildren="Ko" />
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={6}>
+                                            <Form.Item {...field} name={[field.name, 'isEditable']} valuePropName="checked" label="Quyền sửa?" initialValue={true}>
                                                 <Switch checkedChildren="Có" unCheckedChildren="Ko" />
                                             </Form.Item>
                                         </Col>
@@ -171,7 +176,7 @@ const StepConfigModal: React.FC<StepConfigModalProps> = ({ open, initialData, on
                                     </Form.List>
                                 </Card>
                             ))}
-                            <Button type="dashed" onClick={() => add({ isKeyRole: false, checklists: [''] })} block icon={<PlusOutlined />}>
+                            <Button type="dashed" onClick={() => add({ isKeyRole: false, isEditable: true, checklists: [''] })} block icon={<PlusOutlined />}>
                                 Bổ sung Vai trò tham gia Bước
                             </Button>
                         </div>

@@ -21,10 +21,12 @@ export interface Step02ConsultProps {
     journeyId: string;
     isEditable?: boolean;
     onSave?: (data: any) => void;
+    onEditStateChange?: (isEditing: boolean) => void;
 }
 
-export const Step02Consult: React.FC<Step02ConsultProps> = ({ isEditable = false, onSave }) => {
+export const Step02Consult: React.FC<Step02ConsultProps> = ({ journeyId, isEditable = false, onSave, onEditStateChange }) => {
     const [form] = Form.useForm();
+    console.log(`Rendering Step02Consult for journey: ${journeyId}`);
     const [activeMode, setActiveMode] = useState<'list' | 'edit' | 'view'>('list');
     const [selectedAppt, setSelectedAppt] = useState<Appointment | null>(null);
     const [appointments, setAppointments] = useState<Appointment[]>([
@@ -43,6 +45,7 @@ export const Step02Consult: React.FC<Step02ConsultProps> = ({ isEditable = false
         form.resetFields();
         form.setFieldsValue({ status: 'SCHEDULED', surveyor: 'Nguyễn Văn Giám sát' });
         setActiveMode('edit');
+        if (onEditStateChange) onEditStateChange(true);
     };
 
     const handleEdit = (record: Appointment) => {
@@ -53,6 +56,7 @@ export const Step02Consult: React.FC<Step02ConsultProps> = ({ isEditable = false
             time: dayjs(record.time, 'HH:mm'),
         });
         setActiveMode('edit');
+        if (onEditStateChange) onEditStateChange(true);
     };
 
     const handleView = (record: Appointment) => {

@@ -11,10 +11,12 @@ export interface Step13CareProps {
     journeyId: string;
     isEditable?: boolean;
     onSave?: (data: any) => void;
+    onEditStateChange?: (isEditing: boolean) => void;
 }
 
-export const Step13Care: React.FC<Step13CareProps> = ({ isEditable = false, onSave }) => {
+export const Step13Care: React.FC<Step13CareProps> = ({ journeyId, isEditable = false, onSave, onEditStateChange }) => {
     const [form] = Form.useForm();
+    console.log(`Rendering Step13Care for journey: ${journeyId}`);
     const [isEditing, setIsEditing] = useState(false);
 
     // Simulated care data
@@ -99,7 +101,11 @@ export const Step13Care: React.FC<Step13CareProps> = ({ isEditable = false, onSa
                 <Button 
                     type={isEditing ? "default" : "primary"}
                     icon={isEditing ? <EyeOutlined /> : <EditOutlined />}
-                    onClick={() => setIsEditing(!isEditing)}
+                    onClick={() => {
+                        const newEdit = !isEditing;
+                        setIsEditing(newEdit);
+                        if (onEditStateChange) onEditStateChange(newEdit);
+                    }}
                 >
                     {isEditing ? "Xem lại" : "Cập nhật"}
                 </Button>

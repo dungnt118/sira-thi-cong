@@ -11,9 +11,10 @@ export interface Step05QuoteProps {
     journeyId: string;
     isEditable?: boolean;
     onSave?: (data: any) => void;
+    onEditStateChange?: (isEditing: boolean) => void;
 }
 
-export const Step05Quote: React.FC<Step05QuoteProps> = ({ journeyId, isEditable = false, onSave }) => {
+export const Step05Quote: React.FC<Step05QuoteProps> = ({ journeyId, isEditable = false, onSave, onEditStateChange }) => {
     const [form] = Form.useForm();
     const [isEditing, setIsEditing] = useState(false);
     const items = Form.useWatch('items', form);
@@ -25,6 +26,7 @@ export const Step05Quote: React.FC<Step05QuoteProps> = ({ journeyId, isEditable 
     const handleFinish = (values: any) => {
         if (onSave) onSave(values);
         setIsEditing(false);
+        if (onEditStateChange) onEditStateChange(false);
     };
 
     const columns = [
@@ -189,7 +191,11 @@ export const Step05Quote: React.FC<Step05QuoteProps> = ({ journeyId, isEditable 
                 <Button 
                     type={isEditing ? "default" : "primary"}
                     icon={isEditing ? <EyeOutlined /> : <EditOutlined />}
-                    onClick={() => setIsEditing(!isEditing)}
+                    onClick={() => {
+                        const newEdit = !isEditing;
+                        setIsEditing(newEdit);
+                        if (onEditStateChange) onEditStateChange(newEdit);
+                    }}
                 >
                     {isEditing ? "Xem lại" : "Cập nhật"}
                 </Button>

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Empty } from 'antd';
+import { Button, Card, Empty, Space, Typography, message } from 'antd';
+import { CheckCircleOutlined } from '@ant-design/icons';
 import Step01Info from './Step01Info';
 import Step02Consult from './Step02Consult';
 import Step03Survey from './Step03Survey';
@@ -14,43 +15,73 @@ import Step11Maintain from './Step11Maintain';
 import Step12Warranty from './Step12Warranty';
 import Step13Care from './Step13Care';
 
+const { Text } = Typography;
+
 export interface JourneyStepRendererProps {
     stepCode: string;
     journeyId: string;
     isEditable?: boolean;
+    canFinalize?: boolean;
 }
 
-export const JourneyStepRenderer: React.FC<JourneyStepRendererProps> = ({ stepCode, journeyId, isEditable = false }) => {
-    switch (stepCode) {
-        case 'S01_INFO':
-            return <Step01Info journeyId={journeyId} isEditable={isEditable} />;
-        case 'S02_CONSULT':
-            return <Step02Consult journeyId={journeyId} isEditable={isEditable} />;
-        case 'S03_SURVEY':
-            return <Step03Survey journeyId={journeyId} isEditable={isEditable} />;
-        case 'S04_SOLUTION':
-            return <Step04Solution journeyId={journeyId} isEditable={isEditable} />;
-        case 'S05_QUOTE':
-            return <Step05Quote journeyId={journeyId} isEditable={isEditable} />;
-        case 'S06_CONTRACT':
-            return <Step06Contract journeyId={journeyId} isEditable={isEditable} />;
-        case 'S07_ADVANCE':
-            return <Step07Advance journeyId={journeyId} isEditable={isEditable} />;
-        case 'S08_CONSTRUCT':
-            return <Step08Construct journeyId={journeyId} isEditable={isEditable} />;
-        case 'S09_ACCEPTANCE':
-            return <Step09Acceptance journeyId={journeyId} isEditable={isEditable} />;
-        case 'S10_PAYMENT':
-            return <Step10Payment journeyId={journeyId} isEditable={isEditable} />;
-        case 'S11_MAINTAIN':
-            return <Step11Maintain journeyId={journeyId} isEditable={isEditable} />;
-        case 'S12_WARRANTY':
-            return <Step12Warranty journeyId={journeyId} isEditable={isEditable} />;
-        case 'S13_CARE':
-            return <Step13Care journeyId={journeyId} isEditable={isEditable} />;
-        default:
-            return <Empty description="Component cho bước này đang được phát triển" />;
-    }
+export const JourneyStepRenderer: React.FC<JourneyStepRendererProps> = ({ 
+    stepCode, 
+    journeyId, 
+    isEditable = false,
+    canFinalize = false 
+}) => {
+    const [isInternalEdit, setIsInternalEdit] = React.useState(false);
+
+    const handleConfirmStep = () => {
+        message.success(`Đã xác nhận hoàn thành bước ${stepCode}. Chuyển sang bước tiếp theo...`);
+        // Logic to update journey status would go here
+    };
+
+    const renderStep = () => {
+        const commonProps = { 
+            journeyId, 
+            isEditable: isEditable,
+            onEditStateChange: (editing: boolean) => setIsInternalEdit(editing)
+        };
+
+        switch (stepCode) {
+            case 'S01_INFO': return <Step01Info {...commonProps} />;
+            case 'S02_CONSULT': return <Step02Consult {...commonProps} />;
+            case 'S03_SURVEY': return <Step03Survey {...commonProps} />;
+            case 'S04_SOLUTION': return <Step04Solution {...commonProps} />;
+            case 'S05_QUOTE': return <Step05Quote {...commonProps} />;
+            case 'S06_CONTRACT': return <Step06Contract {...commonProps} />;
+            case 'S07_ADVANCE': return <Step07Advance {...commonProps} />;
+            case 'S08_CONSTRUCT': return <Step08Construct {...commonProps} />;
+            case 'S09_ACCEPTANCE': return <Step09Acceptance {...commonProps} />;
+            case 'S10_PAYMENT': return <Step10Payment {...commonProps} />;
+            case 'S11_MAINTAIN': return <Step11Maintain {...commonProps} />;
+            case 'S12_WARRANTY': return <Step12Warranty {...commonProps} />;
+            case 'S13_CARE': return <Step13Care {...commonProps} />;
+            default: return <Empty description="Component cho bước này đang được phát triển" />;
+        }
+    };
+
+    return (
+        <Space direction="vertical" style={{ width: '100%' }} size="middle">
+            {renderStep()}
+            
+            {canFinalize && !isInternalEdit && (
+                <Card size="small" style={{ border: '1px solid #d9f7be', background: '#f6ffed' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                            <Text strong><CheckCircleOutlined style={{ color: '#52c41a' }} /> Xác nhận Hoàn thành Bước</Text>
+                            <br />
+                            <Text type="secondary" style={{ fontSize: 12 }}>Bạn có vai trò chốt bước này. Nhấp xác nhận để kết thúc và chuyển sang bước tiếp theo.</Text>
+                        </div>
+                        <Button type="primary" onClick={handleConfirmStep} style={{ background: '#52c41a', borderColor: '#52c41a' }}>
+                            Xác nhận Hoàn thành
+                        </Button>
+                    </div>
+                </Card>
+            )}
+        </Space>
+    );
 };
 
 export default JourneyStepRenderer;

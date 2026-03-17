@@ -169,7 +169,8 @@ const TemplateDetail: React.FC = () => {
                                                 <Card size="small" key={r.roleId}>
                                                     <div>
                                                         <Text strong>{r.roleId}</Text>
-                                                        {r.isKeyRole && <Tag color="orange" style={{ marginLeft: 8 }}>Key Role</Tag>}
+                                                        {r.isKeyRole && <Tag color="orange" style={{ marginLeft: 8 }}>Chốt Step</Tag>}
+                                                        {r.isEditable && <Tag color="green" style={{ marginLeft: 8 }}>Có quyền sửa</Tag>}
                                                         <Tag style={{ marginLeft: 8 }}>SLA: {r.slaHours}h</Tag>
                                                         {r.dependencyRole && <Tag>Sau: {r.dependencyRole}</Tag>}
                                                     </div>

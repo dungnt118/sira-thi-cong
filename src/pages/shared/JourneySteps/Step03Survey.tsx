@@ -25,9 +25,10 @@ export interface Step03SurveyProps {
     journeyId: string;
     isEditable?: boolean;
     onSave?: (data: any) => void;
+    onEditStateChange?: (isEditing: boolean) => void;
 }
 
-export const Step03Survey: React.FC<Step03SurveyProps> = ({ journeyId, isEditable = false, onSave }) => {
+export const Step03Survey: React.FC<Step03SurveyProps> = ({ journeyId, isEditable = false, onSave, onEditStateChange }) => {
     const journey = mockJourneys.find(j => j.id === journeyId) || mockJourneys[0];
 
     const [overallStatus, setOverallStatus] = useState<'in_progress' | 'completed'>(
@@ -386,7 +387,11 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({ journeyId, isEditabl
                 <Button 
                     type={isEditing ? "default" : "primary"}
                     icon={isEditing ? <EyeOutlined /> : <EditOutlined />}
-                    onClick={() => setIsEditing(!isEditing)}
+                    onClick={() => {
+                        const newEditing = !isEditing;
+                        setIsEditing(newEditing);
+                        if (onEditStateChange) onEditStateChange(newEditing);
+                    }}
                 >
                     {isEditing ? "Xem lại" : (overallStatus === 'completed' ? "Cập nhật lại" : "Bắt đầu khảo sát")}
                 </Button>

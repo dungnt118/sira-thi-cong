@@ -12,9 +12,10 @@ export interface Step12WarrantyProps {
     journeyId: string;
     isEditable?: boolean;
     onSave?: (data: any) => void;
+    onEditStateChange?: (isEditing: boolean) => void;
 }
 
-export const Step12Warranty: React.FC<Step12WarrantyProps> = ({ journeyId, isEditable = false, onSave }) => {
+export const Step12Warranty: React.FC<Step12WarrantyProps> = ({ journeyId, isEditable = false, onSave, onEditStateChange }) => {
     const [form] = Form.useForm();
     const [isEditing, setIsEditing] = useState(false);
 
@@ -23,6 +24,7 @@ export const Step12Warranty: React.FC<Step12WarrantyProps> = ({ journeyId, isEdi
     const handleFinish = (values: any) => {
         if (onSave) onSave(values);
         setIsEditing(false);
+        if (onEditStateChange) onEditStateChange(false);
     };
 
     const renderReadOnly = () => {
@@ -101,7 +103,11 @@ export const Step12Warranty: React.FC<Step12WarrantyProps> = ({ journeyId, isEdi
                 <Button 
                     type={isEditing ? "default" : "primary"}
                     icon={isEditing ? <EyeOutlined /> : <EditOutlined />}
-                    onClick={() => setIsEditing(!isEditing)}
+                    onClick={() => {
+                        const newEdit = !isEditing;
+                        setIsEditing(newEdit);
+                        if (onEditStateChange) onEditStateChange(newEdit);
+                    }}
                 >
                     {isEditing ? "Xem lại" : "Cập nhật"}
                 </Button>

@@ -11,9 +11,10 @@ export interface Step01InfoProps {
     journeyId: string;
     isEditable?: boolean;
     onSave?: (data: any) => void;
+    onEditStateChange?: (isEditing: boolean) => void;
 }
 
-export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = false, onSave }) => {
+export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = false, onSave, onEditStateChange }) => {
     const [form] = Form.useForm();
     const [isEditing, setIsEditing] = useState(false);
     const [customerData, setCustomerData] = useState<any>(null);
@@ -37,6 +38,7 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
         if (onSave) onSave(values);
         setCustomerData({ ...customerData, ...values });
         setIsEditing(false);
+        if (onEditStateChange) onEditStateChange(false);
         message.success('Cập nhật thông tin khách hàng thành công');
     };
 
@@ -125,7 +127,10 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
             </Row>
             
             <Space style={{ marginTop: 24, width: '100%', justifyContent: 'flex-end' }}>
-                <Button onClick={() => setIsEditing(false)}>Hủy bỏ</Button>
+                <Button onClick={() => {
+                    setIsEditing(false);
+                    if (onEditStateChange) onEditStateChange(false);
+                }}>Hủy bỏ</Button>
                 <Button type="primary" htmlType="submit" icon={<SaveOutlined />}>Lưu thông tin</Button>
             </Space>
         </Form>
@@ -140,7 +145,11 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                 <Button 
                     type={isEditing ? "default" : "primary"}
                     icon={isEditing ? <EyeOutlined /> : <EditOutlined />}
-                    onClick={() => setIsEditing(!isEditing)}
+                    onClick={() => {
+                        const newEditing = !isEditing;
+                        setIsEditing(newEditing);
+                        if (onEditStateChange) onEditStateChange(newEditing);
+                    }}
                 >
                     {isEditing ? "Xem lại" : "Chỉnh sửa"}
                 </Button>

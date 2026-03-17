@@ -355,7 +355,7 @@ const defaultSteps = [
         step_order: 1,
         step_goal: 'Tiếp nhận data, đánh giá ban đầu',
         standardProcedureGroupCd: 'GRP_01_INFO',
-        roleConfigurations: [{ roleId: 'sale', isKeyRole: true, slaHours: 2, dependencyRole: null, instructions: 'Tiếp nhận lead', checklists: [] }],
+        roleConfigurations: [{ roleId: 'sale', isKeyRole: true, isEditable: true, slaHours: 2, dependencyRole: null, instructions: 'Tiếp nhận lead', checklists: [] }],
         publish_flag: false,
     },
     {
@@ -364,7 +364,7 @@ const defaultSteps = [
         step_order: 2,
         step_goal: 'Kịch bản telesale, đặt lịch',
         standardProcedureGroupCd: 'GRP_02_CONTACT',
-        roleConfigurations: [{ roleId: 'sale', isKeyRole: true, slaHours: 4, dependencyRole: null, instructions: 'Gọi điện tư vấn sớ bộ', checklists: [] }],
+        roleConfigurations: [{ roleId: 'sale', isKeyRole: true, isEditable: true, slaHours: 4, dependencyRole: null, instructions: 'Gọi điện tư vấn sớ bộ', checklists: [] }],
         publish_flag: false,
     },
     {
@@ -373,7 +373,7 @@ const defaultSteps = [
         step_order: 3,
         step_goal: 'Form khảo sát kỹ thuật, hình ảnh hiện trường',
         standardProcedureGroupCd: 'GRP_03_SURVEY',
-        roleConfigurations: [{ roleId: 'ky-thuat', isKeyRole: true, slaHours: 24, dependencyRole: null, instructions: 'Đến hiện trường', checklists: [] }],
+        roleConfigurations: [{ roleId: 'ky-thuat', isKeyRole: true, isEditable: true, slaHours: 24, dependencyRole: null, instructions: 'Đến hiện trường', checklists: [] }],
         publish_flag: true,
     },
     {
@@ -383,8 +383,8 @@ const defaultSteps = [
         step_goal: 'Phương án thi công, thiết bị, nhân sự, dự toán, tổng hợp lỗi',
         standardProcedureGroupCd: 'GRP_04_SOLUTION',
         roleConfigurations: [
-            { roleId: 'ky-thuat', isKeyRole: true, slaHours: 24, dependencyRole: null, instructions: 'Giải pháp kỹ thuật', checklists: [] },
-            { roleId: 'sale', isKeyRole: false, slaHours: 12, dependencyRole: 'ky-thuat', instructions: 'Tổng hợp báo cáo gửi khách', checklists: [] }
+            { roleId: 'ky-thuat', isKeyRole: true, isEditable: true, slaHours: 24, dependencyRole: null, instructions: 'Giải pháp kỹ thuật', checklists: [] },
+            { roleId: 'sale', isKeyRole: false, isEditable: true, slaHours: 12, dependencyRole: 'ky-thuat', instructions: 'Tổng hợp báo cáo gửi khách', checklists: [] }
         ],
         publish_flag: true,
     },
@@ -394,7 +394,7 @@ const defaultSteps = [
         step_order: 5,
         step_goal: 'Bảng giá dự toán chi tiết',
         standardProcedureGroupCd: 'GRP_05_QUOTE',
-        roleConfigurations: [{ roleId: 'sale', isKeyRole: true, slaHours: 24, dependencyRole: null, instructions: 'Cập nhật giá gửi khách', checklists: [] }],
+        roleConfigurations: [{ roleId: 'sale', isKeyRole: true, isEditable: true, slaHours: 24, dependencyRole: null, instructions: 'Cập nhật giá gửi khách', checklists: [] }],
         publish_flag: true,
     },
     {
@@ -403,7 +403,7 @@ const defaultSteps = [
         step_order: 6,
         step_goal: 'Chốt hợp đồng, PDF, ký kết',
         standardProcedureGroupCd: 'GRP_06_CONTRACT',
-        roleConfigurations: [{ roleId: 'sale', isKeyRole: true, slaHours: 48, dependencyRole: null, instructions: 'Trình ký hợp đồng', checklists: [] }],
+        roleConfigurations: [{ roleId: 'sale', isKeyRole: true, isEditable: true, slaHours: 48, dependencyRole: null, instructions: 'Trình ký hợp đồng', checklists: [] }],
         publish_flag: false,
     },
     {
@@ -412,7 +412,7 @@ const defaultSteps = [
         step_order: 7,
         step_goal: 'Kế toán duyệt thu tiền',
         standardProcedureGroupCd: 'GRP_07_DEPOSIT',
-        roleConfigurations: [{ roleId: 'accountant', isKeyRole: true, slaHours: 24, dependencyRole: null, instructions: 'Xác nhận cọc', checklists: [] }],
+        roleConfigurations: [{ roleId: 'accountant', isKeyRole: true, isEditable: true, slaHours: 24, dependencyRole: null, instructions: 'Xác nhận cọc', checklists: [] }],
         publish_flag: false,
     },
     {
@@ -421,7 +421,7 @@ const defaultSteps = [
         step_order: 8,
         step_goal: 'Giám sát và công nhân thi công, tiến độ hàng ngày',
         standardProcedureGroupCd: 'GRP_08_CONSTRUCT',
-        roleConfigurations: [{ roleId: 'supervisor', isKeyRole: true, slaHours: 72, dependencyRole: null, instructions: 'Quản lý thi công', checklists: [] }],
+        roleConfigurations: [{ roleId: 'supervisor', isKeyRole: true, isEditable: true, slaHours: 72, dependencyRole: null, instructions: 'Quản lý thi công', checklists: [] }],
         publish_flag: true,
     },
     {
@@ -430,7 +430,7 @@ const defaultSteps = [
         step_order: 9,
         step_goal: 'Biên bản nghiệm thu kỹ thuật, ký xác nhận',
         standardProcedureGroupCd: 'GRP_09_ACCEPTANCE',
-        roleConfigurations: [{ roleId: 'supervisor', isKeyRole: true, slaHours: 24, dependencyRole: null, instructions: 'Ký biên bản nghiệm thu', checklists: [] }],
+        roleConfigurations: [{ roleId: 'supervisor', isKeyRole: true, isEditable: true, slaHours: 24, dependencyRole: null, instructions: 'Ký biên bản nghiệm thu', checklists: [] }],
         publish_flag: true,
     },
     {
@@ -439,7 +439,7 @@ const defaultSteps = [
         step_order: 10,
         step_goal: 'Quyết toán số liệu',
         standardProcedureGroupCd: 'GRP_10_PAYMENT',
-        roleConfigurations: [{ roleId: 'accountant', isKeyRole: true, slaHours: 48, dependencyRole: null, instructions: 'Quyết toán công trình', checklists: [] }],
+        roleConfigurations: [{ roleId: 'accountant', isKeyRole: true, isEditable: true, slaHours: 48, dependencyRole: null, instructions: 'Quyết toán công trình', checklists: [] }],
         publish_flag: true,
     },
     {
@@ -448,7 +448,7 @@ const defaultSteps = [
         step_order: 11,
         step_goal: 'Bảo trì định kỳ',
         standardProcedureGroupCd: 'GRP_11_MAINTAIN',
-        roleConfigurations: [{ roleId: 'ky-thuat', isKeyRole: true, slaHours: 48, dependencyRole: null, instructions: 'Ghi nhận bảo trì', checklists: [] }],
+        roleConfigurations: [{ roleId: 'ky-thuat', isKeyRole: true, isEditable: true, slaHours: 48, dependencyRole: null, instructions: 'Ghi nhận bảo trì', checklists: [] }],
         publish_flag: true,
     },
     {
@@ -457,7 +457,7 @@ const defaultSteps = [
         step_order: 12,
         step_goal: 'Bảo hành sự cố',
         standardProcedureGroupCd: 'GRP_12_WARRANTY',
-        roleConfigurations: [{ roleId: 'ky-thuat', isKeyRole: true, slaHours: 24, dependencyRole: null, instructions: 'Xử lý bảo hành', checklists: [] }],
+        roleConfigurations: [{ roleId: 'ky-thuat', isKeyRole: true, isEditable: true, slaHours: 24, dependencyRole: null, instructions: 'Xử lý bảo hành', checklists: [] }],
         publish_flag: true,
     },
     {
@@ -466,7 +466,7 @@ const defaultSteps = [
         step_order: 13,
         step_goal: 'CSKH, khảo sát NPS',
         standardProcedureGroupCd: 'GRP_13_CARE',
-        roleConfigurations: [{ roleId: 'sale', isKeyRole: true, slaHours: 48, dependencyRole: null, instructions: 'Gọi điện hỏi thăm', checklists: [] }],
+        roleConfigurations: [{ roleId: 'sale', isKeyRole: true, isEditable: true, slaHours: 48, dependencyRole: null, instructions: 'Gọi điện hỏi thăm', checklists: [] }],
         publish_flag: false,
     }
 ];

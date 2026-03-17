@@ -71,17 +71,19 @@ const JourneyDetail360: React.FC = () => {
 
     // Resolve which tabs/steps this user can see and edit
     const userRoleConfig = useMemo(() => {
-        if (!role) return { allowedGroupCodes: [], editableGroupCodes: [] };
+        if (!role) return { allowedGroupCodes: [], editableGroupCodes: [], finalizableGroupCodes: [] };
 
         const allowedGroupCodes: string[] = [];
         const editableGroupCodes: string[] = [];
+        const finalizableGroupCodes: string[] = [];
 
         if (role === 'pm') {
-            // PM sees everything and can edit everything
+            // PM sees everything, can edit and can finalize
             journeySteps.forEach(s => {
                 if (s.standardProcedureGroupCd) {
                     allowedGroupCodes.push(s.standardProcedureGroupCd);
                     editableGroupCodes.push(s.standardProcedureGroupCd);
+                    finalizableGroupCodes.push(s.standardProcedureGroupCd);
                 }
             });
         } else {
@@ -89,14 +91,21 @@ const JourneyDetail360: React.FC = () => {
                 const config = s.roleConfigurations?.find(rc => rc.roleId === role);
                 if (config && s.standardProcedureGroupCd) {
                     allowedGroupCodes.push(s.standardProcedureGroupCd);
-                    if (config.isKeyRole) {
+                    if (config.isEditable) {
                         editableGroupCodes.push(s.standardProcedureGroupCd);
+                    }
+                    if (config.isKeyRole) {
+                        finalizableGroupCodes.push(s.standardProcedureGroupCd);
                     }
                 }
             });
         }
 
-        return { allowedGroupCodes: [...new Set(allowedGroupCodes)], editableGroupCodes: [...new Set(editableGroupCodes)] };
+        return { 
+            allowedGroupCodes: [...new Set(allowedGroupCodes)], 
+            editableGroupCodes: [...new Set(editableGroupCodes)],
+            finalizableGroupCodes: [...new Set(finalizableGroupCodes)] 
+        };
     }, [role, journeySteps]);
 
     if (!journey) {
@@ -112,7 +121,15 @@ const JourneyDetail360: React.FC = () => {
 
     const renderTabContent = (groupCode: string, stepCode: string) => {
         const isEditable = userRoleConfig.editableGroupCodes.includes(groupCode);
-        return <JourneyStepRenderer stepCode={stepCode} journeyId={journey.id!} isEditable={isEditable} />;
+        const isFinalizable = userRoleConfig.finalizableGroupCodes.includes(groupCode);
+        return (
+            <JourneyStepRenderer 
+                stepCode={stepCode} 
+                journeyId={journey.id!} 
+                isEditable={isEditable} 
+                canFinalize={isFinalizable} 
+            />
+        );
     };
 
     const tabItems = [
