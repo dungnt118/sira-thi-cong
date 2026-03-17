@@ -210,6 +210,7 @@ function App() {
                             <Route index element={<Navigate to="/pm/construction/projects" replace />} />
                             <Route path="projects" element={<PMProjectList />} />
                             <Route path="projects/create" element={<PMProjectCreate />} />
+                            <Route path="projects/:id/edit" element={<PMProjectCreate />} />
                             <Route path="projects/:id" element={<PMProjectDetail />} />
                             <Route path="projects/:id/finance" element={<ProjectFinance />} />
                             <Route path="projects/:id/materials" element={<MaterialPlan />} />

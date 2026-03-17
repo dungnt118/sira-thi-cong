@@ -6,7 +6,8 @@ import {
 } from 'antd';
 import {
     UserOutlined, ArrowLeftOutlined, CheckCircleOutlined,
-    EyeOutlined, TeamOutlined, EnvironmentOutlined, BulbOutlined
+    EyeOutlined, TeamOutlined, EnvironmentOutlined, BulbOutlined,
+    SaveOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import dayjs from 'dayjs';
@@ -34,7 +35,8 @@ const CONSTRUCTION_TYPES = [
 
 const ProjectCreate: React.FC = () => {
     const navigate = useNavigate();
-    const { customerId } = useParams<{ customerId: string }>();
+    const { customerId, id } = useParams<{ customerId: string, id: string }>();
+    const isEdit = !!id;
     const [form] = Form.useForm();
 
     const [mockProjects, setMockProjects] = useLocalStorageData<Project[]>(demoDataService.KEYS.PROJECTS, defaultProjects);
@@ -54,6 +56,27 @@ const ProjectCreate: React.FC = () => {
     const [selectedWorkers, setSelectedWorkers] = useState<string[]>([]);
     const [templateModalOpen, setTemplateModalOpen] = useState(false);
     const [saving, setSaving] = useState(false);
+
+    const existingProject = isEdit ? mockProjects.find(p => p.id === id) : null;
+
+    // Pre-fill form if editing
+    React.useEffect(() => {
+        if (existingProject) {
+            form.setFieldsValue({
+                projectName: existingProject.name,
+                address: existingProject.address,
+                areaM2: existingProject.areaM2,
+                templateId: existingProject.templateId,
+                startDate: dayjs(existingProject.startDate),
+                endDate: dayjs(existingProject.plannedEndDate),
+                notes: existingProject.notes,
+            });
+            setConstructionType(existingProject.category);
+            setAreaM2(existingProject.areaM2);
+            setSelectedTemplate(existingProject.templateId);
+            setSelectedWorkers(existingProject.workerIds);
+        }
+    }, [existingProject, form]);
 
     // Auto-calc material estimate
     const standards = mockStandards.filter(s => s.constructionType === constructionType);
@@ -80,59 +103,76 @@ const ProjectCreate: React.FC = () => {
                 .filter(u => selectedWorkers.includes(u.id))
                 .map(u => u.fullName);
 
-            const projectId = `DA-2026-${String(Date.now()).slice(-3)}`;
-            
-            const newProject: Project = {
-                // ... same newProject object ...
-                id: projectId,
-                code: projectId,
-                name: values.projectName,
-                customerId: customer?.id || '',
-                customerName: customer?.fullName || 'Khách hàng mới',
-                address: values.address,
-                areaM2: values.areaM2,
-                category: constructionType,
-                type: 'Nội bộ',
-                templateId: values.templateId,
-                status: 'SCHEDULED',
-                pmId: 'U001', // Mock PM
-                pmName: 'Nguyễn Văn PM',
-                workerIds: selectedWorkers,
-                workerNames: selectedWorkerNames,
-                startDate: values.startDate.format('YYYY-MM-DD'),
-                plannedEndDate: values.endDate.format('YYYY-MM-DD'),
-                createdAt: dayjs().format('YYYY-MM-DD'),
-                notes: values.notes,
-                steps: template ? template.steps.map((s: any) => ({
-                    id: `SP-${projectId}-${s.id}`,
-                    templateStepId: s.id,
-                    order: s.order,
-                    name: s.name,
-                    description: s.description,
-                    minPhotos: s.minPhotos,
-                    status: s.order === 1 ? 'OPEN' : 'LOCKED',
-                    evidences: []
-                })) : [],
-                incidents: [],
-                activityLog: [
-                    {
-                        id: `AL-${Date.now()}`,
-                        projectId: projectId,
-                        actor: 'Nguyễn Văn PM',
-                        action: 'PROJECT_CREATE',
-                        detail: 'Tạo dự án mới từ form thi công',
-                        timestamp: dayjs().toISOString()
-                    }
-                ],
-                paymentMilestones: [],
-                stockOrders: []
-            };
+            if (isEdit && existingProject) {
+                const updatedProjects = mockProjects.map(p => p.id === id ? {
+                    ...p,
+                    name: values.projectName,
+                    address: values.address,
+                    areaM2: values.areaM2,
+                    category: constructionType,
+                    templateId: values.templateId,
+                    workerIds: selectedWorkers,
+                    workerNames: selectedWorkerNames,
+                    startDate: values.startDate.format('YYYY-MM-DD'),
+                    plannedEndDate: values.endDate.format('YYYY-MM-DD'),
+                    notes: values.notes,
+                } : p);
+                setMockProjects(updatedProjects);
+                message.success('Cập nhật dự án thành công!');
+            } else {
+                const projectId = `DA-2026-${String(Date.now()).slice(-3)}`;
+                
+                const newProject: Project = {
+                    id: projectId,
+                    code: projectId,
+                    name: values.projectName,
+                    customerId: customer?.id || '',
+                    customerName: customer?.fullName || 'Khách hàng mới',
+                    address: values.address,
+                    areaM2: values.areaM2,
+                    category: constructionType,
+                    type: 'Nội bộ',
+                    templateId: values.templateId,
+                    status: 'SCHEDULED',
+                    pmId: 'U001', // Mock PM
+                    pmName: 'Nguyễn Văn PM',
+                    workerIds: selectedWorkers,
+                    workerNames: selectedWorkerNames,
+                    startDate: values.startDate.format('YYYY-MM-DD'),
+                    plannedEndDate: values.endDate.format('YYYY-MM-DD'),
+                    createdAt: dayjs().format('YYYY-MM-DD'),
+                    notes: values.notes,
+                    steps: template ? template.steps.map((s: any) => ({
+                        id: `SP-${projectId}-${s.id}`,
+                        templateStepId: s.id,
+                        order: s.order,
+                        name: s.name,
+                        description: s.description,
+                        minPhotos: s.minPhotos,
+                        status: s.order === 1 ? 'OPEN' : 'LOCKED',
+                        evidences: []
+                    })) : [],
+                    incidents: [],
+                    activityLog: [
+                        {
+                            id: `AL-${Date.now()}`,
+                            projectId: projectId,
+                            actor: 'Nguyễn Văn PM',
+                            action: 'PROJECT_CREATE',
+                            detail: 'Tạo dự án mới từ form thi công',
+                            timestamp: dayjs().toISOString()
+                        }
+                    ],
+                    paymentMilestones: [],
+                    stockOrders: []
+                };
 
-            setMockProjects([newProject, ...mockProjects]);
+                setMockProjects([newProject, ...mockProjects]);
+                message.success('Dự án đã được tạo thành công!');
+            }
+
             setSaving(false);
             hide();
-
-            message.success('Dự án đã được tạo thành công!');
             
             // Navigate after 1s to allow user to see success message
             setTimeout(() => {
@@ -157,7 +197,12 @@ const ProjectCreate: React.FC = () => {
                     Quay lại
                 </Button>
                 <div>
-                    <Title level={4} style={{ margin: 0 }}>🔨 Tạo Dự án Thi công</Title>
+                    <Title level={4} style={{ margin: 0 }}>
+                        {isEdit ? '✏️ Chỉnh sửa Dự án' : '🔨 Tạo Dự án Thi công'}
+                    </Title>
+                    {existingProject && (
+                        <Text type="secondary">Mã dự án: <strong>{existingProject.code}</strong></Text>
+                    )}
                     {customer && (
                         <Text type="secondary">Khách hàng: <strong>{customer.fullName}</strong></Text>
                     )}
@@ -177,14 +222,14 @@ const ProjectCreate: React.FC = () => {
                 <Card title="📋 Thông tin Dự án" style={{ marginBottom: 16 }}>
                     <Row gutter={16}>
                         <Col xs={24} sm={12}>
-                            <Form.Item label="Mã dự án (tự động)">
-                                <Input value={`DA-2026-${String(Date.now()).slice(-3)}`} disabled />
+                            <Form.Item label="Mã dự án">
+                                <Input value={isEdit ? existingProject?.code : `DA-2026-${String(Date.now()).slice(-3)}`} disabled />
                             </Form.Item>
                         </Col>
                         <Col xs={24} sm={12}>
                             <Form.Item label="Khách hàng">
                                 <Input
-                                    value={customer ? `${customer.fullName} (${customer.phone})` : 'Chưa chọn KH'}
+                                    value={isEdit ? existingProject?.customerName : (customer ? `${customer.fullName} (${customer.phone})` : 'Chưa chọn KH')}
                                     disabled
                                     prefix={<UserOutlined />}
                                 />
@@ -364,14 +409,14 @@ const ProjectCreate: React.FC = () => {
                 <Divider />
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
                     <Button size="large" onClick={() => navigate(-1)}>Hủy</Button>
-                    <Button
+                     <Button
                         type="primary"
                         size="large"
-                        icon={<CheckCircleOutlined />}
+                        icon={isEdit ? <SaveOutlined /> : <CheckCircleOutlined />}
                         loading={saving}
                         onClick={handleSubmit}
                     >
-                        🔨 Tạo dự án
+                        {isEdit ? 'Lưu thay đổi' : '🔨 Tạo dự án'}
                     </Button>
                 </div>
             </Form>

@@ -7,7 +7,8 @@ import {
 import {
     ArrowLeftOutlined, EyeOutlined, CheckOutlined,
     CloseOutlined, CheckCircleOutlined,
-    ClockCircleOutlined, LockOutlined, LinkOutlined
+    ClockCircleOutlined, LockOutlined, LinkOutlined,
+    EditOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
@@ -316,6 +317,7 @@ const PMProjectDetail: React.FC = () => {
                     </Space>
                 </div>
                 <Space wrap>
+                    <Button icon={<EditOutlined />} onClick={() => navigate(`/pm/construction/projects/${project.id}/edit`)}>Chỉnh sửa</Button>
                     <Button icon={<LinkOutlined />} onClick={() => setPortalDrawer(true)}>Portal KH</Button>
                     <Button onClick={() => navigate(`/pm/construction/projects/${project.id}/materials`)}>📦 Định mức</Button>
                     <Button onClick={() => navigate(`/pm/construction/projects/${project.id}/finance`)}>💰 Tài chính</Button>
