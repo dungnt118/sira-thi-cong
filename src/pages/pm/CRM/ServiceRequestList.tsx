@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
     Table, Card, Button, Tag, Input, Select, Space, Avatar,
-    Row, Col, Dropdown, Typography, Empty, Modal, Form
+    Row, Col, Dropdown, Typography, Empty, Modal, Form, Grid
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import type { MenuProps } from 'antd';
@@ -25,6 +25,8 @@ const STATUS_CONFIG: Record<PipelineSystemStage, { label: string; color: string 
 };
 
 const ServiceRequestList: React.FC = () => {
+    const screens = Grid.useBreakpoint();
+    const isMobile = !screens.md;
     const navigate = useNavigate();
     const [search, setSearch] = useState('');
     const [filterPipeline, setFilterPipeline] = useState<string>('ALL');
@@ -58,14 +60,23 @@ const ServiceRequestList: React.FC = () => {
             title: 'Mã YC',
             dataIndex: 'code',
             key: 'code',
+            width: 110,
             render: (text) => <Text strong>{text}</Text>,
         },
         {
             title: 'Tên Yêu cầu',
             key: 'name',
+            ellipsis: true,
             render: (_, r) => (
-                <div>
-                    <div style={{ fontWeight: 600, cursor: 'pointer', color: '#1976D2' }}
+                <div style={{ maxWidth: isMobile ? 200 : 'none' }}>
+                    <div style={{ 
+                        fontWeight: 600, 
+                        cursor: 'pointer', 
+                        color: '#1976D2',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                    }}
                         onClick={() => navigate(`/pm/crm/service-requests/${r.id}`)}>
                         {r.name}
                     </div>
@@ -76,11 +87,13 @@ const ServiceRequestList: React.FC = () => {
         {
             title: 'Khách hàng',
             key: 'customer',
+            ellipsis: true,
+            width: 180,
             render: (_, r) => {
                 const customer = mockCustomers.find(c => c.id === r.customerId);
                 return (
-                    <div>
-                        <div style={{ fontWeight: 500 }}>{r.customerName}</div>
+                    <div style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        <div style={{ fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.customerName}</div>
                         <Text type="secondary" style={{ fontSize: 12 }}>
                             {customer?.phone}
                         </Text>
@@ -102,22 +115,30 @@ const ServiceRequestList: React.FC = () => {
         {
             title: 'Pipeline / Bước',
             key: 'pipeline',
+            width: 180,
             render: (_, r) => {
                 const pipeline = mockPipelines.find(p => p.id === r.pipelineId);
                 const stage = pipeline?.stages.find(s => s.id === r.stageId);
                 return (
-                    <div>
-                        <div style={{ fontSize: 12, marginBottom: 4 }}>{pipeline?.name}</div>
+                    <div style={{ overflow: 'hidden' }}>
+                        <div style={{ 
+                            fontSize: 12, 
+                            marginBottom: 4,
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis'
+                        }}>{pipeline?.name}</div>
                         {stage ? (
-                            <Tag color={stage.color}>{stage.name}</Tag>
+                            <Tag color={stage.color} style={{ maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis' }}>{stage.name}</Tag>
                         ) : null}
                     </div>
                 );
             },
         },
         {
-            title: 'Trạng thái chung',
+            title: 'Trạng thái',
             key: 'status',
+            width: 130,
             render: (_, r) => {
                 const s = STATUS_CONFIG[r.status];
                 return <Tag color={s.color}>{s.label}</Tag>;
@@ -144,26 +165,39 @@ const ServiceRequestList: React.FC = () => {
     };
 
     return (
-        <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-                <div>
-                    <h2 style={{ margin: 0 }}>Danh sách Yêu cầu Dịch vụ (Deals)</h2>
-                    <Text type="secondary">Quản lý toàn bộ cơ hội bán hàng và khảo sát thi công</Text>
-                </div>
-                <Space>
-                    <Button icon={<FunnelPlotOutlined />} onClick={() => navigate('/pm/crm/pipeline')}>
-                        Xem bảng Kanban (Pipeline)
-                    </Button>
-                    <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsCreateModalVisible(true)}>
-                        Tạo Yêu cầu mới
-                    </Button>
-                </Space>
+        <div style={{ padding: isMobile ? 4 : 0 }}>
+            <div style={{ marginBottom: 24 }}>
+                <Row gutter={[16, 16]} align="middle" justify="space-between">
+                    <Col xs={24} md={16}>
+                        <h2 style={{ margin: 0, fontSize: isMobile ? '1.2rem' : '1.5rem' }}>Danh sách Yêu cầu Dịch vụ (Deals)</h2>
+                        <Text type="secondary" style={{ fontSize: isMobile ? 12 : 14 }}>Quản lý toàn bộ cơ hội bán hàng và khảo sát thi công</Text>
+                    </Col>
+                    <Col xs={24} md={8} style={{ textAlign: isMobile ? 'left' : 'right' }}>
+                        <Space size={isMobile ? 8 : 12} wrap={isMobile} style={{ width: isMobile ? '100%' : 'auto' }}>
+                            <Button 
+                                icon={<FunnelPlotOutlined />} 
+                                onClick={() => navigate('/pm/crm/pipeline')}
+                                block={isMobile}
+                            >
+                                {isMobile ? 'Kanban' : 'Xem bảng Kanban (Pipeline)'}
+                            </Button>
+                            <Button 
+                                type="primary" 
+                                icon={<PlusOutlined />} 
+                                onClick={() => setIsCreateModalVisible(true)}
+                                block={isMobile}
+                            >
+                                {isMobile ? 'Thêm YC' : 'Tạo Yêu cầu mới'}
+                            </Button>
+                        </Space>
+                    </Col>
+                </Row>
             </div>
 
-            <Card>
+            <Card bodyStyle={{ padding: isMobile ? 8 : 24 }}>
                 {/* Filter Bar */}
-                <Row gutter={12} style={{ marginBottom: 16 }}>
-                    <Col flex="auto">
+                <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
+                    <Col xs={24} lg={12}>
                         <Input
                             placeholder="Tìm kiếm theo Tên YC, Mã YC, Tên KH..."
                             prefix={<SearchOutlined />}
@@ -172,9 +206,9 @@ const ServiceRequestList: React.FC = () => {
                             allowClear
                         />
                     </Col>
-                    <Col>
+                    <Col xs={24} sm={12} lg={6}>
                         <Select
-                            style={{ width: 220 }}
+                            style={{ width: '100%' }}
                             value={filterPipeline}
                             onChange={setFilterPipeline}
                             options={[
@@ -184,9 +218,9 @@ const ServiceRequestList: React.FC = () => {
                             suffixIcon={<FilterOutlined />}
                         />
                     </Col>
-                    <Col>
+                    <Col xs={24} sm={12} lg={6}>
                         <Select
-                            style={{ width: 180 }}
+                            style={{ width: '100%' }}
                             value={filterStatus}
                             onChange={setFilterStatus}
                             options={[
@@ -204,7 +238,8 @@ const ServiceRequestList: React.FC = () => {
                     rowKey="id"
                     pagination={{ pageSize: 15, showSizeChanger: true, showTotal: (t) => `${t} Yêu cầu` }}
                     locale={{ emptyText: <Empty description="Không có Yêu cầu dịch vụ nào" /> }}
-                    size="middle"
+                    size={isMobile ? "small" : "middle"}
+                    scroll={{ x: 'max-content' }}
                 />
             </Card>
 
@@ -233,20 +268,20 @@ const ServiceRequestList: React.FC = () => {
                         <Input placeholder="VD: Chống thấm mái chung cư Sunwah" />
                     </Form.Item>
 
-                    <Row gutter={16}>
-                        <Col span={12}>
+                    <Row gutter={[16, 0]}>
+                        <Col xs={24} sm={12}>
                             <Form.Item name="pipelineId" label="3. Hành trình (Pipeline)" rules={[{ required: true }]}>
-                                <Select placeholder="Chọn quy trình mẫu">
+                                <Select placeholder="Chọn quy trình mẫu" style={{ width: '100%' }}>
                                     {mockPipelines.map(p => (
                                         <Option key={p.id} value={p.id}>{p.name}</Option>
                                     ))}
                                 </Select>
                             </Form.Item>
                         </Col>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             {/* In a real app, this would dynamically list stages of the selected pipeline */}
                             <Form.Item name="stageId" label="Bước Khởi tạo" rules={[{ required: true }]}>
-                                <Select placeholder="Chọn bước">
+                                <Select placeholder="Chọn bước" style={{ width: '100%' }}>
                                     <Option value="st-01">Tiếp nhận Lead</Option>
                                     <Option value="st-02">Đang Khảo sát</Option>
                                 </Select>
