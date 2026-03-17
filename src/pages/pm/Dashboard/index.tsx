@@ -15,72 +15,9 @@ import {
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { useNavigate } from 'react-router-dom';
+import { mockProjects, mockMilestones, getProjectProgress } from '../../../data/mockData';
+import { ProjectStatus, MilestoneStatus } from '../../../types/v3';
 
-/* ====== MOCK DATA ====== */
-const kpiData = {
-    totalProjects: 48,
-    projectsTrend: 12,
-    activeProjects: 15,
-    pendingApprovals: 23,
-    revenueThisMonth: 650000000,
-    revenueTrend: 8.5,
-};
-
-const recentProjects = [
-    {
-        key: '1',
-        code: 'DU-2026-001',
-        name: 'Chống thấm Chung cư Sunrise',
-        customer: 'Công ty ABC',
-        status: 'Đang thi công',
-        pm: 'Nguyễn Văn A',
-        progress: 72,
-    },
-    {
-        key: '2',
-        code: 'DU-2026-002',
-        name: 'Sửa chữa Nhà riêng Q7',
-        customer: 'Anh Trần Văn B',
-        status: 'Chờ nghiệm thu',
-        pm: 'Nguyễn Văn A',
-        progress: 95,
-    },
-    {
-        key: '3',
-        code: 'DU-2026-003',
-        name: 'Chống thấm Văn phòng DEF',
-        customer: 'Công ty DEF',
-        status: 'Chậm tiến độ',
-        pm: 'Nguyễn Văn A',
-        progress: 45,
-    },
-    {
-        key: '4',
-        code: 'DU-2026-004',
-        name: 'Sửa chữa Biệt thự Thảo Điền',
-        customer: 'Chị Lê Thị C',
-        status: 'Bản nháp',
-        pm: 'Nguyễn Văn A',
-        progress: 0,
-    },
-    {
-        key: '5',
-        code: 'DU-2026-005',
-        name: 'Chống thấm Nhà xưởng GHI',
-        customer: 'Công ty GHI',
-        status: 'Đang thi công',
-        pm: 'Nguyễn Văn A',
-        progress: 30,
-    },
-];
-
-const recentPayments = [
-    { key: '1', project: 'DU-2026-001', milestone: 'Đặt cọc', amount: 15000000, status: 'Đã thanh toán', date: '2026-02-10' },
-    { key: '2', project: 'DU-2026-002', milestone: 'Nghiệm thu', amount: 20000000, status: 'Chờ xác nhận', date: '2026-02-12' },
-    { key: '3', project: 'DU-2026-003', milestone: 'Tạm ứng', amount: 18000000, status: 'Quá hạn', date: '2026-01-28' },
-    { key: '4', project: 'DU-2026-005', milestone: 'Đặt cọc', amount: 12000000, status: 'Đã thanh toán', date: '2026-02-08' },
-    { key: '5', project: 'DU-2026-001', milestone: 'Tạm ứng', amount: 25000000, status: 'Chờ xác nhận', date: '2026-02-13' },
-];
 
 const notifications = [
     { id: 1, text: 'Giám sát viên Trần Thị B đã tải lên 8 tư liệu mới cho DU-2026-001', time: '5 phút trước', type: 'evidence' },
@@ -94,19 +31,40 @@ const notifications = [
 const PMDashboard: React.FC = () => {
     const navigate = useNavigate();
 
-    const statusColor: Record<string, string> = {
-        'Đang thi công': 'processing',
-        'Chờ nghiệm thu': 'warning',
-        'Chậm tiến độ': 'error',
-        'Bản nháp': 'default',
-        'Hoàn thành': 'success',
+    const statusMap: Record<ProjectStatus, { label: string; color: string }> = {
+        'SCHEDULED': { label: 'Đã lên lịch', color: 'cyan' },
+        'WAITING_MATERIALS': { label: 'Chờ vật tư', color: 'orange' },
+        'IN_PROGRESS': { label: 'Đang thi công', color: 'processing' },
+        'AWAITING_APPROVAL': { label: 'Chờ nghiệm thu', color: 'warning' },
+        'COMPLETED': { label: 'Hoàn thành', color: 'success' },
+        'CANCELLED': { label: 'Đã hủy', color: 'default' },
     };
 
-    const paymentStatusColor: Record<string, string> = {
-        'Đã thanh toán': 'success',
-        'Chờ xác nhận': 'warning',
-        'Quá hạn': 'error',
+    const paymentStatusMap: Record<MilestoneStatus, { label: string; color: string }> = {
+        'PAID': { label: 'Đã thanh toán', color: 'success' },
+        'PENDING': { label: 'Chờ thanh toán', color: 'warning' },
+        'OVERDUE': { label: 'Quá hạn', color: 'error' },
     };
+
+    // Derived Metrics
+    const totalProjects = mockProjects.length;
+    const activeProjectsCount = mockProjects.filter(p => p.status === 'IN_PROGRESS').length;
+    const pendingApprovalsCount = mockProjects.reduce((acc, p) => 
+        acc + p.steps.filter(s => s.status === 'AWAITING_REVIEW').length, 0
+    );
+    // Rough monthly revenue calculation (from PAID milestones this month/all time for demo)
+    const revenueThisMonth = mockMilestones.filter(m => m.status === 'PAID').reduce((acc, m) => acc + m.amount, 0);
+
+    const recentProjectsData = mockProjects.slice(0, 5).map(p => ({
+        ...p,
+        key: p.id,
+        progress: getProjectProgress(p) || 0,
+    }));
+
+    const recentPaymentsData = mockMilestones.slice(0, 5).map(m => ({
+        ...m,
+        key: m.id,
+    }));
 
     const projectColumns: ColumnsType<any> = [
         {
@@ -114,10 +72,10 @@ const PMDashboard: React.FC = () => {
             render: (code) => <a onClick={() => navigate(`/pm/projects/${code}`)}>{code}</a>,
         },
         { title: 'Tên dự án', dataIndex: 'name', key: 'name', ellipsis: true },
-        { title: 'Khách hàng', dataIndex: 'customer', key: 'customer', width: 150 },
+        { title: 'Khách hàng', dataIndex: 'customerName', key: 'customerName', width: 150 },
         {
             title: 'Trạng thái', dataIndex: 'status', key: 'status', width: 140,
-            render: (s) => <Tag color={statusColor[s] || 'default'}>{s}</Tag>,
+            render: (s: ProjectStatus) => <Tag color={statusMap[s]?.color || 'default'}>{statusMap[s]?.label || s}</Tag>,
         },
         {
             title: 'Tiến độ', dataIndex: 'progress', key: 'progress', width: 120,
@@ -126,15 +84,15 @@ const PMDashboard: React.FC = () => {
     ];
 
     const paymentColumns: ColumnsType<any> = [
-        { title: 'Dự án', dataIndex: 'project', key: 'project', width: 130 },
-        { title: 'Mốc', dataIndex: 'milestone', key: 'milestone', width: 110 },
+        { title: 'Dự án', dataIndex: 'projectName', key: 'projectName', width: 130, ellipsis: true },
+        { title: 'Mốc', dataIndex: 'round', key: 'round', width: 80, render: (r) => `Đợt ${r}` },
         {
             title: 'Số tiền', dataIndex: 'amount', key: 'amount', width: 120,
-            render: (v) => `${(v / 1000000).toFixed(0)} triệu`,
+            render: (v) => `${(v / 1000000).toFixed(1)} tr`,
         },
         {
             title: 'Trạng thái', dataIndex: 'status', key: 'status', width: 130,
-            render: (s) => <Tag color={paymentStatusColor[s] || 'default'}>{s}</Tag>,
+            render: (s: MilestoneStatus) => <Tag color={paymentStatusMap[s]?.color || 'default'}>{paymentStatusMap[s]?.label || s}</Tag>,
         },
     ];
 
@@ -148,12 +106,12 @@ const PMDashboard: React.FC = () => {
                     <Card hoverable onClick={() => navigate('/pm/projects/all')} bodyStyle={{ padding: 16 }}>
                         <Statistic
                             title="Tổng Dự án"
-                            value={kpiData.totalProjects}
+                            value={totalProjects}
                             prefix={<ProjectOutlined />}
                             valueStyle={{ color: '#1890ff', fontSize: 24 }}
                         />
                         <Tag color="green" icon={<ArrowUpOutlined />} style={{ marginTop: 8, fontSize: 11 }}>
-                            +{kpiData.projectsTrend}% <span style={{ opacity: 0.8 }}>tháng trước</span>
+                            +12% <span style={{ opacity: 0.8 }}>tháng trước</span>
                         </Tag>
                     </Card>
                 </Col>
@@ -161,7 +119,7 @@ const PMDashboard: React.FC = () => {
                     <Card hoverable onClick={() => navigate('/pm/projects/all')} bodyStyle={{ padding: 16 }}>
                         <Statistic
                             title="Đang Thi công"
-                            value={kpiData.activeProjects}
+                            value={activeProjectsCount}
                             prefix={<ClockCircleOutlined />}
                             valueStyle={{ color: '#fa8c16', fontSize: 24 }}
                         />
@@ -174,11 +132,11 @@ const PMDashboard: React.FC = () => {
                     <Card hoverable onClick={() => navigate('/pm/projects/all')} bodyStyle={{ padding: 16 }}>
                         <Statistic
                             title="Chờ Duyệt Tư liệu"
-                            value={kpiData.pendingApprovals}
+                            value={pendingApprovalsCount}
                             prefix={<FileImageOutlined />}
                             valueStyle={{ color: '#722ed1', fontSize: 24 }}
                         />
-                        {kpiData.pendingApprovals > 10 && (
+                        {pendingApprovalsCount > 10 && (
                             <Tag color="red" icon={<ExclamationCircleOutlined />} style={{ marginTop: 8, fontSize: 11 }}>
                                 Cần xử lý gấp
                             </Tag>
@@ -188,14 +146,14 @@ const PMDashboard: React.FC = () => {
                 <Col xs={24} sm={12} lg={6}>
                     <Card bodyStyle={{ padding: 16 }}>
                         <Statistic
-                            title="Doanh thu Tháng này"
-                            value={kpiData.revenueThisMonth / 1000000}
-                            suffix="triệu"
+                            title="Doanh thu (Tạm tính)"
+                            value={revenueThisMonth / 1000000}
+                            suffix="tr"
                             prefix={<DollarOutlined />}
                             valueStyle={{ color: '#3f8600', fontSize: 24 }}
                         />
                         <Tag color="green" icon={<ArrowUpOutlined />} style={{ marginTop: 8, fontSize: 11 }}>
-                            +{kpiData.revenueTrend}%
+                            +8.5%
                         </Tag>
                     </Card>
                 </Col>
@@ -207,27 +165,30 @@ const PMDashboard: React.FC = () => {
                     <Card title="Phân bố Trạng thái Dự án" bodyStyle={{ padding: 16 }}>
                         <Row gutter={[8, 16]}>
                             {[
-                                { label: 'Bản nháp', count: 5, color: '#d9d9d9', total: 48 },
-                                { label: 'Đã lên lịch', count: 8, color: '#1890ff', total: 48 },
-                                { label: 'Đang thi công', count: 15, color: '#fa8c16', total: 48 },
-                                { label: 'Chờ nghiệm thu', count: 6, color: '#722ed1', total: 48 },
-                                { label: 'Hoàn thành', count: 12, color: '#52c41a', total: 48 },
-                                { label: 'Đã đóng', count: 2, color: '#262626', total: 48 },
-                            ].map((item, idx) => (
-                                <Col xs={8} sm={4} key={idx}>
-                                    <div style={{ textAlign: 'center', marginBottom: 8 }}>
-                                        <div style={{ fontSize: 24, fontWeight: 700, color: item.color }}>{item.count}</div>
-                                        <div style={{ fontSize: 11, color: '#666', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</div>
-                                        <Progress
-                                            percent={Math.round((item.count / item.total) * 100)}
-                                            strokeColor={item.color}
-                                            showInfo={false}
-                                            size="small"
-                                            style={{ marginTop: 4 }}
-                                        />
-                                    </div>
-                                </Col>
-                            ))}
+                                { key: 'CANCELLED', color: '#d9d9d9' },
+                                { key: 'SCHEDULED', color: '#1890ff' },
+                                { key: 'IN_PROGRESS', color: '#fa8c16' },
+                                { key: 'AWAITING_APPROVAL', color: '#722ed1' },
+                                { key: 'COMPLETED', color: '#52c41a' },
+                            ].map((config, idx) => {
+                                const item = statusMap[config.key as ProjectStatus];
+                                const count = mockProjects.filter(p => p.status === config.key).length;
+                                return (
+                                    <Col xs={8} sm={4} key={idx}>
+                                        <div style={{ textAlign: 'center', marginBottom: 8 }}>
+                                            <div style={{ fontSize: 24, fontWeight: 700, color: config.color }}>{count}</div>
+                                            <div style={{ fontSize: 11, color: '#666', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</div>
+                                            <Progress
+                                                percent={totalProjects > 0 ? Math.round((count / totalProjects) * 100) : 0}
+                                                strokeColor={config.color}
+                                                showInfo={false}
+                                                size="small"
+                                                style={{ marginTop: 4 }}
+                                            />
+                                        </div>
+                                    </Col>
+                                );
+                            })}
                         </Row>
                     </Card>
                 </Col>
@@ -280,7 +241,7 @@ const PMDashboard: React.FC = () => {
                     >
                         <Table 
                             columns={projectColumns} 
-                            dataSource={recentProjects} 
+                            dataSource={recentProjectsData} 
                             pagination={false} 
                             size="small" 
                             scroll={{ x: 'max-content' }}
@@ -295,7 +256,7 @@ const PMDashboard: React.FC = () => {
                     >
                         <Table 
                             columns={paymentColumns} 
-                            dataSource={recentPayments} 
+                            dataSource={recentPaymentsData} 
                             pagination={false} 
                             size="small" 
                             scroll={{ x: 'max-content' }}

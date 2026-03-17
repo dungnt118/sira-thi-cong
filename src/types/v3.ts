@@ -217,7 +217,10 @@ export interface Project {
     gpsLat?: number;
     gpsLng?: number;
     areaM2: number;
-    type: string;           // 'Chống thấm sàn' etc.
+    category: string;       // e.g. 'Chống thấm sàn'
+    type: 'Nội bộ' | 'Outsource';
+    budget?: number;
+    qualityScore?: number;
     templateId: string;
     status: ProjectStatus;
     pmId: string;

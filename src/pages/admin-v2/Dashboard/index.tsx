@@ -1,17 +1,8 @@
 import React from 'react';
 import { Card, Row, Col, Statistic, Table, Badge, Button, Space, Typography } from 'antd';
-import {
-    UserOutlined,
-    ProjectOutlined,
-    FileImageOutlined,
-    DollarOutlined,
-    ArrowUpOutlined,
-    ArrowDownOutlined,
-    CheckCircleOutlined,
-    ClockCircleOutlined,
-    WarningOutlined,
-} from '@ant-design/icons';
+import { CheckCircleOutlined, ClockCircleOutlined, WarningOutlined, UserOutlined, ProjectOutlined, FileImageOutlined, DollarOutlined, ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
+import { mockUsers, mockProjects, mockMilestones } from '../../../data/mockData';
 
 const { Title, Text } = Typography;
 
@@ -55,53 +46,38 @@ interface ActivityLog {
  * Metrics: Users, Projects, Evidence, Payments (NOT Server/CPU/Memory)
  */
 const DashboardV2: React.FC = () => {
-    // Mock data - replace with GraphQL/API calls
+    // Derived Metrics
+    const totalUsers = mockUsers.length;
+    const activeUsers = mockUsers.filter(u => u.isActive).length;
+    const totalProjects = mockProjects.length;
+    const activeProjects = mockProjects.filter(p => p.status === 'IN_PROGRESS').length;
+    const completedThisMonth = mockProjects.filter(p => p.status === 'COMPLETED').length;
+    const pendingEvidence = mockProjects.reduce((acc, p) => acc + p.steps.filter(s => s.status === 'AWAITING_REVIEW').length, 0);
+    const totalPayments = mockMilestones.filter(m => m.status === 'PAID').reduce((acc, m) => acc + m.amount, 0);
+    const pendingPayments = mockMilestones.filter(m => m.status === 'PENDING').length;
+
     const metrics: SystemMetrics = {
-        users: { total: 24, active: 18, online: 5, change: 12.5 },
-        projects: { total: 47, active: 12, completed_this_month: 8, change: 6.7 },
-        evidence: { pending_approval: 23, approved_today: 15, total_this_month: 342, change: -4.3 },
-        payment: { pending_confirmation: 5, total_this_month: 185000000, change: 8.2 },
+        users: { total: totalUsers, active: activeUsers, online: Math.ceil(activeUsers * 0.4), change: 12.5 },
+        projects: { total: totalProjects, active: activeProjects, completed_this_month: completedThisMonth, change: 6.7 },
+        evidence: { pending_approval: pendingEvidence, approved_today: 15, total_this_month: 342, change: -4.3 },
+        payment: { pending_confirmation: pendingPayments, total_this_month: totalPayments, change: 8.2 },
     };
 
     const recentActivities: ActivityLog[] = [
+        ...mockProjects.slice(0, 3).map(p => ({
+            key: `p-${p.id}`,
+            timestamp: 'Vừa xong',
+            user: p.pmName,
+            action: p.status === 'IN_PROGRESS' ? 'Project Updated' : 'Project Created',
+            entity: p.code,
+            status: 'success' as const,
+        })),
         {
-            key: '1',
-            timestamp: '10:30 SA',
-            user: 'Nguyễn Văn A',
-            action: 'Evidence Approved',
-            entity: 'DU-2024-001',
-            status: 'success',
-        },
-        {
-            key: '2',
-            timestamp: '09:15 SA',
-            user: 'Trần Thị B',
-            action: 'Payment Confirmed',
-            entity: 'DU-2024-002',
-            status: 'success',
-        },
-        {
-            key: '3',
-            timestamp: '08:45 SA',
-            user: 'Lê Văn C',
-            action: 'Evidence Uploaded',
-            entity: 'DU-2024-003',
-            status: 'pending',
-        },
-        {
-            key: '4',
+            key: 'login-1',
             timestamp: '08:20 SA',
-            user: 'Phạm Thị D',
+            user: 'Admin Lam Bac',
             action: 'User Login',
-            entity: 'Admin',
-            status: 'success',
-        },
-        {
-            key: '5',
-            timestamp: '07:55 SA',
-            user: 'Hoàng Văn E',
-            action: 'Project Created',
-            entity: 'DU-2024-004',
+            entity: 'System',
             status: 'success',
         },
     ];
