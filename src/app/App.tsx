@@ -66,7 +66,6 @@ import { SaleLayout } from '../layouts/SaleLayout';
 import SaleDashboard from '../pages/sale/Journeys/JourneyInbox';
 import SLAQueue from '../pages/sale/Journeys/SLAQueue';
 import SurveyCoordination from '../pages/sale/Journeys/SurveyCoordination';
-import SaleJourneyContext from '../pages/sale/Journeys/SaleJourneyContext';
 import SaleSurveyDetail from '../pages/sale/Journeys/SaleSurveyDetail';
 import CommunicationsCenter from '../pages/sale/Journeys/CommunicationsCenter';
 
@@ -254,7 +253,7 @@ function App() {
                         <Route path="sla" element={<SLAQueue />} />
                         <Route path="surveys" element={<SurveyCoordination />} />
                         <Route path="communications" element={<CommunicationsCenter />} />
-                        <Route path="dashboard/:journeyId" element={<SaleJourneyContext />} />
+                        <Route path="dashboard/:journeyId" element={<JourneyDetail360 />} />
                         <Route path="dashboard/:journeyId/surveys/:surveyId" element={<SaleSurveyDetail />} />
 
                     </Route>

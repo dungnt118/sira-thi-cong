@@ -2,7 +2,8 @@ import React, { useState, useMemo } from 'react';
 import {
     Card, Tabs, Tag, Button, Space, Typography, Row, Col,
     Badge, Statistic, Timeline, Descriptions, Modal,
-    Form, Select, Alert, Checkbox, message, Steps, Empty
+    Form, Select, Alert, Checkbox, message, Steps, Empty,
+    DatePicker, Input
 } from 'antd';
 import {
     ArrowLeftOutlined, UserOutlined, FlagOutlined,
@@ -18,8 +19,10 @@ import { useAuth } from '../../../hooks/useAuth';
 import JourneyStepRenderer from '../../shared/JourneySteps/JourneyStepRenderer';
 import StepLabor from '../../shared/JourneySteps/StepLabor';
 import StepMaterials from '../../shared/JourneySteps/StepMaterials';
+import { ConsultationLogForm } from '../../../components/journey/SharedModals';
 
 const { Text, Title } = Typography;
+const { TextArea } = Input;
 
 const GO_NO_GO_CONFIG: Record<GoNoGoStatus, { label: string; color: string }> = {
     draft: { label: 'Nháp', color: 'default' },
@@ -57,8 +60,11 @@ const JourneyDetail360: React.FC = () => {
     const [showAssignModal, setShowAssignModal] = useState(false);
     const [showPriorityModal, setShowPriorityModal] = useState(false);
     const [showPublishModal, setShowPublishModal] = useState(false);
+    const [showLogModal, setShowLogModal] = useState(false);
+    const [showFollowUpModal, setShowFollowUpModal] = useState(false);
     const [assignForm] = Form.useForm();
     const [priorityForm] = Form.useForm();
+    const [followUpForm] = Form.useForm();
 
     // Internal check for mobile
     const isMobile = window.innerWidth < 768;
@@ -233,11 +239,11 @@ const JourneyDetail360: React.FC = () => {
         }
     ].filter(item => {
         // Filter tabs based on user visibility
-        if (item.key === 'LOG') return role === 'pm';
+        if (item.key === 'LOG') return role === 'pm' || role === 'sale';
         
         // Custom keys that don't match standardProcedureGroupCd exactly
-        if (item.key === 'GRP_LABOR') return userRoleConfig.allowedGroupCodes.includes('GRP_05_QUOTE');
-        if (item.key === 'GRP_MATERIALS') return userRoleConfig.allowedGroupCodes.includes('GRP_05_QUOTE');
+        if (item.key === 'GRP_LABOR') return userRoleConfig.allowedGroupCodes.includes('GRP_05_QUOTE') || role === 'pm' || role === 'sale';
+        if (item.key === 'GRP_MATERIALS') return userRoleConfig.allowedGroupCodes.includes('GRP_05_QUOTE') || role === 'pm' || role === 'sale';
         if (item.key === 'GRP_DOCS') return userRoleConfig.allowedGroupCodes.includes('GRP_09_ACCEPTANCE') || userRoleConfig.allowedGroupCodes.includes('GRP_08_CONSTRUCT');
 
         return userRoleConfig.allowedGroupCodes.includes(item.key);
@@ -255,6 +261,12 @@ const JourneyDetail360: React.FC = () => {
                         <Button icon={<UserOutlined />} onClick={() => setShowAssignModal(true)}>Phân công</Button>
                         <Button icon={<FlagOutlined />} onClick={() => setShowPriorityModal(true)}>Ưu tiên</Button>
                         <Button type="primary" icon={<SendOutlined />} onClick={() => setShowPublishModal(true)}>Publish Portal</Button>
+                    </Space>
+                )}
+                {role === 'sale' && (
+                    <Space wrap>
+                        <Button icon={<MessageOutlined />} onClick={() => setShowLogModal(true)}>Ghi Log</Button>
+                        <Button icon={<ClockCircleOutlined />} onClick={() => setShowFollowUpModal(true)}>Follow-up</Button>
                     </Space>
                 )}
             </div>
@@ -319,6 +331,50 @@ const JourneyDetail360: React.FC = () => {
                 .journey-dark-steps .ant-steps-item-finish .ant-steps-item-icon { background-color: transparent !important; border-color: rgba(255,255,255,0.6) !important; }
                 .journey-dark-steps .ant-steps-item-finish .ant-steps-item-icon > .ant-steps-icon { color: rgba(255,255,255,0.6) !important; }
             `}</style>
+
+            {/* Modals for Sale */}
+            {role === 'sale' && (
+                <>
+                    <Modal 
+                        title="Ghi log tư vấn" 
+                        open={showLogModal} 
+                        onCancel={() => setShowLogModal(false)} 
+                        footer={null} 
+                        width={600}
+                    >
+                        <ConsultationLogForm 
+                            onSubmit={(values) => {
+                                console.log('Log submitted:', values);
+                                message.success("Đã lưu log tư vấn!");
+                                setShowLogModal(false);
+                            }} 
+                            onCancel={() => setShowLogModal(false)} 
+                        />
+                    </Modal>
+
+                    <Modal 
+                        title="Ghi chú Follow-up" 
+                        open={showFollowUpModal} 
+                        onCancel={() => setShowFollowUpModal(false)}
+                        onOk={() => {
+                            followUpForm.validateFields().then(values => {
+                                console.log('Follow-up values:', values);
+                                message.success("Đã cập nhật follow-up!");
+                                setShowFollowUpModal(false);
+                            });
+                        }}
+                    >
+                        <Form form={followUpForm} layout="vertical">
+                            <Form.Item label="Thời điểm follow-up" name="follow_up_at" rules={[{ required: true }]}>
+                                <DatePicker showTime style={{ width: '100%' }} />
+                            </Form.Item>
+                            <Form.Item label="Phản hồi của khách" name="customer_response" rules={[{ required: true }]}>
+                                <TextArea rows={3} />
+                            </Form.Item>
+                        </Form>
+                    </Modal>
+                </>
+            )}
 
             {/* Modals for PM */}
             {role === 'pm' && (
