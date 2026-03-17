@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Card, Empty, Space, Typography, message } from 'antd';
+import { Button, Card, Empty, Space, Typography, message, Grid } from 'antd';
 import { CheckCircleOutlined } from '@ant-design/icons';
 import Step01Info from './Step01Info';
 import Step02Consult from './Step02Consult';
@@ -30,6 +30,8 @@ export const JourneyStepRenderer: React.FC<JourneyStepRendererProps> = ({
     isEditable = false,
     canFinalize = false 
 }) => {
+    const screens = Grid.useBreakpoint();
+    const isMobile = !screens.md;
     const [isInternalEdit, setIsInternalEdit] = React.useState(false);
 
     const handleConfirmStep = () => {
@@ -63,7 +65,7 @@ export const JourneyStepRenderer: React.FC<JourneyStepRendererProps> = ({
     };
 
     return (
-        <Space direction="vertical" style={{ width: '100%' }} size="middle">
+        <Space direction="vertical" style={{ width: '100%' }} size={isMobile ? 'small' : 'middle'}>
             {renderStep()}
             
             {canFinalize && !isInternalEdit && (

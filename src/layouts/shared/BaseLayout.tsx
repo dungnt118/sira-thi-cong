@@ -103,7 +103,7 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({ sidebar, topBar }) => {
                         {topBar}
                     </div>
                 </Header>
-                <Content style={{ margin: isMobile ? '0 8px 16px' : '0 16px 24px', padding: isMobile ? 12 : 24, background: '#f0f2f5' }}>
+                <Content style={{ margin: isMobile ? '0 2px 8px' : '0 16px 24px', padding: isMobile ? 4 : 24, background: '#f0f2f5' }}>
                     <Breadcrumbs />
                     <Outlet />
                 </Content>

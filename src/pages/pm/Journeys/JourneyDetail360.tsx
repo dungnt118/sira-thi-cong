@@ -3,7 +3,7 @@ import {
     Card, Tabs, Tag, Button, Space, Typography, Row, Col,
     Badge, Statistic, Timeline, Descriptions, Modal,
     Form, Select, Alert, Checkbox, message, Steps, Empty,
-    DatePicker, Input
+    DatePicker, Input, Grid
 } from 'antd';
 import {
     CalendarOutlined, FileSearchOutlined, CalculatorOutlined, FileTextOutlined,
@@ -66,8 +66,8 @@ const JourneyDetail360: React.FC = () => {
     const [priorityForm] = Form.useForm();
     const [followUpForm] = Form.useForm();
 
-    // Internal check for mobile
-    const isMobile = window.innerWidth < 768;
+    const screens = Grid.useBreakpoint();
+    const isMobile = !screens.md;
 
     // Resolve which tabs/steps this user can see and edit
     const userRoleConfig = useMemo(() => {
@@ -267,29 +267,29 @@ const JourneyDetail360: React.FC = () => {
     });
 
     return (
-        <div style={{ padding: isMobile ? '12px' : '24px' }}>
+        <div style={{ padding: isMobile ? '4px 0' : '24px' }}>
             {/* Back + Primary Actions */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
-                <Button icon={<ArrowLeftOutlined />} type="text" onClick={() => navigate(-1)}>
-                    Quay lại
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isMobile ? 8 : 16 }}>
+                <Button icon={<ArrowLeftOutlined />} type="text" onClick={() => navigate(-1)} style={{ padding: isMobile ? '4px 8px' : undefined }}>
+                    {!isMobile && 'Quay lại'}
                 </Button>
                 {role === 'pm' && (
-                    <Space wrap>
-                        <Button icon={<UserOutlined />} onClick={() => setShowAssignModal(true)}>Phân công</Button>
-                        <Button icon={<FlagOutlined />} onClick={() => setShowPriorityModal(true)}>Ưu tiên</Button>
+                    <Space size={isMobile ? 4 : 8} wrap={isMobile}>
+                        <Button icon={<UserOutlined />} onClick={() => setShowAssignModal(true)}>{isMobile ? '' : 'Phân công'}</Button>
+                        <Button icon={<FlagOutlined />} onClick={() => setShowPriorityModal(true)}>{isMobile ? '' : 'Ưu tiên'}</Button>
                         <Button type="primary" icon={<SendOutlined />} onClick={() => setShowPublishModal(true)}>Publish Portal</Button>
                     </Space>
                 )}
                 {role === 'sale' && (
-                    <Space wrap>
-                        <Button icon={<MessageOutlined />} onClick={() => setShowLogModal(true)}>Ghi Log</Button>
-                        <Button icon={<ClockCircleOutlined />} onClick={() => setShowFollowUpModal(true)}>Follow-up</Button>
+                    <Space size={isMobile ? 4 : 8} wrap={isMobile}>
+                        <Button icon={<MessageOutlined />} onClick={() => setShowLogModal(true)}>{isMobile ? '' : 'Ghi Log'}</Button>
+                        <Button icon={<ClockCircleOutlined />} onClick={() => setShowFollowUpModal(true)}>{isMobile ? '' : 'Follow-up'}</Button>
                     </Space>
                 )}
             </div>
 
             {/* Journey Header Card */}
-            <Card style={{ marginBottom: 16, borderRadius: 10, background: 'linear-gradient(135deg, #1e3a5f 0%, #1976D2 100%)', border: 'none' }}>
+            <Card style={{ marginBottom: isMobile ? 8 : 16, borderRadius: 10, background: 'linear-gradient(135deg, #1e3a5f 0%, #1976D2 100%)', border: 'none' }}>
                 <Row gutter={24} align="middle">
                     <Col xs={24} md={16}>
                         <div style={{ marginBottom: 4 }}>

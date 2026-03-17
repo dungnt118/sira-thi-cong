@@ -143,7 +143,7 @@ const PMTopBar: React.FC = () => {
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 width: '100%',
-                padding: isMobile ? '0 12px' : '0 24px',
+                padding: isMobile ? '0 4px' : '0 24px',
                 height: '100%',
                 gap: 12,
             }}

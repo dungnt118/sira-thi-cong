@@ -171,21 +171,23 @@ const JourneyList: React.FC = () => {
     return (
         <div>
             {/* Page Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-                <div>
+            <Row justify="space-between" align="middle" gutter={[16, 16]} style={{ marginBottom: 20 }}>
+                <Col xs={24} sm={12}>
                     <h2 style={{ margin: 0 }}>Danh sách Hành trình Khách hàng</h2>
                     <Text type="secondary">Quản lý toàn bộ hành trình dịch vụ theo vai trò PM</Text>
-                </div>
-                <Space>
-                    <Tooltip title="Xem dạng Board">
-                        <Button icon={<AppstoreOutlined />} onClick={() => navigate('/pm/journeys/board')}>Board</Button>
-                    </Tooltip>
-                    <Tooltip title="Action Center">
-                        <Button icon={<AlertOutlined />} onClick={() => navigate('/pm/journeys/action-center')}>Action Center</Button>
-                    </Tooltip>
-                    <Button icon={<ReloadOutlined />} onClick={handleRefresh}>Làm mới</Button>
-                </Space>
-            </div>
+                </Col>
+                <Col xs={24} sm={12} style={{ textAlign: isMobile ? 'left' : 'right' }}>
+                    <Space wrap>
+                        <Tooltip title="Xem dạng Board">
+                            <Button icon={<AppstoreOutlined />} onClick={() => navigate('/pm/journeys/board')}>{isMobile ? '' : 'Board'}</Button>
+                        </Tooltip>
+                        <Tooltip title="Action Center">
+                            <Button icon={<AlertOutlined />} onClick={() => navigate('/pm/journeys/action-center')}>{isMobile ? '' : 'Action Center'}</Button>
+                        </Tooltip>
+                        <Button icon={<ReloadOutlined />} onClick={handleRefresh}>Làm mới</Button>
+                    </Space>
+                </Col>
+            </Row>
 
             {/* KPI Row */}
             <Row gutter={16} style={{ marginBottom: 20 }}>
