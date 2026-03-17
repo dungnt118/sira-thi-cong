@@ -16,7 +16,7 @@ const STATUS_LABEL: Record<string, string> = { open: 'Đang mở', waiting: 'Ch�
 const ThreadInbox: React.FC = () => {
     const { token } = useParams<{ token: string }>();
     const navigate = useNavigate();
-    const journey = mockJourneys.find(j => j.portal_token === token);
+    const journey = mockJourneys.find(j => j.portal_token === token || j.journey_code === token);
     const threads = mockPortalThreads.filter(t => t.journey_id === journey?.id);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [createForm] = Form.useForm();

@@ -9,7 +9,7 @@ const { Text, Title } = Typography;
 const PortalDocuments: React.FC = () => {
     const { token } = useParams<{ token: string }>();
     const navigate = useNavigate();
-    const journey = mockJourneys.find(j => j.portal_token === token);
+    const journey = mockJourneys.find(j => j.portal_token === token || j.journey_code === token);
     const [selectedDoc, setSelectedDoc] = useState<any>(null);
 
     const mockDocs = [

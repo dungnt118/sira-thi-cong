@@ -14,7 +14,7 @@ const { TextArea } = Input;
 const PublishedTimeline: React.FC = () => {
     const { token } = useParams<{ token: string }>();
     const navigate = useNavigate();
-    const journey = mockJourneys.find(j => j.portal_token === token);
+    const journey = mockJourneys.find(j => j.portal_token === token || j.journey_code === token);
     const template = mockJourneyTemplates.find(t => t.id === journey?.template_id);
     const steps = template?.steps || [];
 

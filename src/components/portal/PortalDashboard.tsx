@@ -8,6 +8,7 @@ import {
     UserOutlined
 } from '@ant-design/icons';
 import { Journey } from '../../types/journey';
+import { mockJourneyTemplates } from '../../data/journeyMockData';
 
 const { Title, Text } = Typography;
 
@@ -19,17 +20,52 @@ interface PortalDashboardProps {
 }
 
 const PortalDashboard: React.FC<PortalDashboardProps> = ({ journey, token, onNavigate, isPreview }) => {
-    // Mock progress calculation
-    const progress = journey.progress_pct || 35;
+    // Resolve dynamic steps from template
+    const template = mockJourneyTemplates.find(t => t.id === journey.template_id) || mockJourneyTemplates[0];
+    const allSteps = template?.steps || [];
     
-    // Mock steps for timeline preview
-    const steps: any[] = [
-        { title: 'Tiếp nhận yêu cầu', description: 'Hoàn thành', status: 'finish' },
-        { title: 'Khảo sát hiện trường', description: 'Hoàn thành', status: 'finish' },
-        { title: 'Báo giá & Hợp đồng', description: 'Đang thực hiện', status: 'process' },
-        { title: 'Thi công', description: 'Chưa bắt đầu', status: 'wait' },
-        { title: 'Nghiệm thu', description: 'Chưa bắt đầu', status: 'wait' },
-    ];
+    // Filter steps where publish_flag is true
+    const publishedSteps = allSteps.filter(s => s.publish_flag);
+    
+    // Find index of current step in the sequence of published steps
+    // Note: We need to find where the technical current_step_code sits relative to published steps
+    const currentStepIndexInAll = allSteps.findIndex(s => s.step_code === journey.current_step_code);
+    
+    const steps = publishedSteps.map((s) => {
+        const stepIndexInAll = allSteps.findIndex(as => as.step_code === s.step_code);
+        
+        let status: 'finish' | 'process' | 'wait' = 'wait';
+        let description = 'Chưa bắt đầu';
+        
+        if (stepIndexInAll < currentStepIndexInAll) {
+            status = 'finish';
+            description = 'Hoàn thành';
+        } else if (stepIndexInAll === currentStepIndexInAll) {
+            status = 'process';
+            description = 'Đang thực hiện';
+        }
+        
+        // Special case: if project is completed, all steps are finished
+        if (journey.project_status === 'completed') {
+            status = 'finish';
+            description = 'Hoàn thành';
+        }
+
+        return {
+            title: s.step_name,
+            description,
+            status
+        };
+    });
+
+    const currentStepInPublished = steps.findIndex(s => s.status === 'process');
+    // If no 'process' step, it's either all 'finish' or all 'wait'
+    const finalCurrent = currentStepInPublished !== -1 
+        ? currentStepInPublished 
+        : (steps.every(s => s.status === 'finish') ? steps.length : 0);
+
+    // Mock progress calculation
+    const progress = journey.progress_pct || (currentStepIndexInAll >= 0 ? Math.round((currentStepIndexInAll / allSteps.length) * 100) : 0);
 
     const containerStyle: React.CSSProperties = isPreview ? {
         background: '#f5f7fb',
@@ -111,7 +147,7 @@ const PortalDashboard: React.FC<PortalDashboardProps> = ({ journey, token, onNav
                                 prefix={<FileTextOutlined style={{ marginRight: 8, color: '#b7eb8f' }} />}
                             />
                             <div style={{ marginTop: 8 }}>
-                                <Button size="small" type="link" style={{ padding: 0, fontSize: 12 }} onClick={() => onNavigate?.(`/p/${token}/documents`)}>
+                                <Button size="small" type="link" style={{ padding: 0, fontSize: 12 }} onClick={() => onNavigate?.(`/portal/${token}/documents`)}>
                                     Xem tài liệu <RightOutlined style={{ fontSize: 10 }} />
                                 </Button>
                             </div>
@@ -126,7 +162,7 @@ const PortalDashboard: React.FC<PortalDashboardProps> = ({ journey, token, onNav
                                 prefix={<MessageOutlined style={{ marginRight: 8, color: '#ffd591' }} />}
                             />
                             <div style={{ marginTop: 8 }}>
-                                <Button size="small" type="link" style={{ padding: 0, fontSize: 12 }} onClick={() => onNavigate?.(`/p/${token}/threads`)}>
+                                <Button size="small" type="link" style={{ padding: 0, fontSize: 12 }} onClick={() => onNavigate?.(`/portal/${token}/threads`)}>
                                     Mở hộp thư <RightOutlined style={{ fontSize: 10 }} />
                                 </Button>
                             </div>
@@ -140,12 +176,12 @@ const PortalDashboard: React.FC<PortalDashboardProps> = ({ journey, token, onNav
                     size="small"
                     style={{ borderRadius: 12, marginBottom: 20, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
                     headStyle={{ fontSize: 14 }}
-                    extra={<Button type="link" size="small" onClick={() => onNavigate?.(`/p/${token}/timeline`)}>Xem chi tiết</Button>}
+                    extra={<Button type="link" size="small" onClick={() => onNavigate?.(`/portal/${token}/timeline`)}>Xem chi tiết</Button>}
                 >
                     <Steps 
                         direction="vertical" 
                         size="small"
-                        current={2} 
+                        current={finalCurrent} 
                         items={steps}
                     />
                     <div style={{ marginTop: 16, padding: '12px 16px', background: '#e6f7ff', borderRadius: 8, borderLeft: '4px solid #1890ff' }}>
@@ -171,7 +207,7 @@ const PortalDashboard: React.FC<PortalDashboardProps> = ({ journey, token, onNav
                                 Cần hỗ trợ khẩn cấp? Vui lòng gọi Hotline.
                             </div>
                         </div>
-                        <Button type="primary" size="small" shape="round" icon={<MessageOutlined />} onClick={() => onNavigate?.(`/p/${token}/threads`)}>
+                        <Button type="primary" size="small" shape="round" icon={<MessageOutlined />} onClick={() => onNavigate?.(`/portal/${token}/threads`)}>
                             Chat
                         </Button>
                     </div>

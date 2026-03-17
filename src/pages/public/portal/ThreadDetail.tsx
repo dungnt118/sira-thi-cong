@@ -12,7 +12,7 @@ const { TextArea } = Input;
 const ThreadDetail: React.FC = () => {
     const { token, threadId } = useParams<{ token: string; threadId: string }>();
     const navigate = useNavigate();
-    const journey = mockJourneys.find(j => j.portal_token === token);
+    const journey = mockJourneys.find(j => j.portal_token === token || j.journey_code === token);
     const thread = mockPortalThreads.find(t => t.thread_id === threadId) || mockPortalThreads[0];
     const [replyForm] = Form.useForm();
 

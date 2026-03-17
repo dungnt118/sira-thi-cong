@@ -11,8 +11,8 @@ const CustomerPortal: React.FC = () => {
     const { token } = useParams<{ token: string }>();
     const navigate = useNavigate();
 
-    // Find journey by portal token
-    const journey = mockJourneys.find(j => j.portal_token === token) || mockJourneys.find(j => j.portal_token);
+    // Find journey by portal token or journey code
+    const journey = mockJourneys.find(j => j.portal_token === token || j.journey_code === token);
 
     if (!journey) {
         return (
