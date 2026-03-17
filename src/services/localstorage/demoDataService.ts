@@ -156,6 +156,27 @@ export const demoDataService = {
      */
     getDemoKeys(): string[] {
         return Object.values(this.KEYS);
+    },
+
+    /**
+     * Updates or adds an item in a specific collection
+     */
+    saveItem(key: string, item: any, idField: string = 'id'): void {
+        const data = this.getCollectionData(key) || [];
+        if (Array.isArray(data)) {
+            const index = data.findIndex((i: any) => i[idField] === item[idField]);
+            if (index !== -1) {
+                // Update
+                data[index] = { ...data[index], ...item };
+            } else {
+                // Add
+                data.push(item);
+            }
+            localStorageService.saveLocal(key, data);
+        } else {
+            // If not an array, just overwrite
+            localStorageService.saveLocal(key, item);
+        }
     }
 };
 

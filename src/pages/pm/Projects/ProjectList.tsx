@@ -13,8 +13,10 @@ import {
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { useNavigate } from 'react-router-dom';
-import { mockProjects, getProjectProgress } from '../../../data/mockData';
+import { getProjectProgress, mockProjects as defaultProjects } from '../../../data/mockData';
 import { ProjectStatus } from '../../../types/v3';
+import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
+import { demoDataService } from '../../../services/localstorage/demoDataService';
 
 
 /* ====== COMPONENT ====== */
@@ -23,6 +25,8 @@ const ProjectList: React.FC = () => {
     const [searchText, setSearchText] = useState('');
     const [typeFilter, setTypeFilter] = useState<string | undefined>(undefined);
     const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
+
+    const [mockProjects] = useLocalStorageData<any[]>(demoDataService.KEYS.PROJECTS, defaultProjects);
 
     const statusMap: Record<ProjectStatus, { label: string; color: string }> = {
         'SCHEDULED': { label: 'Đã lên lịch', color: 'cyan' },

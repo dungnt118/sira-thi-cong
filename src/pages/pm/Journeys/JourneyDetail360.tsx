@@ -15,7 +15,9 @@ import {
     FormOutlined, PaperClipOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { mockJourneys, mockPortalThreads, mockJourneyTemplates } from '../../../data/journeyMockData';
+import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
+import { demoDataService } from '../../../services/localstorage/demoDataService';
+import { mockJourneys as defaultJourneys, mockPortalThreads as defaultThreads, mockJourneyTemplates } from '../../../data/journeyMockData';
 import type { GoNoGoStatus, SlaStatus, PortalPublishStatus } from '../../../types/journey';
 import { useAuth } from '../../../hooks/useAuth';
 import { JourneyStepRenderer, StepLabor, StepMaterials } from '../../shared/JourneySteps';
@@ -49,6 +51,9 @@ const JourneyDetail360: React.FC = () => {
     const activeTab = searchParams.get('tab') || 'GRP_01_INFO';
     const navigate = useNavigate();
     const { role } = useAuth();
+
+    const [mockJourneys, setMockJourneys] = useLocalStorageData<any[]>(demoDataService.KEYS.JOURNEYS, defaultJourneys);
+    const [mockPortalThreads] = useLocalStorageData<any[]>(demoDataService.KEYS.PORTAL_THREADS, defaultThreads);
 
     const journey = mockJourneys.find(j => j.id === journeyId);
     const threads = mockPortalThreads.filter(t => t.journey_id === journeyId);
@@ -418,7 +423,16 @@ const JourneyDetail360: React.FC = () => {
                         title="Đổi mức ưu tiên"
                         open={showPriorityModal}
                         onCancel={() => setShowPriorityModal(false)}
-                        onOk={() => setShowPriorityModal(false)}
+                        onOk={() => {
+                            priorityForm.validateFields().then(values => {
+                                const updatedJourneys = mockJourneys.map(j => 
+                                    (j.id === journey.id) ? { ...j, priority: values.priority } : j
+                                );
+                                setMockJourneys(updatedJourneys);
+                                message.success("Đã đổi mức ưu tiên!");
+                                setShowPriorityModal(false);
+                            });
+                        }}
                     >
                         <Form form={priorityForm} layout="vertical" initialValues={{ priority: journey.priority }}>
                             <Form.Item label="Mức ưu tiên" name="priority">

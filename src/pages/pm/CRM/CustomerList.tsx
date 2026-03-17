@@ -11,7 +11,9 @@ import {
     MoreOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { mockCustomers, mockServiceRequests } from '../../../data/mockData';
+import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
+import { demoDataService } from '../../../services/localstorage/demoDataService';
+import { mockCustomers as defaultCustomers, mockServiceRequests as defaultRequests } from '../../../data/mockData';
 import type { Customer } from '../../../types/v3';
 
 const { Text } = Typography;
@@ -22,6 +24,9 @@ const CustomerList: React.FC = () => {
     const [search, setSearch] = useState('');
     const screens = useBreakpoint();
     const isMobile = !screens.md;
+
+    const [mockCustomers] = useLocalStorageData<Customer[]>(demoDataService.KEYS.CUSTOMERS, defaultCustomers);
+    const [mockServiceRequests] = useLocalStorageData<any[]>(demoDataService.KEYS.SERVICE_REQUESTS, defaultRequests);
 
     const filtered = mockCustomers.filter(c => {
         return !search ||

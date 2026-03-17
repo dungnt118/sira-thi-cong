@@ -15,8 +15,10 @@ import {
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { useNavigate } from 'react-router-dom';
-import { mockProjects, mockMilestones, getProjectProgress } from '../../../data/mockData';
+import { getProjectProgress, mockProjects as defaultProjects, mockMilestones as defaultMilestones } from '../../../data/mockData';
 import { ProjectStatus, MilestoneStatus } from '../../../types/v3';
+import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
+import { demoDataService } from '../../../services/localstorage/demoDataService';
 
 
 const notifications = [
@@ -46,11 +48,14 @@ const PMDashboard: React.FC = () => {
         'OVERDUE': { label: 'Quá hạn', color: 'error' },
     };
 
+    const [mockProjects] = useLocalStorageData<any[]>(demoDataService.KEYS.PROJECTS, defaultProjects);
+    const [mockMilestones] = useLocalStorageData<any[]>(demoDataService.KEYS.MILESTONES, defaultMilestones);
+
     // Derived Metrics
     const totalProjects = mockProjects.length;
     const activeProjectsCount = mockProjects.filter(p => p.status === 'IN_PROGRESS').length;
     const pendingApprovalsCount = mockProjects.reduce((acc, p) => 
-        acc + p.steps.filter(s => s.status === 'AWAITING_REVIEW').length, 0
+        acc + (p.steps ? p.steps.filter((s: any) => s.status === 'AWAITING_REVIEW').length : 0), 0
     );
     // Rough monthly revenue calculation (from PAID milestones this month/all time for demo)
     const revenueThisMonth = mockMilestones.filter(m => m.status === 'PAID').reduce((acc, m) => acc + m.amount, 0);

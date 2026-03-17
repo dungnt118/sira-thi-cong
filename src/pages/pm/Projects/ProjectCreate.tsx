@@ -13,6 +13,9 @@ import {
     UnorderedListOutlined, AppstoreAddOutlined,
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
+import { demoDataService } from '../../../services/localstorage/demoDataService';
+import { mockProjects as defaultProjects } from '../../../data/mockData';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -111,6 +114,8 @@ const ProjectCreate: React.FC = () => {
     const screens = useBreakpoint();
     const isMobile = !screens.md;
 
+    const [mockProjects, setMockProjects] = useLocalStorageData<any[]>(demoDataService.KEYS.PROJECTS, defaultProjects);
+
     /* ─── Contract ─── */
     const [selectedContract, setSelectedContract] = useState<string>('');
     const contractInfo = mockContracts.find((c) => c.id === selectedContract);
@@ -149,7 +154,27 @@ const ProjectCreate: React.FC = () => {
     const [mapQuery, setMapQuery] = useState('');
 
     /* ─── Handlers ─── */
-    const handleFinish = () => {
+    const handleFinish = (values: any) => {
+        const newProject = {
+            id: values.projectCode || `DA-${Date.now()}`,
+            code: values.projectCode,
+            name: values.projectName,
+            type: values.projectType,
+            status: 'SCHEDULED',
+            customerName: contractInfo?.customerName || 'Khách hàng mới',
+            startDate: values.startDate ? values.startDate.format('YYYY-MM-DD') : '',
+            endDate: values.endDate ? values.endDate.format('YYYY-MM-DD') : '',
+            budget: totalBudget,
+            progress: 0,
+            qualityScore: 0,
+            steps: [], // Initialize steps
+            address: values.address,
+            description: values.description,
+        };
+
+        const updatedProjects = [...mockProjects, newProject];
+        setMockProjects(updatedProjects);
+
         message.success('Dự án đã được tạo thành công!');
         navigate('/pm/projects/all');
     };
@@ -838,7 +863,12 @@ const ProjectCreate: React.FC = () => {
                 direction={isMobile ? 'vertical' : 'horizontal'}
             />
 
-            <Form form={form} layout="vertical" onFinish={handleFinish}>
+            <Form
+                form={form}
+                layout="vertical"
+                onFinish={handleFinish}
+                initialValues={{ projectType: 'repair', priority: 'medium' }}
+            >
                 {stepRenderers[currentStep]()}
 
                 <Row justify="space-between" style={{ marginTop: 16 }}>

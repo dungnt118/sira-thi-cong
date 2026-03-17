@@ -12,7 +12,9 @@ import {
     ExclamationCircleFilled, MinusCircleFilled
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { mockJourneys, getJourneyKPIs } from '../../../data/journeyMockData';
+import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
+import { demoDataService } from '../../../services/localstorage/demoDataService';
+import { mockJourneys as defaultJourneys } from '../../../data/journeyMockData';
 import type { Journey, PriorityLevel, SlaStatus } from '../../../types/journey';
 
 const { Text } = Typography;
@@ -45,12 +47,19 @@ const JourneyList: React.FC = () => {
     const screens = useBreakpoint();
     const isMobile = !screens.md;
 
+    const [mockJourneys] = useLocalStorageData<Journey[]>(demoDataService.KEYS.JOURNEYS, defaultJourneys);
+
     const [keyword, setKeyword] = useState('');
     const [filterSla, setFilterSla] = useState<string>('ALL');
     const [filterPriority, setFilterPriority] = useState<string>('ALL');
     const [filterStep, setFilterStep] = useState<string>('ALL');
 
-    const kpis = getJourneyKPIs();
+    const kpis = {
+        total_open: mockJourneys.length,
+        overdue_sla: mockJourneys.filter(j => j.sla_status === 'overdue').length,
+        blocked: mockJourneys.filter(j => j.blocker_count > 0).length,
+        needs_portal_reply: mockJourneys.filter(j => j.unread_portal_threads > 0).length,
+    };
 
     const filtered = mockJourneys.filter(j => {
         const matchKeyword = !keyword || [j.journey_code, j.customer_name, j.customer_phone, j.request_title]

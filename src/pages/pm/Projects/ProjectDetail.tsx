@@ -15,6 +15,9 @@ import {
     ExclamationCircleOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
+import { demoDataService } from '../../../services/localstorage/demoDataService';
+import { mockProjects as defaultProjects } from '../../../data/mockData';
 
 const { Text, Title } = Typography;
 const { TextArea } = Input;
@@ -43,9 +46,11 @@ const getStepCurrent = (status: ProjectStatus) => {
 };
 
 /* ====== MOCK DATA ====== */
-const projectDetailData = {
-    code: 'DU-2026-001', name: 'Chống thấm Chung cư Sunrise',
-    status: 'draft' as ProjectStatus,
+const defaultDetail = {
+    id: 'DU-2026-001',
+    code: 'DU-2026-001', 
+    name: 'Chống thấm Chung cư Sunrise',
+    status: 'DRAFT',
     progress: 72, qualityScore: 82,
     contract: {
         id: 'c1', code: 'HD-2025-001', name: 'Hợp đồng sửa chữa tầng 5',
@@ -117,12 +122,24 @@ const getDocTag = (type: string) => {
 /* ====== COMPONENT ====== */
 const ProjectDetail: React.FC = () => {
     const navigate = useNavigate();
-    const { projectId: _projectId } = useParams();
+    const { projectId } = useParams();
+    const [mockProjects, setMockProjects] = useLocalStorageData<any[]>(demoDataService.KEYS.PROJECTS, defaultProjects);
+
+    const projectData = mockProjects.find(p => p.id === projectId || p.code === projectId) || defaultDetail;
 
     /* Status state */
-    const [projectStatus, setProjectStatus] = useState<ProjectStatus>(projectDetailData.status);
+    const initialStatus = (projectData.status || 'DRAFT').toLowerCase() as ProjectStatus;
+    const [projectStatus, setProjectStatus] = useState<ProjectStatus>(initialStatus);
     const [cancelModalOpen, setCancelModalOpen] = useState(false);
     const [cancelReason, setCancelReason] = useState('');
+
+    const updateProjectStatus = (newStatus: ProjectStatus) => {
+        setProjectStatus(newStatus);
+        const updatedProjects = mockProjects.map(p => 
+            (p.id === projectData.id) ? { ...p, status: newStatus.toUpperCase() } : p
+        );
+        setMockProjects(updatedProjects);
+    };
 
     const isDraft = projectStatus === 'draft';
     const isInProgress = projectStatus === 'in_progress';
@@ -158,7 +175,7 @@ const ProjectDetail: React.FC = () => {
             okText: 'Khóa dự án',
             cancelText: 'Hủy',
             onOk: () => {
-                setProjectStatus('in_progress');
+                updateProjectStatus('in_progress');
                 message.success('Dự án đã được khóa và chuyển sang "Đang thi công"');
             },
         });
@@ -172,7 +189,7 @@ const ProjectDetail: React.FC = () => {
             okText: 'Hoàn thành',
             cancelText: 'Hủy',
             onOk: () => {
-                setProjectStatus('completed');
+                updateProjectStatus('completed');
                 message.success('Dự án đã được đánh dấu Hoàn thành');
             },
         });
@@ -183,7 +200,7 @@ const ProjectDetail: React.FC = () => {
             message.warning('Vui lòng nhập lý do hủy dự án');
             return;
         }
-        setProjectStatus('cancelled');
+        updateProjectStatus('cancelled');
         setCancelModalOpen(false);
         setCancelReason('');
         message.success('Dự án đã bị hủy');
@@ -217,12 +234,12 @@ const ProjectDetail: React.FC = () => {
             <Row justify="space-between" align="middle" style={{ marginBottom: 24 }}>
                 <Space wrap>
                     <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/pm/projects/all')}>Quay lại</Button>
-                    <Title level={4} style={{ margin: 0 }}>{projectDetailData.code} — {projectDetailData.name}</Title>
+                    <Title level={4} style={{ margin: 0 }}>{projectData.code} — {projectData.name}</Title>
                     <Tag color={statusTagMap[projectStatus].color}>
                         {statusTagMap[projectStatus].label}
                     </Tag>
-                    <Tag color={projectDetailData.constructionSource === 'internal' ? 'blue' : 'purple'}>
-                        {projectDetailData.constructionSource === 'internal' ? 'Nội bộ' : 'Cộng tác viên'}
+                    <Tag color={projectData.constructionSource === 'internal' ? 'blue' : 'purple'}>
+                        {projectData.constructionSource === 'internal' ? 'Nội bộ' : 'Cộng tác viên'}
                     </Tag>
                 </Space>
                 <Space wrap>
@@ -239,7 +256,7 @@ const ProjectDetail: React.FC = () => {
                     {/* Edit — only for draft */}
                     {isDraft && (
                         <Button type="primary" icon={<EditOutlined />}
-                            onClick={() => navigate(`/pm/projects/edit/${_projectId}`)}>
+                            onClick={() => navigate(`/pm/projects/edit/${projectId}`)}>
                             Chỉnh sửa
                         </Button>
                     )}
@@ -252,16 +269,16 @@ const ProjectDetail: React.FC = () => {
             {/* ─── KPI Row ─── */}
             <Row gutter={16} style={{ marginBottom: 24 }}>
                 <Col xs={12} md={6}>
-                    <Card size="small"><Statistic title="Tiến độ" value={projectDetailData.progress} suffix="%" valueStyle={{ color: '#1890ff' }} /></Card>
+                    <Card size="small"><Statistic title="Tiến độ" value={projectData.progress} suffix="%" valueStyle={{ color: '#1890ff' }} /></Card>
                 </Col>
                 <Col xs={12} md={6}>
-                    <Card size="small"><Statistic title="Chất lượng" value={projectDetailData.qualityScore} suffix="/ 100" valueStyle={{ color: projectDetailData.qualityScore >= 80 ? '#52c41a' : '#fa8c16' }} /></Card>
+                    <Card size="small"><Statistic title="Chất lượng" value={projectData.qualityScore} suffix="/ 100" valueStyle={{ color: projectData.qualityScore >= 80 ? '#52c41a' : '#fa8c16' }} /></Card>
                 </Col>
                 <Col xs={12} md={6}>
-                    <Card size="small"><Statistic title="Đã chi" value={projectDetailData.spent / 1000000} suffix="triệu" valueStyle={{ color: '#722ed1' }} /></Card>
+                    <Card size="small"><Statistic title="Đã chi" value={(projectData.spent || 0) / 1000000} suffix="triệu" valueStyle={{ color: '#722ed1' }} /></Card>
                 </Col>
                 <Col xs={12} md={6}>
-                    <Card size="small"><Statistic title="Ngân sách" value={totalBudget / 1000000} suffix="triệu" valueStyle={{ color: '#3f8600' }} /></Card>
+                    <Card size="small"><Statistic title="Ngân sách" value={(projectData.budget || totalBudget) / 1000000} suffix="triệu" valueStyle={{ color: '#3f8600' }} /></Card>
                 </Col>
             </Row>
 
@@ -276,20 +293,20 @@ const ProjectDetail: React.FC = () => {
                             <Row gutter={24}>
                                 <Col xs={24} lg={14}>
                                     <Descriptions bordered column={{ xs: 1, md: 2 }} size="small">
-                                        <Descriptions.Item label="Mã dự án">{projectDetailData.code}</Descriptions.Item>
+                                        <Descriptions.Item label="Mã dự án">{projectData.code}</Descriptions.Item>
                                         <Descriptions.Item label="Nguồn thi công">
-                                            <Tag color={projectDetailData.constructionSource === 'internal' ? 'blue' : 'purple'}>
-                                                {projectDetailData.constructionSource === 'internal' ? 'Nội bộ' : 'Cộng tác viên'}
+                                            <Tag color={projectData.constructionSource === 'internal' ? 'blue' : 'purple'}>
+                                                {projectData.constructionSource === 'internal' ? 'Nội bộ' : 'Cộng tác viên'}
                                             </Tag>
                                         </Descriptions.Item>
-                                        <Descriptions.Item label="Địa chỉ" span={2}><EnvironmentOutlined /> {projectDetailData.address}</Descriptions.Item>
-                                        <Descriptions.Item label="Ngày bắt đầu"><CalendarOutlined /> {projectDetailData.startDate}</Descriptions.Item>
-                                        <Descriptions.Item label="Ngày kết thúc"><CalendarOutlined /> {projectDetailData.endDate}</Descriptions.Item>
-                                        <Descriptions.Item label="Giám sát viên"><TeamOutlined /> {projectDetailData.supervisor}</Descriptions.Item>
-                                        {projectDetailData.constructionSource === 'collaborator' && (
-                                            <Descriptions.Item label="Cộng tác viên"><TeamOutlined /> {projectDetailData.collaboratorName}</Descriptions.Item>
+                                        <Descriptions.Item label="Địa chỉ" span={2}><EnvironmentOutlined /> {projectData.address}</Descriptions.Item>
+                                        <Descriptions.Item label="Ngày bắt đầu"><CalendarOutlined /> {projectData.startDate}</Descriptions.Item>
+                                        <Descriptions.Item label="Ngày kết thúc"><CalendarOutlined /> {projectData.endDate}</Descriptions.Item>
+                                        <Descriptions.Item label="Giám sát viên"><TeamOutlined /> {projectData.supervisor || 'Chưa phân công'}</Descriptions.Item>
+                                        {projectData.constructionSource === 'collaborator' && (
+                                            <Descriptions.Item label="Cộng tác viên"><TeamOutlined /> {projectData.collaboratorName}</Descriptions.Item>
                                         )}
-                                        <Descriptions.Item label="Mô tả" span={2}>{projectDetailData.description}</Descriptions.Item>
+                                        <Descriptions.Item label="Mô tả" span={2}>{projectData.description}</Descriptions.Item>
                                     </Descriptions>
 
                                     <Divider orientation="left" style={{ marginTop: 24 }}>
@@ -308,31 +325,33 @@ const ProjectDetail: React.FC = () => {
                                     />
                                 </Col>
                                 <Col xs={24} lg={10}>
-                                    <Card
-                                        title={<Space><FileTextOutlined /> Hợp đồng liên kết</Space>}
-                                        size="small"
-                                        extra={
-                                            <Button type="link" size="small" icon={<LinkOutlined />}
-                                                onClick={() => navigate(`/pm/contracts/${projectDetailData.contract.id}`)}>
-                                                Xem HĐ
-                                            </Button>
-                                        }
-                                    >
-                                        <Descriptions column={1} size="small">
-                                            <Descriptions.Item label="Mã HĐ"><Tag color="blue">{projectDetailData.contract.code}</Tag></Descriptions.Item>
-                                            <Descriptions.Item label="Tên HĐ">{projectDetailData.contract.name}</Descriptions.Item>
-                                            <Descriptions.Item label="Khách hàng">{projectDetailData.contract.customerName}</Descriptions.Item>
-                                            <Descriptions.Item label="Giá trị">
-                                                <Text strong style={{ color: '#1890ff' }}>{projectDetailData.contract.value.toLocaleString('vi-VN')} VNĐ</Text>
-                                            </Descriptions.Item>
-                                            <Descriptions.Item label="Thời gian">{projectDetailData.contract.startDate} — {projectDetailData.contract.endDate}</Descriptions.Item>
-                                        </Descriptions>
-                                    </Card>
+                                    {projectData.contract && (
+                                        <Card
+                                            title={<Space><FileTextOutlined /> Hợp đồng liên kết</Space>}
+                                            size="small"
+                                            extra={
+                                                <Button type="link" size="small" icon={<LinkOutlined />}
+                                                    onClick={() => navigate(`/pm/contracts/${projectData.contract.id}`)}>
+                                                    Xem HĐ
+                                                </Button>
+                                            }
+                                        >
+                                            <Descriptions column={1} size="small">
+                                                <Descriptions.Item label="Mã HĐ"><Tag color="blue">{projectData.contract.code}</Tag></Descriptions.Item>
+                                                <Descriptions.Item label="Tên HĐ">{projectData.contract.name}</Descriptions.Item>
+                                                <Descriptions.Item label="Khách hàng">{projectData.contract.customerName}</Descriptions.Item>
+                                                <Descriptions.Item label="Giá trị">
+                                                    <Text strong style={{ color: '#1890ff' }}>{projectData.contract.value.toLocaleString('vi-VN')} VNĐ</Text>
+                                                </Descriptions.Item>
+                                                <Descriptions.Item label="Thời gian">{projectData.contract.startDate} — {projectData.contract.endDate}</Descriptions.Item>
+                                            </Descriptions>
+                                        </Card>
+                                    )}
 
                                     <Card title="Tiến độ Tổng quan" size="small" style={{ marginTop: 16 }}>
-                                        <Progress percent={projectDetailData.progress} strokeColor="#1890ff" />
-                                        <Progress percent={Math.round((projectDetailData.spent / totalBudget) * 100)} strokeColor="#722ed1"
-                                            format={() => `Chi phí: ${Math.round((projectDetailData.spent / totalBudget) * 100)}%`} style={{ marginTop: 8 }} />
+                                        <Progress percent={projectData.progress} strokeColor="#1890ff" />
+                                        <Progress percent={Math.round(((projectData.spent || 0) / (projectData.budget || totalBudget)) * 100)} strokeColor="#722ed1"
+                                            format={() => `Chi phí: ${Math.round(((projectData.spent || 0) / (projectData.budget || totalBudget)) * 100)}%`} style={{ marginTop: 8 }} />
                                     </Card>
 
                                     <Card title={<Space><EnvironmentOutlined /> Vị trí</Space>} size="small" style={{ marginTop: 16 }}>
@@ -341,7 +360,7 @@ const ProjectDetail: React.FC = () => {
                                                 title="map"
                                                 width="100%" height="100%" style={{ border: 0 }}
                                                 loading="lazy" referrerPolicy="no-referrer-when-downgrade"
-                                                src={`https://maps.google.com/maps?q=${encodeURIComponent(projectDetailData.address)}&output=embed`}
+                                                src={`https://maps.google.com/maps?q=${encodeURIComponent(projectData.address)}&output=embed`}
                                             />
                                         </div>
                                     </Card>
@@ -384,10 +403,12 @@ const ProjectDetail: React.FC = () => {
                                 </Row>
                                 <Divider dashed />
                                 <Row justify="end">
-                                    <Button type="link" icon={<LinkOutlined />}
-                                        onClick={() => navigate(`/pm/contracts/${projectDetailData.contract.id}`)}>
-                                        Xem tài chính tại Hợp đồng {projectDetailData.contract.code}
-                                    </Button>
+                                    {projectData.contract && (
+                                        <Button type="link" icon={<LinkOutlined />}
+                                            onClick={() => navigate(`/pm/contracts/${projectData.contract.id}`)}>
+                                            Xem tài chính tại Hợp đồng {projectData.contract.code}
+                                        </Button>
+                                    )}
                                 </Row>
                             </div>
                         )
@@ -474,7 +495,7 @@ const ProjectDetail: React.FC = () => {
                                         columns={[
                                             {
                                                 title: 'Tên file', dataIndex: 'name', key: 'name',
-                                                render: (name: string, rec: typeof mockDocuments[0]) => (
+                                                render: (name: string, rec: any) => (
                                                     <Space>{getDocIcon(rec.type)}<Text>{name}</Text></Space>
                                                 ),
                                             },
@@ -488,7 +509,7 @@ const ProjectDetail: React.FC = () => {
                                 ) : (
                                     <Row gutter={[12, 12]}>
                                         {filteredDocs.length === 0 && <Col span={24}><Empty description="Chưa có tài liệu" /></Col>}
-                                        {filteredDocs.map((doc) => (
+                                        {filteredDocs.map((doc: any) => (
                                             <Col xs={12} sm={8} md={6} key={doc.key}>
                                                 <Card
                                                     hoverable size="small"
@@ -534,7 +555,7 @@ const ProjectDetail: React.FC = () => {
                                                 a.type === 'quality' ? 'red' :
                                                     a.type === 'team' ? 'purple' : 'gray',
                                     children: (
-                                        <div>
+                                        <div key={a.time}>
                                             <div style={{ fontWeight: 500 }}>{a.action}</div>
                                             <div style={{ fontSize: 12, color: '#999' }}>{a.time}</div>
                                         </div>
@@ -556,7 +577,7 @@ const ProjectDetail: React.FC = () => {
                 okButtonProps={{ danger: true }}
                 cancelText="Đóng"
             >
-                <p>Bạn đang yêu cầu hủy dự án <Text strong>{projectDetailData.code}</Text>. Hành động này không thể hoàn tác.</p>
+                <p>Bạn đang yêu cầu hủy dự án <Text strong>{projectData.code}</Text>. Hành động này không thể hoàn tác.</p>
                 <Text strong>Lý do hủy <Text type="danger">*</Text></Text>
                 <TextArea
                     rows={3}
