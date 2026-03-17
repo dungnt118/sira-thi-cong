@@ -1,5 +1,5 @@
 import React from 'react';
-import { Menu, Input, Badge, Avatar, Dropdown, Space, Grid } from 'antd';
+import { Menu, Input, Badge, Space, Grid } from 'antd';
 import type { MenuProps } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
@@ -11,13 +11,12 @@ import {
     BarChartOutlined,
     SearchOutlined,
     BellOutlined,
-    LogoutOutlined,
-    SettingOutlined,
     InboxOutlined,
     NodeIndexOutlined,
 } from '@ant-design/icons';
 import { LABELS } from '@utils/constants';
 import { BaseLayout } from '../shared/BaseLayout';
+import { UserMenu } from '../../components/common/Header/UserMenu';
 
 const { Search } = Input;
 const { useBreakpoint } = Grid;
@@ -128,7 +127,6 @@ const PMSidebar: React.FC = () => {
 };
 
 const PMTopBar: React.FC = () => {
-    const navigate = useNavigate();
     const screens = useBreakpoint();
     const isMobile = !screens.md;
 
@@ -136,27 +134,7 @@ const PMTopBar: React.FC = () => {
         console.log('PM Search:', value);
     };
 
-    const userMenuItems: MenuProps['items'] = [
-        {
-            key: 'profile',
-            icon: <UserOutlined />,
-            label: 'Hồ sơ cá nhân',
-            onClick: () => navigate('/pm/profile'),
-        },
-        {
-            key: 'settings',
-            icon: <SettingOutlined />,
-            label: 'Cài đặt',
-            onClick: () => navigate('/pm/settings'),
-        },
-        { type: 'divider' },
-        {
-            key: 'logout',
-            icon: <LogoutOutlined />,
-            label: 'Đăng xuất',
-            onClick: () => navigate('/login'),
-        },
-    ];
+    // User menu logic moved to shared UserMenu component
 
     return (
         <div
@@ -210,12 +188,7 @@ const PMTopBar: React.FC = () => {
                     <BellOutlined style={{ fontSize: 20, cursor: 'pointer' }} />
                 </Badge>
 
-                <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
-                    <Space style={{ cursor: 'pointer' }}>
-                        <Avatar icon={<UserOutlined />} style={{ background: '#1976D2' }} />
-                        {!isMobile && <span style={{ fontWeight: 500 }}>PM Nguyễn</span>}
-                    </Space>
-                </Dropdown>
+                <UserMenu avatarColor="#1976D2" showName={!isMobile} />
             </Space>
         </div>
     );

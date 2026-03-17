@@ -115,10 +115,12 @@ import { Login } from '@pages/shared/Login';
 import { NotFound } from '@pages/shared/NotFound';
 import './App.css';
 
+import { BuildOutlined } from '@ant-design/icons';
+
 // Simple stub component for pages in progress
 const ComingSoon = ({ title }: { title: string }) => (
     <div style={{ padding: 40, textAlign: 'center' }}>
-        <div style={{ fontSize: 48 }}>🚧</div>
+        <div style={{ fontSize: 48, color: '#fa8c16' }}><BuildOutlined /></div>
         <h2>{title}</h2>
         <p style={{ color: '#999' }}>Tính năng đang được phát triển</p>
     </div>

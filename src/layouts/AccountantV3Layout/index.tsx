@@ -1,5 +1,5 @@
 import React from 'react';
-import { Menu, Badge, Avatar, Dropdown, Space } from 'antd';
+import { Menu, Badge, Space } from 'antd';
 import type { MenuProps } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
@@ -9,11 +9,10 @@ import {
     SafetyOutlined,
     BarChartOutlined,
     UserOutlined,
-    LogoutOutlined,
-    SettingOutlined,
     BellOutlined,
 } from '@ant-design/icons';
 import { BaseLayout } from '../shared/BaseLayout';
+import { UserMenu } from '../../components/common/Header/UserMenu';
 
 const menuItems: MenuProps['items'] = [
     {
@@ -85,13 +84,7 @@ const AccountantSidebar: React.FC = () => {
 };
 
 const AccountantTopBar: React.FC = () => {
-    const navigate = useNavigate();
-    const userMenuItems: MenuProps['items'] = [
-        { key: 'profile', icon: <UserOutlined />, label: 'Hồ sơ cá nhân' },
-        { key: 'settings', icon: <SettingOutlined />, label: 'Cài đặt' },
-        { type: 'divider' },
-        { key: 'logout', icon: <LogoutOutlined />, label: 'Đăng xuất', onClick: () => navigate('/login') },
-    ];
+    // User menu logic moved to shared UserMenu component
 
     return (
         <div style={{
@@ -112,12 +105,7 @@ const AccountantTopBar: React.FC = () => {
                 <Badge count={3} offset={[-5, 5]}>
                     <BellOutlined style={{ fontSize: 20, cursor: 'pointer' }} />
                 </Badge>
-                <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
-                    <Space style={{ cursor: 'pointer' }}>
-                        <Avatar icon={<UserOutlined />} style={{ background: '#52c41a' }} />
-                        <span style={{ fontWeight: 500 }}>Kế toán Phạm A</span>
-                    </Space>
-                </Dropdown>
+                <UserMenu avatarColor="#52c41a" />
             </Space>
         </div>
     );

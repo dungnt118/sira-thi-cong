@@ -1,12 +1,13 @@
 import React from 'react';
-import { Menu, Badge, Avatar, Dropdown, Space, Grid, Input } from 'antd';
+import { Menu, Badge, Space, Grid, Input } from 'antd';
 import type { MenuProps } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
     CalendarOutlined,
-    UserOutlined, LogoutOutlined, BellOutlined, SearchOutlined
+    UserOutlined, BellOutlined, SearchOutlined
 } from '@ant-design/icons';
 import { BaseLayout } from '../shared/BaseLayout';
+import { UserMenu } from '../../components/common/Header/UserMenu';
 
 const { useBreakpoint } = Grid;
 const { Search } = Input;
@@ -43,12 +44,9 @@ const GiamSatSidebar: React.FC = () => {
 };
 
 const GiamSatTopBar: React.FC = () => {
-    const navigate = useNavigate();
     const screens = useBreakpoint();
     const isMobile = !screens.md;
-    const userMenu: MenuProps['items'] = [
-        { key: 'logout', icon: <LogoutOutlined />, label: 'Đăng xuất', onClick: () => navigate('/login') },
-    ];
+    // User menu logic moved to shared UserMenu component
     return (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: isMobile ? '0 12px' : '0 24px', height: '100%', gap: 12 }}>
             {!isMobile && (
@@ -60,12 +58,7 @@ const GiamSatTopBar: React.FC = () => {
             <Search placeholder="Tìm khảo sát..." allowClear style={{ maxWidth: 360, flex: 1 }} prefix={<SearchOutlined />} />
             <Space size={isMobile ? 12 : 24} style={{ flexShrink: 0 }}>
                 <Badge count={2} offset={[-5, 5]}><BellOutlined style={{ fontSize: 20, cursor: 'pointer' }} /></Badge>
-                <Dropdown menu={{ items: userMenu }} placement="bottomRight">
-                    <Space style={{ cursor: 'pointer' }}>
-                        <Avatar icon={<UserOutlined />} style={{ background: '#fa8c16' }} />
-                        {!isMobile && <span style={{ fontWeight: 500 }}>GS Lê Văn</span>}
-                    </Space>
-                </Dropdown>
+                <UserMenu avatarColor="#fa8c16" showName={!isMobile} />
             </Space>
         </div>
     );

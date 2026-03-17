@@ -38,6 +38,17 @@ export const switchRole = (newRole: string) => {
     return false;
 };
 
+export const forceSwitchRole = (newRole: string, path: string) => {
+    const data = getUserData();
+    if (data) {
+        const updatedRoles = data.roles.includes(newRole) ? data.roles : [...data.roles, newRole];
+        setUserData({ ...data, role: newRole, roles: updatedRoles });
+        window.location.href = path;
+        return true;
+    }
+    return false;
+};
+
 export const resetCurrentRole = () => {
     const data = getUserData();
     if (data) {

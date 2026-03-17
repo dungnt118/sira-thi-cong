@@ -12,6 +12,7 @@ import {
 } from '@ant-design/icons';
 import { LABELS } from '@utils/constants';
 import { BaseLayout } from '../shared/BaseLayout';
+import { UserMenu } from '../../components/common/Header/UserMenu';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -87,7 +88,7 @@ const PartnerTopBar: React.FC = () => {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '0 24px' }}>
             <div>{/* Breadcrumbs */}</div>
             <div style={{ display: 'flex', gap: 16 }}>
-                {/* Search, Notifications, Profile */}
+                <UserMenu avatarColor="#13c2c2" />
             </div>
         </div>
     );

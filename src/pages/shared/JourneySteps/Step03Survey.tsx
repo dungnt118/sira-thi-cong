@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Card, Steps, Button, Typography, Space, Row, Col, Result, Form, message, Modal, Divider } from 'antd';
+import { Card, Steps, Button, Typography, Space, Row, Col, Result, Form, message, Modal, Divider, Empty } from 'antd';
 import { 
     CheckCircleOutlined, 
     FormOutlined, 
@@ -7,7 +7,8 @@ import {
     EditOutlined, 
     DownloadOutlined, 
     HighlightOutlined,
-    EyeOutlined
+    EyeOutlined,
+    ClockCircleOutlined
 } from '@ant-design/icons';
 import { mockJourneys, mockSurveys } from '../../../data/journeyMockData';
 import DynamicSurveyForm from '../../shared/Surveys/DynamicSurveyForm';
@@ -344,37 +345,46 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({ journeyId, isEditabl
     };
 
     const renderReadOnly = () => {
-        if (overallStatus === 'completed') {
-            return (
-                <div style={{ padding: '0 12px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-                        <Space>
-                            <CheckCircleOutlined style={{ color: '#52c41a', fontSize: 24 }} />
-                            <div>
-                                <Title level={5} style={{ margin: 0 }}>Hồ sơ khảo sát đã hoàn thành</Title>
-                                <Text type="secondary">Số hiệu: SUR-{journey.journey_code}</Text>
-                            </div>
-                        </Space>
-                        <Space>
-                            <Button icon={<DownloadOutlined />} onClick={handleDownloadPDF}>Tải PDF</Button>
-                        </Space>
-                    </div>
-
-                    {renderA4Sheet(currentSurveyData)}
-
-                    <Divider />
-                    <div style={{ textAlign: 'center' }}>
-                        <Text type="secondary">Biên bản đã được lưu và gửi về hệ thống quản lý trung tâm.</Text>
-                    </div>
-                </div>
-            );
-        }
         return (
-            <Result
-                status="info"
-                title="Đang chờ kết quả"
-                subTitle="Kỹ thuật viên đang thực hiện khảo sát tại hiện trường hoặc hồ sơ đang được soạn thảo."
-            />
+            <div style={{ padding: '0 12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                    <Space>
+                        {overallStatus === 'completed' ? (
+                            <CheckCircleOutlined style={{ color: '#52c41a', fontSize: 24 }} />
+                        ) : (
+                            <ClockCircleOutlined style={{ color: '#1890ff', fontSize: 24 }} />
+                        )}
+                        <div>
+                            <Title level={5} style={{ margin: 0 }}>
+                                {overallStatus === 'completed' ? 'Hồ sơ khảo sát đã hoàn thành' : 'Hồ sơ khảo sát đang thực hiện'}
+                            </Title>
+                            <Text type="secondary">Số hiệu: SUR-{journey.journey_code}</Text>
+                        </div>
+                    </Space>
+                    <Space>
+                        <Button icon={<DownloadOutlined />} onClick={handleDownloadPDF} disabled={!currentSurveyData || !currentSurveyData.zones}>
+                            Tải PDF
+                        </Button>
+                    </Space>
+                </div>
+
+                {currentSurveyData && currentSurveyData.zones && currentSurveyData.zones.length > 0 ? (
+                    renderA4Sheet(currentSurveyData)
+                ) : (
+                    <div style={{ textAlign: 'center', padding: '40px 0', background: '#f5f5f5', borderRadius: 8 }}>
+                        <Empty description="Kỹ thuật viên chưa bắt đầu nhập liệu form khảo sát." />
+                    </div>
+                )}
+
+                <Divider />
+                <div style={{ textAlign: 'center' }}>
+                    <Text type="secondary" style={{ fontSize: 12 }}>
+                        {overallStatus === 'completed' 
+                            ? 'Biên bản đã được ký nhận và lưu trữ chính thức.' 
+                            : 'Bản thảo biên bản khảo sát hiện trường.'}
+                    </Text>
+                </div>
+            </div>
         );
     };
 

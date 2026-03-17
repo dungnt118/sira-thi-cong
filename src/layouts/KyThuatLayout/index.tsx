@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layout, Menu, Avatar, Dropdown, Badge } from 'antd';
+import { Layout, Menu, Badge } from 'antd';
 import { 
     HomeOutlined, 
     CalendarOutlined, 
@@ -9,6 +9,7 @@ import {
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import { UserMenu } from '../../components/common/Header/UserMenu';
 import './KyThuatLayout.css';
 
 const { Header, Content } = Layout;
@@ -65,12 +66,7 @@ export const KyThuatLayout: React.FC = () => {
         }
     ];
 
-    const userMenu = (
-        <Menu items={[
-            { key: '1', label: 'Cài đặt' },
-            { key: '2', label: 'Đăng xuất', onClick: () => navigate('/login') },
-        ]} />
-    );
+    // User menu logic moved to shared UserMenu component
 
     return (
         <Layout className="ky-thuat-layout">
@@ -82,9 +78,7 @@ export const KyThuatLayout: React.FC = () => {
                     <Badge count={2} size="small">
                         <BellOutlined className="header-icon" />
                     </Badge>
-                    <Dropdown overlay={userMenu} trigger={['click']}>
-                        <Avatar style={{ marginLeft: 16, cursor: 'pointer', backgroundColor: '#13a8a8' }}>KT</Avatar>
-                    </Dropdown>
+                    <UserMenu avatarColor="#13a8a8" showName={false} />
                 </div>
             </Header>
             <Content className="ky-thuat-content">

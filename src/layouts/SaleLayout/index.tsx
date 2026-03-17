@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layout, Menu, Avatar, Dropdown, Badge, Grid, Input } from 'antd';
+import { Layout, Menu, Badge, Grid, Input } from 'antd';
 import {
     InboxOutlined,
     ClockCircleOutlined,
@@ -7,11 +7,11 @@ import {
     MessageOutlined,
     UserOutlined,
     BellOutlined,
-    LogoutOutlined,
     SearchOutlined
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import { UserMenu } from '../../components/common/Header/UserMenu';
 import './SaleLayout.css';
 
 const { Header, Content, Sider } = Layout;
@@ -93,10 +93,7 @@ export const SaleLayout: React.FC = () => {
         },
     ];
 
-    const userMenuItems = [
-        { key: 'profile', label: 'Trang cá nhân', icon: <UserOutlined />, onClick: () => navigate('/sale/profile') },
-        { key: 'logout', label: 'Đăng xuất', icon: <LogoutOutlined />, onClick: () => navigate('/login') },
-    ];
+    // User menu logic moved to shared UserMenu component
 
     return (
         <Layout className="sale-layout">
@@ -145,9 +142,7 @@ export const SaleLayout: React.FC = () => {
                         <Badge count={3} size="small">
                             <BellOutlined className="header-icon" />
                         </Badge>
-                        <Dropdown menu={{ items: userMenuItems }} trigger={['click']}>
-                            <Avatar style={{ cursor: 'pointer', backgroundColor: '#52c41a' }} icon={<UserOutlined />} />
-                        </Dropdown>
+                        <UserMenu avatarColor="#52c41a" />
                     </div>
                 </Header>
                 <Content className="sale-content">

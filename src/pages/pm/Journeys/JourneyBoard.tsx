@@ -5,7 +5,9 @@ import {
 } from 'antd';
 import {
     UnorderedListOutlined, FilterOutlined, UserOutlined,
-    MessageOutlined, ExclamationCircleOutlined, SwapRightOutlined
+    MessageOutlined, ExclamationCircleOutlined, SwapRightOutlined,
+    CheckCircleOutlined, InfoCircleFilled, WarningFilled, 
+    ExclamationCircleFilled, MinusCircleFilled
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { mockJourneys } from '../../../data/journeyMockData';
@@ -23,7 +25,12 @@ const STEP_COLORS: Record<string, string> = {
     CONTRACT: '#2f54eb', CONSTRUCTION: '#fa8c16', PAYMENT: '#52c41a',
 };
 const SLA_BADGE: Record<SlaStatus, string> = { ontime: '#52c41a', at_risk: '#fa8c16', overdue: '#ff4d4f' };
-const PRIORITY_ICON: Record<PriorityLevel, string> = { low: '⚪', medium: '🔵', high: '🟠', critical: '🔴' };
+const PRIORITY_ICON: Record<PriorityLevel, React.ReactNode> = { 
+    low: <MinusCircleFilled style={{ color: '#d9d9d9' }} />, 
+    medium: <InfoCircleFilled style={{ color: '#1890ff' }} />, 
+    high: <WarningFilled style={{ color: '#fa8c16' }} />, 
+    critical: <ExclamationCircleFilled style={{ color: '#ff4d4f' }} /> 
+};
 
 const JourneyKanbanCard: React.FC<{ journey: Journey; onClick: () => void }> = ({ journey: j, onClick }) => (
     <Card
@@ -42,10 +49,10 @@ const JourneyKanbanCard: React.FC<{ journey: Journey; onClick: () => void }> = (
         <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 2, lineHeight: 1.3 }}>{j.customer_name}</div>
         <Text type="secondary" style={{ fontSize: 11 }}>{j.request_title}</Text>
         <div style={{ marginTop: 8, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            {j.survey_status === 'completed' && <Tag style={{ fontSize: 10, margin: 0, padding: '0 4px' }} color="blue">Khảo sát ✓</Tag>}
-            {j.estimate_status === 'ready' && <Tag style={{ fontSize: 10, margin: 0, padding: '0 4px' }} color="purple">Dự toán ✓</Tag>}
-            {j.quote_status === 'approved' && <Tag style={{ fontSize: 10, margin: 0, padding: '0 4px' }} color="cyan">Báo giá ✓</Tag>}
-            {j.contract_status === 'signed' && <Tag style={{ fontSize: 10, margin: 0, padding: '0 4px' }} color="green">Hợp đồng ✓</Tag>}
+            {j.survey_status === 'completed' && <Tag style={{ fontSize: 10, margin: 0, padding: '0 4px' }} color="blue" icon={<CheckCircleOutlined />}>Khảo sát</Tag>}
+            {j.estimate_status === 'ready' && <Tag style={{ fontSize: 10, margin: 0, padding: '0 4px' }} color="purple" icon={<CheckCircleOutlined />}>Dự toán</Tag>}
+            {j.quote_status === 'approved' && <Tag style={{ fontSize: 10, margin: 0, padding: '0 4px' }} color="cyan" icon={<CheckCircleOutlined />}>Báo giá</Tag>}
+            {j.contract_status === 'signed' && <Tag style={{ fontSize: 10, margin: 0, padding: '0 4px' }} color="green" icon={<CheckCircleOutlined />}>Hợp đồng</Tag>}
         </div>
         <div style={{ marginTop: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Space size={4}>
@@ -123,10 +130,10 @@ const JourneyBoard: React.FC = () => {
                             onChange={setFilterPriority}
                             options={[
                                 { value: 'ALL', label: 'Tất cả ưu tiên' },
-                                { value: 'critical', label: '🔴 Khẩn cấp' },
-                                { value: 'high', label: '🟠 Cao' },
-                                { value: 'medium', label: '🔵 Trung bình' },
-                                { value: 'low', label: '⚪ Thấp' },
+                                { value: 'critical', label: <span><ExclamationCircleFilled style={{ color: '#ff4d4f' }} /> Khẩn cấp</span> },
+                                { value: 'high', label: <span><WarningFilled style={{ color: '#fa8c16' }} /> Cao</span> },
+                                { value: 'medium', label: <span><InfoCircleFilled style={{ color: '#1890ff' }} /> Trung bình</span> },
+                                { value: 'low', label: <span><MinusCircleFilled style={{ color: '#d9d9d9' }} /> Thấp</span> },
                             ]}
                         />
                     </Col>

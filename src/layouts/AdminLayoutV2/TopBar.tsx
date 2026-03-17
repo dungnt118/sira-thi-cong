@@ -1,52 +1,16 @@
 import React from 'react';
-import { Layout, Input, Badge, Avatar, Dropdown, Space } from 'antd';
-import {
-    SearchOutlined,
-    BellOutlined,
-    UserOutlined,
-    LogoutOutlined,
-    SettingOutlined
-} from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
-import type { MenuProps } from 'antd';
+import { Layout, Input, Badge, Space } from 'antd';
+import { SearchOutlined, BellOutlined } from '@ant-design/icons';
+import { UserMenu } from '../../components/common/Header/UserMenu';
 
-const { Header } = Layout;
-const { Search } = Input;
 
 /**
  * AdminTopBar - Top navigation bar
  * Components: Logo, Global Search, Notifications, User Profile
  */
 const AdminTopBar: React.FC = () => {
-    const navigate = useNavigate();
 
-    // User dropdown menu
-    const userMenuItems: MenuProps['items'] = [
-        {
-            key: 'profile',
-            icon: <UserOutlined />,
-            label: 'Hồ sơ cá nhân',
-            onClick: () => navigate('/admin-v2/profile'),
-        },
-        {
-            key: 'settings',
-            icon: <SettingOutlined />,
-            label: 'Cài đặt',
-            onClick: () => navigate('/admin-v2/settings'),
-        },
-        {
-            type: 'divider',
-        },
-        {
-            key: 'logout',
-            icon: <LogoutOutlined />,
-            label: 'Đăng xuất',
-            onClick: () => {
-                // TODO: Handle logout
-                navigate('/login');
-            },
-        },
-    ];
+    // User dropdown menu logic moved to shared UserMenu component
 
     const handleSearch = (value: string) => {
         console.log('Search:', value);
@@ -54,7 +18,7 @@ const AdminTopBar: React.FC = () => {
     };
 
     return (
-        <Header
+        <Layout.Header
             style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -89,7 +53,7 @@ const AdminTopBar: React.FC = () => {
             </div>
 
             {/* Global Search */}
-            <Search
+            <Input.Search
                 placeholder="Tìm kiếm người dùng, dự án..."
                 allowClear
                 onSearch={handleSearch}
@@ -105,14 +69,9 @@ const AdminTopBar: React.FC = () => {
                 </Badge>
 
                 {/* User Profile */}
-                <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
-                    <Space style={{ cursor: 'pointer' }}>
-                        <Avatar icon={<UserOutlined />} style={{ background: '#1976D2' }} />
-                        <span style={{ fontWeight: 500 }}>Admin</span>
-                    </Space>
-                </Dropdown>
+                <UserMenu avatarColor="#1976D2" />
             </Space>
-        </Header>
+        </Layout.Header>
     );
 };
 

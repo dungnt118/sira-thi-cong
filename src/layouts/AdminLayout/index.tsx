@@ -13,6 +13,7 @@ import {
 } from '@ant-design/icons';
 import { LABELS } from '@utils/constants';
 import { BaseLayout } from '../shared/BaseLayout';
+import { UserMenu } from '../../components/common/Header/UserMenu';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -150,7 +151,7 @@ const AdminTopBar: React.FC = () => {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '0 24px' }}>
             <div>{/* Breadcrumbs will go here */}</div>
             <div style={{ display: 'flex', gap: 16 }}>
-                {/* Search, Notifications, Profile will go here */}
+                <UserMenu avatarColor="#1890ff" />
             </div>
         </div>
     );

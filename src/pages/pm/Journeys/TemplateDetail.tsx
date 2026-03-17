@@ -5,7 +5,7 @@ import {
 } from 'antd';
 import {
     ArrowLeftOutlined, PlusOutlined, EditOutlined,
-    SaveOutlined, ReloadOutlined, SettingOutlined, DeleteOutlined
+    SaveOutlined, ReloadOutlined, SettingOutlined, DeleteOutlined, StarFilled
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import { mockJourneyTemplates } from '../../../data/journeyMockData';
@@ -80,7 +80,7 @@ const TemplateDetail: React.FC = () => {
                             <Tag color="blue">{template.service_type}</Tag>
                             <Tag color={template.status === 'active' ? 'success' : 'warning'}>{template.status}</Tag>
                             <Tag>{template.version_label}</Tag>
-                            {template.is_default && <Tag color="gold">⭐ Mặc định</Tag>}
+                            {template.is_default && <Tag color="gold" icon={<StarFilled />}>Mặc định</Tag>}
                         </Space>
                         <div style={{ marginTop: 8 }}>
                             <Text type="secondary">{template.description}</Text>

@@ -8,7 +8,8 @@ import {
     SearchOutlined, AppstoreOutlined, UnorderedListOutlined,
     AlertOutlined, ClockCircleOutlined, ExclamationCircleOutlined,
     MessageOutlined, ReloadOutlined, UserOutlined, FilterOutlined,
-    StopOutlined
+    StopOutlined, InfoCircleFilled, WarningFilled, 
+    ExclamationCircleFilled, MinusCircleFilled
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { mockJourneys, getJourneyKPIs } from '../../../data/journeyMockData';
@@ -278,10 +279,10 @@ const JourneyList: React.FC = () => {
                             onChange={setFilterPriority}
                             options={[
                                 { value: 'ALL', label: 'Tất cả ưu tiên' },
-                                { value: 'critical', label: '🔴 Khẩn cấp' },
-                                { value: 'high', label: '🟠 Cao' },
-                                { value: 'medium', label: '🔵 Trung bình' },
-                                { value: 'low', label: '⚪ Thấp' },
+                                { value: 'critical', label: <span><ExclamationCircleFilled style={{ color: '#ff4d4f' }} /> Khẩn cấp</span> },
+                                { value: 'high', label: <span><WarningFilled style={{ color: '#fa8c16' }} /> Cao</span> },
+                                { value: 'medium', label: <span><InfoCircleFilled style={{ color: '#1890ff' }} /> Trung bình</span> },
+                                { value: 'low', label: <span><MinusCircleFilled style={{ color: '#d9d9d9' }} /> Thấp</span> },
                             ]}
                         />
                     </Col>
@@ -382,10 +383,10 @@ const JourneyList: React.FC = () => {
                             onChange={setFilterPriority}
                             options={[
                                 { value: 'ALL', label: 'Tất cả ưu tiên' },
-                                { value: 'critical', label: '🔴 Khẩn cấp' },
-                                { value: 'high', label: '🟠 Cao' },
-                                { value: 'medium', label: '🔵 Trung bình' },
-                                { value: 'low', label: '⚪ Thấp' },
+                                { value: 'critical', label: <span><ExclamationCircleFilled style={{ color: '#ff4d4f' }} /> Khẩn cấp</span> },
+                                { value: 'high', label: <span><WarningFilled style={{ color: '#fa8c16' }} /> Cao</span> },
+                                { value: 'medium', label: <span><InfoCircleFilled style={{ color: '#1890ff' }} /> Trung bình</span> },
+                                { value: 'low', label: <span><MinusCircleFilled style={{ color: '#d9d9d9' }} /> Thấp</span> },
                             ]}
                         />
                     </div>
