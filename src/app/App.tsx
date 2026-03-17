@@ -84,13 +84,15 @@ import ThreadDetail from '../pages/public/portal/ThreadDetail';
 
 // V3 Supervisor Pages (replaces 'worker' — Supervisors act on behalf of field workers)
 import SupervisorMobileLayout from '../layouts/WorkerLayout';
-import SupervisorHome from '../pages/worker/WorkerHome';
+
 import SupervisorChecklist from '../pages/worker/Checklist';
 import SupervisorEvidenceUpload from '../pages/worker/EvidenceUpload';
 const SupervisorIncidentReport = lazy(() => import('../pages/worker/IncidentReport'));
 const ProjectDiary = lazy(() => import('../pages/giam-sat/ProjectDiary'));
 const MaterialReceipt = lazy(() => import('../pages/giam-sat/MaterialReceipt'));
 const GiamSatProfile = lazy(() => import('../pages/giam-sat/GiamSatProfile'));
+const SupervisorDashboard = lazy(() => import('../pages/giam-sat/SupervisorDashboard'));
+const SupervisorProjectList = lazy(() => import('../pages/giam-sat/SupervisorProjectList'));
 
 // V3 Accountant Pages
 import AccountantV3Layout from '../layouts/AccountantV3Layout';
@@ -267,8 +269,8 @@ function App() {
                     {/* ===== SUPERVISOR ROUTES (V4) – Mobile First ===== */}
                     <Route path="/supervisor" element={<GiamSatLayout />}>
                         <Route index element={<Navigate to="/supervisor/dashboard" replace />} />
-                        <Route path="dashboard" element={<SupervisorHome />} />
-                        <Route path="projects" element={<SupervisorHome />} />
+                        <Route path="dashboard" element={<SupervisorDashboard />} />
+                        <Route path="projects" element={<SupervisorProjectList />} />
                         <Route path="checklist/:id" element={<SupervisorChecklist />} />
                         <Route path="evidence/:projectId/:stepId" element={<SupervisorEvidenceUpload />} />
                         <Route path="incident" element={<SupervisorIncidentReport />} />
