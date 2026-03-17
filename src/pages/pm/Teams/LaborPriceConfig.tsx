@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
     Table, Card, Button, InputNumber, Space, Typography, 
-    Breadcrumb, message, Modal, Form, Input, Popconfirm, Divider 
+    message, Modal, Form, Input, Popconfirm, Divider 
 } from 'antd';
 import { 
     SaveOutlined, ReloadOutlined, DollarOutlined, 
@@ -139,11 +139,7 @@ const LaborPriceConfig: React.FC = () => {
     ];
 
     return (
-        <div style={{ padding: '24px' }}>
-            <Breadcrumb style={{ marginBottom: 16 }}>
-                <Breadcrumb.Item>Quản lý Đội/Thợ</Breadcrumb.Item>
-                <Breadcrumb.Item>Bảng giá thợ</Breadcrumb.Item>
-            </Breadcrumb>
+        <div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
                 <Title level={2} style={{ margin: 0 }}>

@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import {
-    Table, Card, Button, Input, Space, Tag, Avatar, Modal, Form,
-    Select, DatePicker, InputNumber, Row, Col, Typography, message,
-    Divider, Upload, Rate, Switch, Empty, Breadcrumb
+    Table, Card, Button, Input, Space, Tag, Avatar, Modal, Form, Select,
+    DatePicker, InputNumber, Row, Col, Typography, message, 
+    Divider, Upload, Rate, Switch, Empty
 } from 'antd';
 import {
     PlusOutlined, SearchOutlined, EditOutlined, DeleteOutlined,
@@ -161,11 +161,7 @@ const WorkerManagement: React.FC = () => {
     ];
 
     return (
-        <div style={{ padding: 24 }}>
-            <Breadcrumb style={{ marginBottom: 16 }}>
-                <Breadcrumb.Item>Quản lý Đội/Thợ</Breadcrumb.Item>
-                <Breadcrumb.Item>Quản lý Thợ</Breadcrumb.Item>
-            </Breadcrumb>
+        <div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
                 <Title level={2}><UserOutlined /> Hồ sơ Danh sách Thợ</Title>

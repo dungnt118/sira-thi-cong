@@ -1,17 +1,18 @@
 import React, { useState, useMemo } from 'react';
 import {
-    Table, Card, Button, Input, Space, Tag, Avatar, Modal, Form,
-    Row, Col, Typography, message, Divider, Rate, Empty, Breadcrumb, List
+    Table, Card, Button, Input, Space, Tag, Avatar, Modal, Form, Select,
+    Row, Col, Typography, message, Divider, Rate
 } from 'antd';
 import {
-    PlusOutlined, SearchOutlined, EditOutlined, DeleteOutlined,
-    TeamOutlined, EnvironmentOutlined, UserOutlined, LinkOutlined,
-    PhoneOutlined, MailOutlined, MessageOutlined
+    PlusOutlined, SearchOutlined,
+    TeamOutlined, EnvironmentOutlined, UserOutlined,
+    PhoneOutlined, MailOutlined, MessageOutlined, ArrowRightOutlined
 } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
 import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
 import { demoDataService } from '../../../services/localstorage/demoDataService';
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 // Mock Map Picker
 const MapPickerMock: React.FC<{ value?: { lat: number, lng: number }, onChange: (val: { lat: number, lng: number }) => void }> = ({ value, onChange }) => (
@@ -25,26 +26,23 @@ const MapPickerMock: React.FC<{ value?: { lat: number, lng: number }, onChange: 
 );
 
 const TeamManagement: React.FC = () => {
+    const navigate = useNavigate();
     const [teams, setTeams] = useLocalStorageData<any[]>(demoDataService.KEYS.TEAMS_MASTER, []);
-    const [workers] = useLocalStorageData<any[]>(demoDataService.KEYS.WORKERS_MASTER, []);
     
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [isDetailVisible, setIsDetailVisible] = useState(false);
-    const [isWorkerLinkVisible, setIsWorkerLinkVisible] = useState(false);
-    
     const [editingTeam, setEditingTeam] = useState<any>(null);
-    const [selectedTeam, setSelectedTeam] = useState<any>(null);
     const [searchText, setSearchText] = useState('');
     const [form] = Form.useForm();
 
     const filteredTeams = useMemo(() => {
         return teams.filter(t => 
-            t.teamName.toLowerCase().includes(searchText.toLowerCase()) ||
-            t.contactName.toLowerCase().includes(searchText.toLowerCase())
+            (t.teamName || '').toLowerCase().includes(searchText.toLowerCase()) ||
+            (t.contactName || '').toLowerCase().includes(searchText.toLowerCase())
         );
     }, [teams, searchText]);
 
-    const showModal = (team?: any) => {
+    const showModal = (e: React.MouseEvent, team?: any) => {
+        e.stopPropagation();
         if (team) {
             setEditingTeam(team);
             form.setFieldsValue({
@@ -54,14 +52,9 @@ const TeamManagement: React.FC = () => {
         } else {
             setEditingTeam(null);
             form.resetFields();
-            form.setFieldsValue({ rating: 5 });
+            form.setFieldsValue({ rating: 5, status: 'active' });
         }
         setIsModalVisible(true);
-    };
-
-    const showDetail = (team: any) => {
-        setSelectedTeam(team);
-        setIsDetailVisible(true);
     };
 
     const handleSave = () => {
@@ -71,11 +64,14 @@ const TeamManagement: React.FC = () => {
                 id: editingTeam?.id || `t-${Date.now()}`,
                 lat: values.mapLocation?.lat,
                 lng: values.mapLocation?.lng,
-                memberIds: editingTeam?.memberIds || []
+                memberIds: editingTeam?.memberIds || [],
+                joinDate: editingTeam?.joinDate || new Date().toISOString().split('T')[0],
+                totalProjects: editingTeam?.totalProjects || 0,
+                completedProjects: editingTeam?.completedProjects || 0
             };
 
             if (editingTeam) {
-                setTeams(teams.map(t => t.id === editingTeam.id ? formattedValues : t));
+                setTeams(teams.map(t => t.id === editingTeam.id ? { ...t, ...formattedValues } : t));
                 message.success('Cập nhật thông tin đội thợ thành công');
             } else {
                 setTeams([...teams, formattedValues]);
@@ -83,25 +79,6 @@ const TeamManagement: React.FC = () => {
             }
             setIsModalVisible(false);
         });
-    };
-
-    const handleDelete = (id: string) => {
-        setTeams(teams.filter(t => t.id !== id));
-        message.success('Đã xóa đội thợ khỏi danh sách');
-    };
-
-    const toggleWorkerLink = (workerId: string) => {
-        const currentMembers = selectedTeam.memberIds || [];
-        let newMembers;
-        if (currentMembers.includes(workerId)) {
-            newMembers = currentMembers.filter((id: string) => id !== workerId);
-        } else {
-            newMembers = [...currentMembers, workerId];
-        }
-        
-        const updatedTeam = { ...selectedTeam, memberIds: newMembers };
-        setTeams(teams.map(t => t.id === selectedTeam.id ? updatedTeam : t));
-        setSelectedTeam(updatedTeam);
     };
 
     const teamColumns = [
@@ -113,23 +90,22 @@ const TeamManagement: React.FC = () => {
                 <Space>
                     <Avatar icon={<TeamOutlined />} style={{ backgroundColor: '#87d068' }} />
                     <div>
-                        <div style={{ fontWeight: 'bold' }}>{text}</div>
+                        <div style={{ fontWeight: 'bold', color: '#1890ff' }}>{text}</div>
                         <div style={{ fontSize: 12, color: '#888' }}>
-                            <LinkOutlined /> {(record.memberIds || []).length} thợ liên kết
+                            {record.contactName} • {record.phone}
                         </div>
                     </div>
                 </Space>
             )
         },
         {
-            title: 'Người Đại Diện',
-            dataIndex: 'contactName',
-            key: 'contactName',
-            render: (text: string, record: any) => (
-                <div>
-                    <div>{text}</div>
-                    <div style={{ fontSize: 12, color: '#888' }}>{record.phone}</div>
-                </div>
+            title: 'Chuyên môn',
+            dataIndex: 'specializations',
+            key: 'specializations',
+            render: (specs: string[]) => (
+                <Space wrap>
+                    {(specs || []).map(s => <Tag key={s} color="blue">{s}</Tag>)}
+                </Space>
             )
         },
         {
@@ -141,44 +117,39 @@ const TeamManagement: React.FC = () => {
             )
         },
         {
+            title: 'Trạng thái',
+            dataIndex: 'status',
+            key: 'status',
+            render: (status: string) => (
+                <Tag color={status === 'active' ? 'green' : 'default'}>
+                    {status === 'active' ? 'Hoạt động' : 'Tạm dừng'}
+                </Tag>
+            )
+        },
+        {
             title: 'Đánh giá',
             dataIndex: 'rating',
             key: 'rating',
             render: (val: number) => <Rate disabled value={val} style={{ fontSize: 12 }} />
         },
         {
-            title: 'Thao tác',
-            key: 'action',
-            render: (_: any, record: any) => (
-                <Space>
-                    <Button type="primary" size="small" ghost onClick={() => showDetail(record)}>Chi tiết / Thợ</Button>
-                    <Button type="text" icon={<EditOutlined />} onClick={() => showModal(record)} />
-                    <Button type="text" danger icon={<DeleteOutlined />} onClick={() => handleDelete(record.id)} />
-                </Space>
-            )
+            title: '',
+            key: 'view',
+            render: () => <ArrowRightOutlined style={{ color: '#bfbfbf' }} />
         }
     ];
 
-    const teamMembers = useMemo(() => {
-        if (!selectedTeam) return [];
-        return workers.filter(w => (selectedTeam.memberIds || []).includes(w.id));
-    }, [selectedTeam, workers]);
-
     return (
-        <div style={{ padding: 24 }}>
-            <Breadcrumb style={{ marginBottom: 16 }}>
-                <Breadcrumb.Item>Quản lý Đội/Thợ</Breadcrumb.Item>
-                <Breadcrumb.Item>Quản lý Đội thợ</Breadcrumb.Item>
-            </Breadcrumb>
+        <div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
                 <Title level={2}><TeamOutlined /> Quản lý Đội thợ</Title>
-                <Button type="primary" icon={<PlusOutlined />} onClick={() => showModal()}>
+                <Button type="primary" icon={<PlusOutlined />} onClick={(e) => showModal(e)}>
                     Thêm Đội mới
                 </Button>
             </div>
 
-            <Card style={{ marginBottom: 24 }}>
+            <Card style={{ marginBottom: 24 }} bodyStyle={{ padding: '16px 24px' }}>
                 <Input
                     placeholder="Tìm kiếm đội thợ theo tên, người đại diện..."
                     prefix={<SearchOutlined />}
@@ -194,6 +165,10 @@ const TeamManagement: React.FC = () => {
                 dataSource={filteredTeams} 
                 rowKey="id" 
                 pagination={{ pageSize: 10 }}
+                onRow={(record) => ({
+                    onClick: () => navigate(`/pm/teams/groups/${record.id}`),
+                    style: { cursor: 'pointer' }
+                })}
             />
 
             {/* Modal: Create/Edit Team */}
@@ -211,6 +186,22 @@ const TeamManagement: React.FC = () => {
                         <Col span={12}>
                             <Form.Item name="teamName" label="Tên Đội thợ" rules={[{ required: true }]}>
                                 <Input placeholder="VD: Đội Thi Công Số 1" />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item name="status" label="Trạng thái" rules={[{ required: true }]}>
+                                <Select options={[
+                                    { label: 'Hoạt động', value: 'active' },
+                                    { label: 'Tạm dừng', value: 'inactive' }
+                                ]} />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                    
+                    <Row gutter={16}>
+                        <Col span={12}>
+                            <Form.Item name="specializations" label="Chuyên môn">
+                                <Select mode="tags" placeholder="VD: Chống thấm, Xây trát" />
                             </Form.Item>
                         </Col>
                         <Col span={12}>
@@ -266,105 +257,6 @@ const TeamManagement: React.FC = () => {
                         </Col>
                     </Row>
                 </Form>
-            </Modal>
-
-            {/* Modal: Team Detail & Linked Workers */}
-            <Modal
-                title={`Chi tiết Đội: ${selectedTeam?.teamName}`}
-                open={isDetailVisible}
-                onCancel={() => setIsDetailVisible(false)}
-                width={900}
-                footer={[
-                    <Button key="close" onClick={() => setIsDetailVisible(false)}>Đóng</Button>
-                ]}
-            >
-                {selectedTeam && (
-                    <Row gutter={24}>
-                        <Col span={8}>
-                            <Card title="Thông tin Đội" size="small">
-                                <Space direction="vertical" style={{ width: '100%' }}>
-                                    <Text><UserOutlined /> <b>Đại diện:</b> {selectedTeam.contactName}</Text>
-                                    <Text><PhoneOutlined /> <b>SĐT:</b> {selectedTeam.phone}</Text>
-                                    {selectedTeam.email && <Text><MailOutlined /> <b>Email:</b> {selectedTeam.email}</Text>}
-                                    {selectedTeam.zalo && <Text><MessageOutlined /> <b>Zalo:</b> {selectedTeam.zalo}</Text>}
-                                    <Text><EnvironmentOutlined /> <b>Địa chỉ:</b> {selectedTeam.address}, {selectedTeam.district}, {selectedTeam.city}</Text>
-                                    <Rate disabled value={selectedTeam.rating} style={{ fontSize: 14 }} />
-                                </Space>
-                            </Card>
-                        </Col>
-                        <Col span={16}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                                <Title level={4} style={{ margin: 0 }}>Danh sách Thợ liên kết</Title>
-                                <Button type="primary" size="small" icon={<PlusOutlined />} onClick={() => setIsWorkerLinkVisible(true)}>
-                                    Quản lý Liên kết Thợ
-                                </Button>
-                            </div>
-                            <Table
-                                dataSource={teamMembers}
-                                size="small"
-                                pagination={false}
-                                rowKey="id"
-                                columns={[
-                                    {
-                                        title: 'Thợ',
-                                        dataIndex: 'name',
-                                        render: (text: string, record: any) => (
-                                            <Space>
-                                                <Avatar size="small" src={record.avatar} icon={<UserOutlined />} />
-                                                <Text>{text}</Text>
-                                            </Space>
-                                        )
-                                    },
-                                    { title: 'Vị trí', dataIndex: 'position' },
-                                    { title: 'Trình độ', dataIndex: 'level', render: (l: string) => <Tag>{l}</Tag> },
-                                    {
-                                        title: 'Hành động',
-                                        render: (_: any, record: any) => (
-                                            <Button type="text" danger size="small" onClick={() => toggleWorkerLink(record.id)}>Hủy liên kết</Button>
-                                        )
-                                    }
-                                ]}
-                                locale={{ emptyText: <Empty description="Chưa có thợ nào được liên kết với đội này." /> }}
-                            />
-                        </Col>
-                    </Row>
-                )}
-            </Modal>
-
-            {/* Modal: Link Workers to Team */}
-            <Modal
-                title="Quản lý Liên kết Thợ vào Đội"
-                open={isWorkerLinkVisible}
-                onCancel={() => setIsWorkerLinkVisible(false)}
-                onOk={() => setIsWorkerLinkVisible(false)}
-                footer={[<Button key="done" type="primary" onClick={() => setIsWorkerLinkVisible(false)}>Xong</Button>]}
-            >
-                <List
-                    dataSource={workers}
-                    renderItem={(worker: any) => {
-                        const isLinked = (selectedTeam?.memberIds || []).includes(worker.id);
-                        return (
-                            <List.Item
-                                actions={[
-                                    <Button 
-                                        type={isLinked ? 'default' : 'primary'} 
-                                        size="small" 
-                                        danger={isLinked}
-                                        onClick={() => toggleWorkerLink(worker.id)}
-                                    >
-                                        {isLinked ? 'Hủy liên kết' : 'Liên kết'}
-                                    </Button>
-                                ]}
-                            >
-                                <List.Item.Meta
-                                    avatar={<Avatar icon={<UserOutlined />} src={worker.avatar} />}
-                                    title={worker.name}
-                                    description={`${worker.position} - ${worker.level}`}
-                                />
-                            </List.Item>
-                        );
-                    }}
-                />
             </Modal>
         </div>
     );
