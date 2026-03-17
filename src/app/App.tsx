@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { lazy } from 'react';
-import { ConfigProvider } from 'antd';
+import { ConfigProvider, App as AntApp } from 'antd';
 import viVN from 'antd/locale/vi_VN';
 
 // Admin V2 Pages
@@ -132,19 +132,20 @@ const ComingSoon = ({ title }: { title: string }) => (
 function App() {
     return (
         <ConfigProvider locale={viVN}>
-            <BrowserRouter>
-                <Routes>
-                    {/* ===== PUBLIC ROUTES ===== */}
-                    <Route path="/login" element={<Login />} />
-                    {/* Original Portal */}
-                    <Route path="/portal/:token" element={<CustomerPortal />} />
-                    {/* Phase 1 Portal Sub-routes */}
-                    <Route path="/portal/:token/timeline" element={<PublishedTimeline />} />
-                    <Route path="/portal/:token/documents" element={<PortalDocuments />} />
-                    <Route path="/portal/:token/threads" element={<ThreadInbox />} />
-                    <Route path="/portal/:token/threads/:threadId" element={<ThreadDetail />} />
+            <AntApp>
+                <BrowserRouter>
+                    <Routes>
+                        {/* ===== PUBLIC ROUTES ===== */}
+                        <Route path="/login" element={<Login />} />
+                        {/* Original Portal */}
+                        <Route path="/portal/:token" element={<CustomerPortal />} />
+                        {/* Phase 1 Portal Sub-routes */}
+                        <Route path="/portal/:token/timeline" element={<PublishedTimeline />} />
+                        <Route path="/portal/:token/documents" element={<PortalDocuments />} />
+                        <Route path="/portal/:token/threads" element={<ThreadInbox />} />
+                        <Route path="/portal/:token/threads/:threadId" element={<ThreadDetail />} />
 
-                    {/* ===== ADMIN V2 ROUTES ===== */}
+                        {/* ===== ADMIN V2 ROUTES ===== */}
                     <Route path="/admin" element={<AdminLayout />}>
                         <Route index element={<div>Old Admin - Deprecated</div>} />
                     </Route>
@@ -323,10 +324,10 @@ function App() {
                     <Route path="/" element={<Navigate to="/login" replace />} />
                     <Route path="*" element={<NotFound />} />
                 </Routes>
-            </BrowserRouter>
+                </BrowserRouter>
+            </AntApp>
         </ConfigProvider>
     );
 }
 
 export default App;
-

@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import {
     Card, Table, Tag, Button, Progress, Space, Typography, Row, Col,
-    Select, Input, Tooltip, Dropdown, Statistic, Avatar,
-    Modal, message
+    Select, Input, Tooltip, Dropdown, Statistic, Avatar, App
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import type { MenuProps } from 'antd';
@@ -32,15 +31,16 @@ const STATUS_CONFIG: Record<ProjectStatus, { label: string; color: string }> = {
 
 const PMProjectList: React.FC = () => {
     const navigate = useNavigate();
+    const { modal, message } = App.useApp();
     const [filterStatus, setFilterStatus] = useState<ProjectStatus | 'ALL'>('ALL');
     const [search, setSearch] = useState('');
     const [mockProjects, setMockProjects] = useLocalStorageData<Project[]>(demoDataService.KEYS.PROJECTS, defaultProjects);
 
     const handleCancelProject = (p: Project) => {
-        Modal.confirm({
+        modal.confirm({
             title: 'Xác nhận hủy dự án',
             icon: <WarningOutlined style={{ color: '#ff4d4f' }} />,
-            content: `Bạn có chắc chắn muốn hủy dự án "${p.code} - ${p.name}"? Hành động này không thể hoàn tác.`,
+            content: `Dự án "${p.code}" đang thi công. Bạn có chắc chắn muốn HỦY dự án này? Trạng thái sẽ chuyển thành "Đã hủy".`,
             okText: 'Hủy dự án',
             okType: 'danger',
             cancelText: 'Quay lại',
@@ -54,11 +54,27 @@ const PMProjectList: React.FC = () => {
         });
     };
 
+    const handleDeleteProject = (p: Project) => {
+        modal.confirm({
+            title: 'Xác nhận xóa dự án',
+            icon: <WarningOutlined style={{ color: '#ff4d4f' }} />,
+            content: `Dự án "${p.code}" đang chuẩn bị (Lên lịch). Bạn có chắc chắn muốn XÓA hoàn toàn dự án này khỏi hệ thống?`,
+            okText: 'Xóa dự án',
+            okType: 'danger',
+            cancelText: 'Quay lại',
+            onOk: () => {
+                const updated = mockProjects.filter(proj => proj.id !== p.id);
+                setMockProjects(updated);
+                message.success('Đã xóa dự án thành công');
+            }
+        });
+    };
+
     const handleOpenPortal = (p: Project) => {
         if (p.portalToken) {
             window.open(`/portal/${p.portalToken}`, '_blank');
         } else {
-            Modal.info({
+            modal.info({
                 title: 'Portal Khách hàng',
                 content: (
                     <div>
@@ -88,33 +104,39 @@ const PMProjectList: React.FC = () => {
         completed: mockProjects.filter(p => p.status === 'COMPLETED').length,
     };
 
+    const handleMenuClick = (key: string, p: Project) => {
+        if (key === 'view') navigate(`/pm/construction/projects/${p.id}`);
+        else if (key === 'edit') navigate(`/pm/construction/projects/${p.id}/edit`);
+        else if (key === 'portal') handleOpenPortal(p);
+        else if (key === 'cancel-delete') {
+            if (p.status === 'SCHEDULED') handleDeleteProject(p);
+            else handleCancelProject(p);
+        }
+    };
+
     const getRowActions = (p: Project): MenuProps['items'] => [
         { 
             key: 'view', 
             icon: <EyeOutlined />, 
             label: 'Xem chi tiết', 
-            onClick: () => navigate(`/pm/construction/projects/${p.id}`) 
         },
         { 
             key: 'edit', 
             icon: <EditOutlined />, 
             label: 'Chỉnh sửa', 
-            onClick: () => navigate(`/pm/construction/projects/${p.id}/edit`) 
         },
         { 
             key: 'portal', 
             icon: <LinkOutlined />, 
             label: 'Portal KH', 
-            onClick: () => handleOpenPortal(p) 
         },
         { type: 'divider' },
         { 
-            key: 'cancel', 
+            key: 'cancel-delete', 
             icon: <StopOutlined />, 
-            label: 'Hủy dự án', 
+            label: p.status === 'SCHEDULED' ? 'Xóa dự án' : 'Hủy dự án', 
             danger: true,
-            disabled: p.status === 'CANCELLED',
-            onClick: () => handleCancelProject(p)
+            disabled: p.status === 'CANCELLED' || p.status === 'COMPLETED',
         },
     ];
 
@@ -211,7 +233,14 @@ const PMProjectList: React.FC = () => {
             key: 'actions',
             width: 48,
             render: (_, p) => (
-                <Dropdown menu={{ items: getRowActions(p) }} placement="bottomRight" trigger={['click']}>
+                <Dropdown 
+                    menu={{ 
+                        items: getRowActions(p),
+                        onClick: ({ key }) => handleMenuClick(key, p)
+                    }} 
+                    placement="bottomRight" 
+                    trigger={['click']}
+                >
                     <Button type="text" icon={<MoreOutlined />} />
                 </Dropdown>
             ),
