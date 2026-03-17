@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
-import { Card, Tabs, Form, Input, InputNumber, Select, Switch, Button, message, Space, Upload, Row, Col } from 'antd';
-import { SettingOutlined, SaveOutlined, UploadOutlined } from '@ant-design/icons';
+import { Card, Tabs, Form, Input, InputNumber, Select, Switch, Button, message, Space, Upload, Row, Col, Typography, Modal } from 'antd';
+import { SettingOutlined, SaveOutlined, UploadOutlined, ReloadOutlined, EyeOutlined } from '@ant-design/icons';
 import type { TabsProps } from 'antd';
 
 const { Option } = Select;
 
 import { useOutletContext } from 'react-router-dom';
+import { demoDataService } from '../../../services/localstorage/demoDataService';
+import { localStorageService } from '../../../services/localstorage/localStorageService';
+
+const { Title: AntTitle, Text: AntText } = Typography;
 
 /**
  * System Settings Page - 5 tabs
@@ -23,6 +27,10 @@ const SystemSettings: React.FC = () => {
     const [evidenceForm] = Form.useForm();
     const [paymentForm] = Form.useForm();
     const [portalForm] = Form.useForm();
+
+    const [previewModalVisible, setPreviewModalVisible] = useState(false);
+    const [previewKey, setPreviewKey] = useState<string | null>(null);
+    const [previewData, setPreviewData] = useState<any>(null);
 
     // Mock initial values
     const initialGeneral = {
@@ -61,6 +69,17 @@ const SystemSettings: React.FC = () => {
         linkExpiryDays: 30,
         defaultAccessLevel: 'BASIC',
         allowGuestComments: false,
+    };
+
+    const handleSavePortal = async () => {
+        try {
+            const values = await portalForm.validateFields();
+            console.log('Portal settings:', values);
+            message.success('Đã lưu cài đặt Customer Portal');
+            // TODO: Call API to save settings
+        } catch (error) {
+            console.error('Validation error:', error);
+        }
     };
 
     const handleSaveGeneral = async () => {
@@ -107,15 +126,22 @@ const SystemSettings: React.FC = () => {
         }
     };
 
-    const handleSavePortal = async () => {
-        try {
-            const values = await portalForm.validateFields();
-            console.log('Portal settings:', values);
-            message.success('Đã lưu cài đặt Customer Portal');
-            // TODO: Call API to save settings
-        } catch (error) {
-            console.error('Validation error:', error);
-        }
+
+    const handleResetDemoData = () => {
+        demoDataService.resetData();
+        message.success('Đã reset toàn bộ dữ liệu mẫu vào LocalStorage');
+    };
+
+    const handleResetCollection = (key: string) => {
+        demoDataService.resetCollection(key);
+        message.success(`Đã reset collection ${key} về dữ liệu gốc`);
+    };
+
+    const handlePreviewData = (key: string) => {
+        const data = localStorageService.getLocal(key);
+        setPreviewKey(key);
+        setPreviewData(data);
+        setPreviewModalVisible(true);
     };
 
     const tabItems: TabsProps['items'] = [
@@ -387,6 +413,99 @@ const SystemSettings: React.FC = () => {
                 </Card>
             ),
         },
+        {
+            key: 'data',
+            label: 'Quản lý Dữ liệu',
+            children: (
+                <Card>
+                    <div style={{ marginBottom: 24 }}>
+                        <AntTitle level={5}>Dữ liệu Demo & LocalStorage</AntTitle>
+                        <AntText type="secondary">
+                            Sử dụng các công cụ dưới đây để quản lý dữ liệu demo đang lưu trữ tại trình duyệt của bạn.
+                        </AntText>
+                    </div>
+
+                    <Space direction="vertical" size="large" style={{ width: '100%' }}>
+                        <div style={{ padding: 16, background: '#fff7e6', border: '1px solid #ffd591', borderRadius: 8 }}>
+                            <Row align="middle" gutter={16}>
+                                <Col flex="auto">
+                                    <AntText strong>Reset Dữ liệu gốc</AntText>
+                                    <div style={{ fontSize: 12, color: '#8c8c8c' }}>
+                                        Xóa dữ liệu hiện tại và nạp lại toàn bộ dữ liệu mẫu từ hệ thống.
+                                    </div>
+                                </Col>
+                                <Col>
+                                    <Button 
+                                        danger 
+                                        icon={<ReloadOutlined />} 
+                                        onClick={handleResetDemoData}
+                                    >
+                                        Reset Dữ liệu
+                                    </Button>
+                                </Col>
+                            </Row>
+                        </div>
+
+                        <div>
+                            <AntTitle level={5}>Danh sách Collections (LocalStorage)</AntTitle>
+                            <div style={{ maxHeight: 400, overflow: 'auto', border: '1px solid #f0f0f0', borderRadius: 8 }}>
+                                {demoDataService.getDemoKeys().map(key => {
+                                    const data = localStorageService.getLocal(key);
+                                    const exists = !!data;
+                                    const count = Array.isArray(data) ? data.length : (data ? 1 : 0);
+                                    
+                                    return (
+                                        <div 
+                                            key={key} 
+                                            style={{ 
+                                                padding: '12px 16px', 
+                                                borderBottom: '1px solid #f0f0f0',
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center'
+                                            }}
+                                        >
+                                            <Space direction="vertical" size={0}>
+                                                <AntText strong>{key}</AntText>
+                                                <Space>
+                                                    <AntText type={exists ? "success" : "danger"} style={{ fontSize: 11 }}>
+                                                        {exists ? 'Đã tồn tại' : 'Chưa có dữ liệu'}
+                                                    </AntText>
+                                                    {exists && (
+                                                        <AntText type="secondary" style={{ fontSize: 11 }}>
+                                                            • {count} records
+                                                        </AntText>
+                                                    )}
+                                                </Space>
+                                            </Space>
+                                            <Space>
+                                                <Button 
+                                                    type="link" 
+                                                    size="small"
+                                                    icon={<ReloadOutlined />} 
+                                                    onClick={() => handleResetCollection(key)}
+                                                >
+                                                    Reset
+                                                </Button>
+                                                <Button 
+                                                    type="link" 
+                                                    size="small"
+                                                    icon={<EyeOutlined />} 
+                                                    disabled={!exists}
+                                                    onClick={() => handlePreviewData(key)}
+                                                >
+                                                    Preview
+                                                </Button>
+                                            </Space>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </Space>
+                </Card>
+            ),
+        },
     ];
 
     return (
@@ -394,6 +513,30 @@ const SystemSettings: React.FC = () => {
             <Card title="Cài đặt hệ thống" extra={<SettingOutlined style={{ fontSize: 20, color: '#1890ff' }} />}>
                 <Tabs activeKey={activeTab} items={tabItems} onChange={setActiveTab} />
             </Card>
+
+            <Modal
+                title={`Preview: ${previewKey}`}
+                open={previewModalVisible}
+                onCancel={() => setPreviewModalVisible(false)}
+                footer={[
+                    <Button key="close" onClick={() => setPreviewModalVisible(false)}>
+                        Đóng
+                    </Button>
+                ]}
+                width={800}
+            >
+                <div style={{ 
+                    maxHeight: 500, 
+                    overflow: 'auto', 
+                    background: '#f5f5f5', 
+                    padding: 16, 
+                    borderRadius: 4,
+                    fontFamily: 'monospace',
+                    fontSize: 12
+                }}>
+                    <pre>{JSON.stringify(previewData, null, 2)}</pre>
+                </div>
+            </Modal>
         </div>
     );
 };
