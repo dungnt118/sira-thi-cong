@@ -20,6 +20,7 @@ import type { GoNoGoStatus, SlaStatus, PortalPublishStatus } from '../../../type
 import { useAuth } from '../../../hooks/useAuth';
 import { JourneyStepRenderer, StepLabor, StepMaterials } from '../../shared/JourneySteps';
 import { ConsultationLogForm } from '../../../components/journey/SharedModals';
+import PortalDashboard from '../../../components/portal/PortalDashboard';
 
 const { Text, Title } = Typography;
 const { TextArea } = Input;
@@ -62,6 +63,7 @@ const JourneyDetail360: React.FC = () => {
     const [showPublishModal, setShowPublishModal] = useState(false);
     const [showLogModal, setShowLogModal] = useState(false);
     const [showFollowUpModal, setShowFollowUpModal] = useState(false);
+    const [publishTab, setPublishTab] = useState('settings');
     const [assignForm] = Form.useForm();
     const [priorityForm] = Form.useForm();
     const [followUpForm] = Form.useForm();
@@ -435,13 +437,84 @@ const JourneyDetail360: React.FC = () => {
                         open={showPublishModal}
                         onCancel={() => setShowPublishModal(false)}
                         onOk={() => { message.success("Publish thành công!"); setShowPublishModal(false); }}
+                        width={publishTab === 'preview' ? 1000 : 600}
+                        styles={{ body: { padding: 0 } }}
                     >
-                         <Alert type="info" message="Khách hàng sẽ thấy các thay đổi mới trên Portal sau khi bạn publish." style={{ marginBottom: 16 }} />
-                         <Form layout="vertical">
-                            <Form.Item label="Nội dung publish">
-                                <Checkbox.Group options={['Tổng quan', 'Timeline', 'Tài liệu']} defaultValue={['Tổng quan', 'Timeline']} />
-                            </Form.Item>
-                         </Form>
+                        <Tabs 
+                            activeKey={publishTab} 
+                            onChange={setPublishTab} 
+                            centered 
+                            style={{ marginBottom: 0 }}
+                            items={[
+                                {
+                                    key: 'settings',
+                                    label: 'Cấu hình Publish',
+                                    children: (
+                                        <div style={{ padding: 24 }}>
+                                            <Alert 
+                                                type="info" 
+                                                showIcon
+                                                message="Khách hàng sẽ thấy các thay đổi mới trên Portal sau khi bạn publish." 
+                                                style={{ marginBottom: 20 }} 
+                                            />
+                                            
+                                            <Form layout="vertical">
+                                                <Form.Item label={<Text strong>Nội dung publish</Text>}>
+                                                    <Checkbox.Group 
+                                                        options={['Tổng quan', 'Timeline', 'Tài liệu']} 
+                                                        defaultValue={['Tổng quan', 'Timeline']} 
+                                                    />
+                                                </Form.Item>
+
+                                                <div style={{ marginTop: 24, padding: 16, background: '#f5f5f5', borderRadius: 8 }}>
+                                                    <Text strong style={{ display: 'block', marginBottom: 8 }}>Link Portal khách hàng</Text>
+                                                    <div style={{ display: 'flex', gap: 8, alignItems: 'center', background: '#fff', padding: '8px 12px', borderRadius: 6, border: '1px solid #d9d9d9' }}>
+                                                        <Text ellipsis style={{ flex: 1, color: '#1890ff' }}>
+                                                            {`${window.location.origin}/portal/${journey.journey_code}`}
+                                                        </Text>
+                                                        <Space>
+                                                            <Button 
+                                                                size="small" 
+                                                                type="link" 
+                                                                icon={<PaperClipOutlined />}
+                                                                onClick={() => {
+                                                                    navigator.clipboard.writeText(`${window.location.origin}/portal/${journey.journey_code}`);
+                                                                    message.success("Đã copy link portal!");
+                                                                }}
+                                                            >
+                                                                Copy
+                                                            </Button>
+                                                            <Button 
+                                                                size="small" 
+                                                                type="link" 
+                                                                icon={<SendOutlined />}
+                                                                onClick={() => window.open(`/portal/${journey.journey_code}`, '_blank')}
+                                                            >
+                                                                Mở
+                             </Button>
+                                                        </Space>
+                                                    </div>
+                                                </div>
+                                            </Form>
+                                        </div>
+                                    )
+                                },
+                                {
+                                    key: 'preview',
+                                    label: 'Xem trước giao diện',
+                                    children: (
+                                        <div style={{ 
+                                            padding: isMobile ? 8 : 24, 
+                                            background: '#f0f2f5', 
+                                            maxHeight: '70vh', 
+                                            overflowY: 'auto' 
+                                        }}>
+                                            <PortalDashboard journey={journey} isPreview />
+                                        </div>
+                                    )
+                                }
+                            ]}
+                        />
                     </Modal>
                 </>
             )}
