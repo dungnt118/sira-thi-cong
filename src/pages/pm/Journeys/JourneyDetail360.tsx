@@ -16,6 +16,8 @@ import { mockJourneys, mockPortalThreads, mockJourneyTemplates } from '../../../
 import type { GoNoGoStatus, SlaStatus, PortalPublishStatus } from '../../../types/journey';
 import { useAuth } from '../../../hooks/useAuth';
 import JourneyStepRenderer from '../../shared/JourneySteps/JourneyStepRenderer';
+import StepLabor from '../../shared/JourneySteps/StepLabor';
+import StepMaterials from '../../shared/JourneySteps/StepMaterials';
 
 const { Text, Title } = Typography;
 
@@ -153,24 +155,17 @@ const JourneyDetail360: React.FC = () => {
             label: <span>📄 Báo giá/HĐ</span>,
             children: renderTabContent('GRP_05_QUOTE', 'S05_QUOTE'),
         },
-        // 6. Tab Nhân công (GRP_05_QUOTE - User asked for separate tab)
+        // 6. Tab Nhân công
         {
             key: 'GRP_LABOR',
             label: <span><TeamOutlined /> Nhân công</span>,
-            children: renderTabContent('GRP_05_QUOTE', 'S06_CONTRACT'), 
+            children: <StepLabor journeyId={journey.id!} isEditable={userRoleConfig.editableGroupCodes.includes('GRP_05_QUOTE') || role === 'pm'} />, 
         },
-        // 8. Tab Vật tư (GRP_05_QUOTE - User asked for separate tab)
+        // 8. Tab Vật tư
         {
             key: 'GRP_MATERIALS',
             label: <span>📦 Vật tư</span>,
-            children: (
-                <Descriptions bordered size="small" column={{ xs: 1, sm: 2 }}>
-                    <Descriptions.Item label="Trạng thái vật tư">{journey.material_need_status || '—'}</Descriptions.Item>
-                    <Descriptions.Item label="Vật tư chính">{journey.key_material_summary || '—'}</Descriptions.Item>
-                    <Descriptions.Item label="Cảnh báo cung ứng">{journey.procurement_alert_count ?? '—'}</Descriptions.Item>
-                    <Descriptions.Item label="Nhu cầu tài sản">{journey.asset_need_summary || '—'}</Descriptions.Item>
-                </Descriptions>
-            ),
+            children: <StepMaterials journeyId={journey.id!} isEditable={userRoleConfig.editableGroupCodes.includes('GRP_05_QUOTE') || role === 'pm'} />,
         },
         // 9. Tab Thanh toán (GRP_07_DEPOSIT or GRP_10_PAYMENT)
         {

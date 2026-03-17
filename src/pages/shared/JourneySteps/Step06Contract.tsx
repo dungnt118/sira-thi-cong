@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import { Card, Form, Input, Button, Result, Space, Divider, Typography } from 'antd';
+import { Card, Form, Input, Button, Result, Space, Divider, Typography, Tag, Descriptions, Row, Col, InputNumber } from 'antd';
 import { SaveOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 
+import { mockContracts } from '../../../data/journeyMockData';
+import { FilePdfOutlined, CheckCircleOutlined, ClockCircleOutlined } from '@ant-design/icons';
+
 const { TextArea } = Input;
-const { Text } = Typography;
+const { Text, Title } = Typography;
 
 export interface Step06ContractProps {
     journeyId: string;
@@ -11,31 +14,101 @@ export interface Step06ContractProps {
     onSave?: (data: any) => void;
 }
 
-export const Step06Contract: React.FC<Step06ContractProps> = ({ isEditable = false, onSave }) => {
+export const Step06Contract: React.FC<Step06ContractProps> = ({ journeyId, isEditable = false, onSave }) => {
     const [form] = Form.useForm();
     const [isEditing, setIsEditing] = useState(false);
+
+    const contract = mockContracts.find(c => c.journey_id === journeyId);
+    const formatVND = (val: number) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val);
 
     const handleFinish = (values: any) => {
         if (onSave) onSave(values);
         setIsEditing(false);
     };
 
-    const renderReadOnly = () => (
-        <Result
-            status="info"
-            title="Ký kết hợp đồng"
-            subTitle="Thông tin chi tiết của bước Ký kết hợp đồng ở chế độ xem (Readonly)."
-        />
-    );
+    const renderReadOnly = () => {
+        if (!contract) {
+            return (
+                <Result
+                    status="info"
+                    title="Hợp đồng chưa được khởi tạo"
+                    subTitle="Vui lòng đợi bộ phận Pháp chế / Sale soạn thảo hợp đồng dựa trên báo giá đã duyệt."
+                />
+            );
+        }
+
+        return (
+            <div style={{ padding: '0 12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
+                    <div>
+                        <Title level={4} style={{ margin: '0 0 4px 0' }}>Số HĐ: {contract.contract_no}</Title>
+                        <Space>
+                            <Tag color={contract.status === 'signed' ? 'success' : 'processing'} icon={contract.status === 'signed' ? <CheckCircleOutlined /> : <ClockCircleOutlined />}>
+                                {contract.status === 'signed' ? 'Đã ký kết' : 'Đang trình ký'}
+                            </Tag>
+                            <Text type="secondary">Ngày ký: {contract.sign_date}</Text>
+                        </Space>
+                    </div>
+                    <Button icon={<FilePdfOutlined />} type="dashed">Xem bản PDF</Button>
+                </div>
+
+                <Descriptions bordered column={2} size="small">
+                    <Descriptions.Item label="Giá trị hợp đồng" span={2}>
+                        <Text strong type="danger">{formatVND(contract.value)}</Text>
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Đại diện KH">Khách hàng (Chủ đầu tư)</Descriptions.Item>
+                    <Descriptions.Item label="Đại diện SIRA">Giám đốc chi nhánh</Descriptions.Item>
+                    <Descriptions.Item label="Thời hạn thực hiện"> Theo tiến độ thi công</Descriptions.Item>
+                    <Descriptions.Item label="Hình thức thanh toán"> Chuyển khoản / Tiền mặt</Descriptions.Item>
+                </Descriptions>
+
+                <Divider />
+                <div style={{ textAlign: 'center', background: '#f9f9f9', padding: 16, borderRadius: 8 }}>
+                    <Text italic>Hợp đồng điện tử đã được xác thực qua hệ thống PrimeSign.</Text>
+                </div>
+            </div>
+        );
+    };
 
     const renderEditable = () => (
-        <Form form={form} layout="vertical" onFinish={handleFinish}>
-            <Divider orientation="left">Thông tin cơ bản</Divider>
-            <Form.Item label="Ghi chú / Đánh giá" name="notes" rules={[{ required: true }]}>
+        <Form 
+            form={form} 
+            layout="vertical" 
+            onFinish={handleFinish}
+            initialValues={{ 
+                contract_no: contract?.contract_no,
+                sign_date: contract?.sign_date,
+                value: contract?.value,
+                notes: '' 
+            }}
+        >
+            <Divider orientation="left">Điều chỉnh thông tin hợp đồng</Divider>
+            <Row gutter={16}>
+                <Col span={12}>
+                    <Form.Item label="Số hợp đồng" name="contract_no" rules={[{ required: true }]}>
+                        <Input placeholder="VD: SIRA-2026-001" />
+                    </Form.Item>
+                </Col>
+                <Col span={12}>
+                    <Form.Item label="Ngày ký" name="sign_date" rules={[{ required: true }]}>
+                        <Input placeholder="YYYY-MM-DD" />
+                    </Form.Item>
+                </Col>
+                <Col span={12}>
+                    <Form.Item label="Giá trị hợp đồng (VNĐ)" name="value" rules={[{ required: true }]}>
+                        <InputNumber 
+                            style={{ width: '100%' }} 
+                            min={0} 
+                            formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                        />
+                    </Form.Item>
+                </Col>
+            </Row>
+            <Form.Item label="Ghi chú bổ sung" name="notes">
                 <TextArea rows={4} placeholder="Nhập ghi chú hoặc kết quả thực hiện của công việc này..." />
             </Form.Item>
             <Space style={{ marginTop: 16 }}>
-                <Button type="primary" htmlType="submit" icon={<SaveOutlined />}>Lưu kết quả</Button>
+                <Button type="primary" htmlType="submit" icon={<SaveOutlined />}>Lưu & Cập nhật</Button>
                 <Button onClick={() => setIsEditing(false)}>Hủy</Button>
             </Space>
         </Form>

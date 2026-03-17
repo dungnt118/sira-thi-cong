@@ -92,7 +92,16 @@ export const mockJourneys: Journey[] = [
         latest_thread_status: 'open',
         portal_token: 'token-j001-portal',
         template_id: 'tmpl-001',
-        activities: makeActivities('j-001'),
+        activities: [
+            { id: 'act-j001-1', journey_id: 'j-001', activity_actor: 'Nguyễn Văn PM', activity_action: 'Tạo hành trình', activity_context: 'Khởi tạo', activity_time: '2026-02-10T09:00:00', activity_summary: 'Hành trình được tạo từ yêu cầu YC-2026-001' },
+            { id: 'act-j001-2', journey_id: 'j-001', activity_actor: 'Trần Thị Sale', activity_action: 'Liên hệ khách hàng', activity_context: 'Tư vấn', activity_time: '2026-02-11T10:30:00', activity_summary: 'Đã gọi điện tư vấn sơ bộ, khách đồng ý khảo sát' },
+            { id: 'act-j001-3', journey_id: 'j-001', activity_actor: 'Trần Thị Sale', activity_action: 'Đặt lịch khảo sát', activity_context: 'Khảo sát', activity_time: '2026-02-12T14:00:00', activity_summary: 'Lịch khảo sát ngày 15/02/2026 lúc 9:00' },
+            { id: 'act-j001-4', journey_id: 'j-001', activity_actor: 'Lê Văn Giám sát', activity_action: 'Hoàn thành khảo sát', activity_context: 'Khảo sát', activity_time: '2026-02-15T11:30:00', activity_summary: 'Đã khảo sát 3 khu vực, ghi nhận nhiều vết nứt chim sàn mái' },
+            { id: 'act-j001-5', journey_id: 'j-001', activity_actor: 'Nguyễn Văn PM', activity_action: 'Phê duyệt dự toán', activity_context: 'Dự toán', activity_time: '2026-02-18T10:00:00', activity_summary: 'Dự toán v1 được duyệt: 31,350,000đ (VAT included)' },
+            { id: 'act-j001-6', journey_id: 'j-001', activity_actor: 'Trần Thị Sale', activity_action: 'Gửi báo giá', activity_context: 'Báo giá', activity_time: '2026-02-18T15:00:00', activity_summary: 'Báo giá đã được gửi qua email và Portal cho khách hàng' },
+            { id: 'act-j001-7', journey_id: 'j-001', activity_actor: 'Nguyễn Thị Lan', activity_action: 'Phê duyệt báo giá', activity_context: 'Portal', activity_time: '2026-02-19T09:00:00', activity_summary: 'Khách hàng đã xác nhận đồng ý báo giá trên Portal' },
+            { id: 'act-j001-8', journey_id: 'j-001', activity_actor: 'Nguyễn Văn PM', activity_action: 'Ký hợp đồng', activity_context: 'Hợp đồng', activity_time: '2026-02-20T14:00:00', activity_summary: 'Hợp đồng HD-2026-001 đã ký kết thành công' },
+        ],
     },
     {
         id: 'j-002',
@@ -604,6 +613,168 @@ export const mockActionItems: ActionItem[] = [
     { id: 'action-003', action_type: 'survey_waiting', journey_code: 'HT-2026-001', customer_name: 'Nguyễn Thị Lan', current_step: 'Dự toán & Báo giá', priority: 'high', owner_user: 'Nguyễn Văn PM', source_tab: 'Khảo sát', journey_id: 'j-001' },
     { id: 'action-004', action_type: 'publish_pending', journey_code: 'HT-2026-001', customer_name: 'Nguyễn Thị Lan', current_step: 'Dự toán & Báo giá', priority: 'medium', owner_user: 'Nguyễn Văn PM', source_tab: 'Portal/Chat', journey_id: 'j-001' },
     { id: 'action-005', action_type: 'portal_unread', journey_code: 'HT-2026-003', customer_name: 'Trần Minh Tuấn', current_step: 'Triển khai thi công', priority: 'medium', owner_user: 'Phạm Thúy PM', source_tab: 'Portal/Chat', journey_id: 'j-003' },
+];
+
+// ---- MOCK QUOTATIONS ----
+export const mockQuotations = [
+    {
+        id: 'q-001',
+        journey_id: 'j-001',
+        items: [
+            { key: '1', name: 'Vật tư Chống thấm SIRA PU', unit: 'Thùng 20kg', qty: 3, price: 5500000, total: 16500000 },
+            { key: '2', name: 'Lớp phủ bảo vệ SIRA TOP', unit: 'Thùng 5kg', qty: 2, price: 1500000, total: 3000000 },
+            { key: '3', name: 'Nhân công vệ sinh & mài sàn', unit: 'm2', qty: 45, price: 80000, total: 3600000 },
+            { key: '4', name: 'Nhân công thi công 2 lớp PU', unit: 'm2', qty: 45, price: 120000, total: 5400000 },
+        ],
+        total_amount: 28500000,
+        tax_amount: 2850000,
+        grand_total: 31350000,
+        status: 'approved',
+    }
+];
+
+// ---- MOCK CONTRACTS ----
+export const mockContracts = [
+    {
+        id: 'c-001',
+        journey_id: 'j-001',
+        contract_no: 'HD-2026-001',
+        sign_date: '2026-02-20',
+        value: 31350000,
+        status: 'signed',
+        pdf_url: '/mock/contracts/HD-001.pdf',
+    },
+    {
+        id: 'c-003',
+        journey_id: 'j-003',
+        contract_no: 'HD-2026-003',
+        sign_date: '2026-03-01',
+        value: 15000000,
+        status: 'signed',
+        pdf_url: '/mock/contracts/HD-003.pdf',
+    }
+];
+
+// ---- MOCK PAYMENTS ----
+export const mockPayments = [
+    {
+        id: 'p-001',
+        journey_id: 'j-001',
+        milestones: [
+            { id: 'm1', name: 'Tạm ứng đợt 1 (50%)', amount: 15675000, due_date: '2026-02-25', status: 'paid', paid_at: '2026-02-24' },
+            { id: 'm2', name: 'Thanh toán đợt 2 (40%)', amount: 12540000, due_date: '2026-03-10', status: 'pending' },
+            { id: 'm3', name: 'Quyết toán & Bảo hành (10%)', amount: 3135000, due_date: '2026-09-10', status: 'pending' },
+        ]
+    },
+    {
+        id: 'p-003',
+        journey_id: 'j-003',
+        milestones: [
+            { id: 'm1', name: 'Tạm ứng (50%)', amount: 7500000, due_date: '2026-03-05', status: 'paid', paid_at: '2026-03-04' },
+            { id: 'm2', name: 'Nghiệm thu (40%)', amount: 6000000, due_date: '2026-03-15', status: 'pending' },
+            { id: 'm3', name: 'Bảo hành (10%)', amount: 1500000, due_date: '2026-09-15', status: 'pending' },
+        ]
+    }
+];
+
+// ---- MOCK CONSTRUCT REPORTS ----
+export const mockConstructReports = [
+    {
+        id: 'rep-001',
+        journey_id: 'j-003',
+        date: '2026-03-06',
+        supervisor: 'Lê Văn Giám sát',
+        content: 'Hoàn thành mài sàn và vệ sinh công nghiệp. Đã lăn lớp lót SIRA PRIMER.',
+        progress_pct: 30,
+        images: ['https://picsum.photos/200/150?random=1', 'https://picsum.photos/200/150?random=2'],
+    },
+    {
+        id: 'rep-002',
+        journey_id: 'j-003',
+        date: '2026-03-07',
+        supervisor: 'Lê Văn Giám sát',
+        content: 'Thi công lớp phủ SIRA PU lần 1. Thời tiết khô ráo, thuận lợi.',
+        progress_pct: 60,
+        images: ['https://picsum.photos/200/150?random=3'],
+    }
+];
+
+// ---- MOCK INCIDENTS (Maintain/Warranty) ----
+export const mockIncidents = [
+    {
+        id: 'inc-001',
+        journey_id: 'j-007',
+        type: 'warranty',
+        title: 'Thấm góc tường hố thang',
+        reported_at: '2026-03-12',
+        status: 'investigating',
+        priority: 'high',
+        assigned_to: 'Bùi Văn Kỹ Thuật',
+    }
+];
+
+// ---- MOCK ESTIMATES (Detailed) ----
+export const mockEstimates = [
+    {
+        id: 'est-001',
+        journey_id: 'j-001',
+        groups: [
+            {
+                name: 'Vệ sinh & Chuẩn bị mặt bằng',
+                quantity: 45,
+                unit: 'm2',
+                components: [
+                    { type: 'labor', name: 'Công nhân vệ sinh công nghiệp', unit: 'Công', quantity: 2, unitPrice: 450000 },
+                    { type: 'other', name: 'Máy mài sàn & máy hút bụi (thuê)', unit: 'Ngày', quantity: 1, unitPrice: 500000 },
+                ]
+            },
+            {
+                name: 'Thi công chống thấm SIRA PU',
+                quantity: 45,
+                unit: 'm2',
+                components: [
+                    { type: 'material', name: 'SIRA PRIMER (Lớp lót)', unit: 'Thùng 5kg', quantity: 2, unitPrice: 1200000 },
+                    { type: 'material', name: 'SIRA PU (Lớp phủ chính)', unit: 'Thùng 20kg', quantity: 3, unitPrice: 5500000 },
+                    { type: 'labor', name: 'Thợ thi công chuyên dụng', unit: 'Công', quantity: 6, unitPrice: 600000 },
+                ]
+            }
+        ],
+        taxRate: 10,
+        notes: 'Mặt bằng sân thượng hiện trạng nhiều vết nứt chim, cần mài kỹ để lộ rõ vết nứt trước khi xử lý.',
+    }
+];
+
+// ---- MOCK LABOR PLANS ----
+export const mockLaborPlans = [
+    {
+        id: 'labor-001',
+        journey_id: 'j-001',
+        total_workers: 4,
+        teams: [
+            { name: 'Đội mài & Vệ sinh', leader: 'Nguyễn Văn Hùng', count: 2, status: 'completed', start_date: '2026-03-01', end_date: '2026-03-01' },
+            { name: 'Đội thi công PU', leader: 'Lê Minh Tâm', count: 2, status: 'active', start_date: '2026-03-02', end_date: '2026-03-04' },
+        ],
+        daily_tracking: [
+            { date: '2026-03-01', worker_count: 2, note: 'Đã mài xong 100% diện tích', hours: 16 },
+            { date: '2026-03-02', worker_count: 2, note: 'Lăn lót và phủ lớp 1', hours: 16 },
+        ]
+    }
+];
+
+// ---- MOCK MATERIAL DETAILS ----
+export const mockMaterialDetails = [
+    {
+        id: 'mat-001',
+        journey_id: 'j-001',
+        items: [
+            { name: 'SIRA PRIMER', unit: 'Thùng 5kg', total_need: 2, delivered: 2, remaining: 0, status: 'enough' },
+            { name: 'SIRA PU', unit: 'Thùng 20kg', total_need: 3, delivered: 3, remaining: 0, status: 'enough' },
+            { name: 'Lưới thủy tinh chống nứt', unit: 'Cuộn', total_need: 1, delivered: 1, remaining: 0, status: 'enough' },
+            { name: 'SIRA TOP', unit: 'Thùng 5kg', total_need: 2, delivered: 0, remaining: 2, status: 'waiting' },
+        ],
+        last_delivery: '2026-03-02',
+        warehouse_lock_status: 'locked'
+    }
 ];
 
 // ---- KPI summaries ----

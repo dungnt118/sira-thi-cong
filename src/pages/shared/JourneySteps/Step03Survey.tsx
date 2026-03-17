@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { Card, Steps, Button, Typography, Space, Tag, Descriptions, Row, Col, Result, Form, message, Modal } from 'antd';
+import React, { useState, useRef, useEffect } from 'react';
+import { Card, Steps, Button, Typography, Space, Tag, Descriptions, Row, Col, Result, Form, message, Modal, Divider } from 'antd';
 import { 
     CheckCircleOutlined, 
     FormOutlined, 
@@ -9,12 +9,11 @@ import {
     HighlightOutlined,
     EyeOutlined
 } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
-import { mockJourneys } from '../../../data/journeyMockData';
+import { mockJourneys, mockSurveys } from '../../../data/journeyMockData';
 import DynamicSurveyForm from '../../shared/Surveys/DynamicSurveyForm';
 import html2pdf from 'html2pdf.js';
 
-const { Text } = Typography;
+const { Text, Title } = Typography;
 
 const mockTemplates = [
     { id: 'TPL-CTST', name: 'Khảo sát Chống thấm Sân thượng', description: 'Template chuẩn cho thấm dột bề mặt lộ thiên.' },
@@ -29,7 +28,6 @@ export interface Step03SurveyProps {
 }
 
 export const Step03Survey: React.FC<Step03SurveyProps> = ({ journeyId, isEditable = false, onSave }) => {
-    const navigate = useNavigate();
     const journey = mockJourneys.find(j => j.id === journeyId) || mockJourneys[0];
 
     const [overallStatus, setOverallStatus] = useState<'in_progress' | 'completed'>(
@@ -39,6 +37,32 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({ journeyId, isEditabl
     const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
     const [surveyDataForm] = Form.useForm();
     const [isEditing, setIsEditing] = useState(false);
+
+    useEffect(() => {
+        // Load data from mockSurveys if not editing and status is completed
+        if (overallStatus === 'completed' && !isEditing) {
+            const surveyRecord = mockSurveys.find(s => s.journey_id === journeyId);
+            if (surveyRecord) {
+                // Map mockSurvey (SurveyRecord) to Form data structure
+                const mappedData = {
+                    header: {
+                        urgency: 'Trong tuần',
+                        original_request: journey.request_description
+                    },
+                    zones: surveyRecord.area_list.map(a => ({
+                        areaType: a.area_type,
+                        location_desc: a.area_name,
+                        dims_area: a.measurement_notes,
+                        issueTypes: [a.current_condition],
+                        causeOptions: ['Chưa xác định'],
+                        proposed_solution: surveyRecord.proposed_solution
+                    })),
+                    customer_signature: surveyRecord.customer_signature
+                };
+                surveyDataForm.setFieldsValue(mappedData);
+            }
+        }
+    }, [journeyId, overallStatus, isEditing, surveyDataForm, journey.request_description]);
     
     // E-Signature States
     const [isSigModalOpen, setIsSigModalOpen] = useState(false);
@@ -123,6 +147,43 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({ journeyId, isEditabl
         }
     };
 
+    const renderSurveySummary = (data: any) => (
+        <div className="ky-card" style={{ padding: 16, background: '#fafafa', marginBottom: 24, border: '1px solid #f0f0f0', borderRadius: 8 }}>
+            <Descriptions column={1} size="small" bordered>
+                <Descriptions.Item label="Mức độ ưu tiên">{data?.header?.urgency || 'Trong tuần'}</Descriptions.Item>
+                <Descriptions.Item label="Yêu cầu gốc">{data?.header?.original_request || '---'}</Descriptions.Item>
+                <Descriptions.Item label="Số lượng khu vực">{data?.zones?.length || 0} khu vực</Descriptions.Item>
+            </Descriptions>
+
+            {data?.zones?.map((zone: any, idx: number) => (
+                <Card type="inner" key={idx} title={`KV ${idx + 1}: ${zone?.areaType || '---'}`} style={{ marginTop: 16 }}>
+                    <Descriptions column={1} size="small" bordered>
+                        <Descriptions.Item label="Vị trí">{zone?.location_desc || '---'}</Descriptions.Item>
+                        <Descriptions.Item label="DT ước tính">D:{zone?.dims_length||'-'}x R:{zone?.dims_width||'-'}x C:{zone?.dims_height||'-'} = {zone?.dims_area||'-'} m²</Descriptions.Item>
+                        <Descriptions.Item label="Vấn đề">
+                            {zone?.issueTypes?.length ? zone.issueTypes.map((i: string) => <Tag color="red" key={i}>{i}</Tag>) : '---'}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Nguyên nhân">
+                            {zone?.causeOptions?.length ? zone.causeOptions.map((i: string) => <Tag color="volcano" key={i}>{i}</Tag>) : '---'}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Đề xuất">
+                            {zone?.proposed_solution || '---'}
+                        </Descriptions.Item>
+                    </Descriptions>
+                </Card>
+            ))}
+
+            {data?.customer_signature && (
+                <div style={{ marginTop: 20, textAlign: 'center', borderTop: '1px solid #eee', paddingTop: 16 }}>
+                    <Text strong>Chữ ký khách hàng:</Text>
+                    <div style={{ marginTop: 8 }}>
+                        <img src={data.customer_signature} alt="Signature" style={{ maxHeight: 80 }} />
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+
     const renderStepContent = () => {
         switch (formStep) {
             case 0:
@@ -179,31 +240,7 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({ journeyId, isEditabl
                             title="Xác nhận Kết quả Khảo Sát"
                             subTitle="Bạn (Kỹ thuật viên) hãy kiểm tra lại toàn bộ số liệu và hình ảnh trước khi xin chữ ký Khách hàng."
                         />
-                        <div className="ky-card" style={{ padding: 16, background: '#fafafa', marginBottom: 24, border: '1px solid #f0f0f0', borderRadius: 8 }}>
-                            <Descriptions column={1} size="small" bordered>
-                                <Descriptions.Item label="Mức độ ưu tiên">{surveyData?.header?.urgency || 'Trong tuần'}</Descriptions.Item>
-                                <Descriptions.Item label="Yêu cầu gốc">{surveyData?.header?.original_request || '---'}</Descriptions.Item>
-                                <Descriptions.Item label="Số lượng khu vực">{surveyData?.zones?.length || 0} khu vực</Descriptions.Item>
-                            </Descriptions>
-
-                            {surveyData?.zones?.map((zone: any, idx: number) => (
-                                <Card type="inner" key={idx} title={`KV ${idx + 1}: ${zone?.areaType || '---'}`} style={{ marginTop: 16 }}>
-                                    <Descriptions column={1} size="small" bordered>
-                                        <Descriptions.Item label="Vị trí">{zone?.location_desc || '---'}</Descriptions.Item>
-                                        <Descriptions.Item label="DT ước tính">D:{zone?.dims_length||'-'}x R:{zone?.dims_width||'-'}x C:{zone?.dims_height||'-'} = {zone?.dims_area||'-'} m²</Descriptions.Item>
-                                        <Descriptions.Item label="Vấn đề">
-                                            {zone?.issueTypes?.length ? zone.issueTypes.map((i: string) => <Tag color="red" key={i}>{i}</Tag>) : '---'}
-                                        </Descriptions.Item>
-                                        <Descriptions.Item label="Nguyên nhân">
-                                            {zone?.causeOptions?.length ? zone.causeOptions.map((i: string) => <Tag color="volcano" key={i}>{i}</Tag>) : '---'}
-                                        </Descriptions.Item>
-                                        <Descriptions.Item label="Đề xuất">
-                                            {zone?.proposed_solution || '---'}
-                                        </Descriptions.Item>
-                                    </Descriptions>
-                                </Card>
-                            ))}
-                        </div>
+                        {renderSurveySummary(surveyData)}
                         
                         <div style={{ display: 'flex', gap: 12 }}>
                             <Button key="back" onClick={() => setFormStep(1)} style={{ flex: 1 }}>Sửa lại</Button>
@@ -251,7 +288,7 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({ journeyId, isEditabl
                                     message.success('Hồ sơ KS đã chốt và đẩy về Sale/Thiết kế thống nhất!');
                                     setOverallStatus('completed');
                                     setIsEditing(false);
-                                    if (onSave) onSave(finalData);
+                                    if (onSave) onSave({ ...finalData, customer_signature: sigData });
                                 }}
                             >
                                 Đóng Hồ Sơ & Nộp Về Trụ Sở
@@ -339,18 +376,30 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({ journeyId, isEditabl
 
     const renderReadOnly = () => {
         if (overallStatus === 'completed') {
+            const currentData = surveyDataForm.getFieldsValue();
+            
             return (
-                <Result
-                    status="success"
-                    title="Hồ sơ khảo sát đã được hoàn thành!"
-                    subTitle="Biên bản đã được lưu và gửi về hệ thống quản lý trung tâm."
-                    extra={[
-                        <Button type="primary" key="back" onClick={() => navigate('/ky-thuat/dashboard')} style={{ backgroundColor: '#13a8a8' }}>
-                            Quay lại Dashboard
-                        </Button>,
-                        <Button key="download" icon={<DownloadOutlined />} onClick={handleDownloadPDF}>Tải file PDF</Button>
-                    ]}
-                />
+                <div style={{ padding: '0 12px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                        <Space>
+                            <CheckCircleOutlined style={{ color: '#52c41a', fontSize: 24 }} />
+                            <div>
+                                <Title level={5} style={{ margin: 0 }}>Hồ sơ khảo sát đã hoàn thành</Title>
+                                <Text type="secondary">Số hiệu: SUR-{journey.journey_code}</Text>
+                            </div>
+                        </Space>
+                        <Space>
+                            <Button icon={<DownloadOutlined />} onClick={handleDownloadPDF}>Tải PDF</Button>
+                        </Space>
+                    </div>
+
+                    {renderSurveySummary(currentData)}
+
+                    <Divider />
+                    <div style={{ textAlign: 'center' }}>
+                        <Text type="secondary">Biên bản đã được lưu và gửi về hệ thống quản lý trung tâm.</Text>
+                    </div>
+                </div>
             );
         }
         return (

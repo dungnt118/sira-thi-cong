@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, Form, Input, Button, Typography, Divider, Space, InputNumber, Select, Col, Row, Popconfirm, Modal, Tag, Table } from 'antd';
 import { PlusOutlined, DeleteOutlined, CalculatorOutlined, FileTextOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import { mockEstimateTemplates, mockMaterials } from '../../../data/mockData';
+import { mockEstimates } from '../../../data/journeyMockData';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -13,7 +14,7 @@ export interface Step04SolutionProps {
     onSave?: (data: any) => void;
 }
 
-export const Step04Solution: React.FC<Step04SolutionProps> = ({ isEditable = false, onSave }) => {
+export const Step04Solution: React.FC<Step04SolutionProps> = ({ journeyId, isEditable = false, onSave }) => {
     const [form] = Form.useForm();
     const [templateForm] = Form.useForm();
     const [subTotal, setSubTotal] = useState(0);
@@ -21,6 +22,18 @@ export const Step04Solution: React.FC<Step04SolutionProps> = ({ isEditable = fal
     const [grandTotal, setGrandTotal] = useState(0);
     const [isTemplateModalOpen, setTemplateModalOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
+
+    // Initial load: fetch from mockData if available
+    useEffect(() => {
+        const existingEstimate = mockEstimates.find(e => e.journey_id === journeyId);
+        if (existingEstimate) {
+            form.setFieldsValue({
+                groups: existingEstimate.groups,
+                taxRate: existingEstimate.taxRate,
+                notes: existingEstimate.notes
+            });
+        }
+    }, [journeyId, form]);
 
     // Watch values to calculate totals
     const formValues = Form.useWatch([], form);
