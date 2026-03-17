@@ -3,7 +3,8 @@ import {
     Card, Row, Col, Typography, Button, Tag, Space, Badge, Empty, Tooltip, message, Progress, Grid
 } from 'antd';
 import {
-    PlusOutlined, CalendarOutlined, DragOutlined, DollarOutlined
+    PlusOutlined, CalendarOutlined, DragOutlined, DollarOutlined,
+    CameraOutlined, ArrowRightOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { Select } from 'antd';
@@ -44,12 +45,12 @@ const KanbanCard: React.FC<KanbanCardProps> = ({ request, pipeline, onMove }) =>
             actions={[
                 <Tooltip title="Khảo sát" key="survey">
                     <span onClick={e => { e.stopPropagation(); navigate(`/pm/crm/service-requests/${request.id}/survey`); }}>
-                        📸
+                        <CameraOutlined />
                     </span>
                 </Tooltip>,
                 <Tooltip title="Báo giá" key="quote">
                     <span onClick={e => { e.stopPropagation(); navigate(`/pm/crm/service-requests/${request.id}/quotation`); }}>
-                        💰
+                        <DollarOutlined />
                     </span>
                 </Tooltip>,
                 nextStage ? (
@@ -59,10 +60,10 @@ const KanbanCard: React.FC<KanbanCardProps> = ({ request, pipeline, onMove }) =>
                             onMove(request.id, nextStage.id);
                             message.success(`Đã chuyển sang ${nextStage.name}`);
                         }}>
-                            {'→'}
+                            <ArrowRightOutlined />
                         </span>
                     </Tooltip>
-                ) : <span style={{ opacity: 0.3 }}>{'→'}</span>,
+                ) : <span style={{ opacity: 0.3 }}><ArrowRightOutlined /></span>,
             ]}
         >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -85,7 +86,7 @@ const KanbanCard: React.FC<KanbanCardProps> = ({ request, pipeline, onMove }) =>
                 )}
                 {request.surveyImages.length > 0 && (
                     <Tag color="blue" style={{ fontSize: 11, width: 'fit-content' }}>
-                        📸 {request.surveyImages.length} ảnh KS
+                        <CameraOutlined style={{ marginRight: 4 }} /> {request.surveyImages.length} ảnh KS
                     </Tag>
                 )}
             </div>
