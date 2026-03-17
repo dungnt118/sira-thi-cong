@@ -16,13 +16,15 @@ const { Sider } = Layout;
 interface AdminSidebarProps {
     collapsed: boolean;
     onCollapse: (collapsed: boolean) => void;
+    isDrawer?: boolean;
+    onItemClick?: () => void;
 }
 
 /**
  * AdminSidebar - Simplified 6-item menu
  * Menu: Dashboard, Users, Roles, Audit Log, Reports, Settings
  */
-const AdminSidebar: React.FC<AdminSidebarProps> = ({ collapsed, onCollapse }) => {
+const AdminSidebar: React.FC<AdminSidebarProps> = ({ collapsed, onCollapse, isDrawer, onItemClick }) => {
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -62,10 +64,31 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ collapsed, onCollapse }) =>
 
     const handleMenuClick: MenuProps['onClick'] = ({ key }) => {
         navigate(key);
+        if (onItemClick) {
+            onItemClick();
+        }
     };
 
     // Get current selected key
     const selectedKey = location.pathname;
+
+    const menu = (
+        <Menu
+            mode="inline"
+            selectedKeys={[selectedKey]}
+            onClick={handleMenuClick}
+            items={menuItems}
+            style={{
+                height: '100%',
+                borderRight: 0,
+                paddingTop: 16,
+            }}
+        />
+    );
+
+    if (isDrawer) {
+        return menu;
+    }
 
     return (
         <Sider
@@ -78,17 +101,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ collapsed, onCollapse }) =>
                 borderRight: '1px solid #f0f0f0',
             }}
         >
-            <Menu
-                mode="inline"
-                selectedKeys={[selectedKey]}
-                onClick={handleMenuClick}
-                items={menuItems}
-                style={{
-                    height: '100%',
-                    borderRight: 0,
-                    paddingTop: 16,
-                }}
-            />
+            {menu}
         </Sider>
     );
 };

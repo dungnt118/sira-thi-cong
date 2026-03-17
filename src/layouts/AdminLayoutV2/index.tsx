@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import { Layout } from 'antd';
 import AdminTopBar from './TopBar';
 import AdminSidebar from './Sidebar';
+import { Drawer } from 'antd';
 import './AdminLayoutV2.css';
 
 const { Content } = Layout;
@@ -14,25 +15,54 @@ const { Content } = Layout;
  */
 const AdminLayoutV2: React.FC = () => {
     const [collapsed, setCollapsed] = React.useState(false);
+    const [drawerVisible, setDrawerVisible] = React.useState(false);
+    const [isMobile, setIsMobile] = React.useState(window.innerWidth < 992);
+
+    React.useEffect(() => {
+        const mql = window.matchMedia('(max-width: 991px)');
+        const onChange = () => setIsMobile(mql.matches);
+        mql.addEventListener('change', onChange);
+        // Initial check
+        setIsMobile(mql.matches);
+        return () => mql.removeEventListener('change', onChange);
+    }, []);
 
     return (
         <Layout className="admin-layout-v2" style={{ minHeight: '100vh' }}>
             {/* Top Bar: Logo, Search, Notifications, Profile */}
-            <AdminTopBar />
+            <AdminTopBar onMenuClick={() => setDrawerVisible(true)} isMobile={isMobile} />
 
             <Layout>
-                {/* Sidebar: 6-item menu */}
-                <AdminSidebar collapsed={collapsed} onCollapse={setCollapsed} />
+                {/* Sidebar: Render as Sider on desktop, Drawer on mobile */}
+                {isMobile ? (
+                    <Drawer
+                        placement="left"
+                        onClose={() => setDrawerVisible(false)}
+                        open={drawerVisible}
+                        bodyStyle={{ padding: 0 }}
+                        width={240}
+                        closable={false}
+                    >
+                        <AdminSidebar 
+                            collapsed={false} 
+                            onCollapse={() => {}} 
+                            isDrawer 
+                            onItemClick={() => setDrawerVisible(false)}
+                        />
+                    </Drawer>
+                ) : (
+                    <AdminSidebar collapsed={collapsed} onCollapse={setCollapsed} />
+                )}
 
                 {/* Main Content Area */}
-                <Layout style={{ padding: '0 24px 24px' }}>
+                <Layout style={{ padding: isMobile ? '0' : '0 24px 24px' }}>
                     <Content
                         style={{
-                            padding: 24,
-                            margin: 0,
+                            padding: isMobile ? 16 : 24,
+                            margin: isMobile ? 0 : '0',
                             minHeight: 280,
                             background: '#fff',
-                            borderRadius: '8px',
+                            borderRadius: isMobile ? 0 : '8px',
                         }}
                     >
                         <Outlet />

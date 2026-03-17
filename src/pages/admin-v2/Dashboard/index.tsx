@@ -237,6 +237,7 @@ const DashboardV2: React.FC = () => {
                     dataSource={recentActivities}
                     pagination={false}
                     size="small"
+                    scroll={{ x: 600 }}
                 />
                 <div style={{ textAlign: 'center', marginTop: 16 }}>
                     <Button type="link">Xem tất cả hoạt động →</Button>
