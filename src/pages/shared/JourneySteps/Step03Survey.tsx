@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Card, Steps, Button, Typography, Space, Tag, Descriptions, Row, Col, Result, Form, message, Modal, Divider } from 'antd';
+import { Card, Steps, Button, Typography, Space, Row, Col, Result, Form, message, Modal, Divider } from 'antd';
 import { 
     CheckCircleOutlined, 
     FormOutlined, 
@@ -37,32 +37,36 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({ journeyId, isEditabl
     const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
     const [surveyDataForm] = Form.useForm();
     const [isEditing, setIsEditing] = useState(false);
+    const [initialData, setInitialData] = useState<any>(null);
 
     useEffect(() => {
-        // Load data from mockSurveys if not editing and status is completed
-        if (overallStatus === 'completed' && !isEditing) {
-            const surveyRecord = mockSurveys.find(s => s.journey_id === journeyId);
-            if (surveyRecord) {
-                // Map mockSurvey (SurveyRecord) to Form data structure
-                const mappedData = {
-                    header: {
-                        urgency: 'Trong tuần',
-                        original_request: journey.request_description
-                    },
-                    zones: surveyRecord.area_list.map(a => ({
-                        areaType: a.area_type,
-                        location_desc: a.area_name,
-                        dims_area: a.measurement_notes,
-                        issueTypes: [a.current_condition],
-                        causeOptions: ['Chưa xác định'],
-                        proposed_solution: surveyRecord.proposed_solution
-                    })),
-                    customer_signature: surveyRecord.customer_signature
-                };
-                surveyDataForm.setFieldsValue(mappedData);
-            }
+        // Load data from mockSurveys
+        const surveyRecord = mockSurveys.find(s => s.journey_id === journeyId);
+        if (surveyRecord) {
+            // Map mockSurvey (SurveyRecord) to Form data structure
+            const mappedData = {
+                header: {
+                    urgency: 'Trong tuần',
+                    original_request: journey.request_description
+                },
+                zones: surveyRecord.area_list.map(a => ({
+                    areaType: a.area_type,
+                    location_desc: a.area_name,
+                    dims_area: a.measurement_notes,
+                    issueTypes: [a.current_condition],
+                    causeOptions: ['Chưa xác định'],
+                    proposed_solution: surveyRecord.proposed_solution
+                })),
+                customer_signature: surveyRecord.customer_signature
+            };
+            setInitialData(mappedData);
+            surveyDataForm.setFieldsValue(mappedData);
         }
-    }, [journeyId, overallStatus, isEditing, surveyDataForm, journey.request_description]);
+    }, [journeyId, surveyDataForm, journey.request_description]);
+
+    // Robust data selection
+    const formValues = Form.useWatch([], surveyDataForm);
+    const currentSurveyData = isEditing ? formValues : ( (formValues?.zones && formValues.zones.length > 0) ? formValues : initialData);
     
     // E-Signature States
     const [isSigModalOpen, setIsSigModalOpen] = useState(false);
@@ -147,40 +151,78 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({ journeyId, isEditabl
         }
     };
 
-    const renderSurveySummary = (data: any) => (
-        <div className="ky-card" style={{ padding: 16, background: '#fafafa', marginBottom: 24, border: '1px solid #f0f0f0', borderRadius: 8 }}>
-            <Descriptions column={1} size="small" bordered>
-                <Descriptions.Item label="Mức độ ưu tiên">{data?.header?.urgency || 'Trong tuần'}</Descriptions.Item>
-                <Descriptions.Item label="Yêu cầu gốc">{data?.header?.original_request || '---'}</Descriptions.Item>
-                <Descriptions.Item label="Số lượng khu vực">{data?.zones?.length || 0} khu vực</Descriptions.Item>
-            </Descriptions>
+    const renderA4Sheet = (data: any) => (
+        <div style={{ width: '100%', overflowX: 'auto', WebkitOverflowScrolling: 'touch', border: '1px solid #d9d9d9', borderRadius: 8, background: '#f0f2f5', padding: '16px 0' }}>
+            <div id={`printable-a4-${journeyId}`} style={{ 
+                width: '210mm', minHeight: '297mm', background: '#fff', 
+                padding: '20mm', boxShadow: '0 0 10px rgba(0,0,0,0.1)', 
+                fontFamily: '"Times New Roman", Times, serif',
+                margin: '0 auto'
+            }}>
+                <div style={{ textAlign: 'center', marginBottom: 20 }}>
+                    <div style={{ fontSize: 16, fontWeight: 'bold' }}>CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+                    <div style={{ fontSize: 14, fontWeight: 'bold', textDecoration: 'underline' }}>Độc lập - Tự do - Hạnh phúc</div>
+                </div>
+                
+                <div style={{ textAlign: 'center', margin: '40px 0' }}>
+                    <div style={{ fontSize: 24, fontWeight: 'bold' }}>BIÊN BẢN KHẢO SÁT HIỆN TRẠNG</div>
+                    <div style={{ fontSize: 13, fontStyle: 'italic', marginTop: 5 }}>Số: SUR-{journey.journey_code} / SIRA</div>
+                </div>
 
-            {data?.zones?.map((zone: any, idx: number) => (
-                <Card type="inner" key={idx} title={`KV ${idx + 1}: ${zone?.areaType || '---'}`} style={{ marginTop: 16 }}>
-                    <Descriptions column={1} size="small" bordered>
-                        <Descriptions.Item label="Vị trí">{zone?.location_desc || '---'}</Descriptions.Item>
-                        <Descriptions.Item label="DT ước tính">D:{zone?.dims_length||'-'}x R:{zone?.dims_width||'-'}x C:{zone?.dims_height||'-'} = {zone?.dims_area||'-'} m²</Descriptions.Item>
-                        <Descriptions.Item label="Vấn đề">
-                            {zone?.issueTypes?.length ? zone.issueTypes.map((i: string) => <Tag color="red" key={i}>{i}</Tag>) : '---'}
-                        </Descriptions.Item>
-                        <Descriptions.Item label="Nguyên nhân">
-                            {zone?.causeOptions?.length ? zone.causeOptions.map((i: string) => <Tag color="volcano" key={i}>{i}</Tag>) : '---'}
-                        </Descriptions.Item>
-                        <Descriptions.Item label="Đề xuất">
-                            {zone?.proposed_solution || '---'}
-                        </Descriptions.Item>
-                    </Descriptions>
-                </Card>
-            ))}
+                <div style={{ lineHeight: 1.8, fontSize: 14 }}>
+                    <p>Hôm nay, ngày {new Date().getDate()} tháng {new Date().getMonth() + 1} năm {new Date().getFullYear()}, tại công trình:</p>
+                    
+                    <strong>I. Thành phần Khách hàng:</strong>
+                    <p style={{ marginLeft: 20, margin: 0 }}>Ông/Bà: <strong>{journey.customer_name}</strong></p>
+                    <p style={{ marginLeft: 20, margin: 0 }}>Địa chỉ khảo sát: {journey.site_address}</p>
+                    <br />
 
-            {data?.customer_signature && (
-                <div style={{ marginTop: 20, textAlign: 'center', borderTop: '1px solid #eee', paddingTop: 16 }}>
-                    <Text strong>Chữ ký khách hàng:</Text>
-                    <div style={{ marginTop: 8 }}>
-                        <img src={data.customer_signature} alt="Signature" style={{ maxHeight: 80 }} />
+                    <strong>II. Thành phần Đội ngũ SIRA:</strong>
+                    <p style={{ marginLeft: 20, margin: 0 }}>Ông/Bà: Bùi Văn Kỹ thuật</p>
+                    <p style={{ marginLeft: 20, margin: 0 }}>Chức trách: Nhân sự Khảo sát trực tiếp</p>
+                    <br />
+
+                    <strong>III. Kết quả khảo sát:</strong>
+                    <div style={{ marginTop: 10 }}>
+                        {data?.zones?.map((z: any, idx: number) => (
+                            <div key={idx} style={{ marginBottom: 15, paddingBottom: 10 }}>
+                                <div style={{ fontWeight: 'bold' }}>{idx + 1}. Khu vực {z?.areaType || ''}</div>
+                                <ul style={{ margin: '5px 0' }}>
+                                    <li><strong>Vị trí:</strong> {z?.location_desc || '---'}</li>
+                                    <li><strong>S diện tích:</strong> {z.dims_area||0}m²</li>
+                                    <li><strong>Hiện trạng ghi nhận:</strong> {z?.issueTypes?.join(', ') || '---'}</li>
+                                    <li><strong>Nhận định nguyên nhân gốc:</strong> {z?.causeOptions?.join(', ') || '---'}</li>
+                                    <li><strong>Phát đồ cứu hộ sơ bộ:</strong> {z?.proposed_solution || '---'}</li>
+                                </ul>
+                            </div>
+                        ))}
+                        {(!data?.zones || data?.zones?.length === 0) && (
+                            <p style={{ fontStyle: 'italic', color: '#666' }}>Không ghi nhận khu vực bất thường nào.</p>
+                        )}
+                    </div>
+
+                    <br />
+                    <p>Biên bản kết thúc vào lúc .... giờ .... cùng ngày. Cả hai bên đã kiểm tra hiện trạng thực tế, thống nhất với số liệu ghi nhận.</p>
+                    <p>Phòng Kỹ Thuật sẽ lập Biện pháp thi công chi tiết làm cơ sở Bảng Gía để báo khách hàng trong vòng 24hr.</p>
+                    
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 50, textAlign: 'center' }}>
+                        <div style={{ width: '40%' }}>
+                            <strong>ĐẠI DIỆN KHÁCH HÀNG</strong>
+                            <div style={{ fontStyle: 'italic', fontSize: 12 }}>(Ký và ghi rõ họ tên)</div>
+                            <div style={{ height: 120, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                {(sigData || data?.customer_signature) ? (
+                                    <img src={sigData || data.customer_signature} alt="Client Signature" style={{ maxHeight: '100%', maxWidth: '100%' }} />
+                                ) : null}
+                            </div>
+                        </div>
+                        <div style={{ width: '40%' }}>
+                            <strong>ĐẠI DIỆN KỸ THUẬT (SIRA)</strong>
+                            <div style={{ fontStyle: 'italic', fontSize: 12 }}>(Ký và ghi rõ họ tên)</div>
+                            <div style={{ height: 120 }}></div>
+                        </div>
                     </div>
                 </div>
-            )}
+            </div>
         </div>
     );
 
@@ -232,7 +274,6 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({ journeyId, isEditabl
                     </div>
                 );
             case 2:
-                const surveyData = surveyDataForm.getFieldsValue();
                 return (
                     <div style={{ padding: '16px 0' }}>
                         <Result
@@ -240,9 +281,9 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({ journeyId, isEditabl
                             title="Xác nhận Kết quả Khảo Sát"
                             subTitle="Bạn (Kỹ thuật viên) hãy kiểm tra lại toàn bộ số liệu và hình ảnh trước khi xin chữ ký Khách hàng."
                         />
-                        {renderSurveySummary(surveyData)}
+                        {renderA4Sheet(currentSurveyData)}
                         
-                        <div style={{ display: 'flex', gap: 12 }}>
+                        <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
                             <Button key="back" onClick={() => setFormStep(1)} style={{ flex: 1 }}>Sửa lại</Button>
                             <Button key="submit" type="primary" onClick={() => { message.success('Đã lưu dữ liệu'); setFormStep(3); }} style={{ flex: 2, backgroundColor: '#13a8a8' }}>
                                 Chuyển sang Bước Ký Tên
@@ -251,7 +292,6 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({ journeyId, isEditabl
                     </div>
                 );
             case 3:
-                const finalData = surveyDataForm.getFieldsValue();
                 return (
                     <div style={{ padding: '16px 0', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                         <style>
@@ -281,93 +321,21 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({ journeyId, isEditabl
                                 icon={<CheckCircleOutlined />} 
                                 style={{ background: '#52c41a', borderColor: '#52c41a' }}
                                 onClick={() => {
-                                    if (!sigData) {
+                                    if (!sigData && !currentSurveyData?.customer_signature) {
                                         message.warning('Vui lòng xin chữ ký Khách hàng trước khi chốt hồ sơ!');
                                         return;
                                     }
                                     message.success('Hồ sơ KS đã chốt và đẩy về Sale/Thiết kế thống nhất!');
                                     setOverallStatus('completed');
                                     setIsEditing(false);
-                                    if (onSave) onSave({ ...finalData, customer_signature: sigData });
+                                    if (onSave) onSave({ ...currentSurveyData, customer_signature: sigData || currentSurveyData?.customer_signature });
                                 }}
                             >
                                 Đóng Hồ Sơ & Nộp Về Trụ Sở
                             </Button>
                         </div>
 
-                        {/* A4 Document Preview */}
-                        <div style={{ width: '100%', overflowX: 'auto', WebkitOverflowScrolling: 'touch', border: '1px solid #d9d9d9', borderRadius: 8, background: '#f0f2f5', padding: '16px 0' }}>
-                            <div id={`printable-a4-${journeyId}`} style={{ 
-                                width: '210mm', minHeight: '297mm', background: '#fff', 
-                                padding: '20mm', boxShadow: '0 0 10px rgba(0,0,0,0.1)', 
-                                fontFamily: '"Times New Roman", Times, serif',
-                                margin: '0 auto'
-                            }}>
-                                <div style={{ textAlign: 'center', marginBottom: 20 }}>
-                                    <div style={{ fontSize: 16, fontWeight: 'bold' }}>CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
-                                    <div style={{ fontSize: 14, fontWeight: 'bold', textDecoration: 'underline' }}>Độc lập - Tự do - Hạnh phúc</div>
-                                </div>
-                                
-                                <div style={{ textAlign: 'center', margin: '40px 0' }}>
-                                    <div style={{ fontSize: 24, fontWeight: 'bold' }}>BIÊN BẢN KHẢO SÁT HIỆN TRẠNG</div>
-                                    <div style={{ fontSize: 13, fontStyle: 'italic', marginTop: 5 }}>Số: SUR-{journey.journey_code} / SIRA</div>
-                                </div>
-
-                                <div style={{ lineHeight: 1.8, fontSize: 14 }}>
-                                    <p>Hôm nay, ngày {new Date().getDate()} tháng {new Date().getMonth() + 1} năm {new Date().getFullYear()}, tại công trình:</p>
-                                    
-                                    <strong>I. Thành phần Khách hàng:</strong>
-                                    <p style={{ marginLeft: 20, margin: 0 }}>Ông/Bà: <strong>{journey.customer_name}</strong></p>
-                                    <p style={{ marginLeft: 20, margin: 0 }}>Địa chỉ khảo sát: {journey.site_address}</p>
-                                    <br />
-
-                                    <strong>II. Thành phần Đội ngũ SIRA:</strong>
-                                    <p style={{ marginLeft: 20, margin: 0 }}>Ông/Bà: Bùi Văn Kỹ thuật</p>
-                                    <p style={{ marginLeft: 20, margin: 0 }}>Chức trách: Nhân sự Khảo sát trực tiếp</p>
-                                    <br />
-
-                                    <strong>III. Kết quả khảo sát:</strong>
-                                    <div style={{ marginTop: 10 }}>
-                                        {finalData?.zones?.map((z: any, idx: number) => (
-                                            <div key={idx} style={{ marginBottom: 15, paddingBottom: 10 }}>
-                                                <div style={{ fontWeight: 'bold' }}>{idx + 1}. Khu vực {z?.areaType || ''}</div>
-                                                <ul style={{ margin: '5px 0' }}>
-                                                    <li><strong>Vị trí:</strong> {z?.location_desc || '---'}</li>
-                                                    <li><strong>S diện tích:</strong> {z.dims_area||0}m² (Khối lượng sơ bộ d={z.dims_length} r={z.dims_width})</li>
-                                                    <li><strong>Hiện trạng ghi nhận:</strong> {z?.issueTypes?.join(', ') || '---'}</li>
-                                                    <li><strong>Nhận định nguyên nhân gốc:</strong> {z?.causeOptions?.join(', ') || '---'}</li>
-                                                    <li><strong>Phát đồ cứu hộ sơ bộ:</strong> {z?.proposed_solution || '---'}</li>
-                                                </ul>
-                                            </div>
-                                        ))}
-                                        {(!finalData?.zones || finalData?.zones?.length === 0) && (
-                                            <p style={{ fontStyle: 'italic', color: '#666' }}>Không ghi nhận khu vực bất thường nào.</p>
-                                        )}
-                                    </div>
-
-                                    <br />
-                                    <p>Biên bản kết thúc vào lúc .... giờ .... cùng ngày. Cả hai bên đã kiểm tra hiện trạng thực tế, thống nhất với số liệu ghi nhận.</p>
-                                    <p>Phòng Kỹ Thuật sẽ lập Biện pháp thi công chi tiết làm cơ sở Bảng Gía để báo khách hàng trong vòng 24hr.</p>
-                                    
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 50, textAlign: 'center' }}>
-                                        <div style={{ width: '40%' }}>
-                                            <strong>ĐẠI DIỆN KHÁCH HÀNG</strong>
-                                            <div style={{ fontStyle: 'italic', fontSize: 12 }}>(Ký và ghi rõ họ tên)</div>
-                                            <div style={{ height: 120, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                                {sigData ? (
-                                                    <img src={sigData} alt="Client Signature" style={{ maxHeight: '100%', maxWidth: '100%' }} />
-                                                ) : null}
-                                            </div>
-                                        </div>
-                                        <div style={{ width: '40%' }}>
-                                            <strong>ĐẠI DIỆN KỸ THUẬT (SIRA)</strong>
-                                            <div style={{ fontStyle: 'italic', fontSize: 12 }}>(Ký và ghi rõ họ tên)</div>
-                                            <div style={{ height: 120 }}></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        {renderA4Sheet(currentSurveyData)}
                     </div>
                 );
             default: return null;
@@ -376,8 +344,6 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({ journeyId, isEditabl
 
     const renderReadOnly = () => {
         if (overallStatus === 'completed') {
-            const currentData = surveyDataForm.getFieldsValue();
-            
             return (
                 <div style={{ padding: '0 12px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
@@ -393,7 +359,7 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({ journeyId, isEditabl
                         </Space>
                     </div>
 
-                    {renderSurveySummary(currentData)}
+                    {renderA4Sheet(currentSurveyData)}
 
                     <Divider />
                     <div style={{ textAlign: 'center' }}>

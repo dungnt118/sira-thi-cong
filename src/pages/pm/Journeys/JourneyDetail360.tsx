@@ -16,9 +16,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { mockJourneys, mockPortalThreads, mockJourneyTemplates } from '../../../data/journeyMockData';
 import type { GoNoGoStatus, SlaStatus, PortalPublishStatus } from '../../../types/journey';
 import { useAuth } from '../../../hooks/useAuth';
-import JourneyStepRenderer from '../../shared/JourneySteps/JourneyStepRenderer';
-import StepLabor from '../../shared/JourneySteps/StepLabor';
-import StepMaterials from '../../shared/JourneySteps/StepMaterials';
+import { JourneyStepRenderer, StepLabor, StepMaterials } from '../../shared/JourneySteps';
 import { ConsultationLogForm } from '../../../components/journey/SharedModals';
 
 const { Text, Title } = Typography;
