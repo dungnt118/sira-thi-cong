@@ -36,9 +36,11 @@ const PaymentDashboard: React.FC = () => {
         {
             title: 'Dự án',
             key: 'project',
+            fixed: 'left',
+            width: 150,
             render: (_, m) => (
-                <div>
-                    <Text strong style={{ fontSize: 13 }}>{m.projectName.slice(0, 35)}...</Text>
+                <div style={{ padding: '4px 0' }}>
+                    <Text strong style={{ fontSize: 13 }}>{m.projectName.length > 30 ? m.projectName.slice(0, 30) + '...' : m.projectName}</Text>
                     <div style={{ fontSize: 11, color: '#999' }}>Đợt {m.round} ({m.percentage}%)</div>
                 </div>
             ),
@@ -47,11 +49,11 @@ const PaymentDashboard: React.FC = () => {
             title: 'Số tiền',
             key: 'amount',
             align: 'right',
-            width: 160,
+            width: 140,
             sorter: (a, b) => a.amount - b.amount,
             render: (_, m) => (
-                <Text strong style={{ fontSize: 15, color: '#1976D2' }}>
-                    {m.amount.toLocaleString('vi-VN')}
+                <Text strong style={{ fontSize: 14, color: '#1976D2' }}>
+                    {m.amount.toLocaleString('vi-VN')}đ
                 </Text>
             ),
         },
@@ -59,10 +61,10 @@ const PaymentDashboard: React.FC = () => {
             title: 'Hạn thu',
             dataIndex: 'dueDate',
             key: 'dueDate',
-            width: 110,
+            width: 100,
             sorter: (a, b) => a.dueDate.localeCompare(b.dueDate),
             render: (date, m) => (
-                <Text style={{ color: m.status === 'OVERDUE' ? '#ff4d4f' : '#333', fontWeight: m.status === 'OVERDUE' ? 700 : 400 }}>
+                <Text style={{ fontSize: 13, color: m.status === 'OVERDUE' ? '#ff4d4f' : '#333', fontWeight: m.status === 'OVERDUE' ? 700 : 400 }}>
                     {date}
                 </Text>
             ),
@@ -70,26 +72,28 @@ const PaymentDashboard: React.FC = () => {
         {
             title: 'Trạng thái',
             key: 'status',
-            width: 130,
-            render: (_, m) => <Tag color={STATUS_CONFIG[m.status].color}>{STATUS_CONFIG[m.status].label}</Tag>,
+            width: 120,
+            render: (_, m) => <Tag color={STATUS_CONFIG[m.status].color} style={{ fontSize: 11, margin: 0 }}>{STATUS_CONFIG[m.status].label}</Tag>,
             filters: Object.entries(STATUS_CONFIG).map(([k, v]) => ({ text: v.label, value: k })),
             onFilter: (value, r) => r.status === value,
         },
         {
             title: '',
             key: 'action',
-            width: 120,
+            width: 130,
+            fixed: 'right',
             render: (_, m) => m.status !== 'PAID' ? (
                 <Button
                     type="primary"
                     size="small"
                     icon={<CheckCircleOutlined />}
                     onClick={() => handleConfirmPayment(m)}
+                    style={{ fontSize: 11 }}
                 >
-                    Xác nhận thu
+                    Xác nhận
                 </Button>
             ) : (
-                <Text type="secondary" style={{ fontSize: 12 }}>
+                <Text type="secondary" style={{ fontSize: 11 }}>
                     ✅ {m.paidAt?.split('T')[0]}
                 </Text>
             ),
@@ -97,33 +101,48 @@ const PaymentDashboard: React.FC = () => {
     ];
 
     return (
-        <div>
+        <div style={{ padding: '0 4px' }}>
             <Title level={4} style={{ marginBottom: 24 }}>💰 Theo dõi Thanh toán</Title>
 
             {/* KPI */}
-            <Row gutter={16} style={{ marginBottom: 24 }}>
-                <Col span={6}>
-                    <Card style={{ borderLeft: '3px solid #1976D2' }}>
-                        <Statistic title="Tổng phải thu" value={Math.round(totalAmount / 1000000)} suffix="triệu" valueStyle={{ color: '#1976D2' }} />
+            <Row gutter={[12, 12]} style={{ marginBottom: 24 }}>
+                <Col xs={12} sm={12} md={6}>
+                    <Card size="small" style={{ borderLeft: '3px solid #1976D2', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+                        <Statistic 
+                            title={<Text type="secondary" style={{ fontSize: 12 }}>Tổng phải thu</Text>} 
+                            value={Math.round(totalAmount / 1000000)} 
+                            suffix={<span style={{ fontSize: 12 }}>tr</span>} 
+                            valueStyle={{ color: '#1976D2', fontSize: 20 }} 
+                        />
                     </Card>
                 </Col>
-                <Col span={6}>
-                    <Card style={{ borderLeft: '3px solid #52c41a' }}>
-                        <Statistic title="Đã thu" value={Math.round(paidAmount / 1000000)} suffix="triệu" valueStyle={{ color: '#52c41a' }} />
+                <Col xs={12} sm={12} md={6}>
+                    <Card size="small" style={{ borderLeft: '3px solid #52c41a', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+                        <Statistic 
+                            title={<Text type="secondary" style={{ fontSize: 12 }}>Đã thu</Text>} 
+                            value={Math.round(paidAmount / 1000000)} 
+                            suffix={<span style={{ fontSize: 12 }}>tr</span>} 
+                            valueStyle={{ color: '#52c41a', fontSize: 20 }} 
+                        />
                     </Card>
                 </Col>
-                <Col span={6}>
-                    <Card style={{ borderLeft: '3px solid #fa8c16' }}>
-                        <Statistic title="Chờ thu" value={Math.round(pendingAmount / 1000000)} suffix="triệu" valueStyle={{ color: '#fa8c16' }} />
+                <Col xs={12} sm={12} md={6}>
+                    <Card size="small" style={{ borderLeft: '3px solid #fa8c16', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+                        <Statistic 
+                            title={<Text type="secondary" style={{ fontSize: 12 }}>Chờ thu</Text>} 
+                            value={Math.round(pendingAmount / 1000000)} 
+                            suffix={<span style={{ fontSize: 12 }}>tr</span>} 
+                            valueStyle={{ color: '#fa8c16', fontSize: 20 }} 
+                        />
                     </Card>
                 </Col>
-                <Col span={6}>
-                    <Card style={{ borderLeft: '3px solid #ff4d4f' }}>
+                <Col xs={12} sm={12} md={6}>
+                    <Card size="small" style={{ borderLeft: '3px solid #ff4d4f', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
                         <Statistic
-                            title="Quá hạn"
+                            title={<Text type="secondary" style={{ fontSize: 12 }}>Quá hạn</Text>}
                             value={Math.round(overdueAmount / 1000000)}
-                            suffix="triệu"
-                            valueStyle={{ color: overdueAmount > 0 ? '#ff4d4f' : '#52c41a' }}
+                            suffix={<span style={{ fontSize: 12 }}>tr</span>}
+                            valueStyle={{ color: overdueAmount > 0 ? '#ff4d4f' : '#52c41a', fontSize: 20 }}
                             prefix={overdueAmount > 0 ? <WarningOutlined /> : undefined}
                         />
                     </Card>
@@ -131,73 +150,84 @@ const PaymentDashboard: React.FC = () => {
             </Row>
 
             {/* Collection Progress */}
-            <Card style={{ marginBottom: 16 }}>
-                <Text strong>Tiến độ thu tiền tháng này</Text>
+            <Card size="small" style={{ marginBottom: 16, borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+                <Text strong style={{ fontSize: 13 }}>Tiến độ thu tiền tháng này</Text>
                 <div style={{ marginTop: 8 }}>
                     <Progress
                         percent={Math.round((paidAmount / totalAmount) * 100)}
                         strokeColor={{ from: '#fa8c16', to: '#52c41a' }}
-                        format={p => `${p}%`}
+                        format={p => <span style={{ fontSize: 12 }}>{p}%</span>}
                     />
                 </div>
-                <Text type="secondary" style={{ fontSize: 12 }}>
+                <Text type="secondary" style={{ fontSize: 11 }}>
                     Đã thu {paidAmount.toLocaleString('vi-VN')}đ / {totalAmount.toLocaleString('vi-VN')}đ
                 </Text>
             </Card>
 
             {overdueAmount > 0 && (
                 <Alert
-                    message={<>🚨 Có công nợ quá hạn: <strong>{overdueAmount.toLocaleString('vi-VN')}đ</strong> – Cần liên hệ khách hàng ngay</>}
+                    message={
+                        <div style={{ fontSize: 12 }}>
+                            🚨 Có công nợ quá hạn: <strong>{overdueAmount.toLocaleString('vi-VN')}đ</strong>
+                        </div>
+                    }
                     type="error"
                     showIcon
-                    style={{ marginBottom: 16 }}
+                    style={{ marginBottom: 16, borderRadius: 8 }}
                 />
             )}
 
-            <Card>
+            <div style={{ background: '#fff', borderRadius: 8, padding: 4, boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
                 <Table
                     columns={milestoneColumns}
                     dataSource={mockMilestones}
                     rowKey="id"
-                    size="middle"
-                    pagination={{ pageSize: 10, showTotal: t => `${t} đợt thanh toán` }}
+                    size="small"
+                    scroll={{ x: 'max-content' }}
+                    pagination={{ 
+                        pageSize: 10, 
+                        size: 'small',
+                        showTotal: (t) => <span style={{ fontSize: 12 }}>{t} đợt</span>
+                    }}
                 />
-            </Card>
+            </div>
 
             {/* Confirm Payment Modal */}
             <Modal
                 title={<><CheckCircleOutlined style={{ color: '#52c41a' }} /> Xác nhận thu tiền</>}
                 open={confirmModal}
+                width={window.innerWidth < 640 ? '95%' : 520}
+                centered={window.innerWidth < 640}
                 onCancel={() => setConfirmModal(false)}
                 onOk={() => {
                     setConfirmModal(false);
                     // mock update
                     import('antd').then(({ message: msg }) => msg.success('Đã xác nhận thu tiền thành công'));
                 }}
-                okText="Xác nhận đã thu"
+                okText="Xác nhận"
                 okType="primary"
             >
                 {selectedMilestone && (
-                    <div>
-                        <Row style={{ marginBottom: 8 }}>
-                            <Col span={10}><Text type="secondary">Dự án:</Text></Col>
-                            <Col span={14}><Text strong>{selectedMilestone.projectName.slice(0, 40)}</Text></Col>
+                    <div style={{ padding: '12px 0' }}>
+                        <Row style={{ marginBottom: 12 }}>
+                            <Col xs={8} sm={6}><Text type="secondary">Dự án:</Text></Col>
+                            <Col xs={16} sm={18}><Text strong>{selectedMilestone.projectName}</Text></Col>
                         </Row>
-                        <Row style={{ marginBottom: 8 }}>
-                            <Col span={10}><Text type="secondary">Đợt:</Text></Col>
-                            <Col span={14}><Text strong>Đợt {selectedMilestone.round} ({selectedMilestone.percentage}%)</Text></Col>
+                        <Row style={{ marginBottom: 12 }}>
+                            <Col xs={8} sm={6}><Text type="secondary">Đợt:</Text></Col>
+                            <Col xs={16} sm={18}><Text strong>Đợt {selectedMilestone.round} ({selectedMilestone.percentage}%)</Text></Col>
                         </Row>
                         <Row>
-                            <Col span={10}><Text type="secondary">Số tiền:</Text></Col>
-                            <Col span={14}>
-                                <Text strong style={{ fontSize: 20, color: '#52c41a' }}>
-                                    {selectedMilestone.amount.toLocaleString('vi-VN')} VNĐ
+                            <Col xs={8} sm={6}><Text type="secondary">Số tiền:</Text></Col>
+                            <Col xs={16} sm={18}>
+                                <Text strong style={{ fontSize: 22, color: '#52c41a' }}>
+                                    {selectedMilestone.amount.toLocaleString('vi-VN')}đ
                                 </Text>
                             </Col>
                         </Row>
-                        <Divider />
+                        <Divider style={{ margin: '16px 0' }} />
                         <Text type="secondary" style={{ fontSize: 12 }}>
-                            Sau khi xác nhận, trạng thái sẽ đổi sang "Đã thu" và ghi nhận vào báo cáo tài chính.
+                            Trạng thái sẽ đổi sang "Đã thu" và ghi nhận vào báo cáo.
                         </Text>
                     </div>
                 )}

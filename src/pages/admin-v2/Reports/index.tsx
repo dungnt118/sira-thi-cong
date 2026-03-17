@@ -387,23 +387,24 @@ const Reports: React.FC = () => {
             case 'revenue_overview':
                 return (
                     <>
-                        <Row gutter={16} style={{ marginBottom: 24 }}>
-                            <Col span={6}>
-                                <Card>
+                        <Row gutter={[isMobile ? 8 : 16, isMobile ? 8 : 16]} style={{ marginBottom: isMobile ? 16 : 24 }}>
+                            <Col xs={12} sm={6}>
+                                <Card size={isMobile ? "small" : "default"}>
                                     <Statistic
-                                        title="Tổng Doanh thu"
+                                        title={<span style={{ fontSize: isMobile ? 12 : 14 }}>Tổng Doanh thu</span>}
                                         value={mockRevenueData.total / 1000000}
-                                        suffix="triệu"
+                                        suffix={<span style={{ fontSize: isMobile ? 12 : 14 }}>triệu</span>}
                                         prefix={<DollarOutlined />}
-                                        valueStyle={{ color: '#3f8600' }}
+                                        valueStyle={{ color: '#3f8600', fontSize: isMobile ? 18 : 24 }}
                                     />
-                                    <Tag color="green" icon={<ArrowUpOutlined />} style={{ marginTop: 8 }}>
-                                        +{mockRevenueData.growth}% so với tháng trước
+                                    <Tag color="green" icon={<ArrowUpOutlined />} style={{ marginTop: 8, fontSize: isMobile ? 10 : 12 }}>
+                                        +{mockRevenueData.growth}%
                                     </Tag>
                                 </Card>
                             </Col>
-                            <Col span={6}>
+                            <Col xs={12} sm={6}>
                                 <Card
+                                    size={isMobile ? "small" : "default"}
                                     hoverable
                                     onClick={() =>
                                         handleDrilldown('project_summary', { projectType: 'internal' })
@@ -411,9 +412,10 @@ const Reports: React.FC = () => {
                                     style={{ cursor: 'pointer' }}
                                 >
                                     <Statistic
-                                        title="Dự án Nội bộ"
+                                        title={<span style={{ fontSize: isMobile ? 12 : 14 }}>Dự án Nội bộ</span>}
                                         value={mockRevenueData.internal / 1000000}
-                                        suffix="triệu"
+                                        suffix={<span style={{ fontSize: isMobile ? 12 : 14 }}>triệu</span>}
+                                        valueStyle={{ fontSize: isMobile ? 18 : 24 }}
                                     />
                                     <Progress
                                         percent={Number(((mockRevenueData.internal / mockRevenueData.total) * 100).toFixed(1))}
@@ -421,13 +423,14 @@ const Reports: React.FC = () => {
                                         showInfo={false}
                                         style={{ marginTop: 8 }}
                                     />
-                                    <div style={{ marginTop: 8, fontSize: 12, color: '#1890ff' }}>
-                                        <EyeOutlined /> Click để xem chi tiết
+                                    <div style={{ marginTop: 8, fontSize: isMobile ? 10 : 12, color: '#1890ff' }}>
+                                        <EyeOutlined /> Click xem
                                     </div>
                                 </Card>
                             </Col>
-                            <Col span={6}>
+                            <Col xs={12} sm={6}>
                                 <Card
+                                    size={isMobile ? "small" : "default"}
                                     hoverable
                                     onClick={() =>
                                         handleDrilldown('project_summary', { projectType: 'outsource' })
@@ -435,9 +438,10 @@ const Reports: React.FC = () => {
                                     style={{ cursor: 'pointer' }}
                                 >
                                     <Statistic
-                                        title="Dự án Outsource"
+                                        title={<span style={{ fontSize: isMobile ? 12 : 14 }}>Dự án Outsource</span>}
                                         value={mockRevenueData.outsource / 1000000}
-                                        suffix="triệu"
+                                        suffix={<span style={{ fontSize: isMobile ? 12 : 14 }}>triệu</span>}
+                                        valueStyle={{ fontSize: isMobile ? 18 : 24 }}
                                     />
                                     <Progress
                                         percent={Number(((mockRevenueData.outsource / mockRevenueData.total) * 100).toFixed(1))}
@@ -445,17 +449,18 @@ const Reports: React.FC = () => {
                                         showInfo={false}
                                         style={{ marginTop: 8 }}
                                     />
-                                    <div style={{ marginTop: 8, fontSize: 12, color: '#52c41a' }}>
-                                        <EyeOutlined /> Click để xem chi tiết
+                                    <div style={{ marginTop: 8, fontSize: isMobile ? 10 : 12, color: '#52c41a' }}>
+                                        <EyeOutlined /> Click xem
                                     </div>
                                 </Card>
                             </Col>
-                            <Col span={6}>
-                                <Card>
+                            <Col xs={12} sm={6}>
+                                <Card size={isMobile ? "small" : "default"}>
                                     <Statistic
-                                        title="Giá trị TB/Dự án"
+                                        title={<span style={{ fontSize: isMobile ? 12 : 14 }}>Giá trị TB/Dự án</span>}
                                         value={(mockRevenueData.total / 50 / 1000000).toFixed(1)}
-                                        suffix="triệu"
+                                        suffix={<span style={{ fontSize: isMobile ? 12 : 14 }}>triệu</span>}
+                                        valueStyle={{ fontSize: isMobile ? 18 : 24 }}
                                     />
                                 </Card>
                             </Col>
@@ -482,41 +487,42 @@ const Reports: React.FC = () => {
             case 'payment_collection':
                 return (
                     <>
-                        <Row gutter={16} style={{ marginBottom: 24 }}>
-                            <Col span={8}>
-                                <Card>
+                        <Row gutter={[isMobile ? 8 : 16, isMobile ? 8 : 16]} style={{ marginBottom: isMobile ? 16 : 24 }}>
+                            <Col xs={12} sm={8}>
+                                <Card size={isMobile ? "small" : "default"}>
                                     <Statistic
-                                        title="Tổng Tiền Đã thu"
+                                        title={<span style={{ fontSize: isMobile ? 12 : 14 }}>Tổng Tiền Đã thu</span>}
                                         value={mockPaymentData.collected / 1000000}
-                                        suffix="triệu"
+                                        suffix={<span style={{ fontSize: isMobile ? 12 : 14 }}>triệu</span>}
                                         prefix={<DollarOutlined />}
-                                        valueStyle={{ color: '#3f8600' }}
+                                        valueStyle={{ color: '#3f8600', fontSize: isMobile ? 18 : 24 }}
                                     />
                                 </Card>
                             </Col>
-                            <Col span={8}>
-                                <Card>
+                            <Col xs={12} sm={8}>
+                                <Card size={isMobile ? "small" : "default"}>
                                     <Statistic
-                                        title="Tỷ lệ Thu tiền"
+                                        title={<span style={{ fontSize: isMobile ? 12 : 14 }}>Tỷ lệ Thu tiền</span>}
                                         value={mockPaymentData.rate}
-                                        suffix="%"
-                                        valueStyle={{ color: mockPaymentData.rate > 70 ? '#3f8600' : '#cf1322' }}
+                                        suffix={<span style={{ fontSize: isMobile ? 12 : 14 }}>%</span>}
+                                        valueStyle={{ color: mockPaymentData.rate > 70 ? '#3f8600' : '#cf1322', fontSize: isMobile ? 18 : 24 }}
                                     />
                                 </Card>
                             </Col>
-                            <Col span={8}>
+                            <Col xs={12} sm={8}>
                                 <Card
+                                    size={isMobile ? "small" : "default"}
                                     hoverable
                                     onClick={() => handleDrilldown('outstanding_payments', {})}
                                     style={{ cursor: 'pointer' }}
                                 >
                                     <Statistic
-                                        title="Hóa đơn Quá hạn"
+                                        title={<span style={{ fontSize: isMobile ? 12 : 14 }}>Hóa đơn Quá hạn</span>}
                                         value={mockPaymentData.overdue}
-                                        valueStyle={{ color: '#cf1322' }}
+                                        valueStyle={{ color: '#cf1322', fontSize: isMobile ? 18 : 24 }}
                                     />
-                                    <div style={{ marginTop: 8, fontSize: 12, color: '#cf1322' }}>
-                                        <EyeOutlined /> Click để xem danh sách
+                                    <div style={{ marginTop: 8, fontSize: isMobile ? 10 : 12, color: '#cf1322' }}>
+                                        <EyeOutlined /> Click xem
                                     </div>
                                 </Card>
                             </Col>
@@ -609,8 +615,8 @@ const Reports: React.FC = () => {
 
             case 'outstanding_payments':
                 const outstandingColumns: ColumnsType<any> = [
-                    { title: 'Mã dự án', dataIndex: 'projectCode', key: 'projectCode', width: 130 },
-                    { title: 'Khách hàng', dataIndex: 'customerName', key: 'customerName' },
+                    { title: 'Mã dự án', dataIndex: 'projectCode', key: 'projectCode', width: 130, fixed: 'left' },
+                    { title: 'Khách hàng', dataIndex: 'customerName', key: 'customerName', ellipsis: true },
                     {
                         title: 'Số tiền',
                         dataIndex: 'amount',
@@ -628,11 +634,12 @@ const Reports: React.FC = () => {
                         ),
                         sorter: (a, b) => b.daysOverdue - a.daysOverdue,
                     },
-                    { title: 'Milestone', dataIndex: 'milestone', key: 'milestone', width: 120 },
+                    { title: 'Milestone', dataIndex: 'milestone', key: 'milestone', width: 120, responsive: ['sm'] },
                     {
                         title: 'Thao tác',
                         key: 'actions',
-                        width: 200,
+                        width: 100,
+                        fixed: 'right',
                         render: (_, record) => (
                             <Space size="small">
                                 <Button
@@ -640,11 +647,9 @@ const Reports: React.FC = () => {
                                     size="small"
                                     icon={<EyeOutlined />}
                                     onClick={() => navigate(`/admin-v2/projects/${record.projectCode}`)}
-                                >
-                                    Xem Timeline
-                                </Button>
+                                />
                                 <Button type="link" size="small">
-                                    Nhắc nhở
+                                    Nhắc
                                 </Button>
                             </Space>
                         ),
@@ -655,48 +660,53 @@ const Reports: React.FC = () => {
 
                 return (
                     <>
-                        <Row gutter={16} style={{ marginBottom: 24 }}>
-                            <Col span={6}>
-                                <Card>
+                        <Row gutter={[isMobile ? 8 : 16, isMobile ? 8 : 16]} style={{ marginBottom: isMobile ? 16 : 24 }}>
+                            <Col xs={12} sm={6}>
+                                <Card size={isMobile ? "small" : "default"}>
                                     <Statistic
-                                        title="Tổng Công nợ"
+                                        title={<span style={{ fontSize: isMobile ? 12 : 14 }}>Tổng Công nợ</span>}
                                         value={totalOutstanding / 1000000}
-                                        suffix="triệu"
-                                        valueStyle={{ color: '#cf1322' }}
+                                        suffix={<span style={{ fontSize: isMobile ? 12 : 14 }}>triệu</span>}
+                                        valueStyle={{ color: '#cf1322', fontSize: isMobile ? 18 : 24 }}
                                     />
                                 </Card>
                             </Col>
-                            <Col span={6}>
-                                <Card>
+                            <Col xs={12} sm={6}>
+                                <Card size={isMobile ? "small" : "default"}>
                                     <Statistic
-                                        title="0-7 ngày"
+                                        title={<span style={{ fontSize: isMobile ? 12 : 14 }}>0-7 ngày</span>}
                                         value={mockOutstandingData.filter((p) => p.daysOverdue <= 7).length}
-                                        valueStyle={{ color: '#faad14' }}
+                                        valueStyle={{ color: '#faad14', fontSize: isMobile ? 18 : 24 }}
                                     />
                                 </Card>
                             </Col>
-                            <Col span={6}>
-                                <Card>
+                            <Col xs={12} sm={6}>
+                                <Card size={isMobile ? "small" : "default"}>
                                     <Statistic
-                                        title="8-30 ngày"
+                                        title={<span style={{ fontSize: isMobile ? 12 : 14 }}>8-30 ngày</span>}
                                         value={mockOutstandingData.filter((p) => p.daysOverdue > 7 && p.daysOverdue <= 30).length}
-                                        valueStyle={{ color: '#ff7a45' }}
+                                        valueStyle={{ color: '#ff7a45', fontSize: isMobile ? 18 : 24 }}
                                     />
                                 </Card>
                             </Col>
-                            <Col span={6}>
-                                <Card>
+                            <Col xs={12} sm={6}>
+                                <Card size={isMobile ? "small" : "default"}>
                                     <Statistic
-                                        title="30+ ngày"
+                                        title={<span style={{ fontSize: isMobile ? 12 : 14 }}>30+ ngày</span>}
                                         value={mockOutstandingData.filter((p) => p.daysOverdue > 30).length}
-                                        valueStyle={{ color: '#cf1322' }}
+                                        valueStyle={{ color: '#cf1322', fontSize: isMobile ? 18 : 24 }}
                                     />
                                 </Card>
                             </Col>
                         </Row>
 
                         <Card title="Chi tiết Công nợ">
-                            <Table columns={outstandingColumns} dataSource={mockOutstandingData} pagination={false} />
+                            <Table 
+                                columns={outstandingColumns} 
+                                dataSource={mockOutstandingData} 
+                                pagination={false} 
+                                scroll={{ x: 'max-content' }}
+                            />
                         </Card>
                     </>
                 );
@@ -704,46 +714,46 @@ const Reports: React.FC = () => {
             case 'cash_flow':
                 return (
                     <>
-                        <Row gutter={16} style={{ marginBottom: 24 }}>
-                            <Col span={6}>
-                                <Card>
+                        <Row gutter={[isMobile ? 8 : 16, isMobile ? 8 : 16]} style={{ marginBottom: isMobile ? 16 : 24 }}>
+                            <Col xs={12} sm={6}>
+                                <Card size={isMobile ? "small" : "default"}>
                                     <Statistic
-                                        title="Tiền Vào"
+                                        title={<span style={{ fontSize: isMobile ? 12 : 14 }}>Tiền Vào</span>}
                                         value={mockCashFlowData.cashIn / 1000000}
-                                        suffix="triệu"
-                                        valueStyle={{ color: '#3f8600' }}
+                                        suffix={<span style={{ fontSize: isMobile ? 12 : 14 }}>triệu</span>}
+                                        valueStyle={{ color: '#3f8600', fontSize: isMobile ? 18 : 24 }}
                                         prefix={<ArrowUpOutlined />}
                                     />
                                 </Card>
                             </Col>
-                            <Col span={6}>
-                                <Card>
+                            <Col xs={12} sm={6}>
+                                <Card size={isMobile ? "small" : "default"}>
                                     <Statistic
-                                        title="Tiền Ra"
+                                        title={<span style={{ fontSize: isMobile ? 12 : 14 }}>Tiền Ra</span>}
                                         value={mockCashFlowData.cashOut / 1000000}
-                                        suffix="triệu"
-                                        valueStyle={{ color: '#cf1322' }}
+                                        suffix={<span style={{ fontSize: isMobile ? 12 : 14 }}>triệu</span>}
+                                        valueStyle={{ color: '#cf1322', fontSize: isMobile ? 18 : 24 }}
                                         prefix={<ArrowDownOutlined />}
                                     />
                                 </Card>
                             </Col>
-                            <Col span={6}>
-                                <Card>
+                            <Col xs={12} sm={6}>
+                                <Card size={isMobile ? "small" : "default"}>
                                     <Statistic
-                                        title="Dòng tiền Ròng"
+                                        title={<span style={{ fontSize: isMobile ? 12 : 14 }}>Dòng tiền Ròng</span>}
                                         value={mockCashFlowData.netCashFlow / 1000000}
-                                        suffix="triệu"
-                                        valueStyle={{ color: '#1890ff' }}
+                                        suffix={<span style={{ fontSize: isMobile ? 12 : 14 }}>triệu</span>}
+                                        valueStyle={{ color: '#1890ff', fontSize: isMobile ? 18 : 24 }}
                                     />
                                 </Card>
                             </Col>
-                            <Col span={6}>
-                                <Card>
+                            <Col xs={12} sm={6}>
+                                <Card size={isMobile ? "small" : "default"}>
                                     <Statistic
-                                        title="Số dư Hiện tại"
+                                        title={<span style={{ fontSize: isMobile ? 12 : 14 }}>Số dư Hiện tại</span>}
                                         value={mockCashFlowData.balance / 1000000}
-                                        suffix="triệu"
-                                        valueStyle={{ color: '#52c41a' }}
+                                        suffix={<span style={{ fontSize: isMobile ? 12 : 14 }}>triệu</span>}
+                                        valueStyle={{ color: '#52c41a', fontSize: isMobile ? 18 : 24 }}
                                     />
                                 </Card>
                             </Col>
@@ -783,29 +793,35 @@ const Reports: React.FC = () => {
 
             case 'profit_analysis':
                 const profitColumns: ColumnsType<any> = [
-                    { title: 'Mã dự án', dataIndex: 'projectCode', key: 'projectCode', width: 130 },
+                    { title: 'Mã dự án', dataIndex: 'projectCode', key: 'projectCode', width: 130, fixed: 'left' },
                     {
                         title: 'Doanh thu',
                         dataIndex: 'revenue',
                         key: 'revenue',
+                        width: 120,
                         render: (val) => `${(val / 1000000).toFixed(1)} triệu`,
                     },
                     {
                         title: 'Chi phí Vật tư',
                         dataIndex: 'materialCost',
                         key: 'materialCost',
+                        width: 140,
+                        responsive: ['md'],
                         render: (val) => `${(val / 1000000).toFixed(1)} triệu`,
                     },
                     {
                         title: 'Chi phí Nhân công',
                         dataIndex: 'laborCost',
                         key: 'laborCost',
+                        width: 140,
+                        responsive: ['md'],
                         render: (val) => `${(val / 1000000).toFixed(1)} triệu`,
                     },
                     {
                         title: 'Lợi nhuận',
                         dataIndex: 'profit',
                         key: 'profit',
+                        width: 120,
                         render: (val) => (
                             <strong style={{ color: '#3f8600' }}>{(val / 1000000).toFixed(1)} triệu</strong>
                         ),
@@ -814,22 +830,22 @@ const Reports: React.FC = () => {
                         title: 'Tỷ suất LN',
                         dataIndex: 'margin',
                         key: 'margin',
+                        width: 120,
                         render: (val) => <Tag color="green">{val.toFixed(1)}%</Tag>,
                         sorter: (a, b) => b.margin - a.margin,
                     },
                     {
                         title: '',
                         key: 'actions',
-                        width: 120,
+                        width: 80,
+                        fixed: 'right',
                         render: (_, record) => (
                             <Button
                                 type="link"
                                 size="small"
                                 icon={<EyeOutlined />}
                                 onClick={() => handleDrilldown('cost_tracking', { project: record.projectCode })}
-                            >
-                                Chi tiết
-                            </Button>
+                            />
                         ),
                     },
                 ];
@@ -875,7 +891,12 @@ const Reports: React.FC = () => {
                         </Row>
 
                         <Card title="Phân tích Lợi nhuận theo Dự án">
-                            <Table columns={profitColumns} dataSource={mockProfitData} pagination={false} />
+                            <Table 
+                                columns={profitColumns} 
+                                dataSource={mockProfitData} 
+                                pagination={false} 
+                                scroll={{ x: 'max-content' }}
+                            />
                         </Card>
                     </>
                 );
@@ -932,12 +953,13 @@ const Reports: React.FC = () => {
             /* =================== DỰ ÁN =================== */
             case 'project_summary':
                 const projectColumns: ColumnsType<any> = [
-                    { title: 'Mã dự án', dataIndex: 'code', key: 'code', width: 130 },
-                    { title: 'Tên dự án', dataIndex: 'name', key: 'name' },
+                    { title: 'Mã dự án', dataIndex: 'code', key: 'code', width: 130, fixed: 'left' },
+                    { title: 'Tên dự án', dataIndex: 'name', key: 'name', ellipsis: true },
                     {
                         title: 'Trạng thái',
                         dataIndex: 'status',
                         key: 'status',
+                        width: 150,
                         render: (status) => {
                             const colors: Record<string, string> = {
                                 'Hoàn thành': 'green',
@@ -947,10 +969,11 @@ const Reports: React.FC = () => {
                             return <Tag color={colors[status]}>{status}</Tag>;
                         },
                     },
-                    { title: 'PM', dataIndex: 'pm', key: 'pm', width: 150 },
+                    { title: 'PM', dataIndex: 'pm', key: 'pm', width: 150, responsive: ['md'] },
                     {
                         title: 'Thời gian',
                         key: 'duration',
+                        width: 150,
                         render: (_, record) => {
                             const delay = record.duration - record.plannedDuration;
                             return (
@@ -965,46 +988,63 @@ const Reports: React.FC = () => {
                         title: 'Minh chứng',
                         dataIndex: 'evidenceRate',
                         key: 'evidenceRate',
+                        width: 150,
+                        responsive: ['sm'],
                         render: (rate) => <Progress percent={rate} size="small" />,
                     },
                     {
                         title: '',
                         key: 'actions',
-                        width: 100,
+                        width: 80,
+                        fixed: 'right',
                         render: (_, record) => (
                             <Button
                                 type="link"
                                 size="small"
                                 icon={<EyeOutlined />}
                                 onClick={() => handleDrilldown('project_performance', { project: record.code })}
-                            >
-                                Chi tiết
-                            </Button>
+                            />
                         ),
                     },
                 ];
 
                 return (
                     <>
-                        <Row gutter={16} style={{ marginBottom: 24 }}>
-                            <Col span={6}>
-                                <Card>
-                                    <Statistic title="Tổng Dự án" value={50} />
+                        <Row gutter={[isMobile ? 8 : 16, isMobile ? 8 : 16]} style={{ marginBottom: isMobile ? 16 : 24 }}>
+                            <Col xs={12} sm={6}>
+                                <Card size={isMobile ? "small" : undefined}>
+                                    <Statistic
+                                        title={<span style={{ fontSize: isMobile ? 12 : 14 }}>Tổng Dự án</span>}
+                                        value={50}
+                                        valueStyle={{ fontSize: isMobile ? 18 : 24 }}
+                                    />
                                 </Card>
                             </Col>
-                            <Col span={6}>
-                                <Card>
-                                    <Statistic title="Hoàn thành" value={32} valueStyle={{ color: '#3f8600' }} />
+                            <Col xs={12} sm={6}>
+                                <Card size={isMobile ? "small" : undefined}>
+                                    <Statistic
+                                        title={<span style={{ fontSize: isMobile ? 12 : 14 }}>Hoàn thành</span>}
+                                        value={32}
+                                        valueStyle={{ color: '#3f8600', fontSize: isMobile ? 18 : 24 }}
+                                    />
                                 </Card>
                             </Col>
-                            <Col span={6}>
-                                <Card>
-                                    <Statistic title="Đang thi công" value={15} valueStyle={{ color: '#1890ff' }} />
+                            <Col xs={12} sm={6}>
+                                <Card size={isMobile ? "small" : undefined}>
+                                    <Statistic
+                                        title={<span style={{ fontSize: isMobile ? 12 : 14 }}>Đang thi công</span>}
+                                        value={15}
+                                        valueStyle={{ color: '#1890ff', fontSize: isMobile ? 18 : 24 }}
+                                    />
                                 </Card>
                             </Col>
-                            <Col span={6}>
-                                <Card>
-                                    <Statistic title="Chậm tiến độ" value={3} valueStyle={{ color: '#cf1322' }} />
+                            <Col xs={12} sm={6}>
+                                <Card size={isMobile ? "small" : undefined}>
+                                    <Statistic
+                                        title={<span style={{ fontSize: isMobile ? 12 : 14 }}>Chậm tiến độ</span>}
+                                        value={3}
+                                        valueStyle={{ color: '#cf1322', fontSize: isMobile ? 18 : 24 }}
+                                    />
                                 </Card>
                             </Col>
                         </Row>
@@ -1025,7 +1065,12 @@ const Reports: React.FC = () => {
                         )}
 
                         <Card title="Danh sách Dự án">
-                            <Table columns={projectColumns} dataSource={mockProjectData} pagination={{ pageSize: 10 }} />
+                            <Table 
+                                columns={projectColumns} 
+                                dataSource={mockProjectData} 
+                                pagination={{ pageSize: 10 }} 
+                                scroll={{ x: 'max-content' }}
+                            />
                         </Card>
                     </>
                 );
@@ -1048,20 +1093,22 @@ const Reports: React.FC = () => {
             /* =================== HIỆU SUẤT =================== */
             case 'user_performance':
                 const userPerfColumns: ColumnsType<any> = [
-                    { title: 'Tên', dataIndex: 'name', key: 'name' },
-                    { title: 'Vai trò', dataIndex: 'role', key: 'role', width: 120 },
+                    { title: 'Tên', dataIndex: 'name', key: 'name', fixed: 'left', width: 150 },
+                    { title: 'Vai trò', dataIndex: 'role', key: 'role', width: 120, responsive: ['sm'] },
                     { title: 'Số Dự án', dataIndex: 'projects', key: 'projects', width: 100 },
                     {
                         title: 'MC Tải lên',
                         dataIndex: 'evidenceUploaded',
                         key: 'evidenceUploaded',
                         width: 120,
+                        responsive: ['md'],
                     },
                     {
                         title: 'MC Đã duyệt',
                         dataIndex: 'evidenceApproved',
                         key: 'evidenceApproved',
                         width: 120,
+                        responsive: ['md'],
                     },
                     {
                         title: 'Thời gian TB Phản hồi',
@@ -1073,47 +1120,67 @@ const Reports: React.FC = () => {
                     {
                         title: '',
                         key: 'actions',
-                        width: 120,
+                        width: 80,
+                        fixed: 'right',
                         render: (_, record) => (
                             <Button
                                 type="link"
                                 size="small"
                                 icon={<UserOutlined />}
                                 onClick={() => handleDrilldown('personal_details', { userName: record.name })}
-                            >
-                                Chi tiết
-                            </Button>
+                            />
                         ),
                     },
                 ];
 
                 return (
                     <>
-                        <Row gutter={16} style={{ marginBottom: 24 }}>
-                            <Col span={6}>
-                                <Card>
-                                    <Statistic title="Tổng Nhân viên" value={15} />
+                        <Row gutter={[isMobile ? 8 : 16, isMobile ? 8 : 16]} style={{ marginBottom: isMobile ? 16 : 24 }}>
+                            <Col xs={12} sm={6}>
+                                <Card size={isMobile ? "small" : undefined}>
+                                    <Statistic
+                                        title={<span style={{ fontSize: isMobile ? 12 : 14 }}>Tổng Nhân viên</span>}
+                                        value={15}
+                                        valueStyle={{ fontSize: isMobile ? 18 : 24 }}
+                                    />
                                 </Card>
                             </Col>
-                            <Col span={6}>
-                                <Card>
-                                    <Statistic title="PM" value={3} valueStyle={{ color: '#1890ff' }} />
+                            <Col xs={12} sm={6}>
+                                <Card size={isMobile ? "small" : undefined}>
+                                    <Statistic
+                                        title={<span style={{ fontSize: isMobile ? 12 : 14 }}>PM</span>}
+                                        value={3}
+                                        valueStyle={{ color: '#1890ff', fontSize: isMobile ? 18 : 24 }}
+                                    />
                                 </Card>
                             </Col>
-                            <Col span={6}>
-                                <Card>
-                                    <Statistic title="Giám sát" value={5} valueStyle={{ color: '#52c41a' }} />
+                            <Col xs={12} sm={6}>
+                                <Card size={isMobile ? "small" : undefined}>
+                                    <Statistic
+                                        title={<span style={{ fontSize: isMobile ? 12 : 14 }}>Giám sát</span>}
+                                        value={5}
+                                        valueStyle={{ color: '#52c41a', fontSize: isMobile ? 18 : 24 }}
+                                    />
                                 </Card>
                             </Col>
-                            <Col span={6}>
-                                <Card>
-                                    <Statistic title="Nhân viên" value={7} valueStyle={{ color: '#faad14' }} />
+                            <Col xs={12} sm={6}>
+                                <Card size={isMobile ? "small" : undefined}>
+                                    <Statistic
+                                        title={<span style={{ fontSize: isMobile ? 12 : 14 }}>Nhân viên</span>}
+                                        value={7}
+                                        valueStyle={{ color: '#faad14', fontSize: isMobile ? 18 : 24 }}
+                                    />
                                 </Card>
                             </Col>
                         </Row>
 
                         <Card title="Hiệu suất Cá nhân">
-                            <Table columns={userPerfColumns} dataSource={mockUserPerformanceData} pagination={false} />
+                            <Table 
+                                columns={userPerfColumns} 
+                                dataSource={mockUserPerformanceData} 
+                                pagination={false} 
+                                scroll={{ x: 'max-content' }}
+                            />
                         </Card>
                     </>
                 );
@@ -1151,44 +1218,52 @@ const Reports: React.FC = () => {
             case 'evidence_status':
                 return (
                     <>
-                        <Row gutter={16} style={{ marginBottom: 24 }}>
-                            <Col span={6}>
-                                <Card>
-                                    <Statistic title="Tổng Tư liệu" value={mockEvidenceData.total} />
-                                    <div style={{ marginTop: 8, fontSize: 12, color: '#666' }}>
+                        <Row gutter={[isMobile ? 8 : 16, isMobile ? 8 : 16]} style={{ marginBottom: isMobile ? 16 : 24 }}>
+                            <Col xs={12} sm={6}>
+                                <Card size={isMobile ? "small" : undefined}>
+                                    <Statistic
+                                        title={<span style={{ fontSize: isMobile ? 12 : 14 }}>Tổng Tư liệu</span>}
+                                        value={mockEvidenceData.total}
+                                        valueStyle={{ fontSize: isMobile ? 18 : 24 }}
+                                    />
+                                    <div style={{ marginTop: 8, fontSize: isMobile ? 10 : 12, color: '#666' }}>
                                         {mockEvidenceData.totalPhotos} ảnh + {mockEvidenceData.totalVideos} video
                                     </div>
                                 </Card>
                             </Col>
-                            <Col span={6}>
-                                <Card>
+                            <Col xs={12} sm={6}>
+                                <Card size={isMobile ? "small" : undefined}>
                                     <Statistic
-                                        title="Tổng Dung lượng"
+                                        title={<span style={{ fontSize: isMobile ? 12 : 14 }}>Tổng Dung lượng</span>}
                                         value={mockEvidenceData.totalStorageGB}
-                                        suffix="GB"
-                                        valueStyle={{ color: '#1890ff' }}
+                                        suffix={<span style={{ fontSize: isMobile ? 12 : 14 }}>GB</span>}
+                                        valueStyle={{ color: '#1890ff', fontSize: isMobile ? 18 : 24 }}
                                     />
-                                    <div style={{ marginTop: 8, fontSize: 12, color: '#666' }}>
-                                        Ảnh: {mockEvidenceData.photoStorageGB}GB | Video: {mockEvidenceData.videoStorageGB}GB
+                                    <div style={{ marginTop: 8, fontSize: isMobile ? 10 : 12, color: '#666' }}>
+                                        {isMobile ? 'P: ' : 'Ảnh: '}{mockEvidenceData.photoStorageGB}GB | {isMobile ? 'V: ' : 'Video: '}{mockEvidenceData.videoStorageGB}GB
                                     </div>
                                 </Card>
                             </Col>
-                            <Col span={6}>
-                                <Card>
+                            <Col xs={12} sm={6}>
+                                <Card size={isMobile ? "small" : undefined}>
                                     <Statistic
-                                        title="Tỷ lệ Duyệt"
+                                        title={<span style={{ fontSize: isMobile ? 12 : 14 }}>Tỷ lệ Duyệt</span>}
                                         value={mockEvidenceData.approvalRate}
-                                        suffix="%"
-                                        valueStyle={{ color: '#3f8600' }}
+                                        suffix={<span style={{ fontSize: isMobile ? 12 : 14 }}>%</span>}
+                                        valueStyle={{ color: '#3f8600', fontSize: isMobile ? 18 : 24 }}
                                     />
-                                    <div style={{ marginTop: 8, fontSize: 12, color: '#666' }}>
-                                        {mockEvidenceData.approved} đã duyệt / {mockEvidenceData.pending} chờ duyệt
+                                    <div style={{ marginTop: 8, fontSize: isMobile ? 10 : 12, color: '#666' }}>
+                                        {mockEvidenceData.approved} Duyệt / {mockEvidenceData.pending} Chờ
                                     </div>
                                 </Card>
                             </Col>
-                            <Col span={6}>
-                                <Card>
-                                    <Statistic title="Từ chối" value={mockEvidenceData.rejected} valueStyle={{ color: '#cf1322' }} />
+                            <Col xs={12} sm={6}>
+                                <Card size={isMobile ? "small" : undefined}>
+                                    <Statistic
+                                        title={<span style={{ fontSize: isMobile ? 12 : 14 }}>Từ chối</span>}
+                                        value={mockEvidenceData.rejected}
+                                        valueStyle={{ color: '#cf1322', fontSize: isMobile ? 18 : 24 }}
+                                    />
                                 </Card>
                             </Col>
                         </Row>
@@ -1284,12 +1359,13 @@ const Reports: React.FC = () => {
             /* =================== CHẤT LƯỢNG =================== */
             case 'quality_issues':
                 const qualityColumns: ColumnsType<any> = [
-                    { title: 'Mã dự án', dataIndex: 'projectCode', key: 'projectCode', width: 130 },
-                    { title: 'Loại vấn đề', dataIndex: 'issueType', key: 'issueType' },
+                    { title: 'Mã dự án', dataIndex: 'projectCode', key: 'projectCode', width: 130, fixed: 'left' },
+                    { title: 'Loại vấn đề', dataIndex: 'issueType', key: 'issueType', ellipsis: true },
                     {
                         title: 'Mức độ',
                         dataIndex: 'severity',
                         key: 'severity',
+                        width: 110,
                         render: (severity) => {
                             const colors: Record<string, string> = {
                                 'Cao': 'red',
@@ -1303,6 +1379,7 @@ const Reports: React.FC = () => {
                         title: 'Trạng thái',
                         dataIndex: 'status',
                         key: 'status',
+                        width: 130,
                         render: (status) => {
                             const colors: Record<string, string> = {
                                 'Đã khắc phục': 'green',
@@ -1311,55 +1388,65 @@ const Reports: React.FC = () => {
                             return <Tag color={colors[status]}>{status}</Tag>;
                         },
                     },
-                    { title: 'Ngày tạo', dataIndex: 'createdDate', key: 'createdDate', width: 110 },
+                    { title: 'Ngày tạo', dataIndex: 'createdDate', key: 'createdDate', width: 110, responsive: ['sm'] },
                     {
                         title: 'Thời gian xử lý',
                         dataIndex: 'resolutionTime',
                         key: 'resolutionTime',
+                        width: 140,
                         render: (time) => (time ? `${time} ngày` : '-'),
                     },
                 ];
 
                 return (
                     <>
-                        <Row gutter={16} style={{ marginBottom: 24 }}>
-                            <Col span={6}>
-                                <Card>
-                                    <Statistic title="Tổng Vấn đề" value={mockQualityData.length} />
+                        <Row gutter={[isMobile ? 8 : 16, isMobile ? 8 : 16]} style={{ marginBottom: isMobile ? 16 : 24 }}>
+                            <Col xs={12} sm={6}>
+                                <Card size={isMobile ? "small" : undefined}>
+                                    <Statistic
+                                        title={<span style={{ fontSize: isMobile ? 12 : 14 }}>Tổng Vấn đề</span>}
+                                        value={mockQualityData.length}
+                                        valueStyle={{ fontSize: isMobile ? 18 : 24 }}
+                                    />
                                 </Card>
                             </Col>
-                            <Col span={6}>
-                                <Card>
+                            <Col xs={12} sm={6}>
+                                <Card size={isMobile ? "small" : undefined}>
                                     <Statistic
-                                        title="Đã khắc phục"
+                                        title={<span style={{ fontSize: isMobile ? 12 : 14 }}>Đã khắc phục</span>}
                                         value={mockQualityData.filter((q) => q.status === 'Đã khắc phục').length}
-                                        valueStyle={{ color: '#3f8600' }}
+                                        valueStyle={{ color: '#3f8600', fontSize: isMobile ? 18 : 24 }}
                                     />
                                 </Card>
                             </Col>
-                            <Col span={6}>
-                                <Card>
+                            <Col xs={12} sm={6}>
+                                <Card size={isMobile ? "small" : undefined}>
                                     <Statistic
-                                        title="Đang xử lý"
+                                       title={<span style={{ fontSize: isMobile ? 12 : 14 }}>Đang xử lý</span>}
                                         value={mockQualityData.filter((q) => q.status === 'Đang xử lý').length}
-                                        valueStyle={{ color: '#1890ff' }}
+                                        valueStyle={{ color: '#1890ff', fontSize: isMobile ? 18 : 24 }}
                                     />
                                 </Card>
                             </Col>
-                            <Col span={6}>
-                                <Card>
+                            <Col xs={12} sm={6}>
+                                <Card size={isMobile ? "small" : undefined}>
                                     <Statistic
-                                        title="Thời gian TB xử lý"
+                                        title={<span style={{ fontSize: isMobile ? 12 : 14 }}>Thời gian TB xử lý</span>}
                                         value={3}
-                                        suffix="ngày"
-                                        valueStyle={{ color: '#faad14' }}
+                                        suffix={<span style={{ fontSize: isMobile ? 12 : 14 }}>ngày</span>}
+                                        valueStyle={{ color: '#faad14', fontSize: isMobile ? 18 : 24 }}
                                     />
                                 </Card>
                             </Col>
                         </Row>
 
                         <Card title="Danh sách Vấn đề Chất lượng">
-                            <Table columns={qualityColumns} dataSource={mockQualityData} pagination={false} />
+                            <Table 
+                                columns={qualityColumns} 
+                                dataSource={mockQualityData} 
+                                pagination={false} 
+                                scroll={{ x: 'max-content' }}
+                            />
                         </Card>
                     </>
                 );
@@ -1409,8 +1496,8 @@ const Reports: React.FC = () => {
                 </Row>
 
                 {/* Report Selector + Filters */}
-                <Row gutter={16} style={{ marginBottom: 24 }}>
-                    <Col span={10}>
+                <Row gutter={[isMobile ? 8 : 16, isMobile ? 8 : 16]} style={{ marginBottom: isMobile ? 16 : 24 }}>
+                    <Col xs={24} sm={10}>
                         <Select
                             style={{ width: '100%' }}
                             placeholder="Chọn báo cáo"
@@ -1427,18 +1514,19 @@ const Reports: React.FC = () => {
                             ))}
                         </Select>
                     </Col>
-                    <Col span={8}>
+                    <Col xs={14} sm={8}>
                         <RangePicker
                             style={{ width: '100%' }}
                             value={dateRange}
                             onChange={(dates) => setDateRange(dates as [Dayjs, Dayjs])}
                             format="DD/MM/YYYY"
+                            size={isMobile ? "small" : undefined}
                         />
                     </Col>
-                    <Col span={6}>
-                        <Space>
-                            <Button icon={<FilePdfOutlined />}>Xuất PDF</Button>
-                            <Button icon={<FileExcelOutlined />}>Xuất Excel</Button>
+                    <Col xs={10} sm={6} style={{ textAlign: isMobile ? 'right' : 'right' }}>
+                        <Space size={isMobile ? 4 : 8}>
+                            <Button size={isMobile ? "small" : undefined} icon={<FilePdfOutlined />}>{isMobile ? "" : "Xuất PDF"}</Button>
+                            <Button size={isMobile ? "small" : undefined} icon={<FileExcelOutlined />}>{isMobile ? "" : "Xuất Excel"}</Button>
                         </Space>
                     </Col>
                 </Row>
