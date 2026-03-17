@@ -23,6 +23,7 @@ import ContractDetail from '../pages/pm/Contracts/ContractDetail';
 import MaintenanceDetail from '../pages/pm/Contracts/MaintenanceDetail';
 import Teams from '../pages/pm/Teams';
 import WorkerManagement from '../pages/pm/Teams/WorkerManagement';
+import WorkerDetail from '../pages/pm/Teams/WorkerDetail';
 import TeamManagement from '../pages/pm/Teams/TeamManagement';
 import TeamDetail from '../pages/pm/Teams/TeamDetail';
 import LaborPriceConfig from '../pages/pm/Teams/LaborPriceConfig';
@@ -226,6 +227,7 @@ function App() {
                                 <Route path="teams/internal" element={<Teams />} />
                                 <Route path="teams/outsource" element={<Teams />} />
                                 <Route path="teams/workers" element={<WorkerManagement />} />
+                                <Route path="teams/workers/:id" element={<WorkerDetail />} />
                                 <Route path="teams/groups" element={<TeamManagement />} />
                                 <Route path="teams/prices" element={<LaborPriceConfig />} />
                                 <Route path="teams/groups/:id" element={<TeamDetail />} />

@@ -5,28 +5,22 @@ import {
     Divider, Upload, Rate, Switch, Empty
 } from 'antd';
 import {
-    PlusOutlined, SearchOutlined, EditOutlined, DeleteOutlined,
-    UserOutlined, UploadOutlined, EnvironmentOutlined
+    PlusOutlined, SearchOutlined,
+    UserOutlined, UploadOutlined
 } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
 import { demoDataService } from '../../../services/localstorage/demoDataService';
+import MapPicker from '../../../components/common/MapPicker';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
 
-// Reuse MapPicker logic or a simplified version
-const MapPickerMock: React.FC<{ value?: { lat: number, lng: number }, onChange: (val: { lat: number, lng: number }) => void }> = ({ value, onChange }) => (
-    <div style={{ padding: 12, border: '1px border #d9d9d9', borderRadius: 8, background: '#fafafa', textAlign: 'center' }}>
-        <EnvironmentOutlined style={{ fontSize: 24, color: '#1890ff', marginBottom: 8 }} />
-        <div>{value ? `Vị trí: ${value.lat.toFixed(4)}, ${value.lng.toFixed(4)}` : 'Chưa chọn vị trí'}</div>
-        <Button size="small" style={{ marginTop: 8 }} onClick={() => onChange({ lat: 10.7769, lng: 106.7009 })}>
-            Mô phỏng chọn trên Bản đồ
-        </Button>
-    </div>
-);
+// MapPicker component is now imported from common components
 
 const WorkerManagement: React.FC = () => {
+    const navigate = useNavigate();
     const [workers, setWorkers] = useLocalStorageData<any[]>(demoDataService.KEYS.WORKERS_MASTER, []);
     const [priceConfig] = useLocalStorageData<any[]>(demoDataService.KEYS.LABOR_PRICE_CONFIG, []);
     
@@ -87,10 +81,7 @@ const WorkerManagement: React.FC = () => {
         });
     };
 
-    const handleDelete = (id: string) => {
-        setWorkers(workers.filter(w => w.id !== id));
-        message.success('Đã xóa thợ khỏi danh sách');
-    };
+
 
     const columns = [
         {
@@ -147,16 +138,6 @@ const WorkerManagement: React.FC = () => {
             dataIndex: 'rating',
             key: 'rating',
             render: (val: number) => <Rate disabled value={val} style={{ fontSize: 12 }} />
-        },
-        {
-            title: 'Thao tác',
-            key: 'action',
-            render: (_: any, record: any) => (
-                <Space>
-                    <Button type="text" icon={<EditOutlined />} onClick={() => showModal(record)} />
-                    <Button type="text" danger icon={<DeleteOutlined />} onClick={() => handleDelete(record.id)} />
-                </Space>
-            )
         }
     ];
 
@@ -187,6 +168,10 @@ const WorkerManagement: React.FC = () => {
                     dataSource={filteredWorkers}
                     rowKey="id"
                     locale={{ emptyText: <Empty description="Chưa có dữ liệu thợ. Hãy thêm mới!" /> }}
+                    onRow={(record) => ({
+                        onClick: () => navigate(`/pm/teams/workers/${record.id}`),
+                        style: { cursor: 'pointer' }
+                    })}
                 />
             </Card>
 
@@ -299,7 +284,7 @@ const WorkerManagement: React.FC = () => {
                         </Col>
                         <Col span={8}>
                             <Form.Item name="mapLocation" label="Vị trí bản đồ">
-                                <MapPickerMock onChange={(val) => form.setFieldsValue({ mapLocation: val })} />
+                                <MapPicker />
                             </Form.Item>
                         </Col>
                     </Row>

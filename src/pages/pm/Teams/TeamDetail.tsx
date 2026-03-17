@@ -14,6 +14,7 @@ import {
 import { useNavigate, useParams } from 'react-router-dom';
 import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
 import { demoDataService } from '../../../services/localstorage/demoDataService';
+import MapPicker from '../../../components/common/MapPicker';
 
 const { Title, Text } = Typography;
 const { useBreakpoint } = Grid;
@@ -42,7 +43,13 @@ const TeamDetail: React.FC = () => {
     const teamMembers = workers.filter(w => (team.memberIds || []).includes(w.id));
 
     const handleSaveInfo = (values: any) => {
-        const updatedTeams = teams.map(t => t.id === id ? { ...t, ...values } : t);
+        const { mapLocation, ...rest } = values;
+        const updatedTeams = teams.map(t => t.id === id ? { 
+            ...t, 
+            ...rest,
+            lat: mapLocation?.lat,
+            lng: mapLocation?.lng
+        } : t);
         setTeams(updatedTeams);
         setIsEditing(false);
         message.success('Cập nhật thông tin đội thợ thành công!');
@@ -116,7 +123,13 @@ const TeamDetail: React.FC = () => {
                         </Space>
                     ) : (
                         <Space>
-                            <Button icon={<EditOutlined />} onClick={() => { setIsEditing(true); editForm.setFieldsValue(team); }}>Chỉnh sửa</Button>
+                            <Button icon={<EditOutlined />} onClick={() => { 
+                                setIsEditing(true); 
+                                editForm.setFieldsValue({
+                                    ...team,
+                                    mapLocation: { lat: team.lat || 10.7769, lng: team.lng || 106.7009 }
+                                }); 
+                            }}>Chỉnh sửa</Button>
                             <Popconfirm title="Xóa đội thợ này?" onConfirm={handleDeleteTeam}>
                                 <Button danger icon={<DeleteOutlined />}>Xóa</Button>
                             </Popconfirm>
@@ -160,6 +173,11 @@ const TeamDetail: React.FC = () => {
                             <Col xs={24}>
                                 <Form.Item name="specializations" label="Chuyên môn">
                                     <Select mode="tags" placeholder="Nhập chuyên môn" />
+                                </Form.Item>
+                            </Col>
+                            <Col xs={24}>
+                                <Form.Item name="mapLocation" label="Vị trí trên bản đồ">
+                                    <MapPicker />
                                 </Form.Item>
                             </Col>
                         </Row>
@@ -214,6 +232,13 @@ const TeamDetail: React.FC = () => {
                                         status="active"
                                         strokeColor="#52c41a"
                                     />
+                                    <Divider style={{ margin: '12px 0' }} />
+                                    <div style={{ marginBottom: 12, fontWeight: 500 }}>Vị trí đội thợ:</div>
+                                    <MapPicker 
+                                        readOnly 
+                                        height={180} 
+                                        value={{ lat: team.lat || 10.7769, lng: team.lng || 106.7009 }} 
+                                    />
                                 </Space>
                             </Card>
                         </Col>
@@ -252,6 +277,21 @@ const TeamDetail: React.FC = () => {
                             title: 'Đánh giá', dataIndex: 'rating', key: 'rating',
                             render: (r: number) => <Rate disabled value={r} allowHalf style={{ fontSize: 12 }} />,
                         },
+                        { 
+                            title: 'Trình độ', 
+                            dataIndex: 'level', 
+                            key: 'level',
+                            render: (l: string) => {
+                                const config = priceConfigs.find(c => c.level === l);
+                                return <Tag color="blue">{config?.name || l}</Tag>;
+                            }
+                        },
+                        { 
+                            title: 'Công (VND/h)', 
+                            dataIndex: 'costPerHour', 
+                            key: 'costPerHour',
+                            render: (c: number) => <Text strong color="red">{formatCurrency(c || 0)}/h</Text>
+                        },
                         {
                             title: 'Trạng thái', dataIndex: 'status', key: 'status',
                             render: (s: string) => <Tag color={s === 'active' ? 'green' : 'default'}>{s === 'active' ? 'Hoạt động' : 'Ngừng'}</Tag>,
@@ -266,6 +306,10 @@ const TeamDetail: React.FC = () => {
                         },
                     ]}
                     pagination={false}
+                    onRow={(record) => ({
+                        onClick: () => navigate(`/pm/teams/workers/${record.id}`),
+                        style: { cursor: 'pointer' }
+                    })}
                 />
             </Card>
         </div>
