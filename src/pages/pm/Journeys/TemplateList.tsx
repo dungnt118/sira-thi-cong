@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
     Card, Table, Tag, Button, Space, Typography, Row, Col,
-    Modal, Form, Input, Select, Switch, Badge, Tooltip, Popconfirm
+    Modal, Form, Input, Select, Switch, Badge, Tooltip, Popconfirm, Grid
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
@@ -12,6 +12,7 @@ import { mockJourneyTemplates } from '../../../data/journeyMockData';
 import type { JourneyTemplate } from '../../../types/journey';
 
 const { Text } = Typography;
+const { useBreakpoint } = Grid;
 
 const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
     active: { label: 'Hoạt động', color: 'success' },
@@ -27,6 +28,8 @@ const TemplateList: React.FC = () => {
     const [createForm] = Form.useForm();
     const [cloneForm] = Form.useForm();
     const [filterStatus, setFilterStatus] = useState<string>('ALL');
+    const screens = useBreakpoint();
+    const isMobile = !screens.md;
 
     const filtered = mockJourneyTemplates.filter(t => filterStatus === 'ALL' || t.status === filterStatus);
 
@@ -34,6 +37,8 @@ const TemplateList: React.FC = () => {
         {
             title: 'Mã / Tên Template',
             key: 'name',
+            fixed: (isMobile ? 'left' : undefined) as 'left' | 'right' | undefined,
+            width: isMobile ? 180 : undefined,
             render: (_, t) => (
                 <div>
                     <Space>
@@ -51,11 +56,14 @@ const TemplateList: React.FC = () => {
             title: 'Loại dịch vụ',
             dataIndex: 'service_type',
             key: 'service',
+            width: 120,
             render: v => <Tag>{v}</Tag>,
         },
         {
             title: 'Số bước',
             key: 'steps',
+            width: 80,
+            responsive: ['sm'],
             render: (_, t) => (
                 <Badge count={t.steps.length} style={{ background: '#1976D2' }} showZero />
             ),
@@ -64,6 +72,7 @@ const TemplateList: React.FC = () => {
         {
             title: 'Trạng thái',
             key: 'status',
+            width: 100,
             render: (_, t) => {
                 const s = STATUS_CONFIG[t.status];
                 return <Tag color={s.color}>{s.label}</Tag>;
@@ -73,26 +82,24 @@ const TemplateList: React.FC = () => {
             title: 'Mô tả',
             dataIndex: 'description',
             key: 'desc',
+            responsive: ['lg'],
             render: v => <Text type="secondary" style={{ fontSize: 12 }}>{v || '—'}</Text>,
         },
         {
             title: '',
             key: 'actions',
-            width: 160,
+            width: isMobile ? 120 : 160,
+            fixed: 'right',
             render: (_, t) => (
                 <Space size={4}>
-                    <Button size="small" icon={<EyeOutlined />} onClick={() => navigate(`/pm/journeys/templates/${t.id}`)}>
-                        Chi tiết
-                    </Button>
+                    <Button size="small" icon={<EyeOutlined />} onClick={() => navigate(`/pm/journeys/templates/${t.id}`)} />
                     <Button
                         size="small"
                         icon={<CopyOutlined />}
                         onClick={() => { setCloneTarget(t); cloneForm.setFieldsValue({ source_template: t.template_name }); setShowCloneModal(true); }}
-                    >
-                        Clone
-                    </Button>
-                    <Popconfirm title="Đặt template này làm quy trình chuẩn cho dịch vụ này? Các template khác sẽ bị vô hiệu hóa chuẩn.">
-                        <Switch size="small" checked={t.is_default} checkedChildren="Chuẩn" unCheckedChildren="Tùy chọn" />
+                    />
+                    <Popconfirm title="Đặt làm quy trình chuẩn?">
+                        <Switch size="small" checked={t.is_default} />
                     </Popconfirm>
                 </Space>
             ),
@@ -101,21 +108,33 @@ const TemplateList: React.FC = () => {
 
     return (
         <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+            <div style={{ 
+                display: 'flex', 
+                flexDirection: isMobile ? 'column' : 'row',
+                justifyContent: 'space-between', 
+                alignItems: isMobile ? 'flex-start' : 'center', 
+                marginBottom: isMobile ? 16 : 24,
+                gap: 12
+            }}>
                 <div>
-                    <h2 style={{ margin: 0 }}>Template Hành trình</h2>
+                    <h2 style={{ margin: 0, fontSize: isMobile ? 20 : 24 }}>Template Hành trình</h2>
                     <Text type="secondary">Quản lý các template quy trình dịch vụ</Text>
                 </div>
-                <Button type="primary" icon={<PlusOutlined />} onClick={() => setShowCreateModal(true)}>
+                <Button 
+                    type="primary" 
+                    icon={<PlusOutlined />} 
+                    onClick={() => setShowCreateModal(true)}
+                    block={isMobile}
+                >
                     Tạo Template
                 </Button>
             </div>
 
-            <Card>
-                <Row style={{ marginBottom: 16 }} gutter={12}>
-                    <Col>
+            <Card bodyStyle={{ padding: isMobile ? 8 : 24 }}>
+                <Row style={{ marginBottom: 16 }} gutter={[8, 8]} align="middle">
+                    <Col xs={24} sm={12}>
                         <Select
-                            style={{ width: 160 }}
+                            style={{ width: '100%', maxWidth: 160 }}
                             value={filterStatus}
                             onChange={setFilterStatus}
                             options={[
@@ -126,8 +145,7 @@ const TemplateList: React.FC = () => {
                             ]}
                         />
                     </Col>
-                    <Col flex="auto" />
-                    <Col>
+                    <Col sm={12} style={{ textAlign: isMobile ? 'left' : 'right' }}>
                         <Text type="secondary" style={{ fontSize: 12 }}>{filtered.length} template</Text>
                     </Col>
                 </Row>
@@ -137,7 +155,8 @@ const TemplateList: React.FC = () => {
                     dataSource={filtered}
                     rowKey="id"
                     pagination={false}
-                    size="middle"
+                    size={isMobile ? 'small' : 'middle'}
+                    scroll={{ x: 'max-content' }}
                 />
             </Card>
 

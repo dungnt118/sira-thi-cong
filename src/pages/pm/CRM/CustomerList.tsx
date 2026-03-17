@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
     Table, Card, Button, Input, Space, Avatar,
-    Row, Col, Dropdown, Typography, Empty
+    Row, Col, Dropdown, Typography, Empty, Grid
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import type { MenuProps } from 'antd';
@@ -15,10 +15,13 @@ import { mockCustomers, mockServiceRequests } from '../../../data/mockData';
 import type { Customer } from '../../../types/v3';
 
 const { Text } = Typography;
+const { useBreakpoint } = Grid;
 
 const CustomerList: React.FC = () => {
     const navigate = useNavigate();
     const [search, setSearch] = useState('');
+    const screens = useBreakpoint();
+    const isMobile = !screens.md;
 
     const filtered = mockCustomers.filter(c => {
         return !search ||
@@ -38,6 +41,8 @@ const CustomerList: React.FC = () => {
         {
             title: 'Khách hàng',
             key: 'customer',
+            fixed: isMobile ? 'left' : undefined,
+            width: isMobile ? 200 : undefined,
             render: (_, r) => (
                 <Space>
                     <Avatar size={36} icon={<UserOutlined />} style={{ background: '#1976D2' }} />
@@ -54,6 +59,7 @@ const CustomerList: React.FC = () => {
         {
             title: 'Liên hệ',
             key: 'contact',
+            width: 180,
             render: (_, r) => (
                 <div>
                     <div><PhoneOutlined style={{ marginRight: 4 }} />{r.phone}</div>
@@ -67,6 +73,7 @@ const CustomerList: React.FC = () => {
             title: 'PM phụ trách',
             dataIndex: 'assignedPmName',
             key: 'pm',
+            responsive: ['md'],
             render: (name: string) => (
                 <Space>
                     <Avatar size={24} style={{ background: '#52c41a' }} icon={<UserOutlined />} />
@@ -75,9 +82,10 @@ const CustomerList: React.FC = () => {
             ),
         },
         {
-            title: 'Số Yêu cầu (Deals)',
+            title: 'Dịch vụ',
             key: 'deals',
             align: 'center',
+            width: 100,
             render: (_, r) => {
                 const count = mockServiceRequests.filter(req => req.customerId === r.id).length;
                 return (
@@ -91,6 +99,7 @@ const CustomerList: React.FC = () => {
             title: 'Ngày tạo',
             dataIndex: 'createdAt',
             key: 'createdAt',
+            responsive: ['lg'],
             sorter: (a, b) => a.createdAt.localeCompare(b.createdAt),
             render: (text) => text.split('T')[0]
         },
@@ -98,6 +107,7 @@ const CustomerList: React.FC = () => {
             title: '',
             key: 'actions',
             width: 48,
+            fixed: 'right',
             render: (_, r) => (
                 <Dropdown menu={{ items: getRowActions(r) }} placement="bottomRight" trigger={['click']}>
                     <Button type="text" icon={<MoreOutlined />} />
@@ -108,23 +118,33 @@ const CustomerList: React.FC = () => {
 
     return (
         <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+            <div style={{ 
+                display: 'flex', 
+                flexDirection: isMobile ? 'column' : 'row',
+                justifyContent: 'space-between', 
+                alignItems: isMobile ? 'flex-start' : 'center', 
+                marginBottom: isMobile ? 16 : 24,
+                gap: 12
+            }}>
                 <div>
-                    <h2 style={{ margin: 0 }}>Danh sách Khách hàng</h2>
+                    <h2 style={{ margin: 0, fontSize: isMobile ? 20 : 24 }}>Danh sách Khách hàng</h2>
                     <Text type="secondary">Quản lý cơ sở dữ liệu liên hệ khách hàng</Text>
                 </div>
-                <Space>
-                    <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/pm/crm/customers/new')}>
-                        Thêm Khách hàng
-                    </Button>
-                </Space>
+                <Button 
+                    type="primary" 
+                    icon={<PlusOutlined />} 
+                    onClick={() => navigate('/pm/crm/customers/new')}
+                    block={isMobile}
+                >
+                    Thêm Khách hàng
+                </Button>
             </div>
 
-            <Card>
+            <Card bodyStyle={{ padding: isMobile ? 8 : 24 }}>
                 <Row gutter={12} style={{ marginBottom: 16 }}>
                     <Col flex="auto">
                         <Input
-                            placeholder="Tìm kiếm tên, SĐT, mã KH..."
+                            placeholder="Tìm kiếm..."
                             prefix={<SearchOutlined />}
                             value={search}
                             onChange={e => setSearch(e.target.value)}
@@ -137,9 +157,15 @@ const CustomerList: React.FC = () => {
                     columns={columns}
                     dataSource={filtered}
                     rowKey="id"
-                    pagination={{ pageSize: 10, showSizeChanger: true, showTotal: (t) => `${t} khách hàng` }}
+                    pagination={{ 
+                        pageSize: 10, 
+                        showSizeChanger: !isMobile, 
+                        showTotal: isMobile ? undefined : (t) => `${t} khách hàng`,
+                        size: isMobile ? 'small' : 'default'
+                    }}
                     locale={{ emptyText: <Empty description="Không có khách hàng" /> }}
-                    size="middle"
+                    size={isMobile ? 'small' : 'middle'}
+                    scroll={{ x: 'max-content' }}
                 />
             </Card>
         </div>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
     Layout, Menu, Card, Button, Table, Modal, Form, Input, Select,
-    Space, Typography, Tag, message, Popconfirm, ColorPicker
+    Space, Typography, Tag, message, Popconfirm, ColorPicker, Grid
 } from 'antd';
 import {
     PlusOutlined, EditOutlined, DeleteOutlined, SettingOutlined,
@@ -13,6 +13,7 @@ import type { Pipeline, PipelineStage, PipelineSystemStage } from '../../../type
 const { Sider, Content } = Layout;
 const { Title, Text } = Typography;
 const { Option } = Select;
+const { useBreakpoint } = Grid;
 
 const SYSTEM_STAGES: { value: PipelineSystemStage; label: string }[] = [
     { value: 'NEW', label: 'Lead Mới' },
@@ -24,6 +25,8 @@ const SYSTEM_STAGES: { value: PipelineSystemStage; label: string }[] = [
 const PipelineSettings: React.FC = () => {
     const [pipelines, setPipelines] = useState<Pipeline[]>(mockPipelines);
     const [selectedId, setSelectedId] = useState<string>(mockPipelines[0]?.id || '');
+    const screens = useBreakpoint();
+    const isMobile = !screens.md;
 
     // Modals
     const [isPipelineModalVisible, setIsPipelineModalVisible] = useState(false);
@@ -151,6 +154,7 @@ const PipelineSettings: React.FC = () => {
             title: 'Bước (Stage)',
             dataIndex: 'name',
             key: 'name',
+            width: isMobile ? 150 : undefined,
             render: (text: string, record: PipelineStage) => (
                 <Space>
                     <div style={{ width: 12, height: 12, borderRadius: '50%', backgroundColor: record.color }} />
@@ -162,6 +166,7 @@ const PipelineSettings: React.FC = () => {
             title: 'System Mapping',
             dataIndex: 'systemStage',
             key: 'systemStage',
+            width: 140,
             render: (sys: PipelineSystemStage) => {
                 const map: Record<string, any> = {
                     'NEW': { color: 'blue', text: 'Lead Mới' },
@@ -175,7 +180,8 @@ const PipelineSettings: React.FC = () => {
         {
             title: 'Thao tác',
             key: 'action',
-            width: 150,
+            width: 120,
+            fixed: (isMobile ? 'right' : undefined) as 'right' | 'left' | undefined,
             render: (_: any, record: PipelineStage) => (
                 <Space size="small">
                     <Button type="text" icon={<EditOutlined />} onClick={() => handleEditStage(record)} />
@@ -193,57 +199,72 @@ const PipelineSettings: React.FC = () => {
         }
     ];
 
-    return (
-        <Layout style={{ minHeight: 'calc(100vh - 120px)', background: '#fff', borderRadius: 8, overflow: 'hidden' }}>
-            {/* SIDER: Danh sách Pipelines */}
-            <Sider width={280} theme="light" style={{ borderRight: '1px solid #f0f0f0' }}>
-                <div style={{ padding: '16px', borderBottom: '1px solid #f0f0f0' }}>
-                    <Title level={5} style={{ margin: 0 }}>Hành Trình Khách Hàng</Title>
-                    <Text type="secondary" style={{ fontSize: 13 }}>Quản lý Pipeline & Kanban</Text>
-                </div>
+    const sidebarContent = (
+        <>
+            <div style={{ padding: '16px', borderBottom: '1px solid #f0f0f0' }}>
+                <Title level={5} style={{ margin: 0 }}>Hành Trình Khách Hàng</Title>
+                <Text type="secondary" style={{ fontSize: 13 }}>Quản lý Pipeline & Kanban</Text>
+            </div>
 
-                <Menu
-                    mode="inline"
-                    selectedKeys={[selectedId]}
-                    onClick={(e) => setSelectedId(e.key)}
-                    style={{ borderRight: 'none', padding: '8px 0' }}
-                    items={pipelines.map(p => ({
-                        key: p.id,
-                        icon: <SettingOutlined />,
-                        label: (
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <span>{p.name} {p.isDefault && <Tag color="blue" style={{ marginLeft: 8, fontSize: 10 }}>Mặc định</Tag>}</span>
-                            </div>
-                        )
-                    }))}
-                />
-                <div style={{ padding: 16 }}>
-                    <Button type="dashed" block icon={<PlusOutlined />} onClick={handleAddPipeline}>
-                        Tạo Pipeline Mới
-                    </Button>
+            <Menu
+                mode="inline"
+                selectedKeys={[selectedId]}
+                onClick={(e) => setSelectedId(e.key)}
+                style={{ borderRight: 'none', padding: '8px 0' }}
+                items={pipelines.map(p => ({
+                    key: p.id,
+                    icon: <SettingOutlined />,
+                    label: (
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <Text ellipsis style={{ maxWidth: isMobile ? '60%' : '100%' }}>
+                                {p.name} {p.isDefault && <Tag color="blue" style={{ marginLeft: 8, fontSize: 10 }}>Mặc định</Tag>}
+                            </Text>
+                        </div>
+                    )
+                }))}
+            />
+            <div style={{ padding: 16 }}>
+                <Button type="dashed" block icon={<PlusOutlined />} onClick={handleAddPipeline}>
+                    Tạo Pipeline Mới
+                </Button>
+            </div>
+        </>
+    );
+
+    return (
+        <Layout style={{ minHeight: isMobile ? 'auto' : 'calc(100vh - 120px)', background: '#fff', borderRadius: 8, overflow: 'hidden', flexDirection: isMobile ? 'column' : 'row' }}>
+            {/* SIDER: Danh sách Pipelines */}
+            {!isMobile ? (
+                <Sider width={280} theme="light" style={{ borderRight: '1px solid #f0f0f0' }}>
+                    {sidebarContent}
+                </Sider>
+            ) : (
+                <div style={{ background: '#fff', borderBottom: '1px solid #f0f0f0' }}>
+                    {sidebarContent}
                 </div>
-            </Sider>
+            )}
 
             {/* CONTENT: Chi tiết Pipeline */}
-            <Content style={{ padding: 24, background: '#fafafa' }}>
+            <Content style={{ padding: isMobile ? 8 : 24, background: '#fafafa' }}>
                 {activePipeline ? (
                     <Card
-                        title={<Title level={4} style={{ margin: 0 }}>Cấu hình các bước: {activePipeline.name}</Title>}
+                        title={<Title level={isMobile ? 5 : 4} style={{ margin: 0 }}>Cấu hình các bước: {activePipeline.name}</Title>}
+                        bodyStyle={{ padding: isMobile ? 8 : 24 }}
                         extra={
-                            <Space>
+                            <Space wrap={isMobile}>
                                 {!activePipeline.isDefault && (
                                     <Popconfirm title="Xóa Pipeline này?" onConfirm={() => handleDeletePipeline(activePipeline.id)}>
-                                        <Button danger icon={<DeleteOutlined />}>Xóa Pipeline</Button>
+                                        <Button danger icon={<DeleteOutlined />} size={isMobile ? 'small' : 'middle'}>Xóa</Button>
                                     </Popconfirm>
                                 )}
-                                <Button type="primary" icon={<PlusOutlined />} onClick={handleAddStage}>Thêm Cột (Bước)</Button>
+                                <Button type="primary" icon={<PlusOutlined />} onClick={handleAddStage} size={isMobile ? 'small' : 'middle'}>Thêm Cột</Button>
                             </Space>
                         }
                     >
                         <div style={{ marginBottom: 16 }}>
-                            <Text type="secondary">
+                            <Text type="secondary" style={{ fontSize: isMobile ? 12 : 14 }}>
                                 <ExclamationCircleOutlined style={{ marginRight: 8, color: '#faad14' }} />
-                                Các cột Kanban sẽ hiển thị theo thứ tự dưới đây. Để xóa cọt, cột đó phải không chứa bất kỳ Khách hàng nào.
+                                Các cột Kanban sẽ hiển thị theo thứ tự dưới đây. Để xóa cột, cột đó phải không chứa bất kỳ Khách hàng nào.
                             </Text>
                         </div>
 
@@ -252,16 +273,19 @@ const PipelineSettings: React.FC = () => {
                             dataSource={activePipeline.stages}
                             rowKey="id"
                             pagination={false}
-                            size="middle"
+                            size={isMobile ? 'small' : 'middle'}
                             bordered
+                            scroll={{ x: 'max-content' }}
                         />
                     </Card>
                 ) : (
-                    <div style={{ textAlign: 'center', marginTop: 100 }}>
+                    <div style={{ textAlign: 'center', marginTop: isMobile ? 40 : 100 }}>
                         <Text type="secondary">Vui lòng chọn hoặc tạo Pipeline</Text>
                     </div>
                 )}
             </Content>
+
+            {/* Modal Thêm Pipeline */}
 
             {/* Modal Thêm Pipeline */}
             <Modal
