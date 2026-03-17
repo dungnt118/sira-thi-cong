@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import React, { Suspense, lazy } from 'react';
+import { lazy } from 'react';
 import { ConfigProvider } from 'antd';
 import viVN from 'antd/locale/vi_VN';
 
@@ -64,17 +64,15 @@ import EstimateTemplateList from '../pages/pm/Settings/EstimateTemplateList';
 
 // Sale Layout + Pages
 import { SaleLayout } from '../layouts/SaleLayout';
+// Giam Sat Layout + Pages
+import { GiamSatLayout } from '../layouts/GiamSatLayout';
 import SaleDashboard from '../pages/sale/Journeys/JourneyInbox';
 import SLAQueue from '../pages/sale/Journeys/SLAQueue';
 import SurveyCoordination from '../pages/sale/Journeys/SurveyCoordination';
 import SaleSurveyDetail from '../pages/sale/Journeys/SaleSurveyDetail';
 import CommunicationsCenter from '../pages/sale/Journeys/CommunicationsCenter';
 
-// Giam Sat Layout + Pages
-import { GiamSatLayout } from '../layouts/GiamSatLayout';
-import SurveyQueue from '../pages/giam-sat/SurveyQueue';
-import SurveyForm from '../pages/giam-sat/SurveyForm';
-import JourneyFeedSummary from '../pages/giam-sat/JourneyFeedSummary';
+
 
 // Portal Sub-pages
 import PublishedTimeline from '../pages/public/portal/PublishedTimeline';
@@ -83,7 +81,6 @@ import ThreadInbox from '../pages/public/portal/ThreadInbox';
 import ThreadDetail from '../pages/public/portal/ThreadDetail';
 
 // V3 Supervisor Pages (replaces 'worker' — Supervisors act on behalf of field workers)
-import SupervisorMobileLayout from '../layouts/WorkerLayout';
 
 import SupervisorChecklist from '../pages/worker/Checklist';
 import SupervisorEvidenceUpload from '../pages/worker/EvidenceUpload';

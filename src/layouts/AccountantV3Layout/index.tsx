@@ -8,7 +8,6 @@ import {
     DollarOutlined,
     SafetyOutlined,
     BarChartOutlined,
-    UserOutlined,
     BellOutlined,
 } from '@ant-design/icons';
 import { BaseLayout } from '../shared/BaseLayout';

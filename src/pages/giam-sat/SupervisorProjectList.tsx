@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import {
-    Card, Input, Tag, Typography, List, Badge, Row, Col, Select, Space, Button
+    Card, Input, Tag, Typography, List, Row, Col, Select, Space, Button
 } from 'antd';
 import {
     SearchOutlined, FilterOutlined, EnvironmentOutlined, 
-    RightOutlined, BuildOutlined, CalendarOutlined, BookOutlined
+    RightOutlined, BuildOutlined, BookOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { mockProjects, getProjectProgress } from '../../data/mockData';

@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-    Card, Button, Progress, Tag, Typography, Avatar, Row, Col, Badge, List, Empty
+    Card, Button, Progress, Typography, Avatar, Row, Col, Badge, List, Empty
 } from 'antd';
 import {
     UserOutlined, ClockCircleOutlined, SmileOutlined,
