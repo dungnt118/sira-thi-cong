@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-    Card, Row, Col, Typography, Button, Tag, Space, Badge, Empty, Tooltip, message, Progress
+    Card, Row, Col, Typography, Button, Tag, Space, Badge, Empty, Tooltip, message, Progress, Grid
 } from 'antd';
 import {
     PlusOutlined, CalendarOutlined, DragOutlined, DollarOutlined
@@ -98,6 +98,8 @@ const KanbanCard: React.FC<KanbanCardProps> = ({ request, pipeline, onMove }) =>
 };
 
 const Pipeline: React.FC = () => {
+    const screens = Grid.useBreakpoint();
+    const isMobile = !screens.md;
     const navigate = useNavigate();
     const [requests, setRequests] = useState(mockServiceRequests);
     const [activePipelineId, setActivePipelineId] = useState<string>(mockPipelines[0]?.id || '');
@@ -119,38 +121,44 @@ const Pipeline: React.FC = () => {
     const conversionRate = pipelineRequests.length > 0 ? Math.round((totalConverted / pipelineRequests.length) * 100) : 0;
 
     return (
-        <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-                        <Title level={4} style={{ margin: 0 }}>CRM Pipeline – Kanban Board</Title>
-                        <Select
-                            value={activePipelineId}
-                            onChange={setActivePipelineId}
-                            style={{ width: 250 }}
-                            size="small"
-                        >
-                            {mockPipelines.map(p => (
-                                <Option key={p.id} value={p.id}>{p.name}</Option>
-                            ))}
-                        </Select>
-                    </div>
-                    <Text type="secondary">
-                        Tổng: {pipelineRequests.length} Yêu cầu &nbsp;|&nbsp; Thắng: {totalConverted} &nbsp;|&nbsp; Tỉ lệ chuyển đổi: {conversionRate}%
-                    </Text>
-                </div>
-                <Space>
-                    <Button onClick={() => navigate('/pm/crm/service-requests')}>Xem dạng Danh sách</Button>
-                    <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/pm/crm/service-requests/new')}>
-                        Tạo Yêu cầu mới
-                    </Button>
-                </Space>
+        <div style={{ padding: isMobile ? 4 : 0 }}>
+            <div style={{ marginBottom: 16 }}>
+                <Row gutter={[16, 16]} align="middle" justify="space-between">
+                    <Col xs={24} lg={16}>
+                        <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'flex-start' : 'center', gap: isMobile ? 8 : 12, marginBottom: isMobile ? 8 : 0 }}>
+                            <Title level={isMobile ? 5 : 4} style={{ margin: 0 }}>CRM Pipeline – Kanban Board</Title>
+                            <Select
+                                value={activePipelineId}
+                                onChange={setActivePipelineId}
+                                style={{ width: isMobile ? '100%' : 250 }}
+                                size={isMobile ? "middle" : "small"}
+                            >
+                                {mockPipelines.map(p => (
+                                    <Option key={p.id} value={p.id}>{p.name}</Option>
+                                ))}
+                            </Select>
+                        </div>
+                        <Text type="secondary" style={{ fontSize: isMobile ? 12 : 14 }}>
+                            Tổng: {pipelineRequests.length} YC &nbsp;|&nbsp; Thắng: {totalConverted} &nbsp;|&nbsp; Tỉ lệ: {conversionRate}%
+                        </Text>
+                    </Col>
+                    <Col xs={24} lg={8} style={{ textAlign: isMobile ? 'left' : 'right' }}>
+                        <Space size={8} wrap={isMobile} style={{ width: isMobile ? '100%' : 'auto' }}>
+                            <Button onClick={() => navigate('/pm/crm/service-requests')} block={isMobile}>
+                                {isMobile ? 'Dạng danh sách' : 'Xem dạng Danh sách'}
+                            </Button>
+                            <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/pm/crm/service-requests/new')} block={isMobile}>
+                                {isMobile ? 'Tạo YC' : 'Tạo Yêu cầu mới'}
+                            </Button>
+                        </Space>
+                    </Col>
+                </Row>
             </div>
 
             {/* Conversion Progress */}
             <Card size="small" style={{ marginBottom: 16 }}>
-                <Row gutter={16} align="middle">
-                    <Col flex="auto">
+                <Row gutter={[16, 16]} align="middle">
+                    <Col xs={24} sm={18}>
                         <Text style={{ fontWeight: 500 }}>Tỉ lệ chuyển đổi tháng này</Text>
                         <Progress
                             percent={conversionRate}
@@ -158,9 +166,9 @@ const Pipeline: React.FC = () => {
                             style={{ margin: '4px 0 0' }}
                         />
                     </Col>
-                    <Col>
-                        <div style={{ textAlign: 'center' }}>
-                            <div style={{ fontSize: 32, fontWeight: 700, color: '#52c41a' }}>{conversionRate}%</div>
+                    <Col xs={24} sm={6}>
+                        <div style={{ textAlign: isMobile ? 'left' : 'center', display: isMobile ? 'flex' : 'block', alignItems: 'center', gap: 12 }}>
+                            <div style={{ fontSize: isMobile ? 24 : 32, fontWeight: 700, color: '#52c41a' }}>{conversionRate}%</div>
                             <Text type="secondary" style={{ fontSize: 12 }}>{totalConverted}/{pipelineRequests.length} YC</Text>
                         </div>
                     </Col>
@@ -189,9 +197,9 @@ const Pipeline: React.FC = () => {
                         <div
                             key={col.id}
                             style={{
-                                minWidth: 260,
-                                maxWidth: 280,
-                                flex: '0 0 260px',
+                                minWidth: isMobile ? 240 : 260,
+                                maxWidth: isMobile ? 250 : 280,
+                                flex: `0 0 ${isMobile ? '240px' : '260px'}`,
                                 background: getBgColor(col.color),
                                 borderRadius: 12,
                                 border: `1px solid ${col.color}`,
