@@ -1,19 +1,19 @@
 import React, { useState } from 'react';
 import {
     Card, Steps, Button, Tag, Typography, Row, Col,
-    Space, Modal, Form, Input, Select
+    Modal, Form, Input, Select
 } from 'antd';
-import { ClockCircleOutlined, CheckCircleOutlined, MessageOutlined, CarryOutOutlined, SyncOutlined, CameraOutlined } from '@ant-design/icons';
-import { useParams, useNavigate } from 'react-router-dom';
+import { ClockCircleOutlined, CheckCircleOutlined, MessageOutlined, SyncOutlined, CameraOutlined, CalendarOutlined } from '@ant-design/icons';
+import { useParams } from 'react-router-dom';
 import { mockJourneys } from '../../../data/journeyMockData';
 import { mockJourneyTemplates } from '../../../data/journeyMockData';
+import PortalPageHeader from '../../../components/portal/PortalPageHeader';
 
-const { Text, Title } = Typography;
+const { Text } = Typography;
 const { TextArea } = Input;
 
 const PublishedTimeline: React.FC = () => {
     const { token } = useParams<{ token: string }>();
-    const navigate = useNavigate();
     const journey = mockJourneys.find(j => j.portal_token === token || j.journey_code === token);
     const template = mockJourneyTemplates.find(t => t.id === journey?.template_id);
     const steps = template?.steps || [];
@@ -29,20 +29,12 @@ const PublishedTimeline: React.FC = () => {
 
     return (
         <div style={{ maxWidth: 1000, margin: '0 auto', padding: '24px 16px' }}>
-            <Card style={{ borderRadius: 12, marginBottom: 16 }}>
-                <Row justify="space-between" align="middle">
-                    <Col>
-                        <Title level={5} style={{ margin: 0 }}><CarryOutOutlined /> Tiến độ hành trình</Title>
-                        <Text type="secondary">{journey.customer_name} · {journey.requested_service}</Text>
-                    </Col>
-                    <Col>
-                        <Space>
-                            <Button size="small" onClick={() => navigate(`/portal/${token}`)}>Tổng quan</Button>
-                            <Button size="small" onClick={() => navigate(`/portal/${token}/threads`)}>Chat</Button>
-                        </Space>
-                    </Col>
-                </Row>
-            </Card>
+            <PortalPageHeader 
+                title="Tiến độ hành trình" 
+                subtitle={`${journey.customer_name} · ${journey.requested_service}`}
+                token={token || ''}
+                icon={<CalendarOutlined />}
+            />
 
             <Row gutter={[24, 24]}>
                 <Col xs={24} md={14}>

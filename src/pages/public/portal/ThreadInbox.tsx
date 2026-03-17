@@ -6,8 +6,9 @@ import { PlusOutlined, MessageOutlined, FileSearchOutlined, BuildOutlined, Dolla
 import { useParams, useNavigate } from 'react-router-dom';
 import { mockPortalThreads, mockJourneys } from '../../../data/journeyMockData';
 import type { PortalThread } from '../../../types/journey';
+import PortalPageHeader from '../../../components/portal/PortalPageHeader';
 
-const { Text, Title } = Typography;
+const { Text } = Typography;
 const { TextArea } = Input;
 
 const STATUS_COLOR: Record<string, string> = { open: 'processing', waiting: 'warning', closed: 'default' };
@@ -28,20 +29,17 @@ const ThreadInbox: React.FC = () => {
 
     return (
         <div style={{ maxWidth: 680, margin: '0 auto', padding: '24px 16px' }}>
-            <Card style={{ borderRadius: 12, marginBottom: 16 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                        <Title level={5} style={{ margin: 0 }}><MessageOutlined /> Hội thoại & Câu hỏi</Title>
-                        <Text type="secondary">{journey.customer_name}</Text>
-                    </div>
-                    <Space>
-                        <Button size="small" onClick={() => navigate(`/portal/${token}`)}>Tổng quan</Button>
-                        <Button type="primary" icon={<PlusOutlined />} size="small" onClick={() => setShowCreateModal(true)}>
-                            Tạo thread
-                        </Button>
-                    </Space>
-                </div>
-            </Card>
+            <PortalPageHeader 
+                title="Hội thoại & Câu hỏi" 
+                subtitle={journey.customer_name}
+                token={token || ''}
+                icon={<MessageOutlined />}
+                extra={
+                    <Button type="primary" icon={<PlusOutlined />} size="small" onClick={() => setShowCreateModal(true)}>
+                        Tạo thread
+                    </Button>
+                }
+            />
 
             <div style={{ marginBottom: 16 }}>
                 <Select

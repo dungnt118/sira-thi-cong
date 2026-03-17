@@ -2,11 +2,12 @@ import React from 'react';
 import {
     Card, Button, Typography, Avatar, Tag, Form, Input, Upload, message, Tooltip
 } from 'antd';
-import { ArrowLeftOutlined, SendOutlined, UserOutlined, PaperClipOutlined } from '@ant-design/icons';
+import { SendOutlined, UserOutlined, PaperClipOutlined } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
 import { mockPortalThreads, mockJourneys } from '../../../data/journeyMockData';
+import PortalPageHeader from '../../../components/portal/PortalPageHeader';
 
-const { Title } = Typography;
+
 const { TextArea } = Input;
 
 const ThreadDetail: React.FC = () => {
@@ -21,19 +22,17 @@ const ThreadDetail: React.FC = () => {
     return (
         <div style={{ maxWidth: 680, margin: '0 auto', padding: '24px 16px' }}>
             {/* Thread Header */}
-            <Card style={{ borderRadius: 12, marginBottom: 16 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                        <Button icon={<ArrowLeftOutlined />} type="text" size="small"
-                            onClick={() => navigate(`/portal/${token}/threads`)} style={{ marginRight: 8 }} />
-                        <Title level={5} style={{ display: 'inline', margin: 0 }}>{thread.context_label}</Title>
-                        <Tag style={{ marginLeft: 8 }}>{thread.context_type}</Tag>
-                    </div>
+            <PortalPageHeader 
+                title={thread.context_label}
+                subtitle={thread.context_type}
+                onBack={() => navigate(`/portal/${token}/threads`)}
+                token={token || ''}
+                extra={
                     <Tag color={thread.status === 'open' ? 'processing' : thread.status === 'closed' ? 'default' : 'warning'}>
                         {thread.status === 'open' ? 'Đang mở' : thread.status === 'closed' ? 'Đã đóng' : 'Chờ phản hồi'}
                     </Tag>
-                </div>
-            </Card>
+                }
+            />
 
             {/* Messages */}
             <Card style={{ borderRadius: 12, marginBottom: 16, minHeight: 300 }}>

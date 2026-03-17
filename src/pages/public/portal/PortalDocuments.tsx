@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { Card, Image, Typography, Tag, Button, Row, Col, Space, Modal } from 'antd';
+import { Card, Image, Typography, Tag, Button, Modal, Space } from 'antd';
 import { FileOutlined, PictureOutlined, DownloadOutlined, FolderOpenOutlined } from '@ant-design/icons';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { mockJourneys } from '../../../data/journeyMockData';
+import PortalPageHeader from '../../../components/portal/PortalPageHeader';
 
-const { Text, Title } = Typography;
+const { Text } = Typography;
 
 const PortalDocuments: React.FC = () => {
     const { token } = useParams<{ token: string }>();
-    const navigate = useNavigate();
     const journey = mockJourneys.find(j => j.portal_token === token || j.journey_code === token);
     const [selectedDoc, setSelectedDoc] = useState<any>(null);
 
@@ -28,17 +28,12 @@ const PortalDocuments: React.FC = () => {
 
     return (
         <div style={{ maxWidth: 680, margin: '0 auto', padding: '24px 16px' }}>
-            <Card style={{ borderRadius: 12, marginBottom: 16 }}>
-                <Row justify="space-between" align="middle">
-                    <Col><Title level={5} style={{ margin: 0 }}><FolderOpenOutlined /> Tài liệu & Hình ảnh</Title></Col>
-                    <Col>
-                        <Space>
-                            <Button size="small" onClick={() => navigate(`/portal/${token}`)}>Tổng quan</Button>
-                            <Button size="small" onClick={() => navigate(`/portal/${token}/timeline`)}>Timeline</Button>
-                        </Space>
-                    </Col>
-                </Row>
-            </Card>
+            <PortalPageHeader 
+                title="Tài liệu & Hình ảnh" 
+                subtitle={journey.request_title}
+                token={token || ''}
+                icon={<FolderOpenOutlined />}
+            />
 
             {/* Gallery */}
             <Card title={<span><PictureOutlined /> Hình ảnh ({mockImages.length})</span>} style={{ borderRadius: 12, marginBottom: 16 }}>
