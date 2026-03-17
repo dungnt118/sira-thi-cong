@@ -8,7 +8,7 @@ import type { MenuProps } from 'antd';
 import {
     PlusOutlined, SearchOutlined, UserOutlined,
     PhoneOutlined, EnvironmentOutlined, EyeOutlined, EditOutlined,
-    MoreOutlined
+    MoreOutlined, PlusCircleOutlined, DeleteOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
@@ -39,7 +39,8 @@ const CustomerList: React.FC = () => {
         { key: 'view', icon: <EyeOutlined />, label: 'Xem chi tiết', onClick: () => navigate(`/pm/crm/customers/${record.id}`) },
         { key: 'edit', icon: <EditOutlined />, label: 'Chỉnh sửa', onClick: () => navigate(`/pm/crm/customers/${record.id}/edit`) },
         { type: 'divider' },
-        { key: 'create-deal', label: '✚ Tạo Yêu cầu mới', onClick: () => navigate(`/pm/crm/service-requests/new?customerId=${record.id}`) },
+        { key: 'create-deal', icon: <PlusCircleOutlined />, label: 'Tạo Yêu cầu mới', onClick: () => navigate(`/pm/crm/service-requests/new?customerId=${record.id}`) },
+        { key: 'delete', icon: <DeleteOutlined />, label: 'Xóa khách hàng', danger: true },
     ];
 
     const columns: ColumnsType<Customer> = [

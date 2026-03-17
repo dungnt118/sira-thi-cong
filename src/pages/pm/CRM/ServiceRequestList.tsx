@@ -8,7 +8,8 @@ import type { MenuProps } from 'antd';
 import {
     PlusOutlined, SearchOutlined, FilterOutlined, UserOutlined,
     EyeOutlined, EditOutlined,
-    MoreOutlined, FunnelPlotOutlined
+    MoreOutlined, FunnelPlotOutlined, CameraOutlined, DollarOutlined,
+    ProjectOutlined, DeleteOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
@@ -63,10 +64,11 @@ const ServiceRequestList: React.FC = () => {
     const getRowActions = (record: ServiceRequest): MenuProps['items'] => [
         { key: 'view', icon: <EyeOutlined />, label: 'Xem chi tiết', onClick: () => navigate(`/pm/crm/service-requests/${record.id}`) },
         { key: 'edit', icon: <EditOutlined />, label: 'Chỉnh sửa Yêu cầu', onClick: () => navigate(`/pm/crm/service-requests/${record.id}/edit`) },
-        { key: 'survey', label: '📸 Khảo sát & Đo ẩm', onClick: () => navigate(`/pm/crm/service-requests/${record.id}/survey`) },
-        { key: 'quote', label: '💰 Lập báo giá', onClick: () => navigate(`/pm/crm/service-requests/${record.id}/quotation`) },
+        { key: 'survey', icon: <CameraOutlined />, label: 'Khảo sát & Đo ẩm', onClick: () => navigate(`/pm/crm/service-requests/${record.id}/survey`) },
+        { key: 'quote', icon: <DollarOutlined />, label: 'Lập báo giá', onClick: () => navigate(`/pm/crm/service-requests/${record.id}/quotation`) },
         { type: 'divider' },
-        { key: 'project', label: '🔨 Tạo dự án thi công', disabled: record.status !== 'WON' },
+        { key: 'project', icon: <ProjectOutlined />, label: '🔨 Tạo dự án thi công', disabled: record.status !== 'WON' },
+        { key: 'delete', icon: <DeleteOutlined />, label: 'Xóa yêu cầu', danger: true },
     ];
 
     const columns: ColumnsType<ServiceRequest> = [

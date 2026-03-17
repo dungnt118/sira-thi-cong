@@ -164,18 +164,20 @@ export const Step04Solution: React.FC<Step04SolutionProps> = ({ journeyId, isEdi
                                 let gTotal = 0;
                                 (group.components || []).forEach((c: any) => { gTotal += (c.quantity || 0) * (c.unitPrice || 0); });
                                 return (
-                                    <div style={{ textAlign: 'right' }}>
-                                        <Text strong>Cộng hạng mục: </Text>
-                                        <Text type="danger" strong>{formatVND(gTotal)}</Text>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                        {group.notes && (
+                                            <div style={{ textAlign: 'left', padding: '4px 8px', background: '#f9f9f9', borderLeft: '3px solid #1890ff' }}>
+                                                <Text italic style={{ fontSize: 13 }}><FileTextOutlined /> Ghi chú hạng mục: {group.notes}</Text>
+                                            </div>
+                                        )}
+                                        <div style={{ textAlign: 'right' }}>
+                                            <Text strong>Cộng hạng mục: </Text>
+                                            <Text type="danger" strong>{formatVND(gTotal)}</Text>
+                                        </div>
                                     </div>
                                 );
                             }}
                         />
-                        {group.notes && (
-                            <div style={{ marginTop: 8, padding: '8px 12px', background: '#f5f5f5', borderRadius: 4 }}>
-                                <Text italic><FileTextOutlined /> Ghi chú: {group.notes}</Text>
-                            </div>
-                        )}
                     </Card>
                 ))}
             </div>

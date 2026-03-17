@@ -9,7 +9,7 @@ import {
     CloseOutlined, CheckCircleOutlined,
     ClockCircleOutlined, LockOutlined, LinkOutlined,
     EditOutlined, BoxPlotOutlined, DollarOutlined,
-    ProfileOutlined
+    ProfileOutlined, BellOutlined, WarningOutlined, MessageOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
@@ -113,7 +113,7 @@ const PMProjectDetail: React.FC = () => {
                 <div>
                     {pendingReview > 0 && (
                         <Alert
-                            message={`⏰ Có ${pendingReview} bước đang chờ bạn duyệt ảnh`}
+                            message={<span><BellOutlined /> Có {pendingReview} bước đang chờ bạn duyệt ảnh</span>}
                             type="warning"
                             showIcon
                             style={{ marginBottom: 16 }}
@@ -194,7 +194,7 @@ const PMProjectDetail: React.FC = () => {
                                         </Image.PreviewGroup>
                                         {step.completedAt && (
                                             <Text type="secondary" style={{ fontSize: 11, marginTop: 4, display: 'block' }}>
-                                                ✅ Hoàn thành bởi {step.completedBy} lúc {step.completedAt.split('T')[1]?.slice(0, 5)} ngày {step.completedAt.split('T')[0]}
+                                                <CheckCircleOutlined style={{ color: '#52c41a' }} /> Hoàn thành bởi {step.completedBy} lúc {step.completedAt.split('T')[1]?.slice(0, 5)} ngày {step.completedAt.split('T')[0]}
                                             </Text>
                                         )}
                                     </div>
@@ -220,7 +220,7 @@ const PMProjectDetail: React.FC = () => {
             children: (
                 <div>
                     {project.incidents.length === 0 ? (
-                        <Alert message="✅ Không có sự cố nào" type="success" showIcon />
+                        <Alert message="Không có sự cố nào" type="success" showIcon />
                     ) : (
                         project.incidents.map(inc => (
                             <Card
@@ -231,17 +231,17 @@ const PMProjectDetail: React.FC = () => {
                                 <Row justify="space-between" align="middle">
                                     <Col>
                                         <Tag color={inc.severity === 'URGENT' ? 'error' : 'warning'}>
-                                            {inc.severity === 'URGENT' ? '🚨 Khẩn cấp' : '⚠️ Bình thường'}
+                                            {inc.severity === 'URGENT' ? <BellOutlined /> : <WarningOutlined />} {inc.severity === 'URGENT' ? 'Khẩn cấp' : 'Bình thường'}
                                         </Tag>
                                         <Tag>{inc.type}</Tag>
-                                        {inc.isResolved && <Tag color="success">✅ Đã xử lý</Tag>}
+                                        {inc.isResolved && <Tag color="success"><CheckCircleOutlined /> Đã xử lý</Tag>}
                                     </Col>
                                     <Col><Text type="secondary" style={{ fontSize: 12 }}>{inc.reportedAt.split('T')[0]}</Text></Col>
                                 </Row>
                                 <Paragraph style={{ margin: '8px 0', fontSize: 13 }}>{inc.description}</Paragraph>
                                 {inc.pmReply && (
                                     <div style={{ background: '#f6ffed', padding: 8, borderRadius: 6, fontSize: 12 }}>
-                                        💬 PM phản hồi: {inc.pmReply}
+                                        <MessageOutlined /> PM phản hồi: {inc.pmReply}
                                     </div>
                                 )}
                                 {!inc.pmReply && (
@@ -257,7 +257,7 @@ const PMProjectDetail: React.FC = () => {
         },
         {
             key: 'finance',
-            label: `💰 Thanh toán`,
+            label: <span><DollarOutlined /> Thanh toán</span>,
             children: (
                 <div>
                     {project.paymentMilestones.map(m => (
@@ -266,7 +266,7 @@ const PMProjectDetail: React.FC = () => {
                                 <Col>
                                     <Text strong>Đợt {m.round} ({m.percentage}%)</Text>
                                     <Tag style={{ marginLeft: 8 }} color={m.status === 'PAID' ? 'success' : m.status === 'OVERDUE' ? 'error' : 'warning'}>
-                                        {m.status === 'PAID' ? '✅ Đã thu' : m.status === 'OVERDUE' ? '⚠️ Quá hạn' : '⏳ Chờ thu'}
+                                        {m.status === 'PAID' ? <CheckCircleOutlined /> : <WarningOutlined />} {m.status === 'PAID' ? 'Đã thu' : m.status === 'OVERDUE' ? 'Quá hạn' : 'Chờ thu'}
                                     </Tag>
                                 </Col>
                                 <Col>

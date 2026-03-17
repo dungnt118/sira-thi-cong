@@ -4,7 +4,10 @@ import {
     Typography, Avatar, Divider, Table
 } from 'antd';
 import {
-    UserOutlined, ProjectOutlined, ArrowLeftOutlined, EyeOutlined
+    UserOutlined, ProjectOutlined, ArrowLeftOutlined, EyeOutlined,
+    IdcardOutlined, PhoneOutlined, MailOutlined, EnvironmentOutlined,
+    CalendarOutlined, FileTextOutlined, PlusCircleOutlined, SolutionOutlined,
+    BuildOutlined, EditOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
@@ -69,7 +72,7 @@ const CustomerDetail: React.FC = () => {
     const tabItems = [
         {
             key: 'info',
-            label: '📋 Thông tin KH',
+            label: <span><IdcardOutlined /> Thông tin KH</span>,
             children: (
                 <Row gutter={16}>
                     <Col xs={24} md={16}>
@@ -83,20 +86,20 @@ const CustomerDetail: React.FC = () => {
                             </div>
                             <Divider style={{ margin: '8px 0' }} />
                             {[
-                                { label: '📞 Điện thoại', value: customer.phone },
-                                { label: '📧 Email', value: customer.email || '—' },
-                                { label: '📍 Địa chỉ', value: `${customer.address}, ${customer.district}, ${customer.city}` },
-                                { label: '👤 Người phụ trách', value: customer.assignedPmName },
-                                { label: '📅 Ngày tham gia', value: customer.createdAt.split('T')[0] },
-                            ].map(({ label, value }) => (
-                                <Row key={label} style={{ marginBottom: 12 }}>
+                                { id: 'phone', label: <span><PhoneOutlined /> Điện thoại</span>, value: customer.phone },
+                                { id: 'email', label: <span><MailOutlined /> Email</span>, value: customer.email || '—' },
+                                { id: 'address', label: <span><EnvironmentOutlined /> Địa chỉ</span>, value: `${customer.address}, ${customer.district}, ${customer.city}` },
+                                { id: 'pm', label: <span><UserOutlined /> Người phụ trách</span>, value: customer.assignedPmName },
+                                { id: 'date', label: <span><CalendarOutlined /> Ngày tham gia</span>, value: customer.createdAt.split('T')[0] },
+                            ].map(({ id: keyId, label, value }) => (
+                                <Row key={keyId} style={{ marginBottom: 12 }}>
                                     <Col span={8}><Text type="secondary">{label}</Text></Col>
                                     <Col span={16}><Text strong>{value}</Text></Col>
                                 </Row>
                             ))}
                             {customer.notes && (
                                 <div style={{ marginTop: 12, padding: 12, background: '#fffbe6', borderRadius: 6, border: '1px solid #ffe58f' }}>
-                                    <Text strong>📝 Ghi chú:</Text>
+                                    <Text strong><FileTextOutlined /> Ghi chú:</Text>
                                     <div style={{ marginTop: 8 }}>{customer.notes}</div>
                                 </div>
                             )}
@@ -105,10 +108,10 @@ const CustomerDetail: React.FC = () => {
                     <Col xs={24} md={8}>
                         <Card size="small" title="Thao tác nhanh">
                             <Space direction="vertical" style={{ width: '100%' }}>
-                                <Button block type="primary" onClick={() => navigate(`/pm/crm/service-requests/new?customerId=${id}`)}>
-                                    ✚ Tạo Yêu cầu (Deal) mới
+                                <Button block type="primary" icon={<PlusCircleOutlined />} onClick={() => navigate(`/pm/crm/service-requests/new?customerId=${id}`)}>
+                                    Tạo Yêu cầu (Deal) mới
                                 </Button>
-                                <Button block onClick={() => navigate(`/pm/crm/customers/${id}/edit`)}>
+                                <Button block icon={<EditOutlined />} onClick={() => navigate(`/pm/crm/customers/${id}/edit`)}>
                                     Chỉnh sửa thông tin KH
                                 </Button>
                             </Space>
@@ -119,7 +122,7 @@ const CustomerDetail: React.FC = () => {
         },
         {
             key: 'deals',
-            label: `💼 Yêu cầu Dịch vụ (${serviceRequests.length})`,
+            label: <span><SolutionOutlined /> Yêu cầu Dịch vụ ({serviceRequests.length})</span>,
             children: (
                 <Card size="small" extra={<Button type="primary" size="small" onClick={() => navigate(`/pm/crm/service-requests/new?customerId=${id}`)}>Tạo Deal</Button>}>
                     <Table
@@ -134,7 +137,7 @@ const CustomerDetail: React.FC = () => {
         },
         {
             key: 'projects',
-            label: `🔨 Dự án Thi công (${customerProjects.length})`,
+            label: <span><BuildOutlined /> Dự án Thi công ({customerProjects.length})</span>,
             children: (
                 <div>
                     {customerProjects.length === 0 ? (

@@ -6,7 +6,8 @@ import {
 import type { ColumnsType } from 'antd/es/table';
 import {
     UploadOutlined, CameraOutlined, DeleteOutlined, MobileOutlined,
-    SaveOutlined, ArrowLeftOutlined
+    SaveOutlined, ArrowLeftOutlined, WarningOutlined, CheckCircleOutlined,
+    InfoCircleOutlined, CloudOutlined, FileTextOutlined, ArrowRightOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
@@ -56,7 +57,7 @@ const SurveyUpload: React.FC = () => {
             key: 'value',
             render: (v: number) => (
                 <Tag color={v > 12 ? 'red' : v > 8 ? 'orange' : 'green'}>
-                    {v}% {v > 12 ? '⚠️ Cao' : v > 8 ? '⚡ Trung bình' : '✅ Tốt'}
+                    {v}% {v > 12 ? <WarningOutlined /> : v > 8 ? <InfoCircleOutlined /> : <CheckCircleOutlined />} {v > 12 ? 'Cao' : v > 8 ? 'Trung bình' : 'Tốt'}
                 </Tag>
             ),
         },
@@ -109,7 +110,7 @@ const SurveyUpload: React.FC = () => {
                     Quay lại
                 </Button>
                 <div>
-                    <Title level={4} style={{ margin: 0 }}>📸 Khảo sát: {serviceRequest.name}</Title>
+                    <Title level={4} style={{ margin: 0 }}><CameraOutlined /> Khảo sát: {serviceRequest.name}</Title>
                     <Text type="secondary">KH: {customer.fullName} – {customer.address}</Text>
                 </div>
             </div>
@@ -197,7 +198,7 @@ const SurveyUpload: React.FC = () => {
 
                 {/* Right: Moisture Readings */}
                 <Col xs={24} lg={10}>
-                    <Card title="💧 Đo độ ẩm" style={{ marginBottom: 16 }}>
+                    <Card title={<span><CloudOutlined /> Đo độ ẩm</span>} style={{ marginBottom: 16 }}>
                         <Row gutter={8} style={{ marginBottom: 12 }}>
                             <Col flex="auto">
                                 <Input
@@ -229,7 +230,7 @@ const SurveyUpload: React.FC = () => {
 
                         {moisture.some(m => m.value > 12) && (
                             <Alert
-                                message="⚠️ Có vị trí độ ẩm cao (>12%)"
+                                message={<span><WarningOutlined /> Có vị trí độ ẩm cao ({'>'}12%)</span>}
                                 description="Cần xử lý độ ẩm trước khi thi công"
                                 type="warning"
                                 showIcon
@@ -238,7 +239,7 @@ const SurveyUpload: React.FC = () => {
                         )}
                     </Card>
 
-                    <Card title="📝 Ghi chú khảo sát">
+                    <Card title={<span><FileTextOutlined /> Ghi chú khảo sát</span>}>
                         <TextArea
                             rows={4}
                             placeholder="Mô tả tình trạng công trình, vị trí thấm, điều kiện thi công..."
@@ -262,9 +263,10 @@ const SurveyUpload: React.FC = () => {
                     type="primary"
                     ghost
                     size="large"
+                    icon={<ArrowRightOutlined />}
                     onClick={() => navigate(`/pm/crm/service-requests/${id}/quotation`)}
                 >
-                    Tiếp: Lập báo giá →
+                    Tiếp: Lập báo giá
                 </Button>
             </div>
         </div>

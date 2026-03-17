@@ -6,7 +6,8 @@ import {
 import type { ColumnsType } from 'antd/es/table';
 import {
     PlusOutlined, DeleteOutlined, ArrowLeftOutlined, FilePdfOutlined,
-    CheckCircleOutlined, CalendarOutlined, SaveOutlined
+    CheckCircleOutlined, CalendarOutlined, SaveOutlined, ThunderboltOutlined,
+    DollarCircleOutlined, ArrowRightOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import dayjs from 'dayjs';
@@ -218,7 +219,7 @@ const Quotation: React.FC = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
                 <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(`/pm/crm/service-requests/${id}`)}>Quay lại</Button>
                 <div>
-                    <Title level={4} style={{ margin: 0 }}>💰 Lập Báo giá: {serviceRequest.name}</Title>
+                    <Title level={4} style={{ margin: 0 }}><DollarCircleOutlined /> Lập Báo giá: {serviceRequest.name}</Title>
                     <Text type="secondary">KH: {customer.fullName} | Mã BG: BG-2026-{String(Date.now()).slice(-4)}</Text>
                 </div>
             </div>
@@ -244,8 +245,8 @@ const Quotation: React.FC = () => {
                                 options={CONSTRUCTION_TYPES}
                                 style={{ width: 200 }}
                             />
-                            <Button type="primary" ghost onClick={handleAutoFill}>
-                                ⚡ Tự động điền
+                            <Button type="primary" ghost icon={<ThunderboltOutlined />} onClick={handleAutoFill}>
+                                Tự động điền
                             </Button>
                         </Space>
                     </Col>
@@ -277,7 +278,7 @@ const Quotation: React.FC = () => {
                                             />
                                         </Space>
                                         <Text style={{ fontSize: 18 }}>
-                                            💰 TỔNG CỘNG: <Text strong style={{ fontSize: 22, color: '#1976D2' }}>
+                                            <DollarCircleOutlined /> TỔNG CỘNG: <Text strong style={{ fontSize: 22, color: '#1976D2' }}>
                                                 {total.toLocaleString('vi-VN')} VNĐ
                                             </Text>
                                         </Text>
@@ -308,7 +309,7 @@ const Quotation: React.FC = () => {
                 </Row>
                 <Alert
                     style={{ marginTop: 12 }}
-                    message={<>✅ <strong>Gap #6 – Xác nhận:</strong> Khi PM click [KH chấp nhận], hệ thống tự động tạo 3 milestone từ tổng báo giá này.</>}
+                    message={<span><CheckCircleOutlined /> <strong>Gap #6 – Xác nhận:</strong> Khi PM click [KH chấp nhận], hệ thống tự động tạo 3 milestone từ tổng báo giá này.</span>}
                     type="info"
                     showIcon={false}
                 />
@@ -332,15 +333,15 @@ const Quotation: React.FC = () => {
                 <Button size="large" icon={<SaveOutlined />} onClick={() => handleSave(false)} loading={saving}>
                     Lưu bản nháp
                 </Button>
-                <Button type="primary" size="large" icon={<CheckCircleOutlined />}
+                <Button type="primary" size="large" icon={<ArrowRightOutlined />}
                     onClick={() => handleSave(true)} loading={saving}>
-                    KH Chấp nhận → Tạo milestone
+                    KH Chấp nhận – Tạo milestone
                 </Button>
             </div>
 
             {/* Gap #6: Milestone Creation Confirmation Modal */}
             <Modal
-                title={<><CheckCircleOutlined style={{ color: '#52c41a' }} /> KH đã chấp nhận báo giá – Tạo Milestone</>}
+                title={<span><CheckCircleOutlined style={{ color: '#52c41a' }} /> KH đã chấp nhận báo giá – Tạo Milestone</span>}
                 open={milestoneModalOpen}
                 onCancel={() => setMilestoneModalOpen(false)}
                 footer={[

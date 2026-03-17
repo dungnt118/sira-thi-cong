@@ -7,7 +7,7 @@ import {
 import {
     PhoneOutlined, EnvironmentOutlined, ArrowLeftOutlined,
     EditOutlined, CameraOutlined, FileTextOutlined,
-    CheckCircleOutlined, SyncOutlined
+    CheckCircleOutlined, SyncOutlined, ProjectOutlined, CloseCircleOutlined
 } from '@ant-design/icons';
 import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
 import { demoDataService } from '../../../services/localstorage/demoDataService';
@@ -92,8 +92,13 @@ const ServiceRequestDetail: React.FC = () => {
                         <Space>
                             <Button icon={<EditOutlined />}>Sửa Yêu cầu</Button>
                             {request.status === 'WON' && (
-                                <Button type="primary" style={{ background: '#52c41a', borderColor: '#52c41a' }}>
+                                <Button type="primary" icon={<ProjectOutlined />} style={{ background: '#52c41a', borderColor: '#52c41a' }}>
                                     Tạo Dự án Thi công
+                                </Button>
+                            )}
+                            {request.status !== 'LOST' && request.status !== 'WON' && (
+                                <Button danger icon={<CloseCircleOutlined />}>
+                                    Hủy cơ hội
                                 </Button>
                             )}
                         </Space>

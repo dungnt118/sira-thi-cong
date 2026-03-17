@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
-import { Card, Table, Tag, Button, Space, Input, Select, Row, Col, Progress, Statistic, Tooltip } from 'antd';
+import {
+    Card, Table, Tag, Button, Space, Input, Select, Row, Col,
+    Progress, Statistic, Tooltip, Dropdown, App
+} from 'antd';
 import {
     PlusOutlined,
     SearchOutlined,
@@ -10,8 +13,12 @@ import {
     ClockCircleOutlined,
     CheckCircleOutlined,
     ExclamationCircleOutlined,
+    MoreOutlined,
+    DeleteOutlined,
+    WarningOutlined
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
+import type { MenuProps } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { getProjectProgress, mockProjects as defaultProjects } from '../../../data/mockData';
 import { ProjectStatus } from '../../../types/v3';
@@ -22,11 +29,43 @@ import { demoDataService } from '../../../services/localstorage/demoDataService'
 /* ====== COMPONENT ====== */
 const ProjectList: React.FC = () => {
     const navigate = useNavigate();
+    const { modal, message } = App.useApp();
     const [searchText, setSearchText] = useState('');
     const [typeFilter, setTypeFilter] = useState<string | undefined>(undefined);
     const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
 
-    const [mockProjects] = useLocalStorageData<any[]>(demoDataService.KEYS.PROJECTS, defaultProjects);
+    const [mockProjects, setMockProjects] = useLocalStorageData<any[]>(demoDataService.KEYS.PROJECTS, defaultProjects);
+
+    const handleDeleteProject = (record: any) => {
+        modal.confirm({
+            title: 'Xác nhận xóa dự án',
+            icon: <WarningOutlined style={{ color: '#ff4d4f' }} />,
+            content: `Bạn có chắc chắn muốn xóa dự án "${record.code}"? Hành động này không thể hoàn tác.`,
+            okText: 'Xóa',
+            okType: 'danger',
+            cancelText: 'Hủy',
+            onOk: () => {
+                const updated = mockProjects.filter(p => p.id !== record.id);
+                setMockProjects(updated);
+                message.success('Đã xóa dự án thành công');
+            }
+        });
+    };
+
+    const handleCancelProject = (record: any) => {
+        modal.confirm({
+            title: 'Xác nhận hủy dự án',
+            icon: <WarningOutlined style={{ color: '#ff4d4f' }} />,
+            content: `Xác nhận chuyển trạng thái dự án "${record.code}" sang "Đã hủy"?`,
+            okText: 'Hủy dự án',
+            okType: 'danger',
+            onOk: () => {
+                const updated = mockProjects.map(p => p.id === record.id ? { ...p, status: 'CANCELLED' } : p);
+                setMockProjects(updated);
+                message.success('Đã hủy dự án');
+            }
+        });
+    };
 
     const statusMap: Record<ProjectStatus, { label: string; color: string }> = {
         'SCHEDULED': { label: 'Đã lên lịch', color: 'cyan' },
@@ -84,17 +123,27 @@ const ProjectList: React.FC = () => {
             render: (v: number) => v ? `${(v / 1000000).toFixed(0)} tr` : '-',
         },
         {
-            title: '', key: 'actions', width: 80, fixed: 'right' as const,
-            render: (_: any, record: any) => (
-                <Space>
-                    <Tooltip title="Xem chi tiết">
-                        <Button type="text" icon={<EyeOutlined />} size="small" onClick={() => navigate(`/pm/projects/${record.code}`)} />
-                    </Tooltip>
-                    <Tooltip title="Chỉnh sửa">
-                        <Button type="text" icon={<EditOutlined />} size="small" />
-                    </Tooltip>
-                </Space>
-            ),
+            title: '', key: 'actions', width: 60, fixed: 'right' as const,
+            render: (_: any, record: any) => {
+                const items: MenuProps['items'] = [
+                    { key: 'view', icon: <EyeOutlined />, label: 'Xem chi tiết', onClick: () => navigate(`/pm/projects/${record.code}`) },
+                    { key: 'edit', icon: <EditOutlined />, label: 'Chỉnh sửa', onClick: () => navigate(`/pm/projects/${record.id}/edit`) },
+                    { type: 'divider' },
+                    { 
+                        key: 'cancel', 
+                        icon: <DeleteOutlined />, 
+                        label: record.status === 'SCHEDULED' ? 'Xóa dự án' : 'Hủy dự án',
+                        danger: true, 
+                        onClick: () => record.status === 'SCHEDULED' ? handleDeleteProject(record) : handleCancelProject(record)
+                    },
+                ];
+
+                return (
+                    <Dropdown menu={{ items }} trigger={['click']} placement="bottomRight">
+                        <Button type="text" icon={<MoreOutlined />} size="small" />
+                    </Dropdown>
+                );
+            }
         },
     ];
 

@@ -727,7 +727,8 @@ export const mockEstimates = [
                 components: [
                     { type: 'labor', name: 'Công nhân vệ sinh công nghiệp', unit: 'Công', quantity: 2, unitPrice: 450000 },
                     { type: 'other', name: 'Máy mài sàn & máy hút bụi (thuê)', unit: 'Ngày', quantity: 1, unitPrice: 500000 },
-                ]
+                ],
+                notes: 'Cần dọn dẹp kỹ rác thải xây dựng trước khi mài.'
             },
             {
                 name: 'Thi công chống thấm SIRA PU',
@@ -737,7 +738,8 @@ export const mockEstimates = [
                     { type: 'material', name: 'SIRA PRIMER (Lớp lót)', unit: 'Thùng 5kg', quantity: 2, unitPrice: 1200000 },
                     { type: 'material', name: 'SIRA PU (Lớp phủ chính)', unit: 'Thùng 20kg', quantity: 3, unitPrice: 5500000 },
                     { type: 'labor', name: 'Thợ thi công chuyên dụng', unit: 'Công', quantity: 6, unitPrice: 600000 },
-                ]
+                ],
+                notes: 'Thi công vào sáng sớm để tránh nhiệt độ cao làm nứt PU.'
             }
         ],
         taxRate: 10,

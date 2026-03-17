@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, Form, Input, Button, Result, Space, Divider, Typography, Tag, Table, Row, Col, InputNumber } from 'antd';
-import { SaveOutlined, EditOutlined, EyeOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import { SaveOutlined, EditOutlined, EyeOutlined, PlusOutlined, DeleteOutlined, CalculatorOutlined } from '@ant-design/icons';
 
-import { mockQuotations } from '../../../data/journeyMockData';
+import { mockQuotations, mockEstimates } from '../../../data/journeyMockData';
 
 const { TextArea } = Input;
 const { Text, Title } = Typography;
@@ -14,17 +14,69 @@ export interface Step05QuoteProps {
     onEditStateChange?: (isEditing: boolean) => void;
 }
 
-export const Step05Quote: React.FC<Step05QuoteProps> = ({ journeyId, isEditable = false, onSave, onEditStateChange }) => {
+const Step05Quote: React.FC<Step05QuoteProps> = ({ journeyId, isEditable = false, onSave, onEditStateChange }) => {
     const [form] = Form.useForm();
     const [isEditing, setIsEditing] = useState(false);
-    const items = Form.useWatch('items', form);
 
     const quote = mockQuotations.find(q => q.journey_id === journeyId);
-
     const formatVND = (val: number) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val);
 
+    // Sync form values when quote changes or mode changes
+    useEffect(() => {
+        if (quote) {
+            form.setFieldsValue({
+                items: quote.items || [],
+                notes: (quote as any).notes || ''
+            });
+        }
+    }, [quote, isEditing, form]);
+
+    const handleSyncWithEstimates = () => {
+        const estimate = mockEstimates.find(e => e.journey_id === journeyId);
+        if (!estimate) return;
+
+        const aggregated: Record<string, any> = {};
+        (estimate.groups || []).forEach(group => {
+            (group.components || []).forEach(comp => {
+                const key = `${comp.name}_${comp.unit}`;
+                if (aggregated[key]) {
+                    aggregated[key].qty += comp.quantity || 0;
+                } else {
+                    aggregated[key] = {
+                        name: comp.name,
+                        unit: comp.unit,
+                        qty: comp.quantity || 0,
+                        price: comp.unitPrice || 0,
+                    };
+                }
+            });
+        });
+
+        const syncItems = Object.values(aggregated).map((item, idx) => ({
+            ...item,
+            key: `sync-${idx + 1}-${Date.now()}`,
+        }));
+
+        form.setFieldsValue({ items: syncItems });
+    };
+
     const handleFinish = (values: any) => {
-        if (onSave) onSave(values);
+        // Calculate final totals before saving
+        const items = values.items || [];
+        let subtotal = 0;
+        items.forEach((item: any) => {
+            subtotal += (item.qty || 0) * (item.price || 0);
+        });
+        const tax = Math.round(subtotal * 0.1);
+        
+        const processedValues = {
+            ...values,
+            total_amount: subtotal,
+            tax_amount: tax,
+            grand_total: subtotal + tax
+        };
+
+        if (onSave) onSave(processedValues);
         setIsEditing(false);
         if (onEditStateChange) onEditStateChange(false);
     };
@@ -34,7 +86,7 @@ export const Step05Quote: React.FC<Step05QuoteProps> = ({ journeyId, isEditable 
         { title: 'ĐVT', dataIndex: 'unit', key: 'unit' },
         { title: 'Số lượng', dataIndex: 'qty', key: 'qty', align: 'center' as const },
         { title: 'Đơn giá', dataIndex: 'price', key: 'price', align: 'right' as const, render: (val: number) => formatVND(val) },
-        { title: 'Thành tiền', dataIndex: 'total', key: 'total', align: 'right' as const, render: (val: number) => formatVND(val) },
+        { title: 'Thành tiền', dataIndex: 'total', key: 'total', align: 'right' as const, render: (_: any, record: any) => formatVND((record.qty || 0) * (record.price || 0)) },
     ];
 
     const editColumns = [
@@ -87,100 +139,12 @@ export const Step05Quote: React.FC<Step05QuoteProps> = ({ journeyId, isEditable 
             width: 50,
             render: (_: any, __: any, index: number) => (
                 <Button type="text" danger icon={<DeleteOutlined />} onClick={() => {
-                    const items = form.getFieldValue('items');
+                    const items = form.getFieldValue('items') || [];
                     form.setFieldsValue({ items: items.filter((_: any, i: number) => i !== index) });
                 }} />
             )
         }
     ];
-
-    const renderReadOnly = () => {
-        if (!quote) {
-            return (
-                <Result
-                    status="info"
-                    title="Chưa có báo giá chính thức"
-                    subTitle="Báo giá đang được bộ phận Sale xử lý dựa trên dự toán kỹ thuật."
-                />
-            );
-        }
-
-        return (
-            <div style={{ padding: '0 12px' }}>
-                <div style={{ marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Space size="large">
-                        <div>
-                            <Text type="secondary">Trạng thái:</Text> <Tag color="blue">{quote.status.toUpperCase()}</Tag>
-                        </div>
-                        <div>
-                            <Text type="secondary">Tổng giá trị:</Text> <Text strong type="danger">{formatVND(quote.grand_total)}</Text>
-                        </div>
-                    </Space>
-                </div>
-
-                <Table 
-                    dataSource={quote.items} 
-                    columns={columns} 
-                    pagination={false} 
-                    size="small" 
-                    bordered
-                    footer={() => (
-                        <div style={{ textAlign: 'right' }}>
-                            <Row gutter={16}>
-                                <Col span={20}><Text strong>Cộng tiền hàng:</Text></Col>
-                                <Col span={4}>{formatVND(quote.total_amount)}</Col>
-                                <Col span={20}><Text strong>Thuế VAT (10%):</Text></Col>
-                                <Col span={4}>{formatVND(quote.tax_amount)}</Col>
-                                <Col span={20}><Title level={5}>Tổng cộng thanh toán:</Title></Col>
-                                <Col span={4}><Title level={5} type="danger">{formatVND(quote.grand_total)}</Title></Col>
-                            </Row>
-                        </div>
-                    )}
-                />
-
-                <Divider />
-                <div style={{ textAlign: 'center' }}>
-                    <Text type="secondary">Báo giá này có hiệu lực trong vòng 15 ngày kể từ ngày phát hành.</Text>
-                </div>
-            </div>
-        );
-    };
-
-    const renderEditable = () => (
-        <Form 
-            form={form} 
-            layout="vertical" 
-            onFinish={handleFinish}
-            initialValues={{ items: quote?.items || [] }}
-        >
-            <Divider orientation="left">Điều chỉnh chi tiết báo giá</Divider>
-            <Table 
-                dataSource={items || []} 
-                columns={editColumns} 
-                pagination={false} 
-                size="small" 
-                bordered
-                footer={() => (
-                    <Button type="dashed" block icon={<PlusOutlined />} onClick={() => {
-                        const items = form.getFieldValue('items') || [];
-                        form.setFieldsValue({ items: [...items, { name: '', unit: '', qty: 1, price: 0 }] });
-                    }}>
-                        Thêm hạng mục mới
-                    </Button>
-                )}
-            />
-            
-            <Divider />
-            <Form.Item label="Ghi chú điều chỉnh / Điều khoản bổ sung" name="notes">
-                <TextArea rows={4} placeholder="Nhập ghi chú liên quan đến báo giá này..." />
-            </Form.Item>
-
-            <Space style={{ marginTop: 16 }}>
-                <Button type="primary" htmlType="submit" icon={<SaveOutlined />}>Lưu & Cập nhật tổng tiền</Button>
-                <Button onClick={() => setIsEditing(false)}>Hủy</Button>
-            </Space>
-        </Form>
-    );
 
     return (
         <Card 
@@ -188,17 +152,29 @@ export const Step05Quote: React.FC<Step05QuoteProps> = ({ journeyId, isEditable 
             bordered={false} 
             className="ky-card"
             extra={isEditable && (
-                <Button 
-                    type={isEditing ? "default" : "primary"}
-                    icon={isEditing ? <EyeOutlined /> : <EditOutlined />}
-                    onClick={() => {
-                        const newEdit = !isEditing;
-                        setIsEditing(newEdit);
-                        if (onEditStateChange) onEditStateChange(newEdit);
-                    }}
-                >
-                    {isEditing ? "Xem lại" : "Cập nhật"}
-                </Button>
+                <Space>
+                    {isEditing && (
+                        <Button 
+                            type="primary" 
+                            ghost 
+                            icon={<CalculatorOutlined />} 
+                            onClick={handleSyncWithEstimates}
+                        >
+                            Tổng hợp từ dự toán
+                        </Button>
+                    )}
+                    <Button 
+                        type={isEditing ? "default" : "primary"}
+                        icon={isEditing ? <EyeOutlined /> : <EditOutlined />}
+                        onClick={() => {
+                            const newEdit = !isEditing;
+                            setIsEditing(newEdit);
+                            if (onEditStateChange) onEditStateChange(newEdit);
+                        }}
+                    >
+                        {isEditing ? "Xem lại" : "Cập nhật"}
+                    </Button>
+                </Space>
             )}
         >
             {!isEditable && (
@@ -206,7 +182,124 @@ export const Step05Quote: React.FC<Step05QuoteProps> = ({ journeyId, isEditable 
                     <Text type="secondary">Bạn đang ở chế độ Chỉ đọc (Chưa có quyền KeyRole hoặc chưa được phân công).</Text>
                 </div>
             )}
-            {isEditing ? renderEditable() : renderReadOnly()}
+            
+            <Form 
+                form={form} 
+                layout="vertical" 
+                onFinish={handleFinish}
+            >
+                {isEditing ? (
+                    <>
+                        <Divider orientation="left">Điều chỉnh chi tiết báo giá</Divider>
+                        
+                        <Form.Item noStyle shouldUpdate>
+                            {({ getFieldValue }) => {
+                                const items = getFieldValue('items') || [];
+                                let subtotal = 0;
+                                items.forEach((item: any) => {
+                                    subtotal += (item.qty || 0) * (item.price || 0);
+                                });
+                                const tax = Math.round(subtotal * 0.1);
+                                const grandTotal = subtotal + tax;
+
+                                return (
+                                    <>
+                                        <Table 
+                                            dataSource={items} 
+                                            columns={editColumns} 
+                                            pagination={false} 
+                                            size="small" 
+                                            bordered
+                                            rowKey={(record, index) => record?.key || `edit-${index}`}
+                                            footer={() => (
+                                                <div>
+                                                    <Button type="dashed" block icon={<PlusOutlined />} onClick={() => {
+                                                        const currentItems = form.getFieldValue('items') || [];
+                                                        form.setFieldsValue({ 
+                                                            items: [...currentItems, { name: '', unit: '', qty: 1, price: 0, key: `new-${Date.now()}` }] 
+                                                        });
+                                                    }}>
+                                                        Thêm hạng mục mới
+                                                    </Button>
+                                                    <div style={{ textAlign: 'right', marginTop: 16, padding: '0 12px' }}>
+                                                        <Row gutter={16}>
+                                                            <Col span={20}><Text strong>Cộng tiền hàng:</Text></Col>
+                                                            <Col span={4}>{formatVND(subtotal)}</Col>
+                                                            <Col span={20}><Text strong>Thuế VAT (10%):</Text></Col>
+                                                            <Col span={4}>{formatVND(tax)}</Col>
+                                                            <Col span={20}><Title level={5}>Tổng cộng thanh toán:</Title></Col>
+                                                            <Col span={4}><Title level={5} type="danger">{formatVND(grandTotal)}</Title></Col>
+                                                        </Row>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        />
+                                    </>
+                                );
+                            }}
+                        </Form.Item>
+                        
+                        <Divider />
+                        <Form.Item label="Ghi chú điều chỉnh / Điều khoản bổ sung" name="notes">
+                            <TextArea rows={4} placeholder="Nhập ghi chú liên quan đến báo giá này..." />
+                        </Form.Item>
+
+                        <Space style={{ marginTop: 16 }}>
+                            <Button type="primary" htmlType="submit" icon={<SaveOutlined />}>Lưu báo giá & Chốt tổng tiền</Button>
+                            <Button onClick={() => setIsEditing(false)}>Hủy</Button>
+                        </Space>
+                    </>
+                ) : (
+                    <div style={{ padding: '0 12px' }}>
+                        {!quote ? (
+                            <Result
+                                status="info"
+                                title="Chưa có báo giá chính thức"
+                                subTitle="Báo giá đang được bộ phận Sale xử lý dựa trên dự toán kỹ thuật."
+                            />
+                        ) : (
+                            <>
+                                <div style={{ marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <Space size="large">
+                                        <div>
+                                            <Text type="secondary">Trạng thái:</Text> <Tag color="blue">{quote.status.toUpperCase()}</Tag>
+                                        </div>
+                                        <div>
+                                            <Text type="secondary">Tổng giá trị:</Text> <Text strong type="danger">{formatVND(quote.grand_total)}</Text>
+                                        </div>
+                                    </Space>
+                                </div>
+
+                                <Table 
+                                    dataSource={quote.items} 
+                                    columns={columns} 
+                                    pagination={false} 
+                                    size="small" 
+                                    bordered
+                                    rowKey="key"
+                                    footer={() => (
+                                        <div style={{ textAlign: 'right' }}>
+                                            <Row gutter={16}>
+                                                <Col span={20}><Text strong>Cộng tiền hàng:</Text></Col>
+                                                <Col span={4}>{formatVND(quote.total_amount)}</Col>
+                                                <Col span={20}><Text strong>Thuế VAT (10%):</Text></Col>
+                                                <Col span={4}>{formatVND(quote.tax_amount)}</Col>
+                                                <Col span={20}><Title level={5}>Tổng cộng thanh toán:</Title></Col>
+                                                <Col span={4}><Title level={5} type="danger">{formatVND(quote.grand_total)}</Title></Col>
+                                            </Row>
+                                        </div>
+                                    )}
+                                />
+
+                                <Divider />
+                                <div style={{ textAlign: 'center' }}>
+                                    <Text type="secondary">Báo giá này có hiệu lực trong vòng 15 ngày kể từ ngày phát hành.</Text>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                )}
+            </Form>
         </Card>
     );
 };

@@ -5,7 +5,8 @@ import {
 } from 'antd';
 import {
     UserOutlined, PhoneOutlined, MailOutlined, EnvironmentOutlined,
-    AimOutlined, ArrowLeftOutlined, SaveOutlined
+    AimOutlined, ArrowLeftOutlined, SaveOutlined, ProfileOutlined,
+    CheckCircleOutlined, SolutionOutlined, FileTextOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
@@ -130,7 +131,7 @@ const CustomerCreate: React.FC = () => {
                 <Row gutter={24}>
                     {/* Left Column: Main Info */}
                     <Col xs={24} lg={14}>
-                        <Card title="📋 Thông tin cơ bản" style={{ marginBottom: 16 }}>
+                        <Card title={<span><ProfileOutlined /> Thông tin cơ bản</span>} style={{ marginBottom: 16 }}>
                             <Row gutter={16}>
                                 <Col span={24}>
                                     <Form.Item
@@ -160,7 +161,7 @@ const CustomerCreate: React.FC = () => {
                                 </Col>
                             </Row>
 
-                            <Divider orientation="left">📍 Địa chỉ công trình</Divider>
+                            <Divider orientation="left"><EnvironmentOutlined /> Địa chỉ công trình</Divider>
                             <Form.Item
                                 name="address"
                                 label="Địa chỉ cụ thể *"
@@ -191,7 +192,7 @@ const CustomerCreate: React.FC = () => {
                                 border: '1px dashed #1976D2', marginBottom: 16,
                             }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ fontWeight: 500 }}>📍 Tọa độ GPS</span>
+                                    <span style={{ fontWeight: 500 }}><AimOutlined /> Tọa độ GPS</span>
                                     <Button icon={<AimOutlined />} onClick={handleGetGPS} type="default" size="small">
                                         Lấy vị trí hiện tại
                                     </Button>
@@ -200,7 +201,7 @@ const CustomerCreate: React.FC = () => {
                                     <div style={{ marginTop: 8, fontSize: 13 }}>
                                         <Tag color="blue">Lat: {gps.lat.toFixed(5)}</Tag>
                                         <Tag color="blue">Lng: {gps.lng.toFixed(5)}</Tag>
-                                        <Text type="success" style={{ marginLeft: 8 }}>✅ Đã xác định</Text>
+                                        <Text type="success" style={{ marginLeft: 8 }}><CheckCircleOutlined /> Đã xác định</Text>
                                     </div>
                                 ) : (
                                     <Text type="secondary" style={{ fontSize: 12, marginTop: 8, display: 'block' }}>
@@ -213,7 +214,7 @@ const CustomerCreate: React.FC = () => {
 
                     {/* Right Column: Status & Notes */}
                     <Col xs={24} lg={10}>
-                        <Card title="🎯 Trạng thái CRM" style={{ marginBottom: 16 }}>
+                        <Card title={<span><SolutionOutlined /> Trạng thái CRM</span>} style={{ marginBottom: 16 }}>
                             <Form.Item name="assignedPmId" label="PM phụ trách">
                                 <Select
                                     defaultValue="U001"
@@ -223,7 +224,7 @@ const CustomerCreate: React.FC = () => {
                             </Form.Item>
                         </Card>
 
-                        <Card title="📝 Ghi chú">
+                        <Card title={<span><FileTextOutlined /> Ghi chú</span>}>
                             <Form.Item name="notes">
                                 <TextArea
                                     rows={4}
