@@ -8,7 +8,8 @@ import {
     ArrowLeftOutlined, EyeOutlined, CheckOutlined,
     CloseOutlined, CheckCircleOutlined,
     ClockCircleOutlined, LockOutlined, LinkOutlined,
-    EditOutlined
+    EditOutlined, BoxPlotOutlined, DollarOutlined,
+    ProfileOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
@@ -319,8 +320,8 @@ const PMProjectDetail: React.FC = () => {
                 <Space wrap>
                     <Button icon={<EditOutlined />} onClick={() => navigate(`/pm/construction/projects/${project.id}/edit`)}>Chỉnh sửa</Button>
                     <Button icon={<LinkOutlined />} onClick={() => setPortalDrawer(true)}>Portal KH</Button>
-                    <Button onClick={() => navigate(`/pm/construction/projects/${project.id}/materials`)}>📦 Định mức</Button>
-                    <Button onClick={() => navigate(`/pm/construction/projects/${project.id}/finance`)}>💰 Tài chính</Button>
+                    <Button icon={<BoxPlotOutlined />} onClick={() => navigate(`/pm/construction/projects/${project.id}/materials`)}>Định mức</Button>
+                    <Button icon={<DollarOutlined />} onClick={() => navigate(`/pm/construction/projects/${project.id}/finance`)}>Tài chính</Button>
                     <Button type="primary" icon={<EyeOutlined />} onClick={() => navigate(`/pm/construction/evidence/${project.id}`)}>
                         Duyệt ảnh
                     </Button>
@@ -353,7 +354,7 @@ const PMProjectDetail: React.FC = () => {
             </Row>
 
             {/* Project Info Banner */}
-            <Card size="small" style={{ marginBottom: 16, background: '#f5f8ff' }}>
+            <Card title={<><ProfileOutlined style={{ fontSize: 13 }} /> Thông tin Dự án</>} size="small" style={{ marginBottom: 16, background: '#f5f8ff' }}>
                 <Row gutter={24}>
                     <Col xs={24} sm={8}><Text type="secondary">KH: </Text><Text strong>{project.customerName}</Text></Col>
                     <Col xs={24} sm={8}><Text type="secondary">Thợ: </Text><Text strong>{project.workerNames.join(', ')}</Text></Col>

@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import {
     Card, Table, Tag, Button, Progress, Space, Typography, Row, Col,
-    Select, Input, Tooltip, Dropdown, Statistic, Avatar
+    Select, Input, Tooltip, Dropdown, Statistic, Avatar,
+    Modal, message
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import type { MenuProps } from 'antd';
 import {
     PlusOutlined, EyeOutlined, MoreOutlined,
     UserOutlined, ClockCircleOutlined, ExclamationCircleOutlined,
-    SearchOutlined
+    SearchOutlined, EditOutlined, LinkOutlined, StopOutlined,
+    WarningOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { getProjectProgress } from '../../../data/mockData';
@@ -21,7 +23,7 @@ const { Text, Title } = Typography;
 
 const STATUS_CONFIG: Record<ProjectStatus, { label: string; color: string }> = {
     SCHEDULED: { label: 'Đã lên lịch', color: 'blue' },
-    WAITING_MATERIALS: { label: '⚠️ Chờ vật tư', color: 'warning' },
+    WAITING_MATERIALS: { label: 'Chờ vật tư', color: 'warning' },
     IN_PROGRESS: { label: 'Đang thi công', color: 'processing' },
     AWAITING_APPROVAL: { label: 'Chờ nghiệm thu', color: 'purple' },
     COMPLETED: { label: 'Hoàn thành', color: 'success' },
@@ -32,7 +34,42 @@ const PMProjectList: React.FC = () => {
     const navigate = useNavigate();
     const [filterStatus, setFilterStatus] = useState<ProjectStatus | 'ALL'>('ALL');
     const [search, setSearch] = useState('');
-    const [mockProjects] = useLocalStorageData<Project[]>(demoDataService.KEYS.PROJECTS, defaultProjects);
+    const [mockProjects, setMockProjects] = useLocalStorageData<Project[]>(demoDataService.KEYS.PROJECTS, defaultProjects);
+
+    const handleCancelProject = (p: Project) => {
+        Modal.confirm({
+            title: 'Xác nhận hủy dự án',
+            icon: <WarningOutlined style={{ color: '#ff4d4f' }} />,
+            content: `Bạn có chắc chắn muốn hủy dự án "${p.code} - ${p.name}"? Hành động này không thể hoàn tác.`,
+            okText: 'Hủy dự án',
+            okType: 'danger',
+            cancelText: 'Quay lại',
+            onOk: () => {
+                const updated = mockProjects.map(proj => 
+                    proj.id === p.id ? { ...proj, status: 'CANCELLED' as ProjectStatus } : proj
+                );
+                setMockProjects(updated);
+                message.success('Đã hủy dự án thành công');
+            }
+        });
+    };
+
+    const handleOpenPortal = (p: Project) => {
+        if (p.portalToken) {
+            window.open(`/portal/${p.portalToken}`, '_blank');
+        } else {
+            Modal.info({
+                title: 'Portal Khách hàng',
+                content: (
+                    <div>
+                        <p>Dự án này chưa được tạo Link Portal hoặc link đã hết hạn.</p>
+                        <p>Vui lòng vào <strong>Chi tiết dự án</strong> để tạo link mới.</p>
+                    </div>
+                ),
+                okText: 'Đóng'
+            });
+        }
+    };
 
     const filtered = mockProjects.filter(p => {
         const matchSearch = !search ||
@@ -52,11 +89,33 @@ const PMProjectList: React.FC = () => {
     };
 
     const getRowActions = (p: Project): MenuProps['items'] => [
-        { key: 'view', icon: <EyeOutlined />, label: 'Xem chi tiết', onClick: () => navigate(`/pm/construction/projects/${p.id}`) },
-        { key: 'edit', label: '✏️ Chỉnh sửa', onClick: () => navigate(`/pm/construction/projects/${p.id}/edit`) },
-        { key: 'portal', label: '🔗 Portal KH', onClick: () => navigate(`/pm/construction/projects/${p.id}/portal`) },
+        { 
+            key: 'view', 
+            icon: <EyeOutlined />, 
+            label: 'Xem chi tiết', 
+            onClick: () => navigate(`/pm/construction/projects/${p.id}`) 
+        },
+        { 
+            key: 'edit', 
+            icon: <EditOutlined />, 
+            label: 'Chỉnh sửa', 
+            onClick: () => navigate(`/pm/construction/projects/${p.id}/edit`) 
+        },
+        { 
+            key: 'portal', 
+            icon: <LinkOutlined />, 
+            label: 'Portal KH', 
+            onClick: () => handleOpenPortal(p) 
+        },
         { type: 'divider' },
-        { key: 'cancel', label: '🚫 Hủy dự án', danger: true },
+        { 
+            key: 'cancel', 
+            icon: <StopOutlined />, 
+            label: 'Hủy dự án', 
+            danger: true,
+            disabled: p.status === 'CANCELLED',
+            onClick: () => handleCancelProject(p)
+        },
     ];
 
     const columns: ColumnsType<Project> = [
@@ -176,7 +235,7 @@ const PMProjectList: React.FC = () => {
                 {[
                     { label: 'Tổng dự án', value: kpi.total, color: '#1976D2', filter: 'ALL' as const },
                     { label: 'Đang thi công', value: kpi.inProgress, color: '#fa8c16', filter: 'IN_PROGRESS' as ProjectStatus },
-                    { label: '⚠️ Chờ vật tư', value: kpi.waitingMaterials, color: '#ff7b00', filter: 'WAITING_MATERIALS' as ProjectStatus },
+                    { label: 'Chờ vật tư', value: kpi.waitingMaterials, color: '#ff7b00', filter: 'WAITING_MATERIALS' as ProjectStatus },
                     { label: 'Hoàn thành', value: kpi.completed, color: '#52c41a', filter: 'COMPLETED' as ProjectStatus },
                 ].map((k, i) => (
                     <Col span={6} key={i}>

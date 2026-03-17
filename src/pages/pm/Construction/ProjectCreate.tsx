@@ -7,7 +7,8 @@ import {
 import {
     UserOutlined, ArrowLeftOutlined, CheckCircleOutlined,
     EyeOutlined, TeamOutlined, EnvironmentOutlined, BulbOutlined,
-    SaveOutlined
+    SaveOutlined, FileTextOutlined, BuildOutlined, ProfileOutlined,
+    EditOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import dayjs from 'dayjs';
@@ -198,7 +199,7 @@ const ProjectCreate: React.FC = () => {
                 </Button>
                 <div>
                     <Title level={4} style={{ margin: 0 }}>
-                        {isEdit ? '✏️ Chỉnh sửa Dự án' : '🔨 Tạo Dự án Thi công'}
+                        {isEdit ? <EditOutlined /> : <BuildOutlined />} {isEdit ? ' Chỉnh sửa Dự án' : ' Tạo Dự án Thi công'}
                     </Title>
                     {existingProject && (
                         <Text type="secondary">Mã dự án: <strong>{existingProject.code}</strong></Text>
@@ -219,7 +220,7 @@ const ProjectCreate: React.FC = () => {
             }}>
 
                 {/* Section 1: Project Info */}
-                <Card title="📋 Thông tin Dự án" style={{ marginBottom: 16 }}>
+                <Card title={<><ProfileOutlined /> Thông tin Dự án</>} style={{ marginBottom: 16 }}>
                     <Row gutter={16}>
                         <Col xs={24} sm={12}>
                             <Form.Item label="Mã dự án">
@@ -299,7 +300,7 @@ const ProjectCreate: React.FC = () => {
                 </Card>
 
                 {/* Section 2: Template */}
-                <Card title="📑 Template Checklist"
+                <Card title={<><FileTextOutlined /> Template Checklist</>}
                     extra={<Button icon={<EyeOutlined />} onClick={() => setTemplateModalOpen(true)}>Xem trước</Button>}
                     style={{ marginBottom: 16 }}>
                     <Form.Item name="templateId" label="Chọn template *" rules={[{ required: true }]}>
@@ -400,7 +401,7 @@ const ProjectCreate: React.FC = () => {
                 </Card>
 
                 {/* Section 5: Notes */}
-                <Card title="📝 Ghi chú nội bộ" style={{ marginBottom: 24 }}>
+                <Card title={<><FileTextOutlined /> Ghi chú nội bộ</>} style={{ marginBottom: 24 }}>
                     <Form.Item name="notes">
                         <Input.TextArea rows={3} placeholder="Ghi chú đặc biệt từ KH, yêu cầu lịch thi công..." />
                     </Form.Item>
