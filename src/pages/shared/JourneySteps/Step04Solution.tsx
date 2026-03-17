@@ -22,11 +22,13 @@ export const Step04Solution: React.FC<Step04SolutionProps> = ({ journeyId, isEdi
     const [grandTotal, setGrandTotal] = useState(0);
     const [isTemplateModalOpen, setTemplateModalOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
+    const [initialData, setInitialData] = useState<any>(null);
 
     // Initial load: fetch from mockData if available
     useEffect(() => {
         const existingEstimate = mockEstimates.find(e => e.journey_id === journeyId);
         if (existingEstimate) {
+            setInitialData(existingEstimate);
             form.setFieldsValue({
                 groups: existingEstimate.groups,
                 taxRate: existingEstimate.taxRate,
@@ -39,11 +41,13 @@ export const Step04Solution: React.FC<Step04SolutionProps> = ({ journeyId, isEdi
     const formValues = Form.useWatch([], form);
 
     useEffect(() => {
-        if (!formValues) return;
+        // Use initialData if not editing or if formValues hasn't been populated yet
+        const currentData = isEditing ? formValues : ( (formValues?.groups && formValues.groups.length > 0) ? formValues : initialData);
+        if (!currentData) return;
         
         let newSubTotal = 0;
 
-        const groups = formValues.groups || [];
+        const groups = currentData.groups || [];
         groups.forEach((group: any) => {
             const components = group?.components || [];
             components.forEach((comp: any) => {
@@ -53,13 +57,13 @@ export const Step04Solution: React.FC<Step04SolutionProps> = ({ journeyId, isEdi
             });
         });
 
-        const taxRate = formValues.taxRate ?? 10;
+        const taxRate = currentData.taxRate ?? 10;
         const newTaxAmount = newSubTotal * (taxRate / 100);
         
         setSubTotal(newSubTotal);
         setTaxAmount(newTaxAmount);
         setGrandTotal(newSubTotal + newTaxAmount);
-    }, [formValues]);
+    }, [formValues, initialData, isEditing]);
 
     const handleFinish = (values: any) => {
         if (onSave) {
@@ -129,7 +133,8 @@ export const Step04Solution: React.FC<Step04SolutionProps> = ({ journeyId, isEdi
     };
 
     const renderSummary = () => {
-        if (!formValues?.groups || formValues.groups.length === 0) {
+        const currentData = isEditing ? formValues : ( (formValues?.groups && formValues.groups.length > 0) ? formValues : initialData);
+        if (!currentData?.groups || currentData.groups.length === 0) {
             return (
                 <div style={{ textAlign: 'center', padding: '40px 0' }}>
                     <Text type="secondary">Chưa có dữ liệu giải pháp & dự toán được lập.</Text>
@@ -139,12 +144,13 @@ export const Step04Solution: React.FC<Step04SolutionProps> = ({ journeyId, isEdi
 
         return (
             <div>
-                {formValues.groups.map((group: any, idx: number) => (
+                {currentData.groups.map((group: any, idx: number) => (
                     <Card key={idx} size="small" type="inner" title={`${idx + 1}. ${group.name}`} style={{ marginBottom: 16 }}>
                         <Table 
                             size="small"
                             pagination={false}
                             dataSource={group.components}
+                            rowKey={(_, index) => `${idx}-${index}`}
                             columns={[
                                 { title: 'Loại', dataIndex: 'type', render: (t) => <Tag color={t === 'material' ? 'green' : (t === 'labor' ? 'orange' : 'default')}>{t === 'material' ? 'Vật tư' : (t === 'labor' ? 'Nhân công' : 'Phí khác')}</Tag> },
                                 { title: 'Tên chi phí', dataIndex: 'name' },
@@ -153,12 +159,16 @@ export const Step04Solution: React.FC<Step04SolutionProps> = ({ journeyId, isEdi
                                 { title: 'Đơn giá', dataIndex: 'unitPrice', render: (p) => formatVND(p) },
                                 { title: 'Thành tiền', key: 'total', align: 'right', render: (_, record: any) => formatVND((record.quantity || 0) * (record.unitPrice || 0)) }
                             ]}
-                            footer={() => (
-                                <div style={{ textAlign: 'right' }}>
-                                    <Text strong>Cộng hạng mục: </Text>
-                                    <Text type="danger" strong>{formatVND(getGroupTotal(idx))}</Text>
-                                </div>
-                            )}
+                            footer={() => {
+                                let gTotal = 0;
+                                (group.components || []).forEach((c: any) => { gTotal += (c.quantity || 0) * (c.unitPrice || 0); });
+                                return (
+                                    <div style={{ textAlign: 'right' }}>
+                                        <Text strong>Cộng hạng mục: </Text>
+                                        <Text type="danger" strong>{formatVND(gTotal)}</Text>
+                                    </div>
+                                );
+                            }}
                         />
                         {group.notes && (
                             <div style={{ marginTop: 8, padding: '8px 12px', background: '#f5f5f5', borderRadius: 4 }}>
@@ -171,6 +181,9 @@ export const Step04Solution: React.FC<Step04SolutionProps> = ({ journeyId, isEdi
         );
     };
 
+    const displayTaxRate = isEditing ? (formValues?.taxRate ?? 10) : (formValues?.taxRate || initialData?.taxRate || 10);
+    const displayNotes = isEditing ? formValues?.notes : (formValues?.notes || initialData?.notes);
+
     return (
         <Card 
             title={isEditing ? "Thực hiện: Xây Dựng Giải pháp & Dự toán" : "Chi tiết: Giải pháp & Dự toán"} 
@@ -182,7 +195,7 @@ export const Step04Solution: React.FC<Step04SolutionProps> = ({ journeyId, isEdi
                     icon={isEditing ? <EyeOutlined /> : <EditOutlined />}
                     onClick={() => setIsEditing(!isEditing)}
                 >
-                    {isEditing ? "Xem lại" : (formValues?.groups?.length > 0 ? "Cập nhật" : "Lập dự toán")}
+                    {isEditing ? "Xem lại" : ( (formValues?.groups?.length || initialData?.groups?.length) > 0 ? "Cập nhật" : "Lập dự toán")}
                 </Button>
             )}
         >
@@ -369,7 +382,7 @@ export const Step04Solution: React.FC<Step04SolutionProps> = ({ journeyId, isEdi
                         <Row gutter={[16, 16]}>
                             <Col span={18} style={{ textAlign: 'right' }}><Text strong>Cộng Tiền (Subtotal):</Text></Col>
                             <Col span={6} style={{ textAlign: 'right' }}><Text>{formatVND(subTotal)}</Text></Col>
-                            <Col span={18} style={{ textAlign: 'right' }}><Text strong>Thuế VAT ({formValues?.taxRate || 0}%):</Text></Col>
+                            <Col span={18} style={{ textAlign: 'right' }}><Text strong>Thuế VAT ({displayTaxRate}%):</Text></Col>
                             <Col span={6} style={{ textAlign: 'right' }}><Text>{formatVND(taxAmount)}</Text></Col>
                             <Col span={24}><Divider style={{ margin: '12px 0' }} /></Col>
                             <Col span={18} style={{ textAlign: 'right' }}>
@@ -380,10 +393,10 @@ export const Step04Solution: React.FC<Step04SolutionProps> = ({ journeyId, isEdi
                             </Col>
                         </Row>
                     </div>
-                    {formValues?.notes && (
+                    {displayNotes && (
                         <div style={{ marginTop: 24 }}>
                             <Divider orientation="left">Ghi chú tổng kết</Divider>
-                            <Text>{formValues.notes}</Text>
+                            <Text>{displayNotes}</Text>
                         </div>
                     )}
                 </>
