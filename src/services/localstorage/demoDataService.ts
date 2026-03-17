@@ -70,6 +70,9 @@ export const demoDataService = {
         ESTIMATES: 'demo_estimates',
         LABOR_PLANS: 'demo_labor_plans',
         MATERIAL_DETAILS: 'demo_material_details',
+        WORKERS_MASTER: 'demo_workers_master',
+        TEAMS_MASTER: 'demo_teams_master',
+        LABOR_PRICE_CONFIG: 'demo_labor_price_config',
     },
 
     /**
@@ -104,6 +107,19 @@ export const demoDataService = {
             [this.KEYS.ESTIMATES]: mockEstimates,
             [this.KEYS.LABOR_PLANS]: mockLaborPlans,
             [this.KEYS.MATERIAL_DETAILS]: mockMaterialDetails,
+            [this.KEYS.WORKERS_MASTER]: [
+                { id: 'w-001', name: 'Nguyễn Văn A', gender: 'male', level: 'senior', position: 'Thợ chính', isInternal: true, costPerHour: 110000, skills: ['Chống thấm', 'Xây trát'] },
+                { id: 'w-002', name: 'Trần Thị B', gender: 'female', level: 'junior', position: 'Thợ phụ', isInternal: false, costPerHour: 60000, skills: ['Phụ hồ'] },
+            ],
+            [this.KEYS.TEAMS_MASTER]: [
+                { id: 't-001', teamName: 'Đội Thi Công Số 1', contactName: 'Lê Văn C', phone: '0987654321', email: 'team1@gmail.com', zalo: '0987654321', rating: 4.5, memberIds: ['w-001'] },
+            ],
+            [this.KEYS.LABOR_PRICE_CONFIG]: [
+                { level: 'junior', name: 'Thợ phụ / Học việc', defaultPrice: 60000 },
+                { level: 'middle', name: 'Thợ chính / Tay nghề TB', defaultPrice: 85000 },
+                { level: 'senior', name: 'Thợ lành nghề / Tổ trưởng', defaultPrice: 110000 },
+                { level: 'expert', name: 'Chuyên gia / Kỹ thuật cao', defaultPrice: 150000 },
+            ],
         };
     },
 

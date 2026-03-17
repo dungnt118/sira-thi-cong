@@ -179,19 +179,19 @@ const JourneyDetail360: React.FC = () => {
             label: <span><CalculatorOutlined /> Dự toán</span>,
             children: renderTabContent('GRP_04_SOLUTION', 'S04_SOLUTION'),
         },
-        // 5. Tab Báo giá/HĐ (GRP_05_QUOTE)
-        {
-            key: 'GRP_05_QUOTE',
-            label: <span><FileTextOutlined /> Báo giá/HĐ</span>,
-            children: renderTabContent('GRP_05_QUOTE', 'S05_QUOTE'),
-        },
-        // 6. Tab Nhân công
+        // 5. Tab Nhân công
         {
             key: 'GRP_LABOR',
             label: <span><TeamOutlined /> Nhân công</span>,
             children: <StepLabor journeyId={journey.id!} isEditable={userRoleConfig.editableGroupCodes.includes('GRP_05_QUOTE') || role === 'pm'} />, 
         },
-        // 8. Tab Vật tư
+        // 6. Tab Báo giá/HĐ (GRP_05_QUOTE)
+        {
+            key: 'GRP_05_QUOTE',
+            label: <span><FileTextOutlined /> Báo giá/HĐ</span>,
+            children: renderTabContent('GRP_05_QUOTE', 'S05_QUOTE'),
+        },
+        // 7. Tab Vật tư
         {
             key: 'GRP_MATERIALS',
             label: <span><BoxPlotOutlined /> Vật tư</span>,

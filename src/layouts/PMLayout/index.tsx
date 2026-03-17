@@ -83,6 +83,17 @@ const menuItems: MenuItem[] = [
         ],
     },
     {
+        key: '/pm/teams',
+        icon: <TeamOutlined />,
+        label: 'Quản lý Đội/Thợ',
+        children: [
+            { key: '/pm/teams/workers', label: 'Quản lý Thợ', icon: <TeamOutlined /> },
+            { key: '/pm/teams/groups', label: 'Quản lý Đội thợ', icon: <TeamOutlined /> },
+            { key: '/pm/teams/prices', label: 'Bảng giá thợ', icon: <DollarOutlined /> },
+            { key: '/pm/teams/outsource', label: 'Đối tác Thi công', icon: <TeamOutlined /> },
+        ],
+    },
+    {
         key: '/pm/reports',
         icon: <BarChartOutlined />,
         label: LABELS.PM.REPORTS,

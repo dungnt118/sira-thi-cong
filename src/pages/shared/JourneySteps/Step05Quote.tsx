@@ -35,27 +35,27 @@ const Step05Quote: React.FC<Step05QuoteProps> = ({ journeyId, isEditable = false
         const estimate = mockEstimates.find(e => e.journey_id === journeyId);
         if (!estimate) return;
 
-        const aggregated: Record<string, any> = {};
-        (estimate.groups || []).forEach(group => {
+        // Group-based aggregation as requested by the USER
+        const syncItems = (estimate.groups || []).map((group, idx) => {
+            // Sum up all components in this group to get the group total
+            let groupTotal = 0;
             (group.components || []).forEach(comp => {
-                const key = `${comp.name}_${comp.unit}`;
-                if (aggregated[key]) {
-                    aggregated[key].qty += comp.quantity || 0;
-                } else {
-                    aggregated[key] = {
-                        name: comp.name,
-                        unit: comp.unit,
-                        qty: comp.quantity || 0,
-                        price: comp.unitPrice || 0,
-                    };
-                }
+                groupTotal += (comp.quantity || 0) * (comp.unitPrice || 0);
             });
-        });
 
-        const syncItems = Object.values(aggregated).map((item, idx) => ({
-            ...item,
-            key: `sync-${idx + 1}-${Date.now()}`,
-        }));
+            const qty = group.quantity || 1;
+            const price = Math.round(groupTotal / qty);
+
+            return {
+                key: `sync-group-${idx + 1}-${Date.now()}`,
+                name: group.name,
+                description: group.notes || '',
+                unit: group.unit || 'Lô',
+                qty: qty,
+                price: price,
+                total: groupTotal
+            };
+        });
 
         form.setFieldsValue({ items: syncItems });
     };
@@ -82,11 +82,12 @@ const Step05Quote: React.FC<Step05QuoteProps> = ({ journeyId, isEditable = false
     };
 
     const columns = [
-        { title: 'Tên hạng mục', dataIndex: 'name', key: 'name' },
-        { title: 'ĐVT', dataIndex: 'unit', key: 'unit' },
-        { title: 'Số lượng', dataIndex: 'qty', key: 'qty', align: 'center' as const },
-        { title: 'Đơn giá', dataIndex: 'price', key: 'price', align: 'right' as const, render: (val: number) => formatVND(val) },
-        { title: 'Thành tiền', dataIndex: 'total', key: 'total', align: 'right' as const, render: (_: any, record: any) => formatVND((record.qty || 0) * (record.price || 0)) },
+        { title: 'Tên hạng mục', dataIndex: 'name', key: 'name', width: '25%' },
+        { title: 'Mô tả/Ghi chú', dataIndex: 'description', key: 'description', width: '30%' },
+        { title: 'ĐVT', dataIndex: 'unit', key: 'unit', width: '10%' },
+        { title: 'SL', dataIndex: 'qty', key: 'qty', align: 'center' as const, width: '5%' },
+        { title: 'Đơn giá', dataIndex: 'price', key: 'price', align: 'right' as const, render: (val: number) => formatVND(val), width: '15%' },
+        { title: 'Thành tiền', dataIndex: 'total', key: 'total', align: 'right' as const, render: (_: any, record: any) => formatVND((record.qty || 0) * (record.price || 0)), width: '15%' },
     ];
 
     const editColumns = [
@@ -94,9 +95,21 @@ const Step05Quote: React.FC<Step05QuoteProps> = ({ journeyId, isEditable = false
             title: 'Tên hạng mục', 
             dataIndex: 'name', 
             key: 'name',
+            width: '15%',
             render: (_: any, __: any, index: number) => (
                 <Form.Item name={['items', index, 'name']} style={{ margin: 0 }} rules={[{ required: true }]}>
-                    <Input />
+                    <Input placeholder="Tên hạng mục" />
+                </Form.Item>
+            )
+        },
+        { 
+            title: 'Mô tả/Ghi chú', 
+            dataIndex: 'description', 
+            key: 'description',
+            width: '25%',
+            render: (_: any, __: any, index: number) => (
+                <Form.Item name={['items', index, 'description']} style={{ margin: 0 }}>
+                    <Input placeholder="Mô tả chi tiết" />
                 </Form.Item>
             )
         },
@@ -104,10 +117,10 @@ const Step05Quote: React.FC<Step05QuoteProps> = ({ journeyId, isEditable = false
             title: 'ĐVT', 
             dataIndex: 'unit', 
             key: 'unit',
-            width: 100,
+            width: '8%',
             render: (_: any, __: any, index: number) => (
                 <Form.Item name={['items', index, 'unit']} style={{ margin: 0 }}>
-                    <Input />
+                    <Input placeholder="ĐVT" />
                 </Form.Item>
             )
         },
@@ -115,7 +128,7 @@ const Step05Quote: React.FC<Step05QuoteProps> = ({ journeyId, isEditable = false
             title: 'SL', 
             dataIndex: 'qty', 
             key: 'qty',
-            width: 80,
+            width: '8%',
             render: (_: any, __: any, index: number) => (
                 <Form.Item name={['items', index, 'qty']} style={{ margin: 0 }}>
                     <InputNumber min={1} style={{ width: '100%' }} />
@@ -126,7 +139,7 @@ const Step05Quote: React.FC<Step05QuoteProps> = ({ journeyId, isEditable = false
             title: 'Đơn giá', 
             dataIndex: 'price', 
             key: 'price',
-            width: 150,
+            width: '15%',
             render: (_: any, __: any, index: number) => (
                 <Form.Item name={['items', index, 'price']} style={{ margin: 0 }}>
                     <InputNumber min={0} step={1000} style={{ width: '100%' }} formatter={(v: any) => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} />
@@ -134,9 +147,23 @@ const Step05Quote: React.FC<Step05QuoteProps> = ({ journeyId, isEditable = false
             )
         },
         {
+            title: 'Thành tiền',
+            key: 'row_total',
+            width: '15%',
+            align: 'right' as const,
+            render: (_: any, __: any, index: number) => (
+                <Form.Item noStyle shouldUpdate>
+                    {({ getFieldValue }) => {
+                        const item = getFieldValue(['items', index]);
+                        return <Text strong>{formatVND((item?.qty || 0) * (item?.price || 0))}</Text>;
+                    }}
+                </Form.Item>
+            )
+        },
+        {
             title: '',
             key: 'action',
-            width: 50,
+            width: '5%',
             render: (_: any, __: any, index: number) => (
                 <Button type="text" danger icon={<DeleteOutlined />} onClick={() => {
                     const items = form.getFieldValue('items') || [];
@@ -190,7 +217,7 @@ const Step05Quote: React.FC<Step05QuoteProps> = ({ journeyId, isEditable = false
             >
                 {isEditing ? (
                     <>
-                        <Divider orientation="left">Điều chỉnh chi tiết báo giá</Divider>
+                        <Divider orientation="left">Điều chỉnh chi tiết báo giá (Báo giá khách hàng)</Divider>
                         
                         <Form.Item noStyle shouldUpdate>
                             {({ getFieldValue }) => {
@@ -216,7 +243,7 @@ const Step05Quote: React.FC<Step05QuoteProps> = ({ journeyId, isEditable = false
                                                     <Button type="dashed" block icon={<PlusOutlined />} onClick={() => {
                                                         const currentItems = form.getFieldValue('items') || [];
                                                         form.setFieldsValue({ 
-                                                            items: [...currentItems, { name: '', unit: '', qty: 1, price: 0, key: `new-${Date.now()}` }] 
+                                                            items: [...currentItems, { name: '', description: '', unit: '', qty: 1, price: 0, key: `new-${Date.now()}` }] 
                                                         });
                                                     }}>
                                                         Thêm hạng mục mới
@@ -265,7 +292,7 @@ const Step05Quote: React.FC<Step05QuoteProps> = ({ journeyId, isEditable = false
                                             <Text type="secondary">Trạng thái:</Text> <Tag color="blue">{quote.status.toUpperCase()}</Tag>
                                         </div>
                                         <div>
-                                            <Text type="secondary">Tổng giá trị:</Text> <Text strong type="danger">{formatVND(quote.grand_total)}</Text>
+                                            <Text type="secondary">Tổng giá trị (Đã bao gồm VAT):</Text> <Text strong type="danger">{formatVND(quote.grand_total)}</Text>
                                         </div>
                                     </Space>
                                 </div>
