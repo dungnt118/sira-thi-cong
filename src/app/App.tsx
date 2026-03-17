@@ -14,13 +14,6 @@ import Reports from '../pages/admin-v2/Reports';
 
 // PM Pages (existing)
 import PMDashboard from '../pages/pm/Dashboard';
-import ProjectList from '../pages/pm/Projects/ProjectList';
-import ProjectDetail from '../pages/pm/Projects/ProjectDetail';
-import ProjectCreate from '../pages/pm/Projects/ProjectCreate';
-import ContractList from '../pages/pm/Contracts/ContractList';
-import ContractCreate from '../pages/pm/Contracts/ContractCreate';
-import ContractDetail from '../pages/pm/Contracts/ContractDetail';
-import MaintenanceDetail from '../pages/pm/Contracts/MaintenanceDetail';
 import Teams from '../pages/pm/Teams';
 import WorkerManagement from '../pages/pm/Teams/WorkerManagement';
 import WorkerDetail from '../pages/pm/Teams/WorkerDetail';
@@ -112,8 +105,6 @@ import {
 import CustomerPortal from '../pages/public/CustomerPortal';
 
 // Layouts
-import { AdminLayout } from '../layouts/AdminLayout';
-import { SupervisorLayout } from '../layouts/SupervisorLayout';
 import { PMLayout } from '../layouts/PMLayout';
 import { PartnerLayout } from '../layouts/PartnerLayout';
 import { Login } from '../pages/shared/Login';
