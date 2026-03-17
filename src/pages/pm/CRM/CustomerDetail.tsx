@@ -7,13 +7,25 @@ import {
     UserOutlined, ProjectOutlined, ArrowLeftOutlined, EyeOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
-import { mockCustomers, mockProjects, mockServiceRequests } from '../../../data/mockData';
+import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
+import { demoDataService } from '../../../services/localstorage/demoDataService';
+import { 
+    mockCustomers as defaultCustomers, 
+    mockProjects as defaultProjects, 
+    mockServiceRequests as defaultServiceRequests 
+} from '../../../data/mockData';
+import type { Customer, Project, ServiceRequest } from '../../../types/v3';
 
 const { Title, Text } = Typography;
 
 const CustomerDetail: React.FC = () => {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
+    
+    const [mockCustomers] = useLocalStorageData<Customer[]>(demoDataService.KEYS.CUSTOMERS, defaultCustomers);
+    const [mockProjects] = useLocalStorageData<Project[]>(demoDataService.KEYS.PROJECTS, defaultProjects);
+    const [mockServiceRequests] = useLocalStorageData<ServiceRequest[]>(demoDataService.KEYS.SERVICE_REQUESTS, defaultServiceRequests);
+
     const customer = mockCustomers.find(c => c.id === id);
     const serviceRequests = mockServiceRequests.filter(sr => sr.customerId === id);
     const customerProjects = mockProjects.filter(p => p.customerId === id);

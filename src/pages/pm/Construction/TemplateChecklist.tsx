@@ -8,7 +8,9 @@ import {
     PlusOutlined, EditOutlined, DeleteOutlined, CopyOutlined,
     EyeOutlined, DragOutlined, SaveOutlined,
 } from '@ant-design/icons';
-import { mockTemplates } from '../../../data/mockData';
+import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
+import { demoDataService } from '../../../services/localstorage/demoDataService';
+import { mockTemplates as defaultTemplates } from '../../../data/mockData';
 import type { ChecklistTemplate } from '../../../types/v3';
 
 const { Title, Text } = Typography;
@@ -24,7 +26,7 @@ const CONSTRUCTION_TYPES = [
 ];
 
 const TemplateChecklist: React.FC = () => {
-    const [templates, setTemplates] = useState<ChecklistTemplate[]>(mockTemplates);
+    const [templates, setTemplates] = useLocalStorageData<ChecklistTemplate[]>(demoDataService.KEYS.TEMPLATES, defaultTemplates);
     const [viewTemplate, setViewTemplate] = useState<ChecklistTemplate | null>(null);
     const [editTemplate, setEditTemplate] = useState<ChecklistTemplate | null>(null);
     const [stepModalOpen, setStepModalOpen] = useState(false);

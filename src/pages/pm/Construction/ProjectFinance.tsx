@@ -7,13 +7,25 @@ import {
     ArrowLeftOutlined, InfoCircleOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
-import { mockProjects, mockMaterials, mockStandards } from '../../../data/mockData';
+import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
+import { demoDataService } from '../../../services/localstorage/demoDataService';
+import { 
+    mockProjects as defaultProjects, 
+    mockMaterials as defaultMaterials, 
+    mockStandards as defaultStandards 
+} from '../../../data/mockData';
+import type { Project, Material, MaterialStandard } from '../../../types/v3';
 
 const { Title, Text } = Typography;
 
 const ProjectFinance: React.FC = () => {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
+
+    const [mockProjects] = useLocalStorageData<Project[]>(demoDataService.KEYS.PROJECTS, defaultProjects);
+    const [mockMaterials] = useLocalStorageData<Material[]>(demoDataService.KEYS.MATERIALS, defaultMaterials);
+    const [mockStandards] = useLocalStorageData<MaterialStandard[]>(demoDataService.KEYS.STANDARDS, defaultStandards);
+
     const project = mockProjects.find(p => p.id === id);
 
     if (!project) return <div>Không tìm thấy dự án</div>;

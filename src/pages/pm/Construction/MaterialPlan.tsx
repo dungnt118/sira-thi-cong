@@ -9,8 +9,15 @@ import {
     ClockCircleOutlined, SyncOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
-import { mockProjects, mockMaterials, mockStandards, mockStockRequests } from '../../../data/mockData';
-import type { StockRequest, StockRequestItem } from '../../../types/v3';
+import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
+import { demoDataService } from '../../../services/localstorage/demoDataService';
+import { 
+    mockProjects as defaultProjects, 
+    mockMaterials as defaultMaterials, 
+    mockStandards as defaultStandards, 
+    mockStockRequests as defaultStockRequests 
+} from '../../../data/mockData';
+import type { Project, Material, MaterialStandard, StockRequest, StockRequestItem } from '../../../types/v3';
 
 const { Title, Text } = Typography;
 
@@ -26,6 +33,12 @@ const STATUS_CFG = {
 const MaterialPlan: React.FC = () => {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
+
+    const [mockProjects] = useLocalStorageData<Project[]>(demoDataService.KEYS.PROJECTS, defaultProjects);
+    const [mockMaterials] = useLocalStorageData<Material[]>(demoDataService.KEYS.MATERIALS, defaultMaterials);
+    const [mockStandards] = useLocalStorageData<MaterialStandard[]>(demoDataService.KEYS.STANDARDS, defaultStandards);
+    const [mockStockRequests, setMockStockRequests] = useLocalStorageData<StockRequest[]>(demoDataService.KEYS.STOCK_REQUESTS, defaultStockRequests);
+
     const project = mockProjects.find(p => p.id === id);
 
     const [saved, setSaved] = useState(false);
@@ -85,13 +98,9 @@ const MaterialPlan: React.FC = () => {
     const [reqReason, setReqReason] = useState('');
     const [reqSubmitting, setReqSubmitting] = useState(false);
     const [reqSubmitted, setReqSubmitted] = useState(false);
-    const [localRequests, setLocalRequests] = useState<StockRequest[]>([]);
 
     // Combine mock data + locally submitted requests for this project
-    const projectRequests = [
-        ...localRequests,
-        ...mockStockRequests.filter(r => r.type === 'REQUEST_OUT' && r.projectId === project.id),
-    ];
+    const projectRequests = mockStockRequests.filter(r => r.type === 'REQUEST_OUT' && r.projectId === project.id);
 
     const handleAutoFillRequest = () => {
         if (shortageItems.length === 0) {
@@ -133,7 +142,7 @@ const MaterialPlan: React.FC = () => {
         // Build a new local request record and prepend to history immediately
         const newReq: StockRequest = {
             id: `YCR-LOCAL-${Date.now()}`,
-            code: `YC-OUT-${String(localRequests.length + 1).padStart(3, '0')}-NEW`,
+            code: `YC-OUT-${String(mockStockRequests.length + 1).padStart(3, '0')}-NEW`,
             type: 'REQUEST_OUT',
             requestedBy: 'Nguyễn Văn PM',
             projectId: project.id,
@@ -143,7 +152,7 @@ const MaterialPlan: React.FC = () => {
             status: 'PENDING',
             createdAt: new Date().toISOString(),
         };
-        setLocalRequests(prev => [newReq, ...prev]);
+        setMockStockRequests([newReq, ...mockStockRequests]);
         setReqSubmitted(true);
 
         Modal.success({

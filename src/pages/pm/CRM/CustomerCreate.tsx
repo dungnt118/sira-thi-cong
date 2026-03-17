@@ -8,7 +8,10 @@ import {
     AimOutlined, ArrowLeftOutlined, SaveOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
-import { mockCustomers } from '../../../data/mockData';
+import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
+import { demoDataService } from '../../../services/localstorage/demoDataService';
+import { mockCustomers as defaultCustomers } from '../../../data/mockData';
+import type { Customer } from '../../../types/v3';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -24,6 +27,7 @@ const DISTRICT_OPTIONS = [
 const CustomerCreate: React.FC = () => {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
+    const [mockCustomers, setMockCustomers] = useLocalStorageData<Customer[]>(demoDataService.KEYS.CUSTOMERS, defaultCustomers);
     const [form] = Form.useForm();
     const [gps, setGps] = useState<{ lat: number; lng: number } | null>(null);
     const [loading, setLoading] = useState(false);
@@ -55,11 +59,44 @@ const CustomerCreate: React.FC = () => {
         message.success('Đã lấy tọa độ GPS thành công');
     };
 
-    const handleSubmit = async (_values: unknown) => {
+    const handleSubmit = async (values: any) => {
         setLoading(true);
-        await new Promise(r => setTimeout(r, 800));
+        await new Promise(r => setTimeout(r, 600));
+        
+        const customerData: Partial<Customer> = {
+            ...values,
+            gpsLat: gps?.lat,
+            gpsLng: gps?.lng,
+        };
+
+        if (isEdit) {
+            const updated = mockCustomers.map(c => 
+                c.id === id ? { ...c, ...customerData } : c
+            );
+            setMockCustomers(updated);
+            message.success('Đã cập nhật khách hàng thành công');
+        } else {
+            const newCustomer: Customer = {
+                id: `cust-${Date.now()}`,
+                code: `KH-${Math.floor(1000 + Math.random() * 9000)}`,
+                fullName: values.fullName,
+                phone: values.phone,
+                email: values.email || '',
+                address: values.address,
+                district: values.district,
+                city: values.city || 'TP.HCM',
+                assignedPmId: values.assignedPmId || 'pm-01',
+                assignedPmName: 'Nguyễn Văn PM',
+                createdAt: new Date().toISOString(),
+                gpsLat: gps?.lat,
+                gpsLng: gps?.lng,
+                notes: values.notes || '',
+            };
+            setMockCustomers([newCustomer, ...mockCustomers]);
+            message.success('Đã thêm khách hàng mới thành công');
+        }
+        
         setLoading(false);
-        message.success(isEdit ? 'Đã cập nhật khách hàng' : 'Đã thêm khách hàng mới');
         navigate('/pm/crm/customers');
     };
 

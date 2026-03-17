@@ -9,7 +9,9 @@ import {
     SendOutlined, StopOutlined, EyeOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { mockActionItems } from '../../../data/journeyMockData';
+import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
+import { demoDataService } from '../../../services/localstorage/demoDataService';
+import { mockActionItems as defaultActionItems } from '../../../data/journeyMockData';
 import type { ActionItem, ActionType, PriorityLevel } from '../../../types/journey';
 
 const { Text } = Typography;
@@ -32,6 +34,7 @@ const PRIORITY_CONFIG: Record<PriorityLevel, { label: string; color: string }> =
 
 const ActionCenter: React.FC = () => {
     const navigate = useNavigate();
+    const [mockActionItems] = useLocalStorageData<ActionItem[]>(demoDataService.KEYS.ACTION_ITEMS, defaultActionItems);
     const [filterType, setFilterType] = useState<string>('ALL');
     const screens = useBreakpoint();
     const isMobile = !screens.md;

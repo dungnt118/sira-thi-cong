@@ -9,7 +9,10 @@ import {
     SaveOutlined, ArrowLeftOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
-import { mockServiceRequests, mockCustomers } from '../../../data/mockData';
+import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
+import { demoDataService } from '../../../services/localstorage/demoDataService';
+import { mockServiceRequests as defaultServiceRequests, mockCustomers as defaultCustomers } from '../../../data/mockData';
+import type { ServiceRequest, Customer, MoistureReading } from '../../../types/v3';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -23,12 +26,16 @@ interface MoistureRow {
 const SurveyUpload: React.FC = () => {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
+    
+    const [mockCustomers] = useLocalStorageData<Customer[]>(demoDataService.KEYS.CUSTOMERS, defaultCustomers);
+    const [mockServiceRequests, setMockServiceRequests] = useLocalStorageData<ServiceRequest[]>(demoDataService.KEYS.SERVICE_REQUESTS, defaultServiceRequests);
+
     const serviceRequest = mockServiceRequests.find(sr => sr.id === id);
     const customer = mockCustomers.find(c => c.id === serviceRequest?.customerId);
 
     const [images, setImages] = useState(serviceRequest?.surveyImages || []);
     const [moisture, setMoisture] = useState<MoistureRow[]>(
-        serviceRequest?.moistureReadings?.map((m, i) => ({ key: String(i), location: m.location, value: m.value })) || []
+        serviceRequest?.moistureReadings?.map((m, i) => ({ key: m.id || String(i), location: m.location, value: m.value })) || []
     );
     const [newLoc, setNewLoc] = useState('');
     const [newVal, setNewVal] = useState<number>(0);
@@ -69,10 +76,28 @@ const SurveyUpload: React.FC = () => {
     ];
 
     const handleSave = async () => {
+        if (!serviceRequest) return;
         setSaving(true);
-        await new Promise(r => setTimeout(r, 800));
+        
+        const moistureReadings: MoistureReading[] = moisture.map(m => ({
+            id: m.key,
+            location: m.location,
+            value: m.value,
+            readAt: new Date().toISOString(),
+            readBy: 'Nguyễn Văn PM'
+        }));
+
+        const updatedRequests = mockServiceRequests.map(sr => 
+            sr.id === id 
+                ? { ...sr, surveyImages: images, moistureReadings: moistureReadings } 
+                : sr
+        );
+
+        setMockServiceRequests(updatedRequests);
+        
+        await new Promise(r => setTimeout(r, 600));
         setSaving(false);
-        message.success('Đã lưu dữ liệu khảo sát');
+        message.success('Đã lưu dữ liệu khảo sát thành công');
     };
 
     if (!serviceRequest || !customer) return <div>Không tìm thấy yêu cầu dịch vụ hoặc khách hàng</div>;

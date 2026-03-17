@@ -11,8 +11,19 @@ import {
     MoreOutlined, FunnelPlotOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { mockServiceRequests, mockCustomers, mockPipelines } from '../../../data/mockData';
-import type { ServiceRequest, PipelineSystemStage } from '../../../types/v3';
+import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
+import { demoDataService } from '../../../services/localstorage/demoDataService';
+import { 
+    mockServiceRequests as defaultServiceRequests, 
+    mockCustomers as defaultCustomers, 
+    mockPipelines as defaultPipelines 
+} from '../../../data/mockData';
+import type { 
+    ServiceRequest, 
+    PipelineSystemStage,
+    Pipeline as PipelineType,
+    Customer
+} from '../../../types/v3';
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -28,11 +39,14 @@ const ServiceRequestList: React.FC = () => {
     const screens = Grid.useBreakpoint();
     const isMobile = !screens.md;
     const navigate = useNavigate();
+    
+    const [mockPipelines] = useLocalStorageData<PipelineType[]>(demoDataService.KEYS.PIPELINES, defaultPipelines);
+    const [mockCustomers] = useLocalStorageData<Customer[]>(demoDataService.KEYS.CUSTOMERS, defaultCustomers);
+    const [mockServiceRequests, setMockServiceRequests] = useLocalStorageData<ServiceRequest[]>(demoDataService.KEYS.SERVICE_REQUESTS, defaultServiceRequests);
+    
     const [search, setSearch] = useState('');
     const [filterPipeline, setFilterPipeline] = useState<string>('ALL');
     const [filterStatus, setFilterStatus] = useState<PipelineSystemStage | 'ALL'>('ALL');
-
-    // Create Modal State
     const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
     const [createForm] = Form.useForm();
 
@@ -159,9 +173,32 @@ const ServiceRequestList: React.FC = () => {
     ];
 
     const handleCreateSubmit = (values: any) => {
-        console.log('Creating Service Request:', values);
+        const customer = mockCustomers.find(c => c.id === values.customerId);
+        
+        const newRequest: ServiceRequest = {
+            id: `sr-${Date.now()}`,
+            code: `SR-${Math.floor(1000 + Math.random() * 9000)}`,
+            name: values.name,
+            customerId: values.customerId,
+            customerName: customer?.fullName || 'Khách hàng mới',
+            pipelineId: values.pipelineId,
+            stageId: values.stageId,
+            status: 'NEW',
+            assignedPmId: 'pm-01', // Default PM
+            assignedPmName: 'Nguyễn Văn A',
+            createdAt: new Date().toISOString(),
+            surveyImages: [],
+            moistureReadings: [],
+            quotations: []
+        };
+        
+        setMockServiceRequests([newRequest, ...mockServiceRequests]);
         setIsCreateModalVisible(false);
         createForm.resetFields();
+        Modal.success({
+            title: 'Tạo yêu cầu thành công',
+            content: `Yêu cầu ${newRequest.code} đã được khởi tạo.`,
+        });
     };
 
     return (

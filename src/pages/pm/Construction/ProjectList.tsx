@@ -11,7 +11,10 @@ import {
     SearchOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { mockProjects, getProjectProgress } from '../../../data/mockData';
+import { getProjectProgress } from '../../../data/mockData';
+import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
+import { demoDataService } from '../../../services/localstorage/demoDataService';
+import { mockProjects as defaultProjects } from '../../../data/mockData';
 import type { Project, ProjectStatus } from '../../../types/v3';
 
 const { Text, Title } = Typography;
@@ -29,6 +32,7 @@ const PMProjectList: React.FC = () => {
     const navigate = useNavigate();
     const [filterStatus, setFilterStatus] = useState<ProjectStatus | 'ALL'>('ALL');
     const [search, setSearch] = useState('');
+    const [mockProjects] = useLocalStorageData<Project[]>(demoDataService.KEYS.PROJECTS, defaultProjects);
 
     const filtered = mockProjects.filter(p => {
         const matchSearch = !search ||

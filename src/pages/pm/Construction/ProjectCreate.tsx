@@ -10,9 +10,17 @@ import {
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import dayjs from 'dayjs';
+import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
+import { demoDataService } from '../../../services/localstorage/demoDataService';
 import {
-    mockCustomers, mockUsers, mockTemplates, mockStandards, mockMaterials
+    mockCustomers as defaultCustomers,
+    mockUsers as defaultUsers,
+    mockTemplates as defaultTemplates,
+    mockStandards as defaultStandards,
+    mockMaterials as defaultMaterials,
+    mockProjects as defaultProjects
 } from '../../../data/mockData';
+import type { Project, ChecklistStep } from '../../../types/v3';
 
 const { Title, Text } = Typography;
 
@@ -29,10 +37,16 @@ const ProjectCreate: React.FC = () => {
     const { customerId } = useParams<{ customerId: string }>();
     const [form] = Form.useForm();
 
+    const [mockProjects, setMockProjects] = useLocalStorageData<Project[]>(demoDataService.KEYS.PROJECTS, defaultProjects);
+    const [mockCustomers] = useLocalStorageData<any[]>(demoDataService.KEYS.CUSTOMERS, defaultCustomers);
+    const [mockUsers] = useLocalStorageData<any[]>(demoDataService.KEYS.USERS, defaultUsers);
+    const [mockTemplates] = useLocalStorageData<any[]>(demoDataService.KEYS.TEMPLATES, defaultTemplates);
+    const [mockStandards] = useLocalStorageData<any[]>(demoDataService.KEYS.STANDARDS, defaultStandards);
+    const [mockMaterials] = useLocalStorageData<any[]>(demoDataService.KEYS.MATERIALS, defaultMaterials);
+
     // Pre-fill from customer if coming from CRM
     const customer = mockCustomers.find(c => c.id === customerId);
     const workers = mockUsers.filter(u => u.role === 'supervisor' && u.isActive);
-
 
     const [constructionType, setConstructionType] = useState('Chống thấm sàn');
     const [areaM2, setAreaM2] = useState(100);
@@ -54,21 +68,80 @@ const ProjectCreate: React.FC = () => {
 
     const handleSubmit = async () => {
         try {
-            await form.validateFields();
+            const values = await form.validateFields();
             setSaving(true);
+            
+            // Artificial delay
             await new Promise(r => setTimeout(r, 900));
+
+            const template = mockTemplates.find(t => t.id === values.templateId);
+            const selectedWorkerNames = mockUsers
+                .filter(u => selectedWorkers.includes(u.id))
+                .map(u => u.fullName);
+
+            const projectId = `DA-2026-${String(Date.now()).slice(-3)}`;
+            
+            const newProject: Project = {
+                id: projectId,
+                code: projectId,
+                name: values.projectName,
+                customerId: customer?.id || '',
+                customerName: customer?.fullName || 'Khách hàng mới',
+                address: values.address,
+                areaM2: values.areaM2,
+                category: constructionType,
+                type: 'Nội bộ',
+                templateId: values.templateId,
+                status: 'SCHEDULED',
+                pmId: 'U001', // Mock PM
+                pmName: 'Nguyễn Văn PM',
+                workerIds: selectedWorkers,
+                workerNames: selectedWorkerNames,
+                startDate: values.startDate.format('YYYY-MM-DD'),
+                plannedEndDate: values.endDate.format('YYYY-MM-DD'),
+                createdAt: dayjs().format('YYYY-MM-DD'),
+                notes: values.notes,
+                steps: template ? template.steps.map((s: any) => ({
+                    id: `SP-${projectId}-${s.id}`,
+                    templateStepId: s.id,
+                    order: s.order,
+                    name: s.name,
+                    description: s.description,
+                    minPhotos: s.minPhotos,
+                    status: s.order === 1 ? 'OPEN' : 'LOCKED',
+                    evidences: []
+                })) : [],
+                incidents: [],
+                activityLog: [
+                    {
+                        id: `AL-${Date.now()}`,
+                        projectId: projectId,
+                        actor: 'Nguyễn Văn PM',
+                        action: 'PROJECT_CREATE',
+                        detail: 'Tạo dự án mới từ form thi công',
+                        timestamp: dayjs().toISOString()
+                    }
+                ],
+                paymentMilestones: [],
+                stockOrders: []
+            };
+
+            setMockProjects([newProject, ...mockProjects]);
             setSaving(false);
+
             Modal.success({
                 title: '✅ Dự án đã được tạo!',
                 content: (
                     <div>
-                        <p>Dự án đã được tạo với trạng thái <strong>Đã lên lịch</strong>.</p>
-                        <p>📣 Thông báo đã gửi đến thợ được phân công.</p>
+                        <p>Dự án <strong>{newProject.code}</strong> đã được tạo với trạng thái <strong>Đã lên lịch</strong>.</p>
+                        <p>📣 Thông báo đã gửi đến thợ được phân công: {selectedWorkerNames.join(', ')}.</p>
                     </div>
                 ),
                 onOk: () => navigate('/pm/construction/projects'),
             });
-        } catch { /* validation error */ }
+        } catch (err) {
+            console.error('Validation failed:', err);
+        }
     };
 
     return (
@@ -317,7 +390,7 @@ const ProjectCreate: React.FC = () => {
                 <Steps
                     direction="vertical"
                     size="small"
-                    items={(preview?.steps ?? []).map(s => ({
+                    items={(preview?.steps ?? []).map((s: ChecklistStep) => ({
                         title: <Text strong style={{ fontSize: 13 }}>{s.order}. {s.name}</Text>,
                         description: (
                             <Space style={{ fontSize: 12, color: '#999' }}>

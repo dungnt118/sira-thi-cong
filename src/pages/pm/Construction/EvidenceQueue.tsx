@@ -7,8 +7,10 @@ import {
     CameraOutlined, UserOutlined, SearchOutlined, ClockCircleOutlined,
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { mockProjects } from '../../../data/mockData';
-import type { StepStatus } from '../../../types/v3';
+import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
+import { demoDataService } from '../../../services/localstorage/demoDataService';
+import { mockProjects as defaultProjects } from '../../../data/mockData';
+import type { Project, StepStatus } from '../../../types/v3';
 
 const { Title, Text } = Typography;
 
@@ -17,6 +19,7 @@ const AWAITING_STATUSES: StepStatus[] = ['AWAITING_REVIEW'];
 const EvidenceQueue: React.FC = () => {
     const navigate = useNavigate();
     const [search, setSearch] = useState('');
+    const [mockProjects] = useLocalStorageData<Project[]>(demoDataService.KEYS.PROJECTS, defaultProjects);
 
     // Enrich each project with pending review count
     const projects = mockProjects.map(p => ({

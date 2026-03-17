@@ -7,8 +7,10 @@ import {
     PlusOutlined, EditOutlined, DeleteOutlined, SettingOutlined,
     ExclamationCircleOutlined, HolderOutlined
 } from '@ant-design/icons';
-import { mockPipelines, mockServiceRequests } from '../../../data/mockData';
-import type { Pipeline, PipelineStage, PipelineSystemStage } from '../../../types/v3';
+import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
+import { demoDataService } from '../../../services/localstorage/demoDataService';
+import { mockPipelines as defaultPipelines, mockServiceRequests as defaultServiceRequests } from '../../../data/mockData';
+import type { Pipeline, PipelineStage, PipelineSystemStage, ServiceRequest } from '../../../types/v3';
 
 const { Sider, Content } = Layout;
 const { Title, Text } = Typography;
@@ -23,7 +25,9 @@ const SYSTEM_STAGES: { value: PipelineSystemStage; label: string }[] = [
 ];
 
 const PipelineSettings: React.FC = () => {
-    const [pipelines, setPipelines] = useState<Pipeline[]>(mockPipelines);
+    const [mockPipelines, setMockPipelines] = useLocalStorageData<Pipeline[]>(demoDataService.KEYS.PIPELINES, defaultPipelines);
+    const [mockServiceRequests] = useLocalStorageData<ServiceRequest[]>(demoDataService.KEYS.SERVICE_REQUESTS, defaultServiceRequests);
+    
     const [selectedId, setSelectedId] = useState<string>(mockPipelines[0]?.id || '');
     const screens = useBreakpoint();
     const isMobile = !screens.md;
@@ -35,7 +39,7 @@ const PipelineSettings: React.FC = () => {
     const [pipelineForm] = Form.useForm();
     const [stageForm] = Form.useForm();
 
-    const activePipeline = pipelines.find(p => p.id === selectedId);
+    const activePipeline = mockPipelines.find(p => p.id === selectedId);
 
     // --- PIPELINE HANDLERS ---
     const handleAddPipeline = () => {
@@ -55,7 +59,7 @@ const PipelineSettings: React.FC = () => {
                 { id: `st-${Date.now()}-3`, name: 'Thất Bại', order: 3, color: '#ff4d4f', systemStage: 'LOST' }
             ]
         };
-        setPipelines([...pipelines, newPipeline]);
+        setMockPipelines([...mockPipelines, newPipeline]);
         setSelectedId(newPipeline.id);
         setIsPipelineModalVisible(false);
         message.success('Đã tạo Pipeline mới');
@@ -70,8 +74,9 @@ const PipelineSettings: React.FC = () => {
             });
             return;
         }
-        setPipelines(pipelines.filter(p => p.id !== id));
-        if (selectedId === id) setSelectedId(pipelines[0]?.id || '');
+        const updated = mockPipelines.filter(p => p.id !== id);
+        setMockPipelines(updated);
+        if (selectedId === id) setSelectedId(updated[0]?.id || '');
         message.success('Đã xóa Pipeline');
     };
 
@@ -114,7 +119,7 @@ const PipelineSettings: React.FC = () => {
 
         updatedStages.sort((a, b) => a.order - b.order);
 
-        setPipelines(pipelines.map(p =>
+        setMockPipelines(mockPipelines.map(p =>
             p.id === activePipeline.id ? { ...p, stages: updatedStages } : p
         ));
         setIsStageModalVisible(false);
@@ -137,7 +142,7 @@ const PipelineSettings: React.FC = () => {
         }
 
         const updatedStages = activePipeline.stages.filter(s => s.id !== stage.id);
-        setPipelines(pipelines.map(p =>
+        setMockPipelines(mockPipelines.map(p =>
             p.id === activePipeline.id ? { ...p, stages: updatedStages } : p
         ));
         message.success('Đã xóa Bước');
@@ -211,7 +216,7 @@ const PipelineSettings: React.FC = () => {
                 selectedKeys={[selectedId]}
                 onClick={(e) => setSelectedId(e.key)}
                 style={{ borderRight: 'none', padding: '8px 0' }}
-                items={pipelines.map(p => ({
+                items={mockPipelines.map(p => ({
                     key: p.id,
                     icon: <SettingOutlined />,
                     label: (

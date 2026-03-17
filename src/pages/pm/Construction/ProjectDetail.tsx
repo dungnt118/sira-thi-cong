@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
     Card, Tabs, Row, Col, Progress, Tag, Button, Steps, Image, Typography,
     Space, Alert, Timeline, Modal, Input, Statistic, Badge, Drawer,
-    Divider
+    Divider, message
 } from 'antd';
 import {
     ArrowLeftOutlined, EyeOutlined, CheckOutlined,
@@ -10,8 +10,10 @@ import {
     ClockCircleOutlined, LockOutlined, LinkOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
-import { mockProjects, getProjectProgress } from '../../../data/mockData';
-import type { StepStatus } from '../../../types/v3';
+import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
+import { demoDataService } from '../../../services/localstorage/demoDataService';
+import { mockProjects as defaultProjects, getProjectProgress } from '../../../data/mockData';
+import type { Project, StepStatus } from '../../../types/v3';
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -28,9 +30,12 @@ const STEP_STATUS_CONFIG: Record<StepStatus, { color: string; icon: React.ReactN
 const PMProjectDetail: React.FC = () => {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
+    const [mockProjects, setMockProjects] = useLocalStorageData<Project[]>(demoDataService.KEYS.PROJECTS, defaultProjects);
+    
     const project = mockProjects.find(p => p.id === id);
 
     const [rejectModalOpen, setRejectModalOpen] = useState(false);
+    const [rejectStepId, setRejectStepId] = useState<string | null>(null);
     const [rejectReason, setRejectReason] = useState('');
     const [portalDrawer, setPortalDrawer] = useState(false);
 
@@ -41,18 +46,56 @@ const PMProjectDetail: React.FC = () => {
     const pendingReview = project.steps.filter(s => s.status === 'AWAITING_REVIEW').length;
     const hasOpenIncidents = project.incidents.filter(i => !i.isResolved).length;
 
-    const handleApproveStep = (_stepId: string) => {
+    const handleApproveStep = (stepId: string) => {
         Modal.confirm({
             title: 'Duyệt bước thi công',
             content: 'Xác nhận duyệt tất cả ảnh của bước này?',
             okText: 'Duyệt',
             okType: 'primary',
-            onOk: () => { /* mock approve */ },
+            onOk: () => {
+                if (!project) return;
+                const nextStepIndex = project.steps.findIndex(s => s.id === stepId) + 1;
+                
+                const updatedSteps = project.steps.map((s, idx) => {
+                    if (s.id === stepId) {
+                        return { ...s, status: 'APPROVED' as StepStatus };
+                    }
+                    if (idx === nextStepIndex && s.status === 'LOCKED') {
+                        return { ...s, status: 'OPEN' as StepStatus };
+                    }
+                    return s;
+                });
+
+                const updatedProjects = mockProjects.map(p => 
+                    p.id === project.id ? { ...p, steps: updatedSteps } : p
+                );
+                setMockProjects(updatedProjects);
+                message.success('Đã duyệt bước thi công');
+            },
         });
     };
 
-    const handleRejectStep = (_stepId: string) => {
+    const handleRejectStep = (stepId: string) => {
+        setRejectStepId(stepId);
         setRejectModalOpen(true);
+    };
+
+    const confirmReject = () => {
+        if (!project || !rejectStepId) return;
+        
+        const updatedSteps = project.steps.map(s => 
+            s.id === rejectStepId ? { ...s, status: 'REJECTED' as StepStatus, pmFeedback: rejectReason } : s
+        );
+
+        const updatedProjects = mockProjects.map(p => 
+            p.id === project.id ? { ...p, steps: updatedSteps } : p
+        );
+        
+        setMockProjects(updatedProjects);
+        setRejectModalOpen(false);
+        setRejectStepId(null);
+        setRejectReason('');
+        message.info('Đã từ chối bước thi công');
     };
 
     const tabItems = [
@@ -322,11 +365,12 @@ const PMProjectDetail: React.FC = () => {
             <Modal
                 title="Từ chối ảnh – Yêu cầu chụp lại"
                 open={rejectModalOpen}
-                onCancel={() => setRejectModalOpen(false)}
-                onOk={() => {
+                onCancel={() => {
                     setRejectModalOpen(false);
+                    setRejectStepId(null);
                     setRejectReason('');
                 }}
+                onOk={confirmReject}
                 okText="Gửi phản hồi"
                 okType="danger"
             >

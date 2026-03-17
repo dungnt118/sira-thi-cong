@@ -8,8 +8,11 @@ import {
     EyeOutlined, UserOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
-import { mockProjects } from '../../../data/mockData';
-import type { StepStatus } from '../../../types/v3';
+import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
+import { demoDataService } from '../../../services/localstorage/demoDataService';
+import { mockProjects as defaultProjects } from '../../../data/mockData';
+import type { Project, StepStatus } from '../../../types/v3';
+import { message } from 'antd';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -34,6 +37,7 @@ const STATUS_COLOR: Partial<Record<StepStatus, string>> = {
 const PhotoApproval: React.FC = () => {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
+    const [mockProjects, setMockProjects] = useLocalStorageData<Project[]>(demoDataService.KEYS.PROJECTS, defaultProjects);
     const project = mockProjects.find(p => p.id === id);
 
     const [filter, setFilter] = useState<FilterType>('AWAITING');
@@ -41,8 +45,7 @@ const PhotoApproval: React.FC = () => {
     const [rejectTarget, setRejectTarget] = useState<{ stepId: string; evidenceId?: string } | null>(null);
     const [rejectReason, setRejectReason] = useState('');
     const [customReason, setCustomReason] = useState('');
-    const [approved, setApproved] = useState<Set<string>>(new Set());
-    const [rejected, setRejected] = useState<Map<string, string>>(new Map());
+    const [saving, setSaving] = useState(false);
 
     if (!project) return <div>Không tìm thấy dự án</div>;
 
@@ -50,9 +53,9 @@ const PhotoApproval: React.FC = () => {
     const allEvidences = stepsWithPhotos.flatMap(s => s.evidences.map(e => ({ ...e, stepName: s.name, stepOrder: s.order })));
 
     const totalEvidence = allEvidences.length;
-    const totalApproved = allEvidences.filter(e => e.status === 'APPROVED' || approved.has(e.id)).length;
-    const totalRejected = allEvidences.filter(e => e.status === 'REJECTED' || rejected.has(e.id)).length;
-    const totalAwaiting = totalEvidence - totalApproved - totalRejected;
+    const totalApproved = allEvidences.filter(e => e.status === 'APPROVED').length;
+    const totalRejected = allEvidences.filter(e => e.status === 'REJECTED').length;
+    const totalAwaiting = allEvidences.filter(e => e.status === 'PENDING').length;
 
     const filteredSteps = stepsWithPhotos.filter(s => {
         if (filter === 'ALL') return true;
@@ -62,15 +65,41 @@ const PhotoApproval: React.FC = () => {
         return true;
     });
 
-    const handleApprove = (evidenceId: string) => {
-        setApproved(prev => new Set([...prev, evidenceId]));
+    const handleApprove = (stepId: string, evidenceId: string) => {
+        if (!project) return;
+        const updatedSteps = project.steps.map(s => {
+            if (s.id !== stepId) return s;
+            const updatedEvidences = s.evidences.map(ev => 
+                ev.id === evidenceId ? { ...ev, status: 'APPROVED' as const } : ev
+            );
+            
+            // Auto-approve step if all evidences are approved
+            const allApproved = updatedEvidences.every(ev => ev.status === 'APPROVED');
+            return { 
+                ...s, 
+                evidences: updatedEvidences, 
+                status: allApproved ? 'APPROVED' as StepStatus : s.status 
+            };
+        });
+
+        const updatedProjects = mockProjects.map(p => 
+            p.id === id ? { ...p, steps: updatedSteps } : p
+        );
+        setMockProjects(updatedProjects);
     };
 
     const handleApproveAll = (stepId: string) => {
-        const step = project.steps.find(s => s.id === stepId);
-        if (!step) return;
-        const ids = step.evidences.map(e => e.id);
-        setApproved(prev => new Set([...prev, ...ids]));
+        if (!project) return;
+        const updatedSteps = project.steps.map(s => {
+            if (s.id !== stepId) return s;
+            const updatedEvidences = s.evidences.map(ev => ({ ...ev, status: 'APPROVED' as const }));
+            return { ...s, evidences: updatedEvidences, status: 'APPROVED' as StepStatus };
+        });
+
+        const updatedProjects = mockProjects.map(p => 
+            p.id === id ? { ...p, steps: updatedSteps } : p
+        );
+        setMockProjects(updatedProjects);
     };
 
     const openRejectModal = (stepId: string, evidenceId?: string) => {
@@ -82,17 +111,23 @@ const PhotoApproval: React.FC = () => {
 
     const confirmReject = () => {
         const reason = rejectReason === 'Khác' ? customReason : rejectReason;
-        if (!rejectTarget || !reason) return;
-        if (rejectTarget.evidenceId) {
-            setRejected(prev => new Map([...prev, [rejectTarget.evidenceId!, reason]]));
-        } else {
-            // Reject all in step
-            const step = project.steps.find(s => s.id === rejectTarget.stepId);
-            if (step) {
-                const entries: [string, string][] = step.evidences.map(e => [e.id, reason]);
-                setRejected(prev => new Map([...prev, ...entries]));
-            }
-        }
+        if (!rejectTarget || !reason || !project) return;
+        
+        const updatedSteps = project.steps.map(s => {
+            if (s.id !== rejectTarget.stepId) return s;
+            const updatedEvidences = s.evidences.map(ev => {
+                if (rejectTarget.evidenceId) {
+                    return ev.id === rejectTarget.evidenceId ? { ...ev, status: 'REJECTED' as const, pmFeedback: reason } : ev;
+                }
+                return { ...ev, status: 'REJECTED' as const, pmFeedback: reason };
+            });
+            return { ...s, evidences: updatedEvidences, status: 'REJECTED' as StepStatus, pmFeedback: reason };
+        });
+
+        const updatedProjects = mockProjects.map(p => 
+            p.id === id ? { ...p, steps: updatedSteps } : p
+        );
+        setMockProjects(updatedProjects);
         setRejectModalOpen(false);
     };
 
@@ -166,8 +201,8 @@ const PhotoApproval: React.FC = () => {
                             <Image.PreviewGroup>
                                 <Row gutter={[12, 12]}>
                                     {step.evidences.map(ev => {
-                                        const isApproved = ev.status === 'APPROVED' || approved.has(ev.id);
-                                        const isRejected = ev.status === 'REJECTED' || rejected.has(ev.id);
+                                        const isApproved = ev.status === 'APPROVED';
+                                        const isRejected = ev.status === 'REJECTED';
                                         return (
                                             <Col key={ev.id} xs={12} sm={8} md={6}>
                                                 <div style={{
@@ -204,15 +239,15 @@ const PhotoApproval: React.FC = () => {
                                                         <Text style={{ fontSize: 11, color: '#666', display: 'block' }}>
                                                             📅 {ev.uploadedAt.replace('T', ' ').slice(0, 16)}
                                                         </Text>
-                                                        {rejected.has(ev.id) && (
+                                                        {ev.pmFeedback && (
                                                             <Text style={{ fontSize: 10, color: '#ff4d4f', display: 'block' }}>
-                                                                ❌ {rejected.get(ev.id)}
+                                                                ❌ {ev.pmFeedback}
                                                             </Text>
                                                         )}
                                                         {!isApproved && !isRejected && (
                                                             <div style={{ display: 'flex', gap: 4, marginTop: 4 }}>
                                                                 <Button size="small" type="primary" style={{ flex: 1, fontSize: 11 }}
-                                                                    onClick={() => handleApprove(ev.id)}>✅</Button>
+                                                                    onClick={() => handleApprove(step.id, ev.id)}>✅</Button>
                                                                 <Button size="small" danger style={{ flex: 1, fontSize: 11 }}
                                                                     onClick={() => openRejectModal(step.id, ev.id)}>❌</Button>
                                                             </div>
@@ -288,9 +323,22 @@ const PhotoApproval: React.FC = () => {
                 <Space>
                     <Tag color="processing">{totalAwaiting} chờ duyệt</Tag>
                     <Button type="primary" icon={<CheckCircleOutlined />}
-                        onClick={() => {
-                            const ids = allEvidences.map(e => e.id);
-                            setApproved(new Set(ids));
+                        loading={saving}
+                        onClick={async () => {
+                            if (!project) return;
+                            setSaving(true);
+                            const updatedSteps = project.steps.map(s => ({
+                                ...s,
+                                status: 'APPROVED' as StepStatus,
+                                evidences: s.evidences.map(ev => ({ ...ev, status: 'APPROVED' as const }))
+                            }));
+                            const updatedProjects = mockProjects.map(p => 
+                                p.id === id ? { ...p, steps: updatedSteps } : p
+                            );
+                            setMockProjects(updatedProjects);
+                            await new Promise(r => setTimeout(r, 800));
+                            setSaving(false);
+                            message.success('Đã duyệt toàn bộ ảnh dự án');
                         }}>
                         Approve tất cả
                     </Button>

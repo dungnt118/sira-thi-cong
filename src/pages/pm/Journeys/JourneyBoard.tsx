@@ -10,7 +10,9 @@ import {
     ExclamationCircleFilled, MinusCircleFilled
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { mockJourneys } from '../../../data/journeyMockData';
+import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
+import { demoDataService } from '../../../services/localstorage/demoDataService';
+import { mockJourneys as defaultJourneys } from '../../../data/journeyMockData';
 import type { Journey, SlaStatus, PriorityLevel } from '../../../types/journey';
 
 const { Text } = Typography;
@@ -83,6 +85,7 @@ const JourneyKanbanCard: React.FC<{ journey: Journey; onClick: () => void }> = (
 
 const JourneyBoard: React.FC = () => {
     const navigate = useNavigate();
+    const [mockJourneys, setMockJourneys] = useLocalStorageData<Journey[]>(demoDataService.KEYS.JOURNEYS, defaultJourneys);
     const [filterPriority, setFilterPriority] = useState<string>('ALL');
     const [filterOwner, setFilterOwner] = useState<string>('ALL');
 
@@ -100,6 +103,23 @@ const JourneyBoard: React.FC = () => {
     const handleDrop = (journey: Journey, newStepCode: string) => {
         if (journey.current_step_code === newStepCode) return;
         setChangeStepModal({ visible: true, journey, newStep: newStepCode });
+    };
+
+    const handleConfirmStepChange = () => {
+        if (!changeStepModal.journey || !changeStepModal.newStep) return;
+        
+        const updatedJourneys = mockJourneys.map(j => 
+            j.id === changeStepModal.journey?.id 
+                ? { ...j, current_step_code: changeStepModal.newStep! } 
+                : j
+        );
+        
+        setMockJourneys(updatedJourneys);
+        setChangeStepModal({ visible: false });
+        Modal.success({
+            title: 'Chuyển bước thành công',
+            content: `Đã chuyển hành trình ${changeStepModal.journey.journey_code} sang bước ${STEP_LABELS[changeStepModal.newStep]}`,
+        });
     };
 
     return (
@@ -241,7 +261,7 @@ const JourneyBoard: React.FC = () => {
             <Modal
                 title="Xác nhận chuyển bước"
                 open={changeStepModal.visible}
-                onOk={() => setChangeStepModal({ visible: false })}
+                onOk={handleConfirmStepChange}
                 onCancel={() => setChangeStepModal({ visible: false })}
                 okText="Xác nhận"
                 cancelText="Hủy"

@@ -7,7 +7,9 @@ import {
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { Select } from 'antd';
-import { mockServiceRequests, mockPipelines } from '../../../data/mockData';
+import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
+import { demoDataService } from '../../../services/localstorage/demoDataService';
+import { mockServiceRequests as defaultServiceRequests, mockPipelines as defaultPipelines } from '../../../data/mockData';
 import type { ServiceRequest, Pipeline as PipelineType } from '../../../types/v3';
 
 const { Text, Title } = Typography;
@@ -101,18 +103,18 @@ const Pipeline: React.FC = () => {
     const screens = Grid.useBreakpoint();
     const isMobile = !screens.md;
     const navigate = useNavigate();
-    const [requests, setRequests] = useState(mockServiceRequests);
+    const [mockPipelines] = useLocalStorageData<PipelineType[]>(demoDataService.KEYS.PIPELINES, defaultPipelines);
+    const [mockServiceRequests, setMockServiceRequests] = useLocalStorageData<ServiceRequest[]>(demoDataService.KEYS.SERVICE_REQUESTS, defaultServiceRequests);
     const [activePipelineId, setActivePipelineId] = useState<string>(mockPipelines[0]?.id || '');
 
     const activePipeline = mockPipelines.find(p => p.id === activePipelineId) || mockPipelines[0];
 
     // Filter requests by active pipeline ONLY
-    const pipelineRequests = requests.filter(r => r.pipelineId === activePipeline.id);
+    const pipelineRequests = mockServiceRequests.filter(r => r.pipelineId === activePipeline.id);
 
     const handleMove = (requestId: string, newStageId: string) => {
-        setRequests(prev =>
-            prev.map(r => r.id === requestId ? { ...r, stageId: newStageId } : r)
-        );
+        const updated = mockServiceRequests.map(r => r.id === requestId ? { ...r, stageId: newStageId } : r);
+        setMockServiceRequests(updated);
     };
 
     // Calculate conversion dynamically based on 'WON' systemStage

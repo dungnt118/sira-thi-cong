@@ -8,7 +8,9 @@ import {
     PlusOutlined, CopyOutlined, StarFilled, EyeOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { mockJourneyTemplates } from '../../../data/journeyMockData';
+import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
+import { demoDataService } from '../../../services/localstorage/demoDataService';
+import { mockJourneyTemplates as defaultTemplates } from '../../../data/journeyMockData';
 import type { JourneyTemplate } from '../../../types/journey';
 
 const { Text } = Typography;
@@ -22,6 +24,7 @@ const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
 
 const TemplateList: React.FC = () => {
     const navigate = useNavigate();
+    const [mockJourneyTemplates, setMockJourneyTemplates] = useLocalStorageData<JourneyTemplate[]>(demoDataService.KEYS.JOURNEY_TEMPLATES, defaultTemplates);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showCloneModal, setShowCloneModal] = useState(false);
     const [_cloneTarget, setCloneTarget] = useState<JourneyTemplate | null>(null);
@@ -170,7 +173,19 @@ const TemplateList: React.FC = () => {
                 cancelText="Hủy"
             >
                 <Form form={createForm} layout="vertical"
-                    onFinish={() => { setShowCreateModal(false); createForm.resetFields(); }}>
+                    onFinish={(values) => { 
+                    const newTpl: JourneyTemplate = {
+                        id: `TPL-NEW-${Date.now()}`,
+                        ...values,
+                        status: 'active',
+                        updated_at: new Date().toISOString(),
+                        created_at: new Date().toISOString(),
+                        steps: [],
+                    };
+                    setMockJourneyTemplates([...mockJourneyTemplates, newTpl]);
+                    setShowCreateModal(false); 
+                    createForm.resetFields(); 
+                }}>
                     <Form.Item label="Mã template" name="template_code" rules={[{ required: true }]}>
                         <Input placeholder="VD: TMPL-CT-004" />
                     </Form.Item>
@@ -212,7 +227,22 @@ const TemplateList: React.FC = () => {
                 cancelText="Hủy"
             >
                 <Form form={cloneForm} layout="vertical"
-                    onFinish={() => { setShowCloneModal(false); cloneForm.resetFields(); }}>
+                    onFinish={(values) => { 
+                    if (!_cloneTarget) return;
+                    const newTpl: JourneyTemplate = {
+                        ..._cloneTarget,
+                        id: `TPL-CLONE-${Date.now()}`,
+                        template_code: values.new_template_code,
+                        template_name: values.new_template_name,
+                        status: 'draft',
+                        updated_at: new Date().toISOString(),
+                        created_at: new Date().toISOString(),
+                        is_default: false,
+                    };
+                    setMockJourneyTemplates([...mockJourneyTemplates, newTpl]);
+                    setShowCloneModal(false); 
+                    cloneForm.resetFields(); 
+                }}>
                     <Form.Item label="Template nguồn" name="source_template">
                         <Input disabled />
                     </Form.Item>

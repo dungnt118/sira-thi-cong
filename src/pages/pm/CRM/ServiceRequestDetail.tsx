@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
     Card, Tabs, Row, Col, Typography, Button, Space,
     Descriptions, Tag, Timeline, Divider, List, Avatar, Empty
@@ -9,8 +9,19 @@ import {
     EditOutlined, CameraOutlined, FileTextOutlined,
     CheckCircleOutlined, SyncOutlined
 } from '@ant-design/icons';
-import { mockServiceRequests, mockCustomers, mockPipelines } from '../../../data/mockData';
-import type { PipelineSystemStage } from '../../../types/v3';
+import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
+import { demoDataService } from '../../../services/localstorage/demoDataService';
+import { 
+    mockServiceRequests as defaultServiceRequests, 
+    mockCustomers as defaultCustomers, 
+    mockPipelines as defaultPipelines 
+} from '../../../data/mockData';
+import type { 
+    ServiceRequest, 
+    Customer, 
+    Pipeline as PipelineType,
+    PipelineSystemStage 
+} from '../../../types/v3';
 
 const { Title, Text } = Typography;
 
@@ -25,14 +36,25 @@ const ServiceRequestDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
 
+    const [mockPipelines] = useLocalStorageData<PipelineType[]>(demoDataService.KEYS.PIPELINES, defaultPipelines);
+    const [mockCustomers] = useLocalStorageData<Customer[]>(demoDataService.KEYS.CUSTOMERS, defaultCustomers);
+    const [mockServiceRequests, setMockServiceRequests] = useLocalStorageData<ServiceRequest[]>(demoDataService.KEYS.SERVICE_REQUESTS, defaultServiceRequests);
+
     const [activeTab, setActiveTab] = useState('overview');
 
-    const request = mockServiceRequests.find(r => r.id === id) || mockServiceRequests[0];
-    const customer = mockCustomers.find(c => c.id === request.customerId);
-    const pipeline = mockPipelines.find(p => p.id === request.pipelineId);
-    const stage = pipeline?.stages.find(s => s.id === request.stageId);
+    const request = mockServiceRequests.find(r => r.id === id);
+    const customer = mockCustomers.find(c => c.id === request?.customerId);
+    const pipeline = mockPipelines.find(p => p.id === request?.pipelineId);
+    const stage = pipeline?.stages.find(s => s.id === request?.stageId);
 
-    if (!customer) return <div>Khách hàng không tồn tại</div>;
+    if (!request || !customer) return <div>Yêu cầu dịch vụ hoặc khách hàng không tồn tại</div>;
+
+    const handleStageUpdate = (newStageId: string) => {
+        const updated = mockServiceRequests.map(sr => 
+            sr.id === id ? { ...sr, stageId: newStageId } : sr
+        );
+        setMockServiceRequests(updated);
+    };
 
     const statusObj = STATUS_CONFIG[request.status];
 
@@ -236,6 +258,7 @@ const ServiceRequestDetail: React.FC = () => {
                                     block
                                     type={s.id === request.stageId ? 'primary' : 'default'}
                                     style={s.id === request.stageId ? { background: s.color, borderColor: s.color } : {}}
+                                    onClick={() => handleStageUpdate(s.id)}
                                 >
                                     {s.order}. {s.name}
                                 </Button>

@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import {
     Card, Button, Tag, Space, Typography, Row, Col, Descriptions,
-    Modal, Form, Input, List, Badge
+    Modal, Form, Input, List, Badge, message
 } from 'antd';
 import {
     ArrowLeftOutlined, PlusOutlined, EditOutlined,
     SaveOutlined, ReloadOutlined, SettingOutlined, DeleteOutlined, StarFilled
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
-import { mockJourneyTemplates } from '../../../data/journeyMockData';
-import type { JourneyStepDef } from '../../../types/journey';
+import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
+import { demoDataService } from '../../../services/localstorage/demoDataService';
+import { mockJourneyTemplates as defaultTemplates } from '../../../data/journeyMockData';
+import type { JourneyStepDef, JourneyTemplate } from '../../../types/journey';
 import StepConfigModal from './StepConfigModal';
 
 const { Text, Title } = Typography;
@@ -17,6 +19,7 @@ const { Text, Title } = Typography;
 const TemplateDetail: React.FC = () => {
     const { templateId } = useParams<{ templateId: string }>();
     const navigate = useNavigate();
+    const [mockJourneyTemplates, setMockJourneyTemplates] = useLocalStorageData<JourneyTemplate[]>(demoDataService.KEYS.JOURNEY_TEMPLATES, defaultTemplates);
     const template = mockJourneyTemplates.find(t => t.id === templateId);
 
     const [steps, setSteps] = useState<JourneyStepDef[]>(template?.steps || []);
@@ -51,8 +54,23 @@ const TemplateDetail: React.FC = () => {
         stepForm.resetFields();
         setShowStepModal(true);
     };
+    const handleSaveTemplate = () => {
+        if (!template) return;
+        const updatedTemplates = mockJourneyTemplates.map(t => 
+            t.id === templateId ? { ...t, steps, updated_at: new Date().toISOString() } : t
+        );
+        setMockJourneyTemplates(updatedTemplates);
+        message.success('Đã lưu template thành công');
+    };
 
-
+    const handleResetToDefault = () => {
+        if (!template) return;
+        const defaultTpl = defaultTemplates.find(t => t.id === templateId);
+        if (defaultTpl) {
+            setSteps(defaultTpl.steps);
+            handleSaveTemplate();
+        }
+    };
 
     return (
         <div>
@@ -64,7 +82,7 @@ const TemplateDetail: React.FC = () => {
                     <Button icon={<ReloadOutlined />} onClick={() => setShowResetModal(true)} danger>
                         Reset về mặc định
                     </Button>
-                    <Button icon={<SaveOutlined />} type="primary">
+                    <Button icon={<SaveOutlined />} type="primary" onClick={handleSaveTemplate}>
                         Lưu Template
                     </Button>
                 </Space>
@@ -105,7 +123,7 @@ const TemplateDetail: React.FC = () => {
                     >
                         <List
                             dataSource={steps}
-                            renderItem={(step, idx) => (
+                            renderItem={(step: JourneyStepDef, idx) => (
                                 <List.Item
                                     style={{
                                         cursor: 'pointer',
@@ -244,7 +262,7 @@ const TemplateDetail: React.FC = () => {
                 onCancel={() => { setShowResetModal(false); resetForm.resetFields(); }}
                 onOk={() => {
                     resetForm.validateFields().then(() => {
-                        setSteps(template.steps);
+                        handleResetToDefault();
                         setShowResetModal(false);
                         resetForm.resetFields();
                     }).catch(info => {

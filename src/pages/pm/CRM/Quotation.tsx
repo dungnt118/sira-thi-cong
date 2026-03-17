@@ -10,8 +10,14 @@ import {
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import dayjs from 'dayjs';
-import { mockServiceRequests, mockCustomers, mockStandards } from '../../../data/mockData';
-import type { QuotationItem } from '../../../types/v3';
+import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
+import { demoDataService } from '../../../services/localstorage/demoDataService';
+import { 
+    mockServiceRequests as defaultServiceRequests, 
+    mockCustomers as defaultCustomers, 
+    mockStandards as defaultStandards 
+} from '../../../data/mockData';
+import type { QuotationItem, ServiceRequest, Customer, MaterialStandard } from '../../../types/v3';
 
 const { Title, Text } = Typography;
 
@@ -35,6 +41,11 @@ interface TableRow extends QuotationItem { _isNew?: boolean; }
 const Quotation: React.FC = () => {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
+    
+    const [mockCustomers] = useLocalStorageData<Customer[]>(demoDataService.KEYS.CUSTOMERS, defaultCustomers);
+    const [mockStandards] = useLocalStorageData<MaterialStandard[]>(demoDataService.KEYS.STANDARDS, defaultStandards);
+    const [mockServiceRequests, setMockServiceRequests] = useLocalStorageData<ServiceRequest[]>(demoDataService.KEYS.SERVICE_REQUESTS, defaultServiceRequests);
+
     const serviceRequest = mockServiceRequests.find(sr => sr.id === id);
     const customer = mockCustomers.find(c => c.id === serviceRequest?.customerId);
     const existingQuote = serviceRequest?.quotations?.[0];
@@ -153,13 +164,50 @@ const Quotation: React.FC = () => {
     ];
 
     const handleSave = async (approve = false) => {
+        if (!serviceRequest) return;
         setSaving(true);
-        await new Promise(r => setTimeout(r, 800));
+        
+        const newQuotation = {
+            id: existingQuote?.id || `q-${Date.now()}`,
+            code: existingQuote?.code || `BG-${dayjs().format('YYYYMMDD')}-${Math.floor(100 + Math.random() * 899)}`,
+            items: items.map(i => ({
+                id: i.id,
+                name: i.name,
+                unit: i.unit,
+                quantity: i.quantity,
+                unitPrice: i.unitPrice,
+                total: i.total
+            })),
+            subtotal,
+            discount,
+            total,
+            status: approve ? 'APPROVED' : 'DRAFT',
+            createdAt: existingQuote?.createdAt || new Date().toISOString()
+        };
+
+        const updatedRequests = mockServiceRequests.map(sr => {
+            if (sr.id !== id) return sr;
+            
+            // Replace or add quotation
+            const existingQuotes = sr.quotations || [];
+            const otherQuotes = existingQuotes.filter(q => q.id !== newQuotation.id);
+            
+            return { 
+                ...sr, 
+                quotations: [...otherQuotes, newQuotation as any],
+                status: approve ? 'WON' : sr.status 
+            };
+        });
+
+        setMockServiceRequests(updatedRequests);
+        
+        await new Promise(r => setTimeout(r, 600));
         setSaving(false);
+        
         if (approve) {
             setMilestoneModalOpen(true);
         } else {
-            message.success('Đã lưu báo giá');
+            message.success('Đã lưu báo giá thành công');
         }
     };
 
