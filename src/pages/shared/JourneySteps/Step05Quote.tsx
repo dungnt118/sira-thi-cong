@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, Form, Input, Button, Result, Space, Divider, Typography, Tag, Table, Row, Col, InputNumber } from 'antd';
 import { SaveOutlined, EditOutlined, EyeOutlined, PlusOutlined, DeleteOutlined, CalculatorOutlined } from '@ant-design/icons';
 
-import { mockQuotations, mockEstimates } from '../../../data/journeyMockData';
+import { mockQuotations, mockEstimates, mockJourneys } from '../../../data/journeyMockData';
 
 const { TextArea } = Input;
 const { Text, Title } = Typography;
@@ -33,14 +33,16 @@ const Step05Quote: React.FC<Step05QuoteProps> = ({ journeyId, isEditable = false
 
     const handleSyncWithEstimates = () => {
         const estimate = mockEstimates.find(e => e.journey_id === journeyId);
-        if (!estimate) return;
+        const journey = mockJourneys.find(j => j.id === journeyId);
+        if (!estimate || !journey) return;
 
-        // Group-based aggregation as requested by the USER
+        // Groups/Components of type NOT 'labor'
         const syncItems = (estimate.groups || []).map((group, idx) => {
-            // Sum up all components in this group to get the group total
             let groupTotal = 0;
             (group.components || []).forEach(comp => {
-                groupTotal += (comp.quantity || 0) * (comp.unitPrice || 0);
+                if (comp.type !== 'labor') {
+                    groupTotal += (comp.quantity || 0) * (comp.unitPrice || 0);
+                }
             });
 
             const qty = group.quantity || 1;
@@ -55,9 +57,25 @@ const Step05Quote: React.FC<Step05QuoteProps> = ({ journeyId, isEditable = false
                 price: price,
                 total: groupTotal
             };
-        });
+        }).filter(item => item.total > 0);
 
-        form.setFieldsValue({ items: syncItems });
+        // Add Labor as a separate independent item
+        const durationDays = journey.tentative_duration_days || 1;
+        const totalHours = durationDays * 8;
+        const laborTotal = journey.labor_estimate_total || 0;
+        const laborPricePerHour = Math.round(laborTotal / totalHours);
+
+        const laborItem = {
+            key: `labor-combined-${Date.now()}`,
+            name: 'Hạng mục Nhân công thi công',
+            description: `Tính theo thời gian dự kiến: ${durationDays} ngày (~${totalHours} giờ)`,
+            unit: 'Số giờ',
+            qty: totalHours,
+            price: laborPricePerHour,
+            total: laborTotal
+        };
+
+        form.setFieldsValue({ items: [...syncItems, laborItem] });
     };
 
     const handleFinish = (values: any) => {
@@ -187,7 +205,7 @@ const Step05Quote: React.FC<Step05QuoteProps> = ({ journeyId, isEditable = false
                             icon={<CalculatorOutlined />} 
                             onClick={handleSyncWithEstimates}
                         >
-                            Tổng hợp từ dự toán
+                            Tổng hợp từ dự toán và nhân công
                         </Button>
                     )}
                     <Button 
