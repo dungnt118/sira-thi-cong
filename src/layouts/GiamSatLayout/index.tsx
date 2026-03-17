@@ -1,69 +1,69 @@
 import React from 'react';
-import { Menu, Badge, Space, Grid, Input } from 'antd';
-import type { MenuProps } from 'antd';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Layout, Badge } from 'antd';
+import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import {
-    CalendarOutlined,
-    UserOutlined, BellOutlined, SearchOutlined
+    HomeOutlined,
+    AppstoreOutlined,
+    InboxOutlined,
+    UserOutlined,
+    BellOutlined
 } from '@ant-design/icons';
-import { BaseLayout } from '../shared/BaseLayout';
 import { UserMenu } from '../../components/common/Header/UserMenu';
+import './GiamSatMobile.css';
 
-const { useBreakpoint } = Grid;
-const { Search } = Input;
-
-const menuItems: MenuProps['items'] = [
-    {
-        key: '/giam-sat-group',
-        icon: <CalendarOutlined />,
-        label: 'Khảo sát & Hiện trường',
-        children: [
-            { key: '/giam-sat/surveys', label: 'Lịch khảo sát' },
-            { key: '/giam-sat/journey-feed', label: 'Feed hành trình' },
-        ],
-    },
-];
-
-const GiamSatSidebar: React.FC = () => {
-    const navigate = useNavigate();
-    const location = useLocation();
-    return (
-        <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ height: 64, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 18, fontWeight: 'bold' }}>
-                SIRA GS
-            </div>
-            <Menu
-                theme="dark" mode="inline"
-                selectedKeys={[location.pathname]}
-                defaultOpenKeys={['/giam-sat-group']}
-                items={menuItems}
-                onClick={({ key }) => navigate(key)}
-            />
-        </div>
-    );
-};
-
-const GiamSatTopBar: React.FC = () => {
-    const screens = useBreakpoint();
-    const isMobile = !screens.md;
-    // User menu logic moved to shared UserMenu component
-    return (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: isMobile ? '0 12px' : '0 24px', height: '100%', gap: 12 }}>
-            {!isMobile && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
-                    <div style={{ width: 40, height: 40, background: 'linear-gradient(135deg, #fa8c16, #ffc069)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 20, fontWeight: 'bold' }}>G</div>
-                    <span style={{ fontSize: 18, fontWeight: 600, color: '#fa8c16' }}>SIRA Giám sát</span>
-                </div>
-            )}
-            <Search placeholder="Tìm khảo sát..." allowClear style={{ maxWidth: 360, flex: 1 }} prefix={<SearchOutlined />} />
-            <Space size={isMobile ? 12 : 24} style={{ flexShrink: 0 }}>
-                <Badge count={2} offset={[-5, 5]}><BellOutlined style={{ fontSize: 20, cursor: 'pointer' }} /></Badge>
-                <UserMenu avatarColor="#fa8c16" showName={!isMobile} />
-            </Space>
-        </div>
-    );
-};
+const { Header, Content } = Layout;
 
 export const GiamSatLayout: React.FC = () => {
-    return <BaseLayout sidebar={<GiamSatSidebar />} topBar={<GiamSatTopBar />} />;
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    const navTabs = [
+        { key: '/supervisor/dashboard', icon: <HomeOutlined />, label: 'Trang chủ' },
+        { key: '/supervisor/projects', icon: <AppstoreOutlined />, label: 'Dự án' },
+        { key: '/supervisor/materials', icon: <InboxOutlined />, label: 'Vật tư' },
+        { key: '/supervisor/profile', icon: <UserOutlined />, label: 'Cá nhân' },
+    ];
+
+    const activeTab = navTabs.find(t => 
+        location.pathname.startsWith(t.key)
+    )?.key || '/supervisor/dashboard';
+
+    return (
+        <Layout className="giam-sat-layout">
+            <Header className="giam-sat-header">
+                <div className="header-brand-mobile">
+                    <div className="brand-logo-small">G</div>
+                    <span className="brand-text-mobile">SIRA Giám Sát</span>
+                </div>
+                <div className="header-actions-mobile">
+                    <Badge count={2} size="small" offset={[-4, 4]}>
+                        <BellOutlined className="header-icon-mobile" />
+                    </Badge>
+                    <UserMenu avatarColor="#fa8c16" showName={false} />
+                </div>
+            </Header>
+
+            <Content className="giam-sat-content">
+                <Outlet />
+            </Content>
+
+            <div className="giam-sat-bottom-nav">
+                {navTabs.map(tab => {
+                    const isActive = activeTab === tab.key;
+                    return (
+                        <div 
+                            key={tab.key}
+                            className={`bottom-nav-tab ${isActive ? 'active' : ''}`}
+                            onClick={() => navigate(tab.key)}
+                        >
+                            <span className="tab-icon">{tab.icon}</span>
+                            <span className="tab-label">{tab.label}</span>
+                        </div>
+                    );
+                })}
+            </div>
+        </Layout>
+    );
 };
+
+export default GiamSatLayout;

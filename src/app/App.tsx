@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import React, { Suspense, lazy } from 'react';
 import { ConfigProvider } from 'antd';
 import viVN from 'antd/locale/vi_VN';
 
@@ -86,7 +87,10 @@ import SupervisorMobileLayout from '../layouts/WorkerLayout';
 import SupervisorHome from '../pages/worker/WorkerHome';
 import SupervisorChecklist from '../pages/worker/Checklist';
 import SupervisorEvidenceUpload from '../pages/worker/EvidenceUpload';
-import SupervisorIncidentReport from '../pages/worker/IncidentReport';
+const SupervisorIncidentReport = lazy(() => import('../pages/worker/IncidentReport'));
+const ProjectDiary = lazy(() => import('../pages/giam-sat/ProjectDiary'));
+const MaterialReceipt = lazy(() => import('../pages/giam-sat/MaterialReceipt'));
+const GiamSatProfile = lazy(() => import('../pages/giam-sat/GiamSatProfile'));
 
 // V3 Accountant Pages
 import AccountantV3Layout from '../layouts/AccountantV3Layout';
@@ -260,25 +264,21 @@ function App() {
 
                     </Route>
 
-                    {/* ===== GIÁM SÁT ROUTES (Phase 1) ===== */}
-                    <Route path="/giam-sat" element={<GiamSatLayout />}>
-                        <Route index element={<Navigate to="/giam-sat/surveys" replace />} />
-                        <Route path="surveys" element={<SurveyQueue />} />
-                        <Route path="surveys/:journeyId" element={<SurveyForm />} />
-                        <Route path="journey-feed" element={<JourneyFeedSummary />} />
-                    </Route>
-
-                    {/* ===== SUPERVISOR ROUTES (V3) – Supervisor acts on behalf of field workers ===== */}
-                    <Route path="/supervisor" element={<SupervisorMobileLayout />}>
-                        <Route index element={<Navigate to="/supervisor/home" replace />} />
-                        <Route path="home" element={<SupervisorHome />} />
+                    {/* ===== SUPERVISOR ROUTES (V4) – Mobile First ===== */}
+                    <Route path="/supervisor" element={<GiamSatLayout />}>
+                        <Route index element={<Navigate to="/supervisor/dashboard" replace />} />
+                        <Route path="dashboard" element={<SupervisorHome />} />
                         <Route path="projects" element={<SupervisorHome />} />
                         <Route path="checklist/:id" element={<SupervisorChecklist />} />
                         <Route path="evidence/:projectId/:stepId" element={<SupervisorEvidenceUpload />} />
                         <Route path="incident" element={<SupervisorIncidentReport />} />
-                        <Route path="materials" element={<ComingSoon title="Vật tư – Ký nhận phiếu" />} />
-                        <Route path="profile" element={<ComingSoon title="Hồ sơ Giám Sát" />} />
+                        <Route path="materials" element={<MaterialReceipt />} />
+                        <Route path="profile" element={<GiamSatProfile />} />
+                        <Route path="diary/:projectId" element={<ProjectDiary />} />
                     </Route>
+
+                    {/* Alias /giam-sat to /supervisor for compatibility if needed */}
+                    <Route path="/giam-sat/*" element={<Navigate to="/supervisor" replace />} />
 
                     {/* ===== ACCOUNTANT ROUTES (V3) ===== */}
                     <Route path="/accountant" element={<AccountantV3Layout />}>

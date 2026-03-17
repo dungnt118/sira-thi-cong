@@ -5,7 +5,7 @@ import {
 import {
     UserOutlined, ClockCircleOutlined, RightOutlined,
     ExclamationCircleOutlined, SmileOutlined, BuildOutlined,
-    EnvironmentOutlined, PushpinOutlined, CalendarOutlined,
+    EnvironmentOutlined, PushpinOutlined, CalendarOutlined, BookOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { mockProjects, getProjectProgress } from '../../data/mockData';
@@ -105,9 +105,23 @@ const WorkerHome: React.FC = () => {
                                     </div>
                                 )}
 
-                                <Button type="primary" block style={{ marginTop: 12 }} size="large">
-                                    Tiếp tục thi công →
-                                </Button>
+                                <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
+                                    <Button 
+                                        type="primary" 
+                                        block 
+                                        size="large"
+                                        onClick={(e) => { e.stopPropagation(); navigate(`/supervisor/checklist/${p.id}`); }}
+                                    >
+                                        Tiếp tục thi công →
+                                    </Button>
+                                    <Button 
+                                        icon={<BookOutlined />}
+                                        size="large"
+                                        onClick={(e) => { e.stopPropagation(); navigate(`/supervisor/diary/${p.id}`); }}
+                                    >
+                                        Nhật ký
+                                    </Button>
+                                </div>
                             </Card>
                         );
                     })}
