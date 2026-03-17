@@ -4,7 +4,8 @@ import {
 } from 'antd';
 import {
     UserOutlined, ClockCircleOutlined, RightOutlined,
-    ExclamationCircleOutlined
+    ExclamationCircleOutlined, SmileOutlined, BuildOutlined,
+    EnvironmentOutlined, PushpinOutlined, CalendarOutlined,
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { mockProjects, getProjectProgress } from '../../data/mockData';
@@ -28,7 +29,7 @@ const WorkerHome: React.FC = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
                 <Avatar size={48} style={{ background: '#1976D2' }} icon={<UserOutlined />} />
                 <div>
-                    <Title level={4} style={{ margin: 0 }}>Xin chào, GS Trần Văn Tuấn! 👋</Title>
+                    <Title level={4} style={{ margin: 0 }}>Xin chào, GS Trần Văn Tuấn! <SmileOutlined style={{ color: '#faad14' }} /></Title>
                     <Text type="secondary">Thứ 3, {new Date().toLocaleDateString('vi-VN')}</Text>
                 </div>
             </div>
@@ -53,7 +54,7 @@ const WorkerHome: React.FC = () => {
             {inProgress.length > 0 && (
                 <div style={{ marginBottom: 20 }}>
                     <Text strong style={{ fontSize: 14, color: '#fa8c16', marginBottom: 8, display: 'block' }}>
-                        🔨 Đang thi công
+                        <BuildOutlined /> Đang thi công
                     </Text>
                     {inProgress.map(p => {
                         const pct = getProjectProgress(p);
@@ -78,7 +79,7 @@ const WorkerHome: React.FC = () => {
                                         </div>
                                         <Text type="secondary" style={{ fontSize: 12 }}>{p.name}</Text>
                                         <div style={{ fontSize: 12, color: '#666', marginTop: 4 }}>
-                                            📍 {p.address.split(',').slice(0, 2).join(', ')}
+                                            <EnvironmentOutlined /> {p.address.split(',').slice(0, 2).join(', ')}
                                         </div>
                                     </div>
                                     <RightOutlined style={{ color: '#bbb', marginTop: 4 }} />
@@ -98,7 +99,7 @@ const WorkerHome: React.FC = () => {
                                 {currentStep && (
                                     <div style={{ marginTop: 12, padding: '8px 12px', background: '#fff7e6', borderRadius: 8, border: '1px solid #ffd591' }}>
                                         <div style={{ fontSize: 12, fontWeight: 600, color: '#fa8c16' }}>
-                                            🎯 Bước hiện tại ({currentStep.order}/{p.steps.length})
+                                            <PushpinOutlined /> Bước hiện tại ({currentStep.order}/{p.steps.length})
                                         </div>
                                         <div style={{ fontSize: 12, color: '#666' }}>{currentStep.name}</div>
                                     </div>
@@ -117,7 +118,7 @@ const WorkerHome: React.FC = () => {
             {scheduled.length > 0 && (
                 <div style={{ marginBottom: 20 }}>
                     <Text strong style={{ fontSize: 14, color: '#1890ff', marginBottom: 8, display: 'block' }}>
-                        📅 Sắp tới
+                        <CalendarOutlined /> Sắp tới
                     </Text>
                     {scheduled.map(p => (
                         <Card

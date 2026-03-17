@@ -47,7 +47,7 @@ const StepMaterials: React.FC<StepMaterialsProps> = ({ journeyId, isEditable = f
     return (
         <Space direction="vertical" style={{ width: '100%' }} size="large">
             <Card 
-                title={<span>📦 Quản lý cung ứng vật tư</span>} 
+                title={<span><BoxPlotOutlined /> Quản lý cung ứng vật tư</span>} 
                 size="small"
                 extra={isEditable && (
                     <Button 

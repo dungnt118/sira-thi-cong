@@ -4,7 +4,8 @@ import {
     Space, Button, Statistic
 } from 'antd';
 import {
-    SafetyOutlined, FileTextOutlined, MessageOutlined, ClockCircleOutlined, RightOutlined
+    SafetyOutlined, FileTextOutlined, MessageOutlined, ClockCircleOutlined, RightOutlined,
+    SearchOutlined, UserOutlined
 } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
 import { mockJourneys } from '../../data/journeyMockData';
@@ -27,7 +28,7 @@ const CustomerPortal: React.FC = () => {
                 padding: 24,
             }}>
                 <Card style={{ textAlign: 'center', borderRadius: 16, maxWidth: 400, width: '100%' }}>
-                    <div style={{ fontSize: 64 }}>🔍</div>
+                    <div style={{ fontSize: 64, color: '#bfbfbf' }}><SearchOutlined /></div>
                     <Title level={3} style={{ color: '#ff4d4f' }}>Không tìm thấy</Title>
                     <Text type="secondary">Link portal không hợp lệ hoặc đã hết hạn. Vui lòng liên hệ nhà thầu để được cấp link mới.</Text>
                 </Card>
@@ -158,7 +159,7 @@ const CustomerPortal: React.FC = () => {
                             width: 48, height: 48, background: '#e6f7ff', borderRadius: '50%', 
                             display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 
                         }}>
-                            👨‍💼
+                            <UserOutlined />
                         </div>
                         <div style={{ flex: 1 }}>
                             <Text strong style={{ fontSize: 16 }}>PM Phụ trách: {journey.owner_user}</Text>

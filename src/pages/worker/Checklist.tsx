@@ -5,7 +5,8 @@ import {
 } from 'antd';
 import {
     ArrowLeftOutlined, WarningOutlined,
-    CameraOutlined
+    CameraOutlined, CheckCircleOutlined, CloseCircleOutlined,
+    LockOutlined, PushpinOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import { mockProjects } from '../../data/mockData';
@@ -19,13 +20,13 @@ const hasMaterialsDispached = (project: ReturnType<typeof mockProjects.find>) =>
     return project.stockOrders.some(o => o.type === 'OUT' && o.status === 'SIGNED');
 };
 
-const STEP_STYLE: Record<StepStatus, { color: string; bg: string; label: string }> = {
-    LOCKED: { color: '#bbb', bg: '#fafafa', label: 'Khóa' },
-    OPEN: { color: '#1890ff', bg: '#e6f4ff', label: 'Mở' },
-    IN_PROGRESS: { color: '#fa8c16', bg: '#fff7e6', label: 'Đang làm' },
-    AWAITING_REVIEW: { color: '#722ed1', bg: '#f9f0ff', label: 'Chờ PM' },
-    APPROVED: { color: '#52c41a', bg: '#f6ffed', label: '✅ Duyệt' },
-    REJECTED: { color: '#ff4d4f', bg: '#fff2f0', label: '❌ Từ chối' },
+const STEP_STYLE: Record<StepStatus, { color: string; bg: string; label: React.ReactNode }> = {
+    LOCKED: { color: '#bbb', bg: '#fafafa', label: <span><LockOutlined /> Khóa</span> },
+    OPEN: { color: '#1890ff', bg: '#e6f4ff', label: <span>Mở</span> },
+    IN_PROGRESS: { color: '#fa8c16', bg: '#fff7e6', label: <span>Đang làm</span> },
+    AWAITING_REVIEW: { color: '#722ed1', bg: '#f9f0ff', label: <span>Chờ PM</span> },
+    APPROVED: { color: '#52c41a', bg: '#f6ffed', label: <span><CheckCircleOutlined /> Duyệt</span> },
+    REJECTED: { color: '#ff4d4f', bg: '#fff2f0', label: <span><CloseCircleOutlined /> Từ chối</span> },
 };
 
 const WorkerChecklist: React.FC = () => {
@@ -101,7 +102,7 @@ const WorkerChecklist: React.FC = () => {
                     style={{ marginBottom: 12, borderRadius: 10 }}
                     message={
                         <div>
-                            <Text strong>⚠️ Chưa nhận vật tư – Báo cáo bị khóa</Text>
+                            <Text strong><WarningOutlined /> Chưa nhận vật tư – Báo cáo bị khóa</Text>
                             <div style={{ fontSize: 12, color: '#666', marginTop: 4 }}>
                                 Phiếu xuất kho chưa được ký nhận. Liên hệ PM/Kế toán để mở khóa thi công.
                             </div>
@@ -122,7 +123,7 @@ const WorkerChecklist: React.FC = () => {
                     borderRadius: 12, color: '#fff', marginBottom: 12,
                     boxShadow: '0 4px 12px rgba(25,118,210,0.3)',
                 }}>
-                    <div style={{ fontSize: 12, opacity: 0.8 }}>🎯 Bước đang thực hiện ({currentStep.order}/{project.steps.length})</div>
+                    <div style={{ fontSize: 12, opacity: 0.8 }}><PushpinOutlined /> Bước đang thực hiện ({currentStep.order}/{project.steps.length})</div>
                     <div style={{ fontSize: 16, fontWeight: 700, margin: '4px 0' }}>{currentStep.name}</div>
                     <div style={{ fontSize: 12, opacity: 0.8 }}>{currentStep.description}</div>
                     <Button
@@ -164,7 +165,7 @@ const WorkerChecklist: React.FC = () => {
                                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                                         fontSize: 12, fontWeight: 700, flexShrink: 0,
                                     }}>
-                                        {step.status === 'APPROVED' ? '✓' : step.status === 'LOCKED' ? '🔒' : step.order}
+                                        {step.status === 'APPROVED' ? <CheckCircleOutlined /> : step.status === 'LOCKED' ? <LockOutlined /> : step.order}
                                     </div>
                                     <div style={{ flex: 1 }}>
                                         <div style={{ fontSize: 13, fontWeight: 600, color: step.status === 'LOCKED' ? '#bbb' : '#333' }}>
@@ -207,7 +208,7 @@ const WorkerChecklist: React.FC = () => {
                             {/* Rejection feedback */}
                             {step.status === 'REJECTED' && step.notes && (
                                 <div style={{ marginTop: 6, padding: '4px 8px', background: '#fff2f0', borderRadius: 6, fontSize: 11, color: '#ff4d4f' }}>
-                                    ❌ PM từ chối: {step.notes}
+                                    <CloseCircleOutlined /> PM từ chối: {step.notes}
                                 </div>
                             )}
                         </div>
@@ -217,7 +218,7 @@ const WorkerChecklist: React.FC = () => {
 
             {/* Upload Evidence Modal */}
             <Modal
-                title={selectedStep ? `📸 Bước ${selectedStep.order}: ${selectedStep.name}` : 'Tải ảnh'}
+                title={selectedStep ? (<span><CameraOutlined /> Bước {selectedStep.order}: {selectedStep.name}</span>) : 'Tải ảnh'}
                 open={uploadModalOpen && !!selectedStep}
                 onCancel={() => { setUploadModalOpen(false); setSelectedStep(null); }}
                 footer={null}

@@ -5,7 +5,8 @@ import {
 } from 'antd';
 import {
     DeleteOutlined, ArrowLeftOutlined,
-    CheckCircleOutlined
+    CheckCircleOutlined, CameraOutlined, ToolOutlined,
+    CloudUploadOutlined, ClockCircleOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import { mockProjects } from '../../data/mockData';
@@ -77,7 +78,7 @@ const EvidenceUpload: React.FC = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
                 <Button icon={<ArrowLeftOutlined />} size="small" onClick={() => navigate(`/worker/checklist/${projectId}`)} />
                 <div>
-                    <Title level={5} style={{ margin: 0 }}>📸 Bước {step.order}: {step.name}</Title>
+                    <Title level={5} style={{ margin: 0 }}><CameraOutlined /> Bước {step.order}: {step.name}</Title>
                     <Text type="secondary" style={{ fontSize: 12 }}>{project.code}</Text>
                 </div>
             </div>
@@ -96,7 +97,7 @@ const EvidenceUpload: React.FC = () => {
                         />
                         <Text style={{ fontSize: 12 }}>
                             Đã tải: <strong>{doneCount}/{minPhotos}</strong>
-                            {doneCount >= minPhotos && ' ✅ Đủ ảnh'}
+                            {doneCount >= minPhotos && <span> <CheckCircleOutlined style={{ color: '#52c41a' }} /> Đủ ảnh</span>}
                         </Text>
                     </div>
                 }
@@ -106,7 +107,7 @@ const EvidenceUpload: React.FC = () => {
 
             {/* Step description */}
             <div style={{ padding: '8px 12px', background: '#f5f5f5', borderRadius: 8, marginBottom: 16, fontSize: 13 }}>
-                🔧 {step.description}
+                <ToolOutlined /> {step.description}
             </div>
 
             {/* Upload area */}
@@ -118,7 +119,7 @@ const EvidenceUpload: React.FC = () => {
                 style={{ marginBottom: 16 }}
             >
                 <div style={{ padding: 20 }}>
-                    <div style={{ fontSize: 40 }}>📷</div>
+                    <div style={{ fontSize: 40, color: '#bfbfbf' }}><CameraOutlined /></div>
                     <div style={{ fontWeight: 600, marginTop: 8 }}>Nhấn hoặc kéo thả ảnh/video</div>
                     <div style={{ fontSize: 12, color: '#999', marginTop: 4 }}>
                         JPG, PNG, MP4 · Tự động ghi timestamp & GPS
@@ -159,7 +160,7 @@ const EvidenceUpload: React.FC = () => {
                                 background: 'rgba(0,0,0,0.6)', color: '#fff', fontSize: 9,
                                 padding: '2px 6px', display: 'flex', justifyContent: 'space-between',
                             }}>
-                                <span>⏱ {f.timestamp}</span>
+                                <span><ClockCircleOutlined /> {f.timestamp}</span>
                                 <Button
                                     type="text"
                                     size="small"
@@ -193,11 +194,11 @@ const EvidenceUpload: React.FC = () => {
                 onClick={handleSubmit}
                 style={{ height: 50, fontSize: 16, borderRadius: 12 }}
             >
-                {canSubmit ? '✅ Gửi ảnh chờ PM duyệt' : `Cần thêm ${minPhotos - doneCount} ảnh nữa`}
+                {canSubmit ? (<span><CheckCircleOutlined /> Gửi ảnh chờ PM duyệt</span>) : `Cần thêm ${minPhotos - doneCount} ảnh nữa`}
             </Button>
 
             <Modal
-                title="✅ Gửi ảnh thành công!"
+                title={<span><CheckCircleOutlined style={{ color: '#52c41a' }} /> Gửi ảnh thành công!</span>}
                 open={doneModal}
                 onCancel={() => { setDoneModal(false); navigate(`/worker/checklist/${projectId}`); }}
                 footer={[
@@ -208,7 +209,7 @@ const EvidenceUpload: React.FC = () => {
                 centered
             >
                 <div style={{ textAlign: 'center', padding: '16px 0' }}>
-                    <div style={{ fontSize: 48 }}>📤</div>
+                    <div style={{ fontSize: 48, color: '#1890ff' }}><CloudUploadOutlined /></div>
                     <Text>Đã gửi {doneCount} ảnh cho bước <strong>{step.name}</strong>.</Text>
                     <br />
                     <Text type="secondary">PM sẽ xem xét và phê duyệt trong thời gian sớm nhất.</Text>

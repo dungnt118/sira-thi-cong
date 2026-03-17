@@ -4,7 +4,9 @@ import {
     Alert, Modal
 } from 'antd';
 import {
-    ArrowLeftOutlined, CameraOutlined, SendOutlined, ExclamationCircleOutlined
+    ArrowLeftOutlined, CameraOutlined, SendOutlined, ExclamationCircleOutlined,
+    BoxPlotOutlined, ToolOutlined, CloudOutlined, WarningOutlined,
+    QuestionCircleOutlined, CheckCircleOutlined, MailOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { mockProjects } from '../../data/mockData';
@@ -15,12 +17,12 @@ const { TextArea } = Input;
 const MY_WORKER_ID = 'U002';
 
 const INCIDENT_TYPES = [
-    { value: 'MATERIAL_SHORTAGE', label: '📦 Thiếu vật tư' },
-    { value: 'TECHNICAL', label: '🔧 Sự cố kỹ thuật' },
-    { value: 'WEATHER', label: '⛈️ Thời tiết xấu' },
-    { value: 'EQUIPMENT', label: '🪛 Hỏng thiết bị' },
-    { value: 'SAFETY', label: '⚠️ An toàn lao động' },
-    { value: 'OTHER', label: '❓ Khác' },
+    { value: 'MATERIAL_SHORTAGE', label: <span><BoxPlotOutlined /> Thiếu vật tư</span> },
+    { value: 'TECHNICAL', label: <span><ToolOutlined /> Sự cố kỹ thuật</span> },
+    { value: 'WEATHER', label: <span><CloudOutlined /> Thời tiết xấu</span> },
+    { value: 'EQUIPMENT', label: <span><ToolOutlined /> Hỏng thiết bị</span> },
+    { value: 'SAFETY', label: <span><WarningOutlined /> An toàn lao động</span> },
+    { value: 'OTHER', label: <span><QuestionCircleOutlined /> Khác</span> },
 ];
 
 const IncidentReport: React.FC = () => {
@@ -44,7 +46,7 @@ const IncidentReport: React.FC = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
                 <Button icon={<ArrowLeftOutlined />} size="small" onClick={() => navigate('/worker/home')} />
                 <div>
-                    <Title level={5} style={{ margin: 0 }}>🚨 Báo cáo Sự cố</Title>
+                    <Title level={5} style={{ margin: 0 }}><WarningOutlined style={{ color: '#ff4d4f' }} /> Báo cáo Sự cố</Title>
                     <Text type="secondary" style={{ fontSize: 12 }}>Thông báo ngay cho PM</Text>
                 </div>
             </div>
@@ -75,8 +77,8 @@ const IncidentReport: React.FC = () => {
                     </Form.Item>
                     <Form.Item name="severity" label="Mức độ *" rules={[{ required: true }]} initialValue="NORMAL">
                         <Select size="large" options={[
-                            { value: 'NORMAL', label: '⚠️ Bình thường – Cần xử lý trong hôm nay' },
-                            { value: 'URGENT', label: '🚨 Khẩn cấp – Cần xử lý ngay' },
+                            { value: 'NORMAL', label: <span><WarningOutlined /> Bình thường – Cần xử lý trong hôm nay</span> },
+                            { value: 'URGENT', label: <span><ExclamationCircleOutlined style={{ color: '#ff4d4f' }} /> Khấn cấp – Cần xử lý ngay</span> },
                         ]} />
                     </Form.Item>
                     <Form.Item
@@ -95,7 +97,7 @@ VD: Hết SIRA PU lớp phủ, chỉ còn ~5kg không đủ cho lớp thứ 2 (c
 
                 {/* Photo */}
                 <Card size="small" style={{ borderRadius: 12, marginBottom: 16 }}>
-                    <Text strong>📸 Ảnh minh chứng (tuỳ chọn)</Text>
+                    <Text strong><CameraOutlined /> Ảnh minh chứng (tuỳ chọn)</Text>
                     <Upload.Dragger
                         accept="image/*"
                         multiple
@@ -137,7 +139,7 @@ VD: Hết SIRA PU lớp phủ, chỉ còn ~5kg không đủ cho lớp thứ 2 (c
             </Form>
 
             <Modal
-                title="✅ Đã gửi báo cáo sự cố"
+                title={<span><CheckCircleOutlined style={{ color: '#52c41a' }} /> Đã gửi báo cáo sự cố</span>}
                 open={sentModal}
                 onCancel={() => { setSentModal(false); navigate('/worker/home'); }}
                 footer={[
@@ -148,7 +150,7 @@ VD: Hết SIRA PU lớp phủ, chỉ còn ~5kg không đủ cho lớp thứ 2 (c
                 centered
             >
                 <div style={{ textAlign: 'center', padding: '16px 0' }}>
-                    <div style={{ fontSize: 48 }}>📨</div>
+                    <div style={{ fontSize: 48, color: '#1890ff' }}><MailOutlined /></div>
                     <Text strong>PM đã nhận được thông báo</Text>
                     <br />
                     <Text type="secondary">Vui lòng chờ phản hồi từ PM. Tiếp tục các bước không bị ảnh hưởng.</Text>

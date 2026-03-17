@@ -3,7 +3,7 @@ import {
     Card, Tag, Button, Typography, Row, Col, Space, Tabs,
     Modal, Form, Badge, Input, DatePicker, Descriptions, Timeline, message
 } from 'antd';
-import { ArrowLeftOutlined, ClockCircleOutlined, InfoCircleOutlined, SearchOutlined, DollarOutlined, MessageOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, ClockCircleOutlined, InfoCircleOutlined, SearchOutlined, DollarOutlined, MessageOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { mockJourneys } from '../../../data/journeyMockData';
 import { ConsultationLogForm } from '../../../components/journey/SharedModals';
@@ -47,7 +47,7 @@ const SaleJourneyContext: React.FC = () => {
                         </Card>
                     </Col>
                     <Col xs={24} md={12}>
-                        <Card title="✅ Survey Readiness (Mức độ sẵn sàng Khảo sát)" size="small" style={{ borderRadius: 8 }}>
+                        <Card title={<span><CheckCircleOutlined style={{ color: '#52c41a' }} /> Survey Readiness (Mức độ sẵn sàng Khảo sát)</span>} size="small" style={{ borderRadius: 8 }}>
                             <Space direction="vertical" style={{ width: '100%' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                     <Text>Thông tin KH cơ bản</Text>

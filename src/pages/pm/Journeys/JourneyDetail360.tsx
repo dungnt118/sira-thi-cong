@@ -6,6 +6,8 @@ import {
     DatePicker, Input
 } from 'antd';
 import {
+    CalendarOutlined, FileSearchOutlined, CalculatorOutlined, FileTextOutlined,
+    BoxPlotOutlined, DollarOutlined,
     ArrowLeftOutlined, UserOutlined, FlagOutlined,
     SendOutlined, ExclamationCircleOutlined, CheckCircleOutlined,
     ClockCircleOutlined, MessageOutlined,
@@ -138,25 +140,25 @@ const JourneyDetail360: React.FC = () => {
         // 2. Tab Tạo lịch hẹn (GRP_02_CONTACT)
         {
             key: 'GRP_02_CONTACT',
-            label: <span>📅 Lịch hẹn</span>,
+            label: <span><CalendarOutlined /> Lịch hẹn</span>,
             children: renderTabContent('GRP_02_CONTACT', 'S02_CONSULT'),
         },
         // 3. Tab Khảo sát (GRP_03_SURVEY)
         {
             key: 'GRP_03_SURVEY',
-            label: <span>🔍 Khảo sát</span>,
+            label: <span><FileSearchOutlined /> Khảo sát</span>,
             children: renderTabContent('GRP_03_SURVEY', 'S03_SURVEY'),
         },
         // 4. Tab Dự toán (GRP_04_SOLUTION)
         {
             key: 'GRP_04_SOLUTION',
-            label: <span>📐 Dự toán</span>,
+            label: <span><CalculatorOutlined /> Dự toán</span>,
             children: renderTabContent('GRP_04_SOLUTION', 'S04_SOLUTION'),
         },
         // 5. Tab Báo giá/HĐ (GRP_05_QUOTE)
         {
             key: 'GRP_05_QUOTE',
-            label: <span>📄 Báo giá/HĐ</span>,
+            label: <span><FileTextOutlined /> Báo giá/HĐ</span>,
             children: renderTabContent('GRP_05_QUOTE', 'S05_QUOTE'),
         },
         // 6. Tab Nhân công
@@ -168,13 +170,13 @@ const JourneyDetail360: React.FC = () => {
         // 8. Tab Vật tư
         {
             key: 'GRP_MATERIALS',
-            label: <span>📦 Vật tư</span>,
+            label: <span><BoxPlotOutlined /> Vật tư</span>,
             children: <StepMaterials journeyId={journey.id!} isEditable={userRoleConfig.editableGroupCodes.includes('GRP_05_QUOTE') || role === 'pm'} />,
         },
         // 9. Tab Thanh toán (GRP_07_DEPOSIT or GRP_10_PAYMENT)
         {
             key: 'GRP_07_DEPOSIT',
-            label: <span>💰 Thanh toán</span>,
+            label: <span><DollarOutlined /> Thanh toán</span>,
             children: renderTabContent('GRP_07_DEPOSIT', 'S07_ADVANCE'),
         },
         // 10. Tab Log (PM only)

@@ -3,7 +3,7 @@ import {
     Card, Steps, Button, Tag, Typography, Row, Col,
     Space, Modal, Form, Input, Select
 } from 'antd';
-import { ClockCircleOutlined, CheckCircleOutlined, MessageOutlined } from '@ant-design/icons';
+import { ClockCircleOutlined, CheckCircleOutlined, MessageOutlined, CarryOutOutlined, SyncOutlined, CameraOutlined } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
 import { mockJourneys } from '../../../data/journeyMockData';
 import { mockJourneyTemplates } from '../../../data/journeyMockData';
@@ -32,7 +32,7 @@ const PublishedTimeline: React.FC = () => {
             <Card style={{ borderRadius: 12, marginBottom: 16 }}>
                 <Row justify="space-between" align="middle">
                     <Col>
-                        <Title level={5} style={{ margin: 0 }}>📋 Tiến độ hành trình</Title>
+                        <Title level={5} style={{ margin: 0 }}><CarryOutOutlined /> Tiến độ hành trình</Title>
                         <Text type="secondary">{journey.customer_name} · {journey.requested_service}</Text>
                     </Col>
                     <Col>
@@ -56,9 +56,9 @@ const PublishedTimeline: React.FC = () => {
                                     <Row justify="space-between" align="middle" style={{ cursor: 'pointer' }}>
                                         <Col><Text strong style={{ color: selectedStepIdx === idx ? '#1890ff' : 'inherit' }}>{step.step_name}</Text></Col>
                                         <Col>
-                                            {idx < currentIdx && <Tag color="success">✅ Hoàn thành</Tag>}
-                                            {idx === currentIdx && <Tag color="processing">🔄 Đang thực hiện</Tag>}
-                                            {idx > currentIdx && <Tag color="default">⏳ Sắp tới</Tag>}
+                                            {idx < currentIdx && <Tag color="success"><CheckCircleOutlined /> Hoàn thành</Tag>}
+                                            {idx === currentIdx && <Tag color="processing"><SyncOutlined spin /> Đang thực hiện</Tag>}
+                                            {idx > currentIdx && <Tag color="default"><ClockCircleOutlined /> Sắp tới</Tag>}
                                         </Col>
                                     </Row>
                                 ),
@@ -97,8 +97,8 @@ const PublishedTimeline: React.FC = () => {
                             <div style={{ marginBottom: 16 }}>
                                 <Text strong>Hình ảnh hiện trường ({selectedStepIdx * 3 + 2})</Text>
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 8 }}>
-                                    <div style={{ background: '#f5f5f5', borderRadius: 8, height: 80, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888' }}>📸 Ảnh 1</div>
-                                    <div style={{ background: '#f5f5f5', borderRadius: 8, height: 80, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888' }}>📸 Ảnh 2</div>
+                                    <div style={{ background: '#f5f5f5', borderRadius: 8, height: 80, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888' }}><CameraOutlined /> Ảnh 1</div>
+                                    <div style={{ background: '#f5f5f5', borderRadius: 8, height: 80, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888' }}><CameraOutlined /> Ảnh 2</div>
                                 </div>
                             </div>
                             <Button type="primary" block icon={<MessageOutlined />} 

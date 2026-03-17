@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Card, Image, Typography, Tag, Button, Row, Col, Space, Modal } from 'antd';
-import { FileOutlined, PictureOutlined, DownloadOutlined } from '@ant-design/icons';
+import { FileOutlined, PictureOutlined, DownloadOutlined, FolderOpenOutlined } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
 import { mockJourneys } from '../../../data/journeyMockData';
 
@@ -30,7 +30,7 @@ const PortalDocuments: React.FC = () => {
         <div style={{ maxWidth: 680, margin: '0 auto', padding: '24px 16px' }}>
             <Card style={{ borderRadius: 12, marginBottom: 16 }}>
                 <Row justify="space-between" align="middle">
-                    <Col><Title level={5} style={{ margin: 0 }}>📂 Tài liệu & Hình ảnh</Title></Col>
+                    <Col><Title level={5} style={{ margin: 0 }}><FolderOpenOutlined /> Tài liệu & Hình ảnh</Title></Col>
                     <Col>
                         <Space>
                             <Button size="small" onClick={() => navigate(`/portal/${token}`)}>Tổng quan</Button>

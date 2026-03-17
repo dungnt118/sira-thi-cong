@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
     Card, List, Tag, Button, Typography, Space, Badge, Modal, Form, Input, Select
 } from 'antd';
-import { PlusOutlined, MessageOutlined } from '@ant-design/icons';
+import { PlusOutlined, MessageOutlined, FileSearchOutlined, BuildOutlined, DollarOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
 import { mockPortalThreads, mockJourneys } from '../../../data/journeyMockData';
 import type { PortalThread } from '../../../types/journey';
@@ -31,7 +31,7 @@ const ThreadInbox: React.FC = () => {
             <Card style={{ borderRadius: 12, marginBottom: 16 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                        <Title level={5} style={{ margin: 0 }}>💬 Hội thoại & Câu hỏi</Title>
+                        <Title level={5} style={{ margin: 0 }}><MessageOutlined /> Hội thoại & Câu hỏi</Title>
                         <Text type="secondary">{journey.customer_name}</Text>
                     </div>
                     <Space>
@@ -100,10 +100,10 @@ const ThreadInbox: React.FC = () => {
                 <Form form={createForm} layout="vertical" onFinish={() => { setShowCreateModal(false); createForm.resetFields(); }}>
                     <Form.Item label="Loại câu hỏi" name="context_type" rules={[{ required: true }]}>
                         <Select options={[
-                            { value: 'survey', label: '🔍 Về khảo sát' },
-                            { value: 'progress', label: '🏗️ Về tiến độ' },
-                            { value: 'payment', label: '💰 Về thanh toán' },
-                            { value: 'general', label: '❓ Câu hỏi chung' },
+                            { value: 'survey', label: <span><FileSearchOutlined /> Về khảo sát</span> },
+                            { value: 'progress', label: <span><BuildOutlined /> Về tiến độ</span> },
+                            { value: 'payment', label: <span><DollarOutlined /> Về thanh toán</span> },
+                            { value: 'general', label: <span><QuestionCircleOutlined /> Câu hỏi chung</span> },
                         ]} />
                     </Form.Item>
                     <Form.Item label="Tiêu đề" name="context_label" rules={[{ required: true }]}>
