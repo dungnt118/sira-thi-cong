@@ -1,0 +1,56 @@
+{
+    "groups": [
+        {
+            "id": "ASG-001",
+            "name": "Máy móc & Thiết bị thi công",
+            "category": "Dụng cụ thi công",
+            "depreciationMonths": 24
+        },
+        {
+            "id": "ASG-002",
+            "name": "Thiết bị văn phòng",
+            "category": "Văn phòng phẩm",
+            "depreciationMonths": 36
+        }
+    ],
+    "assets": [
+        {
+            "id": "AST-001",
+            "groupId": "ASG-001",
+            "code": "MK-BOS-001",
+            "name": "Máy khoan bê tông Bosch GBH 2-24 DRE",
+            "serialNumber": "SN123456789",
+            "status": "AVAILABLE",
+            "assignedTo": null,
+            "purchaseDate": "2024-01-15",
+            "cost": 3500000,
+            "condition": "New",
+            "notes": "Máy mới nhập kho"
+        },
+        {
+            "id": "AST-002",
+            "groupId": "ASG-001",
+            "code": "MM-MAK-001",
+            "name": "Máy mài Makita 9553NB",
+            "serialNumber": "MAK-9988",
+            "status": "IN_USE",
+            "assignedTo": "GS Trần Văn Tuấn",
+            "purchaseDate": "2023-11-20",
+            "cost": 1200000,
+            "condition": "90%",
+            "notes": "Đang cho mượn tại dự án Vinhomes"
+        },
+        {
+            "id": "AST-003",
+            "groupId": "ASG-002",
+            "code": "LT-DEL-001",
+            "name": "Laptop Dell Latitude 5420",
+            "serialNumber": "DELL-5420-XYZ",
+            "status": "AVAILABLE",
+            "assignedTo": "Hành chính",
+            "purchaseDate": "2024-02-10",
+            "cost": 18000000,
+            "condition": "New"
+        }
+    ]
+}

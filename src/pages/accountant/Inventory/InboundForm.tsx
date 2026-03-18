@@ -12,9 +12,9 @@ import { useNavigate } from 'react-router-dom';
 import useLocalStorageData from '../../../hooks/useLocalStorageData';
 import { 
     Material, Distributor, StockOrder, 
-    StockOrderSource, MaterialType 
+    StockOrderSource, MaterialType, MaterialGroup 
 } from '../../../types/v3';
-import mockMaterials from '../../../data/mock/materials.json';
+import mockMaterialsData from '../../../data/mock/materials.json';
 import mockDistributors from '../../../data/mock/distributors.json';
 import { mockProjects } from '../../../data/mockData';
 
@@ -25,7 +25,8 @@ const InboundForm: React.FC = () => {
     const [form] = Form.useForm();
     const [sourceType, setSourceType] = useState<StockOrderSource>('DISTRIBUTOR');
     
-    const [materials, setMaterials] = useLocalStorageData<Material[]>('MATERIALS', mockMaterials as Material[]);
+    const [groups] = useLocalStorageData<MaterialGroup[]>('MATERIAL_GROUPS', (mockMaterialsData as any).groups);
+    const [materials, setMaterials] = useLocalStorageData<Material[]>('MATERIALS', (mockMaterialsData as any).materials);
     const [distributors] = useLocalStorageData<Distributor[]>('DISTRIBUTORS', mockDistributors as Distributor[]);
     const [stockOrders, setStockOrders] = useLocalStorageData<StockOrder[]>('STOCK_ORDERS', []);
     
@@ -33,30 +34,32 @@ const InboundForm: React.FC = () => {
 
     const handleAddItem = () => {
         const values = form.getFieldsValue();
-        if (!values.materialId || !values.quantity) {
+        if (!values.materialId || (!values.quantity && !values.remainingQuantity)) {
             message.warning('Vui lòng chọn vật tư và nhập số lượng');
             return;
         }
 
         const material = materials.find(m => m.id === values.materialId);
         if (!material) return;
+        const group = groups.find(g => g.id === material.groupId);
 
+        const isPartial = values.isPartial && sourceType === 'PROJECT';
+        
         const newItem = {
             key: Date.now(),
             materialId: material.id,
-            materialName: material.name,
+            materialName: `${group?.name} - Loại ${material.name}`,
+            baseUnit: group?.baseUnit || 'đơn vị',
             unit: material.unit,
-            type: material.type,
-            quantity: values.quantity,
+            quantity: isPartial ? 0 : (values.quantity || 0),
+            isPartial: isPartial,
+            remainingQuantity: values.remainingQuantity || 0, // In liters/kg
             unitCost: values.unitCost || material.unitCost,
-            total: (values.quantity * (values.unitCost || material.unitCost)),
-            // Fields for fixed assets
-            depreciationMonths: values.depreciationMonths,
-            assignedTo: values.assignedTo
+            total: isPartial ? 0 : ((values.quantity || 0) * (values.unitCost || material.unitCost)),
         };
 
         setSelectedItems([...selectedItems, newItem]);
-        form.setFieldsValue({ materialId: null, quantity: null, unitCost: null });
+        form.setFieldsValue({ materialId: null, quantity: null, unitCost: null, isPartial: false, remainingQuantity: null });
     };
 
     const removeItem = (key: number) => {
@@ -82,8 +85,10 @@ const InboundForm: React.FC = () => {
                 materialId: item.materialId,
                 materialName: item.materialName,
                 unit: item.unit,
-                quantity: item.quantity,
-                unitCost: item.unitCost
+                quantity: item.isPartial ? 0 : item.quantity,
+                unitCost: item.unitCost,
+                isPartial: item.isPartial,
+                remainingPercent: item.isPartial ? (item.remainingQuantity * 100 / 20) : undefined
             })),
             totalValue: selectedItems.reduce((sum, item) => sum + item.total, 0),
             status: 'SIGNED',
@@ -97,19 +102,23 @@ const InboundForm: React.FC = () => {
 
         // Update Inventory Stocks
         setMaterials(prev => prev.map(m => {
-            const addedItem = selectedItems.find(item => item.materialId === m.id);
-            if (addedItem) {
-                // If it's a fixed asset, we might want to update more info but for now just stock
+            const addedItems = selectedItems.filter(item => item.materialId === m.id);
+            if (addedItems.length > 0) {
+                let newStock = m.currentStock;
+                let newPartial = m.partialStock || 0;
+                
+                addedItems.forEach(item => {
+                    if (item.isPartial) {
+                        newPartial += item.remainingQuantity;
+                    } else {
+                        newStock += item.quantity;
+                    }
+                });
+
                 return {
                     ...m,
-                    currentStock: m.currentStock + addedItem.quantity,
-                    // Update fixed asset info if applicable
-                    fixedAssetInfo: m.type === 'FIXED_ASSET' ? {
-                        depreciationMonths: addedItem.depreciationMonths || m.fixedAssetInfo?.depreciationMonths || 24,
-                        purchaseDate: newStockOrder.createdAt,
-                        condition: 'NEW',
-                        assignedTo: addedItem.assignedTo || m.fixedAssetInfo?.assignedTo
-                    } : m.fixedAssetInfo
+                    currentStock: newStock,
+                    partialStock: newPartial
                 };
             }
             return m;
@@ -120,7 +129,12 @@ const InboundForm: React.FC = () => {
     };
 
     const itemColumns = [
-        { title: 'Vật tư', dataIndex: 'materialName', key: 'name' },
+        { title: 'Vật tư', dataIndex: 'materialName', key: 'name', render: (val: string, record: any) => (
+            <div>
+                <div>{val}</div>
+                {record.isPartial && <Tag color="warning" style={{ fontSize: 10 }}>Hàng dở dang</Tag>}
+            </div>
+        )},
         { 
             title: 'Loại', 
             dataIndex: 'type', 
@@ -131,7 +145,11 @@ const InboundForm: React.FC = () => {
                 </Tag>
             )
         },
-        { title: 'SL', dataIndex: 'quantity', key: 'qty', render: (val: number, record: any) => `${val} ${record.unit}` },
+        { 
+            title: 'SL Nhập', 
+            key: 'qty', 
+            render: (_: any, record: any) => record.isPartial ? `${record.remainingQuantity} (${record.baseUnit} lẻ)` : `${record.quantity} ${record.unit}` 
+        },
         { title: 'Đơn giá', dataIndex: 'unitCost', key: 'cost', render: (val: number) => val.toLocaleString('vi-VN') + 'đ' },
         { title: 'Thành tiền', dataIndex: 'total', key: 'total', render: (val: number) => val.toLocaleString('vi-VN') + 'đ' },
         {
@@ -166,23 +184,51 @@ const InboundForm: React.FC = () => {
                                                 if (mat) form.setFieldsValue({ unitCost: mat.unitCost });
                                             }}
                                         >
-                                            {materials.map(m => (
-                                                <Select.Option key={m.id} value={m.id}>
-                                                    [{m.code}] {m.name} ({m.type === 'FIXED_ASSET' ? 'Tài sản' : 'Vật tư'})
-                                                </Select.Option>
-                                            ))}
+                                            {materials.map(m => {
+                                                const group = groups.find(g => g.id === m.groupId);
+                                                return (
+                                                    <Select.Option key={m.id} value={m.id}>
+                                                        {group?.name} - Loại {m.name} ({m.unit})
+                                                    </Select.Option>
+                                                );
+                                            })}
                                         </Select>
                                     </Form.Item>
                                 </Col>
-                                <Col span={6}>
-                                    <Form.Item name="quantity" label="Số lượng">
-                                        <InputNumber min={0.1} style={{ width: '100%' }} />
-                                    </Form.Item>
-                                </Col>
-                                <Col span={6}>
-                                    <Form.Item name="unitCost" label="Đơn giá nhập">
-                                        <InputNumber min={0} style={{ width: '100%' }} formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} />
-                                    </Form.Item>
+                                <Col span={12}>
+                                    <Space align="end" style={{ width: '100%' }}>
+                                        {sourceType === 'PROJECT' && (
+                                            <Form.Item name="isPartial" valuePropName="checked" style={{ marginBottom: 24 }}>
+                                                <Button 
+                                                    type={form.getFieldValue('isPartial') ? 'primary' : 'default'}
+                                                    onClick={() => {
+                                                        const current = form.getFieldValue('isPartial');
+                                                        form.setFieldsValue({ isPartial: !current });
+                                                    }}
+                                                >
+                                                    {form.getFieldValue('isPartial') ? '📦 Hàng dở dang' : '📦 Hàng nguyên'}
+                                                </Button>
+                                            </Form.Item>
+                                        )}
+                                        <Form.Item noStyle shouldUpdate={(prev, curr) => prev.isPartial !== curr.isPartial}>
+                                            {() => {
+                                                const selectedMat = materials.find(m => m.id === form.getFieldValue('materialId'));
+                                                const group = groups.find(g => g.id === selectedMat?.groupId);
+                                                return form.getFieldValue('isPartial') ? (
+                                                    <Form.Item name="remainingQuantity" label={`Lượng lẻ (${group?.baseUnit || ''})`} rules={[{ required: true }]}>
+                                                        <InputNumber min={0.1} style={{ width: '150px' }} />
+                                                    </Form.Item>
+                                                ) : (
+                                                    <Form.Item name="quantity" label={`Số lượng (${selectedMat?.unit || 'thùng'})`} rules={[{ required: true }]}>
+                                                        <InputNumber min={1} style={{ width: '150px' }} />
+                                                    </Form.Item>
+                                                );
+                                            }}
+                                        </Form.Item>
+                                        <Form.Item name="unitCost" label="Đơn giá nhập">
+                                            <InputNumber min={0} style={{ width: '150px' }} formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} />
+                                        </Form.Item>
+                                    </Space>
                                 </Col>
                             </Row>
 
@@ -190,7 +236,8 @@ const InboundForm: React.FC = () => {
                             <Form.Item noStyle shouldUpdate={(prev, curr) => prev.materialId !== curr.materialId}>
                                 {() => {
                                     const mat = materials.find(m => m.id === form.getFieldValue('materialId'));
-                                    if (mat?.type === 'FIXED_ASSET') {
+                                    const group = groups.find(g => g.id === mat?.groupId);
+                                    if (group?.type === 'FIXED_ASSET') {
                                         return (
                                             <Alert
                                                 message="Cấu hình tài sản cố định"

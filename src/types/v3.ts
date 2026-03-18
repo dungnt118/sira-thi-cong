@@ -244,27 +244,52 @@ export interface Project {
 // ---- INVENTORY TYPES ----
 export type MaterialUnit = 'kg' | 'lít' | 'm²' | 'thùng' | 'cuộn' | 'cái';
 
-export type MaterialType = 'CONSUMABLE' | 'FIXED_ASSET';
+export type MaterialType = 'CONSUMABLE'; // Assets moved to independent module
 
-export interface FixedAssetInfo {
-    depreciationMonths: number;
-    purchaseDate: string;
-    condition: 'NEW' | 'USED' | 'BROKEN';
-    lastMaintenanceDate?: string;
-    assignedTo?: string; // Worker or Supervisor ID/Name
+export interface MaterialGroup {
+    id: string;
+    name: string;           // e.g., "Sơn PU"
+    baseUnit: string;       // e.g., "Kg" or "Lít"
+    packageUnit: string;    // e.g., "Thùng", "Lon"
+    category: string;
+    type: MaterialType;
 }
 
 export interface Material {
     id: string;
-    code: string;           // VT-001
-    name: string;
-    unit: MaterialUnit;
-    currentStock: number;
+    groupId: string;        // Link to MaterialGroup
+    code: string;           // SKU code (e.g., VT-001-15KG)
+    name: string;           // Packaging name (e.g., "15" - inherited capacity)
+    capacity: number;       // Numeric value for aggregation (e.g., 15)
+    unit: string;           // Unit for this SKU (e.g., "thùng" - inherited packageUnit)
+    currentStock: number;   // Number of full containers
+    partialStock: number;   // Total remaining base unit quantity from opened containers
     minStockAlert: number;
     unitCost: number;
+}
+
+// ===== ASSETS (Separated) =====
+export type AssetStatus = 'AVAILABLE' | 'IN_USE' | 'MAINTENANCE' | 'BROKEN' | 'LOST';
+
+export interface AssetGroup {
+    id: string;
+    name: string;           // e.g., "Dụng cụ thi công", "Văn phòng phẩm"
     category: string;
-    type: MaterialType;     // NEW
-    fixedAssetInfo?: FixedAssetInfo; // NEW
+    depreciationMonths: number;
+}
+
+export interface Asset {
+    id: string;
+    groupId: string;
+    code: string;           // Serial ID / Internal code
+    name: string;           // e.g., "Máy mài Bosch #1", "Laptop Dell XPS"
+    serialNumber?: string;
+    status: AssetStatus;
+    assignedTo?: string;    // Person currently holding it
+    purchaseDate: string;
+    cost: number;
+    condition: string;      // e.g., "New", "90%", "Old"
+    notes?: string;
 }
 
 export interface MaterialStandard {
@@ -281,6 +306,8 @@ export interface StockOrderItem {
     unit: MaterialUnit;
     quantity: number;
     unitCost: number;
+    isPartial?: boolean;    // For returns: if the item is not full
+    remainingPercent?: number; // e.g., 20 for 2L in a 10L bucket
 }
 
 export type StockOrderType = 'OUT' | 'IN';

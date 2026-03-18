@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
     Form, Input, Select, InputNumber, Button, Card, 
     Typography, Space, Row, Col, message,
-    Table, Tag, Empty
+    Table, Empty, Radio
 } from 'antd';
 import { 
     PlusOutlined, SaveOutlined, ArrowLeftOutlined, 
@@ -11,9 +11,9 @@ import {
 import { useNavigate } from 'react-router-dom';
 import useLocalStorageData from '../../../hooks/useLocalStorageData';
 import { 
-    Material, StockOrder, MaterialType 
+    Material, StockOrder, MaterialGroup 
 } from '../../../types/v3';
-import mockMaterials from '../../../data/mock/materials.json';
+import mockMaterialsData from '../../../data/mock/materials.json';
 import { mockProjects } from '../../../data/mockData';
 
 const { Title, Text } = Typography;
@@ -22,35 +22,50 @@ const OutboundForm: React.FC = () => {
     const navigate = useNavigate();
     const [form] = Form.useForm();
     
-    const [materials, setMaterials] = useLocalStorageData<Material[]>('MATERIALS', mockMaterials as Material[]);
+    const [groups] = useLocalStorageData<MaterialGroup[]>('MATERIAL_GROUPS', (mockMaterialsData as any).groups);
+    const [materials, setMaterials] = useLocalStorageData<Material[]>('MATERIALS', (mockMaterialsData as any).materials);
     const [stockOrders, setStockOrders] = useLocalStorageData<StockOrder[]>('STOCK_ORDERS', []);
     
     const [selectedItems, setSelectedItems] = useState<any[]>([]);
+    const [outMode, setOutMode] = useState<'FULL' | 'PARTIAL'>('FULL');
 
     const handleAddItem = () => {
         const values = form.getFieldsValue();
         if (!values.materialId || !values.quantity) {
-            message.warning('Vui lòng chọn vật tư và nhập số lượng');
+            message.warning('Vui lòng nhập vật tư và số lượng');
             return;
         }
 
         const material = materials.find(m => m.id === values.materialId);
         if (!material) return;
+        const group = groups.find(g => g.id === material.groupId);
 
-        if (values.quantity > material.currentStock) {
-            message.error(`Số lượng xuất (${values.quantity} ${material.unit}) vượt quá tồn kho hiện tại (${material.currentStock} ${material.unit})`);
+        const isPartial = outMode === 'PARTIAL';
+        const unit = isPartial ? (group?.baseUnit || material.unit) : material.unit;
+
+        // Validation
+        const capacity = material.capacity || 1; // Fallback for old data
+        const partialStock = material.partialStock || 0;
+        const totalAvailable = (material.currentStock * capacity) + partialStock;
+        const requestedBase = isPartial ? values.quantity : values.quantity * capacity;
+
+        if (requestedBase > totalAvailable) {
+            message.error(`Số lượng yêu cầu (${requestedBase} ${unit}) vượt quá tồn kho khả dụng (${totalAvailable} ${unit})`);
             return;
         }
 
         const newItem = {
             key: Date.now(),
             materialId: material.id,
-            materialName: material.name,
-            unit: material.unit,
-            type: material.type,
+            materialName: `[${material.code}] ${group?.name || 'Vật tư'} - quy cách ${material.capacity}${group?.baseUnit || ''}`,
+            unit: unit,
             quantity: values.quantity,
+            isPartial: isPartial,
+            baseQuantity: requestedBase, 
             unitCost: material.unitCost,
-            total: (values.quantity * material.unitCost)
+            total: isPartial 
+                ? (values.quantity / capacity) * material.unitCost 
+                : values.quantity * material.unitCost
         };
 
         setSelectedItems([...selectedItems, newItem]);
@@ -100,11 +115,30 @@ const OutboundForm: React.FC = () => {
 
         // Update Inventory Stocks
         setMaterials(prev => prev.map(m => {
-            const addedItem = selectedItems.find(item => item.materialId === m.id);
-            if (addedItem) {
+            const addedItems = selectedItems.filter(item => item.materialId === m.id);
+            if (addedItems.length > 0) {
+                let newCurrentStock = m.currentStock;
+                let newPartialStock = m.partialStock;
+                
+                addedItems.forEach(item => {
+                    const requestedAmount = item.baseQuantity; 
+                    const capacity = m.capacity || 1;
+                    
+                    if (newPartialStock >= requestedAmount) {
+                        newPartialStock -= requestedAmount;
+                    } else {
+                        const neededFromFull = requestedAmount - newPartialStock;
+                        const fullToOpen = Math.ceil(neededFromFull / capacity);
+                        
+                        newCurrentStock -= fullToOpen;
+                        newPartialStock = (fullToOpen * capacity) + newPartialStock - requestedAmount;
+                    }
+                });
+
                 return {
                     ...m,
-                    currentStock: m.currentStock - addedItem.quantity
+                    currentStock: newCurrentStock,
+                    partialStock: Number(newPartialStock.toFixed(2))
                 };
             }
             return m;
@@ -116,16 +150,6 @@ const OutboundForm: React.FC = () => {
 
     const itemColumns = [
         { title: 'Vật tư', dataIndex: 'materialName', key: 'name' },
-        { 
-            title: 'Loại', 
-            dataIndex: 'type', 
-            key: 'type',
-            render: (type: MaterialType) => (
-                <Tag color={type === 'FIXED_ASSET' ? 'purple' : 'blue'}>
-                    {type === 'FIXED_ASSET' ? 'CĐ' : 'TH'}
-                </Tag>
-            )
-        },
         { title: 'SL Xuất', dataIndex: 'quantity', key: 'qty', render: (val: number, record: any) => `${val} ${record.unit}` },
         { title: 'Thành tiền', dataIndex: 'total', key: 'total', render: (val: number) => val.toLocaleString('vi-VN') + 'đ' },
         {
@@ -148,25 +172,51 @@ const OutboundForm: React.FC = () => {
                 <Col span={16}>
                     <Card title="Chọn vật tư cấp phát" style={{ marginBottom: '24px' }}>
                         <Form form={form} layout="vertical">
+                            <div style={{ marginBottom: 16 }}>
+                                <Text type="secondary">Chế độ xuất: </Text>
+                                <Radio.Group value={outMode} onChange={e => setOutMode(e.target.value)} size="small">
+                                    <Radio.Button value="FULL">Nguyên thùng/lon</Radio.Button>
+                                    <Radio.Button value="PARTIAL">Xuất lẻ (Kg/Lít)</Radio.Button>
+                                </Radio.Group>
+                            </div>
+
                             <Row gutter={16}>
                                 <Col span={12}>
-                                    <Form.Item name="materialId" label="Chọn vật tư/tài sản">
+                                    <Form.Item name="materialId" label="Chọn vật tư">
                                         <Select 
                                             showSearch
                                             placeholder="Gõ mã hoặc tên"
                                             optionFilterProp="children"
+                                            onChange={() => form.setFieldsValue({ quantity: null })}
                                         >
-                                            {materials.map(m => (
-                                                <Select.Option key={m.id} value={m.id} disabled={m.currentStock <= 0}>
-                                                    [{m.code}] {m.name} - Tồn: {m.currentStock} {m.unit}
-                                                </Select.Option>
-                                            ))}
+                                            {materials
+                                                .filter(m => {
+                                                    const group = groups.find(g => g.id === m.groupId);
+                                                    return group?.type === 'CONSUMABLE';
+                                                })
+                                                .map(m => {
+                                                    const group = groups.find(g => g.id === m.groupId);
+                                                    const isLow = m.currentStock <= m.minStockAlert;
+                                                    return (
+                                                        <Select.Option key={m.id} value={m.id} disabled={m.currentStock <= 0 && (!m.partialStock || m.partialStock <= 0)}>
+                                                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                                <span><Text strong>[{m.code}]</Text> {group?.name || 'Vật tư'} - quy cách {m.capacity}{group?.baseUnit || ''}</span>
+                                                                <span style={{ fontSize: 11, color: isLow ? '#ff4d4f' : '#888' }}>
+                                                                    Tồn: {m.currentStock} {m.unit} {(m.partialStock || 0) > 0 ? `(+ ${m.partialStock} lẻ)` : ''}
+                                                                </span>
+                                                            </div>
+                                                        </Select.Option>
+                                                    );
+                                                })}
                                         </Select>
                                     </Form.Item>
                                 </Col>
                                 <Col span={8}>
-                                    <Form.Item name="quantity" label="Số lượng xuất">
-                                        <InputNumber min={0.1} style={{ width: '100%' }} />
+                                    <Form.Item 
+                                        name="quantity" 
+                                        label={outMode === 'FULL' ? "Số lượng (Thùng/Lon)" : "Số lượng lẻ (Kg/Lít)"}
+                                    >
+                                        <InputNumber min={0.01} style={{ width: '100%' }} />
                                     </Form.Item>
                                 </Col>
                                 <Col span={4} style={{ display: 'flex', alignItems: 'flex-end', paddingBottom: '24px' }}>

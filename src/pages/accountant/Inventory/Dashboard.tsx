@@ -1,249 +1,431 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import {
-    Card, Row, Col, Table, Tag, Button, Statistic, Progress, Alert,
-    Typography, Space, Tabs
+    Card, Row, Col, Table, Tag, Button, Statistic,
+    Typography, Space, Tabs, Modal, Form, Input, InputNumber, Select,
+    message, Popconfirm, Alert
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
-    WarningOutlined, PlusOutlined, MinusOutlined, HistoryOutlined,
-    BankOutlined
+    PlusOutlined, MinusOutlined, HistoryOutlined,
+    BankOutlined, EditOutlined, DeleteOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import useLocalStorageData from '../../../hooks/useLocalStorageData';
-import type { Material, StockOrder } from '../../../types/v3';
+import type { Material, StockOrder, MaterialGroup } from '../../../types/v3';
 import mockMaterialsData from '../../../data/mock/materials.json';
 import mockStockOrdersData from '../../../data/mock/stockOrders.json';
 
 const { Title, Text } = Typography;
+const { Option } = Select;
 
 const InventoryDashboard: React.FC = () => {
     const navigate = useNavigate();
+    const [form] = Form.useForm();
+    const [skuForm] = Form.useForm();
     
     // Use LocalStorage for state management
-    const [materials] = useLocalStorageData<Material[]>('MATERIALS', mockMaterialsData as Material[]);
+    const [groups, setGroups] = useLocalStorageData<MaterialGroup[]>('MATERIAL_GROUPS', (mockMaterialsData as any).groups);
+    const [materials, setMaterials] = useLocalStorageData<Material[]>('MATERIALS', (mockMaterialsData as any).materials);
     const [stockOrders] = useLocalStorageData<StockOrder[]>('STOCK_ORDERS', mockStockOrdersData as StockOrder[]);
 
-    const lowStock = materials.filter(m => m.currentStock <= m.minStockAlert);
-    const totalValue = materials.reduce((s, m) => s + m.currentStock * m.unitCost, 0);
+    const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
+    const [isSkuModalOpen, setIsSkuModalOpen] = useState(false);
+    const [selectedGroup, setSelectedGroup] = useState<MaterialGroup | null>(null);
+    const [editingGroup, setEditingGroup] = useState<MaterialGroup | null>(null);
+    const [editingSku, setEditingSku] = useState<Material | null>(null);
 
-    const matColumns: ColumnsType<Material> = [
-        { title: 'Mã VT', dataIndex: 'code', key: 'code', width: 100, fixed: 'left' },
-        {
-            title: 'Vật tư / Tài sản',
-            key: 'name',
-            width: 200,
-            render: (_, m) => (
-                <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <Text strong>{m.name}</Text>
-                        <Tag color={m.type === 'FIXED_ASSET' ? 'purple' : 'blue'} style={{ fontSize: 10 }}>
-                            {m.type === 'FIXED_ASSET' ? 'Tài sản' : 'Vật tư'}
-                        </Tag>
-                    </div>
-                    <div style={{ fontSize: 11, color: '#999' }}>{m.category}</div>
-                </div>
-            ),
-        },
-        { title: 'ĐVT', dataIndex: 'unit', key: 'unit', width: 80 },
-        {
-            title: 'Tồn kho',
-            key: 'stock',
-            width: 180,
-            render: (_, m) => {
-                const pct = Math.min(100, Math.round((m.currentStock / (m.minStockAlert * 3)) * 100));
-                const isLow = m.currentStock <= m.minStockAlert;
-                return (
-                    <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
-                            <Text strong style={{ color: isLow ? '#ff4d4f' : '#333' }}>
-                                {m.currentStock} {m.unit}
-                            </Text>
-                            {isLow && <Tag color="error" style={{ fontSize: 10 }}>⚠️ Thấp</Tag>}
-                        </div>
-                        <Progress
-                            percent={pct}
-                            size="small"
-                            showInfo={false}
-                            strokeColor={isLow ? '#ff4d4f' : '#52c41a'}
-                        />
-                        <Text type="secondary" style={{ fontSize: 10 }}>Cảnh báo: {m.minStockAlert} {m.unit}</Text>
-                    </div>
-                );
-            },
-        },
-        {
-            title: 'Giá trị',
-            key: 'value',
-            align: 'right',
-            width: 120,
-            render: (_, m) => <Text>{(m.currentStock * m.unitCost).toLocaleString('vi-VN')}đ</Text>,
-        },
-        {
-            title: 'Trạng thái tài sản',
-            key: 'assetInfo',
-            width: 150,
-            render: (_, m) => {
-                if (m.type !== 'FIXED_ASSET' || !m.fixedAssetInfo) return '—';
-                return (
-                    <div style={{ fontSize: 11 }}>
-                        <div>Tình trạng: <Tag color="success">{m.fixedAssetInfo.condition}</Tag></div>
-                        <div style={{ color: '#888' }}>Giao cho: {m.fixedAssetInfo.assignedTo || 'Chưa giao'}</div>
-                    </div>
-                );
+    // Aggregation Logic for Groups
+    const groupStats = useMemo(() => {
+        return groups.map(group => {
+            const skus = materials.filter(m => m.groupId === group.id);
+            const totalCapacity = skus.reduce((sum, s) => sum + (s.currentStock * s.capacity + s.partialStock), 0);
+            const totalFull = skus.reduce((sum, s) => sum + s.currentStock, 0);
+            const totalPartial = skus.filter(s => s.partialStock > 0).length;
+            const totalValue = skus.reduce((sum, s) => {
+                const fullValue = s.currentStock * s.unitCost;
+                const partialValue = (s.partialStock / s.capacity) * s.unitCost;
+                return sum + (isNaN(fullValue) ? 0 : fullValue) + (isNaN(partialValue) ? 0 : partialValue);
+            }, 0);
+
+            return {
+                ...group,
+                totalCapacity,
+                totalFull,
+                totalPartial,
+                totalValue,
+                skus
+            };
+        });
+    }, [groups, materials]);
+
+    const totalInventoryValue = groupStats.reduce((s: number, g: any) => s + g.totalValue, 0);
+    const lowStockSkus = materials.filter(m => m.currentStock <= m.minStockAlert);
+
+    const handleSaveGroup = () => {
+        form.validateFields().then(values => {
+            if (editingGroup) {
+                const updated = groups.map(g => g.id === editingGroup.id ? { ...g, ...values } : g);
+                setGroups(updated);
+                message.success('Cập nhật nhóm hàng thành công');
+            } else {
+                const newId = `GRP-${Date.now()}`;
+                setGroups([...groups, { ...values, id: newId }]);
+                message.success('Thêm nhóm hàng mới thành công');
             }
+            setIsGroupModalOpen(false);
+        });
+    };
+
+    const handleDeleteGroup = (id: string, e: React.MouseEvent) => {
+        e.stopPropagation();
+        const hasSkus = materials.some(m => m.groupId === id);
+        if (hasSkus) {
+            message.error('Không thể xóa nhóm đang có SKU. Vui lòng xóa SKU trước.');
+            return;
+        }
+        setGroups(groups.filter(g => g.id !== id));
+        message.success('Đã xóa nhóm hàng');
+    };
+
+    const handleSaveSku = () => {
+        skuForm.validateFields().then(values => {
+            const group = groups.find(g => g.id === values.groupId);
+            if (!group) return;
+
+            // Inherit from Group
+            const skuData = {
+                ...values,
+                name: `${values.capacity}`, // Name is just the number/capacity now
+                unit: group.packageUnit      // Inherit package unit from group
+            };
+
+            if (editingSku) {
+                const updated = materials.map(m => m.id === editingSku.id ? { ...m, ...skuData } : m);
+                setMaterials(updated);
+                message.success('Cập nhật SKU thành công');
+            } else {
+                const newId = `SKU-${Date.now()}`;
+                setMaterials([...materials, { ...skuData, id: newId, currentStock: 0, partialStock: 0 }]);
+                message.success('Thêm SKU mới thành công');
+            }
+            setIsSkuModalOpen(false);
+        });
+    };
+
+    const groupColumns: ColumnsType<any> = [
+        { 
+            title: 'Tên Nhóm hàng', 
+            dataIndex: 'name', 
+            key: 'name',
+            render: (text, record) => (
+                <Space>
+                    <Text strong>{text}</Text>
+                    <Tag>{record.category}</Tag>
+                    <Text type="secondary" style={{ fontSize: 12 }}>({record.packageUnit})</Text>
+                </Space>
+            )
+        },
+        { 
+            title: 'Tổng Dung lượng', 
+            key: 'capacity',
+            render: (_, record) => (
+                <Text strong style={{ color: '#1890ff' }}>
+                    {record.totalCapacity.toLocaleString()} {record.baseUnit}
+                </Text>
+            )
+        },
+        { 
+            title: 'Số lượng Nguyên', 
+            dataIndex: 'totalFull', 
+            key: 'full',
+            render: (v, record) => <Tag color="blue">{v} {record.packageUnit}</Tag>
+        },
+        { 
+            title: 'Số lượng Dở', 
+            dataIndex: 'totalPartial', 
+            key: 'partial',
+            render: (v, record) => <Tag color="orange">{v} {record.packageUnit}</Tag>
+        },
+        { 
+            title: 'Tổng Giá trị (Ước tính)', 
+            dataIndex: 'totalValue', 
+            key: 'val',
+            align: 'right',
+            render: (v) => <Text strong>{v.toLocaleString('vi-VN')}đ</Text>
+        },
+        {
+            title: 'Thao tác',
+            key: 'actions',
+            width: 250,
+            render: (_, record) => (
+                <Space onClick={(e) => e.stopPropagation()}>
+                    <Button 
+                        size="small" 
+                        icon={<PlusOutlined />} 
+                        onClick={() => {
+                            setSelectedGroup(record);
+                            skuForm.resetFields();
+                            skuForm.setFieldsValue({ groupId: record.id, minStockAlert: 5 });
+                            setEditingSku(null);
+                            setIsSkuModalOpen(true);
+                        }}
+                    >
+                        Thêm SKU
+                    </Button>
+                    <Button 
+                        size="small" 
+                        icon={<EditOutlined />} 
+                        onClick={() => {
+                            setEditingGroup(record);
+                            form.setFieldsValue(record);
+                            setIsGroupModalOpen(true);
+                        }}
+                    />
+                    <Popconfirm 
+                        title="Xóa nhóm hàng? (Chỉ khi không có SKU)" 
+                        onConfirm={(e) => handleDeleteGroup(record.id, e as any)}
+                        okText="Xóa"
+                        cancelText="Hủy"
+                    >
+                        <Button 
+                            size="small" 
+                            danger 
+                            icon={<DeleteOutlined />} 
+                        />
+                    </Popconfirm>
+                </Space>
+            )
         }
     ];
+
+    const expandedRowRender = (group: any) => {
+        const skuColumns: ColumnsType<Material> = [
+            { title: 'Mã SKU', dataIndex: 'code', key: 'code', width: 120 },
+            { 
+                title: 'Quy cách', 
+                dataIndex: 'name', 
+                key: 'name', 
+                render: (v) => <Text strong>{v} {group.baseUnit}</Text> 
+            },
+            { 
+                title: 'Tồn Kho thực tế', 
+                key: 'cap',
+                render: (_, m) => (
+                    <Space direction="vertical" size={0}>
+                        <Text>{m.currentStock} {group.packageUnit} nguyên</Text>
+                        {m.partialStock > 0 && <Text type="warning" style={{ fontSize: 11 }}>+ {m.partialStock} {group.baseUnit} lẻ</Text>}
+                    </Space>
+                )
+            },
+            { title: 'Đơn giá', dataIndex: 'unitCost', key: 'cost', align: 'right', render: (v) => v.toLocaleString('vi-VN') + 'đ' },
+            { 
+                title: 'Thành tiền', 
+                key: 'total', 
+                align: 'right',
+                render: (_, m) => {
+                    const totalVal = (m.currentStock * m.unitCost) + (m.partialStock / m.capacity) * m.unitCost;
+                    return (isNaN(totalVal) ? '0' : totalVal.toLocaleString('vi-VN')) + 'đ';
+                }
+            },
+            {
+                title: '',
+                key: 'act',
+                render: (_, m) => (
+                    <Button type="text" icon={<EditOutlined />} onClick={() => {
+                        setEditingSku(m);
+                        skuForm.setFieldsValue(m);
+                        setIsSkuModalOpen(true);
+                    }} />
+                )
+            }
+        ];
+
+        return (
+            <Table 
+                columns={skuColumns} 
+                dataSource={group.skus} 
+                pagination={false} 
+                size="small" 
+                rowKey="id"
+                style={{ margin: '8px 0', background: '#fafafa', borderRadius: 4 }}
+            />
+        );
+    };
 
     return (
         <div>
             <div style={{ 
                 display: 'flex', 
-                flexDirection: window.innerWidth < 640 ? 'column' : 'row',
                 justifyContent: 'space-between', 
-                alignItems: window.innerWidth < 640 ? 'flex-start' : 'center', 
-                marginBottom: 24,
-                gap: 12
+                alignItems: 'center', 
+                marginBottom: 24 
             }}>
-                <Title level={4} style={{ margin: 0 }}>📦 Kho Vật tư & Tài sản</Title>
-                <Space wrap={true} size={[8, 8]}>
+                <Title level={4} style={{ margin: 0 }}>📦 Quản lý Vật tư tiêu hao</Title>
+                <Space>
                     <Button icon={<BankOutlined />} onClick={() => navigate('/accountant/inventory/distributors')}>Nhà phân phối</Button>
+                    <Button icon={<PlusOutlined />} type="primary" onClick={() => {
+                        setEditingGroup(null);
+                        form.resetFields();
+                        setIsGroupModalOpen(true);
+                    }}>Khai báo Nhóm hàng</Button>
                     <Button icon={<HistoryOutlined />} onClick={() => navigate('/accountant/inventory/history')}>Lịch sử</Button>
-                    <Button size={window.innerWidth < 640 ? 'small' : 'middle'} icon={<MinusOutlined />} onClick={() => navigate('/accountant/inventory/stock-out')}>Xuất kho</Button>
-                    <Button type="primary" size={window.innerWidth < 640 ? 'small' : 'middle'} icon={<PlusOutlined />} onClick={() => navigate('/accountant/inventory/stock-in')}>Nhập kho</Button>
+                    <Button icon={<MinusOutlined />} onClick={() => navigate('/accountant/inventory/stock-out')}>Xuất kho</Button>
+                    <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/accountant/inventory/stock-in')}>Nhập kho</Button>
                 </Space>
             </div>
 
-            {/* KPI Row */}
-            <Row gutter={[12, 12]} style={{ marginBottom: 24 }}>
-                <Col xs={12} sm={12} md={6}>
-                    <Card size="small" bordered={false} style={{ height: '100%', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
-                        <Statistic 
-                            title={<Text type="secondary" style={{ fontSize: 12 }}>Tổng danh mục</Text>} 
-                            value={materials.length} 
-                            valueStyle={{ color: '#1976D2', fontSize: 20 }} 
-                        />
+            <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+                <Col span={6}>
+                    <Card size="small">
+                        <Statistic title="Tổng giá trị kho" value={totalInventoryValue} suffix="đ" precision={0} />
                     </Card>
                 </Col>
-                <Col xs={12} sm={12} md={6}>
-                    <Card size="small" bordered={false} style={{ height: '100%', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
-                        <Statistic
-                            title={<Text type="secondary" style={{ fontSize: 12 }}>Cần bổ sung</Text>}
-                            value={lowStock.length}
-                            valueStyle={{ color: lowStock.length > 0 ? '#ff4d4f' : '#52c41a', fontSize: 20 }}
-                            prefix={lowStock.length > 0 ? <WarningOutlined /> : undefined}
-                        />
+                <Col span={6}>
+                    <Card size="small">
+                        <Statistic title="Số Nhóm hàng" value={groups.length} />
                     </Card>
                 </Col>
-                <Col xs={12} sm={12} md={6}>
-                    <Card size="small" bordered={false} style={{ height: '100%', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
-                        <Statistic 
-                            title={<Text type="secondary" style={{ fontSize: 12 }}>Phiếu xuất tháng</Text>} 
-                            value={stockOrders.filter(o => o.type === 'OUT').length} 
-                            valueStyle={{ fontSize: 20 }}
-                        />
+                <Col span={6}>
+                    <Card size="small">
+                        <Statistic title="Cần nhập thêm (SKU)" value={lowStockSkus.length} valueStyle={{ color: '#cf1322' }} />
                     </Card>
                 </Col>
-                <Col xs={12} sm={12} md={6}>
-                    <Card size="small" bordered={false} style={{ height: '100%', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
-                        <Statistic
-                            title={<Text type="secondary" style={{ fontSize: 12 }}>Giá trị kho</Text>}
-                            value={Math.round(totalValue / 1000000)}
-                            suffix={<span style={{ fontSize: 12 }}>tr</span>}
-                            valueStyle={{ color: '#52c41a', fontSize: 20 }}
-                        />
+                <Col span={6}>
+                    <Card size="small">
+                        <Statistic title="Vòng quay kho (Tháng)" value={1.2} />
                     </Card>
                 </Col>
             </Row>
 
-            {/* Low stock alert */}
-            {lowStock.length > 0 && (
-                <Alert
-                    message={
-                        <div style={{ fontSize: 12 }}>
-                            ⚠️ <strong>{lowStock.length} vật tư</strong> thấp: {lowStock.map(m => m.name).join(', ')}
-                        </div>
-                    }
-                    type="warning"
-                    showIcon
-                    action={
-                        <Button type="primary" size="small" style={{ fontSize: 12 }} onClick={() => navigate('/accountant/inventory/stock-in')}>
-                            Nhập ngay
-                        </Button>
-                    }
-                    style={{ marginBottom: 16, borderRadius: 8 }}
-                />
-            )}
-
             <Tabs
                 items={[
                     {
-                        key: 'consumables',
-                        label: 'Vật tư tiêu hao',
+                        key: 'materials',
+                        label: 'Danh mục vật tư',
                         children: (
-                            <div style={{ background: '#fff', borderRadius: 8, padding: 4 }}>
-                                <Table
-                                    columns={matColumns}
-                                    dataSource={materials.filter(m => m.type !== 'FIXED_ASSET')}
-                                    rowKey="id"
-                                    size="small"
-                                    pagination={{ pageSize: 15 }}
-                                    scroll={{ x: 'max-content' }}
-                                    rowClassName={r => r.currentStock <= r.minStockAlert ? 'ant-table-row-warning' : ''}
-                                />
-                            </div>
+                            <Table
+                                columns={groupColumns}
+                                dataSource={groupStats}
+                                rowKey="id"
+                                size="middle"
+                                expandable={{ expandedRowRender, defaultExpandAllRows: false }}
+                                pagination={false}
+                            />
                         ),
                     },
                     {
-                        key: 'assets',
-                        label: 'Tài sản cố định',
+                        key: 'history',
+                        label: 'Lịch sử nhập/xuất',
                         children: (
-                            <div style={{ background: '#fff', borderRadius: 8, padding: 4 }}>
-                                <Table
-                                    columns={matColumns}
-                                    dataSource={materials.filter(m => m.type === 'FIXED_ASSET')}
-                                    rowKey="id"
-                                    size="small"
-                                    pagination={{ pageSize: 15 }}
-                                    scroll={{ x: 'max-content' }}
-                                />
-                            </div>
-                        ),
-                    },
-                    {
-                        key: 'orders',
-                        label: 'Lịch sử kho',
-                        children: (
-                            <div style={{ background: '#fff', borderRadius: 8, padding: 4 }}>
-                                <Table
-                                    rowKey="id"
-                                    dataSource={stockOrders}
-                                    size="small"
-                                    scroll={{ x: 'max-content' }}
-                                    columns={[
-                                        { title: 'Mã phiếu', dataIndex: 'code', key: 'code', fixed: 'left', width: 120, render: (c: string) => <Text strong>{c}</Text> },
-                                        { title: 'Loại', dataIndex: 'type', key: 'type', width: 100, render: (t: string) => <Tag color={t === 'OUT' ? 'orange' : 'green'}>{t === 'OUT' ? 'Xuất kho' : 'Nhập kho'}</Tag> },
-                                        { 
-                                            title: 'Phân loại nguồn', 
-                                            dataIndex: 'source', 
-                                            key: 'source', 
-                                            width: 120,
-                                            render: (s: string, record: StockOrder) => {
-                                                if (record.type === 'OUT') return <Tag>Công trình</Tag>;
-                                                return s === 'DISTRIBUTOR' ? <Tag color="cyan">Nhà phân phối</Tag> : <Tag color="purple">Dự án trả lại</Tag>;
-                                            }
-                                        },
-                                        { title: 'Đối tượng / Dự án', dataIndex: 'projectName', key: 'proj', minWidth: 150, render: (v: string, record: StockOrder) => v || record.supplier || '—' },
-                                        { title: 'Giá trị', dataIndex: 'totalValue', key: 'val', width: 120, render: (v: number) => `${v.toLocaleString('vi-VN')}đ` },
-                                        { title: 'Trạng thái', dataIndex: 'status', key: 'status', width: 100, render: (s: string) => <Tag color={s === 'SIGNED' ? 'success' : 'warning'}>{s === 'SIGNED' ? '✅ Đã xác nhận' : '⏳ Chờ xác nhận'}</Tag> },
-                                        { title: 'Ngày tạo', dataIndex: 'createdAt', key: 'date', width: 110 },
-                                    ]}
-                                    pagination={{ pageSize: 15 }}
-                                />
-                            </div>
+                            <Table
+                                rowKey="id"
+                                dataSource={stockOrders}
+                                size="small"
+                                scroll={{ x: 'max-content' }}
+                                columns={[
+                                    { title: 'Mã phiếu', dataIndex: 'code', key: 'code', fixed: 'left', width: 120, render: (c: string) => <Text strong>{c}</Text> },
+                                    { title: 'Loại', dataIndex: 'type', key: 'type', width: 100, render: (t: string) => <Tag color={t === 'OUT' ? 'orange' : 'green'}>{t === 'OUT' ? 'Xuất kho' : 'Nhập kho'}</Tag> },
+                                    { title: 'Nguồn', dataIndex: 'source', key: 'source', width: 120 },
+                                    { title: 'Đối tượng', dataIndex: 'projectName', key: 'proj', minWidth: 150, render: (v: string, record: StockOrder) => v || record.supplier || '—' },
+                                    { title: 'Giá trị', dataIndex: 'totalValue', key: 'val', width: 120, render: (v: number) => `${v.toLocaleString('vi-VN')}đ` },
+                                    { title: 'Ngày tạo', dataIndex: 'createdAt', key: 'date', width: 110 },
+                                ]}
+                            />
                         ),
                     },
                 ]}
             />
+
+            {/* Group Modal */}
+            <Modal
+                title={editingGroup ? "Cập nhật Nhóm hàng" : "Khai báo Nhóm hàng mới"}
+                open={isGroupModalOpen}
+                onOk={handleSaveGroup}
+                onCancel={() => setIsGroupModalOpen(false)}
+            >
+                <Form form={form} layout="vertical">
+                    <Form.Item name="name" label="Tên Nhóm hàng (Sản phẩm)" rules={[{ required: true }]}>
+                        <Input placeholder="VD: Sơn PU (Lót)" />
+                    </Form.Item>
+                    <Row gutter={16}>
+                        <Col span={8}>
+                            <Form.Item name="baseUnit" label="ĐVT cơ sở (L/Kg)" rules={[{ required: true }]}>
+                                <Select placeholder="Chọn ĐVT">
+                                    <Option value="Kg">Kg</Option>
+                                    <Option value="Lít">Lít</Option>
+                                    <Option value="Cái">Cái</Option>
+                                    <Option value="Mét">Mét</Option>
+                                </Select>
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item name="packageUnit" label="ĐVT đóng gói" rules={[{ required: true }]}>
+                                <Select placeholder="Thùng/Lon...">
+                                    <Option value="thùng">Thùng</Option>
+                                    <Option value="lon">Lon</Option>
+                                    <Option value="bao">Bao</Option>
+                                    <Option value="cái">Cái</Option>
+                                </Select>
+                            </Form.Item>
+                        </Col>
+                        <Form.Item name="type" initialValue="CONSUMABLE" hidden><Input /></Form.Item>
+                    </Row>
+                    <Form.Item name="category" label="Danh mục">
+                        <Input placeholder="VD: Sơn chống thấm" />
+                    </Form.Item>
+                </Form>
+            </Modal>
+
+            {/* SKU Modal */}
+            <Modal
+                title={editingSku ? "Chỉnh sửa SKU" : `Thêm SKU vào nhóm: ${selectedGroup?.name}`}
+                open={isSkuModalOpen}
+                onOk={handleSaveSku}
+                onCancel={() => setIsSkuModalOpen(false)}
+                width={500}
+            >
+                <Alert 
+                    message={`SKU này sẽ kế thừa ĐVT cơ sở (${selectedGroup?.baseUnit}) và ĐVT đóng gói (${selectedGroup?.packageUnit}) từ Nhóm.`}
+                    type="info"
+                    showIcon
+                    style={{ marginBottom: 16 }}
+                />
+                <Form form={skuForm} layout="vertical">
+                    <Form.Item name="groupId" hidden><Input /></Form.Item>
+                    <Row gutter={16}>
+                        <Col span={12}>
+                            <Form.Item name="code" label="Mã SKU" rules={[{ required: true }]}>
+                                <Input placeholder="VD: PU-15KG" />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item 
+                                name="capacity" 
+                                label={`Số lượng quy cách (mỗi ${selectedGroup?.packageUnit})`} 
+                                rules={[{ required: true }]}
+                            >
+                                <InputNumber 
+                                    style={{ width: '100%' }} 
+                                    placeholder="VD: 15" 
+                                    addonAfter={selectedGroup?.baseUnit}
+                                />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                    <Row gutter={16}>
+                        <Col span={12}>
+                            <Form.Item name="unitCost" label="Đơn giá tham chiếu" rules={[{ required: true }]}>
+                                <InputNumber style={{ width: '100%' }} formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item name="minStockAlert" label="Cảnh báo tồn tối thiểu">
+                                <InputNumber style={{ width: '100%' }} />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                </Form>
+            </Modal>
         </div>
     );
 };

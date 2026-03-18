@@ -9,6 +9,7 @@ import {
     SafetyOutlined,
     BarChartOutlined,
     BellOutlined,
+    ToolOutlined,
 } from '@ant-design/icons';
 import { BaseLayout } from '../shared/BaseLayout';
 import { UserMenu } from '../../components/common/Header/UserMenu';
@@ -22,13 +23,23 @@ const menuItems: MenuProps['items'] = [
     {
         key: '/accountant/inventory',
         icon: <InboxOutlined />,
-        label: 'Danh mục vật tư & tài sản',
+        label: 'QL Vật tư',
         children: [
-            { key: '/accountant/inventory/materials', label: 'Kho vật tư & tài sản' },
+            { key: '/accountant/inventory/materials', label: 'Danh mục vật tư' },
             { key: '/accountant/inventory/distributors', label: 'Nhà phân phối' },
             { key: '/accountant/inventory/stock-out', label: 'Phiếu xuất kho' },
             { key: '/accountant/inventory/stock-in', label: 'Phiếu nhập kho' },
             { key: '/accountant/inventory/history', label: 'Lịch sử kho' },
+        ],
+    },
+    {
+        key: '/accountant/assets',
+        icon: <ToolOutlined />,
+        label: 'QL Tài sản',
+        children: [
+            { key: '/accountant/assets/list', label: 'Danh mục tài sản' },
+            { key: '/accountant/assets/allocation', label: 'Cấp phát tài sản' },
+            { key: '/accountant/assets/maintenance', label: 'Bảo trì & Sửa chữa' },
         ],
     },
     {
@@ -75,7 +86,7 @@ const AccountantSidebar: React.FC = () => {
                 theme="dark"
                 mode="inline"
                 selectedKeys={[location.pathname]}
-                defaultOpenKeys={['/accountant/inventory', '/accountant/finance', '/accountant/warranty']}
+                defaultOpenKeys={['/accountant/inventory', '/accountant/assets', '/accountant/finance', '/accountant/warranty']}
                 items={menuItems}
                 onClick={e => navigate(e.key)}
             />

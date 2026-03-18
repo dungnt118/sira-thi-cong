@@ -1,91 +1,78 @@
-[
-    {
-        "id": "MAT-001",
-        "code": "VT-001",
-        "name": "SIRA PU (lót)",
-        "unit": "kg",
-        "currentStock": 162,
-        "minStockAlert": 20,
-        "unitCost": 45000,
-        "category": "Sơn chống thấm",
-        "type": "CONSUMABLE"
-    },
-    {
-        "id": "MAT-002",
-        "code": "VT-002",
-        "name": "SIRA PU (phủ)",
-        "unit": "kg",
-        "currentStock": 203,
-        "minStockAlert": 20,
-        "unitCost": 48000,
-        "category": "Sơn chống thấm",
-        "type": "CONSUMABLE"
-    },
-    {
-        "id": "MAT-003",
-        "code": "VT-003",
-        "name": "Primer (lót nền)",
-        "unit": "lít",
-        "currentStock": 8,
-        "minStockAlert": 10,
-        "unitCost": 35000,
-        "category": "Sơn lót",
-        "type": "CONSUMABLE"
-    },
-    {
-        "id": "MAT-004",
-        "code": "VT-004",
-        "name": "Sika Latex",
-        "unit": "kg",
-        "currentStock": 45,
-        "minStockAlert": 5,
-        "unitCost": 55000,
-        "category": "Vật liệu trám",
-        "type": "CONSUMABLE"
-    },
-    {
-        "id": "MAT-005",
-        "code": "VT-005",
-        "name": "Băng chống thấm Sika",
-        "unit": "cuộn",
-        "currentStock": 12,
-        "minStockAlert": 3,
-        "unitCost": 120000,
-        "category": "Vật liệu trám",
-        "type": "CONSUMABLE"
-    },
-    {
-        "id": "MAT-006",
-        "code": "TS-001",
-        "name": "Máy khoan bê tông Bosch",
-        "unit": "cái",
-        "currentStock": 5,
-        "minStockAlert": 1,
-        "unitCost": 2500000,
-        "category": "Máy móc thiết bị",
-        "type": "FIXED_ASSET",
-        "fixedAssetInfo": {
-            "depreciationMonths": 24,
-            "purchaseDate": "2025-01-10",
-            "condition": "NEW",
-            "assignedTo": "GS Trần Văn Tuấn"
+{
+    "groups": [
+        {
+            "id": "GRP-001",
+            "name": "Sơn PU (Lót)",
+            "baseUnit": "Kg",
+            "packageUnit": "thùng",
+            "category": "Sơn chống thấm",
+            "type": "CONSUMABLE"
+        },
+        {
+            "id": "GRP-002",
+            "name": "Sơn PU (Phủ)",
+            "baseUnit": "Kg",
+            "packageUnit": "thùng",
+            "category": "Sơn chống thấm",
+            "type": "CONSUMABLE"
+        },
+        {
+            "id": "GRP-003",
+            "name": "Primer",
+            "baseUnit": "Lít",
+            "packageUnit": "lon",
+            "category": "Sơn lót",
+            "type": "CONSUMABLE"
         }
-    },
-    {
-        "id": "MAT-007",
-        "code": "TS-002",
-        "name": "Máy mài sàn công nghiệp",
-        "unit": "cái",
-        "currentStock": 2,
-        "minStockAlert": 1,
-        "unitCost": 15000000,
-        "category": "Máy móc thiết bị",
-        "type": "FIXED_ASSET",
-        "fixedAssetInfo": {
-            "depreciationMonths": 36,
-            "purchaseDate": "2024-12-15",
-            "condition": "USED",
-            "assignedTo": "GS Lê Văn Thái"
+    ],
+    "materials": [
+        {
+            "id": "MAT-001",
+            "groupId": "GRP-001",
+            "code": "PU-L-15KG",
+            "name": "15",
+            "capacity": 15,
+            "unit": "thùng",
+            "currentStock": 20,
+            "partialStock": 5.2,
+            "minStockAlert": 5,
+            "unitCost": 900000
+        },
+        {
+            "id": "MAT-002",
+            "groupId": "GRP-001",
+            "code": "PU-L-1KG",
+            "name": "1",
+            "capacity": 1,
+            "unit": "lon",
+            "currentStock": 15,
+            "partialStock": 0.3,
+            "minStockAlert": 10,
+            "unitCost": 120000
+        },
+        {
+            "id": "MAT-003",
+            "groupId": "GRP-002",
+            "code": "PU-P-20KG",
+            "name": "20",
+            "capacity": 20,
+            "unit": "thùng",
+            "currentStock": 10,
+            "partialStock": 0,
+            "minStockAlert": 3,
+            "unitCost": 1200000
+        },
+        {
+            "id": "MAT-004",
+            "groupId": "GRP-003",
+            "code": "PRI-1L",
+            "name": "1",
+            "capacity": 1,
+            "unit": "lon",
+            "currentStock": 8,
+            "partialStock": 0.4,
+            "minStockAlert": 5,
+            "unitCost": 350000
         }
-    }
-]
+    ]
+}

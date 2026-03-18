@@ -93,6 +93,7 @@ import PaymentDashboard from '../pages/accountant/Finance/PaymentDashboard';
 import InboundForm from '../pages/accountant/Inventory/InboundForm';
 import OutboundForm from '../pages/accountant/Inventory/OutboundForm';
 import DistributorList from '../pages/accountant/Inventory/DistributorList';
+import AssetsDashboard from '../pages/accountant/Assets/Dashboard';
 
 // V4 Ky Thuat Pages
 import KyThuatLayout from '../layouts/KyThuatLayout';
@@ -265,6 +266,12 @@ function App() {
                                 <Route path="inventory/stock-in" element={<InboundForm />} />
                                 <Route path="inventory/distributors" element={<DistributorList />} />
                                 <Route path="inventory/history" element={<ComingSoon title="Lịch sử Kho" />} />
+
+                                {/* Assets Module */}
+                                <Route path="assets" element={<Navigate to="/accountant/assets/list" replace />} />
+                                <Route path="assets/list" element={<AssetsDashboard />} />
+                                <Route path="assets/allocation" element={<ComingSoon title="Cấp phát tài sản" />} />
+                                <Route path="assets/maintenance" element={<ComingSoon title="Bảo trì tài sản" />} />
                                 <Route path="finance">
                                     <Route index element={<Navigate to="/accountant/finance/milestones" replace />} />
                                     <Route path="milestones" element={<PaymentDashboard />} />
