@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
     Form, Input, Select, InputNumber, Button, Card, 
     Typography, Space, Row, Col, message,
-    Alert, Radio, Table, Tag, Divider
+    Radio, Table, Divider, Tag
 } from 'antd';
 import { 
     PlusOutlined, SaveOutlined, ArrowLeftOutlined, 
@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import useLocalStorageData from '../../../hooks/useLocalStorageData';
 import { 
     Material, Distributor, StockOrder, 
-    StockOrderSource, MaterialType, MaterialGroup 
+    StockOrderSource, MaterialGroup 
 } from '../../../types/v3';
 import mockMaterialsData from '../../../data/mock/materials.json';
 import mockDistributors from '../../../data/mock/distributors.json';
@@ -25,12 +25,26 @@ const InboundForm: React.FC = () => {
     const [form] = Form.useForm();
     const [sourceType, setSourceType] = useState<StockOrderSource>('DISTRIBUTOR');
     
+    // Watch form fields for reactivity and calculation
+    const watchedMaterialId = Form.useWatch('materialId', form);
+    const watchedQuantity = Form.useWatch('quantity', form);
+    const watchedRemainingQuantity = Form.useWatch('remainingQuantity', form);
+    const watchedUnitCost = Form.useWatch('unitCost', form);
+    const watchedIsPartial = Form.useWatch('isPartial', form);
+
     const [groups] = useLocalStorageData<MaterialGroup[]>('MATERIAL_GROUPS', (mockMaterialsData as any).groups);
     const [materials, setMaterials] = useLocalStorageData<Material[]>('MATERIALS', (mockMaterialsData as any).materials);
     const [distributors] = useLocalStorageData<Distributor[]>('DISTRIBUTORS', mockDistributors as Distributor[]);
     const [stockOrders, setStockOrders] = useLocalStorageData<StockOrder[]>('STOCK_ORDERS', []);
     
     const [selectedItems, setSelectedItems] = useState<any[]>([]);
+
+    // Calculate temporary total for the current input
+    const tempTotal = useMemo(() => {
+        const qty = watchedIsPartial ? (watchedRemainingQuantity || 0) : (watchedQuantity || 0);
+        const cost = watchedUnitCost || 0;
+        return qty * cost;
+    }, [watchedIsPartial, watchedQuantity, watchedRemainingQuantity, watchedUnitCost]);
 
     const handleAddItem = () => {
         const values = form.getFieldsValue();
@@ -44,18 +58,21 @@ const InboundForm: React.FC = () => {
         const group = groups.find(g => g.id === material.groupId);
 
         const isPartial = values.isPartial && sourceType === 'PROJECT';
+        const qty = isPartial ? 0 : (values.quantity || 0);
+        const remQty = values.remainingQuantity || 0;
+        const cost = values.unitCost || material.unitCost || 0;
         
         const newItem = {
             key: Date.now(),
             materialId: material.id,
-            materialName: `${group?.name} - Loại ${material.name}`,
+            materialName: `[${material.code}] ${group?.name || 'Vật tư'} - quy cách ${material.capacity}${group?.baseUnit || ''}`,
             baseUnit: group?.baseUnit || 'đơn vị',
             unit: material.unit,
-            quantity: isPartial ? 0 : (values.quantity || 0),
+            quantity: qty,
             isPartial: isPartial,
-            remainingQuantity: values.remainingQuantity || 0, // In liters/kg
-            unitCost: values.unitCost || material.unitCost,
-            total: isPartial ? 0 : ((values.quantity || 0) * (values.unitCost || material.unitCost)),
+            remainingQuantity: remQty, // In liters/kg
+            unitCost: cost,
+            total: isPartial ? (remQty * cost) : (qty * cost),
         };
 
         setSelectedItems([...selectedItems, newItem]);
@@ -90,7 +107,7 @@ const InboundForm: React.FC = () => {
                 isPartial: item.isPartial,
                 remainingPercent: item.isPartial ? (item.remainingQuantity * 100 / 20) : undefined
             })),
-            totalValue: selectedItems.reduce((sum, item) => sum + item.total, 0),
+            totalValue: selectedItems.reduce((sum, item) => sum + (item.total || 0), 0),
             status: 'SIGNED',
             createdBy: 'Kế toán Phạm Thị A',
             createdAt: new Date().toISOString().split('T')[0],
@@ -136,22 +153,21 @@ const InboundForm: React.FC = () => {
             </div>
         )},
         { 
-            title: 'Loại', 
-            dataIndex: 'type', 
-            key: 'type',
-            render: (type: MaterialType) => (
-                <Tag color={type === 'FIXED_ASSET' ? 'purple' : 'blue'}>
-                    {type === 'FIXED_ASSET' ? 'CĐ' : 'TH'}
-                </Tag>
-            )
+            title: 'Quy cách', 
+            dataIndex: 'materialId', 
+            key: 'sku',
+            render: (_: string, record: any) => {
+                const materialsMatch = materials.find(m => m.id === record.materialId);
+                return <Tag color="blue">{materialsMatch?.unit || 'đơn vị'}</Tag>;
+            }
         },
         { 
             title: 'SL Nhập', 
             key: 'qty', 
             render: (_: any, record: any) => record.isPartial ? `${record.remainingQuantity} (${record.baseUnit} lẻ)` : `${record.quantity} ${record.unit}` 
         },
-        { title: 'Đơn giá', dataIndex: 'unitCost', key: 'cost', render: (val: number) => val.toLocaleString('vi-VN') + 'đ' },
-        { title: 'Thành tiền', dataIndex: 'total', key: 'total', render: (val: number) => val.toLocaleString('vi-VN') + 'đ' },
+        { title: 'Đơn giá', dataIndex: 'unitCost', key: 'cost', render: (val: number) => (val || 0).toLocaleString('vi-VN') + 'đ' },
+        { title: 'Thành tiền', dataIndex: 'total', key: 'total', render: (val: number) => (val || 0).toLocaleString('vi-VN') + 'đ' },
         {
             title: '',
             key: 'action',
@@ -169,107 +185,88 @@ const InboundForm: React.FC = () => {
             </div>
 
             <Row gutter={24}>
-                <Col span={16}>
+                <Col span={18}>
                     <Card title="Thông tin mặt hàng" style={{ marginBottom: '24px' }}>
                         <Form form={form} layout="vertical">
-                            <Row gutter={16}>
-                                <Col span={12}>
-                                    <Form.Item name="materialId" label="Chọn vật tư/tài sản">
+                            <Row gutter={12}>
+                                <Col span={8}>
+                                    <Form.Item name="materialId" label="Chọn vật tư">
                                         <Select 
                                             showSearch
-                                            placeholder="Gõ mã hoặc tên"
+                                            placeholder="Gõ mã SKU hoặc tên"
                                             optionFilterProp="children"
                                             onChange={(val) => {
                                                 const mat = materials.find(m => m.id === val);
                                                 if (mat) form.setFieldsValue({ unitCost: mat.unitCost });
                                             }}
                                         >
-                                            {materials.map(m => {
-                                                const group = groups.find(g => g.id === m.groupId);
-                                                return (
-                                                    <Select.Option key={m.id} value={m.id}>
-                                                        {group?.name} - Loại {m.name} ({m.unit})
-                                                    </Select.Option>
-                                                );
-                                            })}
+                                            {materials
+                                                .filter(m => {
+                                                    const g = groups.find(group => group.id === m.groupId);
+                                                    return g?.type === 'CONSUMABLE';
+                                                })
+                                                .map(m => {
+                                                    const group = groups.find(g => g.id === m.groupId);
+                                                    return (
+                                                        <Select.Option key={m.id} value={m.id}>
+                                                            <Text strong>[{m.code}]</Text> {group?.name} - quy cách {m.capacity}{group?.baseUnit}
+                                                        </Select.Option>
+                                                    );
+                                                })}
                                         </Select>
                                     </Form.Item>
                                 </Col>
-                                <Col span={12}>
-                                    <Space align="end" style={{ width: '100%' }}>
+                                <Col span={16}>
+                                    <Row gutter={8} align="bottom">
                                         {sourceType === 'PROJECT' && (
-                                            <Form.Item name="isPartial" valuePropName="checked" style={{ marginBottom: 24 }}>
-                                                <Button 
-                                                    type={form.getFieldValue('isPartial') ? 'primary' : 'default'}
-                                                    onClick={() => {
-                                                        const current = form.getFieldValue('isPartial');
-                                                        form.setFieldsValue({ isPartial: !current });
-                                                    }}
-                                                >
-                                                    {form.getFieldValue('isPartial') ? '📦 Hàng dở dang' : '📦 Hàng nguyên'}
-                                                </Button>
-                                            </Form.Item>
+                                            <Col span={6}>
+                                                <Form.Item name="isPartial" valuePropName="checked" label=" ">
+                                                    <Button 
+                                                        type={watchedIsPartial ? 'primary' : 'default'}
+                                                        onClick={() => form.setFieldsValue({ isPartial: !watchedIsPartial })}
+                                                        block
+                                                    >
+                                                        {watchedIsPartial ? '📦 Hàng lẻ' : '📦 Nguyên'}
+                                                    </Button>
+                                                </Form.Item>
+                                            </Col>
                                         )}
-                                        <Form.Item noStyle shouldUpdate={(prev, curr) => prev.isPartial !== curr.isPartial}>
-                                            {() => {
-                                                const selectedMat = materials.find(m => m.id === form.getFieldValue('materialId'));
-                                                const group = groups.find(g => g.id === selectedMat?.groupId);
-                                                return form.getFieldValue('isPartial') ? (
-                                                    <Form.Item name="remainingQuantity" label={`Lượng lẻ (${group?.baseUnit || ''})`} rules={[{ required: true }]}>
-                                                        <InputNumber min={0.1} style={{ width: '150px' }} />
-                                                    </Form.Item>
-                                                ) : (
-                                                    <Form.Item name="quantity" label={`Số lượng (${selectedMat?.unit || 'thùng'})`} rules={[{ required: true }]}>
-                                                        <InputNumber min={1} style={{ width: '150px' }} />
-                                                    </Form.Item>
-                                                );
-                                            }}
-                                        </Form.Item>
-                                        <Form.Item name="unitCost" label="Đơn giá nhập">
-                                            <InputNumber min={0} style={{ width: '150px' }} formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} />
-                                        </Form.Item>
-                                    </Space>
+                                        <Col span={watchedIsPartial ? 5 : 6}>
+                                            {watchedIsPartial ? (
+                                                <Form.Item name="remainingQuantity" label="Lượng lẻ" rules={[{ required: true }]}>
+                                                    <InputNumber min={0.1} style={{ width: '100%' }} placeholder="Kg/Lit" />
+                                                </Form.Item>
+                                            ) : (
+                                                <Form.Item name="quantity" label="Số lượng" rules={[{ required: true }]}>
+                                                    <InputNumber min={1} style={{ width: '100%' }} placeholder="Thùng/Lon" />
+                                                </Form.Item>
+                                            )}
+                                        </Col>
+                                        <Col span={6}>
+                                            <Form.Item name="unitCost" label="Đơn giá nhập">
+                                                <InputNumber 
+                                                    min={0} 
+                                                    style={{ width: '100%' }} 
+                                                    formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} 
+                                                    parser={value => value!.replace(/\$\s?|(,*)/g, '')}
+                                                />
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={6}>
+                                            <Form.Item label="Thành tiền VNĐ">
+                                                <InputNumber 
+                                                    disabled 
+                                                    value={tempTotal} 
+                                                    style={{ width: '100%', background: '#f5f5f5', color: '#333', fontWeight: 'bold' }} 
+                                                    formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} 
+                                                />
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
                                 </Col>
                             </Row>
 
-                            {/* Conditional fields for Fixed Assets */}
-                            <Form.Item noStyle shouldUpdate={(prev, curr) => prev.materialId !== curr.materialId}>
-                                {() => {
-                                    const mat = materials.find(m => m.id === form.getFieldValue('materialId'));
-                                    const group = groups.find(g => g.id === mat?.groupId);
-                                    if (group?.type === 'FIXED_ASSET') {
-                                        return (
-                                            <Alert
-                                                message="Cấu hình tài sản cố định"
-                                                description={
-                                                    <Row gutter={16} style={{ marginTop: 8 }}>
-                                                        <Col span={12}>
-                                                            <Form.Item name="depreciationMonths" label="Thời gian khấu hao (tháng)" initialValue={24}>
-                                                                <InputNumber min={1} style={{ width: '100%' }} />
-                                                            </Form.Item>
-                                                        </Col>
-                                                        <Col span={12}>
-                                                            <Form.Item name="assignedTo" label="Giao cho người quản lý">
-                                                                <Select placeholder="Chọn GS/Thợ">
-                                                                    <Select.Option value="GS Trần Văn Tuấn">GS Trần Văn Tuấn</Select.Option>
-                                                                    <Select.Option value="GS Lê Văn Thái">GS Lê Văn Thái</Select.Option>
-                                                                    <Select.Option value="Thợ Trần Văn C">Thợ Trần Văn C</Select.Option>
-                                                                </Select>
-                                                            </Form.Item>
-                                                        </Col>
-                                                    </Row>
-                                                }
-                                                type="info"
-                                                showIcon
-                                                style={{ marginBottom: 16 }}
-                                            />
-                                        );
-                                    }
-                                    return null;
-                                }}
-                            </Form.Item>
-
-                            <Button type="dashed" block icon={<PlusOutlined />} onClick={handleAddItem}>
+                            <Button type="dashed" block icon={<PlusOutlined />} onClick={handleAddItem} style={{ marginTop: 8 }}>
                                 Thêm vào danh sách
                             </Button>
                         </Form>
@@ -285,13 +282,13 @@ const InboundForm: React.FC = () => {
                     </Card>
                 </Col>
 
-                <Col span={8}>
-                    <Card title="Nguồn nhập & Thông tin chung">
+                <Col span={6}>
+                    <Card title="Nguồn nhập" size="small">
                         <Form form={form} layout="vertical">
-                            <Form.Item label="Hình thức nhập">
-                                <Radio.Group value={sourceType} onChange={e => setSourceType(e.target.value)}>
-                                    <Radio.Button value="DISTRIBUTOR">Từ NPP</Radio.Button>
-                                    <Radio.Button value="PROJECT">Từ CT/Dự án</Radio.Button>
+                            <Form.Item label="Hình thức">
+                                <Radio.Group value={sourceType} onChange={e => setSourceType(e.target.value)} size="small" style={{ width: '100%', textAlign: 'center' }}>
+                                    <Radio.Button value="DISTRIBUTOR" style={{ width: '50%' }}>Từ NPP</Radio.Button>
+                                    <Radio.Button value="PROJECT" style={{ width: '50%' }}>Dự án</Radio.Button>
                                 </Radio.Group>
                             </Form.Item>
 
@@ -299,9 +296,9 @@ const InboundForm: React.FC = () => {
                                 <Form.Item 
                                     name="distributorId" 
                                     label="Nhà phân phối"
-                                    rules={[{ required: true, message: 'Vui lòng chọn NPP' }]}
+                                    rules={[{ required: true, message: 'Chọn NPP' }]}
                                 >
-                                    <Select placeholder="Chọn nhà phân phối">
+                                    <Select placeholder="Chọn NPP" style={{ width: '100%' }}>
                                         {distributors.map(d => (
                                             <Select.Option key={d.id} value={d.id}>{d.name}</Select.Option>
                                         ))}
@@ -311,9 +308,9 @@ const InboundForm: React.FC = () => {
                                 <Form.Item 
                                     name="projectId" 
                                     label="Dự án/Công trình"
-                                    rules={[{ required: true, message: 'Vui lòng chọn dự án' }]}
+                                    rules={[{ required: true, message: 'Chọn dự án' }]}
                                 >
-                                    <Select placeholder="Chọn dự án trả hàng">
+                                    <Select placeholder="Chọn dự án" style={{ width: '100%' }}>
                                         {mockProjects.filter(p => p.status === 'COMPLETED' || p.status === 'IN_PROGRESS').map(p => (
                                             <Select.Option key={p.id} value={p.id}>{p.name}</Select.Option>
                                         ))}
@@ -322,25 +319,28 @@ const InboundForm: React.FC = () => {
                             )}
 
                             <Form.Item name="notes" label="Ghi chú">
-                                <Input.TextArea rows={4} placeholder="Ví dụ: Nhập hàng thừa từ công trình Q1, thùng sơn 10L còn 2L..." />
+                                <Input.TextArea rows={2} placeholder="Ghi chú..." />
                             </Form.Item>
 
-                            <div style={{ marginTop: '24px', textAlign: 'right' }}>
-                                <Space>
-                                    <Text strong>Tổng cộng: {selectedItems.reduce((sum, item) => sum + item.total, 0).toLocaleString('vi-VN')}đ</Text>
-                                    <Button type="primary" size="large" icon={<SaveOutlined />} onClick={handleSubmit}>
-                                        Hoàn tất nhập kho
-                                    </Button>
-                                </Space>
+                            <div style={{ marginTop: '16px', borderTop: '1px solid #eee', paddingTop: '16px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                    <Text type="secondary">Tổng tiền:</Text>
+                                    <Text strong style={{ fontSize: '16px', color: '#f5222d' }}>
+                                        {selectedItems.reduce((sum, item) => sum + (item.total || 0), 0).toLocaleString('vi-VN')}đ
+                                    </Text>
+                                </div>
+                                <Button type="primary" block size="large" icon={<SaveOutlined />} onClick={handleSubmit}>
+                                    Hoàn tất
+                                </Button>
                             </div>
                         </Form>
                     </Card>
 
-                    <Card size="small" style={{ marginTop: '16px', background: '#f5f5f5' }}>
+                    <Card size="small" style={{ marginTop: '12px', background: '#fffbe6', border: '1px solid #ffe58f' }}>
                         <Space align="start">
-                            <InfoCircleOutlined style={{ color: '#1890ff', marginTop: '4px' }} />
-                            <Text type="secondary" style={{ fontSize: '12px' }}>
-                                Lưu ý: Khi nhập hàng thừa từ công trình (VD: 2L từ thùng 10L), hãy nhập số lượng thực tế là 0.2 thùng nếu đơn vị gốc là thùng, hoặc chuyển đổi sang đơn vị lẻ nếu cần.
+                            <InfoCircleOutlined style={{ color: '#faad14', marginTop: '4px' }} />
+                            <Text type="secondary" style={{ fontSize: '11px' }}>
+                                Nhập lẻ: VD 2L từ thùng 10L, nhập 2 vào ô Lượng lẻ.
                             </Text>
                         </Space>
                     </Card>
