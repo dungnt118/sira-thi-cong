@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import {
     Card, Row, Col, Table, Tag, Button, Statistic,
-    Typography, Space, Tabs, Modal, Form, Input, InputNumber, Select,
+    Typography, Space, Modal, Form, Input, InputNumber, Select,
     message, Popconfirm, Alert
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
@@ -11,9 +11,8 @@ import {
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import useLocalStorageData from '../../../hooks/useLocalStorageData';
-import type { Material, StockOrder, MaterialGroup, StockOrderStatus } from '../../../types/v3';
+import type { Material, MaterialGroup } from '../../../types/v3';
 import mockMaterialsData from '../../../data/mock/materials.json';
-import mockStockOrdersData from '../../../data/mock/stockOrders.json';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -26,7 +25,6 @@ const InventoryDashboard: React.FC = () => {
     // Use LocalStorage for state management
     const [groups, setGroups] = useLocalStorageData<MaterialGroup[]>('MATERIAL_GROUPS', (mockMaterialsData as any).groups);
     const [materials, setMaterials] = useLocalStorageData<Material[]>('MATERIALS', (mockMaterialsData as any).materials);
-    const [stockOrders] = useLocalStorageData<StockOrder[]>('STOCK_ORDERS', mockStockOrdersData as StockOrder[]);
 
     const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
     const [isSkuModalOpen, setIsSkuModalOpen] = useState(false);
@@ -297,73 +295,13 @@ const InventoryDashboard: React.FC = () => {
                 </Col>
             </Row>
 
-            <Tabs
-                items={[
-                    {
-                        key: 'materials',
-                        label: 'Danh mục vật tư',
-                        children: (
-                            <Table
-                                columns={groupColumns}
-                                dataSource={groupStats}
-                                rowKey="id"
-                                size="middle"
-                                expandable={{ expandedRowRender, defaultExpandAllRows: false }}
-                                pagination={false}
-                            />
-                        ),
-                    },
-                    {
-                        key: 'history',
-                        label: 'Lịch sử nhập/xuất',
-                        children: (
-                            <Table
-                                rowKey="id"
-                                dataSource={stockOrders}
-                                size="small"
-                                scroll={{ x: 'max-content' }}
-                                columns={[
-                                    { 
-                                        title: 'Mã phiếu', 
-                                        dataIndex: 'code', 
-                                        key: 'code', 
-                                        fixed: 'left', 
-                                        width: 120, 
-                                        render: (c: string, record: StockOrder) => (
-                                            <Button type="link" onClick={() => navigate(`/accountant/inventory/order/${record.id}`)} style={{ padding: 0 }}>
-                                                <Text strong>{c}</Text>
-                                            </Button>
-                                        ) 
-                                    },
-                                    { title: 'Loại', dataIndex: 'type', key: 'type', width: 100, render: (t: string) => <Tag color={t === 'OUT' ? 'orange' : 'green'}>{t === 'OUT' ? 'Xuất kho' : 'Nhập kho'}</Tag> },
-                                    { title: 'Nguồn', dataIndex: 'source', key: 'source', width: 120 },
-                                    { title: 'Đối tượng', dataIndex: 'projectName', key: 'proj', minWidth: 150, render: (v: string) => v || '—' },
-                                    { 
-                                        title: 'Trạng thái', 
-                                        dataIndex: 'status', 
-                                        key: 'st', 
-                                        width: 130,
-                                        render: (s: StockOrderStatus) => {
-                                            const colors: Record<string, string> = {
-                                                'DRAFT': 'default',
-                                                'REQUESTED': 'processing',
-                                                'APPROVED': 'cyan',
-                                                'DISPATCHED': 'purple',
-                                                'RECEIVED': 'blue',
-                                                'COMPLETED': 'success',
-                                                'DISCREPANCY': 'error',
-                                                'CANCELLED': 'error'
-                                            };
-                                            return <Tag color={colors[s] || 'default'}>{s}</Tag>;
-                                        }
-                                    },
-                                    { title: 'Giá trị', dataIndex: 'totalValue', key: 'val', width: 120, render: (v: number) => `${(v || 0).toLocaleString('vi-VN')}đ` },
-                                    { title: 'Ngày tạo', dataIndex: 'createdAt', key: 'date', width: 110 },
-                                ]}
-                            />
-                        ),
-                    },
-                ]}
+            <Table
+                columns={groupColumns}
+                dataSource={groupStats}
+                rowKey="id"
+                size="middle"
+                expandable={{ expandedRowRender, defaultExpandAllRows: false }}
+                pagination={false}
             />
 
             {/* Group Modal */}
