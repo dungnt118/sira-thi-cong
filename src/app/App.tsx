@@ -47,8 +47,7 @@ import ProjectFinance from '../pages/pm/Construction/ProjectFinance';
 import ProjectFinanceList from '../pages/pm/Construction/ProjectFinanceList';
 import MaterialPlanList from '../pages/pm/Construction/MaterialPlanList';
 import InventoryCatalog from '../pages/pm/Inventory/InventoryCatalog';
-import StockRequestOut from '../pages/pm/Inventory/StockRequestOut';
-import StockRequestIn from '../pages/pm/Inventory/StockRequestIn';
+
 
 // ===== PHASE 1: JOURNEY PAGES =====
 // PM Journey Pages
@@ -91,11 +90,11 @@ import AccountantV3Layout from '../layouts/AccountantV3Layout';
 import InventoryDashboard from '../pages/accountant/Inventory/Dashboard';
 import PaymentDashboard from '../pages/accountant/Finance/PaymentDashboard';
 import InboundForm from '../pages/accountant/Inventory/InboundForm';
-import OutboundForm from '../pages/accountant/Inventory/OutboundForm';
+import OutboundForm from '../pages/shared/OutboundForm';
 import DistributorList from '../pages/accountant/Inventory/DistributorList';
 import AssetsDashboard from '../pages/accountant/Assets/Dashboard';
 import AssetAllocationHistory from '../pages/accountant/Assets/AllocationHistory';
-import AssetAllocationForm from '../pages/accountant/Assets/AllocationForm';
+import AllocationForm from '../pages/shared/AllocationForm';
 import AssetAllocationDetail from '../pages/accountant/Assets/AssetAllocationDetail';
 import StockOrderDetail from '@pages/accountant/Inventory/StockOrderDetail';
 import InventoryHistory from '../pages/accountant/Inventory/History';
@@ -208,13 +207,16 @@ function App() {
                                     <Route path="templates" element={<TemplateChecklist />} />
                                 </Route>
 
-                                {/* --- Inventory (PM view) --- */}
+                                {/* --- Inventory & Assets (PM view) --- */}
                                 <Route path="inventory">
                                     <Route path="catalog" element={<InventoryCatalog />} />
                                     <Route path="plan" element={<MaterialPlanList />} />
                                     <Route path="plan/:id" element={<MaterialPlan />} />
-                                    <Route path="request-out" element={<StockRequestOut />} />
-                                    <Route path="request-in" element={<StockRequestIn />} />
+                                    <Route path="stock-out" element={<OutboundForm />} />
+                                    <Route path="history" element={<InventoryHistory />} />
+                                </Route>
+                                <Route path="assets">
+                                    <Route path="allocation" element={<AllocationForm />} />
                                 </Route>
 
                                 {/* --- Finance (PM view) --- */}
@@ -246,6 +248,9 @@ function App() {
                                 <Route path="communications" element={<CommunicationsCenter />} />
                                 <Route path="dashboard/:journeyId" element={<JourneyDetail360 />} />
                                 <Route path="dashboard/:journeyId/surveys/:surveyId" element={<SaleSurveyDetail />} />
+                                <Route path="inventory/stock-out" element={<OutboundForm />} />
+                                <Route path="inventory/history" element={<InventoryHistory />} />
+                                <Route path="assets/allocation" element={<AllocationForm />} />
                             </Route>
 
                             {/* ===== SUPERVISOR ROUTES (V4) ===== */}
@@ -259,6 +264,9 @@ function App() {
                                 <Route path="materials" element={<MaterialReceipt />} />
                                 <Route path="profile" element={<GiamSatProfile />} />
                                 <Route path="diary/:projectId" element={<ProjectDiary />} />
+                                <Route path="inventory/stock-out" element={<OutboundForm />} />
+                                <Route path="inventory/history" element={<InventoryHistory />} />
+                                <Route path="assets/allocation" element={<AllocationForm />} />
                             </Route>
 
                             {/* ===== ACCOUNTANT ROUTES (V3) ===== */}
@@ -276,7 +284,7 @@ function App() {
                                 {/* Assets Module */}
                                 <Route path="assets" element={<Navigate to="/accountant/assets/list" replace />} />
                                 <Route path="assets/list" element={<AssetsDashboard />} />
-                                <Route path="assets/allocation" element={<AssetAllocationForm />} />
+                                <Route path="assets/allocation" element={<AllocationForm />} />
                                 <Route path="assets/allocation/:id" element={<AssetAllocationDetail />} />
                                 <Route path="assets/allocation-history" element={<AssetAllocationHistory />} />
                                 <Route path="assets/maintenance" element={<ComingSoon title="Bảo trì tài sản" />} />
@@ -301,6 +309,9 @@ function App() {
                                 <Route path="execution" element={<KTExecution />} />
                                 <Route path="journeys/:id" element={<KTJourneyDetail />} />
                                 <Route path="profile" element={<ComingSoon title="Hồ sơ Kỹ thuật" />} />
+                                <Route path="inventory/stock-out" element={<OutboundForm />} />
+                                <Route path="inventory/history" element={<InventoryHistory />} />
+                                <Route path="assets/allocation" element={<AllocationForm />} />
                             </Route>
 
                             {/* ===== PARTNER ROUTES ===== */}

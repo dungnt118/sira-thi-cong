@@ -7,7 +7,8 @@ import {
     MessageOutlined,
     UserOutlined,
     BellOutlined,
-    SearchOutlined
+    SearchOutlined,
+    HistoryOutlined
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
@@ -76,6 +77,24 @@ export const SaleLayout: React.FC = () => {
             icon: <UserOutlined />,
             label: 'Cá nhân',
             onClick: () => navigate('/sale/profile')
+        },
+        {
+            key: 'stock-out',
+            icon: <FormOutlined />,
+            label: 'Tạo phiếu xuất',
+            onClick: () => navigate('/sale/inventory/stock-out')
+        },
+        {
+            key: 'allocation',
+            icon: <FormOutlined />,
+            label: 'Tạo phiếu mượn',
+            onClick: () => navigate('/sale/assets/allocation')
+        },
+        {
+            key: 'inventory-history',
+            icon: <HistoryOutlined />,
+            label: 'Lịch sử',
+            onClick: () => navigate('/sale/inventory/history')
         }
     ];
 
@@ -89,6 +108,9 @@ export const SaleLayout: React.FC = () => {
                 { key: '/sale/sla', label: 'SLA Queue', onClick: () => navigate('/sale/sla') },
                 { key: '/sale/surveys', label: 'Khảo sát', onClick: () => navigate('/sale/surveys') },
                 { key: '/sale/communications', label: 'Giao tiếp khách hàng', onClick: () => navigate('/sale/communications') },
+                { key: '/sale/inventory/stock-out', label: 'Tạo phiếu xuất', onClick: () => navigate('/sale/inventory/stock-out') },
+                { key: '/sale/assets/allocation', label: 'Tạo phiếu mượn', onClick: () => navigate('/sale/assets/allocation') },
+                { key: '/sale/inventory/history', label: 'Lịch sử xuất/nhập', onClick: () => navigate('/sale/inventory/history') },
             ],
         },
     ];

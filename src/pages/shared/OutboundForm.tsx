@@ -9,12 +9,12 @@ import {
     DeleteOutlined, WarningOutlined 
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import useLocalStorageData from '../../../hooks/useLocalStorageData';
+import useLocalStorageData from '../../hooks/useLocalStorageData';
 import { 
     Material, StockOrder, MaterialGroup 
-} from '../../../types/v3';
-import mockMaterialsData from '../../../data/mock/materials.json';
-import { mockProjects } from '../../../data/mockData';
+} from '../../types/v3';
+import mockMaterialsData from '../../data/mock/materials.json';
+import { mockProjects } from '../../data/mockData';
 
 const { Title, Text } = Typography;
 
@@ -113,10 +113,10 @@ const OutboundForm: React.FC = () => {
             signatures: [],
             history: [{
                 status: 'REQUESTED',
-                updatedBy: 'PM Nguyễn Văn A',
+                updatedBy: 'Hệ thống (Web)',
                 updatedAt: new Date().toISOString()
             }],
-            createdBy: 'PM Nguyễn Văn A',
+            createdBy: 'Hệ thống',
             createdAt: new Date().toISOString().split('T')[0],
             notes: formValues.notes
         };
@@ -129,7 +129,7 @@ const OutboundForm: React.FC = () => {
             const addedItems = selectedItems.filter(item => item.materialId === m.id);
             if (addedItems.length > 0) {
                 let newCurrentStock = m.currentStock;
-                let newPartialStock = m.partialStock;
+                let newPartialStock = m.partialStock || 0;
                 
                 addedItems.forEach(item => {
                     const requestedAmount = item.baseQuantity; 
@@ -155,8 +155,8 @@ const OutboundForm: React.FC = () => {
             return m;
         }));
 
-        message.success('Tạo phiếu xuất kho thành công. Chờ thợ ký nhận.');
-        navigate('/accountant/inventory');
+        message.success('Tạo phiếu xuất kho thành công. Chờ duyệt.');
+        navigate(-1);
     };
 
     const itemColumns = [
@@ -175,7 +175,7 @@ const OutboundForm: React.FC = () => {
     return (
         <div>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
-                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/accountant/inventory')} style={{ marginRight: '16px' }} />
+                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(-1)} style={{ marginRight: '16px' }} />
                 <Title level={4} style={{ margin: 0 }}>🚚 Phiếu Xuất Kho</Title>
             </div>
 
@@ -256,7 +256,7 @@ const OutboundForm: React.FC = () => {
                                 label="Dự án/Công trình tiếp nhận"
                                 rules={[{ required: true, message: 'Vui lòng chọn dự án' }]}
                             >
-                                <Select placeholder="Chọn dự án">
+                                <Select placeholder="Chọn dự án" showSearch optionFilterProp="children">
                                     {mockProjects.filter(p => p.status === 'IN_PROGRESS' || p.status === 'SCHEDULED' || p.status === 'WAITING_MATERIALS').map(p => (
                                         <Select.Option key={p.id} value={p.id}>{p.name}</Select.Option>
                                     ))}
@@ -284,8 +284,8 @@ const OutboundForm: React.FC = () => {
                         <Space align="start">
                             <WarningOutlined style={{ color: '#faad14', marginTop: '4px' }} />
                             <Text style={{ fontSize: '12px' }}>
-                                Phiếu xuất kho sau khi tạo sẽ ở trạng thái <strong>Chờ ký</strong>. 
-                                Giám sát hoặc thợ cần ký nhận trên ứng dụng di động để xác nhận đã nhận bàn giao vật tư/tài sản.
+                                Phiếu xuất kho sau khi tạo sẽ ở trạng thái <strong>Chờ ký duyệt</strong>. 
+                                Giám sát, PM hoặc Kế toán sẽ duyệt và nhận bàn giao vật tư trên ứng dụng.
                             </Text>
                         </Space>
                     </Card>

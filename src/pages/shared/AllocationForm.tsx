@@ -9,14 +9,14 @@ import {
     DeleteOutlined, WarningOutlined 
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import useLocalStorageData from '../../../hooks/useLocalStorageData';
-import type { Asset, AssetAllocation } from '../../../types/v3';
-import mockAssetsData from '../../../data/mock/assets.json';
-import { mockProjects, mockUsers } from '../../../data/mockData';
+import useLocalStorageData from '../../hooks/useLocalStorageData';
+import type { Asset, AssetAllocation } from '../../types/v3';
+import mockAssetsData from '../../data/mock/assets.json';
+import { mockProjects, mockUsers } from '../../data/mockData';
 
 const { Title, Text } = Typography;
 
-const AssetAllocationForm: React.FC = () => {
+const AllocationForm: React.FC = () => {
     const navigate = useNavigate();
     const [form] = Form.useForm();
     const [addForm] = Form.useForm();
@@ -78,8 +78,8 @@ const AssetAllocationForm: React.FC = () => {
             }));
 
             setAllocations([...newAllocations, ...allocations]);
-            message.success(`Đã tạo ${newAllocations.length} yêu cầu cấp phát tài sản thành công. Chờ Kế toán duyệt.`);
-            navigate('/accountant/assets/allocation-history');
+            message.success(`Đã tạo ${newAllocations.length} yêu cầu cấp phát tài sản thành công. Chờ duyệt.`);
+            navigate(-1);
         });
     };
 
@@ -99,7 +99,7 @@ const AssetAllocationForm: React.FC = () => {
     return (
         <div>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
-                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/accountant/assets/allocation-history')} style={{ marginRight: '16px' }} />
+                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(-1)} style={{ marginRight: '16px' }} />
                 <Title level={4} style={{ margin: 0 }}>📋 Phiếu Yêu cầu Cấp phát Tài sản</Title>
             </div>
 
@@ -166,7 +166,7 @@ const AssetAllocationForm: React.FC = () => {
                                 name="projectId" 
                                 label="Dự án sử dụng (Nếu có)"
                             >
-                                <Select placeholder="Chọn công trình / dự án" allowClear>
+                                <Select placeholder="Chọn công trình / dự án" allowClear showSearch optionFilterProp="children">
                                     {mockProjects.filter(p => !['CANCELLED', 'COMPLETED'].includes(p.status)).map(p => (
                                         <Select.Option key={p.id} value={p.id}>{p.name}</Select.Option>
                                     ))}
@@ -193,8 +193,8 @@ const AssetAllocationForm: React.FC = () => {
                         <Space align="start">
                             <WarningOutlined style={{ color: '#faad14', marginTop: '4px' }} />
                             <Text style={{ fontSize: '13px' }}>
-                                Yêu cầu cấp phát sẽ tự động chuyển sang <strong>Chờ Kế toán duyệt</strong>. 
-                                Sau khi duyệt, người mượn cần ký xác nhận nhận bàn giao trên Lịch sử Cấp phát.
+                                Yêu cầu cấp phát sẽ tự động chuyển sang <strong>Chờ phê duyệt</strong>. 
+                                Sau khi duyệt, người mượn có thể kiểm tra ở phần lịch sử mượn trả tài sản.
                             </Text>
                         </Space>
                     </Card>
@@ -204,4 +204,4 @@ const AssetAllocationForm: React.FC = () => {
     );
 };
 
-export default AssetAllocationForm;
+export default AllocationForm;

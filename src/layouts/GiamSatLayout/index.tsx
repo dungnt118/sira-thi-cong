@@ -6,7 +6,9 @@ import {
     AppstoreOutlined,
     InboxOutlined,
     UserOutlined,
-    BellOutlined
+    BellOutlined,
+    FormOutlined,
+    HistoryOutlined
 } from '@ant-design/icons';
 import { UserMenu } from '../../components/common/Header/UserMenu';
 import './GiamSatMobile.css';
@@ -21,6 +23,9 @@ export const GiamSatLayout: React.FC = () => {
         { key: '/supervisor/dashboard', icon: <HomeOutlined />, label: 'Trang chủ' },
         { key: '/supervisor/projects', icon: <AppstoreOutlined />, label: 'Dự án' },
         { key: '/supervisor/materials', icon: <InboxOutlined />, label: 'Vật tư' },
+        { key: '/supervisor/inventory/stock-out', icon: <FormOutlined />, label: 'Phiếu xuất' },
+        { key: '/supervisor/assets/allocation', icon: <FormOutlined />, label: 'Phiếu mượn' },
+        { key: '/supervisor/inventory/history', icon: <HistoryOutlined />, label: 'Lịch sử' },
         { key: '/supervisor/profile', icon: <UserOutlined />, label: 'Cá nhân' },
     ];
 

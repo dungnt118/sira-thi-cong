@@ -20,7 +20,7 @@ import {
     SettingOutlined,
     LayoutOutlined,
     ExportOutlined,
-    ImportOutlined,
+    HistoryOutlined,
 } from '@ant-design/icons';
 import { LABELS } from '@utils/constants';
 import { BaseLayout } from '../shared/BaseLayout';
@@ -69,8 +69,9 @@ const menuItems: MenuItem[] = [
             { key: '/pm/inventory/catalog', label: 'Danh mục Vật tư', icon: <InboxOutlined /> },
             { key: '/pm/settings/estimate-templates', label: 'Mẫu định mức Chuẩn', icon: <LayoutOutlined /> },
             // { key: '/pm/inventory/plan', label: '📐 Định mức Dự án' },
-            { key: '/pm/inventory/request-out', label: 'Yêu cầu Xuất kho', icon: <ExportOutlined /> },
-            { key: '/pm/inventory/request-in', label: 'Yêu cầu Nhập kho', icon: <ImportOutlined /> },
+            { key: '/pm/inventory/stock-out', label: 'Tạo phiếu xuất', icon: <ExportOutlined /> },
+            { key: '/pm/assets/allocation', label: 'Tạo phiếu mượn', icon: <ExportOutlined /> },
+            { key: '/pm/inventory/history', label: 'Lịch sử xuất/nhập', icon: <HistoryOutlined /> },
         ],
     },
     {
