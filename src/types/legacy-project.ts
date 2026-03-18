@@ -5,7 +5,7 @@
 // được merge vào Journey. KHÔNG thêm code mới phụ thuộc vào file này.
 // ============================================================
 
-import type { PaymentMilestone, StockOrder } from './v3';
+import type { PaymentMilestone, StockOrder, ActivityEvent } from './v3';
 
 export type ProjectStatus =
     | 'SCHEDULED'
@@ -55,15 +55,6 @@ export interface IncidentReport {
     resolvedAt?: string;
 }
 
-export interface ActivityLog {
-    id: string;
-    projectId: string;
-    actor: string;
-    action: string;
-    detail: string;
-    timestamp: string;
-}
-
 export interface Project {
     id: string;
     code: string;
@@ -89,7 +80,7 @@ export interface Project {
     actualEndDate?: string;
     steps: ProjectStep[];
     incidents: IncidentReport[];
-    activityLog: ActivityLog[];
+    activities: ActivityEvent[];
     paymentMilestones: PaymentMilestone[];
     stockOrders: StockOrder[];
     portalToken?: string;

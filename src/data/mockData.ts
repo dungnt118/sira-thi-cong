@@ -374,11 +374,11 @@ export const mockProjects: Project[] = [
                 resolvedAt: '2026-03-14T15:00:00',
             },
         ],
-        activityLog: [
-            { id: 'AL01', projectId: 'DA-001', actor: 'Thợ Trần Văn C', action: 'STEP_COMPLETE', detail: 'Hoàn thành Bước 11: Quét SIRA PU lớp lót lần 2', timestamp: '2026-03-13T16:30:00' },
-            { id: 'AL02', projectId: 'DA-001', actor: 'Nguyễn Văn PM', action: 'EVIDENCE_APPROVE', detail: 'Duyệt 3 ảnh bước 11', timestamp: '2026-03-13T17:00:00' },
-            { id: 'AL03', projectId: 'DA-001', actor: 'Thợ Trần Văn C', action: 'INCIDENT_REPORT', detail: 'Báo cáo sự cố: Thiếu vật tư SIRA PU phủ', timestamp: '2026-03-14T10:50:00' },
-            { id: 'AL04', projectId: 'DA-001', actor: 'Nguyễn Văn PM', action: 'INCIDENT_RESOLVE', detail: 'Đã xử lý sự cố thiếu vật tư', timestamp: '2026-03-14T15:00:00' },
+        activities: [
+            { id: 'AL01', journeyId: 'j-001', category: 'CONSTRUCT', actor: 'Thợ Trần Văn C', action: 'STEP_COMPLETE', summary: 'Hoàn thành Bước 11: Quét SIRA PU lớp lót lần 2', timestamp: '2026-03-13T16:30:00' },
+            { id: 'AL02', journeyId: 'j-001', category: 'CONSTRUCT', actor: 'Nguyễn Văn PM', action: 'EVIDENCE_APPROVE', summary: 'Duyệt 3 ảnh bước 11', timestamp: '2026-03-13T17:00:00' },
+            { id: 'AL03', journeyId: 'j-001', category: 'INCIDENT',  actor: 'Thợ Trần Văn C', action: 'INCIDENT_REPORT', summary: 'Báo cáo sự cố: Thiếu vật tư SIRA PU phủ', timestamp: '2026-03-14T10:50:00' },
+            { id: 'AL04', journeyId: 'j-001', category: 'INCIDENT',  actor: 'Nguyễn Văn PM', action: 'INCIDENT_RESOLVE', summary: 'Đã xử lý sự cố thiếu vật tư', timestamp: '2026-03-14T15:00:00' },
         ],
         steps: [
             { id: 'SP01', templateStepId: 's01', order: 1, name: 'Kiểm tra bề mặt & lên kế hoạch', description: 'Đánh giá tình trạng bề mặt, đo độ ẩm', minPhotos: 2, status: 'APPROVED', completedAt: '2026-03-05T09:00:00', completedBy: 'Thợ Trần Văn C', evidences: [{ id: 'ev01', url: 'https://placehold.co/400x300/52c41a/white?text=Step+1+Photo+1', uploadedAt: '2026-03-05T08:50:00', uploadedBy: 'Thợ Trần Văn C', status: 'APPROVED' }, { id: 'ev02', url: 'https://placehold.co/400x300/52c41a/white?text=Step+1+Photo+2', uploadedAt: '2026-03-05T08:55:00', uploadedBy: 'Thợ Trần Văn C', status: 'APPROVED' }] },
@@ -429,8 +429,8 @@ export const mockProjects: Project[] = [
         ],
         stockOrders: [],
         incidents: [],
-        activityLog: [
-            { id: 'AL10', projectId: 'DA-002', actor: 'Nguyễn Văn PM', action: 'PROJECT_CREATE', detail: 'Tạo dự án, giao Thợ Lê Văn D', timestamp: '2026-03-10T09:00:00' },
+        activities: [
+            { id: 'AL10', journeyId: 'j-002', category: 'GENERAL', actor: 'Nguyễn Văn PM', action: 'PROJECT_CREATE', summary: 'Tạo dự án, giao Thợ Lê Văn D', timestamp: '2026-03-10T09:00:00' },
         ],
         steps: [
             { id: 'TP01', templateStepId: 't01', order: 1, name: 'Kiểm tra bề mặt tường', description: 'Đánh giá vết nứt', minPhotos: 2, status: 'LOCKED', evidences: [] },
@@ -467,7 +467,7 @@ export const mockProjects: Project[] = [
         paymentMilestones: [],
         stockOrders: [],
         incidents: [],
-        activityLog: [],
+        activities: [],
         steps: [],
     },
     {
@@ -494,7 +494,7 @@ export const mockProjects: Project[] = [
         paymentMilestones: [],
         stockOrders: [],
         incidents: [],
-        activityLog: [],
+        activities: [],
         steps: [],
     },
     {
@@ -522,7 +522,7 @@ export const mockProjects: Project[] = [
         paymentMilestones: [],
         stockOrders: [],
         incidents: [],
-        activityLog: [],
+        activities: [],
         steps: [],
     },
 ];

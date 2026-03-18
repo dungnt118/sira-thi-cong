@@ -154,6 +154,35 @@ export interface ChecklistTemplate {
 // đã được chuyển sang src/types/legacy-project.ts (Phase 3)
 // Sẽ bị xóa hoàn toàn ở Phase 5 khi các trang Construction được dọn dẹp.
 
+// ---- ACTIVITY EVENT (Canonical - Phase 4) ----
+// Type này là chuẩn thống nhất cho nhật ký hoạt động.
+// Tương thích với JourneyActivity (journey.ts) và thay thế legacy ActivityLog.
+export type ActivityEventCategory =
+    | 'STOCK_ORDER'         // Phiếu xuất/nhập kho
+    | 'ASSET_ALLOCATION'    // Cấp phát tài sản
+    | 'PAYMENT'             // Đợt thanh toán
+    | 'WARRANTY'            // Bảo hành
+    | 'INCIDENT'            // Sự cố
+    | 'SURVEY'              // Khảo sát
+    | 'QUOTATION'           // Báo giá
+    | 'CONTRACT'            // Hợp đồng
+    | 'CONSTRUCT'           // Thi công (step)
+    | 'GENERAL';            // Chung
+
+export interface ActivityEvent {
+    id: string;
+    journeyId: string;          // FK tới Journey.id (chính)
+    journeyCode?: string;       // HT-2026-xxx (dùng để hiển thị)
+    category: ActivityEventCategory;
+    actor: string;              // Tên người thực hiện
+    action: string;             // Tên hành động (ngắn)
+    summary: string;            // Mô tả đầy đủ
+    context?: string;           // Ngữ cảnh bổ sung (tùy chọn)
+    timestamp: string;          // ISO 8601
+    relatedEntityId?: string;   // ID của entity liên quan (PX-001, CP-001...)
+    relatedEntityType?: 'STOCK_ORDER' | 'ASSET_ALLOCATION' | 'PAYMENT_MILESTONE' | 'WARRANTY';
+}
+
 // ---- INVENTORY TYPES ----
 
 export type MaterialUnit = 'kg' | 'lít' | 'm²' | 'thùng' | 'cuộn' | 'cái';

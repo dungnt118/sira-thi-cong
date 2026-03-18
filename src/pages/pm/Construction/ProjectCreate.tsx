@@ -155,13 +155,14 @@ const ProjectCreate: React.FC = () => {
                         evidences: []
                     })) : [],
                     incidents: [],
-                    activityLog: [
+                    activities: [
                         {
                             id: `AL-${Date.now()}`,
-                            projectId: projectId,
+                            journeyId: projectId, // Temporarily use projectId as journeyId for legacy projects
+                            category: 'GENERAL',
                             actor: 'Nguyễn Văn PM',
                             action: 'PROJECT_CREATE',
-                            detail: 'Tạo dự án mới từ form thi công',
+                            summary: 'Tạo dự án mới từ form thi công',
                             timestamp: dayjs().toISOString()
                         }
                     ],

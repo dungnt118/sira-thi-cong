@@ -60,14 +60,21 @@ export interface JourneyTemplate {
 }
 
 // --- Journey Activity (log entry) ---
+// Phase 4: JourneyActivity sẽ được migration sang ActivityEvent (v3.ts) dần dần.
+// Hiện tại giữ nguyên cấu trúc để không breaking change.
+// ActivityEvent là canonical type mới, JourneyActivity là legacy representation.
 export interface JourneyActivity {
     id: string;
     journey_id: string;
-    activity_actor: string;
-    activity_action: string;
-    activity_context: string;
-    activity_time: string;
-    activity_summary: string;
+    activity_actor: string;         // ≡ ActivityEvent.actor
+    activity_action: string;        // ≡ ActivityEvent.action
+    activity_context: string;       // ≡ ActivityEvent.context
+    activity_time: string;          // ≡ ActivityEvent.timestamp
+    activity_summary: string;       // ≡ ActivityEvent.summary
+    // Phase 4 additions (optional — progressive migration)
+    category?: string;              // ≡ ActivityEvent.category
+    related_entity_id?: string;     // ≡ ActivityEvent.relatedEntityId
+    related_entity_type?: string;   // ≡ ActivityEvent.relatedEntityType
 }
 
 // --- Portal Thread ---

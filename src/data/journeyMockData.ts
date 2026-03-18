@@ -8,10 +8,15 @@ import type {
 
 // ---- MOCK ACTIVITIES ----
 const makeActivities = (journeyId: string): JourneyActivity[] => [
-    { id: `act-${journeyId}-1`, journey_id: journeyId, activity_actor: 'Nguyễn Văn PM', activity_action: 'Tạo hành trình', activity_context: 'Khởi tạo từ yêu cầu dịch vụ', activity_time: '2026-02-10T09:00:00', activity_summary: 'Hành trình được tạo từ yêu cầu YC-2026-001' },
-    { id: `act-${journeyId}-2`, journey_id: journeyId, activity_actor: 'Trần Thị Sale', activity_action: 'Đặt lịch khảo sát', activity_context: 'Khảo sát', activity_time: '2026-02-12T14:00:00', activity_summary: 'Lịch khảo sát ngày 15/02/2026 lúc 9:00' },
-    { id: `act-${journeyId}-3`, journey_id: journeyId, activity_actor: 'Lê Văn Giám sát', activity_action: 'Nộp form khảo sát', activity_context: 'Khảo sát', activity_time: '2026-02-15T11:30:00', activity_summary: 'Đã khảo sát 3 khu vực, 12 ảnh, rủi ro vật tư trung bình' },
-    { id: `act-${journeyId}-4`, journey_id: journeyId, activity_actor: 'Nguyễn Văn PM', activity_action: 'Cập nhật dự toán', activity_context: 'Dự toán', activity_time: '2026-02-18T10:00:00', activity_summary: 'Dự toán v1 hoàn tất: 85,000,000đ' },
+    { id: `act-${journeyId}-1`, journey_id: journeyId, activity_actor: 'Nguyễn Văn PM', activity_action: 'Tạo hành trình', activity_context: 'Khởi tạo', activity_time: '2026-02-10T09:00:00', activity_summary: 'Hành trình được tạo từ yêu cầu YC-2026-001', category: 'GENERAL' },
+    { id: `act-${journeyId}-2`, journey_id: journeyId, activity_actor: 'Trần Thị Sale', activity_action: 'Đặt lịch khảo sát', activity_context: 'Khảo sát', activity_time: '2026-02-12T14:00:00', activity_summary: 'Lịch khảo sát ngày 15/02/2026 lúc 9:00', category: 'SURVEY' },
+    { id: `act-${journeyId}-3`, journey_id: journeyId, activity_actor: 'Lê Văn Giám sát', activity_action: 'Nộp form khảo sát', activity_context: 'Khảo sát', activity_time: '2026-02-15T11:30:00', activity_summary: 'Đã khảo sát 3 khu vực, 12 ảnh, rủi ro vật tư trung bình', category: 'SURVEY' },
+    { id: `act-${journeyId}-4`, journey_id: journeyId, activity_actor: 'Nguyễn Văn PM', activity_action: 'Cập nhật dự toán', activity_context: 'Dự toán', activity_time: '2026-02-18T10:00:00', activity_summary: 'Dự toán v1 hoàn tất: 85,000,000đ', category: 'QUOTATION' },
+    ...(journeyId === 'j-001' ? [
+        { id: `act-j-001-5`, journey_id: 'j-001', activity_actor: 'Kế toán Phạm Thị A', activity_action: 'Tạo phiếu xuất kho', activity_context: 'Vật tư', activity_time: '2026-03-04T08:00:00', activity_summary: 'Phiếu PX-2026-001 xuất 3 vật tư, tổng 18,350,000đ', category: 'STOCK_ORDER', related_entity_id: 'PX-001', related_entity_type: 'STOCK_ORDER' },
+        { id: `act-j-001-6`, journey_id: 'j-001', activity_actor: 'Thợ Trần Văn C', activity_action: 'Ký nhận vật tư', activity_context: 'Vật tư', activity_time: '2026-03-05T08:30:00', activity_summary: 'Ký nhận phiếu xuất PX-2026-001, tổng 18,350,000đ', category: 'STOCK_ORDER', related_entity_id: 'PX-001', related_entity_type: 'STOCK_ORDER' },
+        { id: `act-j-001-7`, journey_id: 'j-001', activity_actor: 'Kế toán Phạm Thị A', activity_action: 'Ghi nhận đợt thanh toán 1', activity_context: 'Tài chính', activity_time: '2026-03-05T09:00:00', activity_summary: 'Đợt 1 (50%): 10,000,000đ đã thanh toán', category: 'PAYMENT', related_entity_id: 'PM-001-1', related_entity_type: 'PAYMENT_MILESTONE' },
+    ] : []),
 ];
 
 // ---- MOCK JOURNEYS ----

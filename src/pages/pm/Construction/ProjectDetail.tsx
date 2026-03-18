@@ -288,12 +288,12 @@ const PMProjectDetail: React.FC = () => {
             label: 'Hoạt động',
             children: (
                 <Timeline
-                    items={project.activityLog.map(log => ({
+                    items={project.activities.map(log => ({
                         color: log.action.includes('APPROVE') ? 'green' : log.action.includes('REJECT') ? 'red' : 'blue',
                         children: (
                             <div>
                                 <Text strong style={{ fontSize: 12 }}>{log.actor}</Text>
-                                <Text style={{ fontSize: 12 }}> – {log.detail}</Text>
+                                <Text style={{ fontSize: 12 }}> – {log.summary}</Text>
                                 <div style={{ fontSize: 11, color: '#999' }}>
                                     {log.timestamp.replace('T', ' ').slice(0, 16)}
                                 </div>
