@@ -304,34 +304,59 @@ export interface StockOrderItem {
     materialId: string;
     materialName: string;
     unit: MaterialUnit;
-    quantity: number;
+    quantity: number;           // Planned/Requested
+    requestedQuantity: number;  // Original PM request
+    issuedQuantity: number;     // What warehouse actually sent
+    receivedQuantity?: number;  // What GS actually counted on site
     unitCost: number;
-    isPartial?: boolean;    // For returns: if the item is not full
-    remainingPercent?: number; // e.g., 20 for 2L in a 10L bucket
+    isPartial?: boolean;
+    remainingPercent?: number;
+    discrepancyNote?: string;
 }
 
 export type StockOrderType = 'OUT' | 'IN';
-export type StockOrderStatus = 'PENDING_SIGNATURE' | 'SIGNED' | 'CANCELLED';
+export type StockOrderStatus = 
+    | 'DRAFT' 
+    | 'REQUESTED'       // PM submitted, waiting for Accountant
+    | 'APPROVED'        // Accountant approved, ready to dispatch
+    | 'DISPATCHED'      // Items left warehouse (In Transit)
+    | 'RECEIVED'        // GS confirmed receipt
+    | 'COMPLETED'       // Finalized, PDF archived
+    | 'DISCREPANCY'     // Issue reported during receipt
+    | 'CANCELLED';
+
+export interface StockOrderSignature {
+    role: UserRole | 'warehouse';
+    userName: string;
+    userId: string;
+    signedAt: string;
+    signatureDataUrl: string; // Base64 canvas signature
+    note?: string;
+}
+
 export type StockOrderSource = 'DISTRIBUTOR' | 'PROJECT' | 'OTHER';
 
 export interface StockOrder {
     id: string;
-    code: string;           // PX-2026-001 or PN-2026-001
+    code: string;
     type: StockOrderType;
     projectId?: string;
     projectName?: string;
-    source?: StockOrderSource; // NEW
-    sourceId?: string;         // Distributor ID or Project ID
+    source?: StockOrderSource;
+    sourceId?: string;
     items: StockOrderItem[];
     totalValue: number;
     status: StockOrderStatus;
     createdBy: string;
     createdAt: string;
-    signedBy?: string;      // Worker who signed receipt
-    signedAt?: string;
-    signatureDataUrl?: string;  // Base64 canvas signature
-    supplier?: string;      // Deprecated, use sourceId/distributor
-    invoiceUrl?: string;
+    signatures: StockOrderSignature[];
+    pdfUrl?: string;            // Reference to archived PDF with all signatures
+    history: {
+        status: StockOrderStatus;
+        updatedBy: string;
+        updatedAt: string;
+        comment?: string;
+    }[];
     notes?: string;
 }
 

@@ -60,6 +60,8 @@ const OutboundForm: React.FC = () => {
             materialName: `[${material.code}] ${group?.name || 'Vật tư'} - quy cách ${material.capacity}${group?.baseUnit || ''}`,
             unit: unit,
             quantity: values.quantity,
+            requestedQuantity: values.quantity,
+            issuedQuantity: values.quantity,
             isPartial: isPartial,
             baseQuantity: requestedBase, 
             unitCost: material.unitCost,
@@ -101,11 +103,20 @@ const OutboundForm: React.FC = () => {
                 materialName: item.materialName,
                 unit: item.unit,
                 quantity: item.quantity,
-                unitCost: item.unitCost
+                requestedQuantity: item.requestedQuantity,
+                issuedQuantity: item.issuedQuantity,
+                unitCost: item.unitCost,
+                isPartial: item.isPartial
             })),
-            totalValue: selectedItems.reduce((sum, item) => sum + item.total, 0),
-            status: 'PENDING_SIGNATURE',
-            createdBy: 'Kế toán Phạm Thị A',
+            totalValue: selectedItems.reduce((sum, item) => sum + (item.total || 0), 0),
+            status: 'REQUESTED', // PM creates request
+            signatures: [],
+            history: [{
+                status: 'REQUESTED',
+                updatedBy: 'PM Nguyễn Văn A',
+                updatedAt: new Date().toISOString()
+            }],
+            createdBy: 'PM Nguyễn Văn A',
             createdAt: new Date().toISOString().split('T')[0],
             notes: formValues.notes
         };

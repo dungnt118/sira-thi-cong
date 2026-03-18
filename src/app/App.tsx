@@ -94,6 +94,7 @@ import InboundForm from '../pages/accountant/Inventory/InboundForm';
 import OutboundForm from '../pages/accountant/Inventory/OutboundForm';
 import DistributorList from '../pages/accountant/Inventory/DistributorList';
 import AssetsDashboard from '../pages/accountant/Assets/Dashboard';
+import StockOrderDetail from '@pages/accountant/Inventory/StockOrderDetail';
 
 // V4 Ky Thuat Pages
 import KyThuatLayout from '../layouts/KyThuatLayout';
@@ -265,6 +266,7 @@ function App() {
                                 <Route path="inventory/stock-out" element={<OutboundForm />} />
                                 <Route path="inventory/stock-in" element={<InboundForm />} />
                                 <Route path="inventory/distributors" element={<DistributorList />} />
+                                <Route path="inventory/order/:id" element={<StockOrderDetail />} />
                                 <Route path="inventory/history" element={<ComingSoon title="Lịch sử Kho" />} />
 
                                 {/* Assets Module */}

@@ -11,7 +11,7 @@ import {
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import useLocalStorageData from '../../../hooks/useLocalStorageData';
-import type { Material, StockOrder, MaterialGroup } from '../../../types/v3';
+import type { Material, StockOrder, MaterialGroup, StockOrderStatus } from '../../../types/v3';
 import mockMaterialsData from '../../../data/mock/materials.json';
 import mockStockOrdersData from '../../../data/mock/stockOrders.json';
 
@@ -323,11 +323,41 @@ const InventoryDashboard: React.FC = () => {
                                 size="small"
                                 scroll={{ x: 'max-content' }}
                                 columns={[
-                                    { title: 'Mã phiếu', dataIndex: 'code', key: 'code', fixed: 'left', width: 120, render: (c: string) => <Text strong>{c}</Text> },
+                                    { 
+                                        title: 'Mã phiếu', 
+                                        dataIndex: 'code', 
+                                        key: 'code', 
+                                        fixed: 'left', 
+                                        width: 120, 
+                                        render: (c: string, record: StockOrder) => (
+                                            <Button type="link" onClick={() => navigate(`/accountant/inventory/order/${record.id}`)} style={{ padding: 0 }}>
+                                                <Text strong>{c}</Text>
+                                            </Button>
+                                        ) 
+                                    },
                                     { title: 'Loại', dataIndex: 'type', key: 'type', width: 100, render: (t: string) => <Tag color={t === 'OUT' ? 'orange' : 'green'}>{t === 'OUT' ? 'Xuất kho' : 'Nhập kho'}</Tag> },
                                     { title: 'Nguồn', dataIndex: 'source', key: 'source', width: 120 },
-                                    { title: 'Đối tượng', dataIndex: 'projectName', key: 'proj', minWidth: 150, render: (v: string, record: StockOrder) => v || record.supplier || '—' },
-                                    { title: 'Giá trị', dataIndex: 'totalValue', key: 'val', width: 120, render: (v: number) => `${v.toLocaleString('vi-VN')}đ` },
+                                    { title: 'Đối tượng', dataIndex: 'projectName', key: 'proj', minWidth: 150, render: (v: string) => v || '—' },
+                                    { 
+                                        title: 'Trạng thái', 
+                                        dataIndex: 'status', 
+                                        key: 'st', 
+                                        width: 130,
+                                        render: (s: StockOrderStatus) => {
+                                            const colors: Record<string, string> = {
+                                                'DRAFT': 'default',
+                                                'REQUESTED': 'processing',
+                                                'APPROVED': 'cyan',
+                                                'DISPATCHED': 'purple',
+                                                'RECEIVED': 'blue',
+                                                'COMPLETED': 'success',
+                                                'DISCREPANCY': 'error',
+                                                'CANCELLED': 'error'
+                                            };
+                                            return <Tag color={colors[s] || 'default'}>{s}</Tag>;
+                                        }
+                                    },
+                                    { title: 'Giá trị', dataIndex: 'totalValue', key: 'val', width: 120, render: (v: number) => `${(v || 0).toLocaleString('vi-VN')}đ` },
                                     { title: 'Ngày tạo', dataIndex: 'createdAt', key: 'date', width: 110 },
                                 ]}
                             />

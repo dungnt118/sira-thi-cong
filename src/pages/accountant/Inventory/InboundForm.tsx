@@ -26,7 +26,6 @@ const InboundForm: React.FC = () => {
     const [sourceType, setSourceType] = useState<StockOrderSource>('DISTRIBUTOR');
     
     // Watch form fields for reactivity and calculation
-    const watchedMaterialId = Form.useWatch('materialId', form);
     const watchedQuantity = Form.useWatch('quantity', form);
     const watchedRemainingQuantity = Form.useWatch('remainingQuantity', form);
     const watchedUnitCost = Form.useWatch('unitCost', form);
@@ -69,6 +68,8 @@ const InboundForm: React.FC = () => {
             baseUnit: group?.baseUnit || 'đơn vị',
             unit: material.unit,
             quantity: qty,
+            requestedQuantity: qty, // PM requested this
+            issuedQuantity: qty,    // Default same as requested for now
             isPartial: isPartial,
             remainingQuantity: remQty, // In liters/kg
             unitCost: cost,
@@ -102,13 +103,21 @@ const InboundForm: React.FC = () => {
                 materialId: item.materialId,
                 materialName: item.materialName,
                 unit: item.unit,
-                quantity: item.isPartial ? 0 : item.quantity,
+                quantity: item.quantity,
+                requestedQuantity: item.requestedQuantity,
+                issuedQuantity: item.issuedQuantity,
                 unitCost: item.unitCost,
                 isPartial: item.isPartial,
                 remainingPercent: item.isPartial ? (item.remainingQuantity * 100 / 20) : undefined
             })),
             totalValue: selectedItems.reduce((sum, item) => sum + (item.total || 0), 0),
-            status: 'SIGNED',
+            status: 'COMPLETED', // Directly completed for now in this legacy form
+            signatures: [],
+            history: [{
+                status: 'COMPLETED',
+                updatedBy: 'Kế toán Phạm Thị A',
+                updatedAt: new Date().toISOString()
+            }],
             createdBy: 'Kế toán Phạm Thị A',
             createdAt: new Date().toISOString().split('T')[0],
             notes: formValues.notes
@@ -248,7 +257,7 @@ const InboundForm: React.FC = () => {
                                                     min={0} 
                                                     style={{ width: '100%' }} 
                                                     formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} 
-                                                    parser={value => value!.replace(/\$\s?|(,*)/g, '')}
+                                                    parser={value => (value ? value.replace(/\$\s?|(,*)/g, '') : '') as any}
                                                 />
                                             </Form.Item>
                                         </Col>
