@@ -14,7 +14,8 @@ import {
     mockMaterials as defaultMaterials, 
     mockStandards as defaultStandards 
 } from '../../../data/mockData';
-import type { Project, Material, MaterialStandard } from '../../../types/v3';
+import type { Material, MaterialStandard } from '../../../types/v3';
+import type { Project } from '../../../types/legacy-project';
 
 const { Title, Text } = Typography;
 

@@ -1,8 +1,9 @@
 import type {
     Customer, ChecklistTemplate,
-    Project, Material, MaterialStandard, StockOrder,
+    Material, MaterialStandard, StockOrder,
     PaymentMilestone, WarrantyCard, WarrantyReminder, User, StockRequest, Pipeline, ServiceRequest
 } from '../types/v3';
+import type { Project } from '../types/legacy-project';
 
 // ============================================================
 // MOCK USERS
@@ -334,9 +335,9 @@ export const mockProjects: Project[] = [
         portalToken: 'abc123token',
         portalExpiry: '2026-06-03',
         paymentMilestones: [
-            { id: 'PM-001-1', projectId: 'DA-001', projectName: 'Chống thấm sàn căn hộ – Nguyễn Văn A', quotationId: 'BG-001', round: 1, percentage: 50, amount: 10000000, dueDate: '2026-03-05', status: 'PAID', paidAt: '2026-03-05', paidBy: 'Kế toán Phạm Thị A' },
-            { id: 'PM-001-2', projectId: 'DA-001', projectName: 'Chống thấm sàn căn hộ – Nguyễn Văn A', quotationId: 'BG-001', round: 2, percentage: 40, amount: 8000000, dueDate: '2026-03-22', status: 'PENDING' },
-            { id: 'PM-001-3', projectId: 'DA-001', projectName: 'Chống thấm sàn căn hộ – Nguyễn Văn A', quotationId: 'BG-001', round: 3, percentage: 10, amount: 2000000, dueDate: '2026-03-29', status: 'PENDING' },
+            { id: 'PM-001-1', journeyId: 'j-001', journeyCode: 'HT-2026-001', projectId: 'DA-001', projectName: 'Chống thấm sàn căn hộ – Nguyễn Văn A', quotationId: 'BG-001', round: 1, percentage: 50, amount: 10000000, dueDate: '2026-03-05', status: 'PAID', paidAt: '2026-03-05', paidBy: 'Kế toán Phạm Thị A' },
+            { id: 'PM-001-2', journeyId: 'j-001', journeyCode: 'HT-2026-001', projectId: 'DA-001', projectName: 'Chống thấm sàn căn hộ – Nguyễn Văn A', quotationId: 'BG-001', round: 2, percentage: 40, amount: 8000000, dueDate: '2026-03-22', status: 'PENDING' },
+            { id: 'PM-001-3', journeyId: 'j-001', journeyCode: 'HT-2026-001', projectId: 'DA-001', projectName: 'Chống thấm sàn căn hộ – Nguyễn Văn A', quotationId: 'BG-001', round: 3, percentage: 10, amount: 2000000, dueDate: '2026-03-29', status: 'PENDING' },
         ],
         stockOrders: [
             {
@@ -422,9 +423,9 @@ export const mockProjects: Project[] = [
         plannedEndDate: '2026-03-28',
         createdAt: '2026-03-10',
         paymentMilestones: [
-            { id: 'PM-002-1', projectId: 'DA-002', projectName: 'Chống thấm tường – Trần Thị B', round: 1, percentage: 50, amount: 7500000, dueDate: '2026-03-20', status: 'PENDING' },
-            { id: 'PM-002-2', projectId: 'DA-002', projectName: 'Chống thấm tường – Trần Thị B', round: 2, percentage: 40, amount: 6000000, dueDate: '2026-03-28', status: 'PENDING' },
-            { id: 'PM-002-3', projectId: 'DA-002', projectName: 'Chống thấm tường – Trần Thị B', round: 3, percentage: 10, amount: 1500000, dueDate: '2026-04-05', status: 'PENDING' },
+            { id: 'PM-002-1', journeyId: 'j-002', journeyCode: 'HT-2026-002', projectId: 'DA-002', projectName: 'Chống thấm tường – Trần Thị B', round: 1, percentage: 50, amount: 7500000, dueDate: '2026-03-20', status: 'PENDING' },
+            { id: 'PM-002-2', journeyId: 'j-002', journeyCode: 'HT-2026-002', projectId: 'DA-002', projectName: 'Chống thấm tường – Trần Thị B', round: 2, percentage: 40, amount: 6000000, dueDate: '2026-03-28', status: 'PENDING' },
+            { id: 'PM-002-3', journeyId: 'j-002', journeyCode: 'HT-2026-002', projectId: 'DA-002', projectName: 'Chống thấm tường – Trần Thị B', round: 3, percentage: 10, amount: 1500000, dueDate: '2026-04-05', status: 'PENDING' },
         ],
         stockOrders: [],
         incidents: [],
@@ -551,7 +552,8 @@ export const mockStandards: MaterialStandard[] = [
 export const mockStockOrders: StockOrder[] = [
     {
         id: 'PX-001', code: 'PX-2026-001', type: 'OUT',
-        projectId: 'DA-001', projectName: 'DA-2026-001',
+        journeyId: 'j-001', journeyCode: 'HT-2026-001',   // Phase 1: journey link
+        projectId: 'DA-001', projectName: 'DA-2026-001',   // Phase 3: sẽ xóa
         items: [
             { materialId: 'MAT-001', materialName: 'SIRA PU (lót)', unit: 'kg', quantity: 150, unitCost: 45000 },
             { materialId: 'MAT-002', materialName: 'SIRA PU (phủ)', unit: 'kg', quantity: 200, unitCost: 48000 },
@@ -563,6 +565,7 @@ export const mockStockOrders: StockOrder[] = [
     },
     {
         id: 'PN-001', code: 'PN-2026-001', type: 'IN',
+        // journeyId: undefined (nhập kho không gắn journey cụ thể)
         items: [
             { materialId: 'MAT-001', materialName: 'SIRA PU (lót)', unit: 'kg', quantity: 150, unitCost: 45000 },
             { materialId: 'MAT-002', materialName: 'SIRA PU (phủ)', unit: 'kg', quantity: 200, unitCost: 48000 },

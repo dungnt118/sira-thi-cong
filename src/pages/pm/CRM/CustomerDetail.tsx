@@ -17,7 +17,8 @@ import {
     mockProjects as defaultProjects, 
     mockServiceRequests as defaultServiceRequests 
 } from '../../../data/mockData';
-import type { Customer, Project, ServiceRequest } from '../../../types/v3';
+import type { Customer, ServiceRequest } from '../../../types/v3';
+import type { Project } from '../../../types/legacy-project';
 
 const { Title, Text } = Typography;
 

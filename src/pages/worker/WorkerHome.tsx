@@ -9,6 +9,7 @@ import {
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { mockProjects, getProjectProgress } from '../../data/mockData';
+import type { ProjectStep, IncidentReport } from '../../types/legacy-project';
 
 const { Title, Text } = Typography;
 
@@ -58,8 +59,8 @@ const WorkerHome: React.FC = () => {
                     </Text>
                     {inProgress.map(p => {
                         const pct = getProjectProgress(p);
-                        const currentStep = p.steps.find(s => s.status === 'IN_PROGRESS' || s.status === 'OPEN');
-                        const pendingIncidents = p.incidents.filter(i => !i.isResolved).length;
+                        const currentStep = p.steps.find((s: ProjectStep) => s.status === 'IN_PROGRESS' || s.status === 'OPEN');
+                        const pendingIncidents = p.incidents.filter((i: IncidentReport) => !i.isResolved).length;
 
                         return (
                             <Card
@@ -92,7 +93,7 @@ const WorkerHome: React.FC = () => {
                                     </div>
                                     <Progress percent={pct} status="active" showInfo={false} strokeColor="#fa8c16" />
                                     <div style={{ fontSize: 11, color: '#999', marginTop: 4 }}>
-                                        {p.steps.filter(s => s.status === 'APPROVED').length}/{p.steps.length} bước hoàn thành
+                                        {p.steps.filter((s: ProjectStep) => s.status === 'APPROVED').length}/{p.steps.length} bước hoàn thành
                                     </div>
                                 </div>
 

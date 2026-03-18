@@ -16,7 +16,7 @@ import { getProjectProgress } from '../../../data/mockData';
 import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
 import { demoDataService } from '../../../services/localstorage/demoDataService';
 import { mockProjects as defaultProjects } from '../../../data/mockData';
-import type { Project, ProjectStatus } from '../../../types/v3';
+import type { Project, ProjectStatus } from '../../../types/legacy-project';
 
 const { Text, Title } = Typography;
 

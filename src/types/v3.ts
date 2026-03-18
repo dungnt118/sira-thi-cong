@@ -149,99 +149,13 @@ export interface ChecklistTemplate {
     usedInProjects: number;
 }
 
-// ---- PROJECT / CONSTRUCTION LOG TYPES ----
-export type ProjectStatus =
-    | 'SCHEDULED'
-    | 'WAITING_MATERIALS'   // Gap #9: blocked until PX signed
-    | 'IN_PROGRESS'
-    | 'AWAITING_APPROVAL'
-    | 'COMPLETED'
-    | 'CANCELLED';
-
-export type StepStatus = 'LOCKED' | 'OPEN' | 'IN_PROGRESS' | 'AWAITING_REVIEW' | 'APPROVED' | 'REJECTED';
-
-export interface StepEvidence {
-    id: string;
-    url: string;
-    thumbnailUrl?: string;
-    uploadedAt: string;
-    uploadedBy: string;
-    status: 'PENDING' | 'APPROVED' | 'REJECTED';
-    pmFeedback?: string;
-}
-
-export interface ProjectStep {
-    id: string;
-    templateStepId: string;
-    order: number;
-    name: string;
-    description: string;
-    minPhotos: number;
-    status: StepStatus;
-    completedAt?: string;
-    completedBy?: string;
-    evidences: StepEvidence[];
-    notes?: string;
-}
-
-export interface IncidentReport {
-    id: string;
-    projectId: string;
-    type: 'MATERIAL_SHORTAGE' | 'TECHNICAL' | 'WEATHER' | 'EQUIPMENT' | 'SAFETY' | 'OTHER';
-    description: string;
-    severity: 'NORMAL' | 'URGENT';
-    images: string[];
-    reportedAt: string;
-    reportedBy: string;
-    pmReply?: string;
-    isResolved: boolean;
-    resolvedAt?: string;
-}
-
-export interface ActivityLog {
-    id: string;
-    projectId: string;
-    actor: string;
-    action: string;
-    detail: string;
-    timestamp: string;
-}
-
-export interface Project {
-    id: string;
-    code: string;           // DA-2026-001
-    name: string;
-    customerId: string;
-    customerName: string;
-    address: string;
-    gpsLat?: number;
-    gpsLng?: number;
-    areaM2: number;
-    category: string;       // e.g. 'Chống thấm sàn'
-    type: 'Nội bộ' | 'Outsource';
-    budget?: number;
-    qualityScore?: number;
-    templateId: string;
-    status: ProjectStatus;
-    pmId: string;
-    pmName: string;
-    workerIds: string[];
-    workerNames: string[];
-    startDate: string;
-    plannedEndDate: string;
-    actualEndDate?: string;
-    steps: ProjectStep[];
-    incidents: IncidentReport[];
-    activityLog: ActivityLog[];
-    paymentMilestones: PaymentMilestone[];
-    stockOrders: StockOrder[];
-    portalToken?: string;   // Customer portal link token
-    portalExpiry?: string;
-    createdAt: string;
-    notes?: string;
-}
+// ---- PROJECT TYPES MOVED ----
+// Project, ProjectStatus, ProjectStep, IncidentReport, ActivityLog, StepStatus, StepEvidence
+// đã được chuyển sang src/types/legacy-project.ts (Phase 3)
+// Sẽ bị xóa hoàn toàn ở Phase 5 khi các trang Construction được dọn dẹp.
 
 // ---- INVENTORY TYPES ----
+
 export type MaterialUnit = 'kg' | 'lít' | 'm²' | 'thùng' | 'cuộn' | 'cái';
 
 export type MaterialType = 'CONSUMABLE'; // Assets moved to independent module
@@ -341,6 +255,10 @@ export interface StockOrder {
     id: string;
     code: string;
     type: StockOrderType;
+    // === Journey FK (mới — Phase 1) ===
+    journeyId?: string;         // FK tới Journey.id
+    journeyCode?: string;       // FK tới Journey.journey_code (HT-2026-xxx)
+    // === Project FK (cũ — sẽ xóa ở Phase 3) ===
     projectId?: string;
     projectName?: string;
     source?: StockOrderSource;
@@ -354,7 +272,7 @@ export interface StockOrder {
     signedBy?: string;
     signedAt?: string;
     supplier?: string;
-    pdfUrl?: string;            // Reference to archived PDF with all signatures
+    pdfUrl?: string;
     history?: {
         status: StockOrderStatus;
         updatedBy: string;
@@ -408,16 +326,20 @@ export type MilestoneStatus = 'PENDING' | 'PAID' | 'OVERDUE';
 
 export interface PaymentMilestone {
     id: string;
+    // === Journey FK (mới — Phase 1) ===
+    journeyId?: string;
+    journeyCode?: string;
+    // === Project FK (cũ — sẽ xóa ở Phase 3) ===
     projectId: string;
     projectName: string;
-    quotationId?: string;   // Gap #6: linked to approved quotation
+    quotationId?: string;
     round: 1 | 2 | 3;
     percentage: 50 | 40 | 10;
     amount: number;
     dueDate: string;
     status: MilestoneStatus;
     paidAt?: string;
-    paidBy?: string;        // Accountant who confirmed
+    paidBy?: string;
     receiptNote?: string;
 }
 
@@ -425,6 +347,10 @@ export interface PaymentMilestone {
 export interface WarrantyCard {
     id: string;
     code: string;           // BH-2026-001
+    // === Journey FK (mới — Phase 1) ===
+    journeyId?: string;
+    journeyCode?: string;
+    // === Project FK (cũ — sẽ xóa ở Phase 3) ===
     projectId: string;
     projectName: string;
     customerName: string;
@@ -433,10 +359,10 @@ export interface WarrantyCard {
     constructionType: string;
     areaM2: number;
     completedDate: string;
-    warrantyMonths: number; // e.g. 24
+    warrantyMonths: number;
     expiryDate: string;
-    materials: string[];    // Material names used
-    qrCode?: string;        // QR data
+    materials: string[];
+    qrCode?: string;
     issuedAt: string;
 }
 
@@ -492,6 +418,11 @@ export interface AssetAllocation {
     assetName: string;
     assetCode: string;
     requestedBy: string;
+    requestedById?: string;
+    // === Journey FK (mới — Phase 1) ===
+    journeyId?: string;
+    journeyCode?: string;
+    // === Project FK (cũ — sẽ xóa ở Phase 3) ===
     projectId?: string;
     projectName?: string;
     requestDate: string;

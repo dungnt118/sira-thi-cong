@@ -22,7 +22,8 @@ import {
     mockMaterials as defaultMaterials,
     mockProjects as defaultProjects
 } from '../../../data/mockData';
-import type { Project, ChecklistStep } from '../../../types/v3';
+import type { ChecklistStep } from '../../../types/v3';
+import type { Project } from '../../../types/legacy-project';
 
 const { Title, Text } = Typography;
 

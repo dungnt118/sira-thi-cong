@@ -82,7 +82,9 @@ const InventoryHistory: React.FC = () => {
             return stockOrders.filter(o => 
                 (o.code && o.code.toLowerCase().includes(lower)) ||
                 (o.source && o.source.toLowerCase().includes(lower)) ||
-                (o.projectName && o.projectName.toLowerCase().includes(lower))
+                (o.projectName && o.projectName.toLowerCase().includes(lower)) ||
+                (o.journeyCode && o.journeyCode.toLowerCase().includes(lower)) ||
+                (o.journeyId && o.journeyId.toLowerCase().includes(lower))
             );
         }
 
@@ -116,7 +118,20 @@ const InventoryHistory: React.FC = () => {
         },
         { title: 'Loại', dataIndex: 'type', key: 'type', width: 100, render: (t: string) => <Tag color={t === 'OUT' ? 'orange' : 'green'}>{t === 'OUT' ? 'Xuất kho' : 'Nhập kho'}</Tag> },
         { title: 'Nguồn', dataIndex: 'source', key: 'source', width: 120 },
-        { title: 'Đối tượng', dataIndex: 'projectName', key: 'proj', minWidth: 150, render: (v: string) => v || '—' },
+        { 
+            title: 'Hành trình', 
+            key: 'journey', 
+            minWidth: 150, 
+            render: (_: any, record: StockOrder) => {
+                if (record.journeyCode) {
+                    return <Tag color="blue">{record.journeyCode}</Tag>;
+                }
+                if (record.projectName) {
+                    return <span style={{color: '#8c8c8c', fontSize: 12}}>{record.projectName}</span>;
+                }
+                return <span style={{color: '#bfbfbf'}}>—</span>;
+            }
+        },
         { 
             title: 'Trạng thái', 
             dataIndex: 'status', 

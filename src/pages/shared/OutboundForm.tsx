@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
     Form, Input, Select, InputNumber, Button, Card, 
     Typography, Space, Row, Col, message,
-    Table, Empty, Radio
+    Table, Empty, Radio, Tag
 } from 'antd';
 import { 
     PlusOutlined, SaveOutlined, ArrowLeftOutlined, 
@@ -14,7 +14,7 @@ import {
     Material, StockOrder, MaterialGroup 
 } from '../../types/v3';
 import mockMaterialsData from '../../data/mock/materials.json';
-import { mockProjects } from '../../data/mockData';
+import { mockJourneys } from '../../data/journeyMockData';
 
 const { Title, Text } = Typography;
 
@@ -85,19 +85,19 @@ const OutboundForm: React.FC = () => {
         }
 
         const formValues = form.getFieldsValue();
-        if (!formValues.projectId) {
-            message.error('Vui lòng chọn dự án tiếp nhận');
+        if (!formValues.journeyId) {
+            message.error('Vui lòng chọn hành trình / công trình tiếp nhận');
             return;
         }
         
-        const project = mockProjects.find(p => p.id === formValues.projectId);
+        const journey = mockJourneys.find(j => j.id === formValues.journeyId);
         
         const newStockOrder: StockOrder = {
             id: `PX-${Date.now()}`,
             code: `PX-${new Date().getFullYear()}-${(stockOrders.length + 1).toString().padStart(3, '0')}`,
             type: 'OUT',
-            projectId: formValues.projectId,
-            projectName: project?.name,
+            journeyId: formValues.journeyId,
+            journeyCode: journey?.journey_code,
             items: selectedItems.map(item => ({
                 materialId: item.materialId,
                 materialName: item.materialName,
@@ -109,7 +109,7 @@ const OutboundForm: React.FC = () => {
                 isPartial: item.isPartial
             })),
             totalValue: selectedItems.reduce((sum, item) => sum + (item.total || 0), 0),
-            status: 'REQUESTED', // PM creates request
+            status: 'REQUESTED',
             signatures: [],
             history: [{
                 status: 'REQUESTED',
@@ -252,14 +252,21 @@ const OutboundForm: React.FC = () => {
                     <Card title="Thông tin tiếp nhận">
                         <Form form={form} layout="vertical">
                             <Form.Item 
-                                name="projectId" 
-                                label="Dự án/Công trình tiếp nhận"
-                                rules={[{ required: true, message: 'Vui lòng chọn dự án' }]}
+                                name="journeyId" 
+                                label="Hành trình / Công trình tiếp nhận"
+                                rules={[{ required: true, message: 'Vui lòng chọn hành trình' }]}
                             >
-                                <Select placeholder="Chọn dự án" showSearch optionFilterProp="children">
-                                    {mockProjects.filter(p => p.status === 'IN_PROGRESS' || p.status === 'SCHEDULED' || p.status === 'WAITING_MATERIALS').map(p => (
-                                        <Select.Option key={p.id} value={p.id}>{p.name}</Select.Option>
-                                    ))}
+                                <Select placeholder="Chọn hành trình" showSearch optionFilterProp="children">
+                                    {mockJourneys
+                                        .filter(j => ['active', 'not_started'].includes(j.project_status))
+                                        .map(j => (
+                                            <Select.Option key={j.id} value={j.id}>
+                                                <Space>
+                                                    <Tag color="blue" style={{fontSize: 11}}>{j.journey_code}</Tag>
+                                                    {j.customer_name} — {j.requested_service}
+                                                </Space>
+                                            </Select.Option>
+                                        ))}
                                 </Select>
                             </Form.Item>
 

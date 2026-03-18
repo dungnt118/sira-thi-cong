@@ -21,7 +21,7 @@ import type { ColumnsType } from 'antd/es/table';
 import type { MenuProps } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { getProjectProgress, mockProjects as defaultProjects } from '../../../data/mockData';
-import { ProjectStatus } from '../../../types/v3';
+import { ProjectStatus } from '../../../types/legacy-project';
 import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
 import { demoDataService } from '../../../services/localstorage/demoDataService';
 

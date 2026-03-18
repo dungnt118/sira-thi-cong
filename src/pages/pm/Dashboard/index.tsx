@@ -16,7 +16,8 @@ import {
 import type { ColumnsType } from 'antd/es/table';
 import { useNavigate } from 'react-router-dom';
 import { getProjectProgress, mockProjects as defaultProjects, mockMilestones as defaultMilestones } from '../../../data/mockData';
-import { ProjectStatus, MilestoneStatus } from '../../../types/v3';
+import { ProjectStatus } from '../../../types/legacy-project';
+import { MilestoneStatus } from '../../../types/v3';
 import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
 import { demoDataService } from '../../../services/localstorage/demoDataService';
 

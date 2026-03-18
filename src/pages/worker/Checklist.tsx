@@ -10,14 +10,14 @@ import {
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import { mockProjects } from '../../data/mockData';
-import type { ProjectStep, StepStatus } from '../../types/v3';
+import type { ProjectStep, StepStatus, IncidentReport } from '../../types/legacy-project';
 
 const { Title, Text } = Typography;
 
 // Gap #9: check if stock order is signed for this project
 const hasMaterialsDispached = (project: ReturnType<typeof mockProjects.find>) => {
     if (!project) return false;
-    return project.stockOrders.some(o => o.type === 'OUT' && o.status === 'COMPLETED');
+    return project.stockOrders.some((o: typeof project.stockOrders[number]) => o.type === 'OUT' && o.status === 'COMPLETED');
 };
 
 const STEP_STYLE: Record<StepStatus, { color: string; bg: string; label: React.ReactNode }> = {
@@ -40,10 +40,10 @@ const WorkerChecklist: React.FC = () => {
     if (!project) return <div style={{ padding: 16 }}>Không tìm thấy dự án</div>;
 
     const materialsOk = hasMaterialsDispached(project);
-    const approvedCount = project.steps.filter(s => s.status === 'APPROVED').length;
+    const approvedCount = project.steps.filter((s: ProjectStep) => s.status === 'APPROVED').length;
     const progress = Math.round((approvedCount / project.steps.length) * 100);
-    const currentStep = project.steps.find(s => s.status === 'IN_PROGRESS' || s.status === 'OPEN' || s.status === 'AWAITING_REVIEW');
-    const hasUnresolved = project.incidents.filter(i => !i.isResolved).length;
+    const currentStep = project.steps.find((s: ProjectStep) => s.status === 'IN_PROGRESS' || s.status === 'OPEN' || s.status === 'AWAITING_REVIEW');
+    const hasUnresolved = project.incidents.filter((i: IncidentReport) => !i.isResolved).length;
 
     const handleStepClick = (step: ProjectStep) => {
         if (step.status === 'LOCKED') return;
@@ -139,7 +139,7 @@ const WorkerChecklist: React.FC = () => {
 
             {/* Full Checklist */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {project.steps.map(step => {
+                {project.steps.map((step: ProjectStep) => {
                     const style = STEP_STYLE[step.status];
                     const isClickable = step.status !== 'LOCKED';
                     return (
@@ -187,7 +187,7 @@ const WorkerChecklist: React.FC = () => {
                             {/* Evidence thumbnails */}
                             {step.evidences.length > 0 && (
                                 <div style={{ marginTop: 8, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                                    {step.evidences.slice(0, 5).map(ev => (
+                                {step.evidences.slice(0, 5).map((ev: ProjectStep['evidences'][number]) => (
                                         <img
                                             key={ev.id}
                                             src={ev.url}

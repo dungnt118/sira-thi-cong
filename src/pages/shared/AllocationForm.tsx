@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
     Form, Input, Select, Button, Card, 
     Typography, Space, Row, Col, message,
-    Table, Empty, DatePicker
+    Table, Empty, DatePicker, Tag
 } from 'antd';
 import { 
     PlusOutlined, SaveOutlined, ArrowLeftOutlined, 
@@ -12,7 +12,8 @@ import { useNavigate } from 'react-router-dom';
 import useLocalStorageData from '../../hooks/useLocalStorageData';
 import type { Asset, AssetAllocation } from '../../types/v3';
 import mockAssetsData from '../../data/mock/assets.json';
-import { mockProjects, mockUsers } from '../../data/mockData';
+import { mockUsers } from '../../data/mockData';
+import { mockJourneys } from '../../data/journeyMockData';
 
 const { Title, Text } = Typography;
 
@@ -56,6 +57,7 @@ const AllocationForm: React.FC = () => {
         }
 
         form.validateFields().then(values => {
+            const journey = mockJourneys.find(j => j.id === values.journeyId);
             const newAllocations: AssetAllocation[] = selectedItems.map((asset, index) => ({
                 id: `CP-${Date.now()}-${index}`,
                 code: `CP-${new Date().getFullYear()}-${String(allocations.length + 1 + index).padStart(3, '0')}`,
@@ -63,8 +65,8 @@ const AllocationForm: React.FC = () => {
                 assetName: asset.name,
                 assetCode: asset.code,
                 requestedBy: values.requestedBy,
-                projectId: values.projectId,
-                projectName: mockProjects.find(p => p.id === values.projectId)?.name,
+                journeyId: values.journeyId,
+                journeyCode: journey?.journey_code,
                 requestDate: new Date().toISOString(),
                 expectedReturnDate: values.expectedReturnDate ? values.expectedReturnDate.toISOString() : undefined,
                 status: 'REQUESTED',
@@ -163,13 +165,20 @@ const AllocationForm: React.FC = () => {
                             </Form.Item>
 
                             <Form.Item 
-                                name="projectId" 
-                                label="Dự án sử dụng (Nếu có)"
+                                name="journeyId" 
+                                label="Hành trình sử dụng (Nếu có)"
                             >
-                                <Select placeholder="Chọn công trình / dự án" allowClear showSearch optionFilterProp="children">
-                                    {mockProjects.filter(p => !['CANCELLED', 'COMPLETED'].includes(p.status)).map(p => (
-                                        <Select.Option key={p.id} value={p.id}>{p.name}</Select.Option>
-                                    ))}
+                                <Select placeholder="Chọn hành trình công trình" allowClear showSearch optionFilterProp="children">
+                                    {mockJourneys
+                                        .filter(j => j.project_status !== 'completed')
+                                        .map(j => (
+                                            <Select.Option key={j.id} value={j.id}>
+                                                <Space>
+                                                    <Tag color="blue" style={{fontSize: 11}}>{j.journey_code}</Tag>
+                                                    {j.customer_name} — {j.requested_service}
+                                                </Space>
+                                            </Select.Option>
+                                        ))}
                                 </Select>
                             </Form.Item>
 

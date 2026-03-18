@@ -10,6 +10,7 @@ import {
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import { mockProjects } from '../../data/mockData';
+import type { ProjectStep } from '../../types/legacy-project';
 
 const { Text, Title } = Typography;
 const { TextArea } = Input;
@@ -27,7 +28,7 @@ const EvidenceUpload: React.FC = () => {
     const navigate = useNavigate();
     const { projectId, stepId } = useParams<{ projectId: string; stepId: string }>();
     const project = mockProjects.find(p => p.id === projectId);
-    const step = project?.steps.find(s => s.id === stepId);
+    const step = project?.steps.find((s: ProjectStep) => s.id === stepId);
 
     const [files, setFiles] = useState<UploadedFile[]>([]);
     const [notes, setNotes] = useState('');

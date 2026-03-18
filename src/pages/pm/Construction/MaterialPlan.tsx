@@ -17,7 +17,8 @@ import {
     mockStandards as defaultStandards, 
     mockStockRequests as defaultStockRequests 
 } from '../../../data/mockData';
-import type { Project, Material, MaterialStandard, StockRequest, StockRequestItem } from '../../../types/v3';
+import type { Material, MaterialStandard, StockRequest, StockRequestItem } from '../../../types/v3';
+import type { Project } from '../../../types/legacy-project';
 
 const { Title, Text } = Typography;
 

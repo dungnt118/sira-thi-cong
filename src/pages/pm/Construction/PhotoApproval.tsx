@@ -11,7 +11,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
 import { demoDataService } from '../../../services/localstorage/demoDataService';
 import { mockProjects as defaultProjects } from '../../../data/mockData';
-import type { Project, StepStatus } from '../../../types/v3';
+import type { Project, StepStatus } from '../../../types/legacy-project';
 import { message } from 'antd';
 
 const { Title, Text } = Typography;

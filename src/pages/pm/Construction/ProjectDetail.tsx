@@ -15,7 +15,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
 import { demoDataService } from '../../../services/localstorage/demoDataService';
 import { mockProjects as defaultProjects, getProjectProgress } from '../../../data/mockData';
-import type { Project, StepStatus } from '../../../types/v3';
+import type { Project, StepStatus } from '../../../types/legacy-project';
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
