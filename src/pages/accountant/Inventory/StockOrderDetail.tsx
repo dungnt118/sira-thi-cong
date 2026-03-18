@@ -15,6 +15,9 @@ import {
     StockOrder, StockOrderStatus, StockOrderSignature, UserRole 
 } from '@/types/v3';
 import SiraSignaturePad from '@components/common/SignaturePad';
+import StockOrderPrintable from './components/StockOrderPrintable';
+import html2pdf from 'html2pdf.js';
+import { DownloadOutlined, EyeOutlined } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
 
@@ -28,6 +31,7 @@ const StockOrderDetail: React.FC = () => {
     const order = useMemo(() => stockOrders.find(o => o.id === id || o.code === id), [stockOrders, id]);
     
     const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
+    const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
     const [signingRole, setSigningRole] = useState<UserRole | 'warehouse' | null>(null);
 
     if (!order) {
@@ -132,15 +136,39 @@ const StockOrderDetail: React.FC = () => {
                 ...(order.history || []),
                 {
                     status: 'COMPLETED',
-                    updatedBy: 'Kế toán Phạm Thị A',
+                    updatedBy: 'Hệ thống',
                     updatedAt: new Date().toISOString(),
-                    comment: 'Đã hoàn tất phiếu và lưu trữ hồ sơ'
+                    comment: 'Đã hoàn tất phiếu và lưu trữ PDF'
                 }
             ],
             pdfUrl: `/files/signed-orders/${order.code}.pdf` // Mock URL
         };
         setStockOrders(stockOrders.map(o => o.id === order.id ? updatedOrder : o));
         message.success('Đã hoàn tất phiếu và đồng bộ tệp PDF chữ ký');
+    };
+
+    const handleDownloadPDF = () => {
+        const element = document.getElementById('stock-order-printable');
+        if (element) {
+            const opt = {
+                margin: 0, 
+                filename: `SIRA-${order.code}.pdf`,
+                image: { type: 'jpeg' as const, quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
+            };
+            // Using Worker API to ensure filename is forced via jsPDF directly
+            html2pdf()
+                .from(element)
+                .set(opt)
+                .toPdf()
+                .get('pdf')
+                .then((pdf: any) => {
+                    pdf.save(`SIRA-${order.code}.pdf`);
+                });
+        } else {
+            message.error('Không tìm thấy vùng in');
+        }
     };
 
     const itemColumns = [
@@ -172,13 +200,13 @@ const StockOrderDetail: React.FC = () => {
                         </div>
                     </Space>
                     <Space>
+                        <Button icon={<EyeOutlined />} onClick={() => setIsPrintModalOpen(true)}>
+                            Xem bản ký
+                        </Button>
                         {order.status === 'RECEIVED' && (
                             <Button type="primary" icon={<CheckCircleOutlined />} onClick={handleFinalize}>
                                 Hoàn tất & Lưu trữ PDF
                             </Button>
-                        )}
-                        {order.pdfUrl && (
-                            <Button icon={<FilePdfOutlined />}>Tải PDF Bản Ký</Button>
                         )}
                     </Space>
                 </div>
@@ -338,6 +366,31 @@ const StockOrderDetail: React.FC = () => {
                     title={`Chữ ký của ${signingRole === 'accountant' ? 'Kế toán' : signingRole === 'warehouse' ? 'Thủ kho' : 'Giám sát'}`}
                     description="Vui lòng ký vào khung bên dưới và bấm Xác nhận" 
                 />
+            </Modal>
+
+            {/* Modal Xem bản ký */}
+            <Modal
+                title={null}
+                open={isPrintModalOpen}
+                onCancel={() => setIsPrintModalOpen(false)}
+                footer={[
+                    <Button key="close" onClick={() => setIsPrintModalOpen(false)}>
+                        Đóng
+                    </Button>,
+                    <Button key="print" icon={<FilePdfOutlined />} onClick={() => window.print()}>
+                        In ấn
+                    </Button>,
+                    <Button key="download" type="primary" icon={<DownloadOutlined />} onClick={handleDownloadPDF}>
+                        Tải PDF
+                    </Button>
+                ]}
+                width={850}
+                style={{ top: 20 }}
+                centered={false}
+            >
+                <div style={{ padding: '20px 0', background: '#f0f2f5', display: 'flex', justifyContent: 'center' }}>
+                    <StockOrderPrintable order={order} />
+                </div>
             </Modal>
         </div>
     );
