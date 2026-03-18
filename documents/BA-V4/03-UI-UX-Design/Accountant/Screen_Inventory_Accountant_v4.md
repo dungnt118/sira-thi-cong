@@ -64,7 +64,7 @@ Liệt kê đầy đủ các màn hình Accountant cần có trong V4 và đối
 | ACC-22 | Material Catalog | Danh mục vật tư và tồn kho hiện tại | Tab trong `Inventory/Dashboard.tsx` | Có một phần |
 | ACC-23 | Stock Out Document | Phiếu xuất kho | `/accountant/inventory/stock-out` - `ComingSoon` | Có một phần |
 | ACC-24 | Stock In Document | Phiếu nhập kho | `/accountant/inventory/stock-in` - `ComingSoon` | Có một phần |
-| ACC-25 | Stock History | Lịch sử kho | `/accountant/inventory/history` - `ComingSoon` | Có một phần |
+| ACC-25 | Stock History | Lịch sử xuất/nhập | `/accountant/inventory/history` - `ComingSoon` | Có một phần |
 | ACC-26 | Inventory Value Detail | Xem giá trị kho theo vật tư/nhóm vật tư | Chưa thấy page riêng | Chưa có |
 | ACC-27 | Pending Signature Queue | Phiếu kho chờ Giám sát ký nhận | Chưa thấy page riêng | Chưa có |
 | ACC-28 | Issue-to-Kỹ thuật Reconciliation | Đối soát vật tư cấp đến kỹ thuật profile | Chưa thấy page riêng | Chưa có |

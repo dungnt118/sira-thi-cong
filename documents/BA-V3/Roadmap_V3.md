@@ -154,7 +154,7 @@ SPRINT 6 (Tuần 11-12): Tích hợp, Test, Hoàn thiện UX
 | Kế toán: Tạo phiếu xuất kho | WF-18 | Medium |
 | Thợ: Xem phiếu vật tư + Ký nhận (mobile) | WF-19 | High |
 | Kế toán: Dashboard tồn kho + cảnh báo | WF-20 | Medium |
-| Admin/Kế toán: Lịch sử kho | WF-21 | Low |
+| Admin/Kế toán: Lịch sử xuất/nhập | WF-21 | Low |
 
 ### Business Rules cần implement
 - **BR-INV-01**: Auto-calc định mức từ diện tích nhập vào

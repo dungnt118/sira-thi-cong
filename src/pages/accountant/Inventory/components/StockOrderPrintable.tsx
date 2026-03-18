@@ -52,7 +52,7 @@ const StockOrderPrintable: React.FC<StockOrderPrintableProps> = ({ order }) => {
             width: 130,
             align: 'right' as const,
             render: (record: StockOrderItem) => {
-                const qty = isOutbound ? record.issuedQuantity : record.quantity;
+                const qty = isOutbound ? (record.issuedQuantity || 0) : record.quantity;
                 return (qty * record.unitCost)?.toLocaleString();
             },
         },

@@ -257,15 +257,16 @@ export interface MaterialGroup {
 
 export interface Material {
     id: string;
-    groupId: string;        // Link to MaterialGroup
+    groupId?: string;        // Link to MaterialGroup
     code: string;           // SKU code (e.g., VT-001-15KG)
     name: string;           // Packaging name (e.g., "15" - inherited capacity)
-    capacity: number;       // Numeric value for aggregation (e.g., 15)
+    capacity?: number;       // Numeric value for aggregation (e.g., 15)
     unit: string;           // Unit for this SKU (e.g., "thùng" - inherited packageUnit)
     currentStock: number;   // Number of full containers
-    partialStock: number;   // Total remaining base unit quantity from opened containers
+    partialStock?: number;   // Total remaining base unit quantity from opened containers
     minStockAlert: number;
     unitCost: number;
+    category?: string;
 }
 
 // ===== ASSETS (Separated) =====
@@ -305,8 +306,8 @@ export interface StockOrderItem {
     materialName: string;
     unit: MaterialUnit;
     quantity: number;           // Planned/Requested
-    requestedQuantity: number;  // Original PM request
-    issuedQuantity: number;     // What warehouse actually sent
+    requestedQuantity?: number;  // Original PM request
+    issuedQuantity?: number;     // What warehouse actually sent
     receivedQuantity?: number;  // What GS actually counted on site
     unitCost: number;
     isPartial?: boolean;
@@ -349,9 +350,12 @@ export interface StockOrder {
     status: StockOrderStatus;
     createdBy: string;
     createdAt: string;
-    signatures: StockOrderSignature[];
+    signatures?: StockOrderSignature[];
+    signedBy?: string;
+    signedAt?: string;
+    supplier?: string;
     pdfUrl?: string;            // Reference to archived PDF with all signatures
-    history: {
+    history?: {
         status: StockOrderStatus;
         updatedBy: string;
         updatedAt: string;

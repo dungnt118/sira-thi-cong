@@ -17,7 +17,7 @@ const { Title, Text } = Typography;
 // Gap #9: check if stock order is signed for this project
 const hasMaterialsDispached = (project: ReturnType<typeof mockProjects.find>) => {
     if (!project) return false;
-    return project.stockOrders.some(o => o.type === 'OUT' && o.status === 'SIGNED');
+    return project.stockOrders.some(o => o.type === 'OUT' && o.status === 'COMPLETED');
 };
 
 const STEP_STYLE: Record<StepStatus, { color: string; bg: string; label: React.ReactNode }> = {

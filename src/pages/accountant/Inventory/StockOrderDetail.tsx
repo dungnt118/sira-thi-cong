@@ -211,8 +211,8 @@ const StockOrderDetail: React.FC = () => {
             dataIndex: 'receivedQuantity', 
             key: 'rec', 
             align: 'right' as const,
-            render: (v: number, record: { issuedQuantity: number }) => v !== undefined ? (
-                <Text strong style={{ color: v < record.issuedQuantity ? '#ff4d4f' : '#52c41a' }}>{v}</Text>
+            render: (v: number, record: any) => v !== undefined ? (
+                <Text strong style={{ color: v < (record.issuedQuantity || 0) ? '#ff4d4f' : '#52c41a' }}>{v}</Text>
             ) : <Text type="secondary">—</Text>
         },
         { title: 'Đơn giá', dataIndex: 'unitCost', key: 'cost', align: 'right' as const, render: (v: number) => v.toLocaleString() + 'đ' }

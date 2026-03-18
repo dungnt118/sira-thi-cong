@@ -29,7 +29,7 @@ const menuItems: MenuProps['items'] = [
             { key: '/accountant/inventory/distributors', label: 'Nhà phân phối' },
             { key: '/accountant/inventory/stock-out', label: 'Phiếu xuất kho' },
             { key: '/accountant/inventory/stock-in', label: 'Phiếu nhập kho' },
-            { key: '/accountant/inventory/history', label: 'Lịch sử kho' },
+            { key: '/accountant/inventory/history', label: 'Lịch sử xuất/nhập' },
         ],
     },
     {

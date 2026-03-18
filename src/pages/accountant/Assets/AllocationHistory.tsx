@@ -9,8 +9,7 @@ import {
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import useLocalStorageData from '../../../hooks/useLocalStorageData';
-import type { Asset, AssetAllocation } from '../../../types/v3';
-import mockAssetsData from '../../../data/mock/assets.json';
+import type { AssetAllocation } from '../../../types/v3';
 
 const { Title, Text } = Typography;
 

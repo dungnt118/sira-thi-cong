@@ -36,12 +36,12 @@ const InventoryDashboard: React.FC = () => {
     const groupStats = useMemo(() => {
         return groups.map(group => {
             const skus = materials.filter(m => m.groupId === group.id);
-            const totalCapacity = skus.reduce((sum, s) => sum + (s.currentStock * s.capacity + s.partialStock), 0);
+            const totalCapacity = skus.reduce((sum, s) => sum + (s.currentStock * (s.capacity || 1) + (s.partialStock || 0)), 0);
             const totalFull = skus.reduce((sum, s) => sum + s.currentStock, 0);
-            const totalPartial = skus.filter(s => s.partialStock > 0).length;
+            const totalPartial = skus.filter(s => (s.partialStock || 0) > 0).length;
             const totalValue = skus.reduce((sum, s) => {
                 const fullValue = s.currentStock * s.unitCost;
-                const partialValue = (s.partialStock / s.capacity) * s.unitCost;
+                const partialValue = ((s.partialStock || 0) / (s.capacity || 1)) * s.unitCost;
                 return sum + (isNaN(fullValue) ? 0 : fullValue) + (isNaN(partialValue) ? 0 : partialValue);
             }, 0);
 
@@ -211,7 +211,7 @@ const InventoryDashboard: React.FC = () => {
                 render: (_, m) => (
                     <Space direction="vertical" size={0}>
                         <Text>{m.currentStock} {group.packageUnit} nguyên</Text>
-                        {m.partialStock > 0 && <Text type="warning" style={{ fontSize: 11 }}>+ {m.partialStock} {group.baseUnit} lẻ</Text>}
+                        {(m.partialStock || 0) > 0 && <Text type="warning" style={{ fontSize: 11 }}>+ {m.partialStock} {group.baseUnit} lẻ</Text>}
                     </Space>
                 )
             },
@@ -221,7 +221,7 @@ const InventoryDashboard: React.FC = () => {
                 key: 'total', 
                 align: 'right',
                 render: (_, m) => {
-                    const totalVal = (m.currentStock * m.unitCost) + (m.partialStock / m.capacity) * m.unitCost;
+                    const totalVal = (m.currentStock * m.unitCost) + ((m.partialStock || 0) / (m.capacity || 1)) * m.unitCost;
                     return (isNaN(totalVal) ? '0' : totalVal.toLocaleString('vi-VN')) + 'đ';
                 }
             },
