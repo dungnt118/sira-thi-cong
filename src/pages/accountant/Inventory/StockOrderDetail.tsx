@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { 
     Card, Row, Col, Typography, Table, Tag, Button, 
-    Space, Divider, Steps, message, Modal, 
+    Space, Steps, message, Modal, 
     Alert, Descriptions, Result
 } from 'antd';
 import { 
@@ -23,6 +23,7 @@ const StockOrderDetail: React.FC = () => {
     const navigate = useNavigate();
     
     const [stockOrders, setStockOrders] = useLocalStorageData<StockOrder[]>('STOCK_ORDERS', []);
+    const [cachedSignatures, setCachedSignatures] = useLocalStorageData<Record<string, string>>('CACHED_SIGNATURES', {});
 
     const order = useMemo(() => stockOrders.find(o => o.id === id || o.code === id), [stockOrders, id]);
     
@@ -65,20 +66,33 @@ const StockOrderDetail: React.FC = () => {
     };
 
     const handleSign = (dataUrl: string) => {
-        if (!signingRole) return;
+        // We use a temporary variable for the current role instead of relying on state if it might be cleared too fast
+        const roleToSign = signingRole;
+        if (!roleToSign) {
+            console.warn("handleSign called but no signingRole set.");
+            return;
+        }
+
+        console.log(`Signing as ${roleToSign}...`);
+
+        // Cache the signature for reuse
+        setCachedSignatures({
+            ...cachedSignatures,
+            [roleToSign]: dataUrl
+        });
 
         const signature: StockOrderSignature = {
-            role: signingRole as any,
-            userName: signingRole === 'pm' ? 'PM Nguyễn Văn A' : signingRole === 'accountant' ? 'Kế toán Phạm Thị A' : 'Giám sát Lê Văn B',
-            userId: 'user-123',
+            role: roleToSign as any,
+            userName: roleToSign === 'pm' ? 'PM Nguyễn Văn A' : roleToSign === 'accountant' ? 'Kế toán Phạm Thị A' : roleToSign === 'warehouse' ? 'Thủ kho Nguyễn Văn C' : 'Giám sát Lê Văn B',
+            userId: `user-${roleToSign}`,
             signedAt: new Date().toISOString(),
             signatureDataUrl: dataUrl
         };
 
         let nextStatus: StockOrderStatus = order.status;
-        if (order.status === 'REQUESTED' && signingRole === 'accountant') nextStatus = 'APPROVED';
-        if (order.status === 'APPROVED' && signingRole === 'warehouse') nextStatus = 'DISPATCHED';
-        if (order.status === 'DISPATCHED' && signingRole === 'supervisor') nextStatus = 'RECEIVED';
+        if (order.status === 'REQUESTED' && roleToSign === 'accountant') nextStatus = 'APPROVED';
+        if (order.status === 'APPROVED' && roleToSign === 'warehouse') nextStatus = 'DISPATCHED';
+        if (order.status === 'DISPATCHED' && roleToSign === 'supervisor') nextStatus = 'RECEIVED';
 
         const updatedOrder: StockOrder = {
             ...order,
@@ -90,14 +104,28 @@ const StockOrderDetail: React.FC = () => {
                     status: nextStatus as any,
                     updatedBy: signature.userName,
                     updatedAt: signature.signedAt,
-                    comment: `Đã ký xác nhận vai trò ${signingRole}`
+                    comment: `Đã ký xác nhận vai trò ${roleToSign}`
                 }
             ]
         };
 
         setStockOrders(stockOrders.map(o => o.id === order.id ? updatedOrder : o));
-        setIsSignatureModalOpen(false);
-        message.success(`Đã ký xác nhận thành công với vai trò ${signingRole}`);
+        
+        // Use a slight delay or order change to ensure state updates don't trip each other
+        setTimeout(() => {
+            setIsSignatureModalOpen(false);
+            setSigningRole(null);
+        }, 100);
+
+        message.success(`Đã ký xác nhận thành công với vai trò ${roleToSign}`);
+    };
+
+    const handleUseCachedSignature = (role: string) => {
+        const cached = cachedSignatures[role];
+        if (cached) {
+            setSigningRole(role as any);
+            handleSign(cached);
+        }
     };
 
     const handleFinalize = () => {
@@ -123,21 +151,21 @@ const StockOrderDetail: React.FC = () => {
         { title: 'Vật tư', dataIndex: 'materialName', key: 'name' },
         { title: 'ĐVT', dataIndex: 'unit', key: 'unit' },
         { title: 'Yêu cầu (PM)', dataIndex: 'requestedQuantity', key: 'req', align: 'right' as const },
-        { title: 'Thực xuất (Kho)', dataIndex: 'issuedQuantity', key: 'iss', align: 'right' as const, render: (v: number) => <Text strong color="blue">{v}</Text> },
+        { title: 'Thực xuất (Kho)', dataIndex: 'issuedQuantity', key: 'iss', align: 'right' as const, render: (v: number) => <Text strong style={{ color: '#1890ff' }}>{v}</Text> },
         { 
             title: 'Thực nhận (GS)', 
             dataIndex: 'receivedQuantity', 
             key: 'rec', 
             align: 'right' as const,
-            render: (v: number, record: any) => v !== undefined ? (
-                <Text strong color={v < record.issuedQuantity ? 'red' : 'green'}>{v}</Text>
+            render: (v: number, record: { issuedQuantity: number }) => v !== undefined ? (
+                <Text strong style={{ color: v < record.issuedQuantity ? '#ff4d4f' : '#52c41a' }}>{v}</Text>
             ) : <Text type="secondary">—</Text>
         },
         { title: 'Đơn giá', dataIndex: 'unitCost', key: 'cost', align: 'right' as const, render: (v: number) => v.toLocaleString() + 'đ' }
     ];
 
     return (
-        <div style={{ maxWidth: 1000, margin: '0 auto' }}>
+        <div style={{ width: '100%', padding: '0 24px' }}>
             <Card bordered={false} className="order-detail-card">
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24 }}>
                     <Space>
@@ -186,44 +214,98 @@ const StockOrderDetail: React.FC = () => {
                             columns={itemColumns} 
                             pagination={false} 
                             size="small"
-                            rowKey={(r, i) => `${r.materialId}-${i}`}
+                            rowKey={(r: any, i) => `${r.materialId || i}-${i}`}
                         />
                     </Col>
 
                     <Col span={8}>
-                        <Card title={<Space><SignatureOutlined /> Chữ ký xác nhận</Space>} size="small">
-                            {order.signatures?.map((sig, idx) => (
-                                <div key={idx} style={{ marginBottom: 16, borderBottom: '1px solid #f0f0f0', paddingBottom: 8 }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <Text strong>{sig.userName}</Text>
-                                        <Tag>{sig.role.toUpperCase()}</Tag>
+                        <Card title={<Space><SignatureOutlined /> Quy trình Ký duyệt & Chốt sổ</Space>} size="small">
+                            {/* PM / REQUESTER (Show either original or new signature button) */}
+                            <div style={{ marginBottom: 20 }}>
+                                <Text strong>1. Người lập (PM)</Text>
+                                {order.signatures?.find((s: StockOrderSignature) => s.role === 'pm') ? (
+                                    <div style={{ marginTop: 8, textAlign: 'center' }}>
+                                        <img src={order.signatures.find((s: StockOrderSignature) => s.role === 'pm')?.signatureDataUrl} style={{ height: 60 }} />
+                                        <div style={{ fontSize: 11, color: '#888' }}>Đã ký lúc {new Date(order.signatures.find((s: StockOrderSignature) => s.role === 'pm')!.signedAt).toLocaleString()}</div>
                                     </div>
-                                    <div style={{ textAlign: 'center', margin: '8px 0', background: '#fff' }}>
-                                        <img src={sig.signatureDataUrl} alt="signature" style={{ maxWidth: '100%', height: 60 }} />
-                                    </div>
-                                    <Text type="secondary" style={{ fontSize: 11 }}>Đã ký: {new Date(sig.signedAt).toLocaleString('vi-VN')}</Text>
-                                </div>
-                            ))}
+                                ) : (
+                                    <>
+                                        <Button block type="dashed" size="small" style={{ marginTop: 8 }} icon={<SignatureOutlined />} onClick={() => { setSigningRole('pm'); setIsSignatureModalOpen(true); }}>
+                                            PM Ký xác nhận
+                                        </Button>
+                                        {cachedSignatures['pm'] && (
+                                            <div style={{ marginTop: 8, padding: 8, background: '#f9f9f9', borderRadius: 4, textAlign: 'center' }}>
+                                                <Text type="secondary" style={{ fontSize: 11 }}>Chữ ký PM cũ (Click dùng nhanh):</Text><br/>
+                                                <img src={cachedSignatures['pm']} style={{ height: 40, cursor: 'pointer' }} onClick={() => handleUseCachedSignature('pm')} />
+                                            </div>
+                                        )}
+                                    </>
+                                )}
+                            </div>
 
-                            <Divider style={{ margin: '12px 0' }} />
-                            
-                            <Space direction="vertical" style={{ width: '100%' }}>
-                                {order.status === 'REQUESTED' && (
-                                    <Button block icon={<CheckCircleOutlined />} onClick={() => { setSigningRole('accountant'); setIsSignatureModalOpen(true); }}>
-                                        Kế toán Duyệt & Ký
-                                    </Button>
+                            {/* ACCOUNTANT */}
+                            <div style={{ marginBottom: 20 }}>
+                                <Text strong>2. Kế toán duyệt</Text>
+                                {order.signatures?.find((s: StockOrderSignature) => s.role === 'accountant') ? (
+                                    <div style={{ marginTop: 8, textAlign: 'center' }}>
+                                        <img src={order.signatures.find((s: StockOrderSignature) => s.role === 'accountant')?.signatureDataUrl} style={{ height: 60 }} />
+                                    </div>
+                                ) : (
+                                    <>
+                                        <Button block type={order.status === 'REQUESTED' ? 'primary' : 'default'} disabled={order.status !== 'REQUESTED'} size="small" style={{ marginTop: 8 }} icon={<CheckCircleOutlined />} onClick={() => { setSigningRole('accountant'); setIsSignatureModalOpen(true); }}>
+                                            Kế toán Duyệt & Ký
+                                        </Button>
+                                        {cachedSignatures['accountant'] && (
+                                            <div style={{ marginTop: 8, padding: 8, background: '#f5f5f5', borderRadius: 4, textAlign: 'center' }}>
+                                                <Text type="secondary" style={{ fontSize: 11 }}>Dùng nhanh chữ ký Kế toán:</Text><br/>
+                                                <img src={cachedSignatures['accountant']} style={{ height: 40, cursor: 'pointer' }} onClick={() => handleUseCachedSignature('accountant')} />
+                                            </div>
+                                        )}
+                                    </>
                                 )}
-                                {order.status === 'APPROVED' && (
-                                    <Button block icon={<CarOutlined />} onClick={() => { setSigningRole('warehouse'); setIsSignatureModalOpen(true); }}>
-                                        Thủ kho Xuất & Ký
-                                    </Button>
+                            </div>
+
+                            {/* WAREHOUSE */}
+                            <div style={{ marginBottom: 20 }}>
+                                <Text strong>3. Thủ kho xuất</Text>
+                                {order.signatures?.find((s: StockOrderSignature) => s.role === 'warehouse') ? (
+                                    <div style={{ marginTop: 8, textAlign: 'center' }}>
+                                        <img src={order.signatures.find((s: StockOrderSignature) => s.role === 'warehouse')?.signatureDataUrl} style={{ height: 60 }} />
+                                    </div>
+                                ) : (
+                                    <>
+                                        <Button block type={order.status === 'APPROVED' ? 'primary' : 'default'} disabled={order.status !== 'APPROVED'} size="small" style={{ marginTop: 8 }} icon={<CarOutlined />} onClick={() => { setSigningRole('warehouse'); setIsSignatureModalOpen(true); }}>
+                                            Kho Xuất & Ký
+                                        </Button>
+                                        {cachedSignatures['warehouse'] && (
+                                            <div style={{ marginTop: 8, padding: 8, background: '#f5f5f5', borderRadius: 4, textAlign: 'center' }}>
+                                                <img src={cachedSignatures['warehouse']} style={{ height: 40, cursor: 'pointer' }} onClick={() => handleUseCachedSignature('warehouse')} />
+                                            </div>
+                                        )}
+                                    </>
                                 )}
-                                {order.status === 'DISPATCHED' && (
-                                    <Button block type="primary" icon={<HomeOutlined />} onClick={() => { setSigningRole('supervisor'); setIsSignatureModalOpen(true); }}>
-                                        Giám sát Nhận & Ký
-                                    </Button>
+                            </div>
+
+                            {/* SUPERVISOR */}
+                            <div style={{ marginBottom: 20 }}>
+                                <Text strong>4. Giám sát nhận</Text>
+                                {order.signatures?.find((s: StockOrderSignature) => s.role === 'supervisor') ? (
+                                    <div style={{ marginTop: 8, textAlign: 'center' }}>
+                                        <img src={order.signatures.find((s: StockOrderSignature) => s.role === 'supervisor')?.signatureDataUrl} style={{ height: 60 }} />
+                                    </div>
+                                ) : (
+                                    <>
+                                        <Button block type={order.status === 'DISPATCHED' ? 'primary' : 'default'} disabled={order.status !== 'DISPATCHED'} size="small" style={{ marginTop: 8 }} icon={<HomeOutlined />} onClick={() => { setSigningRole('supervisor'); setIsSignatureModalOpen(true); }}>
+                                            GS Nhận & Ký
+                                        </Button>
+                                        {cachedSignatures['supervisor'] && (
+                                            <div style={{ marginTop: 8, padding: 8, background: '#f5f5f5', borderRadius: 4, textAlign: 'center' }}>
+                                                <img src={cachedSignatures['supervisor']} style={{ height: 40, cursor: 'pointer' }} onClick={() => handleUseCachedSignature('supervisor')} />
+                                            </div>
+                                        )}
+                                    </>
                                 )}
-                            </Space>
+                            </div>
 
                             {order.status === 'RECEIVED' && (
                                 <Alert 
@@ -236,7 +318,7 @@ const StockOrderDetail: React.FC = () => {
                         </Card>
 
                         <Card title="Lịch sử xử lý" size="small" style={{ marginTop: 16 }}>
-                            {order.history?.map((h, i) => (
+                            {order.history?.map((h: any, i: number) => (
                                 <div key={i} style={{ fontSize: 12, marginBottom: 10 }}>
                                     <Text strong>{h.status}</Text> por <Text>{h.updatedBy}</Text>
                                     <div style={{ color: '#999' }}>{new Date(h.updatedAt).toLocaleString()}</div>

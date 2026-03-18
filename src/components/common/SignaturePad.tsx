@@ -19,12 +19,14 @@ const SignaturePad: React.FC<SignaturePadProps> = ({ onSave, title, description 
     };
 
     const handleSave = () => {
-        if (sigCanvas.current?.isEmpty()) {
-            return;
-        }
         const dataUrl = sigCanvas.current?.getTrimmedCanvas().toDataURL('image/png');
-        if (dataUrl) {
+        
+        // Basic check: dataUrl should exist and not be a tiny empty PNG
+        if (dataUrl && dataUrl.length > 500) { 
+            console.log("Signature captured, size:", dataUrl.length);
             onSave(dataUrl);
+        } else {
+            message.warning("Vui lòng ký tên trước khi xác nhận");
         }
     };
 
