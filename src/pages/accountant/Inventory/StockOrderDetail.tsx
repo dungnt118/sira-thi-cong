@@ -150,24 +150,54 @@ const StockOrderDetail: React.FC = () => {
     const handleDownloadPDF = () => {
         const element = document.getElementById('stock-order-printable');
         if (element) {
+            const fileName = `SIRA-${order.code}.pdf`;
             const opt = {
-                margin: 0, 
-                filename: `SIRA-${order.code}.pdf`,
+                margin: 10, 
+                filename: fileName,
                 image: { type: 'jpeg' as const, quality: 0.98 },
                 html2canvas: { scale: 2, useCORS: true },
                 jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
             };
-            // Using Worker API to ensure filename is forced via jsPDF directly
+            
+            const msgKey = 'pdf_gen_loading';
+            message.loading({ content: 'Đang khởi tạo bản in...', key: msgKey, duration: 0 });
+            
+            console.log('PDF: Starting export for', fileName);
+
+            // Robust cross-browser Blobs (using application/pdf explicitly)
             html2pdf()
                 .from(element)
                 .set(opt)
                 .toPdf()
-                .get('pdf')
-                .then((pdf: any) => {
-                    pdf.save(`SIRA-${order.code}.pdf`);
+                .output('blob')
+                .then((blob: Blob) => {
+                    // Create a new blob with explicit type to help Chrome
+                    const pdfBlob = new Blob([blob], { type: 'application/pdf' });
+                    const url = window.URL.createObjectURL(pdfBlob);
+                    
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = fileName; // Important for Chrome
+                    
+                    // Chrome sometimes needs the link to be in the DOM
+                    link.style.display = 'none';
+                    document.body.appendChild(link);
+                    
+                    // Explicitly click and then cleanup
+                    link.click();
+                    
+                    setTimeout(() => {
+                        window.URL.revokeObjectURL(url);
+                        document.body.removeChild(link);
+                        message.success({ content: 'Đã tải xuống thành công!', key: msgKey, duration: 2 });
+                    }, 100);
+                })
+                .catch((err: any) => {
+                    console.error('PDF: Export Error:', err);
+                    message.error({ content: 'Lỗi khi tạo PDF: ' + (err.message || 'Unknown error'), key: msgKey, duration: 4 });
                 });
         } else {
-            message.error('Không tìm thấy vùng in');
+            message.error('Không tìm thấy vùng in (element content)');
         }
     };
 
