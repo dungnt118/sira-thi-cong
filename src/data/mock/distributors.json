@@ -1,0 +1,29 @@
+[
+    {
+        "id": "DIST-001",
+        "code": "NCC-SIRA",
+        "name": "Công ty Cổ phần SIRA Việt Nam",
+        "phone": "024.1234.5678",
+        "address": "Số 1, Đường Giải Phóng, Hà Nội",
+        "email": "contact@sira.vn",
+        "categories": ["Sơn chống thấm", "Sơn lót", "Vật liệu trám"]
+    },
+    {
+        "id": "DIST-002",
+        "code": "NCC-COLORCITY",
+        "name": "Nhà phân phối Colorcity",
+        "phone": "028.8765.4321",
+        "address": "Số 10, Đường Lê Lợi, TP.HCM",
+        "email": "sales@colorcity.vn",
+        "categories": ["Sơn phủ", "Dụng cụ thi công"]
+    },
+    {
+        "id": "DIST-003",
+        "code": "NCC-SIKA",
+        "name": "Sika Việt Nam",
+        "phone": "0274.3744.059",
+        "address": "KCN Nhơn Trạch, Đồng Nai",
+        "email": "info@vn.sika.com",
+        "categories": ["Vật liệu trám", "Phụ gia bê tông"]
+    }
+]

@@ -22,9 +22,10 @@ const menuItems: MenuProps['items'] = [
     {
         key: '/accountant/inventory',
         icon: <InboxOutlined />,
-        label: 'Kho vật tư',
+        label: 'Danh mục vật tư & tài sản',
         children: [
-            { key: '/accountant/inventory/materials', label: 'Danh mục VT' },
+            { key: '/accountant/inventory/materials', label: 'Kho vật tư & tài sản' },
+            { key: '/accountant/inventory/distributors', label: 'Nhà phân phối' },
             { key: '/accountant/inventory/stock-out', label: 'Phiếu xuất kho' },
             { key: '/accountant/inventory/stock-in', label: 'Phiếu nhập kho' },
             { key: '/accountant/inventory/history', label: 'Lịch sử kho' },

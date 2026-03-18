@@ -90,6 +90,9 @@ const SupervisorProjectList = lazy(() => import('../pages/giam-sat/SupervisorPro
 import AccountantV3Layout from '../layouts/AccountantV3Layout';
 import InventoryDashboard from '../pages/accountant/Inventory/Dashboard';
 import PaymentDashboard from '../pages/accountant/Finance/PaymentDashboard';
+import InboundForm from '../pages/accountant/Inventory/InboundForm';
+import OutboundForm from '../pages/accountant/Inventory/OutboundForm';
+import DistributorList from '../pages/accountant/Inventory/DistributorList';
 
 // V4 Ky Thuat Pages
 import KyThuatLayout from '../layouts/KyThuatLayout';
@@ -256,13 +259,12 @@ function App() {
                             <Route path="/accountant" element={<AccountantV3Layout />}>
                                 <Route index element={<Navigate to="/accountant/dashboard" replace />} />
                                 <Route path="dashboard" element={<InventoryDashboard />} />
-                                <Route path="inventory">
-                                    <Route index element={<Navigate to="/accountant/inventory/materials" replace />} />
-                                    <Route path="materials" element={<InventoryDashboard />} />
-                                    <Route path="stock-out" element={<ComingSoon title="Phiếu Xuất kho" />} />
-                                    <Route path="stock-in" element={<ComingSoon title="Phiếu Nhập kho" />} />
-                                    <Route path="history" element={<ComingSoon title="Lịch sử Kho" />} />
-                                </Route>
+                                <Route path="inventory" element={<Navigate to="/accountant/inventory/materials" replace />} />
+                                <Route path="inventory/materials" element={<InventoryDashboard />} />
+                                <Route path="inventory/stock-out" element={<OutboundForm />} />
+                                <Route path="inventory/stock-in" element={<InboundForm />} />
+                                <Route path="inventory/distributors" element={<DistributorList />} />
+                                <Route path="inventory/history" element={<ComingSoon title="Lịch sử Kho" />} />
                                 <Route path="finance">
                                     <Route index element={<Navigate to="/accountant/finance/milestones" replace />} />
                                     <Route path="milestones" element={<PaymentDashboard />} />

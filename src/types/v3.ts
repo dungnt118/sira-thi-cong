@@ -244,6 +244,16 @@ export interface Project {
 // ---- INVENTORY TYPES ----
 export type MaterialUnit = 'kg' | 'lít' | 'm²' | 'thùng' | 'cuộn' | 'cái';
 
+export type MaterialType = 'CONSUMABLE' | 'FIXED_ASSET';
+
+export interface FixedAssetInfo {
+    depreciationMonths: number;
+    purchaseDate: string;
+    condition: 'NEW' | 'USED' | 'BROKEN';
+    lastMaintenanceDate?: string;
+    assignedTo?: string; // Worker or Supervisor ID/Name
+}
+
 export interface Material {
     id: string;
     code: string;           // VT-001
@@ -253,6 +263,8 @@ export interface Material {
     minStockAlert: number;
     unitCost: number;
     category: string;
+    type: MaterialType;     // NEW
+    fixedAssetInfo?: FixedAssetInfo; // NEW
 }
 
 export interface MaterialStandard {
@@ -273,6 +285,7 @@ export interface StockOrderItem {
 
 export type StockOrderType = 'OUT' | 'IN';
 export type StockOrderStatus = 'PENDING_SIGNATURE' | 'SIGNED' | 'CANCELLED';
+export type StockOrderSource = 'DISTRIBUTOR' | 'PROJECT' | 'OTHER';
 
 export interface StockOrder {
     id: string;
@@ -280,6 +293,8 @@ export interface StockOrder {
     type: StockOrderType;
     projectId?: string;
     projectName?: string;
+    source?: StockOrderSource; // NEW
+    sourceId?: string;         // Distributor ID or Project ID
     items: StockOrderItem[];
     totalValue: number;
     status: StockOrderStatus;
@@ -288,9 +303,19 @@ export interface StockOrder {
     signedBy?: string;      // Worker who signed receipt
     signedAt?: string;
     signatureDataUrl?: string;  // Base64 canvas signature
-    supplier?: string;      // For IN orders
+    supplier?: string;      // Deprecated, use sourceId/distributor
     invoiceUrl?: string;
     notes?: string;
+}
+
+export interface Distributor {
+    id: string;
+    code: string;
+    name: string;
+    phone: string;
+    address: string;
+    email?: string;
+    categories: string[]; // Categories they supply
 }
 
 // ---- PM STOCK REQUEST TYPES (PM creates → Accountant converts to PX/PN) ----
