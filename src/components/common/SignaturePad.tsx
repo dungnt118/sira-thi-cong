@@ -1,17 +1,17 @@
 import React, { useRef } from 'react';
 import SignatureCanvas from 'react-signature-canvas';
-import { Button, Space, Typography, Card } from 'antd';
+import { Button, Space, Typography, Card, message } from 'antd';
 import { ClearOutlined, CheckOutlined } from '@ant-design/icons';
 
 const { Text } = Typography;
 
-interface SignaturePadProps {
+interface SiraSignaturePadProps {
     onSave: (dataUrl: string) => void;
     title?: string;
     description?: string;
 }
 
-const SignaturePad: React.FC<SignaturePadProps> = ({ onSave, title, description }) => {
+const SiraSignaturePad: React.FC<SiraSignaturePadProps> = ({ onSave, title, description }) => {
     const sigCanvas = useRef<SignatureCanvas>(null);
 
     const clear = () => {
@@ -19,14 +19,32 @@ const SignaturePad: React.FC<SignaturePadProps> = ({ onSave, title, description 
     };
 
     const handleSave = () => {
-        const dataUrl = sigCanvas.current?.getTrimmedCanvas().toDataURL('image/png');
-        
-        // Basic check: dataUrl should exist and not be a tiny empty PNG
-        if (dataUrl && dataUrl.length > 500) { 
-            console.log("Signature captured, size:", dataUrl.length);
-            onSave(dataUrl);
-        } else {
-            message.warning("Vui lòng ký tên trước khi xác nhận");
+        try {
+            if (!sigCanvas.current) {
+                return;
+            }
+
+            if (sigCanvas.current.isEmpty()) {
+                message.warning("Vui lòng ký tên trước khi xác nhận");
+                return;
+            }
+
+            const canvas = sigCanvas.current.getCanvas();
+            if (!canvas) {
+                message.error("Lỗi: Không thể trích xuất khung ký");
+                return;
+            }
+
+            const dataUrl = canvas.toDataURL('image/png');
+
+            if (dataUrl && dataUrl.length > 500) { 
+                onSave(dataUrl);
+            } else {
+                message.warning("Vui lòng ký tên lại");
+            }
+        } catch (error) {
+            console.error("SignaturePad Error:", error);
+            message.error("Lỗi hệ thống khi lưu chữ ký");
         }
     };
 
@@ -61,4 +79,4 @@ const SignaturePad: React.FC<SignaturePadProps> = ({ onSave, title, description 
     );
 };
 
-export default SignaturePad;
+export default SiraSignaturePad;

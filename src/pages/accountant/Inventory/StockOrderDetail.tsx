@@ -14,7 +14,7 @@ import useLocalStorageData from '@hooks/useLocalStorageData';
 import { 
     StockOrder, StockOrderStatus, StockOrderSignature, UserRole 
 } from '@/types/v3';
-import SignaturePad from '@components/common/SignaturePad';
+import SiraSignaturePad from '@components/common/SignaturePad';
 
 const { Title, Text } = Typography;
 
@@ -66,14 +66,10 @@ const StockOrderDetail: React.FC = () => {
     };
 
     const handleSign = (dataUrl: string) => {
-        // We use a temporary variable for the current role instead of relying on state if it might be cleared too fast
         const roleToSign = signingRole;
         if (!roleToSign) {
-            console.warn("handleSign called but no signingRole set.");
             return;
         }
-
-        console.log(`Signing as ${roleToSign}...`);
 
         // Cache the signature for reuse
         setCachedSignatures({
@@ -337,7 +333,7 @@ const StockOrderDetail: React.FC = () => {
                 footer={null}
                 width={450}
             >
-                <SignaturePad 
+                <SiraSignaturePad 
                     onSave={handleSign} 
                     title={`Chữ ký của ${signingRole === 'accountant' ? 'Kế toán' : signingRole === 'warehouse' ? 'Thủ kho' : 'Giám sát'}`}
                     description="Vui lòng ký vào khung bên dưới và bấm Xác nhận" 
