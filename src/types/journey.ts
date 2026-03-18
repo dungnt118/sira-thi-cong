@@ -142,6 +142,46 @@ export interface SurveyRecord {
     contact_phone?: string;
 }
 
+export interface IncidentReport {
+    id: string;
+    journeyId: string;
+    type: 'MATERIAL_SHORTAGE' | 'TECHNICAL' | 'WEATHER' | 'EQUIPMENT' | 'SAFETY' | 'OTHER';
+    description: string;
+    severity: 'NORMAL' | 'URGENT';
+    images: string[];
+    reportedAt: string;
+    reportedBy: string;
+    pmReply?: string;
+    isResolved: boolean;
+    resolvedAt?: string;
+}
+
+export type StepStatus = 'LOCKED' | 'OPEN' | 'IN_PROGRESS' | 'AWAITING_REVIEW' | 'APPROVED' | 'REJECTED';
+
+export interface StepEvidence {
+    id: string;
+    url: string;
+    thumbnailUrl?: string;
+    uploadedAt: string;
+    uploadedBy: string;
+    status: 'PENDING' | 'APPROVED' | 'REJECTED';
+    pmFeedback?: string;
+}
+
+export interface JourneyChecklistStep {
+    id: string;
+    templateStepId: string;
+    order: number;
+    name: string;
+    description: string;
+    minPhotos: number;
+    status: StepStatus;
+    completedAt?: string;
+    completedBy?: string;
+    evidences: StepEvidence[];
+    notes?: string;
+}
+
 // --- Journey (main aggregate) ---
 export interface Journey {
     // FG-01 Header
@@ -246,12 +286,15 @@ export interface Journey {
     // Tab 9 - Activity log
     activities: JourneyActivity[];
 
-    // Tab 10 - Incidents
     incident_count?: number;
     open_incident_count?: number;
     latest_incident_type?: string;
     latest_incident_status?: string;
     change_request_count?: number;
+
+    // Tab 10.5 - Field Execution Data (mock purposes)
+    work_steps?: JourneyChecklistStep[];
+    incidents?: IncidentReport[];
 
     // Tab 11 - Documents
     document_count?: number;

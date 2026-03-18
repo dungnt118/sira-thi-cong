@@ -3,7 +3,6 @@ import type {
     Material, MaterialStandard, StockOrder,
     PaymentMilestone, WarrantyCard, WarrantyReminder, User, StockRequest, Pipeline, ServiceRequest
 } from '../types/v3';
-import type { Project } from '../types/legacy-project';
 
 // ============================================================
 // MOCK USERS
@@ -307,225 +306,7 @@ export const mockServiceRequests: ServiceRequest[] = [
 // ============================================================
 // PROJECTS
 // ============================================================
-export const mockProjects: Project[] = [
-    {
-        id: 'DA-001',
-        code: 'DA-2026-001',
-        name: 'Chống thấm sàn căn hộ tầng 3 – Nguyễn Văn A',
-        customerId: 'KH-001',
-        customerName: 'Nguyễn Văn A',
-        address: '123 Đường Nguyễn Trãi, Quận 1, TP.HCM',
-        gpsLat: 10.7769,
-        gpsLng: 106.7009,
-        areaM2: 100,
-        category: 'Chống thấm sàn',
-        type: 'Outsource',
-        budget: 120000000,
-        qualityScore: 82,
-        templateId: 'TPL-001',
-        status: 'IN_PROGRESS',
-        pmId: 'U001',
-        pmName: 'Nguyễn Văn PM',
-        workerIds: ['U002'],
-        workerNames: ['Thợ Trần Văn C'],
-        startDate: '2026-03-05',
-        plannedEndDate: '2026-03-22',
-        createdAt: '2026-03-04',
-        notes: 'KH yêu cầu thi công cuối tuần',
-        portalToken: 'abc123token',
-        portalExpiry: '2026-06-03',
-        paymentMilestones: [
-            { id: 'PM-001-1', journeyId: 'j-001', journeyCode: 'HT-2026-001', projectId: 'DA-001', projectName: 'Chống thấm sàn căn hộ – Nguyễn Văn A', quotationId: 'BG-001', round: 1, percentage: 50, amount: 10000000, dueDate: '2026-03-05', status: 'PAID', paidAt: '2026-03-05', paidBy: 'Kế toán Phạm Thị A' },
-            { id: 'PM-001-2', journeyId: 'j-001', journeyCode: 'HT-2026-001', projectId: 'DA-001', projectName: 'Chống thấm sàn căn hộ – Nguyễn Văn A', quotationId: 'BG-001', round: 2, percentage: 40, amount: 8000000, dueDate: '2026-03-22', status: 'PENDING' },
-            { id: 'PM-001-3', journeyId: 'j-001', journeyCode: 'HT-2026-001', projectId: 'DA-001', projectName: 'Chống thấm sàn căn hộ – Nguyễn Văn A', quotationId: 'BG-001', round: 3, percentage: 10, amount: 2000000, dueDate: '2026-03-29', status: 'PENDING' },
-        ],
-        stockOrders: [
-            {
-                id: 'PX-001',
-                code: 'PX-2026-001',
-                type: 'OUT',
-                projectId: 'DA-001',
-                projectName: 'DA-2026-001',
-                items: [
-                    { materialId: 'MAT-001', materialName: 'SIRA PU (lót)', unit: 'kg', quantity: 150, unitCost: 45000 },
-                    { materialId: 'MAT-002', materialName: 'SIRA PU (phủ)', unit: 'kg', quantity: 200, unitCost: 48000 },
-                    { materialId: 'MAT-003', materialName: 'Primer', unit: 'lít', quantity: 50, unitCost: 35000 },
-                ],
-                totalValue: 18350000,
-                status: 'COMPLETED',
-                createdBy: 'Kế toán Phạm Thị A',
-                createdAt: '2026-03-04',
-                signedBy: 'Thợ Trần Văn C',
-                signedAt: '2026-03-05T08:30:00',
-            },
-        ],
-        incidents: [
-            {
-                id: 'INC-001',
-                projectId: 'DA-001',
-                type: 'MATERIAL_SHORTAGE',
-                description: 'SIRA PU phủ gần hết, chỉ còn khoảng 5kg, không đủ cho lớp phủ lần 2',
-                severity: 'URGENT',
-                images: ['https://placehold.co/300x200/fa8c16/white?text=Incident+Photo'],
-                reportedAt: '2026-03-14T10:50:00',
-                reportedBy: 'Thợ Trần Văn C',
-                pmReply: 'Đã liên hệ kế toán bổ sung, chiều nay giao',
-                isResolved: true,
-                resolvedAt: '2026-03-14T15:00:00',
-            },
-        ],
-        activities: [
-            { id: 'AL01', journeyId: 'j-001', category: 'CONSTRUCT', actor: 'Thợ Trần Văn C', action: 'STEP_COMPLETE', summary: 'Hoàn thành Bước 11: Quét SIRA PU lớp lót lần 2', timestamp: '2026-03-13T16:30:00' },
-            { id: 'AL02', journeyId: 'j-001', category: 'CONSTRUCT', actor: 'Nguyễn Văn PM', action: 'EVIDENCE_APPROVE', summary: 'Duyệt 3 ảnh bước 11', timestamp: '2026-03-13T17:00:00' },
-            { id: 'AL03', journeyId: 'j-001', category: 'INCIDENT',  actor: 'Thợ Trần Văn C', action: 'INCIDENT_REPORT', summary: 'Báo cáo sự cố: Thiếu vật tư SIRA PU phủ', timestamp: '2026-03-14T10:50:00' },
-            { id: 'AL04', journeyId: 'j-001', category: 'INCIDENT',  actor: 'Nguyễn Văn PM', action: 'INCIDENT_RESOLVE', summary: 'Đã xử lý sự cố thiếu vật tư', timestamp: '2026-03-14T15:00:00' },
-        ],
-        steps: [
-            { id: 'SP01', templateStepId: 's01', order: 1, name: 'Kiểm tra bề mặt & lên kế hoạch', description: 'Đánh giá tình trạng bề mặt, đo độ ẩm', minPhotos: 2, status: 'APPROVED', completedAt: '2026-03-05T09:00:00', completedBy: 'Thợ Trần Văn C', evidences: [{ id: 'ev01', url: 'https://placehold.co/400x300/52c41a/white?text=Step+1+Photo+1', uploadedAt: '2026-03-05T08:50:00', uploadedBy: 'Thợ Trần Văn C', status: 'APPROVED' }, { id: 'ev02', url: 'https://placehold.co/400x300/52c41a/white?text=Step+1+Photo+2', uploadedAt: '2026-03-05T08:55:00', uploadedBy: 'Thợ Trần Văn C', status: 'APPROVED' }] },
-            { id: 'SP02', templateStepId: 's02', order: 2, name: 'Bảo vệ khu vực xung quanh', description: 'Che chắn nội thất', minPhotos: 1, status: 'APPROVED', completedAt: '2026-03-05T10:00:00', completedBy: 'Thợ Trần Văn C', evidences: [{ id: 'ev03', url: 'https://placehold.co/400x300/52c41a/white?text=Step+2+Photo', uploadedAt: '2026-03-05T09:50:00', uploadedBy: 'Thợ Trần Văn C', status: 'APPROVED' }] },
-            { id: 'SP03', templateStepId: 's03', order: 3, name: 'Mài sàn lần 1', description: 'Mài toàn bộ bề mặt', minPhotos: 2, status: 'APPROVED', completedAt: '2026-03-06T14:00:00', completedBy: 'Thợ Trần Văn C', evidences: [{ id: 'ev04', url: 'https://placehold.co/400x300/52c41a/white?text=Step+3+Photo', uploadedAt: '2026-03-06T13:00:00', uploadedBy: 'Thợ Trần Văn C', status: 'APPROVED' }, { id: 'ev05', url: 'https://placehold.co/400x300/52c41a/white?text=Step+3+Photo+2', uploadedAt: '2026-03-06T13:30:00', uploadedBy: 'Thợ Trần Văn C', status: 'APPROVED' }] },
-            { id: 'SP04', templateStepId: 's04', order: 4, name: 'Vệ sinh bụi sau mài', description: 'Hút bụi + lau ẩm', minPhotos: 1, status: 'APPROVED', completedAt: '2026-03-06T16:00:00', completedBy: 'Thợ Trần Văn C', evidences: [{ id: 'ev06', url: 'https://placehold.co/400x300/52c41a/white?text=Step+4', uploadedAt: '2026-03-06T15:50:00', uploadedBy: 'Thợ Trần Văn C', status: 'APPROVED' }] },
-            { id: 'SP05', templateStepId: 's05', order: 5, name: 'Mài sàn lần 2', description: 'Mài lại điểm chưa đều', minPhotos: 1, status: 'APPROVED', completedAt: '2026-03-07T11:00:00', completedBy: 'Thợ Trần Văn C', evidences: [{ id: 'ev07', url: 'https://placehold.co/400x300/52c41a/white?text=Step+5', uploadedAt: '2026-03-07T10:45:00', uploadedBy: 'Thợ Trần Văn C', status: 'APPROVED' }] },
-            { id: 'SP06', templateStepId: 's06', order: 6, name: 'Kiểm tra độ ẩm trước thi công', description: 'Đo độ ẩm < 8%', minPhotos: 2, status: 'APPROVED', completedAt: '2026-03-07T14:00:00', completedBy: 'Thợ Trần Văn C', evidences: [{ id: 'ev08', url: 'https://placehold.co/400x300/52c41a/white?text=Step+6+A', uploadedAt: '2026-03-07T13:50:00', uploadedBy: 'Thợ Trần Văn C', status: 'APPROVED' }, { id: 'ev09', url: 'https://placehold.co/400x300/52c41a/white?text=Step+6+B', uploadedAt: '2026-03-07T13:55:00', uploadedBy: 'Thợ Trần Văn C', status: 'APPROVED' }] },
-            { id: 'SP07', templateStepId: 's07', order: 7, name: 'Quét Primer lần 1', description: 'Quét primer', minPhotos: 2, status: 'APPROVED', completedAt: '2026-03-08T10:00:00', completedBy: 'Thợ Trần Văn C', evidences: [{ id: 'ev10', url: 'https://placehold.co/400x300/52c41a/white?text=Step+7', uploadedAt: '2026-03-08T09:50:00', uploadedBy: 'Thợ Trần Văn C', status: 'APPROVED' }, { id: 'ev11', url: 'https://placehold.co/400x300/52c41a/white?text=Step+7+B', uploadedAt: '2026-03-08T09:55:00', uploadedBy: 'Thợ Trần Văn C', status: 'APPROVED' }] },
-            { id: 'SP08', templateStepId: 's08', order: 8, name: 'Chờ Primer khô', description: 'Đợi 2-4h', minPhotos: 1, status: 'APPROVED', completedAt: '2026-03-08T15:00:00', completedBy: 'Thợ Trần Văn C', evidences: [{ id: 'ev12', url: 'https://placehold.co/400x300/52c41a/white?text=Step+8', uploadedAt: '2026-03-08T14:50:00', uploadedBy: 'Thợ Trần Văn C', status: 'APPROVED' }] },
-            { id: 'SP09', templateStepId: 's09', order: 9, name: 'Quét SIRA PU lớp lót lần 1', description: 'Quét đều tay', minPhotos: 3, status: 'APPROVED', completedAt: '2026-03-10T10:00:00', completedBy: 'Thợ Trần Văn C', evidences: [{ id: 'ev13', url: 'https://placehold.co/400x300/52c41a/white?text=Step+9+A', uploadedAt: '2026-03-10T09:30:00', uploadedBy: 'Thợ Trần Văn C', status: 'APPROVED' }, { id: 'ev14', url: 'https://placehold.co/400x300/52c41a/white?text=Step+9+B', uploadedAt: '2026-03-10T09:40:00', uploadedBy: 'Thợ Trần Văn C', status: 'APPROVED' }, { id: 'ev15', url: 'https://placehold.co/400x300/52c41a/white?text=Step+9+C', uploadedAt: '2026-03-10T09:50:00', uploadedBy: 'Thợ Trần Văn C', status: 'APPROVED' }] },
-            { id: 'SP10', templateStepId: 's10', order: 10, name: 'Chờ khô – Kiểm tra bề mặt', description: 'Đợi 4-6h, kiểm tra bong bóng', minPhotos: 2, status: 'APPROVED', completedAt: '2026-03-11T09:00:00', completedBy: 'Thợ Trần Văn C', evidences: [{ id: 'ev16', url: 'https://placehold.co/400x300/52c41a/white?text=Step+10+A', uploadedAt: '2026-03-11T08:50:00', uploadedBy: 'Thợ Trần Văn C', status: 'APPROVED' }, { id: 'ev17', url: 'https://placehold.co/400x300/52c41a/white?text=Step+10+B', uploadedAt: '2026-03-11T08:55:00', uploadedBy: 'Thợ Trần Văn C', status: 'APPROVED' }] },
-            { id: 'SP11', templateStepId: 's11', order: 11, name: 'Quét SIRA PU lớp lót lần 2', description: 'Lớp lót thứ 2', minPhotos: 2, status: 'APPROVED', completedAt: '2026-03-13T16:30:00', completedBy: 'Thợ Trần Văn C', evidences: [{ id: 'ev18', url: 'https://placehold.co/400x300/1890ff/white?text=Step+11+A', uploadedAt: '2026-03-13T16:00:00', uploadedBy: 'Thợ Trần Văn C', status: 'APPROVED' }, { id: 'ev19', url: 'https://placehold.co/400x300/1890ff/white?text=Step+11+B', uploadedAt: '2026-03-13T16:15:00', uploadedBy: 'Thợ Trần Văn C', status: 'APPROVED' }] },
-            { id: 'SP12', templateStepId: 's12', order: 12, name: 'Chờ khô lần 2', description: 'Đợi 6-8h', minPhotos: 1, status: 'IN_PROGRESS', evidences: [] },
-            { id: 'SP13', templateStepId: 's13', order: 13, name: 'Quét SIRA PU lớp phủ lần 1', description: 'Lớp phủ màu cuối', minPhotos: 3, status: 'LOCKED', evidences: [] },
-            { id: 'SP14', templateStepId: 's14', order: 14, name: 'Chờ khô – Kiểm tra bề mặt', description: 'Kiểm tra màu sắc', minPhotos: 2, status: 'LOCKED', evidences: [] },
-            { id: 'SP15', templateStepId: 's15', order: 15, name: 'Quét SIRA PU lớp phủ lần 2', description: 'Hoàn thiện lớp phủ', minPhotos: 2, status: 'LOCKED', evidences: [] },
-            { id: 'SP16', templateStepId: 's16', order: 16, name: 'Kiểm tra tổng thể – Test nước', description: 'Đổ nước kiểm tra', minPhotos: 3, status: 'LOCKED', evidences: [] },
-            { id: 'SP17', templateStepId: 's17', order: 17, name: 'Hoàn thiện & vệ sinh công trình', description: 'Thu dọn vệ sinh', minPhotos: 2, status: 'LOCKED', evidences: [] },
-            { id: 'SP18', templateStepId: 's18', order: 18, name: 'Nghiệm thu – Chụp ảnh AFTER', description: 'Nghiệm thu với KH', minPhotos: 4, status: 'LOCKED', evidences: [] },
-        ],
-    },
-    {
-        id: 'DA-002',
-        code: 'DA-2026-002',
-        name: 'Chống thấm tường ngoài – Trần Thị B',
-        customerId: 'KH-002',
-        customerName: 'Trần Thị B',
-        address: '456 Lê Văn Lương, Quận 7, TP.HCM',
-        areaM2: 80,
-        category: 'Chống thấm tường',
-        type: 'Nội bộ',
-        budget: 45000000,
-        qualityScore: 90,
-        templateId: 'TPL-002',
-        status: 'SCHEDULED',
-        pmId: 'U001',
-        pmName: 'Nguyễn Văn PM',
-        workerIds: ['U003'],
-        workerNames: ['Thợ Lê Văn D'],
-        startDate: '2026-03-20',
-        plannedEndDate: '2026-03-28',
-        createdAt: '2026-03-10',
-        paymentMilestones: [
-            { id: 'PM-002-1', journeyId: 'j-002', journeyCode: 'HT-2026-002', projectId: 'DA-002', projectName: 'Chống thấm tường – Trần Thị B', round: 1, percentage: 50, amount: 7500000, dueDate: '2026-03-20', status: 'PENDING' },
-            { id: 'PM-002-2', journeyId: 'j-002', journeyCode: 'HT-2026-002', projectId: 'DA-002', projectName: 'Chống thấm tường – Trần Thị B', round: 2, percentage: 40, amount: 6000000, dueDate: '2026-03-28', status: 'PENDING' },
-            { id: 'PM-002-3', journeyId: 'j-002', journeyCode: 'HT-2026-002', projectId: 'DA-002', projectName: 'Chống thấm tường – Trần Thị B', round: 3, percentage: 10, amount: 1500000, dueDate: '2026-04-05', status: 'PENDING' },
-        ],
-        stockOrders: [],
-        incidents: [],
-        activities: [
-            { id: 'AL10', journeyId: 'j-002', category: 'GENERAL', actor: 'Nguyễn Văn PM', action: 'PROJECT_CREATE', summary: 'Tạo dự án, giao Thợ Lê Văn D', timestamp: '2026-03-10T09:00:00' },
-        ],
-        steps: [
-            { id: 'TP01', templateStepId: 't01', order: 1, name: 'Kiểm tra bề mặt tường', description: 'Đánh giá vết nứt', minPhotos: 2, status: 'LOCKED', evidences: [] },
-            { id: 'TP02', templateStepId: 't02', order: 2, name: 'Đục tẩy vết nứt', description: 'Làm sạch vết nứt', minPhotos: 2, status: 'LOCKED', evidences: [] },
-            { id: 'TP03', templateStepId: 't03', order: 3, name: 'Trám khe nứt', description: 'Sika Latex', minPhotos: 1, status: 'LOCKED', evidences: [] },
-            { id: 'TP04', templateStepId: 't04', order: 4, name: 'Chờ trám khô', description: 'Min 24h', minPhotos: 1, status: 'LOCKED', evidences: [] },
-            { id: 'TP05', templateStepId: 't05', order: 5, name: 'Quét SIRA PU lớp lót tường', description: 'Từ trên xuống', minPhotos: 2, status: 'LOCKED', evidences: [] },
-            { id: 'TP06', templateStepId: 't06', order: 6, name: 'Chờ lót khô', description: '4-6h', minPhotos: 1, status: 'LOCKED', evidences: [] },
-            { id: 'TP07', templateStepId: 't07', order: 7, name: 'Quét SIRA PU lớp phủ tường', description: 'Lớp phủ hoàn thiện', minPhotos: 2, status: 'LOCKED', evidences: [] },
-            { id: 'TP08', templateStepId: 't08', order: 8, name: 'Nghiệm thu', description: 'Chụp ảnh after', minPhotos: 3, status: 'LOCKED', evidences: [] },
-        ],
-    },
-    {
-        id: 'DA-003',
-        code: 'DA-2026-003',
-        name: 'Chống thấm Văn phòng DEF',
-        customerId: 'KH-003',
-        customerName: 'Công ty TNHH ABC',
-        address: '789 Đinh Tiên Hoàng, Quận Bình Thạnh, TP.HCM',
-        areaM2: 250,
-        category: 'Chống thấm sàn',
-        type: 'Outsource',
-        budget: 250000000,
-        qualityScore: 65,
-        templateId: 'TPL-001',
-        status: 'IN_PROGRESS',
-        pmId: 'U001',
-        pmName: 'Nguyễn Văn PM',
-        workerIds: ['U003'],
-        workerNames: ['Thợ Lê Văn D'],
-        startDate: '2025-12-01',
-        plannedEndDate: '2026-02-01',
-        createdAt: '2025-11-20',
-        paymentMilestones: [],
-        stockOrders: [],
-        incidents: [],
-        activities: [],
-        steps: [],
-    },
-    {
-        id: 'DA-004',
-        code: 'DA-2026-004',
-        name: 'Sửa chữa Biệt thự Thảo Điền',
-        customerId: 'KH-004',
-        customerName: 'Lê Hoàng D',
-        address: '101 Hùng Vương, Quận 5, TP.HCM',
-        areaM2: 150,
-        category: 'Chống thấm sàn',
-        type: 'Nội bộ',
-        budget: 80000000,
-        qualityScore: 0,
-        templateId: 'TPL-001',
-        status: 'CANCELLED',
-        pmId: 'U001',
-        pmName: 'Nguyễn Văn PM',
-        workerIds: [],
-        workerNames: [],
-        startDate: '',
-        plannedEndDate: '',
-        createdAt: '2026-03-01',
-        paymentMilestones: [],
-        stockOrders: [],
-        incidents: [],
-        activities: [],
-        steps: [],
-    },
-    {
-        id: 'DA-005',
-        code: 'DA-2026-005',
-        name: 'Hoàn thiện Nhà phố Q1',
-        customerId: 'KH-001',
-        customerName: 'Nguyễn Văn A',
-        address: '78 Hai Bà Trưng, Quận 1, TP.HCM',
-        areaM2: 60,
-        category: 'Chống thấm sàn',
-        type: 'Nội bộ',
-        budget: 60000000,
-        qualityScore: 92,
-        templateId: 'TPL-001',
-        status: 'COMPLETED',
-        pmId: 'U001',
-        pmName: 'Nguyễn Văn PM',
-        workerIds: ['U002'],
-        workerNames: ['Thợ Trần Văn C'],
-        startDate: '2025-11-01',
-        plannedEndDate: '2026-01-20',
-        actualEndDate: '2026-01-20',
-        createdAt: '2025-10-25',
-        paymentMilestones: [],
-        stockOrders: [],
-        incidents: [],
-        activities: [],
-        steps: [],
-    },
-];
+// legacy mockProjects deleted
 
 // ============================================================
 // MATERIALS
@@ -581,7 +362,7 @@ export const mockStockOrders: StockOrder[] = [
 // PAYMENT MILESTONES (flat list for accountant view)
 // ============================================================
 export const mockMilestones: PaymentMilestone[] = [
-    ...mockProjects.flatMap(p => p.paymentMilestones),
+    // Removed mockProjects reference
 ];
 
 // ============================================================
@@ -611,14 +392,9 @@ export const mockWarrantyReminders: WarrantyReminder[] = [
 // ============================================================
 // HELPERS
 // ============================================================
-export const getProjectById = (id: string) => mockProjects.find(p => p.id === id);
+export const getProjectById = (_id: string) => { /* mockProjects removed */ return undefined; }; // Placeholder for removed mockProjects
 export const getCustomerById = (id: string) => mockCustomers.find(c => c.id === id);
 export const getMaterialById = (id: string) => mockMaterials.find(m => m.id === id);
-
-export const getProjectProgress = (project: Project): number => {
-    const completed = project.steps.filter(s => s.status === 'APPROVED').length;
-    return Math.round((completed / project.steps.length) * 100);
-};
 
 export const getLowStockMaterials = () => mockMaterials.filter(m => m.currentStock <= m.minStockAlert);
 

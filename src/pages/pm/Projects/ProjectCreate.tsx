@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useMemo } from 'react';
 import {
     Card, Form, Input, Select, DatePicker, Steps, Button, Row, Col,

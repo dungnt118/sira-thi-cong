@@ -97,6 +97,28 @@ export const mockJourneys: Journey[] = [
         latest_thread_status: 'open',
         portal_token: 'token-j001-portal',
         template_id: 'tmpl-001',
+        work_steps: [
+            {
+                id: 'ws-01', templateStepId: 'ts-01', order: 1, name: 'Chuẩn bị bề mặt',
+                description: 'Vệ sinh sạch sẽ bề mặt, tẩy nấm mốc', minPhotos: 2,
+                status: 'APPROVED', completedAt: '2026-03-05T09:00:00', completedBy: 'Lê Văn Giám sát',
+                evidences: [
+                    { id: 'ev-1', url: 'https://picsum.photos/400/300?random=1', uploadedAt: '2026-03-05T08:30:00', uploadedBy: 'Lê Văn Giám sát', status: 'APPROVED' },
+                    { id: 'ev-2', url: 'https://picsum.photos/400/300?random=2', uploadedAt: '2026-03-05T08:35:00', uploadedBy: 'Lê Văn Giám sát', status: 'APPROVED' }
+                ]
+            },
+            {
+                id: 'ws-02', templateStepId: 'ts-02', order: 2, name: 'Quét lót',
+                description: 'Quét 1 lớp lót SIRA PU', minPhotos: 2,
+                status: 'IN_PROGRESS', evidences: []
+            },
+            {
+                id: 'ws-03', templateStepId: 'ts-03', order: 3, name: 'Nghiệm thu nội bộ',
+                description: 'Giám sát kiểm tra trước khi bàn giao', minPhotos: 1,
+                status: 'LOCKED', evidences: []
+            }
+        ],
+        incidents: [],
         activities: [
             { id: 'act-j001-1', journey_id: 'j-001', activity_actor: 'Nguyễn Văn PM', activity_action: 'Tạo hành trình', activity_context: 'Khởi tạo', activity_time: '2026-02-10T09:00:00', activity_summary: 'Hành trình được tạo từ yêu cầu YC-2026-001' },
             { id: 'act-j001-2', journey_id: 'j-001', activity_actor: 'Trần Thị Sale', activity_action: 'Liên hệ khách hàng', activity_context: 'Tư vấn', activity_time: '2026-02-11T10:30:00', activity_summary: 'Đã gọi điện tư vấn sơ bộ, khách đồng ý khảo sát' },

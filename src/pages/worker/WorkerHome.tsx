@@ -8,21 +8,24 @@ import {
     EnvironmentOutlined, PushpinOutlined, CalendarOutlined, BookOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { mockProjects, getProjectProgress } from '../../data/mockData';
-import type { ProjectStep, IncidentReport } from '../../types/legacy-project';
+import { mockJourneys as defaultJourneys } from '../../data/journeyMockData';
+import type { Journey } from '../../types/journey';
+import { useLocalStorageData } from '../../hooks/useLocalStorageData';
+import { demoDataService } from '../../services/localstorage/demoDataService';
 
 const { Title, Text } = Typography;
 
-const MY_SUPERVISOR_ID = 'U002'; // Current supervisor mock (GS Trần Văn Tuấn)
-
+const MY_SUPERVISOR_NAME = 'Lê Văn Giám sát'; // Current supervisor mock
 
 const WorkerHome: React.FC = () => {
     const navigate = useNavigate();
 
-    const myProjects = mockProjects.filter(p => p.workerIds.includes(MY_SUPERVISOR_ID));
-    const inProgress = myProjects.filter(p => p.status === 'IN_PROGRESS');
-    const scheduled = myProjects.filter(p => p.status === 'SCHEDULED');
-    const completed = myProjects.filter(p => p.status === 'COMPLETED');
+    const [mockJourneys] = useLocalStorageData<Journey[]>(demoDataService.KEYS.JOURNEYS, defaultJourneys);
+
+    const myProjects = mockJourneys.filter(p => p.supervisor_name === MY_SUPERVISOR_NAME);
+    const inProgress = myProjects.filter(p => p.project_status === 'active');
+    const scheduled = myProjects.filter(p => p.project_status === 'not_started');
+    const completed = myProjects.filter(p => p.project_status === 'completed');
 
     return (
         <div>
@@ -30,7 +33,7 @@ const WorkerHome: React.FC = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
                 <Avatar size={48} style={{ background: '#1976D2' }} icon={<UserOutlined />} />
                 <div>
-                    <Title level={4} style={{ margin: 0 }}>Xin chào, GS Trần Văn Tuấn! <SmileOutlined style={{ color: '#faad14' }} /></Title>
+                    <Title level={4} style={{ margin: 0 }}>Xin chào, {MY_SUPERVISOR_NAME}! <SmileOutlined style={{ color: '#faad14' }} /></Title>
                     <Text type="secondary">Thứ 3, {new Date().toLocaleDateString('vi-VN')}</Text>
                 </div>
             </div>
@@ -58,9 +61,9 @@ const WorkerHome: React.FC = () => {
                         <BuildOutlined /> Đang thi công
                     </Text>
                     {inProgress.map(p => {
-                        const pct = getProjectProgress(p);
-                        const currentStep = p.steps.find((s: ProjectStep) => s.status === 'IN_PROGRESS' || s.status === 'OPEN');
-                        const pendingIncidents = p.incidents.filter((i: IncidentReport) => !i.isResolved).length;
+                        const pct = p.progress_pct || 0;
+                        const currentStepName = p.current_step || 'Đang thực hiện';
+                        const pendingIncidents = p.blocked_task_count || 0;
 
                         return (
                             <Card
@@ -72,15 +75,15 @@ const WorkerHome: React.FC = () => {
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                     <div style={{ flex: 1 }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                            <Text strong style={{ fontSize: 14 }}>{p.code}</Text>
+                                            <Text strong style={{ fontSize: 14 }}>{p.journey_code}</Text>
                                             <Tag color="processing" style={{ fontSize: 10 }}>Đang TC</Tag>
                                             {pendingIncidents > 0 && (
                                                 <Badge count={pendingIncidents} style={{ background: '#ff4d4f' }} />
                                             )}
                                         </div>
-                                        <Text type="secondary" style={{ fontSize: 12 }}>{p.name}</Text>
+                                        <Text type="secondary" style={{ fontSize: 12 }}>{p.request_title}</Text>
                                         <div style={{ fontSize: 12, color: '#666', marginTop: 4 }}>
-                                            <EnvironmentOutlined /> {p.address.split(',').slice(0, 2).join(', ')}
+                                            <EnvironmentOutlined /> {p.site_address?.split(',').slice(0, 2).join(', ')}
                                         </div>
                                     </div>
                                     <RightOutlined style={{ color: '#bbb', marginTop: 4 }} />
@@ -92,19 +95,14 @@ const WorkerHome: React.FC = () => {
                                         <span style={{ fontWeight: 600 }}>{pct}%</span>
                                     </div>
                                     <Progress percent={pct} status="active" showInfo={false} strokeColor="#fa8c16" />
-                                    <div style={{ fontSize: 11, color: '#999', marginTop: 4 }}>
-                                        {p.steps.filter((s: ProjectStep) => s.status === 'APPROVED').length}/{p.steps.length} bước hoàn thành
-                                    </div>
                                 </div>
 
-                                {currentStep && (
-                                    <div style={{ marginTop: 12, padding: '8px 12px', background: '#fff7e6', borderRadius: 8, border: '1px solid #ffd591' }}>
-                                        <div style={{ fontSize: 12, fontWeight: 600, color: '#fa8c16' }}>
-                                            <PushpinOutlined /> Bước hiện tại ({currentStep.order}/{p.steps.length})
-                                        </div>
-                                        <div style={{ fontSize: 12, color: '#666' }}>{currentStep.name}</div>
+                                <div style={{ marginTop: 12, padding: '8px 12px', background: '#fff7e6', borderRadius: 8, border: '1px solid #ffd591' }}>
+                                    <div style={{ fontSize: 12, fontWeight: 600, color: '#fa8c16' }}>
+                                        <PushpinOutlined /> Bước hiện tại
                                     </div>
-                                )}
+                                    <div style={{ fontSize: 12, color: '#666' }}>{currentStepName}</div>
+                                </div>
 
                                 <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
                                     <Button 
@@ -145,14 +143,14 @@ const WorkerHome: React.FC = () => {
                         >
                             <Row justify="space-between" align="middle">
                                 <Col flex="auto">
-                                    <Text strong style={{ fontSize: 13 }}>{p.code}</Text>
+                                    <Text strong style={{ fontSize: 13 }}>{p.journey_code}</Text>
                                     <Text type="secondary" style={{ fontSize: 12, display: 'block' }}>
-                                        {p.type} – {p.areaM2}m²
+                                        {p.requested_service}
                                     </Text>
                                 </Col>
                                 <Col>
                                     <Tag color="blue" style={{ fontSize: 11 }}>
-                                        <ClockCircleOutlined /> {p.startDate}
+                                        <ClockCircleOutlined /> {p.plan_start}
                                     </Tag>
                                 </Col>
                                 <Col><RightOutlined style={{ color: '#bbb' }} /></Col>

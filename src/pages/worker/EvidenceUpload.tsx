@@ -9,8 +9,10 @@ import {
     CloudUploadOutlined, ClockCircleOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
-import { mockProjects } from '../../data/mockData';
-import type { ProjectStep } from '../../types/legacy-project';
+import { mockJourneys as defaultJourneys } from '../../data/journeyMockData';
+import type { Journey, JourneyChecklistStep } from '../../types/journey';
+import { useLocalStorageData } from '../../hooks/useLocalStorageData';
+import { demoDataService } from '../../services/localstorage/demoDataService';
 
 const { Text, Title } = Typography;
 const { TextArea } = Input;
@@ -27,8 +29,10 @@ interface UploadedFile {
 const EvidenceUpload: React.FC = () => {
     const navigate = useNavigate();
     const { projectId, stepId } = useParams<{ projectId: string; stepId: string }>();
-    const project = mockProjects.find(p => p.id === projectId);
-    const step = project?.steps.find((s: ProjectStep) => s.id === stepId);
+    const [journeys] = useLocalStorageData<Journey[]>(demoDataService.KEYS.JOURNEYS, defaultJourneys);
+    const journey = journeys.find(p => p.id === projectId);
+    const workSteps = journey?.work_steps || [];
+    const step = workSteps.find((s: JourneyChecklistStep) => s.id === stepId);
 
     const [files, setFiles] = useState<UploadedFile[]>([]);
     const [notes, setNotes] = useState('');
@@ -72,7 +76,7 @@ const EvidenceUpload: React.FC = () => {
 
     const doneCount = files.filter(f => f.status === 'done').length;
 
-    if (!project || !step) return <div style={{ padding: 16 }}>Không tìm thấy bước thi công</div>;
+    if (!journey || !step) return <div style={{ padding: 16 }}>Không tìm thấy bước thi công</div>;
 
     return (
         <div>
@@ -80,7 +84,7 @@ const EvidenceUpload: React.FC = () => {
                 <Button icon={<ArrowLeftOutlined />} size="small" onClick={() => navigate(`/worker/checklist/${projectId}`)} />
                 <div>
                     <Title level={5} style={{ margin: 0 }}><CameraOutlined /> Bước {step.order}: {step.name}</Title>
-                    <Text type="secondary" style={{ fontSize: 12 }}>{project.code}</Text>
+                    <Text type="secondary" style={{ fontSize: 12 }}>{journey.journey_code}</Text>
                 </div>
             </div>
 

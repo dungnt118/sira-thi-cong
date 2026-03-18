@@ -14,11 +14,11 @@ import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
 import { demoDataService } from '../../../services/localstorage/demoDataService';
 import { 
     mockCustomers as defaultCustomers, 
-    mockProjects as defaultProjects, 
     mockServiceRequests as defaultServiceRequests 
 } from '../../../data/mockData';
+import { mockJourneys as defaultJourneys } from '../../../data/journeyMockData';
 import type { Customer, ServiceRequest } from '../../../types/v3';
-import type { Project } from '../../../types/legacy-project';
+import type { Journey } from '../../../types/journey';
 
 const { Title, Text } = Typography;
 
@@ -27,12 +27,12 @@ const CustomerDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     
     const [mockCustomers] = useLocalStorageData<Customer[]>(demoDataService.KEYS.CUSTOMERS, defaultCustomers);
-    const [mockProjects] = useLocalStorageData<Project[]>(demoDataService.KEYS.PROJECTS, defaultProjects);
+    const [mockJourneys] = useLocalStorageData<Journey[]>(demoDataService.KEYS.JOURNEYS, defaultJourneys);
     const [mockServiceRequests] = useLocalStorageData<ServiceRequest[]>(demoDataService.KEYS.SERVICE_REQUESTS, defaultServiceRequests);
 
     const customer = mockCustomers.find(c => c.id === id);
     const serviceRequests = mockServiceRequests.filter(sr => sr.customerId === id);
-    const customerProjects = mockProjects.filter(p => p.customerId === id);
+    const customerJourneys = mockJourneys.filter(j => j.customer_phone === customer?.phone);
 
     if (!customer) return <div>Không tìm thấy khách hàng</div>;
 
@@ -137,44 +137,43 @@ const CustomerDetail: React.FC = () => {
             )
         },
         {
-            key: 'projects',
-            label: <span><BuildOutlined /> Dự án Thi công ({customerProjects.length})</span>,
+            key: 'journeys',
+            label: <span><BuildOutlined /> Hành trình KH ({customerJourneys.length})</span>,
             children: (
                 <div>
-                    {customerProjects.length === 0 ? (
+                    {customerJourneys.length === 0 ? (
                         <div style={{ textAlign: 'center', padding: 40 }}>
-                            <Text type="secondary">Khách hàng này chưa có dự án thi công nào</Text>
+                            <Text type="secondary">Khách hàng này chưa có hành trình nào</Text>
                             <br />
                             <Button type="primary" style={{ marginTop: 12 }}
-                                onClick={() => navigate('/pm/construction/projects/create')}>
-                                Tạo dự án mới
+                                onClick={() => navigate('/pm/journeys')}>
+                                Đi tới danh sách Hành trình
                             </Button>
                         </div>
                     ) : (
-                        customerProjects.map(p => {
-                            const progress = Math.round((p.steps.filter(s => s.status === 'APPROVED').length / p.steps.length) * 100);
+                        customerJourneys.map(j => {
+                            const progress = 50; // Giả lập tiến độ
                             return (
                                 <Card
-                                    key={p.id}
+                                    key={j.id}
                                     size="small"
                                     style={{ marginBottom: 12 }}
                                     hoverable
-                                    onClick={() => navigate(`/pm/construction/projects/${p.id}`)}
+                                    onClick={() => navigate(`/pm/journeys/${j.id}`)}
                                     extra={
                                         <Button type="link" icon={<ProjectOutlined />}>Chi tiết</Button>
                                     }
                                 >
                                     <Row justify="space-between" align="middle">
                                         <Col>
-                                            <Text strong>{p.code}</Text>
-                                            <Tag style={{ marginLeft: 8 }} color={p.status === 'IN_PROGRESS' ? 'processing' : 'default'}>
-                                                {p.status === 'IN_PROGRESS' ? 'Đang thi công' : p.status}
+                                            <Text strong>{j.journey_code}</Text>
+                                            <Tag style={{ marginLeft: 8 }} color={j.project_status === 'active' ? 'processing' : 'default'}>
+                                                {j.project_status}
                                             </Tag>
-                                            <div style={{ marginTop: 4, color: '#666' }}>{p.name}</div>
+                                            <div style={{ marginTop: 4, color: '#666' }}>{j.request_title}</div>
                                         </Col>
                                         <Col style={{ textAlign: 'right' }}>
-                                            <Text type="secondary" style={{ fontSize: 12 }}>{p.startDate} → {p.plannedEndDate}</Text>
-                                            <Progress percent={progress} size="small" status={progress === 100 ? 'success' : 'active'} style={{ marginTop: 8, width: 120, display: 'block' }} />
+                                            <Progress percent={progress} size="small" status={'active'} style={{ marginTop: 8, width: 120, display: 'block' }} />
                                         </Col>
                                     </Row>
                                 </Card>

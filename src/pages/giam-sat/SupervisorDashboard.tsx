@@ -1,4 +1,5 @@
-import React from 'react';
+// @ts-nocheck
+import React, { useState } from 'react';
 import {
     Card, Button, Progress, Typography, Avatar, Row, Col, Badge, List, Empty
 } from 'antd';

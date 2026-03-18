@@ -3,7 +3,6 @@ import { localStorageService } from './localStorageService';
 // Import all mock data from central files
 import {
     mockUsers,
-    mockProjects,
     mockMilestones,
     mockMaterials,
     mockStandards,
@@ -81,7 +80,7 @@ export const demoDataService = {
     getDataMapping(): Record<string, any> {
         return {
             [this.KEYS.USERS]: mockUsers,
-            [this.KEYS.PROJECTS]: mockProjects,
+            [this.KEYS.PROJECTS]: [], // Project entity removed
             [this.KEYS.MILESTONES]: mockMilestones,
             [this.KEYS.MATERIALS]: mockMaterials,
             [this.KEYS.STANDARDS]: mockStandards,

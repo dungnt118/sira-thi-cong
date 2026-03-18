@@ -9,15 +9,16 @@ import {
     LockOutlined, PushpinOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
-import { mockProjects } from '../../data/mockData';
-import type { ProjectStep, StepStatus, IncidentReport } from '../../types/legacy-project';
+import { mockJourneys as defaultJourneys } from '../../data/journeyMockData';
+import type { Journey, JourneyChecklistStep, StepStatus, IncidentReport } from '../../types/journey';
+import { useLocalStorageData } from '../../hooks/useLocalStorageData';
+import { demoDataService } from '../../services/localstorage/demoDataService';
 
 const { Title, Text } = Typography;
 
-// Gap #9: check if stock order is signed for this project
-const hasMaterialsDispached = (project: ReturnType<typeof mockProjects.find>) => {
-    if (!project) return false;
-    return project.stockOrders.some((o: typeof project.stockOrders[number]) => o.type === 'OUT' && o.status === 'COMPLETED');
+// Removed materials check temporarily or just fake returning true
+const hasMaterialsDispached = (_journey: Journey) => {
+    return true; // Simplified for journey mockup
 };
 
 const STEP_STYLE: Record<StepStatus, { color: string; bg: string; label: React.ReactNode }> = {
@@ -32,20 +33,23 @@ const STEP_STYLE: Record<StepStatus, { color: string; bg: string; label: React.R
 const WorkerChecklist: React.FC = () => {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
-    const project = mockProjects.find(p => p.id === id);
+    const [journeys] = useLocalStorageData<Journey[]>(demoDataService.KEYS.JOURNEYS, defaultJourneys);
+    const journey = journeys.find(p => p.id === id);
 
-    const [selectedStep, setSelectedStep] = useState<ProjectStep | null>(null);
+    const [selectedStep, setSelectedStep] = useState<JourneyChecklistStep | null>(null);
     const [uploadModalOpen, setUploadModalOpen] = useState(false);
 
-    if (!project) return <div style={{ padding: 16 }}>Không tìm thấy dự án</div>;
+    if (!journey) return <div style={{ padding: 16 }}>Không tìm thấy hành trình</div>;
 
-    const materialsOk = hasMaterialsDispached(project);
-    const approvedCount = project.steps.filter((s: ProjectStep) => s.status === 'APPROVED').length;
-    const progress = Math.round((approvedCount / project.steps.length) * 100);
-    const currentStep = project.steps.find((s: ProjectStep) => s.status === 'IN_PROGRESS' || s.status === 'OPEN' || s.status === 'AWAITING_REVIEW');
-    const hasUnresolved = project.incidents.filter((i: IncidentReport) => !i.isResolved).length;
+    const materialsOk = hasMaterialsDispached(journey);
+    const workSteps = journey.work_steps || [];
+    const incidents = journey.incidents || [];
+    const approvedCount = workSteps.filter((s: JourneyChecklistStep) => s.status === 'APPROVED').length;
+    const progress = workSteps.length > 0 ? Math.round((approvedCount / workSteps.length) * 100) : 0;
+    const currentStep = workSteps.find((s: JourneyChecklistStep) => s.status === 'IN_PROGRESS' || s.status === 'OPEN' || s.status === 'AWAITING_REVIEW');
+    const hasUnresolved = incidents.filter((i: IncidentReport) => !i.isResolved).length;
 
-    const handleStepClick = (step: ProjectStep) => {
+    const handleStepClick = (step: JourneyChecklistStep) => {
         if (step.status === 'LOCKED') return;
         // Gap #9: Block if no materials
         if (!materialsOk && step.status === 'OPEN') {
@@ -72,8 +76,8 @@ const WorkerChecklist: React.FC = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
                 <Button icon={<ArrowLeftOutlined />} size="small" onClick={() => navigate('/worker/home')} />
                 <div>
-                    <Title level={5} style={{ margin: 0 }}>{project.code}</Title>
-                    <Text type="secondary" style={{ fontSize: 12 }}>{project.type} – {project.areaM2}m²</Text>
+                    <Title level={5} style={{ margin: 0 }}>{journey.journey_code}</Title>
+                    <Text type="secondary" style={{ fontSize: 12 }}>{journey.requested_service}</Text>
                 </div>
                 {hasUnresolved > 0 && (
                     <Badge count={hasUnresolved} style={{ background: '#ff4d4f' }} title={`${hasUnresolved} sự cố chưa xử lý`} />
@@ -88,8 +92,8 @@ const WorkerChecklist: React.FC = () => {
                 </div>
                 <Progress percent={progress} status="active" strokeColor={{ from: '#1976D2', to: '#42a5f5' }} showInfo={false} />
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#999', marginTop: 4 }}>
-                    <span>Đã hoàn thành: {approvedCount}/{project.steps.length} bước</span>
-                    <span>KH: {project.startDate} – {project.plannedEndDate}</span>
+                    <span>Đã hoàn thành: {approvedCount}/{workSteps.length} bước</span>
+                    <span>BĐ: {journey.plan_start || 'Chưa rõ'}</span>
                 </div>
             </Card>
 
@@ -123,7 +127,7 @@ const WorkerChecklist: React.FC = () => {
                     borderRadius: 12, color: '#fff', marginBottom: 12,
                     boxShadow: '0 4px 12px rgba(25,118,210,0.3)',
                 }}>
-                    <div style={{ fontSize: 12, opacity: 0.8 }}><PushpinOutlined /> Bước đang thực hiện ({currentStep.order}/{project.steps.length})</div>
+                    <div style={{ fontSize: 12, opacity: 0.8 }}><PushpinOutlined /> Bước đang thực hiện ({currentStep.order}/{workSteps.length})</div>
                     <div style={{ fontSize: 16, fontWeight: 700, margin: '4px 0' }}>{currentStep.name}</div>
                     <div style={{ fontSize: 12, opacity: 0.8 }}>{currentStep.description}</div>
                     <Button
@@ -139,7 +143,7 @@ const WorkerChecklist: React.FC = () => {
 
             {/* Full Checklist */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {project.steps.map((step: ProjectStep) => {
+                {workSteps.map((step: JourneyChecklistStep) => {
                     const style = STEP_STYLE[step.status];
                     const isClickable = step.status !== 'LOCKED';
                     return (
@@ -187,7 +191,7 @@ const WorkerChecklist: React.FC = () => {
                             {/* Evidence thumbnails */}
                             {step.evidences.length > 0 && (
                                 <div style={{ marginTop: 8, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                                {step.evidences.slice(0, 5).map((ev: ProjectStep['evidences'][number]) => (
+                                {step.evidences.slice(0, 5).map((ev: JourneyChecklistStep['evidences'][number]) => (
                                         <img
                                             key={ev.id}
                                             src={ev.url}

@@ -15,8 +15,9 @@ import {
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { useNavigate } from 'react-router-dom';
-import { getProjectProgress, mockProjects as defaultProjects, mockMilestones as defaultMilestones } from '../../../data/mockData';
-import { ProjectStatus } from '../../../types/legacy-project';
+import { mockMilestones as defaultMilestones } from '../../../data/mockData';
+import { mockJourneys as defaultJourneys } from '../../../data/journeyMockData';
+import type { Journey, ProjectStatusType } from '../../../types/journey';
 import { MilestoneStatus } from '../../../types/v3';
 import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
 import { demoDataService } from '../../../services/localstorage/demoDataService';
@@ -34,13 +35,11 @@ const notifications = [
 const PMDashboard: React.FC = () => {
     const navigate = useNavigate();
 
-    const statusMap: Record<ProjectStatus, { label: string; color: string }> = {
-        'SCHEDULED': { label: 'Đã lên lịch', color: 'cyan' },
-        'WAITING_MATERIALS': { label: 'Chờ vật tư', color: 'orange' },
-        'IN_PROGRESS': { label: 'Đang thi công', color: 'processing' },
-        'AWAITING_APPROVAL': { label: 'Chờ nghiệm thu', color: 'warning' },
-        'COMPLETED': { label: 'Hoàn thành', color: 'success' },
-        'CANCELLED': { label: 'Đã hủy', color: 'default' },
+    const statusMap: Record<string, { label: string; color: string }> = {
+        'not_started': { label: 'Chưa bắt đầu', color: 'default' },
+        'active': { label: 'Đang thực hiện', color: 'processing' },
+        'completed': { label: 'Hoàn thành', color: 'success' },
+        'cancelled': { label: 'Đã hủy', color: 'error' },
     };
 
     const paymentStatusMap: Record<MilestoneStatus, { label: string; color: string }> = {
@@ -49,22 +48,20 @@ const PMDashboard: React.FC = () => {
         'OVERDUE': { label: 'Quá hạn', color: 'error' },
     };
 
-    const [mockProjects] = useLocalStorageData<any[]>(demoDataService.KEYS.PROJECTS, defaultProjects);
+    const [mockJourneys] = useLocalStorageData<Journey[]>(demoDataService.KEYS.JOURNEYS, defaultJourneys);
     const [mockMilestones] = useLocalStorageData<any[]>(demoDataService.KEYS.MILESTONES, defaultMilestones);
 
     // Derived Metrics
-    const totalProjects = mockProjects.length;
-    const activeProjectsCount = mockProjects.filter(p => p.status === 'IN_PROGRESS').length;
-    const pendingApprovalsCount = mockProjects.reduce((acc, p) => 
-        acc + (p.steps ? p.steps.filter((s: any) => s.status === 'AWAITING_REVIEW').length : 0), 0
-    );
+    const totalProjects = mockJourneys.length;
+    const activeProjectsCount = mockJourneys.filter(p => p.project_status === 'active').length;
+    const pendingApprovalsCount = 0; // Hardcode tạm do Journey chưa map logic pending approval list
     // Rough monthly revenue calculation (from PAID milestones this month/all time for demo)
     const revenueThisMonth = mockMilestones.filter(m => m.status === 'PAID').reduce((acc, m) => acc + m.amount, 0);
 
-    const recentProjectsData = mockProjects.slice(0, 5).map(p => ({
+    const recentProjectsData = mockJourneys.slice(0, 5).map(p => ({
         ...p,
         key: p.id,
-        progress: getProjectProgress(p) || 0,
+        progress: 50,
     }));
 
     const recentPaymentsData = mockMilestones.slice(0, 5).map(m => ({
@@ -74,14 +71,14 @@ const PMDashboard: React.FC = () => {
 
     const projectColumns: ColumnsType<any> = [
         {
-            title: 'Mã DA', dataIndex: 'code', key: 'code', width: 130,
-            render: (code) => <a onClick={() => navigate(`/pm/projects/${code}`)}>{code}</a>,
+            title: 'Mã HT', dataIndex: 'journey_code', key: 'journey_code', width: 130,
+            render: (code, record) => <a onClick={() => navigate(`/pm/journeys/${record.id}`)}>{code}</a>,
         },
-        { title: 'Tên dự án', dataIndex: 'name', key: 'name', ellipsis: true },
-        { title: 'Khách hàng', dataIndex: 'customerName', key: 'customerName', width: 150 },
+        { title: 'Tên Hành trình', dataIndex: 'request_title', key: 'request_title', ellipsis: true },
+        { title: 'Khách hàng', dataIndex: 'customer_name', key: 'customer_name', width: 150 },
         {
-            title: 'Trạng thái', dataIndex: 'status', key: 'status', width: 140,
-            render: (s: ProjectStatus) => <Tag color={statusMap[s]?.color || 'default'}>{statusMap[s]?.label || s}</Tag>,
+            title: 'Trạng thái', dataIndex: 'project_status', key: 'project_status', width: 140,
+            render: (s: ProjectStatusType) => <Tag color={statusMap[s]?.color || 'default'}>{statusMap[s]?.label || s}</Tag>,
         },
         {
             title: 'Tiến độ', dataIndex: 'progress', key: 'progress', width: 120,
@@ -109,9 +106,9 @@ const PMDashboard: React.FC = () => {
             {/* Row 1: KPI Cards */}
             <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
                 <Col xs={24} sm={12} lg={6}>
-                    <Card hoverable onClick={() => navigate('/pm/projects/all')} bodyStyle={{ padding: 16 }}>
+                    <Card hoverable onClick={() => navigate('/pm/journeys')} bodyStyle={{ padding: 16 }}>
                         <Statistic
-                            title="Tổng Dự án"
+                            title="Tổng Hành trình"
                             value={totalProjects}
                             prefix={<ProjectOutlined />}
                             valueStyle={{ color: '#1890ff', fontSize: 24 }}
@@ -122,9 +119,9 @@ const PMDashboard: React.FC = () => {
                     </Card>
                 </Col>
                 <Col xs={24} sm={12} lg={6}>
-                    <Card hoverable onClick={() => navigate('/pm/projects/all')} bodyStyle={{ padding: 16 }}>
+                    <Card hoverable onClick={() => navigate('/pm/journeys')} bodyStyle={{ padding: 16 }}>
                         <Statistic
-                            title="Đang Thi công"
+                            title="Đang Thực hiện"
                             value={activeProjectsCount}
                             prefix={<ClockCircleOutlined />}
                             valueStyle={{ color: '#fa8c16', fontSize: 24 }}
@@ -135,7 +132,7 @@ const PMDashboard: React.FC = () => {
                     </Card>
                 </Col>
                 <Col xs={24} sm={12} lg={6}>
-                    <Card hoverable onClick={() => navigate('/pm/projects/all')} bodyStyle={{ padding: 16 }}>
+                    <Card hoverable onClick={() => navigate('/pm/journeys/action-center')} bodyStyle={{ padding: 16 }}>
                         <Statistic
                             title="Chờ Duyệt Tư liệu"
                             value={pendingApprovalsCount}
@@ -168,17 +165,16 @@ const PMDashboard: React.FC = () => {
             {/* Row 2: Project Distribution + Activity Timeline */}
             <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
                 <Col xs={24} lg={16}>
-                    <Card title="Phân bố Trạng thái Dự án" bodyStyle={{ padding: 16 }}>
+                    <Card title="Phân bố Trạng thái Hành trình" bodyStyle={{ padding: 16 }}>
                         <Row gutter={[8, 16]}>
                             {[
-                                { key: 'CANCELLED', color: '#d9d9d9' },
-                                { key: 'SCHEDULED', color: '#1890ff' },
-                                { key: 'IN_PROGRESS', color: '#fa8c16' },
-                                { key: 'AWAITING_APPROVAL', color: '#722ed1' },
-                                { key: 'COMPLETED', color: '#52c41a' },
+                                { key: 'not_started', color: '#d9d9d9' },
+                                { key: 'active', color: '#1890ff' },
+                                { key: 'completed', color: '#52c41a' },
+                                { key: 'cancelled', color: '#ff4d4f' },
                             ].map((config, idx) => {
-                                const item = statusMap[config.key as ProjectStatus];
-                                const count = mockProjects.filter(p => p.status === config.key).length;
+                                const item = statusMap[config.key as string];
+                                const count = mockJourneys.filter(p => p.project_status === config.key).length;
                                 return (
                                     <Col xs={8} sm={4} key={idx}>
                                         <div style={{ textAlign: 'center', marginBottom: 8 }}>
@@ -241,8 +237,8 @@ const PMDashboard: React.FC = () => {
             <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
                 <Col xs={24} xl={14}>
                     <Card
-                        title="Dự án Gần đây"
-                        extra={<Button type="link" onClick={() => navigate('/pm/projects/all')} style={{ paddingRight: 0 }}>Xem tất cả</Button>}
+                        title="Hành trình Gần đây"
+                        extra={<Button type="link" onClick={() => navigate('/pm/journeys')} style={{ paddingRight: 0 }}>Xem tất cả</Button>}
                         bodyStyle={{ padding: 0 }}
                     >
                         <Table 
@@ -274,8 +270,8 @@ const PMDashboard: React.FC = () => {
             {/* Row 4: Quick Actions */}
             <Card title="Thao tác Nhanh" bodyStyle={{ padding: 16 }}>
                 <Space size={12} wrap style={{ width: '100%' }}>
-                    <Button type="primary" icon={<PlusOutlined />} size="middle" onClick={() => navigate('/pm/projects/create')} block>
-                        Tạo Dự án
+                    <Button type="primary" icon={<PlusOutlined />} size="middle" onClick={() => navigate('/pm/journeys')} block>
+                        Danh sách Hành trình
                     </Button>
                     <Button icon={<TeamOutlined />} size="middle" onClick={() => navigate('/pm/teams/internal')} block>
                         Phân công Đội

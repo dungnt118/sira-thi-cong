@@ -5,7 +5,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import {
     DashboardOutlined,
-    ProjectOutlined,
     DollarOutlined,
     BarChartOutlined,
     SearchOutlined,
@@ -50,17 +49,7 @@ const menuItems: MenuItem[] = [
             { key: '/pm/journeys/templates', label: 'Template Quy trình', icon: <SettingOutlined /> },
         ],
     },
-    {
-        key: '/pm/construction',
-        icon: <ProjectOutlined />,
-        label: 'Nhật ký Thi công',
-        children: [
-            { key: '/pm/construction/projects', label: 'Danh sách Dự án' },
-            { key: '/pm/construction/projects/create', label: 'Tạo Dự án' },
-            { key: '/pm/construction/evidence', label: 'Duyệt Ảnh/Video' },
-            { key: '/pm/construction/templates', label: 'Template Checklist' },
-        ],
-    },
+    // Nhóm tính năng Thi công (Projects/Checklist cũ) đã gộp vào Journey
     {
         key: '/pm/inventory',
         icon: <InboxOutlined />,

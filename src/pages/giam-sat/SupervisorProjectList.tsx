@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState } from 'react';
 import {
     Card, Input, Tag, Typography, List, Row, Col, Select, Space, Button

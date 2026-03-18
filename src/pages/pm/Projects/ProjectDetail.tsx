@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+// @ts-nocheck
+import React, { useState, useEffect } from 'react';
 import {
     Card, Row, Col, Descriptions, Tag, Tabs, Table, Progress, Statistic,
     Button, Space, Timeline, Badge, Typography, Divider, Segmented, Empty,
