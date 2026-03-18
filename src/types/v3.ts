@@ -470,3 +470,37 @@ export interface EstimateTemplate {
     components: EstimateTemplateComponent[];
 }
 
+// ---- ASSET ALLOCATION TYPES ----
+export type AssetAllocationStatus = 'REQUESTED' | 'APPROVED' | 'RECEIVED' | 'COMPLETED' | 'REJECTED' | 'RETURNED';
+
+export interface AssetAllocationSignature {
+    role: UserRole | 'borrower';
+    userName: string;
+    userId: string;
+    signedAt: string;
+    signatureDataUrl: string; // Base64 canvas signature
+}
+
+export interface AssetAllocation {
+    id: string;
+    code: string;
+    assetId: string;
+    assetName: string;
+    assetCode: string;
+    requestedBy: string;
+    projectId?: string;
+    projectName?: string;
+    requestDate: string;
+    expectedReturnDate?: string;
+    actualReturnDate?: string;
+    status: AssetAllocationStatus;
+    signatures: AssetAllocationSignature[];
+    notes?: string;
+    history: {
+        status: AssetAllocationStatus;
+        updatedBy: string;
+        updatedAt: string;
+        comment?: string;
+    }[];
+}
+

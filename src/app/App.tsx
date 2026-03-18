@@ -94,6 +94,9 @@ import InboundForm from '../pages/accountant/Inventory/InboundForm';
 import OutboundForm from '../pages/accountant/Inventory/OutboundForm';
 import DistributorList from '../pages/accountant/Inventory/DistributorList';
 import AssetsDashboard from '../pages/accountant/Assets/Dashboard';
+import AssetAllocationHistory from '../pages/accountant/Assets/AllocationHistory';
+import AssetAllocationForm from '../pages/accountant/Assets/AllocationForm';
+import AssetAllocationDetail from '../pages/accountant/Assets/AssetAllocationDetail';
 import StockOrderDetail from '@pages/accountant/Inventory/StockOrderDetail';
 import InventoryHistory from '../pages/accountant/Inventory/History';
 
@@ -273,7 +276,9 @@ function App() {
                                 {/* Assets Module */}
                                 <Route path="assets" element={<Navigate to="/accountant/assets/list" replace />} />
                                 <Route path="assets/list" element={<AssetsDashboard />} />
-                                <Route path="assets/allocation" element={<ComingSoon title="Cấp phát tài sản" />} />
+                                <Route path="assets/allocation" element={<AssetAllocationForm />} />
+                                <Route path="assets/allocation/:id" element={<AssetAllocationDetail />} />
+                                <Route path="assets/allocation-history" element={<AssetAllocationHistory />} />
                                 <Route path="assets/maintenance" element={<ComingSoon title="Bảo trì tài sản" />} />
                                 <Route path="finance">
                                     <Route index element={<Navigate to="/accountant/finance/milestones" replace />} />

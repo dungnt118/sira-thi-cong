@@ -38,7 +38,8 @@ const menuItems: MenuProps['items'] = [
         label: 'QL Tài sản',
         children: [
             { key: '/accountant/assets/list', label: 'Danh mục tài sản' },
-            { key: '/accountant/assets/allocation', label: 'Cấp phát tài sản' },
+            { key: '/accountant/assets/allocation', label: 'Yêu cầu Cấp phát' },
+            { key: '/accountant/assets/allocation-history', label: 'Lịch sử cấp phát' },
             { key: '/accountant/assets/maintenance', label: 'Bảo trì & Sửa chữa' },
         ],
     },
