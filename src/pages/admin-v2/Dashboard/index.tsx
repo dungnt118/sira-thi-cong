@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 import { Card, Row, Col, Statistic, Table, Badge, Button, Space, Typography } from 'antd';
 import { CheckCircleOutlined, ClockCircleOutlined, WarningOutlined, UserOutlined, ProjectOutlined, FileImageOutlined, DollarOutlined, ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';

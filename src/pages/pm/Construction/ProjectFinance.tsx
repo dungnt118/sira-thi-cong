@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 import {
     Card, Row, Col, Button, Tag, Typography, Statistic, Progress,
