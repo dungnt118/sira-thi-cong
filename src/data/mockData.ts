@@ -3,6 +3,59 @@ import type {
     Material, MaterialStandard, StockOrder,
     PaymentMilestone, WarrantyCard, WarrantyReminder, User, StockRequest, Pipeline, ServiceRequest
 } from '../types/v3';
+import { Project, ProjectStatus } from '../types/legacy-project';
+import { mockJourneys } from './journeyMockData';
+import type { Journey } from '../types/journey';
+
+// --- Bridge: Map Journey to Legacy Project ---
+const mapJourneyToProject = (j: Journey): Project => ({
+    id: j.id,
+    code: j.journey_code,
+    name: j.customer_name + ' - ' + (j.requested_service || 'Dự án'),
+    customerId: j.id, // Mock mapping
+    customerName: j.customer_name,
+    address: j.site_address || '',
+    areaM2: 100, // Mock default
+    category: j.requested_service || 'Chống thấm',
+    type: 'Nội bộ',
+    templateId: j.template_id || 'TPL-001',
+    status: (j.project_status === 'completed' ? 'COMPLETED' : 
+             j.project_status === 'active' ? 'IN_PROGRESS' : 'SCHEDULED') as ProjectStatus,
+    pmId: j.owner_user_id || 'U001',
+    pmName: j.owner_user || 'Nguyễn Văn PM',
+    workerIds: [j.supervisor_name || ''],
+    workerNames: [j.supervisor_name || ''],
+    startDate: j.tentative_start_date || '2026-03-01',
+    plannedEndDate: '2026-03-31',
+    createdAt: j.created_at,
+    notes: j.request_description,
+    steps: (j.work_steps || []).map(s => ({
+        id: s.id,
+        templateStepId: s.templateStepId,
+        order: s.order,
+        name: s.name,
+        description: s.description || '',
+        minPhotos: s.minPhotos || 1,
+        status: (s.status === 'APPROVED' ? 'COMPLETED' : 
+                 s.status === 'IN_PROGRESS' ? 'IN_PROGRESS' : 
+                 s.status === 'AWAITING_REVIEW' ? 'AWAITING_REVIEW' :
+                 s.status === 'OPEN' ? 'OPEN' : 'LOCKED') as any,
+        evidences: s.evidences || []
+    })),
+    incidents: [],
+    activities: [],
+    paymentMilestones: [],
+    stockOrders: []
+});
+
+export const mockProjects: Project[] = mockJourneys.map(mapJourneyToProject);
+
+export const getProjectProgress = (project: any) => {
+    if (!project.steps || project.steps.length === 0) return 0;
+    const completed = project.steps.filter((s: any) => s.status === 'COMPLETED').length;
+    return Math.round((completed / project.steps.length) * 100);
+};
+
 
 // ============================================================
 // MOCK USERS

@@ -23,6 +23,8 @@ import {
     mockMaterials as defaultMaterials,
     mockProjects as defaultProjects
 } from '../../../data/mockData';
+import { mockJourneys as defaultJourneys } from '../../../data/journeyMockData';
+import type { Journey } from '../../../types/journey';
 import type { ChecklistStep } from '../../../types/v3';
 import type { Project } from '../../../types/legacy-project';
 
@@ -43,6 +45,7 @@ const ProjectCreate: React.FC = () => {
     const [form] = Form.useForm();
 
     const [mockProjects, setMockProjects] = useLocalStorageData<Project[]>(demoDataService.KEYS.PROJECTS, defaultProjects);
+    const [mockJourneys, setMockJourneys] = useLocalStorageData<Journey[]>(demoDataService.KEYS.JOURNEYS, defaultJourneys);
     const [mockCustomers] = useLocalStorageData<any[]>(demoDataService.KEYS.CUSTOMERS, defaultCustomers);
     const [mockUsers] = useLocalStorageData<any[]>(demoDataService.KEYS.USERS, defaultUsers);
     const [mockTemplates] = useLocalStorageData<any[]>(demoDataService.KEYS.TEMPLATES, defaultTemplates);
@@ -121,9 +124,20 @@ const ProjectCreate: React.FC = () => {
                     notes: values.notes,
                 } : p);
                 setMockProjects(updatedProjects);
+
+                // Update journey too
+                const updatedJourneys = mockJourneys.map(j => j.id === id ? {
+                    ...j,
+                    request_title: values.projectName,
+                    site_address: values.address,
+                    project_status: 'active',
+                } : j);
+                setMockJourneys(updatedJourneys);
+
                 message.success('Cập nhật dự án thành công!');
             } else {
                 const projectId = `DA-2026-${String(Date.now()).slice(-3)}`;
+                const journeyId = projectId; // Keep IDs synced for simplicity in mock
                 
                 const newProject: Project = {
                     id: projectId,
@@ -159,7 +173,7 @@ const ProjectCreate: React.FC = () => {
                     activities: [
                         {
                             id: `AL-${Date.now()}`,
-                            journeyId: projectId, // Temporarily use projectId as journeyId for legacy projects
+                            journeyId: projectId,
                             category: 'GENERAL',
                             actor: 'Nguyễn Văn PM',
                             action: 'PROJECT_CREATE',
@@ -171,7 +185,51 @@ const ProjectCreate: React.FC = () => {
                     stockOrders: []
                 };
 
+                const newJourney: Journey = {
+                    id: journeyId,
+                    journey_code: journeyId.replace('DA', 'HT'),
+                    service_request_code: `YC-${dayjs().format('YYYY')}-${String(Date.now()).slice(-3)}`,
+                    customer_name: customer?.fullName || 'Khách hàng mới',
+                    customer_phone: customer?.phone || '',
+                    site_address: values.address,
+                    source_channel: 'hotline',
+                    requested_service: constructionType,
+                    request_title: values.projectName,
+                    request_description: values.notes,
+                    owner_user: 'Nguyễn Văn PM',
+                    owner_user_id: 'u-pm-01',
+                    priority: 'medium',
+                    current_step: 'Triển khai',
+                    current_step_code: 'S08_CONSTRUCT',
+                    go_no_go_status: 'go',
+                    sla_status: 'ontime',
+                    portal_publish_status: 'published',
+                    last_activity_at: dayjs().toISOString(),
+                    created_at: dayjs().toISOString(),
+                    created_by: 'Nguyễn Văn PM',
+                    project_status: 'active',
+                    survey_status: 'completed',
+                    estimate_status: 'ready',
+                    quote_status: 'approved',
+                    supervisor_name: selectedWorkerNames[0] || 'Chưa phân công',
+                    work_steps: template ? template.steps.map((s: any) => ({
+                        id: `STEP-${journeyId}-${s.id}`,
+                        templateStepId: s.id,
+                        order: s.order,
+                        name: s.name,
+                        description: s.description || '',
+                        minPhotos: s.minPhotos || 1,
+                        status: s.order === 1 ? 'OPEN' : 'LOCKED',
+                        evidences: []
+                    })) : [],
+                    activities: [],
+                    incident_count: 0,
+                    unread_portal_threads: 0,
+                    blocker_count: 0
+                };
+
                 setMockProjects([newProject, ...mockProjects]);
+                setMockJourneys([newJourney, ...mockJourneys]);
                 message.success('Dự án đã được tạo thành công!');
             }
 

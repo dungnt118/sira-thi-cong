@@ -3,7 +3,9 @@ import React from 'react';
 import { Card, Row, Col, Statistic, Table, Badge, Button, Space, Typography } from 'antd';
 import { CheckCircleOutlined, ClockCircleOutlined, WarningOutlined, UserOutlined, ProjectOutlined, FileImageOutlined, DollarOutlined, ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
-import { mockUsers, mockProjects, mockMilestones } from '../../../data/mockData';
+import { mockUsers, mockMilestones } from '../../../data/mockData';
+import { mockJourneys } from '../../../data/journeyMockData';
+
 
 const { Title, Text } = Typography;
 
@@ -54,12 +56,12 @@ const DashboardV2: React.FC = () => {
     // Derived Metrics
     const totalUsers = mockUsers.length;
     const activeUsers = mockUsers.filter(u => u.isActive).length;
-    const totalProjects = mockProjects.length;
-    const activeProjects = mockProjects.filter(p => p.status === 'IN_PROGRESS').length;
-    const completedThisMonth = mockProjects.filter(p => p.status === 'COMPLETED').length;
-    const pendingEvidence = mockProjects.reduce((acc, p) => acc + p.steps.filter(s => s.status === 'AWAITING_REVIEW').length, 0);
-    const totalPayments = mockMilestones.filter(m => m.status === 'PAID').reduce((acc, m) => acc + m.amount, 0);
-    const pendingPayments = mockMilestones.filter(m => m.status === 'PENDING').length;
+    const totalProjects = mockJourneys.length;
+    const activeProjects = mockJourneys.filter(p => p.project_status === 'active').length;
+    const completedThisMonth = mockJourneys.filter(p => p.project_status === 'completed').length;
+    const pendingEvidence = mockJourneys.reduce((acc, p) => acc + (p.work_steps?.filter(s => s.status === 'AWAITING_REVIEW').length || 0), 0);
+    const totalPayments = mockJourneys.reduce((acc, j) => acc + (j.collected_amount || 0), 0);
+    const pendingPayments = mockJourneys.reduce((acc, j) => acc + (j.outstanding_amount > 0 ? 1 : 0), 0);
 
     const metrics: SystemMetrics = {
         users: { total: totalUsers, active: activeUsers, online: Math.ceil(activeUsers * 0.4), change: 12.5 },
@@ -69,12 +71,12 @@ const DashboardV2: React.FC = () => {
     };
 
     const recentActivities: ActivityLog[] = [
-        ...mockProjects.slice(0, 3).map(p => ({
+        ...mockJourneys.slice(0, 3).map(p => ({
             key: `p-${p.id}`,
             timestamp: 'Vừa xong',
-            user: p.pmName,
-            action: p.status === 'IN_PROGRESS' ? 'Project Updated' : 'Project Created',
-            entity: p.code,
+            user: p.owner_user,
+            action: p.project_status === 'active' ? 'Project Updated' : 'Project Created',
+            entity: p.journey_code,
             status: 'success' as const,
         })),
         {
