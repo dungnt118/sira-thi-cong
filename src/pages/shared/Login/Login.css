@@ -9,19 +9,19 @@
 
 .login-content {
     width: 100%;
-    max-width: 900px;
+    max-width: 450px;
 }
 
 .login-card {
     background: rgba(255, 255, 255, 0.98);
-    border-radius: 16px;
+    border-radius: 20px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    padding: 48px 32px;
+    padding: 24px 16px;
 }
 
 .login-header {
     text-align: center;
-    margin-bottom: 48px;
+    margin-bottom: 32px;
 }
 
 .login-title {
@@ -40,47 +40,33 @@
     font-weight: 500;
 }
 
-.role-selection-section {
-    margin-bottom: 32px;
-}
-
-.section-title {
-    text-align: center;
-    margin-bottom: 8px !important;
-    color: #333;
-}
-
-.section-description {
-    display: block;
-    text-align: center;
-    font-size: 14px;
-}
-
-.role-card {
-    height: 100%;
+.login-form .ant-input-affix-wrapper {
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
     transition: all 0.3s ease;
+}
+
+.login-form .ant-input-affix-wrapper:hover,
+.login-form .ant-input-affix-wrapper-focused {
+    border-color: #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+}
+
+.login-button {
+    height: 50px;
+    font-size: 16px;
+    font-weight: 600;
     border-radius: 12px;
-    overflow: hidden;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    margin-top: 16px;
 }
 
-.role-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
-}
-
-.role-card .ant-card-body {
-    padding: 24px;
-}
-
-.role-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 64px;
-    height: 64px;
-    background: rgba(0, 0, 0, 0.04);
-    border-radius: 12px;
-    margin-bottom: 16px;
+.login-button:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 .login-footer {
