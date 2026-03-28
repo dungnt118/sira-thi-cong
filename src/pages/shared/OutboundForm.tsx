@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
     Form, Input, Select, InputNumber, Button, Card, 
     Typography, Space, Row, Col, message,
-    Table, Empty, Radio, Tag
+    Table, Empty, Radio, Tag, Grid
 } from 'antd';
 import { 
     PlusOutlined, SaveOutlined, ArrowLeftOutlined, 
@@ -17,10 +17,13 @@ import mockMaterialsData from '../../data/mock/materials.json';
 import { mockJourneys } from '../../data/journeyMockData';
 
 const { Title, Text } = Typography;
+const { useBreakpoint } = Grid;
 
 const OutboundForm: React.FC = () => {
     const navigate = useNavigate();
     const [form] = Form.useForm();
+    const screens = useBreakpoint();
+    const isMobile = !screens.md;
     
     const [groups] = useLocalStorageData<MaterialGroup[]>('MATERIAL_GROUPS', (mockMaterialsData as any).groups);
     const [materials, setMaterials] = useLocalStorageData<Material[]>('MATERIALS', (mockMaterialsData as any).materials);
@@ -160,7 +163,12 @@ const OutboundForm: React.FC = () => {
     };
 
     const itemColumns = [
-        { title: 'Vật tư', dataIndex: 'materialName', key: 'name' },
+        { 
+            title: 'Vật tư', 
+            dataIndex: 'materialName', 
+            key: 'name',
+            render: (text: string) => <div style={{ minWidth: 150 }}>{text}</div>
+        },
         { title: 'SL Xuất', dataIndex: 'quantity', key: 'qty', render: (val: number, record: any) => `${val} ${record.unit}` },
         { title: 'Thành tiền', dataIndex: 'total', key: 'total', render: (val: number) => val.toLocaleString('vi-VN') + 'đ' },
         {
@@ -173,32 +181,37 @@ const OutboundForm: React.FC = () => {
     ];
 
     return (
-        <div>
+        <div style={{ padding: isMobile ? '8px' : '0' }}>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
                 <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(-1)} style={{ marginRight: '16px' }} />
-                <Title level={4} style={{ margin: 0 }}>🚚 Phiếu Xuất Kho</Title>
+                <Title level={isMobile ? 5 : 4} style={{ margin: 0 }}>🚚 Phiếu Xuất Kho</Title>
             </div>
 
-            <Row gutter={24}>
-                <Col span={16}>
-                    <Card title="Chọn vật tư cấp phát" style={{ marginBottom: '24px' }}>
+            <Row gutter={[24, 24]}>
+                <Col xs={24} md={16}>
+                    <Card 
+                        title="Chọn vật tư cấp phát" 
+                        style={{ marginBottom: '16px' }}
+                        bodyStyle={{ padding: isMobile ? '12px' : '24px' }}
+                    >
                         <Form form={form} layout="vertical">
                             <div style={{ marginBottom: 16 }}>
                                 <Text type="secondary">Chế độ xuất: </Text>
-                                <Radio.Group value={outMode} onChange={e => setOutMode(e.target.value)} size="small">
+                                <Radio.Group value={outMode} onChange={e => setOutMode(e.target.value)} size={isMobile ? "middle" : "small"}>
                                     <Radio.Button value="FULL">Nguyên thùng/lon</Radio.Button>
                                     <Radio.Button value="PARTIAL">Xuất lẻ (Kg/Lít)</Radio.Button>
                                 </Radio.Group>
                             </div>
 
                             <Row gutter={16}>
-                                <Col span={12}>
+                                <Col xs={24} sm={14}>
                                     <Form.Item name="materialId" label="Chọn vật tư">
                                         <Select 
                                             showSearch
                                             placeholder="Gõ mã hoặc tên"
                                             optionFilterProp="children"
                                             onChange={() => form.setFieldsValue({ quantity: null })}
+                                            size={isMobile ? 'large' : 'middle'}
                                         >
                                             {materials
                                                 .filter(m => {
@@ -210,7 +223,7 @@ const OutboundForm: React.FC = () => {
                                                     const isLow = m.currentStock <= m.minStockAlert;
                                                     return (
                                                         <Select.Option key={m.id} value={m.id} disabled={m.currentStock <= 0 && (!m.partialStock || m.partialStock <= 0)}>
-                                                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                            <div style={{ display: 'flex', justifyContent: 'space-between', flexDirection: isMobile ? 'column' : 'row' }}>
                                                                 <span><Text strong>[{m.code}]</Text> {group?.name || 'Vật tư'} - quy cách {m.capacity}{group?.baseUnit || ''}</span>
                                                                 <span style={{ fontSize: 11, color: isLow ? '#ff4d4f' : '#888' }}>
                                                                     Tồn: {m.currentStock} {m.unit} {(m.partialStock || 0) > 0 ? `(+ ${m.partialStock} lẻ)` : ''}
@@ -222,16 +235,22 @@ const OutboundForm: React.FC = () => {
                                         </Select>
                                     </Form.Item>
                                 </Col>
-                                <Col span={8}>
+                                <Col xs={16} sm={6}>
                                     <Form.Item 
                                         name="quantity" 
                                         label={outMode === 'FULL' ? "Số lượng (Thùng/Lon)" : "Số lượng lẻ (Kg/Lít)"}
                                     >
-                                        <InputNumber min={0.01} style={{ width: '100%' }} />
+                                        <InputNumber min={0.01} style={{ width: '100%' }} size={isMobile ? 'large' : 'middle'} />
                                     </Form.Item>
                                 </Col>
-                                <Col span={4} style={{ display: 'flex', alignItems: 'flex-end', paddingBottom: '24px' }}>
-                                    <Button type="primary" icon={<PlusOutlined />} onClick={handleAddItem}>
+                                <Col xs={8} sm={4} style={{ display: 'flex', alignItems: 'flex-end', paddingBottom: '24px' }}>
+                                    <Button 
+                                        type="primary" 
+                                        icon={<PlusOutlined />} 
+                                        onClick={handleAddItem}
+                                        block={isMobile}
+                                        size={isMobile ? 'large' : 'middle'}
+                                    >
                                         Thêm
                                     </Button>
                                 </Col>
@@ -243,27 +262,36 @@ const OutboundForm: React.FC = () => {
                             columns={itemColumns} 
                             pagination={false} 
                             size="small"
+                            scroll={{ x: 'max-content' }}
                             locale={{ emptyText: <Empty description="Chưa có vật tư nào được chọn" /> }}
                         />
                     </Card>
                 </Col>
 
-                <Col span={8}>
-                    <Card title="Thông tin tiếp nhận">
+                <Col xs={24} md={8}>
+                    <Card 
+                        title="Thông tin tiếp nhận"
+                        bodyStyle={{ padding: isMobile ? '12px' : '24px' }}
+                    >
                         <Form form={form} layout="vertical">
                             <Form.Item 
                                 name="journeyId" 
                                 label="Hành trình / Công trình tiếp nhận"
                                 rules={[{ required: true, message: 'Vui lòng chọn hành trình' }]}
                             >
-                                <Select placeholder="Chọn hành trình" showSearch optionFilterProp="children">
+                                <Select 
+                                    placeholder="Chọn hành trình" 
+                                    showSearch 
+                                    optionFilterProp="children"
+                                    size={isMobile ? 'large' : 'middle'}
+                                >
                                     {mockJourneys
                                         .filter(j => ['active', 'not_started'].includes(j.project_status))
                                         .map(j => (
                                             <Select.Option key={j.id} value={j.id}>
-                                                <Space>
+                                                <Space direction={isMobile ? 'vertical' : 'horizontal'} size={0}>
                                                     <Tag color="blue" style={{fontSize: 11}}>{j.journey_code}</Tag>
-                                                    {j.customer_name} — {j.requested_service}
+                                                    <Text style={{ fontSize: isMobile ? 12 : 14 }}>{j.customer_name} — {j.requested_service}</Text>
                                                 </Space>
                                             </Select.Option>
                                         ))}
@@ -271,16 +299,23 @@ const OutboundForm: React.FC = () => {
                             </Form.Item>
 
                             <Form.Item name="notes" label="Ghi chú xuất kho">
-                                <Input.TextArea rows={4} placeholder="Ví dụ: Cấp bù vật tư cho công trình, cho mượn máy khoan..." />
+                                <Input.TextArea rows={isMobile ? 3 : 4} placeholder="Ví dụ: Cấp bù vật tư cho công trình, cho mượn máy khoan..." />
                             </Form.Item>
 
-                            <div style={{ marginTop: '24px' }}>
+                            <div style={{ marginTop: isMobile ? '16px' : '24px' }}>
                                 <div style={{ marginBottom: '16px', textAlign: 'right' }}>
-                                    <Text strong style={{ fontSize: '18px' }}>
+                                    <Text strong style={{ fontSize: isMobile ? '16px' : '18px' }}>
                                         Tổng giá trị: {selectedItems.reduce((sum, item) => sum + item.total, 0).toLocaleString('vi-VN')}đ
                                     </Text>
                                 </div>
-                                <Button type="primary" size="large" block icon={<SaveOutlined />} onClick={handleSubmit}>
+                                <Button 
+                                    type="primary" 
+                                    size="large" 
+                                    block 
+                                    icon={<SaveOutlined />} 
+                                    onClick={handleSubmit}
+                                    style={{ height: isMobile ? '50px' : 'auto' }}
+                                >
                                     Tạo phiếu xuất kho
                                 </Button>
                             </div>
@@ -303,3 +338,4 @@ const OutboundForm: React.FC = () => {
 };
 
 export default OutboundForm;
+

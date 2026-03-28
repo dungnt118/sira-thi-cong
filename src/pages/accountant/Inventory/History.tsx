@@ -1,8 +1,9 @@
 import React, { useState, useMemo } from 'react';
-import { Typography, Table, Button, Tag, Card, Row, Col, Statistic, Tabs, Input, Steps, Space, Badge } from 'antd';
+import { Typography, Table, Button, Tag, Card, Row, Col, Statistic, Tabs, Input, Steps, Space, Badge, Grid, List } from 'antd';
 import { 
     FileTextOutlined, ClockCircleOutlined, 
-    ImportOutlined, ExportOutlined, SearchOutlined 
+    ImportOutlined, ExportOutlined, SearchOutlined,
+    ArrowRightOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import useLocalStorageData from '../../../hooks/useLocalStorageData';
@@ -10,9 +11,12 @@ import type { StockOrder, StockOrderStatus } from '../../../types/v3';
 import mockStockOrdersData from '../../../data/mock/stockOrders.json';
 
 const { Title, Text } = Typography;
+const { useBreakpoint } = Grid;
 
 const InventoryHistory: React.FC = () => {
     const navigate = useNavigate();
+    const screens = useBreakpoint();
+    const isMobile = !screens.md;
     
     // Use LocalStorage for state management
     const [stockOrders] = useLocalStorageData<StockOrder[]>('STOCK_ORDERS', mockStockOrdersData as StockOrder[]);
@@ -103,6 +107,20 @@ const InventoryHistory: React.FC = () => {
         return list;
     }, [stockOrders, typeFilteredOrders, activeStep, searchText]);
 
+    const getStatusTag = (s: StockOrderStatus) => {
+        const colors: Record<string, string> = {
+            'DRAFT': 'default',
+            'REQUESTED': 'processing',
+            'APPROVED': 'cyan',
+            'DISPATCHED': 'purple',
+            'RECEIVED': 'blue',
+            'COMPLETED': 'success',
+            'DISCREPANCY': 'error',
+            'CANCELLED': 'error'
+        };
+        return <Tag color={colors[s] || 'default'} style={{ margin: 0 }}>{s}</Tag>;
+    };
+
     const columns = [
         { 
             title: 'Mã phiếu', 
@@ -137,19 +155,7 @@ const InventoryHistory: React.FC = () => {
             dataIndex: 'status', 
             key: 'st', 
             width: 130,
-            render: (s: StockOrderStatus) => {
-                const colors: Record<string, string> = {
-                    'DRAFT': 'default',
-                    'REQUESTED': 'processing',
-                    'APPROVED': 'cyan',
-                    'DISPATCHED': 'purple',
-                    'RECEIVED': 'blue',
-                    'COMPLETED': 'success',
-                    'DISCREPANCY': 'error',
-                    'CANCELLED': 'error'
-                };
-                return <Tag color={colors[s] || 'default'}>{s}</Tag>;
-            }
+            render: (s: StockOrderStatus) => getStatusTag(s)
         },
         { title: 'Giá trị', dataIndex: 'totalValue', key: 'val', width: 120, render: (v: number) => `${(v || 0).toLocaleString('vi-VN')}đ` },
         { title: 'Ngày tạo', dataIndex: 'createdAt', key: 'date', width: 110 },
@@ -171,73 +177,62 @@ const InventoryHistory: React.FC = () => {
     const currentStepIndex = STATUS_STEPS.findIndex(s => s.key === activeStep);
 
     return (
-        <div>
+        <div style={{ padding: isMobile ? '8px' : '0' }}>
             <div style={{ 
                 display: 'flex', 
                 justifyContent: 'space-between', 
                 alignItems: 'center', 
                 marginBottom: 24 
             }}>
-                <Title level={4} style={{ margin: 0 }}>⏱️ Lịch sử xuất/nhập kho</Title>
+                <Title level={isMobile ? 5 : 4} style={{ margin: 0 }}>⏱️ Lịch sử xuất/nhập kho</Title>
             </div>
 
-            <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-                <Col span={6}>
-                    <Card size="small" style={{ borderRadius: 8 }}>
+            <Row gutter={[12, 12]} style={{ marginBottom: 24 }}>
+                <Col xs={12} sm={6}>
+                    <Card size="small" style={{ borderRadius: 8, height: '100%' }}>
                         <Statistic 
-                            title="Tổng số phiếu" 
+                            title={<span style={{fontSize: isMobile ? 12 : 14}}>Tổng phiếu</span>}
                             value={stats.total} 
                             prefix={<FileTextOutlined style={{ color: '#1890ff' }} />} 
+                            valueStyle={{ fontSize: isMobile ? 18 : 24 }}
                         />
-                        <div style={{ marginTop: 8, fontSize: 12, color: '#8c8c8c' }}>
-                            (Nhập: {stats.totalIn} - Xuất: {stats.totalOut})
-                        </div>
                     </Card>
                 </Col>
-                <Col span={6}>
-                    <Card size="small" style={{ borderRadius: 8 }}>
+                <Col xs={12} sm={6}>
+                    <Card size="small" style={{ borderRadius: 8, height: '100%' }}>
                         <Statistic 
-                            title="Giá trị Nhập kho" 
+                            title={<span style={{fontSize: isMobile ? 12 : 14}}>Nhập kho</span>}
                             value={stats.valIn} 
-                            valueStyle={{ color: '#52c41a' }} 
+                            valueStyle={{ color: '#52c41a', fontSize: isMobile ? 16 : 20 }} 
                             prefix={<ImportOutlined />} 
                             suffix="đ"
                         />
-                        <div style={{ marginTop: 8, fontSize: 12, color: '#8c8c8c' }}>
-                            Phiếu Nhập thành công
-                        </div>
                     </Card>
                 </Col>
-                <Col span={6}>
-                    <Card size="small" style={{ borderRadius: 8 }}>
+                <Col xs={12} sm={6}>
+                    <Card size="small" style={{ borderRadius: 8, height: '100%' }}>
                         <Statistic 
-                            title="Giá trị Xuất kho" 
+                            title={<span style={{fontSize: isMobile ? 12 : 14}}>Xuất kho</span>}
                             value={stats.valOut} 
-                            valueStyle={{ color: '#fa8c16' }} 
+                            valueStyle={{ color: '#fa8c16', fontSize: isMobile ? 16 : 20 }} 
                             prefix={<ExportOutlined />} 
                             suffix="đ"
                         />
-                        <div style={{ marginTop: 8, fontSize: 12, color: '#8c8c8c' }}>
-                            Tất cả Phiếu Xuất
-                        </div>
                     </Card>
                 </Col>
-                <Col span={6}>
-                    <Card size="small" style={{ borderRadius: 8 }}>
+                <Col xs={12} sm={6}>
+                    <Card size="small" style={{ borderRadius: 8, height: '100%' }}>
                         <Statistic 
-                            title="Cần duyệt / Chờ xử lý" 
+                            title={<span style={{fontSize: isMobile ? 12 : 14}}>Cần duyệt</span>}
                             value={stats.pending} 
-                            valueStyle={{ color: '#eb2f96' }} 
+                            valueStyle={{ color: '#eb2f96', fontSize: isMobile ? 18 : 24 }} 
                             prefix={<ClockCircleOutlined />} 
                         />
-                        <div style={{ marginTop: 8, fontSize: 12, color: '#8c8c8c' }}>
-                            Yêu cầu chờ thủ kho xác nhận
-                        </div>
                     </Card>
                 </Col>
             </Row>
 
-            <Card bodyStyle={{ padding: '0 0 16px 0' }} style={{ borderRadius: 8, overflow: 'hidden' }}>
+            <Card bodyStyle={{ padding: 0 }} style={{ borderRadius: 8, overflow: 'hidden' }}>
                 <Tabs
                     activeKey={activeTabType}
                     onChange={(k) => {
@@ -245,21 +240,19 @@ const InventoryHistory: React.FC = () => {
                         setActiveStep('ALL'); // Reset step khi đổi tab
                     }}
                     items={tabTypes}
-                    style={{ padding: '0 24px', backgroundColor: '#fff', borderBottom: '1px solid #f0f0f0' }}
+                    style={{ padding: isMobile ? '0 12px' : '0 24px', backgroundColor: '#fff', borderBottom: '1px solid #f0f0f0' }}
+                    size={isMobile ? 'small' : 'middle'}
                 />
 
-                <div style={{ padding: '20px 24px' }}>
-                    <Row gutter={[16, 16]} align="middle" justify="space-between" style={{ marginBottom: 24 }}>
-                        <Col flex="1">
+                <div style={{ padding: isMobile ? '12px' : '20px 24px' }}>
+                    <div style={{ marginBottom: 24 }}>
+                        <div style={{ overflowX: 'auto', paddingBottom: 8, marginBottom: 16 }}>
                             <Steps 
                                 type="navigation"
                                 size="small"
                                 current={currentStepIndex !== -1 ? currentStepIndex : 0}
                                 onChange={idx => setActiveStep(STATUS_STEPS[idx].key)}
-                                style={{
-                                    // Custom style to hide the circle/index if icon is null
-                                    borderBottom: 'none'
-                                }}
+                                style={{ minWidth: isMobile ? 600 : 'auto', borderBottom: 'none' }}
                                 items={STATUS_STEPS.map((s, index) => {
                                     const count = stepCounts[s.key] || 0;
                                     const isActive = currentStepIndex === index;
@@ -273,7 +266,8 @@ const InventoryHistory: React.FC = () => {
                                                     style={{ 
                                                         backgroundColor: isActive ? '#1890ff' : '#f0f0f0',
                                                         color: isActive ? '#fff' : '#8c8c8c',
-                                                        boxShadow: 'none'
+                                                        boxShadow: 'none',
+                                                        fontSize: 10
                                                     }} 
                                                 />
                                             </Space>
@@ -282,27 +276,63 @@ const InventoryHistory: React.FC = () => {
                                     };
                                 })}
                             />
-                        </Col>
-                        <Col>
-                            <Input
-                                placeholder="Tìm mã phiếu, đối tượng..."
-                                prefix={<SearchOutlined />}
-                                value={searchText}
-                                onChange={e => setSearchText(e.target.value)}
-                                style={{ width: 250 }}
-                                allowClear
-                            />
-                        </Col>
-                    </Row>
+                        </div>
+                        
+                        <Input
+                            placeholder="Tìm mã phiếu, đối tượng..."
+                            prefix={<SearchOutlined />}
+                            value={searchText}
+                            onChange={e => setSearchText(e.target.value)}
+                            style={{ width: isMobile ? '100%' : 300 }}
+                            allowClear
+                            size={isMobile ? 'large' : 'middle'}
+                        />
+                    </div>
 
-                    <Table
-                        rowKey="id"
-                        dataSource={finalList}
-                        size="small"
-                        scroll={{ x: 'max-content' }}
-                        columns={columns}
-                        pagination={{ pageSize: 15 }}
-                    />
+                    {!isMobile ? (
+                        <Table
+                            rowKey="id"
+                            dataSource={finalList}
+                            size="small"
+                            scroll={{ x: 'max-content' }}
+                            columns={columns}
+                            pagination={{ pageSize: 15 }}
+                        />
+                    ) : (
+                        <List
+                            dataSource={finalList}
+                            pagination={{ pageSize: 10, size: 'small' }}
+                            renderItem={(item) => (
+                                <List.Item style={{ padding: '12px 0' }}>
+                                    <Card 
+                                        size="small" 
+                                        style={{ width: '100%', borderRadius: 12, border: '1px solid #f0f0f0' }}
+                                        onClick={() => navigate(`/accountant/inventory/order/${item.id}`)}
+                                    >
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                                            <Text strong>{item.code}</Text>
+                                            {getStatusTag(item.status)}
+                                        </div>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                                            <Text type="secondary" style={{fontSize: 12}}>Nguồn:</Text>
+                                            <Text style={{fontSize: 12}}>{item.source || '—'}</Text>
+                                        </div>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                                            <Text type="secondary" style={{fontSize: 12}}>Hành trình:</Text>
+                                            {item.journeyCode ? <Tag color="blue" style={{margin: 0, fontSize: 10}}>{item.journeyCode}</Tag> : <Text style={{fontSize: 12}}>{item.projectName || '—'}</Text>}
+                                        </div>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, paddingTop: 8, borderTop: '1px dashed #f0f0f0' }}>
+                                            <Text type="secondary" style={{fontSize: 11}}>{item.createdAt}</Text>
+                                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                <Text strong style={{ color: '#fa8c16', marginRight: 8 }}>{(item.totalValue || 0).toLocaleString('vi-VN')}đ</Text>
+                                                <ArrowRightOutlined style={{ fontSize: 12, color: '#bfbfbf' }} />
+                                            </div>
+                                        </div>
+                                    </Card>
+                                </List.Item>
+                            )}
+                        />
+                    )}
                 </div>
             </Card>
         </div>
@@ -310,3 +340,4 @@ const InventoryHistory: React.FC = () => {
 };
 
 export default InventoryHistory;
+
