@@ -1,0 +1,15 @@
+import type { PortalDocument } from '../types/portal';
+
+const samplePdfUrl = 'https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf';
+
+export const mockPortalDocuments: PortalDocument[] = [
+    { id: 'doc-001', journey_id: 'j-001', journey_code: 'HT-2026-001', context_type: 'survey', published_context: 'Khao sat', file_name: 'Bao cao khao sat.pdf', file_type: 'pdf', published_at: '2026-02-15', sort_order: 1, is_visible: true, url: samplePdfUrl, download_url: samplePdfUrl },
+    { id: 'doc-002', journey_id: 'j-001', journey_code: 'HT-2026-001', context_type: 'quotation', published_context: 'Bao gia', file_name: 'Bao gia CT-2026-001.pdf', file_type: 'pdf', published_at: '2026-02-20', sort_order: 2, is_visible: true, url: samplePdfUrl, download_url: samplePdfUrl },
+    { id: 'doc-003', journey_id: 'j-001', journey_code: 'HT-2026-001', context_type: 'contract', published_context: 'Hop dong', file_name: 'Hop dong HD-001.pdf', file_type: 'pdf', published_at: '2026-02-28', sort_order: 3, is_visible: true, url: samplePdfUrl, download_url: samplePdfUrl },
+    { id: 'doc-004', journey_id: 'j-001', journey_code: 'HT-2026-001', context_type: 'survey', published_context: 'Khao sat', file_name: 'Anh hien trang 1.jpg', file_type: 'image', published_at: '2026-02-15', sort_order: 4, is_visible: true, url: 'https://picsum.photos/400/300?random=101', thumbnail_url: 'https://picsum.photos/200/150?random=101' },
+    { id: 'doc-005', journey_id: 'j-001', journey_code: 'HT-2026-001', context_type: 'survey', published_context: 'Khao sat', file_name: 'Anh hien trang 2.jpg', file_type: 'image', published_at: '2026-02-15', sort_order: 5, is_visible: true, url: 'https://picsum.photos/400/300?random=102', thumbnail_url: 'https://picsum.photos/200/150?random=102' },
+    { id: 'doc-006', journey_id: 'j-001', journey_code: 'HT-2026-001', context_type: 'progress', published_context: 'Thi cong', file_name: 'Anh thi cong 1.jpg', file_type: 'image', published_at: '2026-03-08', sort_order: 6, is_visible: true, url: 'https://picsum.photos/400/300?random=103', thumbnail_url: 'https://picsum.photos/200/150?random=103' },
+    { id: 'doc-007', journey_id: 'j-003', journey_code: 'HT-2026-003', context_type: 'progress', published_context: 'Thi cong', file_name: 'Bien ban cap nhat tien do.pdf', file_type: 'pdf', published_at: '2026-03-08', sort_order: 1, is_visible: true, url: samplePdfUrl, download_url: samplePdfUrl },
+    { id: 'doc-008', journey_id: 'j-003', journey_code: 'HT-2026-003', context_type: 'payment', published_context: 'Thanh toan', file_name: 'Phieu xac nhan thanh toan dot 1.pdf', file_type: 'pdf', published_at: '2026-03-09', sort_order: 2, is_visible: true, url: samplePdfUrl, download_url: samplePdfUrl },
+    { id: 'doc-009', journey_id: 'j-003', journey_code: 'HT-2026-003', context_type: 'progress', published_context: 'Thi cong', file_name: 'Anh thi cong san 1.jpg', file_type: 'image', published_at: '2026-03-08', sort_order: 3, is_visible: true, url: 'https://picsum.photos/400/300?random=104', thumbnail_url: 'https://picsum.photos/200/150?random=104' },
+];

@@ -142,7 +142,7 @@ const PortalDashboard: React.FC<PortalDashboardProps> = ({ journey, token, onNav
                         <Card size="small" style={{ borderRadius: 12, height: '100%', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }} bodyStyle={{ padding: 16 }}>
                             <Statistic 
                                 title={<span style={{ fontSize: 12 }}>Tài liệu dự án</span>}
-                                value={journey.document_count || 3} 
+                                value={journey.document_count ?? 0} 
                                 valueStyle={{ color: '#52c41a', fontWeight: 600, fontSize: 20 }}
                                 prefix={<FileTextOutlined style={{ marginRight: 8, color: '#b7eb8f' }} />}
                             />

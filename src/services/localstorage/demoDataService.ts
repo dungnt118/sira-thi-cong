@@ -32,6 +32,7 @@ import {
     mockLaborPlans,
     mockMaterialDetails
 } from '../../data/journeyMockData';
+import { mockPortalDocuments } from '../../data/portalMockData';
 
 /**
  * Demo Data Service
@@ -60,6 +61,7 @@ export const demoDataService = {
         JOURNEY_TEMPLATES: 'demo_journey_templates',
         SURVEYS: 'demo_surveys',
         PORTAL_THREADS: 'demo_portal_threads',
+        PORTAL_DOCUMENTS: 'demo_portal_documents',
         ACTION_ITEMS: 'demo_action_items',
         QUOTATIONS: 'demo_quotations',
         CONTRACTS: 'demo_contracts',
@@ -97,6 +99,7 @@ export const demoDataService = {
             [this.KEYS.JOURNEY_TEMPLATES]: mockJourneyTemplates,
             [this.KEYS.SURVEYS]: mockSurveys,
             [this.KEYS.PORTAL_THREADS]: mockPortalThreads,
+            [this.KEYS.PORTAL_DOCUMENTS]: mockPortalDocuments,
             [this.KEYS.ACTION_ITEMS]: mockActionItems,
             [this.KEYS.QUOTATIONS]: mockQuotations,
             [this.KEYS.CONTRACTS]: mockContracts,
