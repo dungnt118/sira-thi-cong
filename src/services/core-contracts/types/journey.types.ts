@@ -1,0 +1,121 @@
+import type { IndexedContentItem } from 'types/apis';
+import type { ApiListResponse, ApiResponse } from 'types/apis/ApiResponse';
+import type { HeadlessFileUpload } from 'types/apis/HeadlessFileUpload';
+
+/**
+ * Journey interface
+ * Auto-generated from Schema: Journey
+ */
+export interface IJourney {
+  _id: string;
+  journey_code?: string;
+  request_title?: string;
+  customer_id?: string;
+  idx_customer_id?: IndexedContentItem;
+  owner_user_id?: any;
+  site_address?: string;
+  requested_service?: string;
+  priority?: JourneyPriorityEnum;
+  go_no_go_status?: JourneyGoNoGoStatusEnum;
+  sla_status?: JourneySlaStatusEnum;
+  portal_publish_status?: JourneyPortalPublishStatusEnum;
+  source_channel?: JourneySourceChannelEnum;
+  survey_status?: JourneySurveyStatusEnum;
+  quote_status?: JourneyQuoteStatusEnum;
+  project_status?: JourneyProjectStatusEnum;
+  current_step?: JourneyCurrentStepEnum;
+  request_description?: string;
+  portal_token?: string;
+  last_activity_at?: string | Date;
+  latest_site_report_at?: string | Date;
+  supervisor_name?: string;
+  blocked_task_count?: number;
+  progress_pct?: number;
+  stock_risk_summary?: string;
+  procurement_alert_count?: number;
+  material_need_status?: JourneyMaterialNeedStatusEnum;
+  key_material_summary?: string;
+  asset_need_summary?: string;
+  last_payment_note?: string;
+  outstanding_amount?: number;
+  latest_thread_status?: string;
+  thread_count?: number;
+  next_milestone_name?: string;
+  latest_thread_context?: string;
+  milestone_count?: number;
+  total_contract_value?: number;
+  unread_thread_count?: number;
+  collected_amount?: number;
+  next_milestone_due?: string | Date;
+  published_step_count?: number;
+  missing_document_count?: number;
+  document_count?: number;
+}
+
+export interface ICreateJourneyInput {
+  journey_code?: string;
+  request_title?: string;
+  customer_id?: string;
+  owner_user_id?: any;
+  site_address?: string;
+  requested_service?: string;
+  priority?: JourneyPriorityEnum2;
+  go_no_go_status?: JourneyGoNoGoStatusEnum2;
+  sla_status?: JourneySlaStatusEnum2;
+  portal_publish_status?: JourneyPortalPublishStatusEnum2;
+  source_channel?: JourneySourceChannelEnum2;
+  survey_status?: JourneySurveyStatusEnum2;
+  quote_status?: JourneyQuoteStatusEnum2;
+  project_status?: JourneyProjectStatusEnum2;
+  current_step?: JourneyCurrentStepEnum2;
+  request_description?: string;
+  portal_token?: string;
+  last_activity_at?: string | Date;
+  latest_site_report_at?: string | Date;
+  supervisor_name?: string;
+  blocked_task_count?: number;
+  progress_pct?: number;
+  stock_risk_summary?: string;
+  procurement_alert_count?: number;
+  material_need_status?: JourneyMaterialNeedStatusEnum2;
+  key_material_summary?: string;
+  asset_need_summary?: string;
+  last_payment_note?: string;
+  outstanding_amount?: number;
+  latest_thread_status?: string;
+  thread_count?: number;
+  next_milestone_name?: string;
+  latest_thread_context?: string;
+  milestone_count?: number;
+  total_contract_value?: number;
+  unread_thread_count?: number;
+  collected_amount?: number;
+  next_milestone_due?: string | Date;
+  published_step_count?: number;
+  missing_document_count?: number;
+  document_count?: number;
+}
+
+export type IJourneyListResponse = ApiListResponse<IJourney>
+
+// Union types generated from value_options
+export type JourneyPriorityEnum = 'low' | 'medium' | 'high' | 'critical';
+export type JourneyGoNoGoStatusEnum = 'draft' | 'go' | 'no_go' | 'on_hold' | 'pending';
+export type JourneySlaStatusEnum = 'on_time' | 'at_risk' | 'overdue';
+export type JourneyPortalPublishStatusEnum = 'hidden' | 'partial' | 'published';
+export type JourneySourceChannelEnum = 'marketing' | 'hotline' | 'referral' | 'direct';
+export type JourneySurveyStatusEnum = 'not_started' | 'scheduled' | 'in_progress' | 'completed';
+export type JourneyQuoteStatusEnum = 'not_started' | 'draft' | 'sent' | 'approved';
+export type JourneyProjectStatusEnum = 'not_started' | 'active' | 'completed' | 'cancelled';
+export type JourneyCurrentStepEnum = 'lead_intake' | 'qualification' | 'survey_planning' | 'site_survey' | 'survey_review' | 'estimate_preparation' | 'quotation_preparation' | 'quotation_sent' | 'quotation_approved' | 'contract_signing' | 'project_execution' | 'handover_acceptance' | 'warranty_aftercare';
+export type JourneyMaterialNeedStatusEnum = 'enough' | 'partial' | 'waiting';
+export type JourneyPriorityEnum2 = 'low' | 'medium' | 'high' | 'critical';
+export type JourneyGoNoGoStatusEnum2 = 'draft' | 'go' | 'no_go' | 'on_hold' | 'pending';
+export type JourneySlaStatusEnum2 = 'on_time' | 'at_risk' | 'overdue';
+export type JourneyPortalPublishStatusEnum2 = 'hidden' | 'partial' | 'published';
+export type JourneySourceChannelEnum2 = 'marketing' | 'hotline' | 'referral' | 'direct';
+export type JourneySurveyStatusEnum2 = 'not_started' | 'scheduled' | 'in_progress' | 'completed';
+export type JourneyQuoteStatusEnum2 = 'not_started' | 'draft' | 'sent' | 'approved';
+export type JourneyProjectStatusEnum2 = 'not_started' | 'active' | 'completed' | 'cancelled';
+export type JourneyCurrentStepEnum2 = 'lead_intake' | 'qualification' | 'survey_planning' | 'site_survey' | 'survey_review' | 'estimate_preparation' | 'quotation_preparation' | 'quotation_sent' | 'quotation_approved' | 'contract_signing' | 'project_execution' | 'handover_acceptance' | 'warranty_aftercare';
+export type JourneyMaterialNeedStatusEnum2 = 'enough' | 'partial' | 'waiting';

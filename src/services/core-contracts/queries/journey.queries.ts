@@ -1,0 +1,125 @@
+import { gql } from 'graphql-tag';
+
+/**
+ * Find Journey DTO with typed data
+ */
+export const FIND_JOURNEY_DTO = gql`
+  query FindJourneyDto($_id: String!, $custominput: Dictionary) {
+    response: find_Journey_dto(_id: $_id, custominput: $custominput) {
+      code
+      message
+      data {
+        _id
+        createdAt
+        updatedAt
+        createdBy
+        updatedBy
+        journey_code
+        request_title
+        customer_id
+        idx_customer_id
+        customer_id
+        owner_user_id
+        site_address
+        requested_service
+        priority
+        go_no_go_status
+        sla_status
+        portal_publish_status
+        source_channel
+        survey_status
+        quote_status
+        project_status
+        current_step
+        request_description
+        portal_token
+        last_activity_at
+        latest_site_report_at
+        supervisor_name
+        blocked_task_count
+        progress_pct
+        stock_risk_summary
+        procurement_alert_count
+        material_need_status
+        key_material_summary
+        asset_need_summary
+        last_payment_note
+        outstanding_amount
+        latest_thread_status
+        thread_count
+        next_milestone_name
+        latest_thread_context
+        milestone_count
+        total_contract_value
+        unread_thread_count
+        collected_amount
+        next_milestone_due
+        published_step_count
+        missing_document_count
+        document_count
+      }
+    }
+  }
+`;
+
+/**
+ * Query Journeys DTO list
+ */
+export const QUERY_JOURNEYS_DTO = gql`
+  query QueryJourneysDto(
+    $filter: GeneralCollectionFilterInput,
+    $custominput: Dictionary
+  ) {
+    response: query_Journeys_dto(filter: $filter, custominput: $custominput) {
+      code
+      message
+      records
+      data {
+        _id
+        journey_code
+        request_title
+        customer_id
+        idx_customer_id
+        customer_id
+        owner_user_id
+        site_address
+        requested_service
+        priority
+        go_no_go_status
+        sla_status
+        portal_publish_status
+        source_channel
+        survey_status
+        quote_status
+        project_status
+        current_step
+        request_description
+        portal_token
+        last_activity_at
+        latest_site_report_at
+        supervisor_name
+        blocked_task_count
+        progress_pct
+        stock_risk_summary
+        procurement_alert_count
+        material_need_status
+        key_material_summary
+        asset_need_summary
+        last_payment_note
+        outstanding_amount
+        latest_thread_status
+        thread_count
+        next_milestone_name
+        latest_thread_context
+        milestone_count
+        total_contract_value
+        unread_thread_count
+        collected_amount
+        next_milestone_due
+        published_step_count
+        missing_document_count
+        document_count
+      }
+    }
+  }
+`;

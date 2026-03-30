@@ -1,0 +1,1863 @@
+import { gql } from 'graphql-tag';
+
+/**
+ * Find ReportPanel DTO with typed data
+ */
+export const FIND_REPORTPANEL_DTO = gql`
+  query FindReportPanelDto($_id: String!, $custominput: Dictionary) {
+    response: find_ReportPanel_dto(_id: $_id, custominput: $custominput) {
+      code
+      message
+      data {
+        _id
+        createdAt
+        updatedAt
+        createdBy
+        updatedBy
+        panelType
+        dsType
+        dsId
+        isLocked
+        target_schema
+        displayTitle
+        displayDesc
+        title
+        chartHeight
+        graph {
+          items {
+            nodeId
+            schemaId
+            label
+            name
+            collection
+            color
+            x
+            y
+            unwind
+            enableExtra
+            extraPipeline
+          }
+          connectors {
+            sourceId
+            sourceField
+            label
+            function
+            withParent
+            connectToField
+            targetId
+            targetField
+            key
+            active
+          }
+          name
+          id
+        }
+        basePipeline
+        dimensions {
+          Length
+          LongLength
+          Rank
+          SyncRoot
+          IsReadOnly
+          IsFixedSize
+          IsSynchronized
+        }
+        measures {
+          Length
+          LongLength
+          Rank
+          SyncRoot
+          IsReadOnly
+          IsFixedSize
+          IsSynchronized
+        }
+        fix_filter {
+          createdBy
+          updatedBy
+          lang
+          version {
+            Major
+            Minor
+            Build
+            Revision
+            MajorRevision
+            MinorRevision
+          }
+          target_schema
+          segment_schema
+          output_schema
+          collection
+          postQuery
+          preQuery
+          withMergeValidation
+          mergeValidationScript
+          showMergeError
+          mergeErrorMessage
+          postQueryBeforePaging
+          group {
+            op
+            refcollection
+            refalias
+            children {
+              op
+              refcollection
+              refalias
+              children {
+                op
+                refcollection
+                refalias
+                children
+                id
+                value
+                propType
+                namespace
+                operation
+                customQuery
+                rawFilter
+              }
+              id
+              value
+              propType
+              namespace
+              operation
+              customQuery
+              rawFilter
+            }
+            id
+            value
+            propType
+            namespace
+            operation
+            customQuery
+            rawFilter
+          }
+          posgroup {
+            op
+            refcollection
+            refalias
+            children {
+              op
+              refcollection
+              refalias
+              children {
+                op
+                refcollection
+                refalias
+                children
+                id
+                value
+                propType
+                namespace
+                operation
+                customQuery
+                rawFilter
+              }
+              id
+              value
+              propType
+              namespace
+              operation
+              customQuery
+              rawFilter
+            }
+            id
+            value
+            propType
+            namespace
+            operation
+            customQuery
+            rawFilter
+          }
+          description
+          sorted {
+            id
+            desc
+          }
+          pos_sorted {
+            id
+            desc
+          }
+          text
+          skipDefaultTextSearch
+          search_fields {
+            Chars
+            Length
+          }
+          skip
+          limit
+          page
+          withRecords
+          fields
+          inline
+          inline_array
+          delimiter
+          unionWiths {
+            createdBy
+            updatedBy
+            lang
+            version {
+              Major
+              Minor
+              Build
+              Revision
+              MajorRevision
+              MinorRevision
+            }
+            target_schema
+            segment_schema
+            output_schema
+            collection
+            postQuery
+            preQuery
+            withMergeValidation
+            mergeValidationScript
+            showMergeError
+            mergeErrorMessage
+            postQueryBeforePaging
+            group {
+              op
+              refcollection
+              refalias
+              children {
+                op
+                refcollection
+                refalias
+                children
+                id
+                value
+                propType
+                namespace
+                operation
+                customQuery
+                rawFilter
+              }
+              id
+              value
+              propType
+              namespace
+              operation
+              customQuery
+              rawFilter
+            }
+            posgroup {
+              op
+              refcollection
+              refalias
+              children {
+                op
+                refcollection
+                refalias
+                children
+                id
+                value
+                propType
+                namespace
+                operation
+                customQuery
+                rawFilter
+              }
+              id
+              value
+              propType
+              namespace
+              operation
+              customQuery
+              rawFilter
+            }
+            description
+            sorted {
+              id
+              desc
+            }
+            pos_sorted {
+              id
+              desc
+            }
+            text
+            skipDefaultTextSearch
+            search_fields {
+              Chars
+              Length
+            }
+            skip
+            limit
+            page
+            withRecords
+            fields
+            inline
+            inline_array
+            delimiter
+            unionWiths {
+              createdBy
+              updatedBy
+              lang
+              version {
+                Major
+                Minor
+                Build
+                Revision
+                MajorRevision
+                MinorRevision
+              }
+              target_schema
+              segment_schema
+              output_schema
+              collection
+              postQuery
+              preQuery
+              withMergeValidation
+              mergeValidationScript
+              showMergeError
+              mergeErrorMessage
+              postQueryBeforePaging
+              group {
+                op
+                refcollection
+                refalias
+                children
+                id
+                value
+                propType
+                namespace
+                operation
+                customQuery
+                rawFilter
+              }
+              posgroup {
+                op
+                refcollection
+                refalias
+                children
+                id
+                value
+                propType
+                namespace
+                operation
+                customQuery
+                rawFilter
+              }
+              description
+              sorted {
+                id
+                desc
+              }
+              pos_sorted {
+                id
+                desc
+              }
+              text
+              skipDefaultTextSearch
+              search_fields {
+                Chars
+                Length
+              }
+              skip
+              limit
+              page
+              withRecords
+              fields
+              inline
+              inline_array
+              delimiter
+              unionWiths {
+                createdBy
+                updatedBy
+                lang
+                version
+                target_schema
+                segment_schema
+                output_schema
+                collection
+                postQuery
+                preQuery
+                withMergeValidation
+                mergeValidationScript
+                showMergeError
+                mergeErrorMessage
+                postQueryBeforePaging
+                group
+                posgroup
+                description
+                sorted
+                pos_sorted
+                text
+                skipDefaultTextSearch
+                search_fields
+                skip
+                limit
+                page
+                withRecords
+                fields
+                inline
+                inline_array
+                delimiter
+                unionWiths
+                unionLimit
+                createdAt
+                updatedAt
+                name
+                id
+              }
+              unionLimit
+              createdAt
+              updatedAt
+              name
+              id
+            }
+            unionLimit
+            createdAt
+            updatedAt
+            name
+            id
+          }
+          unionLimit
+          createdAt
+          updatedAt
+          name
+          id
+        }
+        skip
+        limit
+        preLimit
+        sorted {
+          Length
+          LongLength
+          Rank
+          SyncRoot
+          IsReadOnly
+          IsFixedSize
+          IsSynchronized
+        }
+        preSorted {
+          Length
+          LongLength
+          Rank
+          SyncRoot
+          IsReadOnly
+          IsFixedSize
+          IsSynchronized
+        }
+        design {
+          paletteName
+          defaultStrokeColors {
+            Length
+            LongLength
+            Rank
+            SyncRoot
+            IsReadOnly
+            IsFixedSize
+            IsSynchronized
+          }
+          defaultFillColors {
+            Length
+            LongLength
+            Rank
+            SyncRoot
+            IsReadOnly
+            IsFixedSize
+            IsSynchronized
+          }
+          fillOpacity
+          showLegend
+          showGrid
+          stacked
+          showDataLabels
+          dataLabelFormat
+          numberFormat
+          dateFormat
+          xAxis {
+            showAxis
+            showGrid
+            labelFormat
+            title
+          }
+          yAxis {
+            showAxis
+            showGrid
+            labelFormat
+            title
+          }
+          seriesStrokeColorByKey {
+            Chars
+            Length
+          }
+          seriesFillColorByKey {
+            Chars
+            Length
+          }
+          defaultGradient {
+            from
+            to
+            direction
+            stops {
+              color
+              percent
+            }
+            opacity
+          }
+          chartTypeGradients {
+            from
+            to
+            direction
+            stops {
+              color
+              percent
+            }
+            opacity
+          }
+          gradientByKey {
+            from
+            to
+            direction
+            stops {
+              color
+              percent
+            }
+            opacity
+          }
+        }
+        setting {
+          wdr
+          fields {
+            key
+            type
+            propType
+            isX
+            format
+            suffix
+            prefix
+            title
+            url
+            faIcon
+            splitChart
+            chartType
+          }
+          fillMissingDates
+          joinDateRange
+        }
+        autoGeneratePipeline
+        filter_setting {
+          items {
+            id
+            label
+            operators
+            editor
+            propType
+            value_options {
+              value
+              label
+              hints
+              color
+              faIcon
+              cssClass
+              style
+              tooltip
+              group
+              order
+              disabled
+              hidden
+              disabledWhen
+              visibleWhen
+            }
+            refSchemas
+            suggestion_script
+            has_suggestion_script
+            minValue
+            maxValue
+            step
+            defaultJsScript
+            defaultValue
+            set_default_value
+            default_js_value
+            use_as_query_only
+            hide
+            schema
+            is_custom
+          }
+          mode
+          position
+        }
+        chartType
+        timeDimensionSetting {
+          enable
+          field
+          timeBucketUnit
+          format
+          isRevert
+          timeWindowUnit
+          windowOffsetStart
+          windowOffsetEnd
+        }
+        outputTypes {
+          key
+          label
+          type
+          schema
+          description
+          nested {
+            Length
+            LongLength
+            Rank
+            SyncRoot
+            IsReadOnly
+            IsFixedSize
+            IsSynchronized
+          }
+        }
+        drilldown {
+          enable
+          inheritBaseFilters
+          inheritTimeDimension
+          autoAppendDimensionMatch
+          rules {
+            drillId
+            title
+            displayType
+            applyCondition
+            matchField
+            childKeyField
+            groupMode
+            dimensions {
+              field
+              key
+              choices {
+                Length
+                LongLength
+                Rank
+                SyncRoot
+                IsReadOnly
+                IsFixedSize
+                IsSynchronized
+              }
+              isCustom
+              expression
+              propType
+              title
+            }
+            measures {
+              type
+              expression
+              key
+              title
+              groupFilter {
+                op
+                refcollection
+                refalias
+                children
+                id
+                value
+                propType
+                namespace
+                operation
+                customQuery
+                rawFilter
+              }
+              groupBys
+            }
+            additionalFilter {
+              op
+              refcollection
+              refalias
+              children {
+                op
+                refcollection
+                refalias
+                children
+                id
+                value
+                propType
+                namespace
+                operation
+                customQuery
+                rawFilter
+              }
+              id
+              value
+              propType
+              namespace
+              operation
+              customQuery
+              rawFilter
+            }
+            projectionFields
+            sorted {
+              id
+              desc
+            }
+            defaultLimit
+            maxLimit
+            supportsCount
+            nextDrillId
+            requireValue
+            rawMode
+            timeWindowOverride
+          }
+        }
+        kpis {
+          key
+          label
+          description
+          kpiType
+          scope
+          measure
+          aggregation
+          formula
+          dependencies
+          comparison {
+            type
+            period
+            offset
+            minPeriods
+            dateField
+            bucket
+            accumulate
+          }
+          target {
+            value
+            comparisonType
+          }
+          window {
+            method
+            size
+            dateField
+            bucket
+            minPeriods
+            alpha
+          }
+          status {
+            rules {
+              condition
+              state
+            }
+            defaultState
+          }
+          format {
+            style
+            precision
+            prefix
+            suffix
+            scale
+          }
+          pointMode {
+            dimensionField
+            drill
+            returnHistory
+          }
+        }
+        no_header
+        enableBc
+        actions {
+          name
+          steps {
+            subject
+            type
+            disabled
+            setting
+            is_skip_condition
+            is_terminate_condition
+            skip_condition
+            show_confirm_message
+            confirm_message
+            confirm_type
+            confirm_ok_label
+            confirm_cancel_label
+            show_finish_message
+            finish_message
+            finish_message_type
+            terminate_condition
+            show_loading
+            loading_message
+          }
+          placement
+          trackClickBegin
+          trackClickEnd
+          enableDisplayCondition
+          displayCondition
+          isSubmitForm
+          use_api_check_executable
+          api_check_executable
+          key
+          className
+          faIcon
+          style
+          data_grid {
+            x
+            y
+            w
+            h
+            static
+            minW
+            minH
+            isResizable
+            isDraggable
+            isBounded
+          }
+        }
+        maxActiveAction
+        is_custom_header
+        custom_headerId
+        extraAuthorizationScript
+        version {
+          Major
+          Minor
+          Build
+          Revision
+          MajorRevision
+          MinorRevision
+        }
+        moduleIds
+        enableBackAction
+        backAction {
+          name
+          steps {
+            subject
+            type
+            disabled
+            setting
+            is_skip_condition
+            is_terminate_condition
+            skip_condition
+            show_confirm_message
+            confirm_message
+            confirm_type
+            confirm_ok_label
+            confirm_cancel_label
+            show_finish_message
+            finish_message
+            finish_message_type
+            terminate_condition
+            show_loading
+            loading_message
+          }
+          placement
+          trackClickBegin
+          trackClickEnd
+          enableDisplayCondition
+          displayCondition
+          isSubmitForm
+          use_api_check_executable
+          api_check_executable
+          key
+          className
+          faIcon
+          style
+          data_grid {
+            x
+            y
+            w
+            h
+            static
+            minW
+            minH
+            isResizable
+            isDraggable
+            isBounded
+          }
+        }
+        description
+        requiredExtraAuthorization
+        allowAnonymous
+        autoReload
+        interval
+        path
+        initial_action_steps {
+          subject
+          type
+          disabled
+          setting
+          is_skip_condition
+          is_terminate_condition
+          skip_condition
+          show_confirm_message
+          confirm_message
+          confirm_type
+          confirm_ok_label
+          confirm_cancel_label
+          show_finish_message
+          finish_message
+          finish_message_type
+          terminate_condition
+          show_loading
+          loading_message
+        }
+        isInvEvent
+        inv_evt_second
+        inv_action_steps {
+          subject
+          type
+          disabled
+          setting
+          is_skip_condition
+          is_terminate_condition
+          skip_condition
+          show_confirm_message
+          confirm_message
+          confirm_type
+          confirm_ok_label
+          confirm_cancel_label
+          show_finish_message
+          finish_message
+          finish_message_type
+          terminate_condition
+          show_loading
+          loading_message
+        }
+        isDcEvent
+        dc_action_steps {
+          subject
+          type
+          disabled
+          setting
+          is_skip_condition
+          is_terminate_condition
+          skip_condition
+          show_confirm_message
+          confirm_message
+          confirm_type
+          confirm_ok_label
+          confirm_cancel_label
+          show_finish_message
+          finish_message
+          finish_message_type
+          terminate_condition
+          show_loading
+          loading_message
+        }
+        use_ext_db
+        ext_db_id
+        name
+      }
+    }
+  }
+`;
+
+/**
+ * Query ReportPanels DTO list
+ */
+export const QUERY_REPORTPANELS_DTO = gql`
+  query QueryReportPanelsDto(
+    $filter: GeneralCollectionFilterInput,
+    $custominput: Dictionary
+  ) {
+    response: query_ReportPanels_dto(filter: $filter, custominput: $custominput) {
+      code
+      message
+      records
+      data {
+        _id
+        panelType
+        dsType
+        dsId
+        isLocked
+        target_schema
+        displayTitle
+        displayDesc
+        title
+        chartHeight
+        graph {
+          items {
+            nodeId
+            schemaId
+            label
+            name
+            collection
+            color
+            x
+            y
+            unwind
+            enableExtra
+            extraPipeline
+          }
+          connectors {
+            sourceId
+            sourceField
+            label
+            function
+            withParent
+            connectToField
+            targetId
+            targetField
+            key
+            active
+          }
+          name
+          id
+        }
+        basePipeline
+        dimensions {
+          Length
+          LongLength
+          Rank
+          SyncRoot
+          IsReadOnly
+          IsFixedSize
+          IsSynchronized
+        }
+        measures {
+          Length
+          LongLength
+          Rank
+          SyncRoot
+          IsReadOnly
+          IsFixedSize
+          IsSynchronized
+        }
+        fix_filter {
+          createdBy
+          updatedBy
+          lang
+          version {
+            Major
+            Minor
+            Build
+            Revision
+            MajorRevision
+            MinorRevision
+          }
+          target_schema
+          segment_schema
+          output_schema
+          collection
+          postQuery
+          preQuery
+          withMergeValidation
+          mergeValidationScript
+          showMergeError
+          mergeErrorMessage
+          postQueryBeforePaging
+          group {
+            op
+            refcollection
+            refalias
+            children {
+              op
+              refcollection
+              refalias
+              children {
+                op
+                refcollection
+                refalias
+                children
+                id
+                value
+                propType
+                namespace
+                operation
+                customQuery
+                rawFilter
+              }
+              id
+              value
+              propType
+              namespace
+              operation
+              customQuery
+              rawFilter
+            }
+            id
+            value
+            propType
+            namespace
+            operation
+            customQuery
+            rawFilter
+          }
+          posgroup {
+            op
+            refcollection
+            refalias
+            children {
+              op
+              refcollection
+              refalias
+              children {
+                op
+                refcollection
+                refalias
+                children
+                id
+                value
+                propType
+                namespace
+                operation
+                customQuery
+                rawFilter
+              }
+              id
+              value
+              propType
+              namespace
+              operation
+              customQuery
+              rawFilter
+            }
+            id
+            value
+            propType
+            namespace
+            operation
+            customQuery
+            rawFilter
+          }
+          description
+          sorted {
+            id
+            desc
+          }
+          pos_sorted {
+            id
+            desc
+          }
+          text
+          skipDefaultTextSearch
+          search_fields {
+            Chars
+            Length
+          }
+          skip
+          limit
+          page
+          withRecords
+          fields
+          inline
+          inline_array
+          delimiter
+          unionWiths {
+            createdBy
+            updatedBy
+            lang
+            version {
+              Major
+              Minor
+              Build
+              Revision
+              MajorRevision
+              MinorRevision
+            }
+            target_schema
+            segment_schema
+            output_schema
+            collection
+            postQuery
+            preQuery
+            withMergeValidation
+            mergeValidationScript
+            showMergeError
+            mergeErrorMessage
+            postQueryBeforePaging
+            group {
+              op
+              refcollection
+              refalias
+              children {
+                op
+                refcollection
+                refalias
+                children
+                id
+                value
+                propType
+                namespace
+                operation
+                customQuery
+                rawFilter
+              }
+              id
+              value
+              propType
+              namespace
+              operation
+              customQuery
+              rawFilter
+            }
+            posgroup {
+              op
+              refcollection
+              refalias
+              children {
+                op
+                refcollection
+                refalias
+                children
+                id
+                value
+                propType
+                namespace
+                operation
+                customQuery
+                rawFilter
+              }
+              id
+              value
+              propType
+              namespace
+              operation
+              customQuery
+              rawFilter
+            }
+            description
+            sorted {
+              id
+              desc
+            }
+            pos_sorted {
+              id
+              desc
+            }
+            text
+            skipDefaultTextSearch
+            search_fields {
+              Chars
+              Length
+            }
+            skip
+            limit
+            page
+            withRecords
+            fields
+            inline
+            inline_array
+            delimiter
+            unionWiths {
+              createdBy
+              updatedBy
+              lang
+              version {
+                Major
+                Minor
+                Build
+                Revision
+                MajorRevision
+                MinorRevision
+              }
+              target_schema
+              segment_schema
+              output_schema
+              collection
+              postQuery
+              preQuery
+              withMergeValidation
+              mergeValidationScript
+              showMergeError
+              mergeErrorMessage
+              postQueryBeforePaging
+              group {
+                op
+                refcollection
+                refalias
+                children
+                id
+                value
+                propType
+                namespace
+                operation
+                customQuery
+                rawFilter
+              }
+              posgroup {
+                op
+                refcollection
+                refalias
+                children
+                id
+                value
+                propType
+                namespace
+                operation
+                customQuery
+                rawFilter
+              }
+              description
+              sorted {
+                id
+                desc
+              }
+              pos_sorted {
+                id
+                desc
+              }
+              text
+              skipDefaultTextSearch
+              search_fields {
+                Chars
+                Length
+              }
+              skip
+              limit
+              page
+              withRecords
+              fields
+              inline
+              inline_array
+              delimiter
+              unionWiths {
+                createdBy
+                updatedBy
+                lang
+                version
+                target_schema
+                segment_schema
+                output_schema
+                collection
+                postQuery
+                preQuery
+                withMergeValidation
+                mergeValidationScript
+                showMergeError
+                mergeErrorMessage
+                postQueryBeforePaging
+                group
+                posgroup
+                description
+                sorted
+                pos_sorted
+                text
+                skipDefaultTextSearch
+                search_fields
+                skip
+                limit
+                page
+                withRecords
+                fields
+                inline
+                inline_array
+                delimiter
+                unionWiths
+                unionLimit
+                createdAt
+                updatedAt
+                name
+                id
+              }
+              unionLimit
+              createdAt
+              updatedAt
+              name
+              id
+            }
+            unionLimit
+            createdAt
+            updatedAt
+            name
+            id
+          }
+          unionLimit
+          createdAt
+          updatedAt
+          name
+          id
+        }
+        skip
+        limit
+        preLimit
+        sorted {
+          Length
+          LongLength
+          Rank
+          SyncRoot
+          IsReadOnly
+          IsFixedSize
+          IsSynchronized
+        }
+        preSorted {
+          Length
+          LongLength
+          Rank
+          SyncRoot
+          IsReadOnly
+          IsFixedSize
+          IsSynchronized
+        }
+        design {
+          paletteName
+          defaultStrokeColors {
+            Length
+            LongLength
+            Rank
+            SyncRoot
+            IsReadOnly
+            IsFixedSize
+            IsSynchronized
+          }
+          defaultFillColors {
+            Length
+            LongLength
+            Rank
+            SyncRoot
+            IsReadOnly
+            IsFixedSize
+            IsSynchronized
+          }
+          fillOpacity
+          showLegend
+          showGrid
+          stacked
+          showDataLabels
+          dataLabelFormat
+          numberFormat
+          dateFormat
+          xAxis {
+            showAxis
+            showGrid
+            labelFormat
+            title
+          }
+          yAxis {
+            showAxis
+            showGrid
+            labelFormat
+            title
+          }
+          seriesStrokeColorByKey {
+            Chars
+            Length
+          }
+          seriesFillColorByKey {
+            Chars
+            Length
+          }
+          defaultGradient {
+            from
+            to
+            direction
+            stops {
+              color
+              percent
+            }
+            opacity
+          }
+          chartTypeGradients {
+            from
+            to
+            direction
+            stops {
+              color
+              percent
+            }
+            opacity
+          }
+          gradientByKey {
+            from
+            to
+            direction
+            stops {
+              color
+              percent
+            }
+            opacity
+          }
+        }
+        setting {
+          wdr
+          fields {
+            key
+            type
+            propType
+            isX
+            format
+            suffix
+            prefix
+            title
+            url
+            faIcon
+            splitChart
+            chartType
+          }
+          fillMissingDates
+          joinDateRange
+        }
+        autoGeneratePipeline
+        filter_setting {
+          items {
+            id
+            label
+            operators
+            editor
+            propType
+            value_options {
+              value
+              label
+              hints
+              color
+              faIcon
+              cssClass
+              style
+              tooltip
+              group
+              order
+              disabled
+              hidden
+              disabledWhen
+              visibleWhen
+            }
+            refSchemas
+            suggestion_script
+            has_suggestion_script
+            minValue
+            maxValue
+            step
+            defaultJsScript
+            defaultValue
+            set_default_value
+            default_js_value
+            use_as_query_only
+            hide
+            schema
+            is_custom
+          }
+          mode
+          position
+        }
+        chartType
+        timeDimensionSetting {
+          enable
+          field
+          timeBucketUnit
+          format
+          isRevert
+          timeWindowUnit
+          windowOffsetStart
+          windowOffsetEnd
+        }
+        outputTypes {
+          key
+          label
+          type
+          schema
+          description
+          nested {
+            Length
+            LongLength
+            Rank
+            SyncRoot
+            IsReadOnly
+            IsFixedSize
+            IsSynchronized
+          }
+        }
+        drilldown {
+          enable
+          inheritBaseFilters
+          inheritTimeDimension
+          autoAppendDimensionMatch
+          rules {
+            drillId
+            title
+            displayType
+            applyCondition
+            matchField
+            childKeyField
+            groupMode
+            dimensions {
+              field
+              key
+              choices {
+                Length
+                LongLength
+                Rank
+                SyncRoot
+                IsReadOnly
+                IsFixedSize
+                IsSynchronized
+              }
+              isCustom
+              expression
+              propType
+              title
+            }
+            measures {
+              type
+              expression
+              key
+              title
+              groupFilter {
+                op
+                refcollection
+                refalias
+                children
+                id
+                value
+                propType
+                namespace
+                operation
+                customQuery
+                rawFilter
+              }
+              groupBys
+            }
+            additionalFilter {
+              op
+              refcollection
+              refalias
+              children {
+                op
+                refcollection
+                refalias
+                children
+                id
+                value
+                propType
+                namespace
+                operation
+                customQuery
+                rawFilter
+              }
+              id
+              value
+              propType
+              namespace
+              operation
+              customQuery
+              rawFilter
+            }
+            projectionFields
+            sorted {
+              id
+              desc
+            }
+            defaultLimit
+            maxLimit
+            supportsCount
+            nextDrillId
+            requireValue
+            rawMode
+            timeWindowOverride
+          }
+        }
+        kpis {
+          key
+          label
+          description
+          kpiType
+          scope
+          measure
+          aggregation
+          formula
+          dependencies
+          comparison {
+            type
+            period
+            offset
+            minPeriods
+            dateField
+            bucket
+            accumulate
+          }
+          target {
+            value
+            comparisonType
+          }
+          window {
+            method
+            size
+            dateField
+            bucket
+            minPeriods
+            alpha
+          }
+          status {
+            rules {
+              condition
+              state
+            }
+            defaultState
+          }
+          format {
+            style
+            precision
+            prefix
+            suffix
+            scale
+          }
+          pointMode {
+            dimensionField
+            drill
+            returnHistory
+          }
+        }
+        no_header
+        enableBc
+        actions {
+          name
+          steps {
+            subject
+            type
+            disabled
+            setting
+            is_skip_condition
+            is_terminate_condition
+            skip_condition
+            show_confirm_message
+            confirm_message
+            confirm_type
+            confirm_ok_label
+            confirm_cancel_label
+            show_finish_message
+            finish_message
+            finish_message_type
+            terminate_condition
+            show_loading
+            loading_message
+          }
+          placement
+          trackClickBegin
+          trackClickEnd
+          enableDisplayCondition
+          displayCondition
+          isSubmitForm
+          use_api_check_executable
+          api_check_executable
+          key
+          className
+          faIcon
+          style
+          data_grid {
+            x
+            y
+            w
+            h
+            static
+            minW
+            minH
+            isResizable
+            isDraggable
+            isBounded
+          }
+        }
+        maxActiveAction
+        is_custom_header
+        custom_headerId
+        extraAuthorizationScript
+        version {
+          Major
+          Minor
+          Build
+          Revision
+          MajorRevision
+          MinorRevision
+        }
+        moduleIds
+        enableBackAction
+        backAction {
+          name
+          steps {
+            subject
+            type
+            disabled
+            setting
+            is_skip_condition
+            is_terminate_condition
+            skip_condition
+            show_confirm_message
+            confirm_message
+            confirm_type
+            confirm_ok_label
+            confirm_cancel_label
+            show_finish_message
+            finish_message
+            finish_message_type
+            terminate_condition
+            show_loading
+            loading_message
+          }
+          placement
+          trackClickBegin
+          trackClickEnd
+          enableDisplayCondition
+          displayCondition
+          isSubmitForm
+          use_api_check_executable
+          api_check_executable
+          key
+          className
+          faIcon
+          style
+          data_grid {
+            x
+            y
+            w
+            h
+            static
+            minW
+            minH
+            isResizable
+            isDraggable
+            isBounded
+          }
+        }
+        description
+        requiredExtraAuthorization
+        allowAnonymous
+        autoReload
+        interval
+        path
+        initial_action_steps {
+          subject
+          type
+          disabled
+          setting
+          is_skip_condition
+          is_terminate_condition
+          skip_condition
+          show_confirm_message
+          confirm_message
+          confirm_type
+          confirm_ok_label
+          confirm_cancel_label
+          show_finish_message
+          finish_message
+          finish_message_type
+          terminate_condition
+          show_loading
+          loading_message
+        }
+        isInvEvent
+        inv_evt_second
+        inv_action_steps {
+          subject
+          type
+          disabled
+          setting
+          is_skip_condition
+          is_terminate_condition
+          skip_condition
+          show_confirm_message
+          confirm_message
+          confirm_type
+          confirm_ok_label
+          confirm_cancel_label
+          show_finish_message
+          finish_message
+          finish_message_type
+          terminate_condition
+          show_loading
+          loading_message
+        }
+        isDcEvent
+        dc_action_steps {
+          subject
+          type
+          disabled
+          setting
+          is_skip_condition
+          is_terminate_condition
+          skip_condition
+          show_confirm_message
+          confirm_message
+          confirm_type
+          confirm_ok_label
+          confirm_cancel_label
+          show_finish_message
+          finish_message
+          finish_message_type
+          terminate_condition
+          show_loading
+          loading_message
+        }
+        use_ext_db
+        ext_db_id
+        name
+      }
+    }
+  }
+`;

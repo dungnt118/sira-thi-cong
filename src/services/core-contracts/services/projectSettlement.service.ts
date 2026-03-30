@@ -1,0 +1,94 @@
+import { query, queryList } from 'app/services/graphqlService'; // TODO: Check path
+import { GeneralCollectionFilter } from 'types/filters/GeneralCollectionFilter';
+import {
+  find_content,
+  query_content,
+  count_content,
+  save_content,
+  update_partial_content,
+  delete_content,
+  delete_multi_content,
+  lock_content
+} from 'app/store/actions/data/data.action'; // TODO: Check path
+
+import { FIND_PROJECTSETTLEMENT_DTO, QUERY_PROJECTSETTLEMENTS_DTO } from '../queries/projectSettlement.queries';
+import {
+  IProjectSettlement,
+  ICreateProjectSettlementInput,
+  IProjectSettlementListResponse
+} from '../types/projectSettlement.types';
+
+export const projectSettlementService = {
+  async findContent(id: string): Promise<any> {
+    const response = await find_content<any>({ schema: 'ProjectSettlement', _id: id });
+    if (!response.data) throw new Error('Không tìm thấy ProjectSettlement');
+    return response.data;
+  },
+  async queryContent(filter?: GeneralCollectionFilter): Promise<IProjectSettlementListResponse> {
+    return await query_content<IProjectSettlement>({ schema: 'ProjectSettlement', filter });
+  },
+
+  async countContent(filter?: GeneralCollectionFilter): Promise<number> {
+    const response = await count_content({ schema: 'ProjectSettlement', filter });
+    return response?.data || 0;
+  },
+
+  async createProjectSettlement(input: ICreateProjectSettlementInput): Promise<IProjectSettlement> {
+    const response = await save_content({
+      schema: 'ProjectSettlement',
+      data: input,
+      update_if_duplicate: false
+    });
+    if (!response?.data) throw new Error('Không thể tạo ProjectSettlement');
+    return response.data as IProjectSettlement;
+  },
+
+  async updateProjectSettlement(id: string, input: Partial<ICreateProjectSettlementInput>): Promise<IProjectSettlement> {
+    const response = await update_partial_content({
+      schema: 'ProjectSettlement',
+      data: { ...input },
+      _id: id
+    });
+    if (!response?.data) throw new Error('Không thể cập nhật ProjectSettlement');
+    return response.data as IProjectSettlement;
+  },
+
+  async deleteProjectSettlement(id: string): Promise<boolean> {
+    const response = await delete_content({
+      schema: 'ProjectSettlement',
+      _id: id
+    });
+    return response?.success || false;
+  },
+
+  async deleteMultiProjectSettlement(ids: string[]): Promise<boolean> {
+    const response = await delete_multi_content({
+      schema: 'ProjectSettlement',
+      _ids: ids
+    });
+    return response?.success || false;
+  },
+
+  async lockProjectSettlement(id: string, locked: boolean = true): Promise<IProjectSettlement> {
+    const response = await lock_content({
+      schema: 'ProjectSettlement',
+      _id: id,
+      locked: locked
+    });
+    if (!response?.data) throw new Error('Không thể khóa/mở khóa ProjectSettlement');
+    return response.data as IProjectSettlement;
+  },
+
+  async findProjectSettlementDto(id: string): Promise<IProjectSettlement> {
+    const response = await query<IProjectSettlement>(FIND_PROJECTSETTLEMENT_DTO, { _id: id, custominput: {} });
+    if (!response.data) throw new Error('Không tìm thấy ProjectSettlement');
+    return response.data;
+  },
+  async queryProjectSettlementsDto(filter?: GeneralCollectionFilter): Promise<IProjectSettlementListResponse> {
+    return await queryList<IProjectSettlement>(
+      QUERY_PROJECTSETTLEMENTS_DTO,
+      { filter, custominput: {} }
+    );
+  },
+};
+export default projectSettlementService;

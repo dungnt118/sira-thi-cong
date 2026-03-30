@@ -1,0 +1,483 @@
+import { gql } from 'graphql-tag';
+
+/**
+ * Find AnnouncementDefinition DTO with typed data
+ */
+export const FIND_ANNOUNCEMENTDEFINITION_DTO = gql`
+  query FindAnnouncementDefinitionDto($_id: String!, $custominput: Dictionary) {
+    response: find_AnnouncementDefinition_dto(_id: $_id, custominput: $custominput) {
+      code
+      message
+      data {
+        _id
+        createdAt
+        updatedAt
+        createdBy
+        updatedBy
+        title
+        content
+        summary
+        coverImage
+        templateId
+        attachments {
+          file_id
+          name
+          mine_type
+          size
+          alt
+          url
+          file_type
+          file_path
+        }
+        templateData
+        userGroupIds {
+          Length
+          LongLength
+          Rank
+          SyncRoot
+          IsReadOnly
+          IsFixedSize
+          IsSynchronized
+        }
+        channels {
+          Length
+          LongLength
+          Rank
+          SyncRoot
+          IsReadOnly
+          IsFixedSize
+          IsSynchronized
+        }
+        priority
+        categoryId
+        metadata {
+          deepLink
+          schemaName
+          recordId
+          actionKey
+          categoryId
+          actions {
+            actionId
+            label
+            icon
+            type
+            url
+            deepLink
+            apiEndpoint
+            payload
+          }
+          customData
+        }
+        status
+        sentAt {
+          DateTime
+          UtcDateTime
+          LocalDateTime
+          Date
+          Day
+          DayOfWeek
+          DayOfYear
+          Hour
+          Millisecond
+          Microsecond
+          Nanosecond
+          Minute
+          Month
+          Offset {
+            Ticks
+            Days
+            Hours
+            Milliseconds
+            Microseconds
+            Nanoseconds
+            Minutes
+            Seconds
+            TotalDays
+            TotalHours
+            TotalMilliseconds
+            TotalMicroseconds
+            TotalNanoseconds
+            TotalMinutes
+            TotalSeconds
+          }
+          TotalOffsetMinutes
+          Second
+          Ticks
+          UtcTicks
+          TimeOfDay {
+            Ticks
+            Days
+            Hours
+            Milliseconds
+            Microseconds
+            Nanoseconds
+            Minutes
+            Seconds
+            TotalDays
+            TotalHours
+            TotalMilliseconds
+            TotalMicroseconds
+            TotalNanoseconds
+            TotalMinutes
+            TotalSeconds
+          }
+          Year
+        }
+        scheduledAt {
+          DateTime
+          UtcDateTime
+          LocalDateTime
+          Date
+          Day
+          DayOfWeek
+          DayOfYear
+          Hour
+          Millisecond
+          Microsecond
+          Nanosecond
+          Minute
+          Month
+          Offset {
+            Ticks
+            Days
+            Hours
+            Milliseconds
+            Microseconds
+            Nanoseconds
+            Minutes
+            Seconds
+            TotalDays
+            TotalHours
+            TotalMilliseconds
+            TotalMicroseconds
+            TotalNanoseconds
+            TotalMinutes
+            TotalSeconds
+          }
+          TotalOffsetMinutes
+          Second
+          Ticks
+          UtcTicks
+          TimeOfDay {
+            Ticks
+            Days
+            Hours
+            Milliseconds
+            Microseconds
+            Nanoseconds
+            Minutes
+            Seconds
+            TotalDays
+            TotalHours
+            TotalMilliseconds
+            TotalMicroseconds
+            TotalNanoseconds
+            TotalMinutes
+            TotalSeconds
+          }
+          Year
+        }
+        outboxMessageId
+        totalRecipients
+        totalSent
+        totalRead
+        statsRefreshedAt {
+          DateTime
+          UtcDateTime
+          LocalDateTime
+          Date
+          Day
+          DayOfWeek
+          DayOfYear
+          Hour
+          Millisecond
+          Microsecond
+          Nanosecond
+          Minute
+          Month
+          Offset {
+            Ticks
+            Days
+            Hours
+            Milliseconds
+            Microseconds
+            Nanoseconds
+            Minutes
+            Seconds
+            TotalDays
+            TotalHours
+            TotalMilliseconds
+            TotalMicroseconds
+            TotalNanoseconds
+            TotalMinutes
+            TotalSeconds
+          }
+          TotalOffsetMinutes
+          Second
+          Ticks
+          UtcTicks
+          TimeOfDay {
+            Ticks
+            Days
+            Hours
+            Milliseconds
+            Microseconds
+            Nanoseconds
+            Minutes
+            Seconds
+            TotalDays
+            TotalHours
+            TotalMilliseconds
+            TotalMicroseconds
+            TotalNanoseconds
+            TotalMinutes
+            TotalSeconds
+          }
+          Year
+        }
+        tags
+      }
+    }
+  }
+`;
+
+/**
+ * Query AnnouncementDefinitions DTO list
+ */
+export const QUERY_ANNOUNCEMENTDEFINITIONS_DTO = gql`
+  query QueryAnnouncementDefinitionsDto(
+    $filter: GeneralCollectionFilterInput,
+    $custominput: Dictionary
+  ) {
+    response: query_AnnouncementDefinitions_dto(filter: $filter, custominput: $custominput) {
+      code
+      message
+      records
+      data {
+        _id
+        title
+        content
+        summary
+        coverImage
+        templateId
+        attachments {
+          file_id
+          name
+          mine_type
+          size
+          alt
+          url
+          file_type
+          file_path
+        }
+        templateData
+        userGroupIds {
+          Length
+          LongLength
+          Rank
+          SyncRoot
+          IsReadOnly
+          IsFixedSize
+          IsSynchronized
+        }
+        channels {
+          Length
+          LongLength
+          Rank
+          SyncRoot
+          IsReadOnly
+          IsFixedSize
+          IsSynchronized
+        }
+        priority
+        categoryId
+        metadata {
+          deepLink
+          schemaName
+          recordId
+          actionKey
+          categoryId
+          actions {
+            actionId
+            label
+            icon
+            type
+            url
+            deepLink
+            apiEndpoint
+            payload
+          }
+          customData
+        }
+        status
+        sentAt {
+          DateTime
+          UtcDateTime
+          LocalDateTime
+          Date
+          Day
+          DayOfWeek
+          DayOfYear
+          Hour
+          Millisecond
+          Microsecond
+          Nanosecond
+          Minute
+          Month
+          Offset {
+            Ticks
+            Days
+            Hours
+            Milliseconds
+            Microseconds
+            Nanoseconds
+            Minutes
+            Seconds
+            TotalDays
+            TotalHours
+            TotalMilliseconds
+            TotalMicroseconds
+            TotalNanoseconds
+            TotalMinutes
+            TotalSeconds
+          }
+          TotalOffsetMinutes
+          Second
+          Ticks
+          UtcTicks
+          TimeOfDay {
+            Ticks
+            Days
+            Hours
+            Milliseconds
+            Microseconds
+            Nanoseconds
+            Minutes
+            Seconds
+            TotalDays
+            TotalHours
+            TotalMilliseconds
+            TotalMicroseconds
+            TotalNanoseconds
+            TotalMinutes
+            TotalSeconds
+          }
+          Year
+        }
+        scheduledAt {
+          DateTime
+          UtcDateTime
+          LocalDateTime
+          Date
+          Day
+          DayOfWeek
+          DayOfYear
+          Hour
+          Millisecond
+          Microsecond
+          Nanosecond
+          Minute
+          Month
+          Offset {
+            Ticks
+            Days
+            Hours
+            Milliseconds
+            Microseconds
+            Nanoseconds
+            Minutes
+            Seconds
+            TotalDays
+            TotalHours
+            TotalMilliseconds
+            TotalMicroseconds
+            TotalNanoseconds
+            TotalMinutes
+            TotalSeconds
+          }
+          TotalOffsetMinutes
+          Second
+          Ticks
+          UtcTicks
+          TimeOfDay {
+            Ticks
+            Days
+            Hours
+            Milliseconds
+            Microseconds
+            Nanoseconds
+            Minutes
+            Seconds
+            TotalDays
+            TotalHours
+            TotalMilliseconds
+            TotalMicroseconds
+            TotalNanoseconds
+            TotalMinutes
+            TotalSeconds
+          }
+          Year
+        }
+        outboxMessageId
+        totalRecipients
+        totalSent
+        totalRead
+        statsRefreshedAt {
+          DateTime
+          UtcDateTime
+          LocalDateTime
+          Date
+          Day
+          DayOfWeek
+          DayOfYear
+          Hour
+          Millisecond
+          Microsecond
+          Nanosecond
+          Minute
+          Month
+          Offset {
+            Ticks
+            Days
+            Hours
+            Milliseconds
+            Microseconds
+            Nanoseconds
+            Minutes
+            Seconds
+            TotalDays
+            TotalHours
+            TotalMilliseconds
+            TotalMicroseconds
+            TotalNanoseconds
+            TotalMinutes
+            TotalSeconds
+          }
+          TotalOffsetMinutes
+          Second
+          Ticks
+          UtcTicks
+          TimeOfDay {
+            Ticks
+            Days
+            Hours
+            Milliseconds
+            Microseconds
+            Nanoseconds
+            Minutes
+            Seconds
+            TotalDays
+            TotalHours
+            TotalMilliseconds
+            TotalMicroseconds
+            TotalNanoseconds
+            TotalMinutes
+            TotalSeconds
+          }
+          Year
+        }
+        tags
+      }
+    }
+  }
+`;
