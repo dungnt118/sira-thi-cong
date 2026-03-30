@@ -1,0 +1,105 @@
+{
+  "schemaName": "MasterDataCategory",
+  "data": [
+    {
+      "code": "source_channel",
+      "name": "Nguồn tiếp cận khách hàng",
+      "module": "crm",
+      "isActive": true,
+      "allowCustomItem": true,
+      "sortOrder": 10,
+      "description": "Nhóm danh mục quản lý nguồn lead đầu vào để theo dõi hiệu quả marketing, giới thiệu và tiếp cận trực tiếp.",
+      "note": "Phục vụ bước tiếp nhận lead trong hành trình khách hàng giai đoạn 1."
+    },
+    {
+      "code": "priority_level",
+      "name": "Mức độ ưu tiên",
+      "module": "foundation",
+      "isActive": true,
+      "allowCustomItem": false,
+      "sortOrder": 20,
+      "description": "Nhóm danh mục phân loại mức độ ưu tiên xử lý hồ sơ, công việc và cam kết phản hồi.",
+      "note": "Dùng xuyên suốt cho sale, điều phối và các tác vụ nhắc việc."
+    },
+    {
+      "code": "go_no_go_status",
+      "name": "Trạng thái Go/No-Go",
+      "module": "project",
+      "isActive": true,
+      "allowCustomItem": false,
+      "sortOrder": 30,
+      "description": "Nhóm danh mục kết luận tiếp tục hay dừng cơ hội sau khi review khảo sát hoặc đánh giá khả thi.",
+      "note": "Bám sát nghiệp vụ review khảo sát trước bước dự toán và báo giá."
+    },
+    {
+      "code": "sla_status",
+      "name": "Trạng thái SLA",
+      "module": "project",
+      "isActive": true,
+      "allowCustomItem": false,
+      "sortOrder": 40,
+      "description": "Nhóm danh mục theo dõi trạng thái đáp ứng cam kết thời gian xử lý cho từng bước hoặc hạng mục.",
+      "note": "Dùng để cảnh báo đúng hạn, có nguy cơ trễ hạn hoặc đã quá hạn."
+    },
+    {
+      "code": "portal_publish_status",
+      "name": "Trạng thái công bố portal",
+      "module": "document",
+      "isActive": true,
+      "allowCustomItem": false,
+      "sortOrder": 50,
+      "description": "Nhóm danh mục quản lý mức độ công bố tài liệu, báo giá hoặc hồ sơ tới khách hàng trên portal.",
+      "note": "Phục vụ bước gửi báo giá, ký số và chia sẻ hồ sơ với khách hàng."
+    },
+    {
+      "code": "survey_status",
+      "name": "Trạng thái khảo sát",
+      "module": "crm",
+      "isActive": true,
+      "allowCustomItem": false,
+      "sortOrder": 60,
+      "description": "Nhóm danh mục theo dõi tiến độ lên lịch, thực hiện và hoàn tất khảo sát hiện trạng.",
+      "note": "Bám sát nghiệp vụ khảo sát và review khảo sát trong hành trình khách hàng."
+    },
+    {
+      "code": "estimate_status",
+      "name": "Trạng thái dự toán",
+      "module": "project",
+      "isActive": true,
+      "allowCustomItem": false,
+      "sortOrder": 70,
+      "description": "Nhóm danh mục quản lý tiến độ lập, nháp và chốt dự toán nội bộ trước khi phát hành báo giá.",
+      "note": "Phục vụ kiểm soát đầu vào thương mại và biên lợi nhuận."
+    },
+    {
+      "code": "quote_status",
+      "name": "Trạng thái báo giá",
+      "module": "crm",
+      "isActive": true,
+      "allowCustomItem": false,
+      "sortOrder": 80,
+      "description": "Nhóm danh mục theo dõi vòng đời báo giá từ lúc chưa làm, soạn nháp, gửi khách đến khi chốt.",
+      "note": "Dùng cho sale để bám tiến độ thương lượng và xác nhận kết quả."
+    },
+    {
+      "code": "project_status",
+      "name": "Trạng thái triển khai",
+      "module": "project",
+      "isActive": true,
+      "allowCustomItem": false,
+      "sortOrder": 90,
+      "description": "Nhóm danh mục phản ánh trạng thái tổng quan của hồ sơ triển khai sau khi ký hợp đồng.",
+      "note": "Dùng cho điều phối, thi công, nghiệm thu và hậu mãi."
+    },
+    {
+      "code": "pipeline_system_stage",
+      "name": "Trạng thái funnel hệ thống",
+      "module": "crm",
+      "isActive": true,
+      "allowCustomItem": false,
+      "sortOrder": 100,
+      "description": "Nhóm danh mục quy chiếu stage hệ thống để đồng bộ màu sắc, logic funnel và thống kê CRM.",
+      "note": "Phù hợp với enum hệ thống của PipelineStage.system_stage."
+    }
+  ]
+}

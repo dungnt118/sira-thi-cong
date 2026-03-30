@@ -1,0 +1,23 @@
+{
+  "schemaName": "MaterialGroup",
+  "data": [
+    {
+      "name": "Chống thấm",
+      "base_unit": "m²",
+      "package_unit": "thùng",
+      "category": "Hóa chất chống thấm"
+    },
+    {
+      "name": "Sơn hoàn thiện",
+      "base_unit": "m²",
+      "package_unit": "thùng",
+      "category": "Sơn và lớp phủ bảo vệ"
+    },
+    {
+      "name": "Vật tư phụ trợ",
+      "base_unit": "cái",
+      "package_unit": "cuộn",
+      "category": "Phụ kiện thi công và hoàn thiện"
+    }
+  ]
+}

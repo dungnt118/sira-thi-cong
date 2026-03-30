@@ -1,0 +1,22 @@
+{
+  "schemaName": "WarrantyVisit",
+  "data": [
+    {
+      "code": "WV-2026-001",
+      "journey_id": "{{Journey._id::JRN-2026-002}}",
+      "journey_step_code": "warranty_aftercare",
+      "warranty_case_id": "{{WarrantyCase._id::WC-2026-001}}",
+      "warranty_card_id": "{{WarrantyCard._id::BH-2026-001}}",
+      "project_id": "{{Project._id::DA-2026-002}}",
+      "scheduled_at": "2026-03-28T09:00:00+07:00",
+      "visit_status": "completed",
+      "performed_by": "team.bh01",
+      "started_at": "2026-03-28T09:20:00+07:00",
+      "completed_at": "2026-03-28T15:10:00+07:00",
+      "result": "fixed",
+      "work_summary": "Bơm keo PU bổ sung, dán lưới gia cường cục bộ và phủ lớp bảo vệ hoàn thiện cho chân tường logia.",
+      "next_action": "Theo dõi thêm sau 7 ngày và chủ động nhắn khách xác nhận tình trạng khô ráo.",
+      "note": "Khách hợp tác tốt và ký xác nhận nghiệm thu bảo hành nội bộ."
+    }
+  ]
+}

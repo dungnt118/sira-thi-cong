@@ -1,0 +1,46 @@
+{
+  "schemaName": "Asset",
+  "data": [
+    {
+      "code": "TS-2026-001",
+      "name": "Máy phun sơn Graco Ultra 390",
+      "group_id": "{{AssetGroup._id::Máy thi công}}",
+      "serial_number": "GR390-2403-001",
+      "status": "in_use",
+      "assigned_to": "Tổ thi công 1",
+      "purchase_date": "2025-12-15T00:00:00+07:00",
+      "cost": 28500000,
+      "notes": "Thiết bị đang cấp phát cho công trình anh Kiên."
+    },
+    {
+      "code": "TS-2026-002",
+      "name": "Máy mài sàn Bosch GWS 17-125",
+      "group_id": "{{AssetGroup._id::Máy thi công}}",
+      "serial_number": "BOSCH-17125-018",
+      "status": "available",
+      "purchase_date": "2025-11-20T00:00:00+07:00",
+      "cost": 4200000,
+      "notes": "Thiết bị dự phòng cho các hạng mục xử lý bề mặt."
+    },
+    {
+      "code": "TS-2026-003",
+      "name": "Bộ dây an toàn toàn thân Delta Plus",
+      "group_id": "{{AssetGroup._id::Dụng cụ an toàn}}",
+      "serial_number": "DLP-AT-2026-003",
+      "status": "available",
+      "purchase_date": "2026-01-05T00:00:00+07:00",
+      "cost": 1350000,
+      "notes": "Bộ dụng cụ an toàn dùng cho khu vực mái và logia."
+    },
+    {
+      "code": "TS-2026-004",
+      "name": "Máy đo độ ẩm bê tông Total Meter",
+      "group_id": "{{AssetGroup._id::Thiết bị đo kiểm}}",
+      "serial_number": "TM-HM-2025-007",
+      "status": "maintenance",
+      "purchase_date": "2025-10-10T00:00:00+07:00",
+      "cost": 6900000,
+      "notes": "Thiết bị đang bảo trì định kỳ trước khi cấp lại cho đội khảo sát."
+    }
+  ]
+}

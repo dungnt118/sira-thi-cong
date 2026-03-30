@@ -1,0 +1,61 @@
+{
+  "schemaName": "Customer",
+  "data": [
+    {
+      "code": "KH-2026-001",
+      "full_name": "Trần Văn Kiên",
+      "phone": "0988111222",
+      "email": "tran.kien.vinhhung@example.com",
+      "zalo": "0988111222",
+      "district": "Hoàng Mai",
+      "city": "Hà Nội",
+      "province": "Hà Nội",
+      "ward": "Vĩnh Hưng",
+      "address": "Số 9 ngõ 78 Vĩnh Hưng, phường Vĩnh Hưng, quận Hoàng Mai, Hà Nội",
+      "assigned_pm_id": "pm.ba",
+      "notes": "Khách hàng nhà ở dân dụng, ưu tiên xử lý chống thấm sân thượng và khu vệ sinh tầng 2."
+    },
+    {
+      "code": "KH-2026-002",
+      "full_name": "Nguyễn Tiến Dương",
+      "phone": "0912333444",
+      "email": "nguyentienduong@example.com",
+      "zalo": "0912333444",
+      "district": "Hoàng Mai",
+      "city": "Hà Nội",
+      "province": "Hà Nội",
+      "ward": "Vĩnh Hưng",
+      "address": "Số 24 ngách 61 Vĩnh Hưng, phường Vĩnh Hưng, quận Hoàng Mai, Hà Nội",
+      "assigned_pm_id": "pm.ba",
+      "notes": "Khách hàng đã bàn giao công trình, hiện theo dõi bảo hành sau mùa mưa."
+    },
+    {
+      "code": "KH-2026-003",
+      "full_name": "Khách sạn MayFair",
+      "phone": "02439398888",
+      "email": "kythuat@mayfairhotel.vn",
+      "zalo": "02439398888",
+      "district": "Hoàn Kiếm",
+      "city": "Hà Nội",
+      "province": "Hà Nội",
+      "ward": "Hàng Trống",
+      "address": "Số 18 phố Bảo Khánh, phường Hàng Trống, quận Hoàn Kiếm, Hà Nội",
+      "assigned_pm_id": "pm.ba",
+      "notes": "Khách hàng doanh nghiệp, đang ở giai đoạn khảo sát và trao đổi phương án báo giá trên portal."
+    },
+    {
+      "code": "KH-2026-004",
+      "full_name": "Phạm Văn Ngọc",
+      "phone": "0966888555",
+      "email": "phamngoc.dockhe@example.com",
+      "zalo": "0966888555",
+      "district": "Chương Mỹ",
+      "city": "Hà Nội",
+      "province": "Hà Nội",
+      "ward": "Đục Khê",
+      "address": "Thôn Đồng Chằm, xã Đục Khê, huyện Chương Mỹ, Hà Nội",
+      "assigned_pm_id": "sale.linh",
+      "notes": "Khách hàng tiềm năng từ kênh giới thiệu, giữ làm dữ liệu CRM nền cho sale."
+    }
+  ]
+}

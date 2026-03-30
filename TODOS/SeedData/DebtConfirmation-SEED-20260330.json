@@ -1,0 +1,23 @@
+{
+  "schemaName": "DebtConfirmation",
+  "data": [
+    {
+      "code": "CN-2026-001",
+      "journey_id": "{{Journey._id::JRN-2026-001}}",
+      "journey_step_code": "contract_signing",
+      "payment_milestone_id": "{{PaymentMilestone._id::JRN-2026-001}}",
+      "project_id": "{{Project._id::DA-2026-001}}",
+      "customer_id": "{{Customer._id::KH-2026-001}}",
+      "confirmation_date": "2026-03-16T10:30:00+07:00",
+      "status": "confirmed",
+      "debt_amount": 30000000,
+      "amount_confirmed_by_customer": 30000000,
+      "difference_amount": 0,
+      "confirmed_by_customer_name": "Trần Văn Kiên",
+      "confirmed_by_company": "acc.hoa",
+      "confirmed_at": "2026-03-16T10:45:00+07:00",
+      "payment_commitment_date": "2026-03-20T00:00:00+07:00",
+      "reason": "Khoản còn lại của đợt 1 chưa thanh toán đúng hạn theo lịch điều chỉnh."
+    }
+  ]
+}

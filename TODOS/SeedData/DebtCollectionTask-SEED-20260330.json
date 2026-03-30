@@ -1,0 +1,23 @@
+{
+  "schemaName": "DebtCollectionTask",
+  "data": [
+    {
+      "code": "NTHN-2026-001",
+      "journey_id": "{{Journey._id::JRN-2026-001}}",
+      "journey_step_code": "contract_signing",
+      "payment_milestone_id": "{{PaymentMilestone._id::JRN-2026-001}}",
+      "debt_confirmation_id": "{{DebtConfirmation._id::CN-2026-001}}",
+      "project_id": "{{Project._id::DA-2026-001}}",
+      "customer_id": "{{Customer._id::KH-2026-001}}",
+      "task_type": "reminder_call",
+      "status": "committed",
+      "assigned_user": "acc.hoa",
+      "scheduled_at": "2026-03-17T10:00:00+07:00",
+      "completed_at": "2026-03-17T10:20:00+07:00",
+      "debt_amount": 30000000,
+      "customer_commitment_date": "2026-03-20T00:00:00+07:00",
+      "result_note": "Đã gọi nhắc công nợ, khách xác nhận thanh toán phần còn lại trước ngày 20/03.",
+      "next_action": "Theo dõi sao kê tài khoản và nhắc lại qua Zalo nếu quá hẹn 1 ngày."
+    }
+  ]
+}

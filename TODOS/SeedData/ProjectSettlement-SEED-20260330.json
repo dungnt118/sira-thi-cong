@@ -1,0 +1,24 @@
+{
+  "schemaName": "ProjectSettlement",
+  "data": [
+    {
+      "code": "QT-2026-001",
+      "settlement_date": "2026-03-20T00:00:00+07:00",
+      "status": "confirmed",
+      "journey_id": "{{Journey._id::JRN-2026-002}}",
+      "journey_step_code": "handover_acceptance",
+      "project_id": "{{Project._id::DA-2026-002}}",
+      "customer_id": "{{Customer._id::KH-2026-002}}",
+      "handover_acceptance_id": "{{HandoverAcceptance._id::BBBG-2026-001}}",
+      "contract_value": 78000000,
+      "settlement_value": 78000000,
+      "approved_appendix_total": 0,
+      "invoiced_total": 78000000,
+      "received_total": 78000000,
+      "adjustment_total": 0,
+      "outstanding_amount": 0,
+      "decision_note": "Quyết toán chốt đủ giá trị theo báo giá đã duyệt, không phát sinh phụ lục tăng giảm.",
+      "discrepancy_note": "Không có chênh lệch giữa quyết toán, hóa đơn và số tiền đã thu."
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "schemaName": "Quotation",
+  "data": [
+    {
+      "code": "BG-2026-001",
+      "version_no": 1,
+      "service_request_id": "{{ServiceRequest._id::SR-2026-001}}",
+      "journey_id": "{{Journey._id::JRN-2026-001}}",
+      "status": "approved",
+      "subtotal": 128000000,
+      "discount": 8000000,
+      "total": 120000000,
+      "approved_at": "2026-03-03T17:00:00+07:00",
+      "notes": "Khách chốt triển khai theo phương án đầy đủ, giảm giá do thanh toán 50% ngay khi khởi công."
+    },
+    {
+      "code": "BG-2026-002",
+      "version_no": 1,
+      "service_request_id": "{{ServiceRequest._id::SR-2026-002}}",
+      "journey_id": "{{Journey._id::JRN-2026-002}}",
+      "status": "approved",
+      "subtotal": 78000000,
+      "discount": 0,
+      "total": 78000000,
+      "approved_at": "2026-02-18T11:30:00+07:00",
+      "notes": "Báo giá đã được duyệt từ giai đoạn trước, giữ lại để liên kết quyết toán và bảo hành."
+    },
+    {
+      "code": "BG-2026-003",
+      "version_no": 1,
+      "service_request_id": "{{ServiceRequest._id::SR-2026-003}}",
+      "journey_id": "{{Journey._id::JRN-2026-003}}",
+      "status": "sent",
+      "subtotal": 265000000,
+      "discount": 0,
+      "total": 265000000,
+      "notes": "Đã gửi khách qua portal, đang chờ phản hồi về phương án thi công ban đêm và điều phối vật tư."
+    }
+  ]
+}

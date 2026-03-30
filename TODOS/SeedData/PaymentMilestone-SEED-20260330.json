@@ -1,0 +1,43 @@
+{
+  "schemaName": "PaymentMilestone",
+  "data": [
+    {
+      "project_id": "{{Project._id::DA-2026-001}}",
+      "project_name": "Cải tạo chống thấm nhà anh Kiên - Vĩnh Hưng",
+      "round": 1,
+      "percentage": 50,
+      "amount": 60000000,
+      "due_date": "2026-03-10T00:00:00+07:00",
+      "status": "overdue",
+      "journey_id": "{{Journey._id::JRN-2026-001}}",
+      "journey_step_code": "contract_signing",
+      "journey_code": "JRN-2026-001",
+      "quotation_id": "{{Quotation._id::BG-2026-001}}",
+      "amount_received_total": 30000000,
+      "remaining_amount": 30000000,
+      "receipt_count": 1,
+      "last_receipt_date": "2026-03-09T15:30:00+07:00",
+      "receipt_note": "Khách mới thanh toán 50% của đợt 1, còn lại cam kết hoàn tất trong tháng 3."
+    },
+    {
+      "project_id": "{{Project._id::DA-2026-002}}",
+      "project_name": "Cải tạo thấm tường nhà anh Dương - Vĩnh Hưng",
+      "round": 2,
+      "percentage": 30,
+      "amount": 24000000,
+      "due_date": "2026-03-18T00:00:00+07:00",
+      "status": "paid",
+      "journey_id": "{{Journey._id::JRN-2026-002}}",
+      "journey_step_code": "handover_acceptance",
+      "journey_code": "JRN-2026-002",
+      "quotation_id": "{{Quotation._id::BG-2026-002}}",
+      "amount_received_total": 24000000,
+      "remaining_amount": 0,
+      "receipt_count": 1,
+      "paid_at": "2026-03-18T14:30:00+07:00",
+      "paid_by": "Nguyễn Tiến Dương",
+      "last_receipt_date": "2026-03-18T14:30:00+07:00",
+      "receipt_note": "Khách đã thanh toán đủ đợt cuối ngay trong ngày bàn giao."
+    }
+  ]
+}

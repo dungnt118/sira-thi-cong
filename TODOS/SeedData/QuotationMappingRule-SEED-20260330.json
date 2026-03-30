@@ -1,0 +1,38 @@
+{
+  "schemaName": "QuotationMappingRule",
+  "data": [
+    {
+      "service_type": "chong_tham_san_mai",
+      "rule_name": "Vết nứt cổ ống thấm nước",
+      "source_cost_types": [
+        "vật tư",
+        "nhân công"
+      ],
+      "target_item_name": "Xử lý cổ ống bằng keo PU và lưới gia cường",
+      "formula_note": "Gộp chi phí vật tư, nhân công và hoàn thiện cục bộ cho từng điểm cổ ống phát sinh.",
+      "is_active": true
+    },
+    {
+      "service_type": "chong_tham_san_mai",
+      "rule_name": "Sàn mái bong tróc lớp cũ",
+      "source_cost_types": [
+        "xử lý bề mặt",
+        "chống thấm"
+      ],
+      "target_item_name": "Thi công chống thấm sân mái 2 lớp",
+      "formula_note": "Gộp xử lý nền, lớp lót và hai lớp chống thấm hoàn thiện theo m².",
+      "is_active": true
+    },
+    {
+      "service_type": "xu_ly_tham_tuong",
+      "rule_name": "Tường ngoài trời bị ngấm",
+      "source_cost_types": [
+        "chống thấm",
+        "sơn hoàn thiện"
+      ],
+      "target_item_name": "Xử lý chống thấm tường ngoài và sơn hoàn thiện",
+      "formula_note": "Gộp chống thấm bề mặt tường ngoài, bả vá và sơn hoàn thiện đồng bộ.",
+      "is_active": true
+    }
+  ]
+}

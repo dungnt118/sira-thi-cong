@@ -1,0 +1,84 @@
+{
+  "schemaName": "ChecklistTemplate",
+  "data": [
+    {
+      "name": "Checklist chống thấm sân mái",
+      "description": "Checklist chuẩn cho công trình chống thấm sân mái bê tông trước khi nghiệm thu nội bộ.",
+      "category": "Chống thấm sân mái",
+      "is_default": true,
+      "steps": [
+        {
+          "step_code": "surface_preparation",
+          "step_order": 1,
+          "step_name": "Xử lý bề mặt và vệ sinh sạch bụi bẩn",
+          "description": "Kiểm tra độ ẩm, mài bỏ lớp yếu và vệ sinh sạch toàn bộ bề mặt trước khi thi công.",
+          "min_photos": 3,
+          "allow_video": true,
+          "is_required": true
+        },
+        {
+          "step_code": "detail_treatment",
+          "step_order": 2,
+          "step_name": "Gia cố cổ ống, chân tường và khe nứt",
+          "description": "Thi công lớp gia cường tại các vị trí nhạy cảm như cổ ống, chân tường, khe tiếp giáp.",
+          "min_photos": 4,
+          "allow_video": false,
+          "is_required": true
+        },
+        {
+          "step_code": "main_waterproofing",
+          "step_order": 3,
+          "step_name": "Thi công lớp chống thấm chính",
+          "description": "Thi công đủ số lớp theo biện pháp kỹ thuật đã được duyệt.",
+          "min_photos": 4,
+          "allow_video": true,
+          "is_required": true
+        },
+        {
+          "step_code": "water_test",
+          "step_order": 4,
+          "step_name": "Ngâm thử nước và chụp biên bản hiện trạng",
+          "description": "Ngâm thử nước tối thiểu theo tiêu chuẩn nội bộ và lưu ảnh xác nhận không thấm.",
+          "min_photos": 3,
+          "allow_video": true,
+          "is_required": true
+        }
+      ]
+    },
+    {
+      "name": "Checklist nghiệm thu bàn giao",
+      "description": "Checklist dùng khi nghiệm thu, bàn giao và hướng dẫn khách hàng tiếp nhận công trình.",
+      "category": "Bàn giao công trình",
+      "is_default": true,
+      "steps": [
+        {
+          "step_code": "visual_check",
+          "step_order": 1,
+          "step_name": "Kiểm tra trực quan toàn bộ hạng mục",
+          "description": "Đối chiếu khối lượng, bề mặt hoàn thiện và các vị trí xử lý trọng điểm.",
+          "min_photos": 3,
+          "allow_video": false,
+          "is_required": true
+        },
+        {
+          "step_code": "document_handover",
+          "step_order": 2,
+          "step_name": "Bàn giao hồ sơ kỹ thuật và hướng dẫn sử dụng",
+          "description": "Bàn giao biên bản nghiệm thu, bảo hành và hướng dẫn bảo trì cơ bản cho khách hàng.",
+          "min_photos": 2,
+          "allow_video": false,
+          "is_required": true
+        },
+        {
+          "step_code": "customer_signature",
+          "step_order": 3,
+          "step_name": "Xác nhận khách hàng và đại diện công ty",
+          "description": "Lấy đầy đủ xác nhận hai bên, ghi nhận ý kiến tồn đọng nếu có.",
+          "min_photos": 2,
+          "allow_video": false,
+          "is_required": true
+        }
+      ]
+    }
+  ]
+}

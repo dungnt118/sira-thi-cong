@@ -1,0 +1,92 @@
+{
+  "schemaName": "StockOrder",
+  "data": [
+    {
+      "code": "PX-2026-001",
+      "type": "OUT",
+      "status": "RECEIVED",
+      "journey_id": "{{Journey._id::JRN-2026-001}}",
+      "journey_step_code": "project_execution",
+      "source": "PROJECT",
+      "source_id": "{{Project._id::DA-2026-001}}",
+      "total_value": 16340000,
+      "notes": "Phiếu xuất vật tư đợt 1 cho công trình anh Kiên.",
+      "project_id": "{{Project._id::DA-2026-001}}",
+      "project_name": "Cải tạo chống thấm nhà anh Kiên - Vĩnh Hưng",
+      "journey_code": "JRN-2026-001",
+      "request_id": "{{StockRequest._id::XRK-2026-001}}",
+      "signed_by": "kho.minh",
+      "signed_at": "2026-03-05T11:00:00+07:00",
+      "items": [
+        {
+          "material_id": "{{Material._id::VT-CT-001}}",
+          "material_name": "Sika Top Seal 107 25kg",
+          "unit": "thung",
+          "quantity": 8,
+          "requested_quantity": 8,
+          "issued_quantity": 8,
+          "received_quantity": 8,
+          "unit_cost": 1280000,
+          "is_partial": false,
+          "remaining_percent": 0
+        },
+        {
+          "material_id": "{{Material._id::VT-CT-002}}",
+          "material_name": "Lưới thủy tinh gia cường 5cm",
+          "unit": "cuon",
+          "quantity": 6,
+          "requested_quantity": 6,
+          "issued_quantity": 6,
+          "received_quantity": 6,
+          "unit_cost": 175000,
+          "is_partial": false,
+          "remaining_percent": 0
+        },
+        {
+          "material_id": "{{Material._id::VT-CT-003}}",
+          "material_name": "Keo PU trám khe Soudal 600ml",
+          "unit": "cai",
+          "quantity": 12,
+          "requested_quantity": 12,
+          "issued_quantity": 12,
+          "received_quantity": 12,
+          "unit_cost": 95000,
+          "is_partial": false,
+          "remaining_percent": 0
+        }
+      ]
+    },
+    {
+      "code": "PN-2026-001",
+      "type": "IN",
+      "status": "RECEIVED",
+      "journey_id": "{{Journey._id::JRN-2026-001}}",
+      "journey_step_code": "project_execution",
+      "source": "DISTRIBUTOR",
+      "source_id": "{{Distributor._id::NPP-001}}",
+      "supplier": "Công ty TNHH Vật liệu Sira",
+      "total_value": 1750000,
+      "notes": "Phiếu nhập bù lưới gia cường sau khi kho xuống dưới mức cảnh báo.",
+      "project_id": "{{Project._id::DA-2026-001}}",
+      "project_name": "Cải tạo chống thấm nhà anh Kiên - Vĩnh Hưng",
+      "journey_code": "JRN-2026-001",
+      "request_id": "{{StockRequest._id::NRK-2026-001}}",
+      "signed_by": "kho.minh",
+      "signed_at": "2026-03-06T15:45:00+07:00",
+      "items": [
+        {
+          "material_id": "{{Material._id::VT-CT-002}}",
+          "material_name": "Lưới thủy tinh gia cường 5cm",
+          "unit": "cuon",
+          "quantity": 10,
+          "requested_quantity": 10,
+          "issued_quantity": 10,
+          "received_quantity": 10,
+          "unit_cost": 175000,
+          "is_partial": false,
+          "remaining_percent": 0
+        }
+      ]
+    }
+  ]
+}

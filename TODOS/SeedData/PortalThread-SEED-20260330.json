@@ -1,0 +1,25 @@
+{
+  "schemaName": "PortalThread",
+  "data": [
+    {
+      "thread_code": "PORTAL-2026-001",
+      "journey_id": "{{Journey._id::JRN-2026-003}}",
+      "journey_step_code": "quotation_sent",
+      "context_type": "quotation",
+      "context_label": "Trao đổi báo giá khách sạn MayFair",
+      "status": "waiting",
+      "last_message_at": "2026-03-12T15:00:00+07:00",
+      "unread_count": 1
+    },
+    {
+      "thread_code": "PORTAL-2026-002",
+      "journey_id": "{{Journey._id::JRN-2026-002}}",
+      "journey_step_code": "warranty_aftercare",
+      "context_type": "general",
+      "context_label": "Trao đổi sau bàn giao nhà anh Dương",
+      "status": "open",
+      "last_message_at": "2026-03-28T18:10:00+07:00",
+      "unread_count": 0
+    }
+  ]
+}

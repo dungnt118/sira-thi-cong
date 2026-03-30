@@ -1,0 +1,17 @@
+{
+  "schemaName": "WarrantyReminder",
+  "data": [
+    {
+      "warranty_card_id": "{{WarrantyCard._id::BH-2026-001}}",
+      "project_name": "Cải tạo thấm tường nhà anh Dương - Vĩnh Hưng",
+      "customer_name": "Nguyễn Tiến Dương",
+      "customer_phone": "0912333444",
+      "journey_id": "{{Journey._id::JRN-2026-002}}",
+      "journey_step_code": "warranty_aftercare",
+      "channel": "ZALO",
+      "scheduled_at": "2027-03-01T09:00:00+07:00",
+      "status": "PENDING",
+      "message": "Sira gửi anh Dương lịch nhắc kiểm tra định kỳ công trình trước mùa mưa. Nếu có dấu hiệu thấm bất thường, anh vui lòng phản hồi trực tiếp qua portal hoặc Zalo chăm sóc khách hàng."
+    }
+  ]
+}

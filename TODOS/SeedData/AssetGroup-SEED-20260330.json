@@ -1,0 +1,20 @@
+{
+  "schemaName": "AssetGroup",
+  "data": [
+    {
+      "name": "Máy thi công",
+      "category": "Máy móc",
+      "depreciation_months": 36
+    },
+    {
+      "name": "Dụng cụ an toàn",
+      "category": "Dụng cụ",
+      "depreciation_months": 24
+    },
+    {
+      "name": "Thiết bị đo kiểm",
+      "category": "Thiết bị",
+      "depreciation_months": 30
+    }
+  ]
+}

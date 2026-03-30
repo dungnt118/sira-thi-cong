@@ -1,0 +1,11 @@
+{
+  "schemaName": "SalesPipeline",
+  "data": [
+    {
+      "_id": "69c7f1a4a718dc692a22b79f",
+      "name": "quy trình 1",
+      "is_active": true,
+      "is_default": true
+    }
+  ]
+}

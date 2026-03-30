@@ -1,0 +1,95 @@
+{
+  "schemaName": "SurveyRecord",
+  "data": [
+    {
+      "service_request_id": "{{ServiceRequest._id::SR-2026-001}}",
+      "journey_id": "{{Journey._id::JRN-2026-001}}",
+      "journey_step_code": "site_survey",
+      "scheduled_date": "2026-02-28T14:00:00+07:00",
+      "survey_date": "2026-02-28T15:00:00+07:00",
+      "survey_status": "approved",
+      "surveyor_name": "Nguyễn Văn Lâm",
+      "customer_name": "Trần Văn Kiên",
+      "site_address": "Số 9 ngõ 78 Vĩnh Hưng, phường Vĩnh Hưng, quận Hoàng Mai, Hà Nội",
+      "contact_name": "Trần Văn Kiên",
+      "contact_phone": "0988111222",
+      "condition_items": [
+        {
+          "area_name": "Sân thượng trước",
+          "condition_note": "Lớp chống thấm cũ bong tróc nhiều mảng, xuất hiện rêu và vết nứt chân chim.",
+          "measurement_note": "Diện tích khảo sát khoảng 120m².",
+          "risk_note": "Nếu không xử lý sớm sẽ thấm xuống trần tầng 2 sau mưa lớn."
+        },
+        {
+          "area_name": "Khu vệ sinh tầng 2",
+          "condition_note": "Chân tường khu vực hộp kỹ thuật ẩm liên tục, ron sàn nứt.",
+          "measurement_note": "Diện tích xử lý cục bộ khoảng 12m².",
+          "risk_note": "Nguy cơ bong sơn và hư hại trần dưới tầng 1."
+        }
+      ],
+      "proposed_items": [
+        {
+          "item_name": "Chống thấm sân mái 2 lớp",
+          "scope_note": "Thi công toàn bộ khu sân mái sau khi xử lý bề mặt và lớp cũ.",
+          "quantity_note": "Khoảng 120m².",
+          "technical_note": "Dùng hệ chống thấm gốc xi măng polymer kết hợp lưới gia cường."
+        },
+        {
+          "item_name": "Xử lý cổ ống thoát sàn",
+          "scope_note": "Gia cường toàn bộ cổ ống, chân tường và khe tiếp giáp.",
+          "quantity_note": "Khoảng 8 điểm xử lý trọng yếu.",
+          "technical_note": "Bơm keo PU và dán lưới gia cường tại vị trí nứt hở."
+        }
+      ],
+      "proposed_solution": "Khuyến nghị thi công cuốn chiếu theo từng khu vực, ngâm thử nước tối thiểu 24 giờ trước khi bàn giao nội bộ.",
+      "labor_need_note": "Cần tổ 4 người trong 4 ngày để đảm bảo tiến độ và kiểm soát khô bề mặt.",
+      "material_need_note": "Cần bổ sung thêm lưới gia cường và keo PU dự phòng cho khu logia.",
+      "review_status": "approved"
+    },
+    {
+      "service_request_id": "{{ServiceRequest._id::SR-2026-003}}",
+      "journey_id": "{{Journey._id::JRN-2026-003}}",
+      "journey_step_code": "site_survey",
+      "scheduled_date": "2026-03-04T09:00:00+07:00",
+      "survey_date": "2026-03-04T10:30:00+07:00",
+      "survey_status": "completed",
+      "surveyor_name": "Lê Quốc Huy",
+      "customer_name": "Khách sạn MayFair",
+      "site_address": "Số 18 phố Bảo Khánh, phường Hàng Trống, quận Hoàn Kiếm, Hà Nội",
+      "contact_name": "Ban kỹ thuật khách sạn MayFair",
+      "contact_phone": "02439398888",
+      "condition_items": [
+        {
+          "area_name": "Mái tum tầng 8",
+          "condition_note": "Nhiều vết nứt dọc chân tường parapet, lớp phủ cũ bạc màu và bong cục bộ.",
+          "measurement_note": "Diện tích chính khoảng 180m².",
+          "risk_note": "Nếu thi công không đúng ca sẽ ảnh hưởng tiếng ồn tới khách lưu trú."
+        },
+        {
+          "area_name": "Hộp kỹ thuật và cổ ống",
+          "condition_note": "Nước đọng quanh các chân ống kỹ thuật, lớp xử lý cũ đã xuống cấp.",
+          "measurement_note": "Khoảng 8 điểm xử lý trọng yếu.",
+          "risk_note": "Nguy cơ thấm ngược vào trần kỹ thuật tầng dưới."
+        }
+      ],
+      "proposed_items": [
+        {
+          "item_name": "Thi công chống thấm khu mái tum",
+          "scope_note": "Gia cường toàn bộ mặt mái, chân tường và các mép tiếp giáp.",
+          "quantity_note": "Khoảng 180m².",
+          "technical_note": "Cần kết hợp lớp chống thấm chính và lớp bảo vệ chống tia UV."
+        },
+        {
+          "item_name": "Bổ sung lớp bảo vệ chống UV",
+          "scope_note": "Phủ hoàn thiện sau khi kiểm tra lớp chống thấm đạt yêu cầu.",
+          "quantity_note": "Khoảng 180m².",
+          "technical_note": "Ưu tiên vật liệu thi công nhanh, hạn chế mùi trong giờ vận hành khách sạn."
+        }
+      ],
+      "proposed_solution": "Khuyến nghị chia thành ba đợt thi công ban đêm, đảm bảo kiểm soát khu vực mái tum và hộp kỹ thuật theo từng ca.",
+      "labor_need_note": "Cần đội 6 người và giám sát trực tiếp ban đêm để đảm bảo an toàn và tiến độ.",
+      "material_need_note": "Cần chuẩn bị sẵn đủ vật tư chống thấm và lớp phủ bảo vệ để thi công liên tục.",
+      "review_status": "reviewed"
+    }
+  ]
+}
