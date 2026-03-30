@@ -57,6 +57,45 @@
             ],
             "@assets/*": [
                 "./src/assets/*"
+            ],
+            "@fuse/*": [
+                "./src/utils/legacy/fuse/*"
+            ],
+            "@history": [
+                "./src/utils/legacy/history"
+            ],
+            "app/*": [
+                "./src/*"
+            ],
+            "types/*": [
+                "./src/types/*"
+            ],
+            "services/*": [
+                "./src/services/*"
+            ],
+            "hooks/*": [
+                "./src/hooks/*"
+            ],
+            "components/*": [
+                "./src/components/*"
+            ],
+            "utils/*": [
+                "./src/utils/*"
+            ],
+            "styles/*": [
+                "./src/styles/*"
+            ],
+            "assets/*": [
+                "./src/assets/*"
+            ],
+            "layouts/*": [
+                "./src/layouts/*"
+            ],
+            "pages/*": [
+                "./src/pages/*"
+            ],
+            "store/*": [
+                "./src/store/*"
             ]
         }
     },

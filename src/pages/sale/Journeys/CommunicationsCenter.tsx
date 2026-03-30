@@ -4,8 +4,7 @@ import {
     Modal, Form, Badge, Row, Col, Avatar, Switch
 } from 'antd';
 import { MessageOutlined, PlusOutlined, SendOutlined, UserOutlined } from '@ant-design/icons';
-import { mockPortalThreads } from '../../../data/journeyMockData';
-import type { PortalThread } from '../../../types/journey';
+import { portalThreadService } from '../../../services/core-contracts/services/portalThread.service';
 
 const { Text } = Typography;
 const { TextArea } = Input;
@@ -15,12 +14,19 @@ const STATUS_LABEL: Record<string, string> = { open: 'Đang mở', waiting: 'Ch�
 
 const CommunicationsCenter: React.FC = () => {
     const [filterStatus, setFilterStatus] = useState('ALL');
-    const [selectedThread, setSelectedThread] = useState<PortalThread | null>(null);
+    const [selectedThread, setSelectedThread] = useState<any>(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [createForm] = Form.useForm();
     const [replyForm] = Form.useForm();
+    const [threads, setThreads] = useState<any[]>([]);
 
-    const filtered = mockPortalThreads.filter(t => filterStatus === 'ALL' || t.status === filterStatus);
+    React.useEffect(() => {
+        portalThreadService.queryContent().then(res => {
+            if (res && res.data) setThreads(res.data);
+        }).catch(err => console.error(err));
+    }, []);
+
+    const filtered = threads.filter(t => filterStatus === 'ALL' || t.status === filterStatus);
 
     return (
         <div>
@@ -74,7 +80,7 @@ const CommunicationsCenter: React.FC = () => {
                                         }
                                         description={
                                             <Space size={4}>
-                                                <Badge status={STATUS_COLOR[thread.status] as any} text={STATUS_LABEL[thread.status]} />
+                                                <Badge status={STATUS_COLOR[thread.status] as any} text={STATUS_LABEL[thread.status] || thread.status} />
                                                 <Tag style={{ fontSize: 10, margin: 0 }}>{thread.context_type}</Tag>
                                             </Space>
                                         }
@@ -95,7 +101,7 @@ const CommunicationsCenter: React.FC = () => {
                         {selectedThread ? (
                             <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                                 <div style={{ flex: 1, overflowY: 'auto', marginBottom: 16 }}>
-                                    {selectedThread.messages.map(msg => (
+                                    {(selectedThread.messages || []).map((msg: any) => (
                                         <div key={msg.id} style={{
                                             marginBottom: 12,
                                             display: 'flex',
@@ -113,7 +119,7 @@ const CommunicationsCenter: React.FC = () => {
                                                     <div style={{ fontSize: 13 }}>{msg.message_body}</div>
                                                 </div>
                                                 <div style={{ fontSize: 11, color: '#999', marginTop: 4, textAlign: msg.sender_role === 'pm' || msg.sender_role === 'sale' ? 'right' : 'left' }}>
-                                                    {msg.sender} · {msg.sent_at.split('T')[0]}
+                                                    {msg.sender} · {msg.sent_at ? msg.sent_at.split('T')[0] : ''}
                                                     {msg.official_response && <Tag color="blue" style={{ marginLeft: 4, fontSize: 9 }}>Official</Tag>}
                                                 </div>
                                             </div>

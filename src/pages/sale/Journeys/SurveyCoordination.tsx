@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Card, Button, Tag, Typography, Row, Col, Space, Modal,
-    Form, Input, DatePicker, Select, Tabs
+    Form, Input, DatePicker, Select, Tabs, Spin, message
 } from 'antd';
 import {
     CalendarOutlined, PlusOutlined, EditOutlined, PhoneOutlined
 } from '@ant-design/icons';
-import { mockSurveys } from '../../../data/journeyMockData';
-import { mockJourneys } from '../../../data/journeyMockData';
+import { journeyService } from '../../../services/core-contracts/services/journey.service';
+import { surveyRecordService } from '../../../services/core-contracts/services/surveyRecord.service';
 
 const { Text } = Typography;
 const { TextArea } = Input;
@@ -19,8 +19,31 @@ const SurveyCoordination: React.FC = () => {
     const [scheduleForm] = Form.useForm();
     const [rescheduleForm] = Form.useForm();
 
-    const scheduled = mockSurveys.filter(s => s.scheduled_date && !s.submitted_at);
-    const unscheduled = mockJourneys.filter(j => j.survey_status === 'not_started');
+    const [scheduled, setScheduled] = useState<any[]>([]);
+    const [unscheduled, setUnscheduled] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const load = async () => {
+            try {
+                const surveysRes = await surveyRecordService.queryContent();
+                const journeysRes = await journeyService.queryContent();
+                
+                if (surveysRes && surveysRes.data) {
+                    setScheduled(surveysRes.data.filter((s: any) => s.scheduled_date && !s.submitted_at));
+                }
+                if (journeysRes && journeysRes.data) {
+                    setUnscheduled(journeysRes.data.filter((j: any) => j.survey_status === 'not_started'));
+                }
+            } catch (err) {
+                console.error(err);
+                message.error('Lỗi tải dữ liệu điều phối khảo sát');
+            } finally {
+                setLoading(false);
+            }
+        };
+        load();
+    }, []);
 
     return (
         <div>
@@ -40,61 +63,65 @@ const SurveyCoordination: React.FC = () => {
                         key: 'scheduled',
                         label: <span><CalendarOutlined /> Đã lên lịch ({scheduled.length})</span>,
                         children: (
-                            <div>
-                                {scheduled.map(s => (
-                                    <Card key={s.id} size="small" style={{ marginBottom: 10, borderRadius: 8, borderLeft: '4px solid #1890ff' }}>
-                                        <Row gutter={16} align="middle">
-                                            <Col flex="auto">
-                                                <Space style={{ marginBottom: 4 }}>
-                                                    <Tag color="blue"><CalendarOutlined /> {s.scheduled_date} {s.scheduled_time}</Tag>
-                                                    <Tag>{s.giam_sat_user}</Tag>
-                                                </Space>
-                                                <div style={{ fontWeight: 600 }}>{s.customer_name}</div>
-                                                <Text type="secondary" style={{ fontSize: 12 }}>{s.site_address}</Text>
-                                                <div style={{ marginTop: 4, fontSize: 12 }}>
-                                                    Liên hệ: <strong>{s.contact_name}</strong> · <a href={`tel:${s.contact_phone}`}>{s.contact_phone}</a>
-                                                </div>
-                                            </Col>
-                                            <Col>
-                                                <Space direction="vertical" size={4}>
-                                                    <Button size="small" icon={<EditOutlined />} onClick={() => { setSelectedSurvey(s); setShowRescheduleModal(true); }}>Đổi lịch</Button>
-                                                    <Button size="small" icon={<PhoneOutlined />}>Gọi</Button>
-                                                </Space>
-                                            </Col>
-                                        </Row>
-                                    </Card>
-                                ))}
-                            </div>
+                            <Spin spinning={loading}>
+                                <div>
+                                    {scheduled.map(s => (
+                                        <Card key={s._id || s.id} size="small" style={{ marginBottom: 10, borderRadius: 8, borderLeft: '4px solid #1890ff' }}>
+                                            <Row gutter={16} align="middle">
+                                                <Col flex="auto">
+                                                    <Space style={{ marginBottom: 4 }}>
+                                                        <Tag color="blue"><CalendarOutlined /> {s.scheduled_date} {s.scheduled_time}</Tag>
+                                                        <Tag>{s.giam_sat_user}</Tag>
+                                                    </Space>
+                                                    <div style={{ fontWeight: 600 }}>{s.customer_name}</div>
+                                                    <Text type="secondary" style={{ fontSize: 12 }}>{s.site_address}</Text>
+                                                    <div style={{ marginTop: 4, fontSize: 12 }}>
+                                                        Liên hệ: <strong>{s.contact_name}</strong> · <a href={`tel:${s.contact_phone}`}>{s.contact_phone}</a>
+                                                    </div>
+                                                </Col>
+                                                <Col>
+                                                    <Space direction="vertical" size={4}>
+                                                        <Button size="small" icon={<EditOutlined />} onClick={() => { setSelectedSurvey(s); setShowRescheduleModal(true); }}>Đổi lịch</Button>
+                                                        <Button size="small" icon={<PhoneOutlined />}>Gọi</Button>
+                                                    </Space>
+                                                </Col>
+                                            </Row>
+                                        </Card>
+                                    ))}
+                                </div>
+                            </Spin>
                         ),
                     },
                     {
                         key: 'unscheduled',
                         label: <span>Chưa lên lịch ({unscheduled.length})</span>,
                         children: (
-                            <div>
-                                {unscheduled.map(j => (
-                                    <Card key={j.id} size="small" style={{ marginBottom: 10, borderRadius: 8, borderLeft: '4px solid #fa8c16' }}>
-                                        <Row gutter={16} align="middle">
-                                            <Col flex="auto">
-                                                <Text strong style={{ color: '#1976D2' }}>{j.journey_code}</Text>
-                                                <div style={{ fontWeight: 600 }}>{j.customer_name}</div>
-                                                <Text type="secondary" style={{ fontSize: 12 }}>{j.requested_service}</Text>
-                                            </Col>
-                                            <Col>
-                                                <Button
-                                                    size="small"
-                                                    type="primary"
-                                                    ghost
-                                                    icon={<CalendarOutlined />}
-                                                    onClick={() => setShowScheduleModal(true)}
-                                                >
-                                                    Lên lịch
-                                                </Button>
-                                            </Col>
-                                        </Row>
-                                    </Card>
-                                ))}
-                            </div>
+                            <Spin spinning={loading}>
+                                <div>
+                                    {unscheduled.map(j => (
+                                        <Card key={j._id || j.id} size="small" style={{ marginBottom: 10, borderRadius: 8, borderLeft: '4px solid #fa8c16' }}>
+                                            <Row gutter={16} align="middle">
+                                                <Col flex="auto">
+                                                    <Text strong style={{ color: '#1976D2' }}>{j.journey_code}</Text>
+                                                    <div style={{ fontWeight: 600 }}>{j.idx_customer_id?.primary_text || j.customer_name || 'Khách hàng ẩn'}</div>
+                                                    <Text type="secondary" style={{ fontSize: 12 }}>{j.requested_service}</Text>
+                                                </Col>
+                                                <Col>
+                                                    <Button
+                                                        size="small"
+                                                        type="primary"
+                                                        ghost
+                                                        icon={<CalendarOutlined />}
+                                                        onClick={() => setShowScheduleModal(true)}
+                                                    >
+                                                        Lên lịch
+                                                    </Button>
+                                                </Col>
+                                            </Row>
+                                        </Card>
+                                    ))}
+                                </div>
+                            </Spin>
                         ),
                     },
                 ]}

@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Card, Table, Tag, Button, Typography, Statistic,
-    Row, Col, Modal, Space
+    Row, Col, Modal, Space, notification
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { PhoneOutlined, ClockCircleOutlined } from '@ant-design/icons';
-import { mockJourneys } from '../../../data/journeyMockData';
-import type { Journey } from '../../../types/journey';
+import { journeyService } from '../../../services/core-contracts/services/journey.service';
+import type { IJourney } from '../../../services/core-contracts/types/journey.types';
 import { useNavigate } from 'react-router-dom';
 import { ConsultationLogForm } from '../../../components/journey/SharedModals';
 
@@ -15,24 +15,45 @@ const { Text } = Typography;
 const SLAQueue: React.FC = () => {
     const navigate = useNavigate();
     const [showLogModal, setShowLogModal] = useState(false);
-    const [selectedJourney, setSelectedJourney] = useState<Journey | null>(null);
+    const [selectedJourney, setSelectedJourney] = useState<IJourney | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [journeys, setJourneys] = useState<IJourney[]>([]);
 
-    const atRisk = mockJourneys.filter(j => j.sla_status === 'at_risk');
-    const overdue = mockJourneys.filter(j => j.sla_status === 'overdue');
-    const ontime = mockJourneys.filter(j => j.sla_status === 'ontime');
+    useEffect(() => {
+        const fetchJourneys = async () => {
+            setLoading(true);
+            try {
+                const res = await journeyService.queryContent();
+                if (res && res.data) {
+                    setJourneys(res.data);
+                }
+            } catch (err: any) {
+                notification.error({ message: 'Lỗi', description: 'Không thể tải danh sách SLA Queue.' });
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchJourneys();
+    }, []);
 
-    const slaData = mockJourneys;
+    const atRisk = journeys.filter(j => j.sla_status === 'at_risk');
+    const overdue = journeys.filter(j => j.sla_status === 'overdue');
+    const ontime = journeys.filter(j => j.sla_status === 'on_time' || (j.sla_status as any) === 'ontime');
 
-    const columns: ColumnsType<Journey> = [
+    const columns: ColumnsType<IJourney> = [
         {
             title: 'Khách hàng',
             key: 'customer',
-            render: (_, j) => (
-                <div>
-                    <div style={{ fontWeight: 600, cursor: 'pointer', color: '#1976D2' }} onClick={() => navigate(`/sale/dashboard/${j.id}`)}>{j.customer_name}</div>
-                    <Text type="secondary" style={{ fontSize: 12 }}>{j.customer_phone}</Text>
-                </div>
-            ),
+            render: (_, j: any) => {
+                const customerName = j.idx_customer_id?.primary_text || 'Khách hàng ẩn';
+                const customerPhone = j.idx_customer_id?.secondary_text || '';
+                return (
+                    <div>
+                        <div style={{ fontWeight: 600, cursor: 'pointer', color: '#1976D2' }} onClick={() => navigate(`/sale/dashboard/${j._id}`)}>{customerName}</div>
+                        <Text type="secondary" style={{ fontSize: 12 }}>{customerPhone}</Text>
+                    </div>
+                );
+            },
         },
         { title: 'Tên yêu cầu', dataIndex: 'request_title', key: 'title', render: v => <Text style={{ fontSize: 12 }}>{v}</Text> },
         { title: 'Nguồn KH', dataIndex: 'source_channel', key: 'channel', render: v => <Tag>{v}</Tag> },
@@ -45,11 +66,11 @@ const SLAQueue: React.FC = () => {
                 </Tag>
             ),
             sorter: (a, b) => {
-                const order = { overdue: 0, at_risk: 1, ontime: 2 };
-                return order[a.sla_status] - order[b.sla_status];
+                const order: any = { overdue: 0, at_risk: 1, on_time: 2, ontime: 2 };
+                return (order[a.sla_status || ''] || 9) - (order[b.sla_status || ''] || 9);
             },
         },
-        { title: 'Cập nhật gần nhất', key: 'updated', render: (_, j) => <Text style={{ fontSize: 11 }}>{j.last_activity_at.split('T')[0]}</Text> },
+        { title: 'Cập nhật gần nhất', key: 'updated', render: (_, j: any) => <Text style={{ fontSize: 11 }}>{j.last_activity_at ? j.last_activity_at.split('T')[0] : '—'}</Text> },
         {
             title: '',
             key: 'actions',
@@ -95,15 +116,16 @@ const SLAQueue: React.FC = () => {
             <Card>
                 <Table
                     columns={columns}
-                    dataSource={slaData}
-                    rowKey="id"
+                    dataSource={journeys}
+                    rowKey="_id"
                     size="small"
+                    loading={loading}
                     pagination={{ pageSize: 10 }}
                 />
             </Card>
 
             <Modal
-                title={`Ghi log tư vấn – ${selectedJourney?.customer_name}`}
+                title={`Ghi log tư vấn – ${(selectedJourney as any)?.idx_customer_id?.primary_text || 'Khách hàng ẩn'}`}
                 open={showLogModal}
                 onCancel={() => { setShowLogModal(false); }}
                 footer={null}

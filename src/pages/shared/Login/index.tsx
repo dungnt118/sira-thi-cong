@@ -6,6 +6,10 @@ import {
     UserOutlined,
     LockOutlined
 } from '@ant-design/icons';
+import { gql } from '@apollo/client';
+import { query } from '../../../services/graphqlService';
+import { GET_USER_SESSION_INFO_QUERY, get, CLIENTS } from '../../../services/storeService';
+import elsagaService from '../../../services/elsagaService';
 import './Login.css';
 
 const { Title, Text } = Typography;
@@ -17,22 +21,53 @@ export const Login: React.FC = () => {
     const onFinish = async (values: any) => {
         setLoading(true);
         try {
-            // Giả lập call API login
-            // Backend sẽ trả về role và các thông tin khác
             console.log('Login values:', values);
-            
-            // Mock data sau khi login thành công
-            const mockUserData = {
-                username: values.username,
-                role: 'admin', // Giả sử backend trả về role mặc định là admin
-                roles: ['admin', 'pm', 'ky-thuat']
-            };
+            const clients = get(CLIENTS);
+            const clientInfo = Array.isArray(clients) && clients.length > 0 ? clients[0] : null;
 
-            setUserData(mockUserData);
-            message.success('Đăng nhập thành công!');
-            navigate('/admin-v2/dashboard');
-        } catch (error) {
-            message.error('Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.');
+            if (!clientInfo) {
+                message.error('Chưa có cấu hình OAuth Client (CLIENTS) trong env.js!');
+                setLoading(false);
+                return;
+            }
+
+            // Thực hiện gọi API đăng nhập theo OIDC/OAuth REST
+            await elsagaService.signInWithEmailAndPassword(values.username, values.password, clientInfo, () => setLoading(false));
+            
+            // Xây dựng GraphQL query để lấy user profile sau khi access_token đã tự động set vào Header
+            const sessionQuery = gql(GET_USER_SESSION_INFO_QUERY());
+            const sessionRes = await query(sessionQuery, { tenantId: null });
+
+            if (sessionRes && sessionRes.code === 0 && sessionRes.data) {
+                const userData = sessionRes.data;
+                const userRoles = Array.isArray(userData.roles) ? userData.roles : ['sale'];
+
+                const primaryRole = (userRoles.length > 0 ? userRoles[0] : 'sale').toLowerCase();
+
+                const loginUserData = {
+                    username: userData.username || values.username,
+                    role: primaryRole,
+                    roles: userRoles
+                };
+
+                setUserData(loginUserData);
+                message.success('Đăng nhập thành công!');
+
+                // Điều hướng theo role ưu tiên
+                let targetDashboard = '/admin-v2/dashboard';
+                if (primaryRole === 'sale') targetDashboard = '/sale/dashboard';
+                else if (primaryRole === 'pm') targetDashboard = '/pm/dashboard';
+                else if (primaryRole === 'accountant') targetDashboard = '/accountant/dashboard';
+                else if (primaryRole === 'supervisor' || primaryRole === 'giam-sat') targetDashboard = '/supervisor/dashboard';
+                else if (primaryRole === 'ky-thuat') targetDashboard = '/ky-thuat/dashboard';
+
+                navigate(targetDashboard);
+            } else {
+                message.error(sessionRes?.message || 'Không thể lấy thông tin người dùng từ máy chủ GraphQL.');
+            }
+        } catch (error: any) {
+            console.error('Lỗi đăng nhập:', error);
+            message.error(typeof error === 'string' ? error : 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.');
         } finally {
             setLoading(false);
         }

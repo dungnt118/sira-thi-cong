@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Card, Steps, Button, Typography, Space, Tag, Descriptions, Row, Col, Result, Form, message, Modal } from 'antd';
 import { ArrowLeftOutlined, CheckCircleOutlined, FormOutlined, FilePdfOutlined, EditOutlined, ClockCircleOutlined, DownloadOutlined, HighlightOutlined } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
-import { mockJourneys } from '../../../data/journeyMockData';
+import { journeyService } from '../../../services/core-contracts/services/journey.service';
 import DynamicSurveyForm from '../../shared/Surveys/DynamicSurveyForm';
 import SignatureCanvas from 'react-signature-canvas';
 import html2pdf from 'html2pdf.js';
@@ -18,7 +18,13 @@ const mockTemplates = [
 const SaleSurveyDetail: React.FC = () => {
     const { journeyId, surveyId } = useParams<{ journeyId: string, surveyId: string }>();
     const navigate = useNavigate();
-    const journey = mockJourneys.find(j => j.id === journeyId) || mockJourneys[0];
+    const [journey, setJourney] = React.useState<any>(null);
+
+    React.useEffect(() => {
+        if (journeyId) {
+            journeyService.findContent(journeyId).then(res => setJourney(res));
+        }
+    }, [journeyId]);
 
     const [overallStatus, setOverallStatus] = useState<'scheduled' | 'confirmed' | 'in_progress' | 'completed'>('scheduled');
     const [formStep, setFormStep] = useState(0);
@@ -229,8 +235,8 @@ const SaleSurveyDetail: React.FC = () => {
                                 <br />
 
                                 <strong>II. Thành phần Khách hàng:</strong>
-                                <p style={{ marginLeft: 20, margin: 0 }}>Ông/Bà: <strong>{journey.customer_name}</strong></p>
-                                <p style={{ marginLeft: 20, margin: 0 }}>Thông tin liên hệ: {'[Đang cập nhật]'}</p>
+                                <p style={{ marginLeft: 20, margin: 0 }}>Ông/Bà: <strong>{journey.idx_customer_id?.primary_text || journey.customer_name}</strong></p>
+                                <p style={{ marginLeft: 20, margin: 0 }}>Thông tin liên hệ: {journey.idx_customer_id?.secondary_text || journey.customer_phone || '[Đang cập nhật]'}</p>
                                 <br />
 
                                 <strong>III. Nội dung Khảo sát:</strong>
@@ -282,6 +288,8 @@ const SaleSurveyDetail: React.FC = () => {
         }
     };
 
+    if (!journey) return <div>Đang tải...</div>;
+
     return (
         <div style={{ paddingBottom: 60 }}>
             <Button icon={<ArrowLeftOutlined />} type="text" onClick={handleBack} style={{ marginBottom: 12 }}>
@@ -302,7 +310,7 @@ const SaleSurveyDetail: React.FC = () => {
                             </div>
                             <div>
                                 <Text type="secondary" style={{ fontSize: 12 }}>Khách hàng</Text>
-                                <div style={{ fontWeight: 600 }}>{journey.customer_name}</div>
+                                <div style={{ fontWeight: 600 }}>{journey.idx_customer_id?.primary_text || journey.customer_name}</div>
                             </div>
                         </Space>
                     </Col>

@@ -1,8 +1,7 @@
-/// Hàm get/set là lớp truy cập cấu hình/runtime state.
-/// - Nguồn sự thật cho cấu hình: appconfig (bootstrap từ src/config.ts)
+/// - Nguồn sự thật cho cấu hình: appconfig (bootstrap từ window.env trong public/env.js)
 /// - Runtime override: localStorage
 
-import appconfig from '../../config';
+const appconfig = (window as any).env || {};
 
 export const ADMIN_GRAPHQL_ENDPOINT = "admin_graphql_endpoint";
 export const UPLOAD_URL = "upload_url";

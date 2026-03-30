@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Card, Tag, Button, Typography, Row, Col, Space, Tabs,
-    Modal, Form, Badge, Input, DatePicker, Descriptions, Timeline, message
+    Modal, Form, Badge, Input, DatePicker, Descriptions, Timeline, message, Spin
 } from 'antd';
 import { ArrowLeftOutlined, ClockCircleOutlined, InfoCircleOutlined, SearchOutlined, DollarOutlined, MessageOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { mockJourneys } from '../../../data/journeyMockData';
+import { journeyService } from '../../../services/core-contracts/services/journey.service';
 import { ConsultationLogForm } from '../../../components/journey/SharedModals';
 
 const { Text, Title } = Typography;
@@ -16,7 +16,9 @@ const SaleJourneyContext: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const activeTab = searchParams.get('tab') || 'general';
     const navigate = useNavigate();
-    const journey = mockJourneys.find(j => j.id === journeyId) || mockJourneys[0];
+
+    const [journey, setJourney] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
 
     const [showLogModal, setShowLogModal] = useState(false);
     const [showFollowUpModal, setShowFollowUpModal] = useState(false);
@@ -24,6 +26,19 @@ const SaleJourneyContext: React.FC = () => {
     const [followForm] = Form.useForm();
     const [surveyForm] = Form.useForm();
 
+    useEffect(() => {
+        if (journeyId) {
+            journeyService.findContent(journeyId).then(res => {
+                setJourney(res);
+                setLoading(false);
+            }).catch(err => {
+                console.error(err);
+                setLoading(false);
+            });
+        }
+    }, [journeyId]);
+
+    if (loading) return <Spin style={{ marginTop: 50, display: 'block', textAlign: 'center' }} />;
     if (!journey) return <div>Không tìm thấy hành trình</div>;
 
     const tabItems = [
@@ -35,9 +50,9 @@ const SaleJourneyContext: React.FC = () => {
                     <Col xs={24} md={12}>
                         <Card title="Khách hàng & Yêu cầu" size="small" style={{ borderRadius: 8, marginBottom: 16 }}>
                             <Descriptions size="small" column={1} bordered>
-                                <Descriptions.Item label="Mã YC">{journey.service_request_code}</Descriptions.Item>
-                                <Descriptions.Item label="Khách hàng">{journey.customer_name}</Descriptions.Item>
-                                <Descriptions.Item label="Số điện thoại">{journey.customer_phone}</Descriptions.Item>
+                                <Descriptions.Item label="Mã YC">{journey.service_request_code || journey.journey_code}</Descriptions.Item>
+                                <Descriptions.Item label="Khách hàng">{journey.idx_customer_id?.primary_text || journey.customer_name}</Descriptions.Item>
+                                <Descriptions.Item label="Số điện thoại">{journey.idx_customer_id?.secondary_text || journey.customer_phone}</Descriptions.Item>
                                 <Descriptions.Item label="Email">{journey.customer_email || '—'}</Descriptions.Item>
                                 <Descriptions.Item label="Địa chỉ thi công">{journey.site_address || '—'}</Descriptions.Item>
                                 <Descriptions.Item label="Loại dịch vụ">{journey.requested_service}</Descriptions.Item>
@@ -144,11 +159,11 @@ const SaleJourneyContext: React.FC = () => {
                     <Col xs={24} md={16}>
                         <Card size="small" style={{ borderRadius: 8, minHeight: 400 }}>
                             <Timeline
-                                items={journey.activities.map(a => ({
+                                items={(journey.activities || []).map((a: any) => ({
                                     children: (
                                         <div>
                                             <Text strong>{a.activity_action}</Text>
-                                            <div style={{ fontSize: 11, color: '#999' }}>{a.activity_time.split('T')[0]} · {a.activity_actor}</div>
+                                            <div style={{ fontSize: 11, color: '#999' }}>{a.activity_time ? a.activity_time.split('T')[0] : ''} · {a.activity_actor}</div>
                                             <div style={{ fontSize: 13, marginTop: 4 }}>{a.activity_summary}</div>
                                             <div style={{ fontSize: 12, color: '#666', marginTop: 2 }}>{a.activity_context}</div>
                                         </div>
@@ -188,7 +203,7 @@ const SaleJourneyContext: React.FC = () => {
                             <Tag color="magenta">{journey.current_step}</Tag>
                             <Badge status={journey.sla_status === 'overdue' ? 'error' : journey.sla_status === 'at_risk' ? 'warning' : 'success'} text={journey.sla_status} />
                         </Space>
-                        <Title level={4} style={{ margin: '6px 0 2px', color: '#780650' }}>{journey.customer_name}</Title>
+                        <Title level={4} style={{ margin: '6px 0 2px', color: '#780650' }}>{journey.idx_customer_id?.primary_text || journey.customer_name}</Title>
                         <Text style={{ color: '#9e1068' }}>{journey.request_title}</Text>
                     </Col>
                     <Col style={{ textAlign: 'right' }}>
@@ -236,7 +251,7 @@ const SaleJourneyContext: React.FC = () => {
                         setShowSurveyModal(false);
                         surveyForm.resetFields();
                         // Theo luồng, sau khi tạo xong sẽ điều hướng luôn qua trang chi tiết khảo sát mới tạo
-                        navigate(`/sale/dashboard/${journey.id}/surveys/new-${Date.now()}`);
+                        navigate(`/sale/dashboard/${journey._id || journey.id}/surveys/new-${Date.now()}`);
                     });
                 }} okText="Khởi tạo Lịch" cancelText="Hủy">
                 <Form form={surveyForm} layout="vertical">
