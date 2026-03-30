@@ -2,7 +2,7 @@
   "schemaName": "QuotationMappingRule",
   "data": [
     {
-      "service_type": "chong_tham_san_mai",
+      "service_type": "{{MasterDataItem._id::service_type.waterproofing}}",
       "rule_name": "Vết nứt cổ ống thấm nước",
       "source_cost_types": [
         "vật tư",
@@ -13,7 +13,7 @@
       "is_active": true
     },
     {
-      "service_type": "chong_tham_san_mai",
+      "service_type": "{{MasterDataItem._id::service_type.waterproofing}}",
       "rule_name": "Sàn mái bong tróc lớp cũ",
       "source_cost_types": [
         "xử lý bề mặt",
@@ -24,7 +24,7 @@
       "is_active": true
     },
     {
-      "service_type": "xu_ly_tham_tuong",
+      "service_type": "{{MasterDataItem._id::service_type.seepage_treatment}}",
       "rule_name": "Tường ngoài trời bị ngấm",
       "source_cost_types": [
         "chống thấm",

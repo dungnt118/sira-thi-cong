@@ -7,7 +7,7 @@
       "journey_step_code": "project_execution",
       "project_id": "{{Project._id::DA-2026-001}}",
       "receipt_time": "2026-03-06T16:00:00+07:00",
-      "receipt_status": "RECEIVED",
+      "receipt_status": "received",
       "receiver_user": "kho.minh",
       "note": "Đã nhận đủ 10 cuộn lưới gia cường, bao bì nguyên vẹn và đúng quy cách."
     }

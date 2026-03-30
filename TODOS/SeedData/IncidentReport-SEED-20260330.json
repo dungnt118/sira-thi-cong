@@ -12,8 +12,8 @@
       "reported_by": "gs.hien",
       "pm_reply": "Đã yêu cầu kho chuyển phiếu nhập bù và ưu tiên giao trong ngày.",
       "is_resolved": false,
-      "priority": "HIGH",
-      "status": "INVESTIGATING",
+      "priority": "high",
+      "status": "investigating",
       "assigned_to": "kho.minh"
     }
   ]

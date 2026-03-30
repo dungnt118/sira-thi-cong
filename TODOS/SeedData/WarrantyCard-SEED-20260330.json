@@ -11,7 +11,7 @@
       "customer_name": "Nguyễn Tiến Dương",
       "customer_phone": "0912333444",
       "address": "Số 24 ngách 61 Vĩnh Hưng, phường Vĩnh Hưng, quận Hoàng Mai, Hà Nội",
-      "construction_type": "Nhà ở dân dụng",
+      "construction_type": "{{MasterDataItem._id::construction_type.wall_seepage_treatment}}",
       "area_m2": 180,
       "completed_date": "2026-03-18T00:00:00+07:00",
       "warranty_months": 24,

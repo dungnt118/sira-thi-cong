@@ -1,5 +1,14 @@
 # SeedData Index
 
+## Cập nhật Phase 2 ngày 2026-03-30
+
+- Đã import thành công phần lớn batch seed business của BAC lên backend, bao gồm nhánh master, sale, thi công, bảo hành, portal trao đổi và tài chính.
+- Tổng số schema đã import thành công đến thời điểm hiện tại: `43`.
+- Hai điểm còn lại chưa khép kín:
+  - `PortalDocument`: backend vẫn có validator ẩn bắt buộc file upload thật, nên chưa thể seed bản ghi không có file.
+  - `CustomerJourneySetting`: bản ghi singleton hiện có đang là dữ liệu probe cũ, cần một wave cleanup/overwrite riêng cho schema setting.
+- Các nhận định blocker MCP write cũ trong tài liệu lịch sử không còn là trạng thái hiện hành cho batch `Multiple`. Xem kết quả mới nhất tại `SEED-RESULT-PHASE2-20260330.md` và GAP còn lại tại `SEED-GAP-PHASE2-BACKEND-DATA-20260330.md`.
+
 ## Mục đích
 - Chốt bộ seed JSON đầy đủ cho toàn bộ business schema BAC hiện đã được tạo ở backend, phục vụ Phase 2 import qua MCP tool.
 - Dùng backend schema làm nguồn sự thật duy nhất khi chọn field, enum và quan hệ dữ liệu.
@@ -25,6 +34,9 @@
 - `business_key` ưu tiên theo `code` nếu schema có `code`.
 - Với schema không có `code`, dùng khóa nghiệp vụ ổn định đã chốt trong file seed:
   `MaterialGroup.name`, `AssetGroup.name`, `QuotationMappingRule.rule_name`, `PortalThread.thread_code`, `PaymentMilestone.journey_code`.
+- Với `MasterDataItem`, dùng khóa giả chuẩn hóa theo mẫu `category_code.value`, ví dụ:
+  `{{MasterDataItem._id::service_type.waterproofing}}`,
+  `{{MasterDataItem._id::construction_type.rooftop_waterproofing}}`.
 - Phase 2 cần resolve toàn bộ placeholder sang `_id` thực trước khi gọi `content_create` hoặc `content_create_many`.
 
 ## Danh mục file seed
@@ -43,9 +55,9 @@
 | `Material-SEED-20260330.json` | `Material` | Vật tư thi công và vật tư phụ trợ |
 | `Asset-SEED-20260330.json` | `Asset` | Máy móc, thiết bị, dụng cụ |
 | `Distributor-SEED-20260330.json` | `Distributor` | Nhà phân phối và nhà cung cấp |
-| `ChecklistTemplate-SEED-20260330.json` | `ChecklistTemplate` | Mẫu checklist thi công và bàn giao |
+| `ChecklistTemplate-SEED-20260330.json` | `ChecklistTemplate` | Mẫu checklist thi công theo loại thi công |
 | `EstimateTemplate-SEED-20260330.json` | `EstimateTemplate` | Mẫu hạng mục định mức chi phí |
-| `MaterialStandard-SEED-20260330.json` | `MaterialStandard` | Định mức vật tư theo m² và loại công trình |
+| `MaterialStandard-SEED-20260330.json` | `MaterialStandard` | Định mức vật tư theo m² và loại thi công |
 | `QuotationMappingRule-SEED-20260330.json` | `QuotationMappingRule` | Quy tắc mapping line item báo giá |
 
 ### 2. Sale, khảo sát và báo giá
@@ -107,6 +119,7 @@
 
 ## Ghi chú quan trọng
 - Enum canonical của batch seed là lowercase nếu backend schema đang dùng lowercase. Không ép theo enum legacy của frontend.
+- `ChecklistTemplate` chỉ dùng cho checklist thi công; nghiệp vụ nghiệm thu / bàn giao nằm ở `HandoverAcceptance`.
 - Các reference tới `ProjectTask`, `Contract`, `ContractAppendix` đang bị bỏ trống hoặc lược khỏi seed vì backend tenant hiện chưa có các schema này.
 - File `SEED-RESULT-MCP-BLOCKER-20260329.md` không còn được dùng làm tài liệu điều hướng chính. Các blocker còn hiệu lực đã được gom lại trong `SEED-GAP-BACKEND-REFERENCES-AND-UPLOADS-20260330.md`.
 - `PortalDocument.files` hiện được seed bằng `null` theo rule MCP mới; nếu cần đính kèm file thật thì cập nhật bổ sung ở bước sau.

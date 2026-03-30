@@ -10,7 +10,7 @@
       "scheduled_at": "2026-02-28T14:00:00+07:00",
       "appointment_status": "confirmed",
       "assigned_user": "survey.lam",
-      "confirmed_by_customer": "Trần Văn Kiên",
+      "confirmed_by_customer": true,
       "confirmed_at": "2026-02-27T18:30:00+07:00",
       "note": "Khách yêu cầu khảo sát sau 14h để thuận tiện mở cửa khu sân thượng."
     },
@@ -23,7 +23,7 @@
       "scheduled_at": "2026-03-04T09:00:00+07:00",
       "appointment_status": "confirmed",
       "assigned_user": "survey.huy",
-      "confirmed_by_customer": "Ban kỹ thuật khách sạn MayFair",
+      "confirmed_by_customer": true,
       "confirmed_at": "2026-03-03T16:00:00+07:00",
       "note": "Khảo sát đi theo ca vận hành khách sạn, phải hạn chế tiếng ồn tại khu mái tum."
     }

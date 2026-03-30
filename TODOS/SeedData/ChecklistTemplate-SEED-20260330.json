@@ -4,7 +4,7 @@
     {
       "name": "Checklist chống thấm sân mái",
       "description": "Checklist chuẩn cho công trình chống thấm sân mái bê tông trước khi nghiệm thu nội bộ.",
-      "category": "Chống thấm sân mái",
+      "category": "{{MasterDataItem._id::construction_type.rooftop_waterproofing}}",
       "is_default": true,
       "steps": [
         {
@@ -46,35 +46,88 @@
       ]
     },
     {
-      "name": "Checklist nghiệm thu bàn giao",
-      "description": "Checklist dùng khi nghiệm thu, bàn giao và hướng dẫn khách hàng tiếp nhận công trình.",
-      "category": "Bàn giao công trình",
+      "name": "Checklist xử lý thấm tường ngoài",
+      "description": "Checklist thi công cho hạng mục xử lý thấm tường ngoài, logia và chân tường trước khi bàn giao nội bộ.",
+      "category": "{{MasterDataItem._id::construction_type.wall_seepage_treatment}}",
       "is_default": true,
       "steps": [
         {
-          "step_code": "visual_check",
+          "step_code": "surface_diagnosis",
           "step_order": 1,
-          "step_name": "Kiểm tra trực quan toàn bộ hạng mục",
-          "description": "Đối chiếu khối lượng, bề mặt hoàn thiện và các vị trí xử lý trọng điểm.",
+          "step_name": "Khảo tra vết nứt, điểm ngấm và bóc tách lớp yếu",
+          "description": "Ghi nhận vết nứt, mảng sơn bong, điểm ngấm cũ và loại bỏ lớp hoàn thiện yếu trước khi xử lý.",
           "min_photos": 3,
           "allow_video": false,
           "is_required": true
         },
         {
-          "step_code": "document_handover",
+          "step_code": "crack_treatment",
           "step_order": 2,
-          "step_name": "Bàn giao hồ sơ kỹ thuật và hướng dẫn sử dụng",
-          "description": "Bàn giao biên bản nghiệm thu, bảo hành và hướng dẫn bảo trì cơ bản cho khách hàng.",
-          "min_photos": 2,
+          "step_name": "Xử lý khe nứt, chân tường và điểm tiếp giáp",
+          "description": "Thi công xử lý các khe nứt, chân tường, vị trí logia và các điểm giao cắt trước khi phủ lớp chính.",
+          "min_photos": 4,
           "allow_video": false,
           "is_required": true
         },
         {
-          "step_code": "customer_signature",
+          "step_code": "main_coating",
           "step_order": 3,
-          "step_name": "Xác nhận khách hàng và đại diện công ty",
-          "description": "Lấy đầy đủ xác nhận hai bên, ghi nhận ý kiến tồn đọng nếu có.",
-          "min_photos": 2,
+          "step_name": "Thi công lớp chống thấm và hoàn thiện bề mặt",
+          "description": "Thi công lớp chống thấm, bả vá và hoàn thiện bề mặt theo biện pháp kỹ thuật đã duyệt.",
+          "min_photos": 4,
+          "allow_video": true,
+          "is_required": true
+        },
+        {
+          "step_code": "rain_check",
+          "step_order": 4,
+          "step_name": "Theo dõi sau mưa hoặc thử nước cục bộ",
+          "description": "Theo dõi sau mưa hoặc thử nước tại điểm xử lý để xác nhận không còn hiện tượng thấm tái diễn.",
+          "min_photos": 3,
+          "allow_video": false,
+          "is_required": true
+        }
+      ]
+    },
+    {
+      "name": "Checklist sơn epoxy sàn kỹ thuật",
+      "description": "Checklist thi công cho hạng mục sơn epoxy sàn kỹ thuật, bám sát trình tự chuẩn bị nền và thi công lớp phủ.",
+      "category": "{{MasterDataItem._id::construction_type.epoxy_floor_coating}}",
+      "is_default": false,
+      "steps": [
+        {
+          "step_code": "floor_grinding",
+          "step_order": 1,
+          "step_name": "Mài nền và hút bụi toàn bộ bề mặt",
+          "description": "Mài nền đạt độ nhám yêu cầu, xử lý dầu mỡ và hút bụi sạch trước khi sơn lót.",
+          "min_photos": 3,
+          "allow_video": false,
+          "is_required": true
+        },
+        {
+          "step_code": "primer_application",
+          "step_order": 2,
+          "step_name": "Thi công lớp sơn lót",
+          "description": "Thi công lớp lót đều bề mặt, kiểm tra độ phủ và thời gian chờ giữa các lớp.",
+          "min_photos": 3,
+          "allow_video": false,
+          "is_required": true
+        },
+        {
+          "step_code": "body_coat",
+          "step_order": 3,
+          "step_name": "Thi công lớp epoxy chính",
+          "description": "Thi công lớp epoxy chính đúng định mức, kiểm soát độ dày và độ phẳng bề mặt.",
+          "min_photos": 4,
+          "allow_video": true,
+          "is_required": true
+        },
+        {
+          "step_code": "final_inspection",
+          "step_order": 4,
+          "step_name": "Kiểm tra độ bóng và nghiệm thu nội bộ",
+          "description": "Kiểm tra độ bóng, màu sắc, khuyết tật bề mặt và lưu ảnh hoàn thiện trước khi bàn giao nội bộ.",
+          "min_photos": 3,
           "allow_video": false,
           "is_required": true
         }

@@ -4,20 +4,23 @@
     {
       "material_id": "{{Material._id::VT-CT-001}}",
       "material_name": "Sika Top Seal 107 25kg",
-      "construction_type": "Chống thấm sân mái bê tông",
-      "usage_per_m2": 3.2
+      "construction_type": "{{MasterDataItem._id::construction_type.rooftop_waterproofing}}",
+      "usage_per_m2": 3.2,
+      "note": "Định mức lớp chống thấm chính cho bề mặt sân mái bê tông."
     },
     {
       "material_id": "{{Material._id::VT-CT-002}}",
       "material_name": "Lưới thủy tinh gia cường 5cm",
-      "construction_type": "Xử lý cổ ống và chân tường",
-      "usage_per_m2": 0.18
+      "construction_type": "{{MasterDataItem._id::construction_type.rooftop_waterproofing}}",
+      "usage_per_m2": 0.18,
+      "note": "Dùng cho các chi tiết cổ ống và chân tường thuộc gói chống thấm sân mái."
     },
     {
       "material_id": "{{Material._id::VT-SH-001}}",
       "material_name": "Sơn epoxy tự san phẳng 20kg",
-      "construction_type": "Sơn epoxy sàn kỹ thuật",
-      "usage_per_m2": 0.22
+      "construction_type": "{{MasterDataItem._id::construction_type.epoxy_floor_coating}}",
+      "usage_per_m2": 0.22,
+      "note": "Định mức lớp phủ epoxy tự san phẳng cho sàn kỹ thuật."
     }
   ]
 }

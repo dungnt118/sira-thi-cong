@@ -39,7 +39,7 @@
     },
     {
       "categoryId": "{{MasterDataCategory._id::source_channel}}",
-      "value": "mkt",
+      "value": "marketing",
       "label": "Marketing",
       "shortLabel": "Marketing",
       "color": "#a855f7",
@@ -48,6 +48,102 @@
       "isDefault": true,
       "isActive": true,
       "description": "Khách hàng đến từ landing page, biểu mẫu, quảng cáo hoặc các chiến dịch marketing số."
+    },
+    {
+      "categoryId": "{{MasterDataCategory._id::service_type}}",
+      "value": "waterproofing",
+      "label": "Chống thấm",
+      "shortLabel": "Chống thấm",
+      "color": "#2563eb",
+      "faIcon": "fa-shield-water",
+      "sortOrder": 10,
+      "isDefault": true,
+      "isActive": true,
+      "description": "Nhóm dịch vụ chống thấm tổng quát dùng ở tầng thương mại và preconstruction.",
+      "metadataJson": {
+        "defaultConstructionTypes": [
+          "rooftop_waterproofing"
+        ]
+      }
+    },
+    {
+      "categoryId": "{{MasterDataCategory._id::service_type}}",
+      "value": "seepage_treatment",
+      "label": "Xử lý thấm",
+      "shortLabel": "Xử lý thấm",
+      "color": "#0ea5e9",
+      "faIcon": "fa-house-crack",
+      "sortOrder": 20,
+      "isDefault": false,
+      "isActive": true,
+      "description": "Nhóm dịch vụ xử lý thấm cho tường, logia và các điểm thấm cục bộ sau khảo sát.",
+      "metadataJson": {
+        "defaultConstructionTypes": [
+          "wall_seepage_treatment"
+        ]
+      }
+    },
+    {
+      "categoryId": "{{MasterDataCategory._id::service_type}}",
+      "value": "epoxy_floor",
+      "label": "Sơn epoxy sàn",
+      "shortLabel": "Epoxy sàn",
+      "color": "#7c3aed",
+      "faIcon": "fa-fill-drip",
+      "sortOrder": 30,
+      "isDefault": false,
+      "isActive": true,
+      "description": "Nhóm dịch vụ sơn epoxy sàn kỹ thuật, sàn xưởng và khu vực cần lớp phủ chuyên dụng.",
+      "metadataJson": {
+        "defaultConstructionTypes": [
+          "epoxy_floor_coating"
+        ]
+      }
+    },
+    {
+      "categoryId": "{{MasterDataCategory._id::construction_type}}",
+      "value": "rooftop_waterproofing",
+      "label": "Chống thấm sân mái",
+      "shortLabel": "Sân mái",
+      "color": "#1d4ed8",
+      "faIcon": "fa-building-shield",
+      "sortOrder": 10,
+      "isDefault": true,
+      "isActive": true,
+      "description": "Loại thi công chống thấm cho sân mái, mái tum và bề mặt bê tông ngoài trời.",
+      "metadataJson": {
+        "serviceType": "waterproofing"
+      }
+    },
+    {
+      "categoryId": "{{MasterDataCategory._id::construction_type}}",
+      "value": "wall_seepage_treatment",
+      "label": "Xử lý thấm tường",
+      "shortLabel": "Thấm tường",
+      "color": "#0891b2",
+      "faIcon": "fa-house-flood-water",
+      "sortOrder": 20,
+      "isDefault": false,
+      "isActive": true,
+      "description": "Loại thi công xử lý thấm tường ngoài, logia, chân tường và các điểm tiếp giáp đứng.",
+      "metadataJson": {
+        "serviceType": "seepage_treatment"
+      }
+    },
+    {
+      "categoryId": "{{MasterDataCategory._id::construction_type}}",
+      "value": "epoxy_floor_coating",
+      "label": "Sơn epoxy sàn kỹ thuật",
+      "shortLabel": "Epoxy sàn",
+      "color": "#6d28d9",
+      "faIcon": "fa-layer-group",
+      "sortOrder": 30,
+      "isDefault": false,
+      "isActive": true,
+      "description": "Loại thi công sơn epoxy cho sàn kỹ thuật, sàn công nghiệp và bề mặt cần lớp phủ chống bụi, chống mài mòn.",
+      "metadataJson": {
+        "serviceType": "epoxy_floor"
+      }
     },
     {
       "categoryId": "{{MasterDataCategory._id::priority_level}}",
@@ -159,7 +255,7 @@
     },
     {
       "categoryId": "{{MasterDataCategory._id::sla_status}}",
-      "value": "ontime",
+      "value": "on_time",
       "label": "Đúng hạn",
       "shortLabel": "Đúng hạn",
       "color": "#16a34a",

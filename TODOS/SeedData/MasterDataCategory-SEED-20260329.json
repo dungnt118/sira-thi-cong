@@ -12,6 +12,26 @@
       "note": "Phục vụ bước tiếp nhận lead trong hành trình khách hàng giai đoạn 1."
     },
     {
+      "code": "service_type",
+      "name": "Loại dịch vụ",
+      "module": "crm",
+      "isActive": true,
+      "allowCustomItem": false,
+      "sortOrder": 15,
+      "description": "Nhóm danh mục phân loại dịch vụ cấp cao dùng chung cho hành trình, template và quy tắc mapping báo giá.",
+      "note": "Dùng để chuẩn hóa lát cắt thương mại ở tầng sale và preconstruction."
+    },
+    {
+      "code": "construction_type",
+      "name": "Loại thi công",
+      "module": "execution",
+      "isActive": true,
+      "allowCustomItem": false,
+      "sortOrder": 17,
+      "description": "Nhóm danh mục phân loại loại thi công hoặc ngữ cảnh kỹ thuật dùng cho checklist thi công, định mức vật tư và bảo hành.",
+      "note": "Dùng để chuẩn hóa tầng thực thi kỹ thuật, độc lập với loại dịch vụ cấp cao."
+    },
+    {
       "code": "priority_level",
       "name": "Mức độ ưu tiên",
       "module": "foundation",

@@ -3,48 +3,84 @@
 ## Trạng thái tổng quan
 
 - Mục tiêu: import batch seed từ `TODOS/SeedData` lên BAC backend.
-- Kết quả hiện tại: chưa thể chạy import thật do blocker kỹ thuật ở BAC MCP write tool.
+- Kết quả hiện tại: đã import thành công phần lớn batch business schema; blocker MCP write cũ không còn là trạng thái hiện hành cho nhóm schema `Multiple`.
+- Tổng số schema đã import thành công: `43`.
 
-## Những gì đã xác minh
+## Các schema đã import thành công
 
-- Seed file hiện có đã bao phủ batch business schema cần thiết cho tenant BAC.
-- `PortalDocument.files` đã được chuẩn hóa về `null` theo rule mới.
-- MCP đã có thêm tool `content-save_setting` dành cho schema `Single`.
-- `AssetGroup` schema backend xác nhận đúng field seed, nên lỗi hiện tại không nằm ở seed file.
-- Thứ tự import trong `index.md` đã được chỉnh lại cho đúng dependency thực tế ở nhóm sale:
+- Cấu hình danh mục và master:
+  - `MasterDataCategory`
+  - `MasterDataItem`
+  - `Customer`
+  - `MaterialGroup`
+  - `AssetGroup`
+  - `Material`
+  - `Asset`
+  - `Distributor`
+  - `ChecklistTemplate`
+  - `EstimateTemplate`
+  - `MaterialStandard`
+  - `QuotationMappingRule`
+- Sale, khảo sát và báo giá:
   - `Journey`
   - `ServiceRequest`
   - `SurveyAppointment`
   - `SurveyRecord`
   - `Quotation`
   - `QuotationLineItem`
+- Thi công và hiện trường:
+  - `Project`
+  - `ProjectAssignment`
+  - `StockRequest`
+  - `StockOrder`
+  - `MaterialReceiptConfirmation`
+  - `AssetAllocation`
+  - `SiteReport`
+  - `IncidentReport`
+  - `ActivityEvent`
+- Bàn giao, bảo hành và portal:
+  - `HandoverAcceptance`
+  - `HandoverIssue`
+  - `WarrantyCard`
+  - `WarrantyCase`
+  - `WarrantyVisit`
+  - `WarrantyReminder`
+  - `PortalThread`
+  - `PortalMessage`
+  - `ProjectCloseoutPackage`
+- Tài chính và công nợ:
+  - `PaymentMilestone`
+  - `PaymentReceipt`
+  - `PaymentAdjustment`
+  - `DebtConfirmation`
+  - `DebtCollectionTask`
+  - `SalesInvoice`
+  - `ProjectSettlement`
 
-## Blocker hiện hành
+## Các xử lý quan trọng đã thực hiện trong lúc import
 
-Xem chi tiết tại:
+- Chuẩn hóa payload import sang object native cho `content_create_many`; không còn dùng chuỗi JSON.
+- Khép kín vòng phụ thuộc kho vận:
+  - tạo `StockRequest` trước
+  - tạo `StockOrder`
+  - patch ngược `StockRequest.converted_order_id`
+- Khép kín vòng phụ thuộc bảo hành:
+  - tạo `HandoverIssue`
+  - tạo `WarrantyCase`
+  - tạo `WarrantyVisit`
+  - patch ngược `HandoverIssue.linked_warranty_case_id`
+  - patch ngược `WarrantyCase.latest_visit_id`
+- Chuẩn hóa enum seed còn sót ở `StockRequest`, `StockOrder`, `MaterialReceiptConfirmation`, `AssetAllocation`, `IncidentReport`, `WarrantyReminder`.
+- Chuẩn hóa metadata `PortalDocument.files` từ `required=true` về `required=false`; tuy nhiên validator runtime vẫn chưa cho seed bản ghi không có file thật.
 
-- `SEED-GAP-PHASE2-MCP-WRITE-BLOCKER-20260330.md`
+## Phần chưa hoàn tất
 
-Tóm tắt:
+- `PortalDocument` chưa import được.
+  - Dù metadata đã đổi sang `required=false`, backend vẫn trả lỗi `Tập tin không được để trống` khi gửi `null`, `[]` hoặc bỏ field.
+- `CustomerJourneySetting` chưa được chốt lại trong Phase 2 này.
+  - Bản ghi singleton hiện có là dữ liệu probe cũ, root field đang `null` và nested field chứa giá trị `EVIDENCE_*`.
 
-- `content-create_many` đang sinh bản ghi trắng;
-- `content-update_by_ids` chưa patch được payload object;
-- chưa có tool xóa content để dọn probe record.
+## Tài liệu liên quan
 
-## Hệ quả với kế hoạch import
-
-- Chưa thể import an toàn cho nhóm schema `Multiple`.
-- Chưa thể hoàn tất canonicalization `_id` thật về toàn bộ file seed.
-- Chưa thể khép kín các quan hệ cần patch hậu import như `WarrantyCase.latest_visit_id`.
-
-## Khuyến nghị bước tiếp theo
-
-1. Team MCP/backend fix bind của `content-create`, `content-create_many`, `content-update_by_ids`.
-2. Dọn các probe record trắng ở `AssetGroup`.
-3. Chạy lại Phase 2 ngay sau khi fix, ưu tiên:
-   - `CustomerJourneySetting` qua `content-save_setting`
-   - nhóm master
-   - nhóm sale
-   - nhóm thi công
-   - nhóm bảo hành, portal
-   - nhóm tài chính
+- GAP backend-data còn lại: `SEED-GAP-PHASE2-BACKEND-DATA-20260330.md`
+- Gap nghiệp vụ tham chiếu schema/quan hệ: `SEED-GAP-BACKEND-REFERENCES-AND-UPLOADS-20260330.md`
