@@ -6,8 +6,8 @@ import type { TabsProps } from 'antd';
 const { Option } = Select;
 
 import { useOutletContext } from 'react-router-dom';
-import { demoDataService } from '../../../services/localstorage/demoDataService';
-import { localStorageService } from '../../../services/localstorage/localStorageService';
+import { demoDataService } from '../../../services/core-graphql/localstorage/demoDataService';
+import { localStorageService } from '../../../services/core-graphql/localstorage/localStorageService';
 
 const { Title: AntTitle, Text: AntText } = Typography;
 

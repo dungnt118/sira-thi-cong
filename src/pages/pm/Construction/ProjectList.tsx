@@ -15,7 +15,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { getProjectProgress } from '../../../data/mockData';
 import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
-import { demoDataService } from '../../../services/localstorage/demoDataService';
+import { demoDataService } from '../../../services/core-graphql/localstorage/demoDataService';
 import { mockProjects as defaultProjects } from '../../../data/mockData';
 import type { Project, ProjectStatus } from '../../../types/legacy-project';
 

@@ -1,5 +1,5 @@
-import type { Journey, JourneyTemplate } from '../../types/journey';
-import type { PortalDocument } from '../../types/portal';
+import type { Journey, JourneyTemplate } from '../../../types/journey';
+import type { PortalDocument } from '../../../types/portal';
 
 export interface PortalDocumentSummary {
     document_count: number;

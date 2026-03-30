@@ -20,7 +20,7 @@ import { mockJourneys as defaultJourneys } from '../../../data/journeyMockData';
 import type { Journey, ProjectStatusType } from '../../../types/journey';
 import { MilestoneStatus } from '../../../types/v3';
 import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
-import { demoDataService } from '../../../services/localstorage/demoDataService';
+import { demoDataService } from '../../../services/core-graphql/localstorage/demoDataService';
 
 
 const notifications = [

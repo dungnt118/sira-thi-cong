@@ -12,7 +12,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { mockJourneys as defaultJourneys } from '../../data/journeyMockData';
 import type { Journey, JourneyChecklistStep } from '../../types/journey';
 import { useLocalStorageData } from '../../hooks/useLocalStorageData';
-import { demoDataService } from '../../services/localstorage/demoDataService';
+import { demoDataService } from '../../services/core-graphql/localstorage/demoDataService';
 
 const { Text, Title } = Typography;
 const { TextArea } = Input;

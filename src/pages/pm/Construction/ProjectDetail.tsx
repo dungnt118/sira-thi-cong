@@ -14,7 +14,7 @@ import {
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
-import { demoDataService } from '../../../services/localstorage/demoDataService';
+import { demoDataService } from '../../../services/core-graphql/localstorage/demoDataService';
 import { mockProjects as defaultProjects, getProjectProgress } from '../../../data/mockData';
 import type { Project, StepStatus } from '../../../types/legacy-project';
 

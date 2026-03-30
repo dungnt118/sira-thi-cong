@@ -9,7 +9,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { Select } from 'antd';
 import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
-import { demoDataService } from '../../../services/localstorage/demoDataService';
+import { demoDataService } from '../../../services/core-graphql/localstorage/demoDataService';
 import { mockServiceRequests as defaultServiceRequests, mockPipelines as defaultPipelines } from '../../../data/mockData';
 import type { ServiceRequest, Pipeline as PipelineType } from '../../../types/v3';
 

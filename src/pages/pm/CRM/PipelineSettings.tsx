@@ -8,7 +8,7 @@ import {
     ExclamationCircleOutlined, HolderOutlined
 } from '@ant-design/icons';
 import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
-import { demoDataService } from '../../../services/localstorage/demoDataService';
+import { demoDataService } from '../../../services/core-graphql/localstorage/demoDataService';
 import { mockPipelines as defaultPipelines, mockServiceRequests as defaultServiceRequests } from '../../../data/mockData';
 import type { Pipeline, PipelineStage, PipelineSystemStage, ServiceRequest } from '../../../types/v3';
 

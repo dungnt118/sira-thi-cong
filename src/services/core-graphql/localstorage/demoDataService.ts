@@ -15,7 +15,7 @@ import {
     mockWarrantyCards,
     mockWarrantyReminders,
     mockEstimateTemplates
-} from '../../data/mockData';
+} from '../../../data/mockData';
 
 import {
     mockJourneys,
@@ -31,8 +31,8 @@ import {
     mockEstimates,
     mockLaborPlans,
     mockMaterialDetails
-} from '../../data/journeyMockData';
-import { mockPortalDocuments } from '../../data/portalMockData';
+} from '../../../data/journeyMockData';
+import { mockPortalDocuments } from '../../../data/portalMockData';
 
 /**
  * Demo Data Service

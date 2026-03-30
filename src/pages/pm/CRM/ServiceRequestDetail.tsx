@@ -10,7 +10,7 @@ import {
     CheckCircleOutlined, SyncOutlined, ProjectOutlined, CloseCircleOutlined
 } from '@ant-design/icons';
 import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
-import { demoDataService } from '../../../services/localstorage/demoDataService';
+import { demoDataService } from '../../../services/core-graphql/localstorage/demoDataService';
 import { 
     mockServiceRequests as defaultServiceRequests, 
     mockCustomers as defaultCustomers, 

@@ -8,7 +8,7 @@ import {
     PlusOutlined, DeleteOutlined 
 } from '@ant-design/icons';
 import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
-import { demoDataService } from '../../../services/localstorage/demoDataService';
+import { demoDataService } from '../../../services/core-graphql/localstorage/demoDataService';
 
 const { Title, Text } = Typography;
 

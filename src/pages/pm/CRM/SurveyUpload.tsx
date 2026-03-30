@@ -11,7 +11,7 @@ import {
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
-import { demoDataService } from '../../../services/localstorage/demoDataService';
+import { demoDataService } from '../../../services/core-graphql/localstorage/demoDataService';
 import { mockServiceRequests as defaultServiceRequests, mockCustomers as defaultCustomers } from '../../../data/mockData';
 import type { ServiceRequest, Customer, MoistureReading } from '../../../types/v3';
 

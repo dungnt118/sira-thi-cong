@@ -6,8 +6,8 @@ import PortalDashboard from '../../components/portal/PortalDashboard';
 import { useLocalStorageData } from '../../hooks/useLocalStorageData';
 import { mockJourneys, mockJourneyTemplates } from '../../data/journeyMockData';
 import { mockPortalDocuments } from '../../data/portalMockData';
-import { demoDataService } from '../../services/localstorage/demoDataService';
-import { syncJourneyPortalSummary } from '../../services/localstorage/portalDocumentService';
+import { demoDataService } from '../../services/core-graphql/localstorage/demoDataService';
+import { syncJourneyPortalSummary } from '../../services/core-graphql/localstorage/portalDocumentService';
 import type { Journey, JourneyTemplate } from '../../types/journey';
 import type { PortalDocument } from '../../types/portal';
 

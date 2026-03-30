@@ -4,8 +4,8 @@ import { FileOutlined, PictureOutlined, DownloadOutlined, FolderOpenOutlined } f
 import { useParams } from 'react-router-dom';
 import PortalPageHeader from '../../../components/portal/PortalPageHeader';
 import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
-import { demoDataService } from '../../../services/localstorage/demoDataService';
-import { syncJourneyPortalSummary } from '../../../services/localstorage/portalDocumentService';
+import { demoDataService } from '../../../services/core-graphql/localstorage/demoDataService';
+import { syncJourneyPortalSummary } from '../../../services/core-graphql/localstorage/portalDocumentService';
 import { mockJourneys, mockJourneyTemplates } from '../../../data/journeyMockData';
 import { mockPortalDocuments } from '../../../data/portalMockData';
 import type { Journey, JourneyTemplate } from '../../../types/journey';

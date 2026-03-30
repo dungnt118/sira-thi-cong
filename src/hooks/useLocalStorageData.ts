@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { localStorageService } from '../services/localstorage/localStorageService';
+import { localStorageService } from '../services/core-graphql/localstorage/localStorageService';
 
 /**
  * Custom hook to read and write data from LocalStorage reactively.

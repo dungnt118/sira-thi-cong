@@ -9,7 +9,7 @@ import {
     EyeOutlined, SaveOutlined, PlusOutlined, DeleteOutlined 
 } from '@ant-design/icons';
 import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
-import { demoDataService } from '../../../services/localstorage/demoDataService';
+import { demoDataService } from '../../../services/core-graphql/localstorage/demoDataService';
 import { mockLaborPlans as defaultLaborPlans } from '../../../data/journeyMockData';
 
 const { Text } = Typography;

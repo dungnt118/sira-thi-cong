@@ -9,7 +9,7 @@ import {
     EyeOutlined, DragOutlined, SaveOutlined,
 } from '@ant-design/icons';
 import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
-import { demoDataService } from '../../../services/localstorage/demoDataService';
+import { demoDataService } from '../../../services/core-graphql/localstorage/demoDataService';
 import { mockTemplates as defaultTemplates } from '../../../data/mockData';
 import type { ChecklistTemplate } from '../../../types/v3';
 
