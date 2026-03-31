@@ -1,4 +1,4 @@
-import * as Actions from '../actions';
+import { REGISTER_SUCCESS, REGISTER_ERROR, type RegisterActions } from '../actions/register.actions';
 
 const initialState = {
     success: false,
@@ -8,17 +8,17 @@ const initialState = {
     }
 };
 
-const register = function (state = initialState, action) {
+const register = function (state = initialState, action: RegisterActions) {
     switch ( action.type )
     {
-        case Actions.REGISTER_SUCCESS:
+        case REGISTER_SUCCESS:
         {
             return {
                 ...initialState,
                 success: true
             };
         }
-        case Actions.REGISTER_ERROR:
+        case REGISTER_ERROR:
         {
             return {
                 success: false,

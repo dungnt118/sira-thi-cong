@@ -33,8 +33,8 @@ type AuthProps = PropsWithChildren<{
 
 const Auth: React.FC<AuthProps> = ({ children, match }) => {
   const dispatch = useAppDispatch();
-  const userData = useAppSelector((state) => state.auth?.user?.data);
-  const schemas = (useAppSelector((state) => state as any)).schemas?.all_schemas;
+  const userData = useAppSelector((state: any) => state.auth?.user?.data);
+  const schemas = (useAppSelector((state: any) => state)).schemas?.all_schemas;
   
   const isCloudEnabledRaw = get(CLOUD_ENABLE);
   const isCloudEnabled = isCloudEnabledRaw === true || String(isCloudEnabledRaw).toLowerCase() === 'true';

@@ -239,7 +239,7 @@ const TemplateDetail: React.FC = () => {
             <StepConfigModal
                 open={showStepModal}
                 initialData={editingStep}
-                onSave={(values) => {
+                onSave={(values: any) => {
                     if (editingStep) {
                         setSteps(prev => prev.map(s => s.step_code === editingStep.step_code ? { ...s, ...values } : s));
                         setSelectedStep({ ...editingStep, ...values });

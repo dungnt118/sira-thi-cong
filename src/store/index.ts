@@ -1,12 +1,13 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 import { useDispatch, useSelector, TypedUseSelectorHook } from 'react-redux';
-import authReducers from '@/pages/shared/auth/store/reducers';
+import authReducers, { AuthState } from '@/pages/shared/auth/store/reducers';
 import schemasReducer from './reducers/schemas/schemas.reducer';
+import { Reducer } from '@reduxjs/toolkit';
 
 // NOTE: Thêm các reducer khác tại đây nếu cần (vd: fuse, message, ...)
 const store = configureStore({
   reducer: {
-    auth: authReducers as any,
+    auth: authReducers as unknown as Reducer<AuthState>,
     schemas: schemasReducer,
     // Add other reducers here
   },

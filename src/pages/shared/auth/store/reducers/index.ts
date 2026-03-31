@@ -7,4 +7,6 @@ const authReducers = combineReducers({
     login,
 });
 
+export type AuthState = ReturnType<typeof authReducers>;
+
 export default authReducers;

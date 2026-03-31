@@ -224,9 +224,7 @@ export const logoutUser = (message?: string | null): AppThunk => (dispatch) => {
   const pathname = history.location.pathname;
   console.log("logoutUser called at pathname:", pathname);
   if (!pathname.startsWith('/login')) {
-    history.push({
-      pathname: '/login',
-    });
+    history.push('/login');
   }
 
   if (message) {

@@ -3,7 +3,7 @@ import { logoutUser } from '@/pages/shared/auth/store/actions/user.actions';
 
 export const useAuth = () => {
     const dispatch = useAppDispatch();
-    const userState = useAppSelector((state) => state.auth.user);
+    const userState = useAppSelector((state: any) => state.auth.user);
     const sessionData = userState?.data;
 
     const role = userState?.role || null;

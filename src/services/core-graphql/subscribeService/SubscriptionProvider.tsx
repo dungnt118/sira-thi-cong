@@ -46,7 +46,7 @@ export default function SubscriptionProvider({ children }: SubscriptionProviderP
     const dispatch = useDispatch();
 
     // Lấy thông tin user từ Redux state với type safety
-    const userData = useSelector((state: RootState) => state.auth?.user?.data as UserData | undefined);
+    const userData = useSelector((state: any) => state.auth?.user?.data as UserData | undefined);
 
     // Kiểm tra cả access token và user data để đảm bảo user đã đăng nhập
     const isUserLoggedIn = Boolean(access_token && userData && userData.user);
@@ -61,7 +61,7 @@ export default function SubscriptionProvider({ children }: SubscriptionProviderP
             const d: any = (e as any).data;
             if (d?.data?.response) {
                 const message: NotificationMessage = d.data.response;
-                dispatch(add_notify_message(message));
+                dispatch(add_notify_message(message) as any);
             }
 
         },
