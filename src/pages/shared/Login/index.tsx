@@ -1,14 +1,10 @@
 import React, { useState } from 'react';
 import { Card, Button, Typography, Form, Input, message } from 'antd';
-import { useNavigate } from 'react-router-dom';
-import { setUserData } from '../../../utils/authUtils';
 import {
     UserOutlined,
     LockOutlined
 } from '@ant-design/icons';
-import { gql } from '@apollo/client';
-import { query } from '../../../services/graphqlService';
-import { GET_USER_SESSION_INFO_QUERY, get, CLIENTS } from '../../../services/storeService';
+import { get, CLIENTS } from '../../../services/storeService';
 import elsagaService from '../../../services/authenticationService';
 import './Login.css';
 
@@ -18,7 +14,6 @@ import { useAppDispatch } from '@/store/hooks';
 import { loadUserData } from '@/pages/shared/auth/store/actions/user.actions';
 
 export const Login: React.FC = () => {
-    const navigate = useNavigate();
     const dispatch = useAppDispatch();
     const [loading, setLoading] = useState(false);
 

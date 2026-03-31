@@ -306,8 +306,7 @@ function getVariablesFromScript(script: string) {
     return variableNames;
 }
 
-var ignoreKeys = ["null", "function", "let", "var", "const", "return", "true", "false", "do", "if", "else", "while", "undefined"];
-const ignoreSecondKeys = ["(", '"', "'", '`', '>', ':', '\\'];//để loại bỏ các hậu tố đứng sau thể hiện là hàm hoặc không phải biến
+
 
 function supportsLookbehind(): boolean {
     try {
@@ -760,7 +759,7 @@ _.mixin({
         let range = []
         for (let i = 0; i < diff; i++) {
             if (format) {
-                range.push(moment(startDate).add(i, type as any)?.viewSetting?.format(format))
+                range.push(moment(startDate).add(i, type as any).format(format))
             } else
                 range.push(moment(startDate).add(i, type as any))
         }
