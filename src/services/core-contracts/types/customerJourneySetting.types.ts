@@ -13,19 +13,19 @@ export interface ICustomerJourneySetting {
   is_active?: boolean;
   version_label?: string;
   note?: string;
-  lead_intake?: ILeadIntakeItem[];
-  qualification?: IQualificationItem[];
-  survey_planning?: ISurveyPlanningItem[];
-  site_survey?: ISiteSurveyItem[];
-  survey_review?: ISurveyReviewItem[];
-  estimate_preparation?: IEstimatePreparationItem[];
-  quotation_preparation?: IQuotationPreparationItem[];
-  quotation_sent?: IQuotationSentItem[];
-  quotation_approved?: IQuotationApprovedItem[];
-  contract_signing?: IContractSigningItem[];
-  project_execution?: IProjectExecutionItem[];
-  handover_acceptance?: IHandoverAcceptanceItem[];
-  warranty_aftercare?: IWarrantyAftercareItem[];
+  lead_intake?: ILeadIntakeItem;
+  qualification?: IQualificationItem;
+  survey_planning?: ISurveyPlanningItem;
+  site_survey?: ISiteSurveyItem;
+  survey_review?: ISurveyReviewItem;
+  estimate_preparation?: IEstimatePreparationItem;
+  quotation_preparation?: IQuotationPreparationItem;
+  quotation_sent?: IQuotationSentItem;
+  quotation_approved?: IQuotationApprovedItem;
+  contract_signing?: IContractSigningItem;
+  project_execution?: IProjectExecutionItem;
+  handover_acceptance?: IHandoverAcceptanceItem;
+  warranty_aftercare?: IWarrantyAftercareItem;
 }
 
 export interface ILeadIntakeItem {
@@ -374,19 +374,19 @@ export interface ICreateCustomerJourneySettingInput {
   is_active?: boolean;
   version_label?: string;
   note?: string;
-  lead_intake?: ILeadIntakeItem[];
-  qualification?: IQualificationItem[];
-  survey_planning?: ISurveyPlanningItem[];
-  site_survey?: ISiteSurveyItem[];
-  survey_review?: ISurveyReviewItem[];
-  estimate_preparation?: IEstimatePreparationItem[];
-  quotation_preparation?: IQuotationPreparationItem[];
-  quotation_sent?: IQuotationSentItem[];
-  quotation_approved?: IQuotationApprovedItem[];
-  contract_signing?: IContractSigningItem[];
-  project_execution?: IProjectExecutionItem[];
-  handover_acceptance?: IHandoverAcceptanceItem[];
-  warranty_aftercare?: IWarrantyAftercareItem[];
+  lead_intake?: ILeadIntakeItem;
+  qualification?: IQualificationItem;
+  survey_planning?: ISurveyPlanningItem;
+  site_survey?: ISiteSurveyItem;
+  survey_review?: ISurveyReviewItem;
+  estimate_preparation?: IEstimatePreparationItem;
+  quotation_preparation?: IQuotationPreparationItem;
+  quotation_sent?: IQuotationSentItem;
+  quotation_approved?: IQuotationApprovedItem;
+  contract_signing?: IContractSigningItem;
+  project_execution?: IProjectExecutionItem;
+  handover_acceptance?: IHandoverAcceptanceItem;
+  warranty_aftercare?: IWarrantyAftercareItem;
 }
 
 export type ICustomerJourneySettingListResponse = ApiListResponse<ICustomerJourneySetting>

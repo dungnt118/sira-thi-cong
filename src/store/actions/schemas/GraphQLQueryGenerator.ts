@@ -80,7 +80,7 @@ export function getQueryByFieldsString(schemaName: string, params: any = {}): st
  * Backward compatibility function - tương thích với generateSchemaQuery
  * @deprecated Sử dụng các helper functions riêng lẻ thay thế
  */
-export function generateSchemaQuery(schema: SchemaDefinitionExtend, all_schemas: SchemaDefinitionExtend[], maxLevel: number, selectedFields: any, just_use_selectedFields: boolean, additional_query: string): void {
+export function generateSchemaQuery(schema: SchemaDefinitionExtend, _all_schemas: SchemaDefinitionExtend[], maxLevel: number, selectedFields: any, just_use_selectedFields: boolean, _additional_query: string): void {
     console.warn('generateSchemaQuery is deprecated. Use individual helper functions instead.');
 
     if (!schema || !schema.name) {
@@ -92,15 +92,15 @@ export function generateSchemaQuery(schema: SchemaDefinitionExtend, all_schemas:
         maxLevel: maxLevel || 3,
         selectedFields,
         just_use_selectedFields: just_use_selectedFields || false,
-        additional_query: additional_query || ""
+        additional_query: _additional_query || ""
     };
 
     // Generate và assign các query strings
-    schema.graph_query_string = getQueryString(schema.name, params);
-    schema.graph_find_string = getFindString(schema.name, params);
-    schema.graph_find_reference_string = getFindReferenceString(schema.name, params);
-    schema.graph_search_reference_string = getSearchReferenceString(schema.name, params);
-    schema.graph_save_string = getSaveString(schema.name, params);
+    schema.graph_query_string = getQueryString(schema.name, params) ?? undefined;
+    schema.graph_find_string = getFindString(schema.name, params) ?? undefined;
+    schema.graph_find_reference_string = getFindReferenceString(schema.name, params) ?? undefined;
+    schema.graph_search_reference_string = getSearchReferenceString(schema.name, params) ?? undefined;
+    schema.graph_save_string = getSaveString(schema.name, params) ?? undefined;
 }
 
 /**
@@ -108,7 +108,7 @@ export function generateSchemaQuery(schema: SchemaDefinitionExtend, all_schemas:
  */
 export function getCustomQueryString(
         schema: SchemaDefinitionExtend,
-        all_schemas: SchemaDefinitionExtend[],
+        _all_schemas: SchemaDefinitionExtend[],
         maxLevel: number,
         selectedFields: any,
         just_use_selectedFields: boolean,
@@ -132,7 +132,7 @@ export function getCustomQueryString(
 /**
  * Custom find string generator - tương thích với get_custom_find_string
  */
-export function getCustomFindString(schema: SchemaDefinitionExtend, all_schemas: SchemaDefinitionExtend[], maxLevel: number, selectedFields: any, just_use_selectedFields: boolean, additional_query: string): string | null {
+export function getCustomFindString(schema: SchemaDefinitionExtend, _all_schemas: SchemaDefinitionExtend[], maxLevel: number, selectedFields: any, just_use_selectedFields: boolean, additional_query: string): string | null {
     if (!schema || !schema.name) {
         console.error('Schema or schema.name is required');
         return null;
@@ -151,7 +151,7 @@ export function getCustomFindString(schema: SchemaDefinitionExtend, all_schemas:
 /**
  * Custom save string generator - tương thích với get_custom_save_string
  */
-export function getCustomSaveString(schema: any, all_schemas: any[], maxLevel: number, selectedFields: any, just_use_selectedFields: boolean, additional_query: string): string | null {
+export function getCustomSaveString(schema: any, _all_schemas: any[], maxLevel: number, selectedFields: any, just_use_selectedFields: boolean, _additional_query: string): string | null {
     if (!schema || !schema.name) {
         console.error('Schema or schema.name is required');
         return null;
@@ -161,7 +161,7 @@ export function getCustomSaveString(schema: any, all_schemas: any[], maxLevel: n
         maxLevel: maxLevel || 3,
         selectedFields,
         just_use_selectedFields: just_use_selectedFields || false,
-        additional_query: additional_query || ""
+        additional_query: _additional_query || ""
     };
 
     return getSaveString(schema.name, params);

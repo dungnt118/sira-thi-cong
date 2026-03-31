@@ -7,23 +7,17 @@ import { PropDefinition } from 'types/schemas/PropDefinition';
 import { SchemaDefinition, SchemaDefinitionExtend, SchemaNormalizationUtils } from 'types/schemas/SchemaDefinition';
 import * as QUERY from './query';
 import { generateFlattenProps } from './schemaQueryHelper';
-import { getCustomQueryString, getCustomFindString, getCustomSaveString } from './GraphQLQueryGenerator';
-import SchemaQueryManager from './SchemaQueryManager';
+import { getCustomQueryString, getCustomFindString } from './GraphQLQueryGenerator';
 import { generateSchemaQuery } from './schemaQueryHelper';
 
 import { HeadlessContentModel } from 'app/main/apps/anydata/types/HeadlessContentModel';
-import type { AppThunk } from 'store';
+import type { AppThunk } from 'app/store';
 import { FETCH_ALL_SCHEMAS } from 'store/reducers/schemas/schemas.reducer';
-import { ApiListResponse, ApiResponse, IndexedContentItem } from 'types/apis/ApiResponse';
+import { ApiListResponse, ApiResponse } from 'types/apis/ApiResponse';
+import { IndexedContentItem } from 'types/apis/IndexedContentItem';
 import { GeneralCollectionFilter } from 'types/filters/GeneralCollectionFilter';
 
 // Type definitions for function parameters
-interface UpdateDataSetParams {
-    target_schema: string;
-    ids: string[];
-    is_keyfield: boolean;
-    set: any;
-}
 
 interface ExecuteAsyncApiParams {
     api_key: string;
@@ -596,7 +590,7 @@ export function get_indexed_content(
             ) as Promise<ApiResponse<IndexedContentItem[]>>;
         };
     } else {
-        return (dispatch: any): Promise<ApiResponse<IndexedContentItem[]>> => {
+        return (_dispatch: any): Promise<ApiResponse<IndexedContentItem[]>> => {
             return new Promise((res) => {
                 res({
                     code: 0,

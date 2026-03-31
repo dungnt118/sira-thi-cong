@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
     Table, Card, Button, Tag, Input, Select, Space, Row, Col,
     Statistic, Badge, Avatar, Typography, Tooltip, Grid, Empty, Drawer
@@ -8,77 +8,108 @@ import {
     SearchOutlined, AppstoreOutlined, UnorderedListOutlined,
     AlertOutlined, ClockCircleOutlined, ExclamationCircleOutlined,
     MessageOutlined, ReloadOutlined, UserOutlined, FilterOutlined,
-    StopOutlined, InfoCircleFilled, WarningFilled, 
-    ExclamationCircleFilled, MinusCircleFilled
+    StopOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
-import { demoDataService } from '../../../services/core-graphql/localstorage/demoDataService';
-import { mockJourneys as defaultJourneys } from '../../../data/journeyMockData';
-import type { Journey, PriorityLevel, SlaStatus } from '../../../types/journey';
+import { useAppDispatch } from '@/store/hooks';
+import { search_indexed_content } from '@/store/actions/schemas/schemas.action';
+import type { IJourney } from '../../../services/core-contracts/types/journey.types';
 
 const { Text } = Typography;
 const { useBreakpoint } = Grid;
 
-const PRIORITY_CONFIG: Record<PriorityLevel, { label: string; color: string }> = {
+const PRIORITY_CONFIG: Record<string, { label: string; color: string }> = {
     low: { label: 'Thấp', color: 'default' },
     medium: { label: 'Trung bình', color: 'blue' },
     high: { label: 'Cao', color: 'orange' },
     critical: { label: 'Khẩn cấp', color: 'red' },
 };
 
-const SLA_CONFIG: Record<SlaStatus, { label: string; color: string }> = {
-    ontime: { label: 'Đúng hạn', color: 'success' },
+const SLA_CONFIG: Record<string, { label: string; color: string }> = {
+    on_time: { label: 'Đúng hạn', color: 'success' },
     at_risk: { label: 'Có rủi ro', color: 'warning' },
     overdue: { label: 'Quá hạn', color: 'error' },
 };
 
-const STEP_COLORS: Record<string, string> = {
-    INTAKE: 'cyan',
-    SURVEY: 'blue',
-    QUOTATION: 'purple',
-    CONTRACT: 'geekblue',
-    CONSTRUCTION: 'orange',
-    PAYMENT: 'green',
-};
+const JOURNEY_STEPS_CONFIG = [
+    { key: 'lead_intake', label: 'Tiếp nhận', color: 'cyan' },
+    { key: 'qualification', label: 'Thẩm định', color: 'blue' },
+    { key: 'survey_planning', label: 'Lập lịch KS', color: 'geekblue' },
+    { key: 'site_survey', label: 'Khảo sát', color: 'purple' },
+    { key: 'survey_review', label: 'Duyệt KS', color: 'magenta' },
+    { key: 'estimate_preparation', label: 'Lập dự toán', color: 'gold' },
+    { key: 'quotation_preparation', label: 'Lập báo giá', color: 'orange' },
+    { key: 'quotation_sent', label: 'Gửi báo giá', color: 'volcano' },
+    { key: 'quotation_approved', label: 'Duyệt báo giá', color: 'green' },
+    { key: 'contract_signing', label: 'Ký kết', color: 'lime' },
+    { key: 'project_execution', label: 'Thi công', color: 'processing' },
+    { key: 'handover_acceptance', label: 'Nghiệm thu', color: 'success' },
+    { key: 'warranty_aftercare', label: 'Bảo hành', color: 'default' },
+];
 
 const JourneyList: React.FC = () => {
     const navigate = useNavigate();
+    const dispatch = useAppDispatch();
     const screens = useBreakpoint();
     const isMobile = !screens.md;
 
-    const [mockJourneys] = useLocalStorageData<Journey[]>(demoDataService.KEYS.JOURNEYS, defaultJourneys);
-
+    const [journeys, setJourneys] = useState<IJourney[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
     const [keyword, setKeyword] = useState('');
     const [filterSla, setFilterSla] = useState<string>('ALL');
     const [filterPriority, setFilterPriority] = useState<string>('ALL');
     const [filterStep, setFilterStep] = useState<string>('ALL');
+    const [isFilterVisible, setIsFilterVisible] = useState(false);
 
-    const kpis = {
-        total_open: mockJourneys.length,
-        overdue_sla: mockJourneys.filter(j => j.sla_status === 'overdue').length,
-        blocked: mockJourneys.filter(j => j.blocker_count > 0).length,
-        needs_portal_reply: mockJourneys.filter(j => j.unread_portal_threads > 0).length,
+    // Fetch journeys from live backend
+    const fetchJourneys = async () => {
+        setIsLoading(true);
+        try {
+            const res = await dispatch(search_indexed_content({
+                schemas: ['Journey'],
+                key: keyword,
+                limit: 100
+            }));
+            
+            if (res.code === 0 && res.data) {
+                // Map indexed content to IJourney structure if needed, 
+                // but usually search_indexed_content returns available fields directly
+                setJourneys(res.data as any);
+            }
+        } catch (error) {
+            console.error('Failed to fetch journeys:', error);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
-    const filtered = mockJourneys.filter(j => {
-        const matchKeyword = !keyword || [j.journey_code, j.customer_name, j.customer_phone, j.request_title]
-            .some(f => f?.toLowerCase().includes(keyword.toLowerCase()));
-        const matchSla = filterSla === 'ALL' || j.sla_status === filterSla;
-        const matchPriority = filterPriority === 'ALL' || j.priority === filterPriority;
-        const matchStep = filterStep === 'ALL' || j.current_step_code === filterStep;
-        return matchKeyword && matchSla && matchPriority && matchStep;
-    });
-
-    const [isFilterVisible, setIsFilterVisible] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
+    useEffect(() => {
+        fetchJourneys();
+    }, [keyword]); // Refetch on keyword change (can debounced later if needed)
 
     const handleRefresh = () => {
-        setIsLoading(true);
-        setTimeout(() => setIsLoading(false), 500);
+        fetchJourneys();
     };
 
-    const columns: ColumnsType<Journey> = [
+
+
+    const filtered = useMemo(() => {
+        return journeys.filter(j => {
+            const matchSla = filterSla === 'ALL' || j.sla_status === filterSla;
+            const matchPriority = filterPriority === 'ALL' || j.priority === filterPriority;
+            const matchStep = filterStep === 'ALL' || j.current_step === filterStep;
+            return matchSla && matchPriority && matchStep;
+        });
+    }, [journeys, filterSla, filterPriority, filterStep]);
+
+    const kpis = useMemo(() => ({
+        total_open: filtered.length,
+        overdue_sla: filtered.filter(j => j.sla_status === 'overdue').length,
+        blocked: filtered.filter(j => (j.blocked_task_count || 0) > 0).length,
+        unread_threads: filtered.reduce((acc, j) => acc + (j.unread_thread_count || 0), 0),
+    }), [filtered]);
+
+    const columns: ColumnsType<IJourney> = [
         {
             title: 'Hành trình',
             key: 'journey',
@@ -86,11 +117,11 @@ const JourneyList: React.FC = () => {
                 <div>
                     <div
                         style={{ fontWeight: 600, color: '#1976D2', cursor: 'pointer', marginBottom: 2 }}
-                        onClick={() => navigate(`/pm/journeys/${j.id}`)}
+                        onClick={() => navigate(`/pm/journeys/${j._id}`)}
                     >
-                        {j.journey_code}
+                        {j.journey_code || 'N/A'}
                     </div>
-                    <Text type="secondary" style={{ fontSize: 12 }}>{j.customer_name} · {j.customer_phone}</Text>
+                    <Text type="secondary" style={{ fontSize: 12 }}>{j.idx_customer_id?.title || 'Khách hàng ẩn danh'}</Text>
                 </div>
             ),
         },
@@ -107,9 +138,14 @@ const JourneyList: React.FC = () => {
         {
             title: 'Bước hiện tại',
             key: 'step',
-            render: (_, j) => (
-                <Tag color={STEP_COLORS[j.current_step_code] || 'default'}>{j.current_step}</Tag>
-            ),
+            render: (_, j) => {
+                const config = JOURNEY_STEPS_CONFIG.find(c => c.key === j.current_step);
+                return (
+                    <Tag color={config?.color || 'default'}>
+                        {config?.label || j.current_step || 'Khởi tạo'}
+                    </Tag>
+                );
+            },
         },
         {
             title: 'Phụ trách',
@@ -117,32 +153,15 @@ const JourneyList: React.FC = () => {
             render: (_, j) => (
                 <Space>
                     <Avatar size={22} style={{ background: '#52c41a' }} icon={<UserOutlined />} />
-                    <Text style={{ fontSize: 12 }}>{j.owner_user}</Text>
+                    <Text style={{ fontSize: 12 }}>{j.supervisor_name || 'Chưa gán'}</Text>
                 </Space>
             ),
-        },
-        {
-            title: 'Khảo sát',
-            key: 'survey',
-            render: (_, j) => {
-                const cfg = { not_started: { color: 'default', label: 'Chưa' }, scheduled: { color: 'blue', label: 'Đã lịch' }, in_progress: { color: 'processing', label: 'Đang KS' }, completed: { color: 'success', label: 'Xong' } };
-                const c = cfg[j.survey_status];
-                return <Tag color={c.color}>{c.label}</Tag>;
-            },
-        },
-        {
-            title: 'Dự toán',
-            key: 'estimate',
-            render: (_, j) => {
-                const cfg = { not_started: 'default', draft: 'orange', ready: 'green' };
-                return <Tag color={cfg[j.estimate_status]}>{j.estimate_status === 'not_started' ? 'Chưa' : j.estimate_status === 'draft' ? 'Nháp' : 'Sẵn'}</Tag>;
-            },
         },
         {
             title: 'SLA',
             key: 'sla',
             render: (_, j) => {
-                const s = SLA_CONFIG[j.sla_status];
+                const s = SLA_CONFIG[j.sla_status || 'on_time'];
                 return <Badge status={s.color as any} text={s.label} />;
             },
         },
@@ -150,30 +169,25 @@ const JourneyList: React.FC = () => {
             title: 'Ưu tiên',
             key: 'priority',
             render: (_, j) => {
-                const p = PRIORITY_CONFIG[j.priority];
+                const p = PRIORITY_CONFIG[j.priority || 'low'];
                 return <Tag color={p.color}>{p.label}</Tag>;
             },
         },
         {
             title: 'Blocker',
             key: 'blocker',
-            render: (_, j) => j.blocker_count > 0
-                ? <Badge count={j.blocker_count} size="small" color="red"><StopOutlined style={{ color: '#ff4d4f' }} /></Badge>
+            render: (_, j) => (j.blocked_task_count || 0) > 0
+                ? <Badge count={j.blocked_task_count} size="small" color="red"><StopOutlined style={{ color: '#ff4d4f' }} /></Badge>
                 : <StopOutlined style={{ color: '#ccc' }} />,
-            align: 'center',
-        },
-        {
-            title: 'Portal',
-            key: 'portal',
-            render: (_, j) => j.unread_portal_threads > 0
-                ? <Badge count={j.unread_portal_threads} size="small"><MessageOutlined style={{ color: '#1976D2' }} /></Badge>
-                : <MessageOutlined style={{ color: '#ccc' }} />,
             align: 'center',
         },
         {
             title: 'Cập nhật',
             key: 'updated',
-            render: (_, j) => <Text type="secondary" style={{ fontSize: 11 }}>{j.last_activity_at.split('T')[0]}</Text>,
+            render: (_, j) => {
+                const date = j.last_activity_at ? new Date(j.last_activity_at).toLocaleDateString('vi-VN') : 'N/A';
+                return <Text type="secondary" style={{ fontSize: 11 }}>{date}</Text>;
+            },
         },
     ];
 
@@ -183,7 +197,7 @@ const JourneyList: React.FC = () => {
             <Row justify="space-between" align="middle" gutter={[16, 16]} style={{ marginBottom: 20 }}>
                 <Col xs={24} sm={12}>
                     <h2 style={{ margin: 0 }}>Danh sách Hành trình Khách hàng</h2>
-                    <Text type="secondary">Quản lý toàn bộ hành trình dịch vụ theo vai trò PM</Text>
+                    <Text type="secondary">Quản lý toàn bộ hành trình dịch vụ theo cấu hình chuẩn 13 bước</Text>
                 </Col>
                 <Col xs={24} sm={12} style={{ textAlign: isMobile ? 'left' : 'right' }}>
                     <Space wrap>
@@ -193,7 +207,7 @@ const JourneyList: React.FC = () => {
                         <Tooltip title="Action Center">
                             <Button icon={<AlertOutlined />} onClick={() => navigate('/pm/journeys/action-center')}>{isMobile ? '' : 'Action Center'}</Button>
                         </Tooltip>
-                        <Button icon={<ReloadOutlined />} onClick={handleRefresh}>Làm mới</Button>
+                        <Button icon={<ReloadOutlined />} onClick={handleRefresh} loading={isLoading}>Làm mới</Button>
                     </Space>
                 </Col>
             </Row>
@@ -223,7 +237,7 @@ const JourneyList: React.FC = () => {
                 <Col xs={12} sm={6}>
                     <Card size="small" style={{ borderLeft: '4px solid #fa8c16', borderRadius: 8 }}>
                         <Statistic
-                            title="Có blocker"
+                            title="Có Blocker"
                             value={kpis.blocked}
                             prefix={<ExclamationCircleOutlined style={{ color: '#fa8c16' }} />}
                             valueStyle={{ color: '#fa8c16', fontSize: 24 }}
@@ -233,8 +247,8 @@ const JourneyList: React.FC = () => {
                 <Col xs={12} sm={6}>
                     <Card size="small" style={{ borderLeft: '4px solid #52c41a', borderRadius: 8 }}>
                         <Statistic
-                            title="Cần phản hồi Portal"
-                            value={kpis.needs_portal_reply}
+                            title="Tin nhắn Portal"
+                            value={kpis.unread_threads}
                             prefix={<MessageOutlined style={{ color: '#52c41a' }} />}
                             valueStyle={{ color: '#52c41a', fontSize: 24 }}
                         />
@@ -247,7 +261,7 @@ const JourneyList: React.FC = () => {
                 <Row gutter={12} style={{ marginBottom: 16 }}>
                     <Col flex="auto">
                         <Input
-                            placeholder="Tìm theo mã HT, tên KH, số ĐT..."
+                            placeholder="Tìm kiếm hành trình..."
                             prefix={<SearchOutlined />}
                             value={keyword}
                             onChange={e => setKeyword(e.target.value)}
@@ -261,12 +275,7 @@ const JourneyList: React.FC = () => {
                             onChange={setFilterStep}
                             options={[
                                 { value: 'ALL', label: 'Tất cả bước' },
-                                { value: 'INTAKE', label: 'Tiếp nhận' },
-                                { value: 'SURVEY', label: 'Khảo sát' },
-                                { value: 'QUOTATION', label: 'Dự toán' },
-                                { value: 'CONTRACT', label: 'Ký kết' },
-                                { value: 'CONSTRUCTION', label: 'Thi công' },
-                                { value: 'PAYMENT', label: 'Thanh toán' },
+                                ...JOURNEY_STEPS_CONFIG.map(s => ({ value: s.key, label: s.label }))
                             ]}
                         />
                     </Col>
@@ -277,9 +286,7 @@ const JourneyList: React.FC = () => {
                             onChange={setFilterSla}
                             options={[
                                 { value: 'ALL', label: 'Tất cả SLA' },
-                                { value: 'ontime', label: 'Đúng hạn' },
-                                { value: 'at_risk', label: 'Có rủi ro' },
-                                { value: 'overdue', label: 'Quá hạn' },
+                                ...Object.entries(SLA_CONFIG).map(([val, cfg]) => ({ value: val, label: cfg.label }))
                             ]}
                         />
                     </Col>
@@ -290,10 +297,10 @@ const JourneyList: React.FC = () => {
                             onChange={setFilterPriority}
                             options={[
                                 { value: 'ALL', label: 'Tất cả ưu tiên' },
-                                { value: 'critical', label: <span><ExclamationCircleFilled style={{ color: '#ff4d4f' }} /> Khẩn cấp</span> },
-                                { value: 'high', label: <span><WarningFilled style={{ color: '#fa8c16' }} /> Cao</span> },
-                                { value: 'medium', label: <span><InfoCircleFilled style={{ color: '#1890ff' }} /> Trung bình</span> },
-                                { value: 'low', label: <span><MinusCircleFilled style={{ color: '#d9d9d9' }} /> Thấp</span> },
+                                ...Object.entries(PRIORITY_CONFIG).map(([val, cfg]) => ({ 
+                                    value: val, 
+                                    label: <span><Badge status={cfg.color as any} /> {cfg.label}</span> 
+                                }))
                             ]}
                         />
                     </Col>
@@ -312,20 +319,24 @@ const JourneyList: React.FC = () => {
                     <div>
                         {filtered.map(j => (
                             <Card
-                                key={j.id}
+                                key={j._id}
                                 size="small"
                                 style={{ marginBottom: 12, cursor: 'pointer', borderRadius: 8 }}
-                                onClick={() => navigate(`/pm/journeys/${j.id}`)}
+                                onClick={() => navigate(`/pm/journeys/${j._id}`)}
                             >
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                     <div>
-                                        <Text strong style={{ color: '#1976D2' }}>{j.journey_code}</Text>
-                                        <div style={{ fontWeight: 500, marginTop: 2 }}>{j.customer_name}</div>
+                                        <Text strong style={{ color: '#1976D2' }}>{j.journey_code || 'N/A'}</Text>
+                                        <div style={{ fontWeight: 500, marginTop: 2 }}>{j.idx_customer_id?.title || 'N/A'}</div>
                                         <Text type="secondary" style={{ fontSize: 11 }}>{j.request_title}</Text>
                                     </div>
                                     <div style={{ textAlign: 'right' }}>
-                                        <Tag color={STEP_COLORS[j.current_step_code]}>{j.current_step}</Tag>
-                                        <div style={{ marginTop: 4 }}><Badge status={SLA_CONFIG[j.sla_status].color as any} text={SLA_CONFIG[j.sla_status].label} /></div>
+                                        <Tag color={JOURNEY_STEPS_CONFIG.find(c => c.key === j.current_step)?.color}>
+                                            {JOURNEY_STEPS_CONFIG.find(c => c.key === j.current_step)?.label || j.current_step}
+                                        </Tag>
+                                        <div style={{ marginTop: 4 }}>
+                                            <Badge status={SLA_CONFIG[j.sla_status || 'on_time'].color as any} text={SLA_CONFIG[j.sla_status || 'on_time'].label} />
+                                        </div>
                                     </div>
                                 </div>
                             </Card>
@@ -336,12 +347,12 @@ const JourneyList: React.FC = () => {
                     <Table
                         columns={columns}
                         dataSource={filtered}
-                        rowKey="id"
+                        rowKey="_id"
                         pagination={{ pageSize: 10, showTotal: (t) => `${t} hành trình` }}
                         locale={{ emptyText: <Empty description="Không có hành trình nào phù hợp bộ lọc" /> }}
                         size="middle"
                         loading={isLoading}
-                        onRow={(j) => ({ onClick: () => navigate(`/pm/journeys/${j.id}`), style: { cursor: 'pointer' } })}
+                        onRow={(j) => ({ onClick: () => navigate(`/pm/journeys/${j._id}`), style: { cursor: 'pointer' } })}
                     />
                 )}
             </Card>
@@ -360,15 +371,10 @@ const JourneyList: React.FC = () => {
                         <Select
                             style={{ width: '100%', marginTop: 8 }}
                             value={filterStep}
-                            onChange={setFilterStep}
+                            onChange={(v) => { setFilterStep(v); setIsFilterVisible(false); }}
                             options={[
                                 { value: 'ALL', label: 'Tất cả bước' },
-                                { value: 'INTAKE', label: 'Tiếp nhận' },
-                                { value: 'SURVEY', label: 'Khảo sát' },
-                                { value: 'QUOTATION', label: 'Dự toán' },
-                                { value: 'CONTRACT', label: 'Ký kết' },
-                                { value: 'CONSTRUCTION', label: 'Thi công' },
-                                { value: 'PAYMENT', label: 'Thanh toán' },
+                                ...JOURNEY_STEPS_CONFIG.map(s => ({ value: s.key, label: s.label }))
                             ]}
                         />
                     </div>
@@ -377,12 +383,10 @@ const JourneyList: React.FC = () => {
                         <Select
                             style={{ width: '100%', marginTop: 8 }}
                             value={filterSla}
-                            onChange={setFilterSla}
+                            onChange={(v) => { setFilterSla(v); setIsFilterVisible(false); }}
                             options={[
                                 { value: 'ALL', label: 'Tất cả SLA' },
-                                { value: 'ontime', label: 'Đúng hạn' },
-                                { value: 'at_risk', label: 'Có rủi ro' },
-                                { value: 'overdue', label: 'Quá hạn' },
+                                ...Object.entries(SLA_CONFIG).map(([val, cfg]) => ({ value: val, label: cfg.label }))
                             ]}
                         />
                     </div>
@@ -391,13 +395,10 @@ const JourneyList: React.FC = () => {
                         <Select
                             style={{ width: '100%', marginTop: 8 }}
                             value={filterPriority}
-                            onChange={setFilterPriority}
+                            onChange={(v) => { setFilterPriority(v); setIsFilterVisible(false); }}
                             options={[
                                 { value: 'ALL', label: 'Tất cả ưu tiên' },
-                                { value: 'critical', label: <span><ExclamationCircleFilled style={{ color: '#ff4d4f' }} /> Khẩn cấp</span> },
-                                { value: 'high', label: <span><WarningFilled style={{ color: '#fa8c16' }} /> Cao</span> },
-                                { value: 'medium', label: <span><InfoCircleFilled style={{ color: '#1890ff' }} /> Trung bình</span> },
-                                { value: 'low', label: <span><MinusCircleFilled style={{ color: '#d9d9d9' }} /> Thấp</span> },
+                                ...Object.entries(PRIORITY_CONFIG).map(([val, cfg]) => ({ value: val, label: cfg.label }))
                             ]}
                         />
                     </div>

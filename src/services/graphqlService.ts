@@ -225,8 +225,7 @@ const buildTerminatingLink = (): ApolloLink => {
   );
 };
 
-const composeLinks = (links: Array<ApolloLink | null | undefined>) =>
-  ApolloLink.from(links.filter(Boolean) as ApolloLink[]);
+// composeLinks removed as it was unused
 
 const getPathHeader = () => (isBrowser ? window.location.pathname : undefined);
 
@@ -338,11 +337,11 @@ const removeTypename = (value: any): any => {
  * - Link này phải đứng ĐẦU TIÊN trong chain để clean trước khi các link khác xử lý
  * - Variables được clean NHƯNG responses vẫn giữ __typename cho Apollo cache normalization
  */
-const cleanTypenameLink = new ApolloLink((operation, forward) => {
-  if (operation.variables) {
-    operation.variables = removeTypename(operation.variables);
+const cleanTypenameLink = new ApolloLink((_operation, forward) => {
+  if (_operation.variables) {
+    _operation.variables = removeTypename(_operation.variables);
   }
-  return forward(operation);
+  return forward(_operation);
 });
 
 // ========================================================
@@ -474,7 +473,6 @@ export const getApolloClient = () => {
 };
 
 export const resetApolloClient = async (): Promise<ApolloClient> => {
-  const previousClient = apolloClient;
   disposeWsTransport();
   const nextClient = createApolloClientInstance();
   apolloClient = nextClient;
@@ -530,7 +528,7 @@ export function query<T>(
 ): Promise<ApiResponse<T>>;
 
 // Implementation
-export function query<T = any>(
+export function query<_T = any>(
   query: DocumentNode,
   variables?: VariablesMap,
   dispatch?: Dispatch,
@@ -677,7 +675,7 @@ export function mutate<T>(
 ): Promise<ApiResponse<T>>;
 
 // Implementation  
-export function mutate<T = any>(
+export function mutate<_T = any>(
   mutation: DocumentNode,
   variables?: VariablesMap,
   dispatch?: Dispatch,

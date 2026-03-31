@@ -81,9 +81,13 @@ const CustomerJourneySettingPage: React.FC = () => {
 
         return FIXED_STEPS.map((stepDef, idx) => {
             const fieldData = (setting as any)[stepDef.code];
-            const stepData = (Array.isArray(fieldData) && fieldData.length > 0) 
-                ? fieldData[0] 
-                : { step_code: stepDef.code, step_name: stepDef.name, step_order: idx + 1, is_enabled: true };
+            const stepData = Array.isArray(fieldData) 
+                ? (fieldData.length > 0 ? fieldData[0] : null)
+                : (fieldData || null);
+            
+            if (!stepData) {
+                return { step_code: stepDef.code, step_name: stepDef.name, step_order: idx + 1, is_enabled: true };
+            }
 
             return {
                 ...stepData,
@@ -123,7 +127,7 @@ const CustomerJourneySettingPage: React.FC = () => {
             setting_key: 'default_journey',
             setting_name: 'Hành trình khách hàng chuẩn',
             is_active: true,
-            [selectedStepCode]: [cleanStep]
+            [selectedStepCode]: cleanStep
         };
 
         setSetting(payload);

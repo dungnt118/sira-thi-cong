@@ -50,7 +50,7 @@ export default function SubscriptionProvider({ children }: SubscriptionProviderP
 
     // Kiểm tra cả access token và user data để đảm bảo user đã đăng nhập
     const isUserLoggedIn = Boolean(access_token && userData && userData.user);
-    
+
     useSubscription(NOTIFICATION_SUBCRIBE, {
         variables: { token: access_token },
         shouldResubscribe: true,

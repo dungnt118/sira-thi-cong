@@ -1,7 +1,7 @@
 import store from 'app/store';
 import { PropTypeEnum } from 'types/schemas/enums';
-import type { PropDefinition } from '../../../../types/schemas/PropDefinition';
-import type { SchemaDefinition } from '../../../../types/schemas/SchemaDefinition';
+import type { PropDefinition } from 'types/schemas/PropDefinition';
+import type { SchemaDefinition } from 'types/schemas/SchemaDefinition';
 
 const RESERVED_GRAPHQL_NAMES = new Set(["null", "true", "false"]);
 
@@ -207,7 +207,7 @@ class SchemaQueryManager {
     ): string {
         // Base fields - luôn có
         let innerQuery = `_id createdAt ${this.getInnerQuery(schema.properties, maxLevel, 0, selectedFields, just_use_selectedFields)} 
-            ${this.getReferenceIndexContentQuery(schema.properties?.filter((p) => (p.propType == PropTypeEnum.OBJECT_ID || p.propType == PropTypeEnum.OBJECT_IDS || p.propType == PropTypeEnum.LOOKUP || p.propType == PropTypeEnum.REFERENCE) && p.refSchemas && p.refSchemas.length > 0), allSchemas)}
+            ${this.getReferenceIndexContentQuery(schema.properties?.filter((p: PropDefinition) => (p.propType == PropTypeEnum.OBJECT_ID || p.propType == PropTypeEnum.OBJECT_IDS || p.propType == PropTypeEnum.LOOKUP || p.propType == PropTypeEnum.REFERENCE) && p.refSchemas && p.refSchemas.length > 0), allSchemas)}
             ${selectedFields ? this.getReference1NQuery(schema, selectedFields || [], allSchemas, selectedFields, just_use_selectedFields) : ""} 
             ${additional_query || ""}`;
 
@@ -293,13 +293,13 @@ class SchemaQueryManager {
      */
     private getReference1NQuery(
         schema: SchemaDefinition,
-        list_key: string[],
+        _list_key: string[],
         allSchemas: SchemaDefinition[],
-        selectedFields: string[] | null,
-        just_use_selectedFields: boolean
+        _selectedFields: string[] | null,
+        _just_use_selectedFields: boolean
     ): string {
-        const refSchemas = allSchemas.filter(s => s.properties.some((f: PropDefinition) => f.refSchemas && f.refSchemas.includes(schema.name)));
-        const fields: string[] = [];
+        const _refSchemas = allSchemas.filter(s => s.properties.some((f: PropDefinition) => f.refSchemas && f.refSchemas.includes(schema.name)));
+        const _fields: string[] = [];
 
         // refSchemas.forEach((refS) => {
         //     const refProps = refS.properties.filter((p: PropDefinition) => p.refSchemas && p.refSchemas.includes(schema.name));

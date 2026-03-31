@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Tag, Spin } from 'antd';
 import { useAppDispatch } from '@/store/hooks';
 import { get_indexed_content } from '@/store/actions/schemas/schemas.action';
-import type { IndexedContentItem } from '@/types/apis/ApiResponse';
+import { IndexedContentItem } from '@/types/apis';
 
 interface IndexedViewProps {
     schema: string;
@@ -12,12 +12,12 @@ interface IndexedViewProps {
     color?: string;
 }
 
-const IndexedView: React.FC<IndexedViewProps> = ({ 
-    schema, 
-    value, 
+const IndexedView: React.FC<IndexedViewProps> = ({
+    schema,
+    value,
     propType = 'ObjectId',
-    idxValue, 
-    color = 'blue' 
+    idxValue,
+    color = 'blue'
 }) => {
     const dispatch = useAppDispatch();
     const [label, setLabel] = useState<string | undefined>(idxValue?.title || idxValue?.code);
@@ -54,7 +54,7 @@ const IndexedView: React.FC<IndexedViewProps> = ({
     }, [value, idxValue, schema]);
 
     if (loading) return <Spin size="small" />;
-    
+
     return (
         <Tag color={color}>
             {label}

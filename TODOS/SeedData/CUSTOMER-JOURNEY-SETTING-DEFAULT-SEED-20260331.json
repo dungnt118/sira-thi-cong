@@ -4,52 +4,49 @@
     "setting_key": "default_journey",
     "setting_name": "Hành trình khách hàng chuẩn BAC",
     "is_active": true,
-    "version_label": "v3.1",
-    "note": "Cấu hình chuẩn hóa 13 bước hành trình khách hàng, đã seed mặc định ma trận vai trò và checklist nội tuyến theo các role đang có trên tenant BAC.",
+    "version_label": "v3.2",
+    "note": "Cấu hình mặc định 13 bước hành trình khách hàng, được seed theo luồng kinh doanh thực tế từ tiếp nhận lead đến bảo hành và chăm sóc sau bàn giao.",
     "lead_intake": {
       "is_enabled": true,
-      "portal_visible": false,
+      "portal_visible": true,
       "allow_skip": false,
-      "auto_open_next": true,
-      "sla_hours": 4,
-      "goal": "Tiếp nhận đầy đủ thông tin ban đầu từ khách hàng và ghi nhận lead hợp lệ.",
-      "instruction_note": "Xác nhận nguồn lead, thông tin liên hệ, địa chỉ công trình và nhu cầu sơ bộ.",
-      "entry_criteria": "Có tối thiểu thông tin liên hệ và nhu cầu ban đầu.",
-      "exit_criteria": "Lead đã được ghi nhận hợp lệ và sẵn sàng chuyển sang bước sàng lọc.",
+      "auto_open_next": false,
+      "sla_hours": 0,
+      "goal": "Tiếp nhận đầy đủ thông tin ban đầu của khách hàng và hình thành lead hợp lệ để theo dõi xuyên suốt hành trình.",
+      "instruction_note": "Tiếp nhận thông tin từ hotline, Zalo, giới thiệu hoặc form đăng ký; chuẩn hóa đầu mối liên hệ, nhu cầu sơ bộ và phạm vi công trình ngay khi tạo hành trình.",
+      "entry_criteria": "Không yêu cầu.",
+      "exit_criteria": "Đã có thông tin liên hệ chính, nhu cầu sơ bộ, địa điểm thực hiện và nhân sự kinh doanh phụ trách.",
       "roles": [
         {
-          "role": "69c8ac73a718dc692a22b7f7",
+          "role": "KT",
           "permissions": [
-            "commit"
+            "read"
           ]
         },
         {
-          "role": "69c8a885a718dc692a22b7f1",
+          "role": "KD",
           "permissions": [
-            "view"
+            "read",
+            "edit",
+            "commit"
           ]
         }
       ],
       "checklist": [
         {
-          "name": "Xác minh nguồn lead",
+          "name": "Xác nhận đầu mối khách hàng",
           "is_required": true,
-          "description": "Ghi nhận rõ nguồn lead, thời điểm tiếp nhận và người phụ trách kinh doanh."
+          "description": "Ghi nhận đúng họ tên, số điện thoại, email và kênh liên hệ ưu tiên của khách hàng."
         },
         {
-          "name": "Chuẩn hóa thông tin liên hệ khách hàng",
+          "name": "Ghi nhận nhu cầu sơ bộ",
           "is_required": true,
-          "description": "Xác nhận tên khách hàng, số điện thoại, email và kênh liên lạc ưu tiên."
+          "description": "Tóm tắt nhu cầu, loại dịch vụ quan tâm, khu vực công trình và các kỳ vọng ban đầu của khách hàng."
         },
         {
-          "name": "Ghi nhận nhu cầu sơ bộ và địa chỉ công trình",
+          "name": "Phân công kinh doanh phụ trách",
           "is_required": true,
-          "description": "Mô tả ngắn nhu cầu, địa điểm thực hiện và các ghi chú ban đầu."
-        },
-        {
-          "name": "Đính kèm ghi chú ban đầu",
-          "is_required": false,
-          "description": "Bổ sung tài liệu hoặc ghi chú phát sinh nếu khách hàng cung cấp thêm thông tin."
+          "description": "Chỉ định nhân sự kinh doanh tiếp nhận lead và chịu trách nhiệm theo dõi bước đầu."
         }
       ]
     },
@@ -57,71 +54,83 @@
       "is_enabled": true,
       "portal_visible": false,
       "allow_skip": false,
-      "auto_open_next": true,
+      "auto_open_next": false,
       "sla_hours": 8,
-      "goal": "Đánh giá mức độ phù hợp của lead và xác định khả năng theo đuổi cơ hội.",
-      "instruction_note": "Kiểm tra nhu cầu, ngân sách dự kiến, phạm vi và mức độ sẵn sàng của khách hàng.",
+      "goal": "Sàng lọc nhu cầu để xác định lead có phù hợp với năng lực cung ứng và đủ điều kiện chuyển sang khảo sát hay không.",
+      "instruction_note": "Kinh doanh cần xác nhận tính khả thi của nhu cầu, mức độ ưu tiên, ngân sách dự kiến và khả năng chốt lịch làm việc với khách hàng.",
       "entry_criteria": "Lead đã được tiếp nhận hợp lệ.",
-      "exit_criteria": "Đã xác định rõ lead đạt hoặc không đạt điều kiện để tiếp tục khảo sát.",
+      "exit_criteria": "Đã kết luận rõ lead tiếp tục theo đuổi hay dừng theo dõi và có ghi chú lý do tương ứng.",
       "roles": [
         {
-          "role": "69c8ac73a718dc692a22b7f7",
+          "role": "KT",
           "permissions": [
+            "read"
+          ]
+        },
+        {
+          "role": "KD",
+          "permissions": [
+            "read",
+            "edit",
             "commit"
           ]
         },
         {
-          "role": "69c8a885a718dc692a22b7f1",
+          "role": "QL",
           "permissions": [
-            "view"
+            "read",
+            "commit"
           ]
         }
       ],
       "checklist": [
         {
-          "name": "Đánh giá mức độ phù hợp nhu cầu",
+          "name": "Đánh giá mức độ phù hợp của nhu cầu",
           "is_required": true,
-          "description": "Xác định mức độ rõ ràng của nhu cầu và khả năng cung ứng của BAC."
+          "description": "Xác định nhu cầu thuộc nhóm dịch vụ BAC đang triển khai và có khả năng đáp ứng thực tế."
         },
         {
-          "name": "Xác nhận ngân sách hoặc khả năng chi trả sơ bộ",
+          "name": "Xác nhận khả năng đầu tư sơ bộ",
           "is_required": true,
-          "description": "Ghi nhận dải ngân sách dự kiến hoặc đánh giá sơ bộ khả năng đầu tư."
+          "description": "Ghi nhận mức ngân sách hoặc khả năng chi trả để định hướng phương án khảo sát và báo giá."
         },
         {
-          "name": "Ghi nhận quyết định tiếp tục hay dừng",
+          "name": "Kết luận trạng thái sàng lọc",
           "is_required": true,
-          "description": "Kết luận lead đủ điều kiện khảo sát hay cần dừng theo dõi."
+          "description": "Đưa ra quyết định tiếp tục khảo sát hoặc dừng lead, kèm lý do rõ ràng."
         }
       ]
     },
     "survey_planning": {
       "is_enabled": true,
-      "portal_visible": false,
+      "portal_visible": true,
       "allow_skip": false,
-      "auto_open_next": true,
+      "auto_open_next": false,
       "sla_hours": 8,
-      "goal": "Thiết lập lịch khảo sát và phân công nguồn lực phù hợp.",
-      "instruction_note": "Chốt thời gian khảo sát, nhân sự tham gia và các chuẩn bị cần thiết trước khi đi hiện trường.",
-      "entry_criteria": "Lead đủ điều kiện tiếp tục khảo sát.",
-      "exit_criteria": "Lịch khảo sát đã được xác nhận với khách hàng và nội bộ.",
+      "goal": "Lập lịch khảo sát phù hợp với khách hàng và bố trí đúng nguồn lực tham gia khảo sát hiện trạng.",
+      "instruction_note": "Thống nhất thời gian khảo sát, đầu mối tiếp đón tại công trình, nhân sự kỹ thuật tham gia và các điều kiện cần chuẩn bị trước khi đi hiện trường.",
+      "entry_criteria": "Lead đã vượt qua bước sàng lọc nhu cầu.",
+      "exit_criteria": "Lịch khảo sát đã được chốt với khách hàng và nội bộ, có đủ thông tin nhân sự và thời gian thực hiện.",
       "roles": [
         {
-          "role": "69c8ac73a718dc692a22b7f7",
+          "role": "KD",
           "permissions": [
+            "read",
+            "edit",
             "commit"
           ]
         },
         {
-          "role": "69c8ac69a718dc692a22b7f5",
+          "role": "KYT",
           "permissions": [
+            "read",
             "edit"
           ]
         },
         {
-          "role": "69c8a885a718dc692a22b7f1",
+          "role": "GS",
           "permissions": [
-            "view"
+            "read"
           ]
         }
       ],
@@ -129,65 +138,68 @@
         {
           "name": "Chốt lịch khảo sát với khách hàng",
           "is_required": true,
-          "description": "Thống nhất ngày giờ khảo sát và đầu mối phối hợp tại công trình."
+          "description": "Xác nhận ngày giờ khảo sát, địa chỉ công trình và người phối hợp tại hiện trường."
         },
         {
-          "name": "Phân công người đi khảo sát",
+          "name": "Bố trí nhân sự khảo sát",
           "is_required": true,
-          "description": "Gán nhân sự kỹ thuật hoặc giám sát phụ trách buổi khảo sát."
+          "description": "Phân công kỹ thuật hoặc giám sát tham gia khảo sát đúng theo loại nhu cầu của khách hàng."
         },
         {
-          "name": "Xác nhận đầu việc chuẩn bị trước khảo sát",
+          "name": "Nhắc chuẩn bị hồ sơ và điều kiện tiếp cận",
           "is_required": true,
-          "description": "Nhắc khách hàng và nội bộ chuẩn bị hồ sơ, ảnh hiện trạng hoặc điều kiện tiếp cận."
+          "description": "Thông báo trước cho khách hàng các tài liệu, hình ảnh hoặc điều kiện cần có khi khảo sát."
         }
       ]
     },
     "site_survey": {
       "is_enabled": true,
-      "portal_visible": false,
+      "portal_visible": true,
       "allow_skip": false,
       "auto_open_next": false,
       "sla_hours": 24,
-      "goal": "Thu thập đầy đủ dữ liệu hiện trường để làm cơ sở lập giải pháp và báo giá.",
-      "instruction_note": "Khảo sát hiện trạng, đo đạc, ghi nhận ràng buộc kỹ thuật và chụp ảnh minh chứng.",
-      "entry_criteria": "Có lịch khảo sát hợp lệ.",
-      "exit_criteria": "Biên bản khảo sát và dữ liệu hiện trường đã được cập nhật đầy đủ.",
+      "goal": "Khảo sát hiện trạng thực tế để thu thập đủ dữ liệu kỹ thuật phục vụ cho dự toán và phương án báo giá.",
+      "instruction_note": "Nhân sự khảo sát phải đo đạc, chụp ảnh, ghi nhận hiện trạng, ràng buộc thi công và mọi yếu tố có thể ảnh hưởng tới giải pháp đề xuất.",
+      "entry_criteria": "Đã có lịch khảo sát hợp lệ và nhân sự được phân công.",
+      "exit_criteria": "Biên bản khảo sát, ảnh hiện trường và các thông tin kỹ thuật bắt buộc đã được cập nhật đầy đủ.",
       "roles": [
         {
-          "role": "69c8ac69a718dc692a22b7f5",
+          "role": "KYT",
           "permissions": [
+            "read",
+            "edit",
             "commit"
           ]
         },
         {
-          "role": "69c8ac79a718dc692a22b7f8",
+          "role": "GS",
           "permissions": [
+            "read",
             "edit"
           ]
         },
         {
-          "role": "69c8ac73a718dc692a22b7f7",
+          "role": "KD",
           "permissions": [
-            "view"
+            "read"
           ]
         }
       ],
       "checklist": [
         {
-          "name": "Khảo sát hiện trạng và điều kiện tiếp cận",
+          "name": "Khảo sát hiện trạng công trình",
           "is_required": true,
-          "description": "Kiểm tra hiện trạng công trình, lối vào, điều kiện thi công và các ràng buộc chính."
+          "description": "Kiểm tra hiện trạng bề mặt, khu vực thi công, lối tiếp cận và các điều kiện thực tế tại công trình."
         },
         {
-          "name": "Đo đạc, chụp ảnh, ghi nhận ràng buộc kỹ thuật",
+          "name": "Thu thập số liệu và hình ảnh",
           "is_required": true,
-          "description": "Thu thập số đo, ảnh minh chứng và các điểm kỹ thuật cần lưu ý."
+          "description": "Đo đạc, chụp ảnh, ghi nhận kích thước và các yếu tố kỹ thuật phục vụ bước lập dự toán."
         },
         {
-          "name": "Lập biên bản khảo sát và cập nhật bằng chứng",
+          "name": "Lập biên bản khảo sát",
           "is_required": true,
-          "description": "Hoàn thiện biên bản khảo sát, ảnh hiện trường và các ghi chú sau khảo sát."
+          "description": "Tổng hợp kết quả khảo sát, xác nhận các ghi chú quan trọng và đính kèm minh chứng hiện trường."
         }
       ]
     },
@@ -195,47 +207,49 @@
       "is_enabled": true,
       "portal_visible": false,
       "allow_skip": false,
-      "auto_open_next": true,
+      "auto_open_next": false,
       "sla_hours": 8,
-      "goal": "Rà soát kết quả khảo sát và xác nhận dữ liệu đầu vào đủ tin cậy.",
-      "instruction_note": "Kiểm tra tính đầy đủ, nhất quán và các điểm cần làm rõ sau khảo sát.",
-      "entry_criteria": "Đã có dữ liệu khảo sát hiện trường.",
-      "exit_criteria": "Kết quả khảo sát được chấp nhận để chuyển sang bước dự toán.",
+      "goal": "Rà soát và xác nhận dữ liệu khảo sát đủ chất lượng trước khi sử dụng làm đầu vào cho dự toán nội bộ.",
+      "instruction_note": "Quản lý và kỹ thuật cần kiểm tra độ đầy đủ, tính nhất quán của dữ liệu khảo sát và làm rõ các điểm còn thiếu trước khi chuyển bước.",
+      "entry_criteria": "Đã có hồ sơ khảo sát hiện trạng đầy đủ từ hiện trường.",
+      "exit_criteria": "Dữ liệu khảo sát được chấp nhận để dùng cho bước lập dự toán nội bộ.",
       "roles": [
         {
-          "role": "69c8a885a718dc692a22b7f1",
+          "role": "QL",
           "permissions": [
+            "read",
             "commit"
           ]
         },
         {
-          "role": "69c8ac69a718dc692a22b7f5",
+          "role": "KYT",
           "permissions": [
+            "read",
             "edit"
           ]
         },
         {
-          "role": "69c8ac73a718dc692a22b7f7",
+          "role": "KD",
           "permissions": [
-            "view"
+            "read"
           ]
         }
       ],
       "checklist": [
         {
-          "name": "Rà soát tính đầy đủ của dữ liệu khảo sát",
+          "name": "Kiểm tra độ đầy đủ của dữ liệu khảo sát",
           "is_required": true,
-          "description": "Kiểm tra xem dữ liệu hiện trường đã đủ ảnh, số đo và thông tin kỹ thuật chưa."
+          "description": "Rà soát biên bản, hình ảnh, kích thước và các ghi chú bắt buộc từ hiện trường."
         },
         {
-          "name": "Chốt phạm vi kỹ thuật và giả định chính",
+          "name": "Chốt giả định kỹ thuật chính",
           "is_required": true,
-          "description": "Xác nhận phạm vi xử lý, điều kiện thi công và các giả định làm đầu vào dự toán."
+          "description": "Xác nhận các ràng buộc kỹ thuật và giả định cần dùng trong bước lập dự toán."
         },
         {
-          "name": "Xác nhận đầu vào đủ để lập dự toán",
+          "name": "Phê duyệt đầu vào dự toán",
           "is_required": true,
-          "description": "Kết luận dữ liệu khảo sát đã sẵn sàng cho bước lập dự toán nội bộ."
+          "description": "Kết luận dữ liệu khảo sát đã đủ điều kiện để chuyển sang bước lập dự toán nội bộ."
         }
       ]
     },
@@ -243,47 +257,55 @@
       "is_enabled": true,
       "portal_visible": false,
       "allow_skip": false,
-      "auto_open_next": true,
+      "auto_open_next": false,
       "sla_hours": 16,
-      "goal": "Lập dự toán nội bộ làm cơ sở cho phương án thương mại.",
-      "instruction_note": "Tính toán khối lượng, chi phí và giả định nội bộ dựa trên dữ liệu khảo sát đã duyệt.",
-      "entry_criteria": "Kết quả khảo sát đã được rà soát và chấp nhận.",
-      "exit_criteria": "Dự toán nội bộ đã hoàn tất và sẵn sàng lập báo giá.",
+      "goal": "Lập dự toán nội bộ làm cơ sở để xây dựng phương án thương mại và kiểm soát biên lợi nhuận.",
+      "instruction_note": "Kỹ thuật cần bóc tách khối lượng, xác định định mức vật tư và chi phí nội bộ trước khi kinh doanh soạn báo giá gửi khách hàng.",
+      "entry_criteria": "Dữ liệu khảo sát đã được rà soát và chấp nhận.",
+      "exit_criteria": "Dự toán nội bộ hoàn tất, có đủ cơ sở để soạn báo giá thương mại.",
       "roles": [
         {
-          "role": "69c8a885a718dc692a22b7f1",
+          "role": "KYT",
           "permissions": [
+            "read",
+            "edit",
             "commit"
           ]
         },
         {
-          "role": "69c8ac69a718dc692a22b7f5",
+          "role": "QL",
           "permissions": [
-            "edit"
+            "read"
           ]
         },
         {
-          "role": "69c8ac73a718dc692a22b7f7",
+          "role": "KD",
           "permissions": [
-            "view"
+            "read"
+          ]
+        },
+        {
+          "role": "KT",
+          "permissions": [
+            "read"
           ]
         }
       ],
       "checklist": [
         {
-          "name": "Tính khối lượng và hao hụt",
+          "name": "Bóc tách khối lượng sơ bộ",
           "is_required": true,
-          "description": "Xác định khối lượng công việc, khối lượng vật tư và hệ số hao hụt cần áp dụng."
+          "description": "Xác định phạm vi công việc, khối lượng dự kiến và các hạng mục cần tính chi phí."
         },
         {
-          "name": "Lập chi phí vật tư, nhân công, vận chuyển",
+          "name": "Xác định vật tư và nhân công",
           "is_required": true,
-          "description": "Tổng hợp chi phí trực tiếp và chi phí hỗ trợ phục vụ triển khai."
+          "description": "Tính toán định mức vật tư, nhân công và các chi phí trực tiếp phục vụ thi công."
         },
         {
-          "name": "Rà soát biên lợi nhuận và giả định nội bộ",
+          "name": "Chốt dự toán nội bộ",
           "is_required": true,
-          "description": "Kiểm tra lợi nhuận mục tiêu và các giả định ảnh hưởng đến giá thành."
+          "description": "Tổng hợp chi phí nội bộ và xác nhận mức giá nền để chuyển sang bước soạn báo giá."
         }
       ]
     },
@@ -291,47 +313,50 @@
       "is_enabled": true,
       "portal_visible": false,
       "allow_skip": false,
-      "auto_open_next": true,
+      "auto_open_next": false,
       "sla_hours": 8,
-      "goal": "Hoàn thiện báo giá và hồ sơ gửi khách hàng.",
-      "instruction_note": "Chuẩn bị nội dung báo giá, phạm vi cung cấp, điều khoản và tài liệu đính kèm cần thiết.",
+      "goal": "Soạn báo giá thương mại rõ ràng, đầy đủ và phù hợp với chiến lược chào bán cho khách hàng.",
+      "instruction_note": "Kinh doanh sử dụng dự toán nội bộ đã duyệt để xây dựng báo giá, điều chỉnh chính sách giá và mô tả phạm vi theo ngôn ngữ khách hàng dễ hiểu.",
       "entry_criteria": "Đã có dự toán nội bộ hoàn chỉnh.",
-      "exit_criteria": "Báo giá đã sẵn sàng để gửi khách hàng.",
+      "exit_criteria": "Báo giá đã được soạn xong, kiểm tra nội bộ và sẵn sàng gửi khách hàng.",
       "roles": [
         {
-          "role": "69c8ac73a718dc692a22b7f7",
+          "role": "KD",
           "permissions": [
+            "read",
+            "edit",
             "commit"
           ]
         },
         {
-          "role": "69c8a885a718dc692a22b7f1",
+          "role": "KT",
           "permissions": [
+            "read",
             "edit"
           ]
         },
         {
-          "role": "69c8ac6ea718dc692a22b7f6",
+          "role": "QL",
           "permissions": [
-            "view"
+            "read"
           ]
         }
       ],
       "checklist": [
         {
-          "name": "Soạn báo giá và phạm vi cung cấp",
+          "name": "Soạn nội dung báo giá",
           "is_required": true,
-          "description": "Hoàn thiện nội dung báo giá, hạng mục, khối lượng và phạm vi công việc."
+          "description": "Tạo báo giá với phạm vi, hạng mục, đơn giá và điều kiện thương mại rõ ràng."
         },
         {
-          "name": "Kiểm tra điều khoản thanh toán và hiệu lực báo giá",
+          "name": "Kiểm tra chính sách giá và thanh toán",
           "is_required": true,
-          "description": "Xác nhận điều khoản thanh toán, thời hạn hiệu lực và cam kết thương mại."
+          "description": "Rà soát mức giá chào, ưu đãi, điều khoản thanh toán và ghi chú thương mại trước khi gửi."
         },
         {
-          "name": "Chuẩn bị tài liệu đính kèm cho khách hàng",
-          "is_required": false,
-          "description": "Đính kèm bản mô tả giải pháp, hình ảnh minh họa hoặc tài liệu hỗ trợ nếu cần."
+          "name": "Xác nhận báo giá sẵn sàng phát hành",
+          "is_required": true,
+          "description": "Hoàn tất kiểm tra nội bộ để bảo đảm báo giá có thể gửi khách hàng ngay."
         }
       ]
     },
@@ -341,39 +366,47 @@
       "allow_skip": false,
       "auto_open_next": false,
       "sla_hours": 4,
-      "goal": "Gửi báo giá tới khách hàng và ghi nhận trạng thái phản hồi.",
-      "instruction_note": "Xác nhận kênh gửi, nội dung gửi và theo dõi việc khách hàng đã nhận được báo giá.",
-      "entry_criteria": "Báo giá đã được chuẩn bị hoàn chỉnh.",
-      "exit_criteria": "Báo giá đã được gửi và có căn cứ để tiếp tục theo dõi phản hồi.",
+      "goal": "Gửi báo giá đến khách hàng đúng phiên bản và ghi nhận rõ trạng thái tiếp nhận, phản hồi của khách hàng.",
+      "instruction_note": "Sau khi phát hành, kinh doanh cần theo dõi việc khách hàng đã nhận báo giá, nắm được thời điểm phản hồi dự kiến và cập nhật mọi trao đổi liên quan.",
+      "entry_criteria": "Báo giá đã được kiểm tra nội bộ và sẵn sàng phát hành.",
+      "exit_criteria": "Khách hàng đã nhận báo giá và có kế hoạch phản hồi hoặc lịch làm việc tiếp theo.",
       "roles": [
         {
-          "role": "69c8ac73a718dc692a22b7f7",
+          "role": "KD",
           "permissions": [
+            "read",
+            "edit",
             "commit"
           ]
         },
         {
-          "role": "69c8a885a718dc692a22b7f1",
+          "role": "KT",
           "permissions": [
-            "view"
+            "read"
+          ]
+        },
+        {
+          "role": "QL",
+          "permissions": [
+            "read"
           ]
         }
       ],
       "checklist": [
         {
-          "name": "Gửi báo giá đúng kênh và đúng người nhận",
+          "name": "Phát hành báo giá đúng phiên bản",
           "is_required": true,
-          "description": "Thực hiện gửi báo giá qua kênh đã thống nhất và đúng đầu mối khách hàng."
+          "description": "Gửi báo giá cho khách hàng qua đúng kênh làm việc và bảo đảm không nhầm phiên bản."
         },
         {
-          "name": "Ghi nhận thời gian gửi và tài liệu đã công bố",
+          "name": "Xác nhận khách hàng đã nhận báo giá",
           "is_required": true,
-          "description": "Lưu dấu vết gửi báo giá và cập nhật tài liệu liên quan trên hệ thống hoặc portal."
+          "description": "Ghi nhận thời điểm gửi, người nhận và xác nhận khách hàng đã tiếp nhận tài liệu."
         },
         {
-          "name": "Lên lịch theo dõi phản hồi khách hàng",
+          "name": "Lên lịch theo dõi phản hồi",
           "is_required": true,
-          "description": "Thiết lập mốc theo dõi để nhắc xử lý phản hồi sau khi gửi báo giá."
+          "description": "Thiết lập mốc nhắc việc để kinh doanh chủ động theo dõi phản hồi của khách hàng."
         }
       ]
     },
@@ -381,29 +414,32 @@
       "is_enabled": true,
       "portal_visible": true,
       "allow_skip": false,
-      "auto_open_next": true,
-      "sla_hours": 72,
-      "goal": "Chốt phương án thương mại được khách hàng chấp thuận.",
-      "instruction_note": "Xác nhận nội dung báo giá được duyệt, các điều chỉnh cuối cùng và điều kiện chốt đơn.",
-      "entry_criteria": "Báo giá đã được gửi tới khách hàng.",
-      "exit_criteria": "Khách hàng đã chấp thuận báo giá hoặc phương án thương mại cuối cùng.",
+      "auto_open_next": false,
+      "sla_hours": 24,
+      "goal": "Chốt báo giá với khách hàng và xác nhận phương án thương mại cuối cùng trước khi chuyển sang ký kết.",
+      "instruction_note": "Kinh doanh và quản lý cần cập nhật rõ trạng thái đàm phán, các điều chỉnh cuối cùng và kết luận khách hàng đồng ý triển khai.",
+      "entry_criteria": "Báo giá đã được gửi và khách hàng bắt đầu phản hồi.",
+      "exit_criteria": "Khách hàng đồng ý báo giá cuối cùng hoặc có kết luận dừng theo đuổi cơ hội.",
       "roles": [
         {
-          "role": "69c8ac73a718dc692a22b7f7",
+          "role": "QL",
           "permissions": [
+            "read",
+            "edit",
             "commit"
           ]
         },
         {
-          "role": "69c8a885a718dc692a22b7f1",
+          "role": "KD",
           "permissions": [
-            "view"
+            "read",
+            "edit"
           ]
         },
         {
-          "role": "69c8ac6ea718dc692a22b7f6",
+          "role": "KT",
           "permissions": [
-            "view"
+            "read"
           ]
         }
       ],
@@ -411,17 +447,17 @@
         {
           "name": "Ghi nhận phản hồi cuối cùng của khách hàng",
           "is_required": true,
-          "description": "Tổng hợp ý kiến phản hồi và các điều chỉnh cuối cùng từ khách hàng."
+          "description": "Tổng hợp các yêu cầu chỉnh sửa, đàm phán giá và phạm vi trước khi chốt."
         },
         {
-          "name": "Cập nhật phương án thương mại được chốt",
+          "name": "Chốt phương án thương mại cuối cùng",
           "is_required": true,
-          "description": "Khóa nội dung báo giá cuối cùng đã được khách hàng chấp thuận."
+          "description": "Xác nhận đơn giá, điều khoản thanh toán và phạm vi thực hiện đã thống nhất với khách hàng."
         },
         {
-          "name": "Xác nhận điều kiện chuyển sang ký kết",
+          "name": "Kết luận khả năng ký kết",
           "is_required": true,
-          "description": "Kiểm tra các điều kiện đủ để chuyển hồ sơ sang bước ký kết."
+          "description": "Đưa ra quyết định chuyển sang bước ký hợp đồng hoặc dừng cơ hội nếu không đạt thỏa thuận."
         }
       ]
     },
@@ -429,47 +465,50 @@
       "is_enabled": true,
       "portal_visible": true,
       "allow_skip": false,
-      "auto_open_next": true,
-      "sla_hours": 24,
-      "goal": "Hoàn tất hồ sơ ký kết để chuyển sang triển khai.",
-      "instruction_note": "Chuẩn bị tài liệu ký kết, xác nhận điều khoản cuối cùng và trạng thái ký duyệt.",
-      "entry_criteria": "Báo giá đã được chấp thuận.",
-      "exit_criteria": "Hồ sơ ký kết đã hoàn tất và sẵn sàng chuyển triển khai.",
+      "auto_open_next": false,
+      "sla_hours": 72,
+      "goal": "Hoàn tất hồ sơ ký kết và thống nhất điều khoản thương mại để chính thức chuyển hành trình sang giai đoạn triển khai.",
+      "instruction_note": "Chuẩn bị hồ sơ ký kết, rà soát điều khoản thanh toán, phạm vi công việc và đầu mối thực hiện sau ký kết.",
+      "entry_criteria": "Báo giá đã được chốt và hai bên thống nhất tiếp tục triển khai.",
+      "exit_criteria": "Hồ sơ ký kết đã hoàn tất và đủ điều kiện chuyển sang triển khai thi công.",
       "roles": [
         {
-          "role": "69c8ac73a718dc692a22b7f7",
+          "role": "QL",
           "permissions": [
+            "read",
             "commit"
           ]
         },
         {
-          "role": "69c8ac6ea718dc692a22b7f6",
+          "role": "KD",
           "permissions": [
+            "read",
             "edit"
           ]
         },
         {
-          "role": "69c8a885a718dc692a22b7f1",
+          "role": "KT",
           "permissions": [
-            "view"
+            "read",
+            "edit"
           ]
         }
       ],
       "checklist": [
         {
-          "name": "Chuẩn bị hồ sơ ký kết và phụ lục cần thiết",
+          "name": "Chuẩn bị hồ sơ ký kết",
           "is_required": true,
-          "description": "Hoàn thiện hợp đồng, phụ lục và các tài liệu phục vụ ký kết."
+          "description": "Hoàn thiện bộ hồ sơ ký kết với đầy đủ thông tin pháp lý, phạm vi và điều kiện thương mại."
         },
         {
-          "name": "Xác nhận điều khoản thanh toán và hiệu lực hợp đồng",
+          "name": "Rà soát điều khoản thanh toán và triển khai",
           "is_required": true,
-          "description": "Kiểm tra điều khoản thanh toán, mốc hiệu lực và ràng buộc chính."
+          "description": "Kiểm tra lại tiến độ thanh toán, đầu mối phối hợp và các cam kết triển khai sau ký kết."
         },
         {
-          "name": "Cập nhật trạng thái ký duyệt hai bên",
+          "name": "Xác nhận trạng thái sẵn sàng triển khai",
           "is_required": true,
-          "description": "Ghi nhận đầy đủ trạng thái ký duyệt của nội bộ và khách hàng."
+          "description": "Kết luận hồ sơ đã hoàn tất và hành trình đủ điều kiện chuyển sang bước triển khai thi công."
         }
       ]
     },
@@ -478,52 +517,61 @@
       "portal_visible": true,
       "allow_skip": false,
       "auto_open_next": false,
-      "sla_hours": 240,
-      "goal": "Triển khai thi công hoặc cung cấp dịch vụ theo cam kết đã chốt.",
-      "instruction_note": "Tổ chức nguồn lực, theo dõi tiến độ, kiểm soát vật tư và cập nhật tình hình thực hiện.",
-      "entry_criteria": "Hồ sơ ký kết đã hoàn tất.",
-      "exit_criteria": "Khối lượng triển khai chính đã hoàn tất và đủ điều kiện bàn giao - nghiệm thu.",
+      "sla_hours": 168,
+      "goal": "Tổ chức triển khai thi công theo phạm vi đã chốt, bảo đảm tiến độ, chất lượng và phối hợp vận hành nội bộ.",
+      "instruction_note": "Giai đoạn này cần theo dõi xuyên suốt phân công nhân sự, cấp phát vật tư, báo cáo hiện trường và xử lý sự cố phát sinh trong quá trình thi công.",
+      "entry_criteria": "Hồ sơ ký kết đã hoàn tất và đã sẵn sàng triển khai.",
+      "exit_criteria": "Khối lượng triển khai chính đã hoàn thành và đủ điều kiện chuyển sang nghiệm thu, bàn giao.",
       "roles": [
         {
-          "role": "69c8a885a718dc692a22b7f1",
+          "role": "GS",
           "permissions": [
+            "read",
+            "edit",
             "commit"
           ]
         },
         {
-          "role": "69c8ac79a718dc692a22b7f8",
+          "role": "KYT",
           "permissions": [
+            "read",
             "edit"
           ]
         },
         {
-          "role": "69c8ac69a718dc692a22b7f5",
+          "role": "QL",
           "permissions": [
-            "edit"
+            "read"
           ]
         },
         {
-          "role": "69c8ac73a718dc692a22b7f7",
+          "role": "KD",
           "permissions": [
-            "view"
+            "read"
+          ]
+        },
+        {
+          "role": "KT",
+          "permissions": [
+            "read"
           ]
         }
       ],
       "checklist": [
         {
-          "name": "Phân công nguồn lực triển khai và mốc tiến độ",
+          "name": "Phân công và khởi động triển khai",
           "is_required": true,
-          "description": "Chốt nhân sự, vai trò triển khai và các mốc tiến độ chính."
+          "description": "Xác nhận nhân sự phụ trách, kế hoạch thi công và mốc triển khai chính tại công trình."
         },
         {
-          "name": "Theo dõi vật tư, chất lượng và phát sinh hiện trường",
+          "name": "Theo dõi vật tư và hiện trường",
           "is_required": true,
-          "description": "Giám sát vật tư, chất lượng thi công và các phát sinh trong quá trình thực hiện."
+          "description": "Kiểm soát cấp phát vật tư, tiến độ hiện trường, báo cáo ngày và các phát sinh cần xử lý."
         },
         {
-          "name": "Cập nhật báo cáo tiến độ định kỳ cho hành trình",
+          "name": "Chốt điều kiện nghiệm thu",
           "is_required": true,
-          "description": "Duy trì báo cáo tiến độ và nhật ký thực hiện trên hệ thống."
+          "description": "Đánh giá khối lượng hoàn thành và xác nhận công trình đã sẵn sàng chuyển sang nghiệm thu, bàn giao."
         }
       ]
     },
@@ -531,53 +579,62 @@
       "is_enabled": true,
       "portal_visible": true,
       "allow_skip": false,
-      "auto_open_next": true,
+      "auto_open_next": false,
       "sla_hours": 24,
-      "goal": "Hoàn tất bàn giao và nghiệm thu với khách hàng.",
-      "instruction_note": "Chuẩn bị hồ sơ bàn giao, ghi nhận biên bản nghiệm thu và các tồn tại nếu có.",
-      "entry_criteria": "Triển khai đã hoàn tất theo phạm vi bàn giao.",
-      "exit_criteria": "Bàn giao - nghiệm thu đã được xác nhận hoàn tất.",
+      "goal": "Tổ chức nghiệm thu và bàn giao rõ ràng để khép lại giai đoạn triển khai, đồng thời kích hoạt cam kết sau bàn giao.",
+      "instruction_note": "Các bên liên quan cần xác nhận kết quả thi công, tồn tại sau bàn giao nếu có và hồ sơ bàn giao cho khách hàng.",
+      "entry_criteria": "Khối lượng triển khai chính đã hoàn thành và có thể tiến hành nghiệm thu.",
+      "exit_criteria": "Biên bản nghiệm thu, bàn giao đã hoàn tất và công trình chuyển sang trạng thái theo dõi sau bàn giao.",
       "roles": [
         {
-          "role": "69c8a885a718dc692a22b7f1",
+          "role": "QL",
           "permissions": [
+            "read",
             "commit"
           ]
         },
         {
-          "role": "69c8ac79a718dc692a22b7f8",
+          "role": "GS",
           "permissions": [
+            "read",
             "edit"
           ]
         },
         {
-          "role": "69c8ac69a718dc692a22b7f5",
+          "role": "KYT",
           "permissions": [
+            "read",
             "edit"
           ]
         },
         {
-          "role": "69c8ac73a718dc692a22b7f7",
+          "role": "KD",
           "permissions": [
-            "view"
+            "read"
+          ]
+        },
+        {
+          "role": "KT",
+          "permissions": [
+            "read"
           ]
         }
       ],
       "checklist": [
         {
-          "name": "Chuẩn bị hồ sơ bàn giao và biên bản nghiệm thu",
+          "name": "Tổ chức nghiệm thu hiện trạng hoàn thành",
           "is_required": true,
-          "description": "Hoàn thiện hồ sơ bàn giao, biên bản nghiệm thu và tài liệu bàn giao liên quan."
+          "description": "Kiểm tra khối lượng thi công, chất lượng hoàn thiện và các hạng mục cần xác nhận trước bàn giao."
         },
         {
-          "name": "Xác nhận danh sách tồn tại và phương án xử lý",
+          "name": "Lập hồ sơ bàn giao",
           "is_required": true,
-          "description": "Ghi nhận tồn tại sau cùng, đầu mối xử lý và thời hạn khắc phục nếu có."
+          "description": "Hoàn thiện biên bản nghiệm thu, bàn giao, hướng dẫn sử dụng và các tài liệu liên quan cho khách hàng."
         },
         {
-          "name": "Công bố hồ sơ bàn giao trên portal khi cần",
-          "is_required": false,
-          "description": "Đăng tải hoặc công bố tài liệu bàn giao để khách hàng tiện theo dõi."
+          "name": "Ghi nhận tồn tại sau bàn giao",
+          "is_required": true,
+          "description": "Nếu còn tồn tại, cần liệt kê rõ hướng xử lý và thời hạn hoàn tất sau bàn giao."
         }
       ]
     },
@@ -586,46 +643,61 @@
       "portal_visible": true,
       "allow_skip": false,
       "auto_open_next": false,
-      "sla_hours": 720,
-      "goal": "Theo dõi bảo hành và chăm sóc sau bán để đảm bảo trải nghiệm lâu dài của khách hàng.",
-      "instruction_note": "Ghi nhận yêu cầu sau bàn giao, theo dõi nhắc hẹn và xử lý các cam kết hậu mãi.",
-      "entry_criteria": "Bàn giao - nghiệm thu đã hoàn tất.",
-      "exit_criteria": "Các hoạt động bảo hành - chăm sóc được quản lý ổn định theo chính sách hậu mãi.",
+      "sla_hours": 48,
+      "goal": "Theo dõi bảo hành và chăm sóc sau bàn giao nhằm duy trì chất lượng dịch vụ, xử lý nhanh các yêu cầu phát sinh từ khách hàng.",
+      "instruction_note": "Sau bàn giao cần theo dõi các nhắc việc chăm sóc, phản ánh bảo hành và kết quả xử lý để duy trì trải nghiệm khách hàng.",
+      "entry_criteria": "Công trình đã hoàn tất nghiệm thu, bàn giao.",
+      "exit_criteria": "Các yêu cầu sau bàn giao được tiếp nhận, xử lý và lưu vết đầy đủ theo chính sách bảo hành, chăm sóc.",
       "roles": [
         {
-          "role": "69c8a885a718dc692a22b7f1",
+          "role": "KYT",
           "permissions": [
+            "read",
+            "edit",
             "commit"
           ]
         },
         {
-          "role": "69c8ac69a718dc692a22b7f5",
+          "role": "GS",
           "permissions": [
+            "read",
             "edit"
           ]
         },
         {
-          "role": "69c8ac73a718dc692a22b7f7",
+          "role": "KD",
           "permissions": [
-            "view"
+            "read"
+          ]
+        },
+        {
+          "role": "QL",
+          "permissions": [
+            "read"
+          ]
+        },
+        {
+          "role": "KT",
+          "permissions": [
+            "read"
           ]
         }
       ],
       "checklist": [
         {
-          "name": "Kích hoạt thẻ bảo hành và mốc chăm sóc",
+          "name": "Kích hoạt theo dõi sau bàn giao",
           "is_required": true,
-          "description": "Khởi tạo trạng thái bảo hành và lịch chăm sóc sau bàn giao."
+          "description": "Xác nhận thời hạn bảo hành, lịch chăm sóc và đầu mối tiếp nhận yêu cầu sau bàn giao."
         },
         {
-          "name": "Ghi nhận yêu cầu hậu mãi hoặc bảo hành phát sinh",
+          "name": "Tiếp nhận và xử lý yêu cầu bảo hành",
           "is_required": true,
-          "description": "Tiếp nhận và cập nhật các yêu cầu bảo hành, hậu mãi của khách hàng."
+          "description": "Ghi nhận phản ánh của khách hàng, phân công xử lý và cập nhật kết quả thực hiện."
         },
         {
-          "name": "Cập nhật lịch sử xử lý và kết quả chăm sóc",
+          "name": "Đóng vòng chăm sóc sau bàn giao",
           "is_required": true,
-          "description": "Lưu vết các lần xử lý, nhắc hẹn và kết quả chăm sóc sau bán."
+          "description": "Xác nhận khách hàng đã được hỗ trợ đầy đủ và lưu lại lịch sử chăm sóc, bảo hành."
         }
       ]
     }

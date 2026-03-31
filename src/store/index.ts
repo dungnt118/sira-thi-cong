@@ -6,7 +6,7 @@ import schemasReducer from './reducers/schemas/schemas.reducer';
 // NOTE: Thêm các reducer khác tại đây nếu cần (vd: fuse, message, ...)
 const store = configureStore({
   reducer: {
-    auth: authReducers,
+    auth: authReducers as any,
     schemas: schemasReducer,
     // Add other reducers here
   },

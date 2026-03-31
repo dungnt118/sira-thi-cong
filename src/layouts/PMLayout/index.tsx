@@ -3,6 +3,9 @@ import { Menu, Input, Badge, Space, Grid } from 'antd';
 import type { MenuProps } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { find_setting } from '@/store/actions/data/data.action';
+import { SET_JOURNEY_SETTING } from '@/store/reducers/schemas/schemas.reducer';
 import {
     DashboardOutlined,
     DollarOutlined,
@@ -195,6 +198,21 @@ const PMTopBar: React.FC = () => {
 export const PMLayout: React.FC = () => {
     const navigate = useNavigate();
     const { role } = useAuth();
+    const dispatch = useAppDispatch();
+    const journeySetting = useAppSelector(state => state.schemas.journeySetting);
+
+    React.useEffect(() => {
+        if (!journeySetting) {
+            find_setting({ schema: 'CustomerJourneySetting' }, dispatch).then(res => {
+                if (res.code === 0 && res.data) {
+                    dispatch({
+                        type: SET_JOURNEY_SETTING,
+                        payload: res.data
+                    });
+                }
+            });
+        }
+    }, [dispatch, journeySetting]);
 
     React.useEffect(() => {
         if (role && role !== 'pm') {
