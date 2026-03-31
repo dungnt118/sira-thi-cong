@@ -55,8 +55,7 @@ import JourneyList from '../pages/pm/Journeys/JourneyList';
 import JourneyBoard from '../pages/pm/Journeys/JourneyBoard';
 import JourneyDetail360 from '../pages/pm/Journeys/JourneyDetail360';
 import ActionCenter from '../pages/pm/Journeys/ActionCenter';
-import TemplateList from '../pages/pm/Journeys/TemplateList';
-import TemplateDetail from '../pages/pm/Journeys/TemplateDetail';
+import CustomerJourneySettingPage from '../pages/pm/Settings/CustomerJourneySettingPage';
 import EstimateTemplateList from '../pages/pm/Settings/EstimateTemplateList';
 
 // Sale Layout + Pages
@@ -180,13 +179,12 @@ function App() {
                                     <Route index element={<JourneyList />} />
                                     <Route path="board" element={<JourneyBoard />} />
                                     <Route path="action-center" element={<ActionCenter />} />
-                                    <Route path="templates" element={<TemplateList />} />
-                                    <Route path="templates/:templateId" element={<TemplateDetail />} />
                                     <Route path=":journeyId" element={<JourneyDetail360 />} />
                                 </Route>
 
                                 {/* --- App Settings (PM) --- */}
                                 <Route path="settings">
+                                    <Route path="customer-journey" element={<CustomerJourneySettingPage />} />
                                     <Route path="estimate-templates" element={<EstimateTemplateList />} />
                                 </Route>
 

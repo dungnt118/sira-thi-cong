@@ -46,7 +46,7 @@ const menuItems: MenuItem[] = [
             { key: '/pm/journeys/board', label: 'Board / Kanban', icon: <AppstoreOutlined /> },
             { key: '/pm/crm/customers', label: 'Danh sách Khách hàng', icon: <TeamOutlined /> },
             { key: '/pm/crm/customers/new', label: 'Thêm Khách hàng mới', icon: <UserAddOutlined /> },
-            { key: '/pm/journeys/templates', label: 'Template Quy trình', icon: <SettingOutlined /> },
+            { key: '/pm/settings/customer-journey', label: 'Cấu hình CustomerJourney', icon: <SettingOutlined /> },
         ],
     },
     // Nhóm tính năng Thi công (Projects/Checklist cũ) đã gộp vào Journey
