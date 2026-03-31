@@ -42,7 +42,7 @@ const menuItems: MenuItem[] = [
         label: 'Hành trình Khách hàng',
         children: [
             { key: '/pm/journeys/action-center', label: 'Action Center', icon: <ThunderboltOutlined /> },
-            { key: '/pm/journeys', label: 'Danh sách Hành trình', icon: <UnorderedListOutlined /> },
+            { key: '/pm/journeys', label: 'Danh sách yêu cầu', icon: <UnorderedListOutlined /> },
             { key: '/pm/journeys/board', label: 'Board / Kanban', icon: <AppstoreOutlined /> },
             { key: '/pm/crm/customers', label: 'Danh sách Khách hàng', icon: <TeamOutlined /> },
             { key: '/pm/crm/customers/new', label: 'Thêm Khách hàng mới', icon: <UserAddOutlined /> },
@@ -195,7 +195,7 @@ const PMTopBar: React.FC = () => {
 export const PMLayout: React.FC = () => {
     const navigate = useNavigate();
     const { role } = useAuth();
-    
+
     React.useEffect(() => {
         if (role && role !== 'pm') {
             navigate(`/${role}/dashboard`);
