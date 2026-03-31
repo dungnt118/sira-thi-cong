@@ -1,34 +1,26 @@
-import { useState } from 'react';
-import { UserData, getUserData, setUserData, clearUserData, switchRole } from '../utils/authUtils';
+import { useAppSelector, useAppDispatch } from '@/store/hooks';
+import { logoutUser } from '@/pages/shared/auth/store/actions/user.actions';
 
 export const useAuth = () => {
-    const [user, setUser] = useState<UserData | null>(getUserData());
+    const dispatch = useAppDispatch();
+    const userState = useAppSelector((state) => state.auth.user);
+    const sessionData = userState?.data;
 
-    const updateUserData = (data: UserData) => {
-        setUserData(data);
-        setUser(data);
-    };
+    // Derive role - assuming the first role is primary or mapped from metadata
+    const roles = sessionData?.user?.roles || [];
+    const role = userState?.role || (roles.length > 0 ? roles[0].toLowerCase() : null);
 
     const logout = () => {
-        clearUserData();
-        setUser(null);
-    };
-
-    const handleSwitchRole = (newRole: string) => {
-        if (switchRole(newRole)) {
-            setUser(getUserData());
-            return true;
-        }
-        return false;
+        dispatch(logoutUser());
     };
 
     return {
-        user,
-        role: user?.role || null,
-        roles: user?.roles || [],
-        updateUserData,
+        user: sessionData?.user || null,
+        session: sessionData,
+        role,
+        roles,
         logout,
-        switchRole: handleSwitchRole,
-        isAuthenticated: !!user?.role
+        isAuthenticated: !!sessionData?.user?._id
     };
 };
+

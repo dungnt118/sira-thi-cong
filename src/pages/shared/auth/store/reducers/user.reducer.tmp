@@ -1,0 +1,70 @@
+import * as Actions from '../actions/user.actions';
+
+const initialState = {
+    data: {
+        user: null,
+        info: null,
+        permissions: [],
+    }
+    // data:null
+};
+
+const user = function (state = initialState, action) {
+    switch (action.type) {
+        case Actions.UPDATE_USER_FIELD: {
+            // console.log('update user field:',action.payload)
+            return {
+                data: {
+                    ...state,
+                    ...action.payload
+                }
+            }
+        }
+
+        case Actions.SET_USER_DATA:
+            {
+                ///ta cũng sẽ xử lý biến tenantId mặc định tại đây
+                let tenantId = null, tenantFilters = []
+                if (action.payload.tenants?.length >= 1) {
+                    tenantFilters = action.payload.tenants.map(t => t._id)
+                    tenantId = tenantFilters[0]
+                }
+                return {
+                    ...initialState,
+                    tenantId,
+                    tenantFilters,
+                    data: {
+                        ...action.payload,
+                        // shortcuts    : [
+                        //     'calls-event',
+                        //     'chat', 
+                        //     'create-appointment',
+                        //     'create-examination',
+                        //     'create-testresult',
+                        //     'create-scanresult',
+                        //     'create-prescription',
+                        //     'create-ticket',
+                        // ]
+                    }
+                };
+            }
+        case Actions.REMOVE_USER_DATA:
+            {
+                console.log('remove user data')
+                return {
+                    ...initialState
+                };
+            }
+        case Actions.USER_LOGGED_OUT:
+            {
+                console.log('logout user data')
+                return initialState;
+            }
+        default:
+            {
+                return state
+            }
+    }
+};
+
+export default user;

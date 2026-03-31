@@ -130,14 +130,25 @@ const ComingSoon = ({ title }: { title: string }) => (
     </div>
 );
 
+import { Provider } from 'react-redux';
+import store from '@/store';
+import Auth from '@/pages/shared/auth/Auth';
+
 function App() {
     return (
         <ConfigProvider locale={viVN}>
             <AntApp>
-                <BrowserRouter>
-                    <Suspense fallback={<div style={{ padding: 20 }}>Loading...</div>}>
-                        <Routes>
+                <Provider store={store}>
+                    <BrowserRouter>
+                        <Auth>
+                            <Suspense fallback={<div style={{ padding: 20 }}>Loading...</div>}>
+                                <Routes>
+
+                            {/* ===== AUTO REDIRECTS ===== */}
+                            <Route path="/personal/profile" element={<Navigate to="/sale/dashboard" replace />} />
+                            
                             {/* ===== PUBLIC ROUTES ===== */}
+
                             <Route path="/login" element={<Login />} />
                             <Route path="/portal/:token" element={<CustomerPortal />} />
                             <Route path="/portal/:token/timeline" element={<PublishedTimeline />} />
@@ -324,7 +335,9 @@ function App() {
                             <Route path="*" element={<NotFound />} />
                         </Routes>
                     </Suspense>
-                </BrowserRouter>
+                        </Auth>
+                    </BrowserRouter>
+                </Provider>
             </AntApp>
         </ConfigProvider>
     );

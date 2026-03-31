@@ -17,7 +17,8 @@ import {
 import { hideLoading } from 'app/store/actions/fuse/loading.action';
 import { showMessage } from 'app/store/actions/fuse/message.actions';
 import moment from 'moment';
-import type { OAuthClientConfig } from 'types/auth/OAuthClientConfig';
+import type { OAuthClientConfig } from './config';
+
 
 type ReduxStoreRef = {
     dispatch: (action: any) => any;

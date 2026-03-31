@@ -14,9 +14,9 @@ window.env = {
             scope: 'openid profile offline_access',
             title: "Quản lý"
         }
-        
+
     ],
-    
+
     oidc_providers: [
         {
             provider: "demego-idp",

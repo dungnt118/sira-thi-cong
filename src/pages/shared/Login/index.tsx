@@ -9,13 +9,17 @@ import {
 import { gql } from '@apollo/client';
 import { query } from '../../../services/graphqlService';
 import { GET_USER_SESSION_INFO_QUERY, get, CLIENTS } from '../../../services/storeService';
-import elsagaService from '../../../services/elsagaService';
+import elsagaService from '../../../services/authenticationService';
 import './Login.css';
 
 const { Title, Text } = Typography;
 
+import { useAppDispatch } from '@/store/hooks';
+import { loadUserData } from '@/pages/shared/auth/store/actions/user.actions';
+
 export const Login: React.FC = () => {
     const navigate = useNavigate();
+    const dispatch = useAppDispatch();
     const [loading, setLoading] = useState(false);
 
     const onFinish = async (values: any) => {
@@ -32,38 +36,12 @@ export const Login: React.FC = () => {
             }
 
             // Thực hiện gọi API đăng nhập theo OIDC/OAuth REST
-            await elsagaService.signInWithEmailAndPassword(values.username, values.password, clientInfo, () => setLoading(false));
-            
-            // Xây dựng GraphQL query để lấy user profile sau khi access_token đã tự động set vào Header
-            const sessionQuery = gql(GET_USER_SESSION_INFO_QUERY());
-            const sessionRes = await query(sessionQuery, { tenantId: null });
+            const session = await elsagaService.signInWithEmailAndPassword(values.username, values.password, clientInfo, () => setLoading(false));
 
-            if (sessionRes && sessionRes.code === 0 && sessionRes.data) {
-                const userData = sessionRes.data;
-                const userRoles = Array.isArray(userData.roles) ? userData.roles : ['sale'];
-
-                const primaryRole = (userRoles.length > 0 ? userRoles[0] : 'sale').toLowerCase();
-
-                const loginUserData = {
-                    username: userData.username || values.username,
-                    role: primaryRole,
-                    roles: userRoles
-                };
-
-                setUserData(loginUserData);
-                message.success('Đăng nhập thành công!');
-
-                // Điều hướng theo role ưu tiên
-                let targetDashboard = '/admin-v2/dashboard';
-                if (primaryRole === 'sale') targetDashboard = '/sale/dashboard';
-                else if (primaryRole === 'pm') targetDashboard = '/pm/dashboard';
-                else if (primaryRole === 'accountant') targetDashboard = '/accountant/dashboard';
-                else if (primaryRole === 'supervisor' || primaryRole === 'giam-sat') targetDashboard = '/supervisor/dashboard';
-                else if (primaryRole === 'ky-thuat') targetDashboard = '/ky-thuat/dashboard';
-
-                navigate(targetDashboard);
-            } else {
-                message.error(sessionRes?.message || 'Không thể lấy thông tin người dùng từ máy chủ GraphQL.');
+            if (session) {
+                message.success('Đăng nhập thành công, đang tải thông tin người dùng...');
+                // Gọi loadUserData để lấy thông tin profile qua GraphQL và điều hướng
+                await dispatch(loadUserData());
             }
         } catch (error: any) {
             console.error('Lỗi đăng nhập:', error);
@@ -72,6 +50,7 @@ export const Login: React.FC = () => {
             setLoading(false);
         }
     };
+
 
     return (
         <div className="login-container">
@@ -97,9 +76,9 @@ export const Login: React.FC = () => {
                             name="username"
                             rules={[{ required: true, message: 'Vui lòng nhập tên đăng nhập!' }]}
                         >
-                            <Input 
-                                prefix={<UserOutlined className="site-form-item-icon" />} 
-                                placeholder="Tên đăng nhập" 
+                            <Input
+                                prefix={<UserOutlined className="site-form-item-icon" />}
+                                placeholder="Tên đăng nhập"
                                 size="large"
                             />
                         </Form.Item>
@@ -115,11 +94,11 @@ export const Login: React.FC = () => {
                         </Form.Item>
 
                         <Form.Item>
-                            <Button 
-                                type="primary" 
-                                htmlType="submit" 
-                                className="login-button" 
-                                block 
+                            <Button
+                                type="primary"
+                                htmlType="submit"
+                                className="login-button"
+                                block
                                 loading={loading}
                             >
                                 Đăng Nhập

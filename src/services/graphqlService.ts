@@ -17,7 +17,7 @@ import {
   FragmentOption,
   QueryOptions
 } from 'types/services/GraphQLService';
-import elsagaService from './elsagaService';
+import elsagaService from './authenticationService';
 
 type ReduxStoreRef = {
   dispatch: (action: any) => any;
@@ -197,7 +197,7 @@ const buildWsLink = (): GraphQLWsLink | null => {
 
 const buildHttpLink = () => {
   const uri = get(GRAPHQL_ENDPOINT);
-  console.log("Graphql endpoint:",uri);
+  console.log("Graphql endpoint:", uri);
   if (typeof uri !== 'string' || !uri) {
     console.warn('Không thể khởi tạo HttpLink: graphql_endpoint không hợp lệ hoặc chưa được thiết lập.');
   }
@@ -393,10 +393,10 @@ const authLink = new SetContextLink((operation, prevContext) => {
   const access_token = get(ACCESS_TOKEN);
   const tenantId = get(TENANT_KEY);
   const regCode = get(REGCODE) || '';
-  
+
   // prevContext chứa context từ các links trước đó (có thể có headers)
   const existingHeaders = ((prevContext as any).headers || {}) as Record<string, string>;
-  
+
   const mergedHeaders: Record<string, string> = {
     ...existingHeaders,
   };
@@ -513,28 +513,28 @@ const runMutation = (
 
 // Legacy JS compatibility 
 export function query(
-  query: DocumentNode, 
-  variables?: VariablesMap, 
-  dispatch?: Dispatch, 
-  extraHeader?: HeaderMap, 
+  query: DocumentNode,
+  variables?: VariablesMap,
+  dispatch?: Dispatch,
+  extraHeader?: HeaderMap,
   onError?: (error: any) => void
 ): Promise<any>;
 
 // TypeScript single data
 export function query<T>(
-  query: DocumentNode, 
-  variables?: VariablesMap, 
-  dispatch?: Dispatch, 
-  extraHeader?: HeaderMap, 
+  query: DocumentNode,
+  variables?: VariablesMap,
+  dispatch?: Dispatch,
+  extraHeader?: HeaderMap,
   onError?: (error: any) => void
 ): Promise<ApiResponse<T>>;
 
 // Implementation
 export function query<T = any>(
-  query: DocumentNode, 
-  variables?: VariablesMap, 
-  dispatch?: Dispatch, 
-  extraHeader?: HeaderMap, 
+  query: DocumentNode,
+  variables?: VariablesMap,
+  dispatch?: Dispatch,
+  extraHeader?: HeaderMap,
   onError?: (error: any) => void
 ): Promise<any> {
   try {
@@ -579,10 +579,10 @@ export function query<T = any>(
 
 // TypeScript list data
 export function queryList<T>(
-  query: DocumentNode, 
-  variables?: VariablesMap, 
-  dispatch?: Dispatch, 
-  extraHeader?: HeaderMap, 
+  query: DocumentNode,
+  variables?: VariablesMap,
+  dispatch?: Dispatch,
+  extraHeader?: HeaderMap,
   onError?: (error: any) => void
 ): Promise<ApiListResponse<T>> {
   try {
@@ -605,9 +605,9 @@ export function queryList<T>(
 }
 
 export const queryWithOption = (
-  query: DocumentNode, 
-  variables?: VariablesMap, 
-  options?: QueryOptions, 
+  query: DocumentNode,
+  variables?: VariablesMap,
+  options?: QueryOptions,
   dispatch?: Dispatch
 ): Promise<ElsagaResponse> => {
   const requestOptions = {
@@ -626,8 +626,8 @@ export const queryWithOption = (
 }
 
 export const query_no_cache = (
-  query: DocumentNode, 
-  variables?: VariablesMap, 
+  query: DocumentNode,
+  variables?: VariablesMap,
   dispatch?: Dispatch
 ): Promise<ElsagaResponse> => {
   return runQuery(
@@ -642,9 +642,9 @@ export const query_no_cache = (
 }
 
 export const query_cache = (
-  query: DocumentNode, 
-  variables?: VariablesMap, 
-  dispatch?: Dispatch, 
+  query: DocumentNode,
+  variables?: VariablesMap,
+  dispatch?: Dispatch,
   extraHeader?: HeaderMap
 ): Promise<ElsagaResponse> => {
   return runQuery(
@@ -662,25 +662,25 @@ export const query_cache = (
 
 // Legacy JS compatibility
 export function mutate(
-  mutation: DocumentNode, 
-  variables?: VariablesMap, 
-  dispatch?: Dispatch, 
+  mutation: DocumentNode,
+  variables?: VariablesMap,
+  dispatch?: Dispatch,
   extraHeader?: HeaderMap
 ): Promise<any>;
 
 // TypeScript single data
 export function mutate<T>(
-  mutation: DocumentNode, 
-  variables?: VariablesMap, 
-  dispatch?: Dispatch, 
+  mutation: DocumentNode,
+  variables?: VariablesMap,
+  dispatch?: Dispatch,
   extraHeader?: HeaderMap
 ): Promise<ApiResponse<T>>;
 
 // Implementation  
 export function mutate<T = any>(
-  mutation: DocumentNode, 
-  variables?: VariablesMap, 
-  dispatch?: Dispatch, 
+  mutation: DocumentNode,
+  variables?: VariablesMap,
+  dispatch?: Dispatch,
   extraHeader?: HeaderMap
 ): Promise<any> {
   try {
@@ -703,9 +703,9 @@ export function mutate<T = any>(
 
 // TypeScript list data
 export function mutateList<T>(
-  mutation: DocumentNode, 
-  variables?: VariablesMap, 
-  dispatch?: Dispatch, 
+  mutation: DocumentNode,
+  variables?: VariablesMap,
+  dispatch?: Dispatch,
   extraHeader?: HeaderMap
 ): Promise<ApiListResponse<T>> {
   try {
@@ -728,10 +728,10 @@ export function mutateList<T>(
 
 //hàm này chuyên để xóa data, data lấy về bắt bộc phải có _id để có thể xóa
 export const mutate_remove_fragment = (
-  mutation: DocumentNode, 
-  variables?: VariablesMap, 
-  options?: FragmentOption | FragmentOption[], 
-  dispatch?: Dispatch, 
+  mutation: DocumentNode,
+  variables?: VariablesMap,
+  options?: FragmentOption | FragmentOption[],
+  dispatch?: Dispatch,
   extraHeader?: HeaderMap
 ): Promise<ElsagaResponse> => {
   const request = getApolloClient().mutate({
@@ -790,10 +790,10 @@ export const mutate_remove_fragment = (
 
 ///hàm này để giao diện chủ động update fragment
 export const mutate_update_fragment = (
-  mutation: DocumentNode, 
-  variables?: VariablesMap, 
-  options?: FragmentOption | FragmentOption[], 
-  dispatch?: Dispatch, 
+  mutation: DocumentNode,
+  variables?: VariablesMap,
+  options?: FragmentOption | FragmentOption[],
+  dispatch?: Dispatch,
   extraHeader?: HeaderMap
 ): Promise<ElsagaResponse> => {
   const request = getApolloClient().mutate({
@@ -848,10 +848,10 @@ export const mutate_update_fragment = (
 ///relateQueries là 1 mảng các phần tử {query,variables}
 ///chưa có điều kiện hợp lý để dùng hàm này thay vì đó nên dung hàm mutate_update_fragment
 export const mutate_update_cache = (
-  mutation: DocumentNode, 
-  variables?: VariablesMap, 
-  options?: CacheUpdateOption | CacheUpdateOption[], 
-  dispatch?: Dispatch, 
+  mutation: DocumentNode,
+  variables?: VariablesMap,
+  options?: CacheUpdateOption | CacheUpdateOption[],
+  dispatch?: Dispatch,
   extraHeader?: HeaderMap
 ): Promise<ElsagaResponse> => {
   const request = getApolloClient().mutate({
@@ -925,7 +925,7 @@ export const mutate_update_cache = (
   });
 
   return request.then(result => elsagaService.handleResponse(result, dispatch));
-} 
+}
 
 // =================== CACHE UTILITIES ===================
 
@@ -956,7 +956,7 @@ export const clearCache = (typename?: string, id?: string) => {
  */
 export const optimisticUpdate = <T>(
   typename: string,
-  id: string, 
+  id: string,
   updateFields: Partial<T>
 ) => {
   const cacheId = `${typename}:${id}`;

@@ -1,0 +1,194 @@
+import history from '@history';
+import _ from '@lodash';
+import elsagaService from 'app/services/elsagaService';
+import * as graphqlService from 'app/services/graphqlService';
+import { GET_USER_SESSION_INFO_QUERY } from 'app/services/storeService';
+import store from 'app/store';
+import { hideLoading } from 'app/store/actions/fuse/loading.action';
+import { showMessage } from 'app/store/actions/fuse/message.actions';
+import { setFavoriteMenus, setFavoriteMenusForm, setNavigation, setNavigationList } from 'app/store/actions/fuse/navigation.actions';
+import { setInitialSettings } from 'app/store/actions/fuse/settings.actions';
+import gql from 'graphql-tag';
+// import {subscribeUser} from 'subscription';
+export const SET_USER_DATA = '[USER] SET DATA';
+export const REMOVE_USER_DATA = '[USER] REMOVE DATA';
+export const USER_LOGGED_OUT = '[USER] LOGGED OUT';
+export const REGISTER_DEVICE = '[USER] REGISTER DEVICE';
+export const UPDATE_USER_FIELD = '[USER] UPDATE FIELD';
+
+/**
+ * Set user data from Auth0 token data
+ */
+export function setUserDataAuth0(tokenData) {
+    const user = {
+        role: ['admin'],
+        from: 'auth0',
+        data: {
+            displayName: tokenData.username,
+            photoURL: tokenData.picture,
+            email: tokenData.email,
+            settings: (tokenData.user_metadata && tokenData.user_metadata.settings) ? tokenData.user_metadata.settings : {},
+            shortcuts: (tokenData.user_metadata && tokenData.user_metadata.shortcuts) ? tokenData.user_metadata.shortcuts : []
+        }
+    };
+
+    return setUserData(user);
+}
+
+
+export function loadUserData(forcereload) {
+    ///fetch user info
+
+    graphqlService.query(gql(GET_USER_SESSION_INFO_QUERY()), {}, store.dispatch).then(response => {
+        console.log(response)
+        if (response.data) {
+            store.dispatch(setUserData(response && response.data));
+            // debugger
+            if (history.location.pathname.startsWith('/login')) {
+                var regex = /redirect=(.+)/;
+                if (regex.test(history.location.search)) {
+                    const redirect = regex.exec(history.location.search);
+                    if (redirect.length > 1 && !redirect[1].startsWith("/login")) {
+                        // history.push(redirect[1]);
+                        window.location = redirect[1];
+                    } else {
+                        window.location = response.data?.welcome_url || '/l/welcome';
+                    }
+
+                } else
+                    window.location = response.data?.welcome_url || '/l/welcome';
+            } else if (history.location.pathname == '/l/welcome' && response.data?.welcome_url != '/l/welcome') {
+                window.location = response.data.welcome_url
+            }
+
+        } else {
+            store.dispatch(logoutUser());
+            store.dispatch(hideLoading())
+        }
+        // history.push("/");
+    }, (error) => {
+        console.log(error)
+        store.dispatch(hideLoading())
+        store.dispatch(logoutUser())
+    })
+}
+
+export function update_user_field(updatedField) {
+    return (dispatch) => dispatch({
+        type: UPDATE_USER_FIELD,
+        payload: updatedField
+    })
+}
+
+///chuyển quyền thông qua phòng ban /chức vụ --> áp dụng cho các hệ thống HR
+export function switch_account({ tenantId, roleId }) {
+    return (dispatch) => {
+        return graphqlService.mutate(GET_USER_SESSION_INFO_QUERY(), { tenantId, roleId }, dispatch).then(response => {
+            if (response.code == 0 && response.data) {
+                dispatch(showMessage({ message: `Chuyển tài khoản thành công.` }));
+                //làm mới lại toàn bộ thông tin tai khoản và cây menu
+                store.dispatch(setUserData(response.data))
+                //reload menu
+            }
+        })
+    }
+}
+
+/**
+ * Set User Data
+ */
+export function setUserData(user) {
+    return (dispatch) => {
+        /*
+        Set User Settings
+         */
+        // dispatch(setDefaultSettings(defaultSettings));
+        //set setNavigation
+        //xử lý quick shortcut tại đây
+        dispatch(setFavoriteMenus(user.favourist_menus));
+        dispatch(setFavoriteMenusForm(user.favourist_menus));
+        dispatch(setNavigation(user.menuGraph));
+        dispatch(setNavigationList(user.menuGraph));
+        dispatch(updateUserData({ ...user }))
+    }
+}
+
+/**
+ * Update User Settings
+ */
+export function updateUserSettings(settings) {
+    return (dispatch, getState) => {
+        const oldUser = getState().auth.user;
+        const user = _.merge({}, oldUser, { data: { settings } });
+        updateUserData(user);
+
+        return dispatch(setUserData(user));
+    }
+}
+
+/**
+ * Update User Shortcuts
+ */
+export function updateUserShortcuts(shortcuts) {
+    return (dispatch, getState) => {
+        const user = getState().auth.user;
+        const newUser = {
+            ...user,
+            data: {
+                ...user.data,
+                shortcuts
+            }
+        };
+
+        updateUserData(newUser);
+
+        return dispatch(setUserData(newUser));
+    }
+}
+
+/**
+ * Remove User Data
+ */
+export function removeUserData() {
+    return {
+        type: REMOVE_USER_DATA
+    }
+}
+
+/**
+ * Logout
+ */
+export function logoutUser(message) {
+    // console.log(message)
+    return (dispatch, getState) => {
+        elsagaService.logout();
+        dispatch(setInitialSettings());
+
+        dispatch({
+            type: USER_LOGGED_OUT
+        })
+        const pathname = history.location.pathname;
+        if (!pathname.startsWith("/login")) {
+            console.log('go to login')
+            history.push({
+                pathname: '/login'
+            });
+        }
+        if (message) {
+            dispatch(hideLoading())
+            dispatch(showMessage({ message }));
+        }
+    }
+}
+
+/**
+ * Update User Data
+ */
+function updateUserData(userSetting) {
+    // console.log("userSetting:", userSetting);
+    return (dispatch) => dispatch({
+        type: SET_USER_DATA,
+        payload: userSetting
+    })
+
+}
