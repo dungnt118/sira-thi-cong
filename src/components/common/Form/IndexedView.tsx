@@ -7,6 +7,7 @@ import type { IndexedContentItem } from '@/types/apis/ApiResponse';
 interface IndexedViewProps {
     schema: string;
     value?: string;
+    propType?: 'ObjectId' | 'Lookup';
     idxValue?: IndexedContentItem;
     color?: string;
 }
@@ -14,6 +15,7 @@ interface IndexedViewProps {
 const IndexedView: React.FC<IndexedViewProps> = ({ 
     schema, 
     value, 
+    propType = 'ObjectId',
     idxValue, 
     color = 'blue' 
 }) => {
@@ -31,7 +33,7 @@ const IndexedView: React.FC<IndexedViewProps> = ({
             const fetchLabel = async () => {
                 setLoading(true);
                 try {
-                    const res = await dispatch(get_indexed_content(schema, [value], true));
+                    const res = await dispatch(get_indexed_content(schema, [value], propType !== 'Lookup'));
                     if (res?.data && res.data.length > 0) {
                         const item = res.data[0];
                         setLabel(item.title || item.code || value);

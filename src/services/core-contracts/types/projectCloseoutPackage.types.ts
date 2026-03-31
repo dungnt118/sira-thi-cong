@@ -1,4 +1,4 @@
-import type { IndexedContentItem } from 'types/apis';
+import type { HeadlessReferenceContent, IndexedContentItem } from 'types/apis';
 import type { ApiListResponse, ApiResponse } from 'types/apis/ApiResponse';
 import type { HeadlessFileUpload } from 'types/apis/HeadlessFileUpload';
 
@@ -25,7 +25,7 @@ export interface IProjectCloseoutPackage {
   published_at?: string | Date;
   customer_confirmed_at?: string | Date;
   closed_at?: string | Date;
-  published_document_ids?: IndexedContentItem[];
+  published_document_ids?: HeadlessReferenceContent[];
   idx_published_document_ids?: IndexedContentItem;
   summary?: string;
   closing_note?: string;
@@ -47,7 +47,7 @@ export interface ICreateProjectCloseoutPackageInput {
   published_at?: string | Date;
   customer_confirmed_at?: string | Date;
   closed_at?: string | Date;
-  published_document_ids?: IndexedContentItem[];
+  published_document_ids?: HeadlessReferenceContent[];
   summary?: string;
   closing_note?: string;
   reopen_reason?: string;

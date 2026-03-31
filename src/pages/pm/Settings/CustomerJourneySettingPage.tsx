@@ -2,16 +2,17 @@ import React, { useState, useEffect, useMemo } from 'react';
 import {
     Card, Button, Space, Typography, Row, Col, Descriptions,
     Tag, Badge, List, message, Spin, Divider,
-    Form, Input, Switch, Select
+    Form, Input, Switch, Select, Table, Collapse
 } from 'antd';
 import {
     SettingOutlined, EditOutlined,
     SaveOutlined, ReloadOutlined, InfoCircleOutlined,
-    CheckCircleOutlined
+    CheckCircleOutlined, PlusOutlined, DeleteOutlined,
+    CaretRightFilled
 } from '@ant-design/icons';
 import { useAppDispatch } from '@/store/hooks';
 import { find_setting, save_setting } from '@/store/actions/data/data.action';
-import type { ICustomerJourneySetting } from '@/services/core-contracts/types/customerJourneySetting.types';
+import type { ICustomerJourneySetting, IRolesItem, IChecklistItem } from '@/services/core-contracts/types/customerJourneySetting.types';
 import IndexedSelect from '../../../components/common/Form/IndexedSelect';
 import IndexedView from '../../../components/common/Form/IndexedView';
 
@@ -34,14 +35,11 @@ const FIXED_STEPS = [
     { code: 'warranty_aftercare', name: 'Bước 13 - Bảo hành / chăm sóc sau bàn giao' },
 ];
 
-const STATUS_LABELS: Record<string, string> = {
-    'not_started': 'Chưa bắt đầu',
-    'ready': 'Sẵn sàng',
-    'blocked': 'Bị chặn',
-    'completed': 'Hoàn tất',
-    'approved': 'Đã duyệt',
-    'signed': 'Đã ký'
-};
+const PERMISSION_OPTIONS = [
+    { label: 'Chỉ xem', value: 'view' },
+    { label: 'Sửa', value: 'edit' },
+    { label: 'Chịu trách nhiệm', value: 'commit' },
+];
 
 const CustomerJourneySettingPage: React.FC = () => {
     const dispatch = useAppDispatch();
@@ -107,6 +105,8 @@ const CustomerJourneySettingPage: React.FC = () => {
                 is_enabled: selectedStep.is_enabled !== false,
                 portal_visible: selectedStep.portal_visible !== false,
                 handoff_required: selectedStep.handoff_required === true,
+                roles: selectedStep.roles || [],
+                checklist: selectedStep.checklist || []
             });
         }
     }, [isEditing, selectedStepCode, form]);
@@ -115,8 +115,8 @@ const CustomerJourneySettingPage: React.FC = () => {
         const values = await form.validateFields();
         const currentSetting = setting || { _id: '' };
         
-        // Cleanup idx fields
-        const { idx_owner_role_id, idx_checklist_template_id, idx_from_role_id, idx_to_role_id, ...cleanStep } = values;
+        // Remove transient fields if any exist
+        const { ...cleanStep } = values;
         
         const payload: ICustomerJourneySetting = {
             ...currentSetting,
@@ -126,7 +126,6 @@ const CustomerJourneySettingPage: React.FC = () => {
             [selectedStepCode]: [cleanStep]
         };
 
-        // Optimistic update
         setSetting(payload);
         setSaving(true);
         try {
@@ -134,7 +133,6 @@ const CustomerJourneySettingPage: React.FC = () => {
             if (res?.code === 0) {
                 message.success(`Đã cập nhật cấu hình ${selectedStep?.step_name}`);
                 setIsEditing(false);
-                // Refresh to get full data (including idx_ fields from server)
                 loadData();
             } else {
                 message.error(res?.message || 'Lỗi khi lưu cấu hình');
@@ -178,7 +176,7 @@ const CustomerJourneySettingPage: React.FC = () => {
 
             <Card style={{ marginBottom: 16, background: '#f0f2f5', border: 'none', borderRadius: 12 }}>
                 <Paragraph style={{ margin: 0, color: '#595959' }}>
-                    Quy trình chuẩn gồm 13 giai đoạn cố định. Nhân viên PM thực hiện cấu hình các tham số vận hành, vai trò chịu trách nhiệm và tiêu chí cho từng giai đoạn.
+                    Quy trình chuẩn gồm 13 giai đoạn cố định. Thiết lập Roles, Checklist và các quyền vận hành chi tiết dựa trên lược đồ mới.
                 </Paragraph>
             </Card>
 
@@ -214,7 +212,7 @@ const CustomerJourneySettingPage: React.FC = () => {
                                             <Badge count={idx + 1} style={{ backgroundColor: step.is_enabled !== false ? '#1890ff' : '#d9d9d9' }} />
                                             <Text strong style={{ color: step.is_enabled !== false ? '#262626' : '#bfbfbf' }}>{step.step_name}</Text>
                                         </Space>
-                                        {selectedStepCode === step.step_code && <Text type="primary" style={{ fontSize: 12 }}>Đang chọn</Text>}
+                                        {selectedStepCode === step.step_code && <Text style={{ color: '#1890ff', fontSize: 12 }}>Đang chọn</Text>}
                                     </Space>
                                 </List.Item>
                             )}
@@ -242,7 +240,8 @@ const CustomerJourneySettingPage: React.FC = () => {
                         }
                         style={{ borderRadius: 12, minHeight: 600 }}
                     >
-                        {isEditing ? (
+                        {/* Edit Mode Content */}
+                        <div style={{ display: isEditing ? 'block' : 'none' }}>
                             <Form form={form} layout="vertical" initialValues={selectedStep}>
                                 <Row gutter={16}>
                                     <Col span={10}>
@@ -266,54 +265,135 @@ const CustomerJourneySettingPage: React.FC = () => {
                                     <TextArea rows={2} />
                                 </Form.Item>
 
-                                <Divider style={{ margin: '16px 0' }} />
+                                <Divider orientation="left" style={{ margin: '16px 0' }}>Phân Quyền Vai Trò (Roles)</Divider>
 
-                                <Row gutter={16}>
-                                    <Col span={12}>
-                                        <Form.Item label="Vai trò chịu trách nhiệm (Owner)" name="owner_role_id" rules={[{ required: true, message: 'Vui lòng chọn vai trò' }]}>
-                                            <IndexedSelect schema="Role" placeholder="Chọn vai trò..." />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={12}>
-                                        <Form.Item label="Mẫu Checklist chuẩn" name="checklist_template_id">
-                                            <IndexedSelect schema="ChecklistTemplate" placeholder="Chọn mẫu checklist..." />
-                                        </Form.Item>
-                                    </Col>
-                                </Row>
+                                <Form.List name="roles">
+                                    {(fields, { add, remove }) => (
+                                        <>
+                                            {fields.map(({ key, name, ...restField }) => (
+                                                <Row key={key} gutter={16} style={{ marginBottom: 12, alignItems: 'center' }}>
+                                                    <Col span={10}>
+                                                        <Form.Item
+                                                            {...restField}
+                                                            name={[name, 'role']}
+                                                            rules={[{ required: true, message: 'Chọn vai trò' }]}
+                                                            style={{ marginBottom: 0 }}
+                                                        >
+                                                            <IndexedSelect schema="Role" propType="Lookup" placeholder="Chọn vai trò..." />
+                                                        </Form.Item>
+                                                    </Col>
+                                                    <Col span={12}>
+                                                        <Form.Item
+                                                            {...restField}
+                                                            name={[name, 'permissions']}
+                                                            style={{ marginBottom: 0 }}
+                                                        >
+                                                            <Select 
+                                                                mode="multiple" 
+                                                                placeholder="Chọn quyền..." 
+                                                                options={PERMISSION_OPTIONS}
+                                                                allowClear
+                                                            />
+                                                        </Form.Item>
+                                                    </Col>
+                                                    <Col span={2}>
+                                                        <Button type="text" danger icon={<DeleteOutlined />} onClick={() => remove(name)} />
+                                                    </Col>
+                                                </Row>
+                                            ))}
+                                            <Form.Item>
+                                                <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                                                    Thêm Vai trò tham gia
+                                                </Button>
+                                            </Form.Item>
+                                        </>
+                                    )}
+                                </Form.List>
 
-                                <Row gutter={16}>
-                                    <Col span={12}>
-                                        <Form.Item label="Trạng thái Bắt đầu (Entry Status)" name="entry_status">
-                                            <Select options={[
-                                                { label: 'Chưa bắt đầu', value: 'not_started' },
-                                                { label: 'Sẵn sàng', value: 'ready' },
-                                                { label: 'Bị chặn', value: 'blocked' }
-                                            ]} placeholder="Chọn trạng thái vào..." />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={12}>
-                                        <Form.Item label="Trạng thái Hoàn tất (Done Status)" name="done_status">
-                                            <Select options={[
-                                                { label: 'Hoàn tất', value: 'completed' },
-                                                { label: 'Đã duyệt', value: 'approved' },
-                                                { label: 'Đã ký', value: 'signed' }
-                                            ]} placeholder="Chọn trạng thái ra..." />
-                                        </Form.Item>
-                                    </Col>
-                                </Row>
+                                <Divider orientation="left" style={{ margin: '16px 0' }}>Danh sách Checklist</Divider>
 
-                                <Row gutter={16}>
-                                    <Col span={12}>
-                                        <Form.Item label="Tiếp nhận từ vai trò" name="from_role_id">
-                                            <IndexedSelect schema="Role" placeholder="Chọn vai trò bàn giao sang..." />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={12}>
-                                        <Form.Item label="Bàn giao tới vai trò" name="to_role_id">
-                                            <IndexedSelect schema="Role" placeholder="Chọn vai trò tiếp nhận sau..." />
-                                        </Form.Item>
-                                    </Col>
-                                </Row>
+                                <Form.List name="checklist">
+                                    {(fields, { add, remove }) => (
+                                        <>
+                                            <Collapse 
+                                                defaultActiveKey={[]} 
+                                                size="small" 
+                                                ghost={false}
+                                                expandIcon={({ isActive }) => (
+                                                    <CaretRightFilled 
+                                                        rotate={isActive ? 90 : 0} 
+                                                        style={{ fontSize: 12, position: 'relative', top: '12px' }} 
+                                                    />
+                                                )}
+                                                style={{ marginBottom: 16, background: 'transparent' }}
+                                            >
+                                                {fields.map(({ key, name, ...restField }) => (
+                                                    <Collapse.Panel 
+                                                        key={key} 
+                                                        header={
+                                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', minHeight: 32 }}>
+                                                                <Space align="center" size="small">
+                                                                    <Badge count={name + 1} style={{ backgroundColor: '#52c41a' }} size="small" />
+                                                                    <Text strong style={{ fontSize: 13 }}>
+                                                                        {form.getFieldValue(['checklist', name, 'name']) || `Nhiệm vụ #${name + 1}`}
+                                                                    </Text>
+                                                                </Space>
+                                                                <Space onClick={e => e.stopPropagation()} align="center">
+                                                                    <Form.Item
+                                                                        {...restField}
+                                                                        name={[name, 'is_required']}
+                                                                        valuePropName="checked"
+                                                                        initialValue={true}
+                                                                        style={{ marginBottom: 0 }}
+                                                                        label={<span style={{ fontSize: 11 }}>Bắt buộc?</span>}
+                                                                    >
+                                                                        <Switch size="small" />
+                                                                    </Form.Item>
+                                                                    <Button type="text" danger icon={<DeleteOutlined />} onClick={() => remove(name)} size="small" />
+                                                                </Space>
+                                                            </div>
+                                                        }
+                                                        style={{ background: '#fff', marginBottom: 8, borderRadius: 8, border: '1px solid #f0f0f0' }}
+                                                    >
+                                                        <Row gutter={12}>
+                                                            <Col span={24}>
+                                                                <Form.Item
+                                                                    {...restField}
+                                                                    label={<span style={{ fontSize: 12, color: '#8c8c8c' }}>Tên nhiệm vụ</span>}
+                                                                    name={[name, 'name']}
+                                                                    rules={[{ required: true, message: 'Bắt buộc' }]}
+                                                                    style={{ marginBottom: 12 }}
+                                                                >
+                                                                    <Input placeholder="Nhập tên nhiệm vụ..." />
+                                                                </Form.Item>
+                                                            </Col>
+                                                            <Col span={24}>
+                                                                <Form.Item
+                                                                    {...restField}
+                                                                    label={<span style={{ fontSize: 12, color: '#8c8c8c' }}>Mô tả chi tiết</span>}
+                                                                    name={[name, 'description']}
+                                                                    style={{ marginBottom: 0 }}
+                                                                >
+                                                                    <TextArea 
+                                                                        autoSize={{ minRows: 2, maxRows: 4 }} 
+                                                                        placeholder="Hướng dẫn thực hiện cho nhân viên..." 
+                                                                    />
+                                                                </Form.Item>
+                                                            </Col>
+                                                        </Row>
+                                                    </Collapse.Panel>
+                                                ))}
+                                            </Collapse>
+                                            <Form.Item>
+                                                <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                                                    Thêm Nhiệm vụ Checklist
+                                                </Button>
+                                            </Form.Item>
+                                        </>
+                                    )}
+                                </Form.List>
+
+                                <Divider orientation="left" style={{ margin: '16px 0' }}>Tiêu chuẩn & Hướng dẫn</Divider>
 
                                 <Row gutter={16}>
                                     <Col span={12}>
@@ -347,7 +427,10 @@ const CustomerJourneySettingPage: React.FC = () => {
                                     </Form.Item>
                                 </Space>
                             </Form>
-                        ) : (
+                        </div>
+
+                        {/* View Mode Content */}
+                        <div style={{ display: !isEditing ? 'block' : 'none' }}>
                             <div className="step-detail-view">
                                 <Descriptions bordered column={1} labelStyle={{ width: '220px', background: '#fafafa', fontWeight: 600 }}>
                                     <Descriptions.Item label="Mã Giai đoạn">
@@ -359,39 +442,55 @@ const CustomerJourneySettingPage: React.FC = () => {
                                     <Descriptions.Item label="Mục tiêu (Goal)">
                                         <Paragraph style={{ margin: 0 }}>{selectedStep?.goal || '—'}</Paragraph>
                                     </Descriptions.Item>
-                                    
-                                    <Descriptions.Item label="Vai trò chịu trách nhiệm">
-                                        <IndexedView schema="Role" value={selectedStep?.owner_role_id} idxValue={selectedStep?.idx_owner_role_id} />
+
+                                    <Descriptions.Item label="Phân Quyền Vai Trò (Roles)">
+                                        {selectedStep?.roles && selectedStep.roles.length > 0 ? (
+                                            <List
+                                                size="small"
+                                                dataSource={selectedStep.roles}
+                                                renderItem={(r: IRolesItem) => (
+                                                    <List.Item>
+                                                        <Space>
+                                                            <IndexedView schema="Role" propType="Lookup" value={r.role} idxValue={r.idx_role} color="orange" />
+                                                            {r.permissions?.map((p: string) => {
+                                                                const label = PERMISSION_OPTIONS.find(opt => opt.value === p)?.label || p;
+                                                                return <Tag key={p} color="blue">{label}</Tag>;
+                                                            })}
+                                                        </Space>
+                                                    </List.Item>
+                                                )}
+                                            />
+                                        ) : <Text type="secondary">Chưa cấu hình</Text>}
                                     </Descriptions.Item>
 
-                                    <Descriptions.Item label="Mẫu Checklist chuẩn">
-                                        <IndexedView schema="ChecklistTemplate" value={selectedStep?.checklist_template_id} idxValue={selectedStep?.idx_checklist_template_id} color="cyan" />
-                                    </Descriptions.Item>
-
-                                    <Descriptions.Item label="Luồng điều phối Trạng thái">
-                                        <Space split={<Divider type="vertical" />}>
-                                            <Space direction="vertical" size={0}>
-                                                <Text type="secondary" style={{ fontSize: 11 }}>Trạng thái vào:</Text>
-                                                <Tag>{STATUS_LABELS[selectedStep?.entry_status || 'not_started'] || selectedStep?.entry_status}</Tag>
-                                            </Space>
-                                            <Space direction="vertical" size={0}>
-                                                <Text type="secondary" style={{ fontSize: 11 }}>Trạng thái hoàn tất:</Text>
-                                                <Tag color="green">{STATUS_LABELS[selectedStep?.done_status || 'completed'] || selectedStep?.done_status}</Tag>
-                                            </Space>
-                                        </Space>
-                                    </Descriptions.Item>
-
-                                    <Descriptions.Item label="Luồng điều phối Nhân sự">
-                                        <Space split={<Divider type="vertical" />}>
-                                            <Space direction="vertical" size={0}>
-                                                <Text type="secondary" style={{ fontSize: 11 }}>Từ vai trò:</Text>
-                                                <IndexedView schema="Role" value={selectedStep?.from_role_id} idxValue={selectedStep?.idx_from_role_id} />
-                                            </Space>
-                                            <Space direction="vertical" size={0}>
-                                                <Text type="secondary" style={{ fontSize: 11 }}>Tới vai trò:</Text>
-                                                <IndexedView schema="Role" value={selectedStep?.to_role_id} idxValue={selectedStep?.idx_to_role_id} />
-                                            </Space>
-                                        </Space>
+                                    <Descriptions.Item label="Checklist">
+                                        {selectedStep?.checklist && selectedStep.checklist.length > 0 ? (
+                                            <Table
+                                                dataSource={selectedStep.checklist}
+                                                pagination={false}
+                                                size="small"
+                                                rowKey="name"
+                                                columns={[
+                                                    { 
+                                                        title: '#', 
+                                                        width: 50,
+                                                        align: 'center',
+                                                        render: (_: any, __: any, index: number) => <Badge count={index + 1} size="small" style={{ backgroundColor: '#52c41a' }} /> 
+                                                    },
+                                                    { 
+                                                        title: 'Tên hạng mục', 
+                                                        dataIndex: 'name',
+                                                        render: (name: string, record: IChecklistItem) => (
+                                                            <Space>
+                                                                <Text strong>{name}</Text>
+                                                                {record.is_required && <Tag color="red">Bắt buộc</Tag>}
+                                                            </Space>
+                                                        )
+                                                    },
+                                                    { title: 'Mô tả', dataIndex: 'description' }
+                                                ]}
+                                            />
+                                        ) : <Text type="secondary">Chưa cấu hình</Text>}
                                     </Descriptions.Item>
 
                                     <Descriptions.Item label="Cấu hình SLA">
@@ -420,7 +519,7 @@ const CustomerJourneySettingPage: React.FC = () => {
                                     </Descriptions.Item>
                                 </Descriptions>
                             </div>
-                        )}
+                        </div>
                     </Card>
                 </Col>
             </Row>

@@ -59,7 +59,7 @@
 ### 1. Cấu hình nền và danh mục dùng chung
 | File | Schema | Vai trò |
 | --- | --- | --- |
-| `CUSTOMER-JOURNEY-SETTING-DEFAULT-SEED-20260331.json` | `CustomerJourneySetting` | Cấu hình mặc định 13 bước hành trình khách hàng, dùng cho `content_save_setting` |
+| `CUSTOMER-JOURNEY-SETTING-DEFAULT-SEED-20260331.json` | `CustomerJourneySetting` | Cấu hình mặc định 13 bước hành trình khách hàng, đã gồm `roles` và `checklist`, dùng cho `content_save_setting` |
 | `SalesPipeline-SEED-20260329.json` | `SalesPipeline` | Pipeline bán hàng mặc định |
 | `PipelineStage-SEED-20260329.json` | `PipelineStage` | 4 giai đoạn bán hàng và ánh xạ `journey_step_code` |
 | `MasterDataCategory-SEED-20260329.json` | `MasterDataCategory` | Nhóm danh mục dùng chung |
@@ -158,4 +158,5 @@
 - `PortalDocument` hiện seed hợp lệ với `files = null`.
 - `CustomerJourneySetting` phải dùng `content_save_setting` để overwrite singleton; không dùng generic create/update.
 - File `CUSTOMER-JOURNEY-SETTING-DEFAULT-SEED-20260329.json` được giữ lại như bản lịch sử; file canonical hiện hành là `CUSTOMER-JOURNEY-SETTING-DEFAULT-SEED-20260331.json`.
+- File canonical `20260331` đang bám cấu trúc `v3.1`: chỉ còn metadata step, `roles` và `checklist` nội tuyến; không còn field legacy của mô hình cũ.
 - Các tham chiếu tới `Contract`, `ContractAppendix`, `ProjectTask` tiếp tục để `null` hoặc lược khỏi seed vì tenant hiện không còn dùng các schema này trong runtime chuẩn.
