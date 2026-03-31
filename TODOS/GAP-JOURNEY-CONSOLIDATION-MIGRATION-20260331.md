@@ -1,136 +1,80 @@
-# GAP migration hợp nhất `ServiceRequest` và `Project` vào `Journey`
+﻿# GAP cleanup dữ liệu mồ côi sau hợp nhất `Journey`
 
 ## Bối cảnh
 
-Backend BAC đã được chuẩn hóa theo mô hình runtime mới:
+Theo quyết định mới, các GAP kiểu "không rõ map dữ liệu cũ" không còn được xử lý bằng suy đoán nghiệp vụ. Hướng xử lý chuẩn là:
 
-- `Journey` là schema trung tâm duy nhất.
-- `ServiceRequest` và `Project` đã bị deprecate ở cấp metadata/runtime.
-- Các seed canonical mới chỉ còn bám `journey_id`.
+- xóa dữ liệu cũ không map an toàn được
+- giữ lại và seed mới theo mô hình `Journey` làm trung tâm
+- chỉ giữ các dữ liệu legacy thật sự cần đối soát lịch sử
 
-Tuy nhiên tenant live vẫn còn một số bản ghi lịch sử nằm ngoài batch seed chuẩn. Các bản ghi này không đủ dữ kiện để tự động hợp nhất an toàn sang `Journey`.
+Wave cleanup hiện tại đã xóa được toàn bộ dữ liệu seed cũ của `ServiceRequest` và `Project`. Tuy nhiên vẫn còn một nhóm dữ liệu mồ côi cá nhân không thể xóa bằng tool hiện có do backend đang áp ownership ở mức nội dung.
 
-## Các bản ghi đang bị block migration
+## Đã xóa thành công
 
-### 1. `ServiceRequest.code = YC-20260330-003`
+### 1. `Project` seed cũ
 
-- `_id = 69c9e53f1e264278da741a98`
-- Có `customer_id`
-- Không có `journey_id`
-- Không có `sales_pipeline_id` hoặc `sales_stage_id` ổn định để map
-- Trạng thái legacy là `in_progress`
+- `DA-2026-001`
+- `DA-2026-002`
 
-### 2. `ServiceRequest.code = YC-20260331-001`
+Kết quả hiện tại: collection `Project` live không còn bản ghi seed chuẩn.
 
-- `_id = 69cb57821265d63bececab31`
-- Có `customer_id`, `contact_phone`, `contact_email`
-- Có `pipeline_id`
-- Không có `stage_id`
-- Không có `journey_id`
-- Trạng thái legacy là `new`
+### 2. `ServiceRequest` seed cũ
 
-### 3. `ServiceRequest.code = sanmai`
+- `SR-2026-001`
+- `SR-2026-002`
+- `SR-2026-003`
 
-- `_id = 69c7f189a718dc692a22b79e`
-- Có `contact_phone`, `contact_email`, `name`, `code`
-- Không có `customer_id`
-- Không có `journey_id`
-- Trạng thái legacy là `new`
+Kết quả hiện tại: tenant chỉ còn các record legacy cá nhân ngoài batch seed chuẩn.
 
-## GAP nghiệp vụ chưa thể tự suy đoán
+## Dữ liệu mồ côi còn sót và lý do chưa xóa được
 
-### GAP 1. Không đủ dữ kiện map `status` cũ sang `current_step` mới
+### 1. `ServiceRequest`
 
-- `ServiceRequest.status` cũ không tương đương 1-1 với `CustomerJourneySetting.current_step`.
-- Ví dụ:
-  - `new` có thể là `lead_intake` hoặc một pha sàng lọc nội bộ trước `site_survey`
-  - `in_progress` có thể đang ở `site_survey`, `quotation_sent` hoặc `contract_signing`
+- `_id = 69c7f189a718dc692a22b79e`, `code = sanmai`, chủ sở hữu `admin`
+- `_id = 69c9e53f1e264278da741a98`, `code = YC-20260330-003`, chủ sở hữu `lamnd@gmail.com`
+- `_id = 69cb57821265d63bececab31`, `code = YC-20260331-001`, chủ sở hữu `lamnd@gmail.com`
 
-Nếu tự map cứng theo cảm tính, tenant sẽ có rủi ro sai dashboard, sai SLA, sai owner handoff và sai báo cáo funnel.
+### 2. `MasterDataCategory`
 
-### GAP 2. Không đủ dữ kiện xác định `sales_owner_user`
+- `_id = 69c7f0daa718dc692a22b79c`, `code = crm`, chủ sở hữu `admin`
 
-- Dữ liệu cũ có `assigned_pm_id` nhưng không chứng minh đó là sale owner hay delivery owner.
-- Với các hành trình đã chuyển sang pha triển khai, việc gán `assigned_pm_id` sang `sales_owner_user` là suy đoán.
+### 3. Lý do chưa xóa được
 
-### GAP 3. Một số bản ghi thiếu khóa tối thiểu để tạo `Journey`
+Các record trên đã được đánh `isSeeding = true` để thử đi qua luồng xóa seed an toàn. Tuy nhiên backend vẫn trả về lỗi ownership:
 
-- Trường hợp `sanmai` không có `customer_id`.
-- Nếu tạo `Journey` mới từ bản ghi này, dữ liệu sẽ không đạt chuẩn nghiệp vụ tối thiểu của batch canonical.
+- tài nguyên cá nhân của `admin`
+- tài nguyên cá nhân của `lamnd@gmail.com`
 
-## Ảnh hưởng nếu xử lý sai
+Điều này cho thấy vấn đề còn lại không phải GAP nghiệp vụ, mà là hạn chế quyền xóa nội dung cá nhân ở tầng backend.
 
-- Sai `current_step` dẫn tới sai trạng thái hành trình trên dashboard và workflow.
-- Sai `sales_owner_user` dẫn tới sai ownership, sai KPI sale và sai phân quyền xử lý.
-- Tạo `Journey` không có `customer_id` làm hỏng chuẩn dữ liệu lõi của tenant.
-- Backfill mù còn có thể gây lệch các summary field tài chính, portal và điều phối thi công.
+## Đánh giá ảnh hưởng
 
-## Các phương án xử lý
+- Không còn ảnh hưởng tới runtime chuẩn của batch seed mới.
+- `ServiceRequest` hiện không còn schema runtime để tiếp tục phát sinh seeding chuẩn.
+- Các record trên chỉ còn là dữ liệu mồ côi để đối soát hoặc cần dọn thủ công.
+- `MasterDataCategory.code = crm` là residue legacy, không được dùng lại cho batch canonical mới.
 
-### Phương án A. Xác nhận thủ công từng bản ghi legacy rồi mới migrate
+## Khuyến nghị xử lý dứt điểm
 
-Thực hiện:
+### Phương án A. Xóa bằng tài khoản chủ sở hữu hoặc tài khoản có quyền cao hơn
 
-- Xác nhận `customer_id` chuẩn cho từng bản ghi.
-- Xác nhận `current_step` canonical cho từng bản ghi.
-- Xác nhận `sales_owner_user` nếu vẫn cần giữ bối cảnh bán hàng.
-- Sau đó mới tạo hoặc cập nhật `Journey` tương ứng và nối lại các liên kết.
+Áp dụng khi có thể thao tác bằng đúng owner `admin` / `lamnd@gmail.com` hoặc có luồng backend bypass ownership cho cleanup dữ liệu cũ.
 
-Ưu điểm:
+### Phương án B. Tạo tác vụ cleanup đặc quyền ở backend
 
-- An toàn nghiệp vụ cao nhất.
-- Không làm bẩn dữ liệu runtime mới.
+Tạo một luồng bảo trì chỉ dành cho admin hệ thống để xóa record legacy đã có `isSeeding = true` mà không bị chặn bởi ownership cá nhân.
 
-Nhược điểm:
+### Phương án C. Giữ nguyên như dữ liệu mồ côi đã cô lập
 
-- Tốn thời gian rà thủ công.
+Chấp nhận để lại các record này nếu:
 
-### Phương án B. Archive hoặc loại bỏ các bản ghi legacy không còn giá trị vận hành
+- không còn menu/runtime/schema nào dùng đến
+- không còn seed canonical nào tham chiếu tới chúng
+- không gây xung đột mã nghiệp vụ trong batch mới
 
-Thực hiện:
+## Kết luận
 
-- Rà usage của:
-  - `YC-20260330-003`
-  - `YC-20260331-001`
-  - `sanmai`
-- Nếu không còn được form/view/report/workflow sử dụng, archive hoặc xóa khỏi tenant live.
-
-Ưu điểm:
-
-- Nhanh làm sạch tenant.
-- Giảm công migration thủ công.
-
-Nhược điểm:
-
-- Mất dấu vết lịch sử nếu vẫn còn nhu cầu truy xuất.
-
-### Phương án C. Tạo `Journey` tạm với cờ dữ liệu chưa chuẩn
-
-Thực hiện:
-
-- Chỉ áp dụng cho các record có đủ `customer_id`.
-- Tạo `Journey` mới với `current_step` tạm theo rule do user chốt.
-- Gắn cờ nội bộ như `migration_note` hoặc `data_quality_status` để xử lý tiếp.
-
-Ưu điểm:
-
-- Nhanh gom dữ liệu về một schema.
-
-Nhược điểm:
-
-- Không phù hợp với nguyên tắc hiện tại là không tự suy đoán khi còn GAP logic.
-- Dễ phát sinh nợ dữ liệu kéo dài.
-
-## Khuyến nghị
-
-- Ưu tiên Phương án A cho các record còn giá trị vận hành.
-- Ưu tiên Phương án B cho các record test, probe hoặc legacy không còn được dùng.
-- Không áp dụng migrate mù theo `ServiceRequest.status`.
-- Không tự gán `assigned_pm_id` thành `sales_owner_user` nếu chưa có xác nhận nghiệp vụ.
-
-## Quyết định chờ user xác nhận
-
-1. `YC-20260330-003` có còn là record thật cần giữ không?
-2. `YC-20260331-001` nên map vào `lead_intake` hay phải bổ sung `sales_stage_id` thật trước khi tạo `Journey`?
-3. `sanmai` là dữ liệu test hay nghiệp vụ thật, và nếu là thật thì `customer_id` chuẩn là gì?
-4. Có chấp nhận dùng `assigned_pm_id` cũ làm `sales_owner_user` trong các bản ghi lịch sử hay không?
+- Phần GAP nghiệp vụ map `ServiceRequest -> Journey` đã được đóng theo hướng "không map mù".
+- Batch canonical mới không còn phụ thuộc các record legacy trên.
+- Phần còn lại là cleanup quyền sở hữu dữ liệu cũ, không còn là blocker nghiệp vụ cho mô hình seed `Journey-first`.

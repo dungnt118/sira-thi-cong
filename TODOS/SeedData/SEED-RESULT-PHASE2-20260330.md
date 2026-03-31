@@ -1,4 +1,4 @@
-# Kết quả wave hợp nhất Journey
+﻿# Kết quả wave hợp nhất Journey
 
 ## Trạng thái tổng quan
 
@@ -11,79 +11,90 @@
 
 ### 1. Mở rộng `Journey` để hấp thụ `ServiceRequest` và `Project`
 
-- Đã bổ sung vào `Journey` các field:
-  - `contact_phone`
-  - `contact_email`
-  - `sales_pipeline_id`
-  - `sales_stage_id`
-  - `sales_owner_user`
-  - `duplicate_customer_id`
-  - `delivery_pm_user`
-  - `delivery_supervisor_user`
-  - `planned_start_date`
-  - `planned_end_date`
-  - `delivery_note`
-  - `latest_project_settlement_id`
-  - `latest_closeout_package_id`
+Đã bổ sung vào `Journey` các field:
+
+- `contact_phone`
+- `contact_email`
+- `sales_pipeline_id`
+- `sales_stage_id`
+- `sales_owner_user`
+- `duplicate_customer_id`
+- `delivery_pm_user`
+- `delivery_supervisor_user`
+- `planned_start_date`
+- `planned_end_date`
+- `delivery_note`
+- `latest_project_settlement_id`
+- `latest_closeout_package_id`
 
 ### 2. Chuẩn hóa catalog bán hàng
 
-- `PipelineStage` đã được bổ sung `journey_step_code`.
+- `PipelineStage` đã có `journey_step_code`.
 - `PipelineStage.system_stage` đã bị đánh deprecated.
-- 4 stage live đã được backfill:
-  - `Tiếp nhận lead` -> `lead_intake`
-  - `Khảo sát và tư vấn` -> `site_survey`
-  - `Báo giá và thương lượng` -> `quotation_sent`
-  - `Ký hợp đồng` -> `contract_signing`
-- `StockOrder.source` đã được chuẩn hóa từ `project` sang `journey` để không còn phụ thuộc taxonomy cũ của `Project`.
+- Các stage bán hàng live đã được backfill theo tập bước canonical.
 
-### 3. Deprecate runtime cũ
+### 3. Chuẩn hóa liên kết downstream về `journey_id`
 
-- Toàn bộ root property của `ServiceRequest` đã bị đánh deprecated.
-- Toàn bộ root property của `Project` đã bị đánh deprecated.
-- Các field foreign key cũ trên downstream schema đã bị đánh deprecated, gồm hai nhóm chính:
-  - nhóm `service_request_id`: `Quotation`, `SurveyAppointment`, `SurveyRecord`, `ActivityEvent`
-  - nhóm `project_id`: `ProjectAssignment`, `SiteReport`, `IncidentReport`, `StockOrder`, `StockRequest`, `PaymentMilestone`, `WarrantyCase`, `HandoverAcceptance`, `HandoverIssue`, `WarrantyCard`, `WarrantyVisit`, `AssetAllocation`, `MaterialReceiptConfirmation`, `PaymentAdjustment`, `PaymentReceipt`, `DebtConfirmation`, `DebtCollectionTask`, `SalesInvoice`, `ProjectSettlement`, `ProjectCloseoutPackage`, `ActivityEvent`
+- Các field legacy `project_id` và `service_request_id` đã được đánh deprecated trên các schema downstream liên quan.
+- Các field legacy còn `required=true` đã được nới về optional để không còn chặn seeding `Journey-first`.
+- Các field hiển thị cũ `project_name` trên nhóm schema vận hành đã được hạ xuống legacy.
 
-### 4. Cutover menu runtime
+### 4. Chuẩn hóa display field mới `journey_name`
+
+Đã bổ sung `journey_name` làm field hiển thị chuẩn mới trên các schema:
+
+- `AssetAllocation`
+- `PaymentMilestone`
+- `StockRequest`
+- `StockOrder`
+- `WarrantyCard`
+- `WarrantyReminder`
+
+### 5. Chuẩn hóa nguồn gốc kho vận
+
+- `StockOrder.source` đã chuyển về taxonomy mới có `journey`.
+- `StockOrder.source_id` đã bị hạ xuống legacy.
+- `StockOrder` đã có cặp field chuẩn mới:
+  - `journey_source_id`
+  - `distributor_source_id`
+
+### 6. Cutover menu runtime
 
 - Đã tạo menu list mới cho `Journey`.
 - Đã ẩn menu runtime cũ của `ServiceRequest`.
 - Đã ẩn menu runtime cũ của `Project`.
 
-## Backfill dữ liệu live đã làm
+## Cleanup dữ liệu live đã làm
 
-- Đã backfill 3 `Journey` seed canonical:
-  - `JRN-2026-001`
-  - `JRN-2026-002`
-  - `JRN-2026-003`
-- Các field sales và delivery đã được đẩy sang `Journey` ở mức an toàn:
-  - `contact_phone`
-  - `contact_email`
-  - `sales_pipeline_id`
-  - `sales_stage_id`
-  - `delivery_pm_user`
-  - `delivery_supervisor_user`
-  - `planned_start_date`
-  - `planned_end_date`
-  - `delivery_note`
-- `sales_owner_user` chỉ được backfill chắc chắn cho `JRN-2026-003`; các bản ghi cũ còn lại được giữ trống để tránh suy đoán sai vai trò.
+- Đã xóa toàn bộ seed live cũ của `Project`.
+- Đã xóa toàn bộ seed live cũ của `ServiceRequest`.
+- `Project` hiện không còn bản ghi seed chuẩn trên tenant.
+
+## Tình trạng dữ liệu legacy còn sót
+
+- Vẫn còn 3 record `ServiceRequest` legacy cá nhân và 1 record `MasterDataCategory.crm` legacy cá nhân.
+- Các record này không xóa được bằng luồng seed-delete hiện có do backend chặn bởi ownership cá nhân.
+- Chi tiết tại `TODOS/GAP-JOURNEY-CONSOLIDATION-MIGRATION-20260331.md`.
 
 ## Chuẩn hóa bộ seed canonical
 
-- `Journey-SEED-20260330.json` đã được cập nhật để phản ánh mô hình runtime mới.
-- `PipelineStage-SEED-20260329.json` đã được cập nhật để mang `journey_step_code`.
-- `ServiceRequest-SEED-20260330.json` đã bị loại khỏi bộ seed runtime canonical.
-- `Project-SEED-20260330.json` đã bị loại khỏi bộ seed runtime canonical.
-- Các seed downstream runtime được chuẩn hóa để chỉ dùng `journey_id` làm root foreign key.
+- `Journey-SEED-20260330.json` đã phản ánh mô hình runtime mới.
+- `PipelineStage-SEED-20260329.json` đã mang `journey_step_code`.
+- `ServiceRequest-SEED-20260330.json` và `Project-SEED-20260330.json` đã bị loại khỏi batch runtime canonical.
+- Các seed downstream runtime đã chuẩn hóa về `journey_id`.
+- Các seed hiển thị mới đã chuyển sang `journey_name` thay cho `project_name`.
+- `StockOrder` seed đã chuyển từ `source_id` sang `journey_source_id` / `distributor_source_id`.
 
-## GAP còn lại
+## Kiểm tra cuối
 
-- Không tự động merge 3 bản ghi `ServiceRequest` legacy ngoài batch seed chuẩn vì chưa đủ dữ kiện để map an toàn sang `Journey`.
-- Không tự suy luận `sales_owner_user` cho các bản ghi lịch sử đã chuyển sang pha triển khai nếu nguồn cũ không phân biệt rõ sale owner và delivery owner.
-- Chi tiết tại: `TODOS/GAP-JOURNEY-CONSOLIDATION-MIGRATION-20260331.md`
+- Toàn bộ `46` file `*-SEED-*.json` trong `TODOS/SeedData` parse thành công.
+- Bộ seed canonical hiện không còn khóa legacy sau trong JSON:
+  - `project_id`
+  - `service_request_id`
+  - `project_name`
+  - `source_id`
 
 ## Kết luận
 
 - Về metadata và seed canonical, wave hợp nhất `ServiceRequest` + `Project` vào `Journey` đã được triển khai xong.
-- Việc còn lại là xử lý dữ liệu legacy ngoài batch chuẩn theo một quyết định migration riêng, không gộp mù trong wave này.
+- Phần còn lại chỉ là cleanup dữ liệu mồ côi bị chặn bởi ownership backend, không còn là blocker nghiệp vụ cho seeding `Journey-first`.

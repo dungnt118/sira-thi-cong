@@ -1,9 +1,9 @@
-{
+﻿{
   "schemaName": "WarrantyReminder",
   "data": [
     {
       "warranty_card_id": "{{WarrantyCard._id::BH-2026-001}}",
-      "project_name": "Cải tạo thấm tường nhà anh Dương - Vĩnh Hưng",
+      "journey_name": "Cải tạo thấm tường nhà anh Dương - Vĩnh Hưng",
       "customer_name": "Nguyễn Tiến Dương",
       "customer_phone": "0912333444",
       "journey_id": "{{Journey._id::JRN-2026-002}}",
@@ -15,3 +15,4 @@
     }
   ]
 }
+

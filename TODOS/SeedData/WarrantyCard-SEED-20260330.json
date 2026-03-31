@@ -1,4 +1,4 @@
-{
+﻿{
   "schemaName": "WarrantyCard",
   "data": [
     {
@@ -6,7 +6,7 @@
       "journey_id": "{{Journey._id::JRN-2026-002}}",
       "journey_step_code": "warranty_aftercare",
       "journey_code": "JRN-2026-002",
-      "project_name": "Cải tạo thấm tường nhà anh Dương - Vĩnh Hưng",
+      "journey_name": "Cải tạo thấm tường nhà anh Dương - Vĩnh Hưng",
       "customer_name": "Nguyễn Tiến Dương",
       "customer_phone": "0912333444",
       "address": "Số 24 ngách 61 Vĩnh Hưng, phường Vĩnh Hưng, quận Hoàng Mai, Hà Nội",
@@ -19,3 +19,4 @@
     }
   ]
 }
+

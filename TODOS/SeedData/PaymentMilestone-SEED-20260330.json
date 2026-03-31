@@ -1,8 +1,8 @@
-{
+﻿{
   "schemaName": "PaymentMilestone",
   "data": [
     {
-      "project_name": "Cải tạo chống thấm nhà anh Kiên - Vĩnh Hưng",
+      "journey_name": "Cải tạo chống thấm nhà anh Kiên - Vĩnh Hưng",
       "round": 1,
       "percentage": 50,
       "amount": 60000000,
@@ -19,7 +19,7 @@
       "receipt_note": "Khách mới thanh toán 50% của đợt 1, còn lại cam kết hoàn tất trong tháng 3."
     },
     {
-      "project_name": "Cải tạo thấm tường nhà anh Dương - Vĩnh Hưng",
+      "journey_name": "Cải tạo thấm tường nhà anh Dương - Vĩnh Hưng",
       "round": 2,
       "percentage": 30,
       "amount": 24000000,
@@ -39,3 +39,4 @@
     }
   ]
 }
+

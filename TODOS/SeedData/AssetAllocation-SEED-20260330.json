@@ -1,4 +1,4 @@
-{
+﻿{
   "schemaName": "AssetAllocation",
   "data": [
     {
@@ -11,9 +11,10 @@
       "expected_return_date": "2026-03-21T17:00:00+07:00",
       "status": "received",
       "notes": "Cấp máy phun sơn để thi công lớp bảo vệ hoàn thiện cho khu sân mái.",
-      "project_name": "Cải tạo chống thấm nhà anh Kiên - Vĩnh Hưng",
+      "journey_name": "Cải tạo chống thấm nhà anh Kiên - Vĩnh Hưng",
       "asset_name": "Máy phun sơn Graco Ultra 390",
       "asset_code": "TS-2026-001"
     }
   ]
 }
+

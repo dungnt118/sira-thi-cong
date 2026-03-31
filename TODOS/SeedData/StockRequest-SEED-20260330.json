@@ -1,4 +1,4 @@
-{
+﻿{
   "schemaName": "StockRequest",
   "data": [
     {
@@ -7,7 +7,7 @@
       "requested_by": "pm.ba",
       "journey_id": "{{Journey._id::JRN-2026-001}}",
       "journey_step_code": "project_execution",
-      "project_name": "Cải tạo chống thấm nhà anh Kiên - Vĩnh Hưng",
+      "journey_name": "Cải tạo chống thấm nhà anh Kiên - Vĩnh Hưng",
       "items": [
         {
           "material_id": "{{Material._id::VT-CT-001}}",
@@ -45,7 +45,7 @@
       "requested_by": "kho.minh",
       "journey_id": "{{Journey._id::JRN-2026-001}}",
       "journey_step_code": "project_execution",
-      "project_name": "Cải tạo chống thấm nhà anh Kiên - Vĩnh Hưng",
+      "journey_name": "Cải tạo chống thấm nhà anh Kiên - Vĩnh Hưng",
       "items": [
         {
           "material_id": "{{Material._id::VT-CT-002}}",
@@ -64,3 +64,4 @@
     }
   ]
 }
+

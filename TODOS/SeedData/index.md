@@ -1,18 +1,20 @@
-# SeedData Index
+﻿# SeedData Index
 
 ## Cập nhật wave hợp nhất ngày 2026-03-31
 
 - `Journey` là schema runtime trung tâm duy nhất cho toàn bộ vòng đời lead, khảo sát, báo giá, triển khai, bàn giao, thanh toán và bảo hành.
 - `CustomerJourneySetting` vẫn là singleton bắt buộc và là nguồn sự thật duy nhất cho 13 bước canonical.
 - `SalesPipeline` và `PipelineStage` vẫn được giữ lại như catalog vi mô cho lớp bán hàng đầu hành trình.
-- `ServiceRequest` và `Project` đã bị loại khỏi bộ seed runtime canonical; hai schema này chỉ còn vai trò lịch sử để phục vụ migration dữ liệu cũ trên tenant.
+- `ServiceRequest` và `Project` đã bị loại khỏi bộ seed runtime canonical; hai schema này chỉ còn vai trò lịch sử để phục vụ cleanup dữ liệu cũ trên tenant.
 - Toàn bộ seed runtime canonical phải bám `journey_id`; không tiếp tục dùng `service_request_id` hoặc `project_id` trong JSON seed chuẩn.
-- Xem GAP migration còn lại tại `TODOS/GAP-JOURNEY-CONSOLIDATION-MIGRATION-20260331.md`.
+- Các field hiển thị chuẩn mới dùng `journey_name` thay cho `project_name` ở các schema vận hành đã chuẩn hóa.
+- `StockOrder` seed chuẩn dùng `journey_source_id` / `distributor_source_id`; không còn dùng `source_id`.
+- Xem trạng thái cleanup dữ liệu legacy tại `TODOS/GAP-JOURNEY-CONSOLIDATION-MIGRATION-20260331.md`.
 
 ## Mục đích
 
 - Chốt bộ seed JSON theo kiến trúc `Journey`-centric của BAC.
-- Dùng backend schema là nguồn sự thật duy nhất khi chọn field, propType, enum và quan hệ.
+- Dùng backend schema làm nguồn sự thật duy nhất khi chọn field, propType, enum và quan hệ.
 - Giữ dữ liệu seed bám sát nghiệp vụ BAC, dùng tiếng Việt có dấu và đủ ba lát cắt chính:
   - đang báo giá
   - đang triển khai
