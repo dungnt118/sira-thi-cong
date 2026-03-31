@@ -5,7 +5,6 @@
       "stock_order_id": "{{StockOrder._id::PN-2026-001}}",
       "journey_id": "{{Journey._id::JRN-2026-001}}",
       "journey_step_code": "project_execution",
-      "project_id": "{{Project._id::DA-2026-001}}",
       "receipt_time": "2026-03-06T16:00:00+07:00",
       "receipt_status": "received",
       "receiver_user": "kho.minh",

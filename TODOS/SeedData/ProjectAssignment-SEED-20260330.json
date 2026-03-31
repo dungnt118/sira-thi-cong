@@ -2,7 +2,6 @@
   "schemaName": "ProjectAssignment",
   "data": [
     {
-      "project_id": "{{Project._id::DA-2026-001}}",
       "journey_id": "{{Journey._id::JRN-2026-001}}",
       "journey_step_code": "project_execution",
       "assignment_type": "pm",
@@ -10,7 +9,6 @@
       "note": "PM Bảo An chịu trách nhiệm điều phối chính dự án anh Kiên."
     },
     {
-      "project_id": "{{Project._id::DA-2026-001}}",
       "journey_id": "{{Journey._id::JRN-2026-001}}",
       "journey_step_code": "project_execution",
       "assignment_type": "supervisor",
@@ -18,7 +16,6 @@
       "note": "Giám sát Hiền phụ trách kiểm tra hiện trường và chất lượng thi công."
     },
     {
-      "project_id": "{{Project._id::DA-2026-002}}",
       "journey_id": "{{Journey._id::JRN-2026-002}}",
       "journey_step_code": "handover_acceptance",
       "assignment_type": "pm",

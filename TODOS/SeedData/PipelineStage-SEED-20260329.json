@@ -7,7 +7,7 @@
       "pipeline_id": "69c9e8391e264278da741a9c",
       "order": 1,
       "color": "#17a2b8",
-      "system_stage": "new"
+      "journey_step_code": "lead_intake"
     },
     {
       "_id": "69cb33f0c221ff64df94f223",
@@ -15,7 +15,7 @@
       "pipeline_id": "69c9e8391e264278da741a9c",
       "order": 2,
       "color": "#f59e0b",
-      "system_stage": "in_progress"
+      "journey_step_code": "site_survey"
     },
     {
       "_id": "69cb33f0c221ff64df94f224",
@@ -23,7 +23,7 @@
       "pipeline_id": "69c9e8391e264278da741a9c",
       "order": 3,
       "color": "#3b82f6",
-      "system_stage": "in_progress"
+      "journey_step_code": "quotation_sent"
     },
     {
       "_id": "69cb33f0c221ff64df94f225",
@@ -31,7 +31,7 @@
       "pipeline_id": "69c9e8391e264278da741a9c",
       "order": 4,
       "color": "#28a745",
-      "system_stage": "won"
+      "journey_step_code": "contract_signing"
     }
   ]
 }

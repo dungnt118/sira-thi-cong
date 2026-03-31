@@ -4,7 +4,6 @@
     {
       "code": "BG-2026-001",
       "version_no": 1,
-      "service_request_id": "{{ServiceRequest._id::SR-2026-001}}",
       "journey_id": "{{Journey._id::JRN-2026-001}}",
       "status": "approved",
       "subtotal": 128000000,
@@ -16,7 +15,6 @@
     {
       "code": "BG-2026-002",
       "version_no": 1,
-      "service_request_id": "{{ServiceRequest._id::SR-2026-002}}",
       "journey_id": "{{Journey._id::JRN-2026-002}}",
       "status": "approved",
       "subtotal": 78000000,
@@ -28,7 +26,6 @@
     {
       "code": "BG-2026-003",
       "version_no": 1,
-      "service_request_id": "{{ServiceRequest._id::SR-2026-003}}",
       "journey_id": "{{Journey._id::JRN-2026-003}}",
       "status": "sent",
       "subtotal": 265000000,

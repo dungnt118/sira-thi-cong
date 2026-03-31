@@ -7,7 +7,6 @@
       "journey_step_code": "handover_acceptance",
       "payment_milestone_id": "{{PaymentMilestone._id::JRN-2026-002}}",
       "payment_receipt_id": "{{PaymentReceipt._id::PT-2026-002}}",
-      "project_id": "{{Project._id::DA-2026-002}}",
       "customer_id": "{{Customer._id::KH-2026-002}}",
       "invoice_type": "vat_invoice",
       "invoice_status": "issued",

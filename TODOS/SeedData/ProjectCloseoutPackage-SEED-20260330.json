@@ -7,7 +7,6 @@
       "status": "customer_confirmed",
       "journey_id": "{{Journey._id::JRN-2026-002}}",
       "journey_step_code": "warranty_aftercare",
-      "project_id": "{{Project._id::DA-2026-002}}",
       "project_settlement_id": "{{ProjectSettlement._id::QT-2026-001}}",
       "customer_id": "{{Customer._id::KH-2026-002}}",
       "portal_thread_id": "{{PortalThread._id::PORTAL-2026-002}}",

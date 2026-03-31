@@ -78,24 +78,24 @@ export const SaleLayout: React.FC = () => {
             label: 'Cá nhân',
             onClick: () => navigate('/sale/profile')
         },
-        {
-            key: 'stock-out',
-            icon: <FormOutlined />,
-            label: 'Tạo phiếu xuất',
-            onClick: () => navigate('/sale/inventory/stock-out')
-        },
-        {
-            key: 'allocation',
-            icon: <FormOutlined />,
-            label: 'Tạo phiếu mượn',
-            onClick: () => navigate('/sale/assets/allocation')
-        },
-        {
-            key: 'inventory-history',
-            icon: <HistoryOutlined />,
-            label: 'Lịch sử',
-            onClick: () => navigate('/sale/inventory/history')
-        }
+        // {
+        //     key: 'stock-out',
+        //     icon: <FormOutlined />,
+        //     label: 'Tạo phiếu xuất',
+        //     onClick: () => navigate('/sale/inventory/stock-out')
+        // },
+        // {
+        //     key: 'allocation',
+        //     icon: <FormOutlined />,
+        //     label: 'Tạo phiếu mượn',
+        //     onClick: () => navigate('/sale/assets/allocation')
+        // },
+        // {
+        //     key: 'inventory-history',
+        //     icon: <HistoryOutlined />,
+        //     label: 'Lịch sử',
+        //     onClick: () => navigate('/sale/inventory/history')
+        // }
     ];
 
     const desktopMenuItems = [

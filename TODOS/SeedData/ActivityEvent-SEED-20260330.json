@@ -4,8 +4,6 @@
     {
       "journey_id": "{{Journey._id::JRN-2026-001}}",
       "journey_step_code": "project_execution",
-      "project_id": "{{Project._id::DA-2026-001}}",
-      "service_request_id": "{{ServiceRequest._id::SR-2026-001}}",
       "category": "stock_order",
       "timestamp": "2026-03-05T11:05:00+07:00",
       "actor": "Kho Minh",
@@ -18,8 +16,6 @@
     {
       "journey_id": "{{Journey._id::JRN-2026-001}}",
       "journey_step_code": "project_execution",
-      "project_id": "{{Project._id::DA-2026-001}}",
-      "service_request_id": "{{ServiceRequest._id::SR-2026-001}}",
       "category": "incident",
       "timestamp": "2026-03-06T14:20:00+07:00",
       "actor": "Giám sát Hiền",
@@ -32,8 +28,6 @@
     {
       "journey_id": "{{Journey._id::JRN-2026-002}}",
       "journey_step_code": "warranty_aftercare",
-      "project_id": "{{Project._id::DA-2026-002}}",
-      "service_request_id": "{{ServiceRequest._id::SR-2026-002}}",
       "category": "warranty",
       "timestamp": "2026-03-28T17:10:00+07:00",
       "actor": "PM Bảo An",

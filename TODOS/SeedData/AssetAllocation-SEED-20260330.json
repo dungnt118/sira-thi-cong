@@ -6,7 +6,6 @@
       "asset_id": "{{Asset._id::TS-2026-001}}",
       "journey_id": "{{Journey._id::JRN-2026-001}}",
       "journey_step_code": "project_execution",
-      "project_id": "{{Project._id::DA-2026-001}}",
       "requested_by": "pm.ba",
       "request_date": "2026-03-05T08:00:00+07:00",
       "expected_return_date": "2026-03-21T17:00:00+07:00",

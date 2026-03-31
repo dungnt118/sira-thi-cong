@@ -7,7 +7,6 @@
       "journey_step_code": "contract_signing",
       "payment_milestone_id": "{{PaymentMilestone._id::JRN-2026-001}}",
       "debt_confirmation_id": "{{DebtConfirmation._id::CN-2026-001}}",
-      "project_id": "{{Project._id::DA-2026-001}}",
       "customer_id": "{{Customer._id::KH-2026-001}}",
       "task_type": "reminder_call",
       "status": "committed",

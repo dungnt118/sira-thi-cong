@@ -7,7 +7,6 @@
       "status": "confirmed",
       "journey_id": "{{Journey._id::JRN-2026-002}}",
       "journey_step_code": "handover_acceptance",
-      "project_id": "{{Project._id::DA-2026-002}}",
       "customer_id": "{{Customer._id::KH-2026-002}}",
       "handover_acceptance_id": "{{HandoverAcceptance._id::BBBG-2026-001}}",
       "contract_value": 78000000,

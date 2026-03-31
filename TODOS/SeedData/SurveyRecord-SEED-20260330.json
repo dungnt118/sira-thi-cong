@@ -2,7 +2,6 @@
   "schemaName": "SurveyRecord",
   "data": [
     {
-      "service_request_id": "{{ServiceRequest._id::SR-2026-001}}",
       "journey_id": "{{Journey._id::JRN-2026-001}}",
       "journey_step_code": "site_survey",
       "scheduled_date": "2026-02-28T14:00:00+07:00",
@@ -47,7 +46,6 @@
       "review_status": "approved"
     },
     {
-      "service_request_id": "{{ServiceRequest._id::SR-2026-003}}",
       "journey_id": "{{Journey._id::JRN-2026-003}}",
       "journey_step_code": "site_survey",
       "scheduled_date": "2026-03-04T09:00:00+07:00",

@@ -4,7 +4,6 @@
     {
       "journey_id": "{{Journey._id::JRN-2026-001}}",
       "journey_step_code": "project_execution",
-      "project_id": "{{Project._id::DA-2026-001}}",
       "type": "material_shortage",
       "title": "Thiếu lưới gia cường tại công trình anh Kiên",
       "description": "Thiếu lưới gia cường tại khu vực chân tường logia, đội thi công phải chờ bổ sung mới có thể hoàn thiện hết các điểm gia cường.",

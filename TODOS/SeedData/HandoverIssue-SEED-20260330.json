@@ -6,7 +6,6 @@
       "journey_id": "{{Journey._id::JRN-2026-002}}",
       "journey_step_code": "handover_acceptance",
       "handover_acceptance_id": "{{HandoverAcceptance._id::BBBG-2026-001}}",
-      "project_id": "{{Project._id::DA-2026-002}}",
       "issue_title": "Bổ sung chống thấm chân tường khu logia",
       "issue_category": "quality",
       "severity": "high",

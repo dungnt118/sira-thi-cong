@@ -126,13 +126,15 @@ export const loadUserData = (_forceReload = false): AppThunk<Promise<void>> => a
         window.location.href = session.welcome_url;
       }
     } else {
-      dispatch(logoutUser());
+      // TẠM THỜI DISABLE ĐỂ NGĂN CHẶN LOGOUT KHI CHUYỂN QUYỀN NHANH
+      // dispatch(logoutUser());
       dispatch(hideLoading());
     }
   } catch (error) {
     console.log(error);
     dispatch(hideLoading());
-    dispatch(logoutUser());
+    // TẠM THỜI DISABLE ĐỂ NGĂN CHẶN LOGOUT KHI CHUYỂN QUYỀN NHANH
+    // dispatch(logoutUser());
   }
 };
 

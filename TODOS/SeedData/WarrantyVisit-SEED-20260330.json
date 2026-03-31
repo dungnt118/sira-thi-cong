@@ -7,7 +7,6 @@
       "journey_step_code": "warranty_aftercare",
       "warranty_case_id": "{{WarrantyCase._id::WC-2026-001}}",
       "warranty_card_id": "{{WarrantyCard._id::BH-2026-001}}",
-      "project_id": "{{Project._id::DA-2026-002}}",
       "scheduled_at": "2026-03-28T09:00:00+07:00",
       "visit_status": "completed",
       "performed_by": "team.bh01",

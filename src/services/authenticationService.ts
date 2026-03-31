@@ -86,14 +86,15 @@ class elsagaService extends FuseUtils.EventEmitter {
                 const code = resp?.code;
 
                 if (code === ElsagaResponseCode.UNAUTHENTICATED) {
-                    this.setSession(null);
-                    this.emit('onAutoLogout', resp.message || 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+                    // TẠM THỜI DISABLE ĐỂ NGĂN CHẶN LOGOUT KHI CHUYỂN QUYỀN NHANH
+                    // this.setSession(null);
+                    // this.emit('onAutoLogout', resp.message || 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
                     this.dispatchToStore(hideLoading());
                     if (!history.location.pathname.startsWith('/pages/errors')) {
                         if (!history.location.pathname.startsWith('/login')) {
-                            history.push(`/login?redirect=${history.location.pathname}`);
+                            // history.push(`/login?redirect=${history.location.pathname}`);
                         } else {
-                            history.push('/login');
+                            // history.push('/login');
                         }
                     }
                     resolve(resp);
@@ -149,8 +150,9 @@ class elsagaService extends FuseUtils.EventEmitter {
         let expires_at = this.getExpiresAt();
         if (!access_token || access_token == null || access_token === '') {
             //nếu access_token không tồn tại chứng tỏ user chưa đăng nhập --> ta xóa toàn bộ thông tin trong localStorage và gửi lệnh logout ra ngoài
-            this.setSession(null);//xóa localStorage
-            this.emit('onAutoLogout', 'Vui lòng đăng nhập để sử dụng hệ thống');//gửi lệnh logout
+            // TẠM THỜI DISABLE ĐỂ NGĂN CHẶN LOGOUT KHI CHUYỂN QUYỀN NHANH
+            // this.setSession(null);//xóa localStorage
+            // this.emit('onAutoLogout', 'Vui lòng đăng nhập để sử dụng hệ thống');//gửi lệnh logout
             return;
         }
 

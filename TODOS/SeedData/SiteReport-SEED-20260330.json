@@ -4,7 +4,6 @@
     {
       "journey_id": "{{Journey._id::JRN-2026-001}}",
       "journey_step_code": "project_execution",
-      "project_id": "{{Project._id::DA-2026-001}}",
       "report_date": "2026-03-06T17:30:00+07:00",
       "title": "Nhật ký thi công ngày 06/03 - xử lý bề mặt",
       "content": "Đội thi công đã hoàn tất mài bề mặt, bóc tách lớp chống thấm cũ và vệ sinh sạch khu sân mái chính. Chân tường khu logia phát hiện thêm vài điểm nứt nhỏ cần gia cường bằng keo PU.",
@@ -17,7 +16,6 @@
     {
       "journey_id": "{{Journey._id::JRN-2026-001}}",
       "journey_step_code": "project_execution",
-      "project_id": "{{Project._id::DA-2026-001}}",
       "report_date": "2026-03-08T18:00:00+07:00",
       "title": "Nhật ký thi công ngày 08/03 - thi công lớp chống thấm thứ nhất",
       "content": "Đã hoàn thành lớp chống thấm thứ nhất cho toàn bộ sân mái, xử lý xong các vị trí cổ ống và chân tường logia. Đội thi công giữ lại khu kỹ thuật để chờ khô hoàn toàn trước khi phủ lớp tiếp theo.",
