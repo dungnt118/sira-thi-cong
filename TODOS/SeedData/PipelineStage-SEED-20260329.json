@@ -3,28 +3,28 @@
   "data": [
     {
       "name": "Tiếp nhận lead",
-      "pipeline_id": "69c7f1a4a718dc692a22b79f",
+      "pipeline_id": "69c9e8391e264278da741a9c",
       "order": 1,
       "color": "#17a2b8",
       "system_stage": "new"
     },
     {
       "name": "Khảo sát và tư vấn",
-      "pipeline_id": "69c7f1a4a718dc692a22b79f",
+      "pipeline_id": "69c9e8391e264278da741a9c",
       "order": 2,
       "color": "#f59e0b",
       "system_stage": "in_progress"
     },
     {
       "name": "Báo giá và thương lượng",
-      "pipeline_id": "69c7f1a4a718dc692a22b79f",
+      "pipeline_id": "69c9e8391e264278da741a9c",
       "order": 3,
       "color": "#3b82f6",
       "system_stage": "in_progress"
     },
     {
       "name": "Ký hợp đồng",
-      "pipeline_id": "69c7f1a4a718dc692a22b79f",
+      "pipeline_id": "69c9e8391e264278da741a9c",
       "order": 4,
       "color": "#28a745",
       "system_stage": "won"

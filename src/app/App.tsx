@@ -68,6 +68,7 @@ import SLAQueue from '../pages/sale/Journeys/SLAQueue';
 import SurveyCoordination from '../pages/sale/Journeys/SurveyCoordination';
 import SaleSurveyDetail from '../pages/sale/Journeys/SaleSurveyDetail';
 import CommunicationsCenter from '../pages/sale/Journeys/CommunicationsCenter';
+import SaleJourneyDetail from '../pages/sale/Journeys/SaleJourneyContext';
 
 // Portal Sub-pages
 import PublishedTimeline from '../pages/public/portal/PublishedTimeline';
@@ -257,7 +258,7 @@ function App() {
                                 <Route path="sla" element={<SLAQueue />} />
                                 <Route path="surveys" element={<SurveyCoordination />} />
                                 <Route path="communications" element={<CommunicationsCenter />} />
-                                <Route path="dashboard/:journeyId" element={<JourneyDetail360 />} />
+                                <Route path="dashboard/:journeyId" element={<SaleJourneyDetail />} />
                                 <Route path="dashboard/:journeyId/surveys/:surveyId" element={<SaleSurveyDetail />} />
                                 <Route path="inventory/stock-out" element={<OutboundForm />} />
                                 <Route path="inventory/history" element={<InventoryHistory />} />

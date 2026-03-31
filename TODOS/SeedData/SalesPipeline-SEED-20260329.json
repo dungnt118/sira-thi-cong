@@ -2,8 +2,8 @@
   "schemaName": "SalesPipeline",
   "data": [
     {
-      "_id": "69c7f1a4a718dc692a22b79f",
-      "name": "quy trình 1",
+      "_id": "69c9e8391e264278da741a9c",
+      "name": "Quy trình bán hàng mặc định",
       "is_active": true,
       "is_default": true
     }
