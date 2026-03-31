@@ -12,6 +12,19 @@ export enum ApiResponseCode {
 export interface ApiResponse<T = any> {
   code: ApiResponseCode | number;
   message?: string;
-  data?: T;
+  data?: T | null;
   total?: number;
+}
+
+export interface ApiListResponse<T = any> extends ApiResponse<T[]> {
+  page?: number;
+  pages?: number;
+  records?: number;
+}
+
+export interface IndexedContentItem {
+  _id: string;
+  _content_id?: string;
+  _schema_name?: string;
+  [key: string]: any;
 }
