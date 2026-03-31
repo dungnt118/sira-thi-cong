@@ -1,62 +1,67 @@
-# GAP Phase 2 - Backend Data / Validation còn lại
+# GAP Phase 2 - Metadata và dữ liệu live còn lại
 
-## 1. `PortalDocument` chưa chấp nhận seed không có file thật
-
-### Hiện trạng
-
-- Seed `PortalDocument` đã được chuẩn bị theo rule không đính kèm file thật.
-- Metadata schema đã được chỉnh:
-  - `PortalDocument.files.required = false`
-- Tuy nhiên backend vẫn từ chối lưu khi:
-  - gửi `files = null`
-  - gửi `files = []`
-  - bỏ hẳn field `files`
-
-### Bằng chứng
-
-- Runtime trả lỗi: `Tập tin không được để trống`
-- Điều này cho thấy còn một lớp validation ẩn nằm ngoài metadata schema.
-
-### Đánh giá
-
-- Đây không còn là GAP của seed file.
-- Đây là GAP giữa:
-  - rule nghiệp vụ đã chốt: tài liệu portal có thể seed trước, chưa cần file thật
-  - hành vi runtime hiện tại: bắt buộc phải có file upload thật
-
-### Đề xuất xử lý
-
-1. Ưu tiên: backend bỏ validation bắt buộc file thật khi `files.required = false`.
-2. Nếu muốn giữ validation hiện tại, cần đổi rule nghiệp vụ:
-   - không seed `PortalDocument` ở Phase 2
-   - chỉ tạo sau khi có upload thật
-3. Không nên fake file metadata để vượt validation, vì sẽ làm sai dữ liệu nghiệp vụ.
-
-## 2. `CustomerJourneySetting` đang là singleton bẩn từ batch probe cũ
+## 1. `PortalDocument` còn lệch giữa schema runtime và schema descriptor
 
 ### Hiện trạng
 
-- Hệ thống hiện có sẵn 1 bản ghi `CustomerJourneySetting`.
-- Bản ghi này không phải seed chuẩn:
-  - các field root như `setting_key`, `setting_name`, `is_active`, `version_label`, `note` đang `null`
-  - nested field đang chứa giá trị probe dạng `EVIDENCE_*`
+- `schema_get("PortalDocument")` cho thấy schema runtime hiện tại không còn field `file_name`.
+- `content_describe_schema("PortalDocument")` vẫn trả về:
+  - `keyField = file_name`
+- Runtime create hiện đã hoạt động đúng với payload chỉ dùng các field:
+  - `journey_id`
+  - `journey_step_code`
+  - `journey_code`
+  - `context_type`
+  - `published_context`
+  - `file_type`
+  - `files`
+  - `thumbnail_url`
+  - `published_at`
+  - `sort_order`
+  - `is_visible`
 
 ### Đánh giá
 
-- Đây là dữ liệu singleton lõi, không nên tạo chồng thêm một bản ghi mới khi chưa làm rõ chiến lược cleanup.
-- Nếu tiếp tục dùng generic create/update không kiểm soát, rất dễ tạo trùng cấu hình chuẩn của hành trình.
+- Đây không còn là blocker import.
+- Đây là GAP metadata backend: lớp mô tả schema dùng cho tool `content_describe_schema` chưa đồng bộ với schema runtime thực tế.
+- Nếu tiếp tục dựa mù vào descriptor cũ, các batch seed hoặc automation sau này rất dễ suy luận sai `keyField`.
 
 ### Đề xuất xử lý
 
-1. Dùng flow setting chuyên biệt để overwrite bản ghi singleton chuẩn từ file:
-   - `CUSTOMER-JOURNEY-SETTING-DEFAULT-SEED-20260329.json`
-2. Nếu chưa có flow overwrite an toàn, cần cleanup bản ghi probe cũ trước rồi mới seed lại.
-3. Không nên tạo thêm một bản ghi `CustomerJourneySetting` mới bằng generic create khi bản ghi probe cũ vẫn tồn tại.
+1. Đồng bộ lại metadata descriptor của `PortalDocument` để bỏ `keyField = file_name`.
+2. Trong lúc chưa fix backend, dùng `schema_get` làm nguồn sự thật duy nhất khi seed hoặc generate payload cho `PortalDocument`.
+
+## 2. Còn dữ liệu legacy ngoài batch seed chuẩn
+
+### Hiện trạng
+
+- `MasterDataCategory` hiện còn 1 bản ghi legacy:
+  - `code = crm`
+  - `_id = 69c7f0daa718dc692a22b79c`
+- Kiểm tra `MasterDataItem` cho thấy chưa có item nào đang tham chiếu category này.
+- `ServiceRequest` hiện còn 2 bản ghi live ngoài batch seed chuẩn:
+  - `YC-20260330-003`
+  - `sanmai`
+
+### Đánh giá
+
+- Đây không phải dữ liệu do batch seed chuẩn hiện tại tạo ra.
+- Các bản ghi này không chặn Phase 2, nhưng khiến tenant không còn ở trạng thái “chỉ gồm dữ liệu seed chuẩn”.
+- Chưa xóa nóng trong wave này vì cần xác nhận chúng có còn bị form/view/workflow nào tham chiếu hay không.
+
+### Đề xuất xử lý
+
+1. Tạo wave cleanup dữ liệu live riêng cho các bản ghi legacy ngoài batch seed.
+2. Ưu tiên rà usage trước khi xóa hoặc archive các bản ghi:
+   - `MasterDataCategory.code = crm`
+   - `ServiceRequest.code = YC-20260330-003`
+   - `ServiceRequest.code = sanmai`
 
 ## Kết luận
 
-- Phase 2 cho nhóm schema `Multiple` đã chạy thực tế và phần lớn đã hoàn tất.
-- Hai GAP còn lại hiện là GAP backend-data / validation thật sự:
-  - `PortalDocument`
-  - `CustomerJourneySetting`
-- Các batch khác có thể xem là đã seed thành công trên tenant BAC.
+- Phase 2 import seed đã hoàn tất theo phạm vi business seed chuẩn.
+- Các điểm còn lại hiện chỉ là:
+  - metadata descriptor chưa đồng bộ của `PortalDocument`
+  - dữ liệu legacy tồn dư ngoài batch seed
+- Không còn blocker nghiệp vụ cho việc tiếp tục dùng bộ seed chuẩn làm mốc tenant BAC.
+

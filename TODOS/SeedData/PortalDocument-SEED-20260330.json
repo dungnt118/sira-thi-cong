@@ -2,6 +2,7 @@
   "schemaName": "PortalDocument",
   "data": [
     {
+      "_id": "69cb34acc221ff64df94f22c",
       "journey_id": "{{Journey._id::JRN-2026-003}}",
       "journey_step_code": "quotation_sent",
       "journey_code": "JRN-2026-003",
@@ -14,6 +15,7 @@
       "is_visible": true
     },
     {
+      "_id": "69cb34acc221ff64df94f22d",
       "journey_id": "{{Journey._id::JRN-2026-002}}",
       "journey_step_code": "warranty_aftercare",
       "journey_code": "JRN-2026-002",

@@ -2,6 +2,7 @@
   "schemaName": "PipelineStage",
   "data": [
     {
+      "_id": "69cb33f0c221ff64df94f222",
       "name": "Tiếp nhận lead",
       "pipeline_id": "69c9e8391e264278da741a9c",
       "order": 1,
@@ -9,6 +10,7 @@
       "system_stage": "new"
     },
     {
+      "_id": "69cb33f0c221ff64df94f223",
       "name": "Khảo sát và tư vấn",
       "pipeline_id": "69c9e8391e264278da741a9c",
       "order": 2,
@@ -16,6 +18,7 @@
       "system_stage": "in_progress"
     },
     {
+      "_id": "69cb33f0c221ff64df94f224",
       "name": "Báo giá và thương lượng",
       "pipeline_id": "69c9e8391e264278da741a9c",
       "order": 3,
@@ -23,6 +26,7 @@
       "system_stage": "in_progress"
     },
     {
+      "_id": "69cb33f0c221ff64df94f225",
       "name": "Ký hợp đồng",
       "pipeline_id": "69c9e8391e264278da741a9c",
       "order": 4,

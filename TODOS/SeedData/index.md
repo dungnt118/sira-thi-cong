@@ -1,20 +1,33 @@
 # SeedData Index
 
-## Cập nhật Phase 2 ngày 2026-03-30
+## Cập nhật Phase 2 ngày 2026-03-31
 
-- Đã import thành công phần lớn batch seed business của BAC lên backend, bao gồm nhánh master, sale, thi công, bảo hành, portal trao đổi và tài chính.
-- Tổng số schema đã import thành công đến thời điểm hiện tại: `43`.
-- Hai điểm còn lại chưa khép kín:
-  - `PortalDocument`: backend vẫn có validator ẩn bắt buộc file upload thật, nên chưa thể seed bản ghi không có file.
-  - `CustomerJourneySetting`: bản ghi singleton hiện có đang là dữ liệu probe cũ, cần một wave cleanup/overwrite riêng cho schema setting.
-- Các nhận định blocker MCP write cũ trong tài liệu lịch sử không còn là trạng thái hiện hành cho batch `Multiple`. Xem kết quả mới nhất tại `SEED-RESULT-PHASE2-20260330.md` và GAP còn lại tại `SEED-GAP-PHASE2-BACKEND-DATA-20260330.md`.
+- Đã import thành công `47` schema business/cấu hình của batch seed chuẩn lên backend BAC.
+- Các hạng mục đã được khép kín trong wave này:
+  - `SalesPipeline`
+  - `PipelineStage`
+  - `PortalDocument`
+  - `CustomerJourneySetting`
+- Đã vá ngược liên kết CRM cho 3 bản ghi `ServiceRequest` seed chuẩn để trỏ đúng tới pipeline/stage live.
+- Không còn giữ các kết luận blocker cũ của wave probe trước đây làm trạng thái hiện hành.
+- GAP còn sống hiện tại chỉ gồm:
+  - metadata descriptor của `PortalDocument` chưa đồng bộ với schema runtime
+  - một số dữ liệu legacy ngoài batch seed chuẩn
+- Xem:
+  - kết quả import hiện hành tại `SEED-RESULT-PHASE2-20260330.md`
+  - GAP còn lại tại `SEED-GAP-PHASE2-BACKEND-DATA-20260330.md`
 
 ## Mục đích
-- Chốt bộ seed JSON đầy đủ cho toàn bộ business schema BAC hiện đã được tạo ở backend, phục vụ Phase 2 import qua MCP tool.
-- Dùng backend schema làm nguồn sự thật duy nhất khi chọn field, enum và quan hệ dữ liệu.
-- Giữ dữ liệu seed bám sát nghiệp vụ thực tế của BAC, dùng tiếng Việt có dấu và bao phủ đủ ba nhóm kịch bản: đang báo giá, đang triển khai, đã bàn giao kèm bảo hành.
+
+- Chốt bộ seed JSON đầy đủ cho toàn bộ business schema BAC đang sống trên backend.
+- Dùng backend schema làm nguồn sự thật duy nhất khi chọn field, enum, propType và quan hệ dữ liệu.
+- Giữ dữ liệu seed bám sát nghiệp vụ BAC, dùng tiếng Việt có dấu và phủ đủ ba lát cắt chính:
+  - đang báo giá
+  - đang triển khai
+  - đã bàn giao kèm bảo hành
 
 ## Nguồn tham chiếu chính
+
 - `documents/BA-V4/01-Business-Requirements/BRD_v4.md`
 - `documents/BA-V4/01-Business-Requirements/BA_Journey_Workflow_Settings_v4.md`
 - `documents/BA-V4/01-Business-Requirements/Customer_Journey_Sale_HanhChinh_Analysis_v4.md`
@@ -25,28 +38,36 @@
 - `documents/Orignal-Requirements-Docs`
 
 ## Kịch bản seed chính
+
 - `JRN-2026-001`: Nhà anh Kiên tại Vĩnh Hưng, đã chốt báo giá và đang triển khai thi công chống thấm.
 - `JRN-2026-002`: Nhà anh Dương tại Vĩnh Hưng, đã bàn giao, phát sinh xử lý sau bàn giao và chuyển sang bảo hành.
 - `JRN-2026-003`: Khách sạn MayFair, đã khảo sát và đang trao đổi báo giá trên portal.
 
 ## Quy ước placeholder
+
 - Placeholder quan hệ dùng mẫu `{{Schema._id::business_key}}`.
 - `business_key` ưu tiên theo `code` nếu schema có `code`.
-- Với schema không có `code`, dùng khóa nghiệp vụ ổn định đã chốt trong file seed:
-  `MaterialGroup.name`, `AssetGroup.name`, `QuotationMappingRule.rule_name`, `PortalThread.thread_code`, `PaymentMilestone.journey_code`.
-- Với `MasterDataItem`, dùng khóa giả chuẩn hóa theo mẫu `category_code.value`, ví dụ:
-  `{{MasterDataItem._id::service_type.waterproofing}}`,
-  `{{MasterDataItem._id::construction_type.rooftop_waterproofing}}`.
-- Phase 2 cần resolve toàn bộ placeholder sang `_id` thực trước khi gọi `content_create` hoặc `content_create_many`.
+- Với schema không có `code`, dùng khóa nghiệp vụ ổn định đã chốt trong batch seed. Các khóa hiện dùng:
+  - `MaterialGroup.name`
+  - `AssetGroup.name`
+  - `SalesPipeline.name`
+  - `PipelineStage.name`
+  - `QuotationMappingRule.rule_name`
+  - `PortalThread.thread_code`
+  - `PaymentMilestone.journey_code`
+- Với `MasterDataItem`, dùng khóa chuẩn hóa theo mẫu `category_code.value`, ví dụ:
+  - `{{MasterDataItem._id::service_type.waterproofing}}`
+  - `{{MasterDataItem._id::construction_type.rooftop_waterproofing}}`
+- Trước khi import thật, phải resolve toàn bộ placeholder sang `_id` live.
 
 ## Danh mục file seed
 
 ### 1. Cấu hình nền và danh mục dùng chung
 | File | Schema | Vai trò |
 | --- | --- | --- |
-| `CUSTOMER-JOURNEY-SETTING-DEFAULT-SEED-20260329.json` | `CustomerJourneySetting` | Cấu hình mặc định 13 bước hành trình khách hàng |
-| `SalesPipeline-SEED-20260329.json` | `SalesPipeline` | Pipeline mặc định trên tenant hiện tại |
-| `PipelineStage-SEED-20260329.json` | `PipelineStage` | 4 giai đoạn chính của pipeline |
+| `CUSTOMER-JOURNEY-SETTING-DEFAULT-SEED-20260331.json` | `CustomerJourneySetting` | Cấu hình mặc định 13 bước hành trình khách hàng, dùng cho `content_save_setting` |
+| `SalesPipeline-SEED-20260329.json` | `SalesPipeline` | Pipeline bán hàng mặc định |
+| `PipelineStage-SEED-20260329.json` | `PipelineStage` | 4 giai đoạn chính của funnel bán hàng |
 | `MasterDataCategory-SEED-20260329.json` | `MasterDataCategory` | Nhóm danh mục dùng chung |
 | `MasterDataItem-SEED-20260329.json` | `MasterDataItem` | Giá trị danh mục dùng chung |
 | `Customer-SEED-20260330.json` | `Customer` | Khách hàng mẫu cho toàn bộ flow |
@@ -63,7 +84,7 @@
 ### 2. Sale, khảo sát và báo giá
 | File | Schema | Vai trò |
 | --- | --- | --- |
-| `ServiceRequest-SEED-20260330.json` | `ServiceRequest` | Yêu cầu dịch vụ đầu vào |
+| `ServiceRequest-SEED-20260330.json` | `ServiceRequest` | Yêu cầu dịch vụ đầu vào, đã trỏ đúng sang `SalesPipeline` và `PipelineStage` |
 | `Journey-SEED-20260330.json` | `Journey` | Hành trình khách hàng trung tâm |
 | `SurveyAppointment-SEED-20260330.json` | `SurveyAppointment` | Lịch hẹn khảo sát |
 | `SurveyRecord-SEED-20260330.json` | `SurveyRecord` | Biên bản khảo sát hiện trạng |
@@ -94,7 +115,7 @@
 | `WarrantyReminder-SEED-20260330.json` | `WarrantyReminder` | Tin nhắc chăm sóc bảo hành |
 | `PortalThread-SEED-20260330.json` | `PortalThread` | Chủ đề trao đổi trên portal |
 | `PortalMessage-SEED-20260330.json` | `PortalMessage` | Tin nhắn trao đổi trên portal |
-| `PortalDocument-SEED-20260330.json` | `PortalDocument` | Tài liệu portal, hiện seed với `files = null` theo rule mới của MCP |
+| `PortalDocument-SEED-20260330.json` | `PortalDocument` | Tài liệu portal, hiện seed với `files = null` |
 
 ### 5. Tài chính, công nợ và đóng hồ sơ
 | File | Schema | Vai trò |
@@ -108,19 +129,42 @@
 | `ProjectSettlement-SEED-20260330.json` | `ProjectSettlement` | Quyết toán dự án |
 | `ProjectCloseoutPackage-SEED-20260330.json` | `ProjectCloseoutPackage` | Gói hồ sơ đóng dự án |
 
-## Trình tự import đề xuất cho Phase 2
-1. Import nhóm cấu hình nền: `SalesPipeline`, `PipelineStage`, `MasterDataCategory`, `MasterDataItem`, `CustomerJourneySetting`.
-2. Import nhóm master: `Customer`, `MaterialGroup`, `AssetGroup`, `Material`, `Asset`, `Distributor`, `ChecklistTemplate`, `EstimateTemplate`, `MaterialStandard`, `QuotationMappingRule`.
-3. Resolve placeholder cho các quan hệ master rồi import nhóm sale và khảo sát theo thứ tự: `Journey` -> `ServiceRequest` -> `SurveyAppointment` -> `SurveyRecord` -> `Quotation` -> `QuotationLineItem`.
+## Trình tự import đề xuất
+
+1. Import nhóm cấu hình nền:
+   - `SalesPipeline`
+   - `PipelineStage`
+   - `MasterDataCategory`
+   - `MasterDataItem`
+   - `CustomerJourneySetting`
+2. Import nhóm master:
+   - `Customer`
+   - `MaterialGroup`
+   - `AssetGroup`
+   - `Material`
+   - `Asset`
+   - `Distributor`
+   - `ChecklistTemplate`
+   - `EstimateTemplate`
+   - `MaterialStandard`
+   - `QuotationMappingRule`
+3. Resolve placeholder master và import nhóm sale:
+   - `Journey`
+   - `ServiceRequest`
+   - `SurveyAppointment`
+   - `SurveyRecord`
+   - `Quotation`
+   - `QuotationLineItem`
 4. Import nhóm thi công, kho vận và activity log.
 5. Import nhóm bàn giao, bảo hành và portal.
 6. Import nhóm tài chính, công nợ, quyết toán và đóng hồ sơ.
-7. Import `PortalDocument` sau cùng để dễ kiểm tra nội dung công bố; hiện có thể seed với `files = null`.
 
 ## Ghi chú quan trọng
-- Enum canonical của batch seed là lowercase nếu backend schema đang dùng lowercase. Không ép theo enum legacy của frontend.
-- `ChecklistTemplate` chỉ dùng cho checklist thi công; nghiệp vụ nghiệm thu / bàn giao nằm ở `HandoverAcceptance`.
-- Các reference tới `ProjectTask`, `Contract`, `ContractAppendix` đang bị bỏ trống hoặc lược khỏi seed vì backend tenant hiện chưa có các schema này.
-- File `SEED-RESULT-MCP-BLOCKER-20260329.md` không còn được dùng làm tài liệu điều hướng chính. Các blocker còn hiệu lực đã được gom lại trong `SEED-GAP-BACKEND-REFERENCES-AND-UPLOADS-20260330.md`.
-- `PortalDocument.files` hiện được seed bằng `null` theo rule MCP mới; nếu cần đính kèm file thật thì cập nhật bổ sung ở bước sau.
-- Blocker kỹ thuật Phase 2 hiện tại nằm ở BAC MCP write tool: `content-create`, `content-create_many`, `content-update_by_ids`. Xem chi tiết tại `SEED-GAP-PHASE2-MCP-WRITE-BLOCKER-20260330.md` trước khi chạy import thật.
+
+- Enum canonical của batch seed bám theo backend schema hiện tại, ưu tiên lowercase hoặc lower snake_case.
+- `service_type`, `ChecklistTemplate.category`, `MaterialStandard.construction_type` đã được chuẩn hóa sang `ObjectId -> MasterDataItem`.
+- `PortalDocument` hiện seed hợp lệ với `files = null`; tuy nhiên descriptor metadata của schema này vẫn cần cleanup ở backend.
+- `CustomerJourneySetting` phải dùng `content_save_setting` để overwrite singleton; không dùng generic create/update.
+- File `CUSTOMER-JOURNEY-SETTING-DEFAULT-SEED-20260329.json` được giữ lại như bản lịch sử; file canonical hiện hành là `CUSTOMER-JOURNEY-SETTING-DEFAULT-SEED-20260331.json`.
+- Các tham chiếu tới `ProjectTask`, `Contract`, `ContractAppendix` tiếp tục để `null` hoặc lược khỏi seed vì tenant hiện không còn dùng các schema này trong kiến trúc runtime chuẩn.
+- Không dùng `SEED-RESULT-MCP-BLOCKER-20260329.md` và `SEED-GAP-PHASE2-MCP-WRITE-BLOCKER-20260330.md` làm kết luận hiện hành cho Phase 2.
