@@ -7,12 +7,6 @@ window.env = {
             client_secret: "g2RAXgZenebyybWmmfyDWprGhxe5CLAJ",
             scope: 'openid profile offline_access',
             title: "Nhân viên"
-        },
-        {
-            client_id: "tenant.manager",
-            client_secret: "g2RAXgZenebyybWmmfyDWprGhxe5CLAJ",
-            scope: 'openid profile offline_access',
-            title: "Quản lý"
         }
 
     ],
