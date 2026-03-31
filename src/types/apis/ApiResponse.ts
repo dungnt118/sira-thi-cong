@@ -9,22 +9,26 @@ export enum ApiResponseCode {
   ACCEPTED = 202,
 }
 
-export interface ApiResponse<T = any> {
-  code: ApiResponseCode | number;
-  message?: string;
+/**
+ * Interface generic cho response đơn từ API
+ * @template T - Type của data trả về
+ */
+export interface ApiResponse<T> {
   data?: T | null;
-  total?: number;
+  code?: ApiResponseCode;
+  message?: string;
 }
 
-export interface ApiListResponse<T = any> extends ApiResponse<T[]> {
+/**
+ * Interface generic cho response dạng list từ API
+ * @template T - Type của mỗi item trong list data
+ */
+export interface ApiListResponse<T> {
+  data?: T[] | null;
+  code?: ApiResponseCode;
+  message?: string;
   page?: number;
-  pages?: number;
   records?: number;
-}
-
-export interface IndexedContentItem {
-  _id: string;
-  _content_id?: string;
-  _schema_name?: string;
-  [key: string]: any;
+  pages?: number;
+  hasMore?: boolean;
 }
