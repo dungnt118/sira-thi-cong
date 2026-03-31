@@ -6,9 +6,8 @@ export const useAuth = () => {
     const userState = useAppSelector((state) => state.auth.user);
     const sessionData = userState?.data;
 
-    // Derive role - assuming the first role is primary or mapped from metadata
-    const roles = sessionData?.user?.roles || [];
-    const role = userState?.role || (roles.length > 0 ? roles[0].toLowerCase() : null);
+    const role = userState?.role || null;
+    const roles = role ? [role] : [];
 
     const logout = () => {
         dispatch(logoutUser());
@@ -23,4 +22,3 @@ export const useAuth = () => {
         isAuthenticated: !!sessionData?.user?._id
     };
 };
-

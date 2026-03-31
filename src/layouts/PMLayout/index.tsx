@@ -194,17 +194,18 @@ const PMTopBar: React.FC = () => {
 
 export const PMLayout: React.FC = () => {
     const navigate = useNavigate();
-    const { role, user } = useAuth();
+    const { role } = useAuth();
     
     React.useEffect(() => {
-        if (role !== 'pm') {
-            if (user && user.role) {
-                navigate(`/${user.role}/dashboard`);
-            } else {
-                navigate('/login');
-            }
+        if (role && role !== 'pm') {
+            navigate(`/${role}/dashboard`);
+            return;
         }
-    }, [role, user, navigate]);
+
+        if (!role) {
+            navigate('/login');
+        }
+    }, [role, navigate]);
 
     return <BaseLayout sidebar={<PMSidebar />} topBar={<PMTopBar />} />;
 };

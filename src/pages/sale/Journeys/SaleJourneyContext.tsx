@@ -1,65 +1,164 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-    Card, Tag, Button, Typography, Row, Col, Space, Tabs,
-    Modal, Form, Badge, Input, DatePicker, Descriptions, Timeline, message, Spin, Empty, Avatar, Select
+    Button,
+    Card,
+    Col,
+    DatePicker,
+    Descriptions,
+    Empty,
+    Form,
+    Input,
+    message,
+    Modal,
+    Popconfirm,
+    Row,
+    Space,
+    Spin,
+    Tabs,
+    Tag,
+    Typography,
 } from 'antd';
-import { 
-    ArrowLeftOutlined, ClockCircleOutlined, InfoCircleOutlined, 
-    SearchOutlined, DollarOutlined, FileTextOutlined, CheckCircleOutlined,
-    UserOutlined, PlusOutlined, BellOutlined
+import {
+    ArrowLeftOutlined,
+    DeleteOutlined,
+    DollarOutlined,
+    EditOutlined,
+    FileTextOutlined,
+    InfoCircleOutlined,
+    SearchOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { journeyService } from '../../../services/core-contracts/services/journey.service';
 import { ConsultationLogForm } from '../../../components/journey/SharedModals';
-import dayjs from 'dayjs';
+import { customerService } from '../../../services/core-contracts/services/customer.service';
+import { journeyService } from '../../../services/core-contracts/services/journey.service';
+import { pipelineStageService } from '../../../services/core-contracts/services/pipelineStage.service';
+import { salesPipelineService } from '../../../services/core-contracts/services/salesPipeline.service';
+import type { ICustomer } from '../../../services/core-contracts/types/customer.types';
+import type { IJourney, ICreateJourneyInput } from '../../../services/core-contracts/types/journey.types';
+import type { IPipelineStage } from '../../../services/core-contracts/types/pipelineStage.types';
+import type { ISalesPipeline } from '../../../services/core-contracts/types/salesPipeline.types';
+import JourneyUpsertDrawer from './components/JourneyUpsertDrawer';
+import {
+    formatJourneyDate,
+    getJourneyStepLabel,
+    getOptionLabel,
+    JOURNEY_EMPTY_VALUE,
+    JOURNEY_GO_NO_GO_OPTIONS,
+    JOURNEY_PRIORITY_META,
+    JOURNEY_SLA_META,
+    JOURNEY_SOURCE_CHANNEL_OPTIONS,
+} from './journeySaleMeta';
 
 const { Text, Title } = Typography;
 const { TextArea } = Input;
 
-const SaleJourneyDetail: React.FC = () => {
+const SaleJourneyContext: React.FC = () => {
     const { journeyId } = useParams<{ journeyId: string }>();
     const [searchParams, setSearchParams] = useSearchParams();
     const activeTab = searchParams.get('tab') || 'general';
     const navigate = useNavigate();
 
-    const [journey, setJourney] = useState<any>(null);
+    const [journey, setJourney] = useState<IJourney | null>(null);
+    const [customers, setCustomers] = useState<ICustomer[]>([]);
+    const [pipelines, setPipelines] = useState<ISalesPipeline[]>([]);
+    const [stages, setStages] = useState<IPipelineStage[]>([]);
     const [loading, setLoading] = useState(true);
-
+    const [saving, setSaving] = useState(false);
+    const [showEditDrawer, setShowEditDrawer] = useState(false);
     const [showLogModal, setShowLogModal] = useState(false);
     const [showFollowUpModal, setShowFollowUpModal] = useState(false);
     const [showSurveyModal, setShowSurveyModal] = useState(false);
     const [followForm] = Form.useForm();
     const [surveyForm] = Form.useForm();
 
-    const loadJourney = async () => {
-        if (!journeyId) return;
+    const loadJourneyContext = async () => {
+        if (!journeyId) {
+            return;
+        }
+
         setLoading(true);
         try {
-            const res = await journeyService.findContent(journeyId);
-            setJourney(res);
-        } catch (err) {
-            message.error('Không thể tải thông tin hành trình');
+            const [journeyRes, customerRes, pipelineRes, stageRes] = await Promise.all([
+                journeyService.findContent(journeyId),
+                customerService.queryContent(),
+                salesPipelineService.queryContent(),
+                pipelineStageService.queryContent(),
+            ]);
+
+            setJourney(journeyRes);
+            setCustomers(customerRes?.data || []);
+            setPipelines(pipelineRes?.data || []);
+            setStages(stageRes?.data || []);
+        } catch (error) {
+            console.error('Không thể tải hồ sơ Journey', error);
+            message.error('Không thể tải thông tin Journey.');
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        loadJourney();
+        loadJourneyContext();
     }, [journeyId]);
 
-    if (loading) return (
-        <div style={{ height: '80vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            <Spin size="large" tip="Đang tải thông tin hành trình..." />
-        </div>
-    );
-    
-    if (!journey) return (
-        <Card style={{ marginTop: 40, textAlign: 'center', borderRadius: 20 }}>
-            <Empty description="Không tìm thấy hành trình" />
-            <Button onClick={() => navigate('/sale/dashboard')}>Quay lại danh sách</Button>
-        </Card>
-    );
+    if (loading) {
+        return (
+            <div style={{ height: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Spin size="large" tip="Đang tải hồ sơ yêu cầu dịch vụ..." />
+            </div>
+        );
+    }
+
+    if (!journey) {
+        return (
+            <Card style={{ marginTop: 40, textAlign: 'center', borderRadius: 20 }}>
+                <Empty description="Không tìm thấy hồ sơ Journey." />
+                <Button onClick={() => navigate('/sale/dashboard')}>Quay lại danh sách</Button>
+            </Card>
+        );
+    }
+
+    const customer = customers.find((item) => item._id === journey.customer_id);
+    const customerName = journey.idx_customer_id?.primary_text || customer?.full_name || JOURNEY_EMPTY_VALUE;
+    const customerPhone = journey.contact_phone || journey.idx_customer_id?.secondary_text || customer?.phone || JOURNEY_EMPTY_VALUE;
+    const pipelineName = journey.idx_sales_pipeline_id?.primary_text || pipelines.find((item) => item._id === journey.sales_pipeline_id)?.name || JOURNEY_EMPTY_VALUE;
+    const stageName = journey.idx_sales_stage_id?.primary_text || stages.find((item) => item._id === journey.sales_stage_id)?.name || JOURNEY_EMPTY_VALUE;
+    const slaMeta = JOURNEY_SLA_META[journey.sla_status || ''] || { label: journey.sla_status || JOURNEY_EMPTY_VALUE, color: '#8c8c8c', background: '#fafafa' };
+    const priorityMeta = JOURNEY_PRIORITY_META[journey.priority || ''] || { label: journey.priority || JOURNEY_EMPTY_VALUE, color: '#8c8c8c' };
+
+    const handleUpdate = async (payload: ICreateJourneyInput) => {
+        if (!journeyId) {
+            return;
+        }
+
+        setSaving(true);
+        try {
+            await journeyService.updateJourney(journeyId, payload);
+            message.success('Đã cập nhật hồ sơ Journey.');
+            setShowEditDrawer(false);
+            await loadJourneyContext();
+        } catch (error) {
+            console.error('Không thể cập nhật Journey', error);
+            message.error('Không thể cập nhật hồ sơ Journey.');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleDelete = async () => {
+        if (!journeyId) {
+            return;
+        }
+
+        try {
+            await journeyService.deleteJourney(journeyId);
+            message.success('Đã xóa yêu cầu dịch vụ.');
+            navigate('/sale/dashboard');
+        } catch (error) {
+            console.error('Không thể xóa Journey', error);
+            message.error('Không thể xóa yêu cầu dịch vụ.');
+        }
+    };
 
     const tabItems = [
         {
@@ -67,36 +166,40 @@ const SaleJourneyDetail: React.FC = () => {
             label: <span><InfoCircleOutlined /> Tổng quan</span>,
             children: (
                 <Row gutter={[20, 20]}>
-                    <Col xs={24} md={14}>
-                        <Card title={<Space><UserOutlined /> Thông tin khách hàng & Yêu cầu</Space>} style={{ borderRadius: 16, border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
-                            <Descriptions size="small" column={1} bordered>
-                                <Descriptions.Item label="Khách hàng"><Text strong>{journey.idx_customer_id?.primary_text || journey.customer_name}</Text></Descriptions.Item>
-                                <Descriptions.Item label="Số điện thoại">{journey.idx_customer_id?.secondary_text || journey.customer_phone}</Descriptions.Item>
-                                <Descriptions.Item label="Địa chỉ thi công"><Text type="secondary">{journey.site_address || '—'}</Text></Descriptions.Item>
-                                <Descriptions.Item label="Yêu cầu cụ thể">{journey.request_description || '—'}</Descriptions.Item>
-                                <Descriptions.Item label="Nguồn đến">{journey.source_channel || 'Hotline'}</Descriptions.Item>
-                                <Descriptions.Item label="Thời gian nhận">{dayjs(journey.created_at).format('DD/MM/YYYY HH:mm')}</Descriptions.Item>
+                    <Col xs={24} xl={14}>
+                        <Card bordered={false} style={{ borderRadius: 18 }}>
+                            <Descriptions column={1} size="small" bordered>
+                                <Descriptions.Item label="Mã hành trình">{journey.journey_code}</Descriptions.Item>
+                                <Descriptions.Item label="Tiêu đề yêu cầu">{journey.request_title || JOURNEY_EMPTY_VALUE}</Descriptions.Item>
+                                <Descriptions.Item label="Khách hàng">{customerName}</Descriptions.Item>
+                                <Descriptions.Item label="Số điện thoại">{customerPhone}</Descriptions.Item>
+                                <Descriptions.Item label="Email">{journey.contact_email || JOURNEY_EMPTY_VALUE}</Descriptions.Item>
+                                <Descriptions.Item label="Kênh tiếp nhận">{getOptionLabel(JOURNEY_SOURCE_CHANNEL_OPTIONS, journey.source_channel)}</Descriptions.Item>
+                                <Descriptions.Item label="Loại dịch vụ">{journey.requested_service || JOURNEY_EMPTY_VALUE}</Descriptions.Item>
+                                <Descriptions.Item label="Địa chỉ công trình">{journey.site_address || JOURNEY_EMPTY_VALUE}</Descriptions.Item>
+                                <Descriptions.Item label="Mô tả yêu cầu">{journey.request_description || JOURNEY_EMPTY_VALUE}</Descriptions.Item>
                             </Descriptions>
                         </Card>
                     </Col>
-                    <Col xs={24} md={10}>
-                        <Card title={<Space><CheckCircleOutlined /> Sẵn sàng khảo sát</Space>} style={{ borderRadius: 16, border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
-                            <div style={{ padding: '8px 0' }}>
-                                <Space direction="vertical" style={{ width: '100%' }} size={16}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <Text>Thông tin liên hệ</Text>
-                                        {journey.customer_phone ? <Tag color="success">Sẵn sàng</Tag> : <Tag color="error">Thiếu</Tag>}
-                                    </div>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <Text>Địa chỉ thi công</Text>
-                                        {journey.site_address ? <Tag color="success">Rõ ràng</Tag> : <Tag color="warning">Cần cập nhật</Tag>}
-                                    </div>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <Text>Tình trạng hiện trường</Text>
-                                        <Tag color="processing">Chưa xác định</Tag>
-                                    </div>
-                                </Space>
-                            </div>
+                    <Col xs={24} xl={10}>
+                        <Card bordered={false} style={{ borderRadius: 18, marginBottom: 20 }}>
+                            <Descriptions column={1} size="small">
+                                <Descriptions.Item label="Bước hiện tại">{getJourneyStepLabel(journey.current_step)}</Descriptions.Item>
+                                <Descriptions.Item label="Quy trình bán hàng">{pipelineName}</Descriptions.Item>
+                                <Descriptions.Item label="Giai đoạn bán hàng">{stageName}</Descriptions.Item>
+                                <Descriptions.Item label="Sale phụ trách">{journey.sales_owner_user || JOURNEY_EMPTY_VALUE}</Descriptions.Item>
+                                <Descriptions.Item label="Chủ sở hữu">{journey.owner_user_id || JOURNEY_EMPTY_VALUE}</Descriptions.Item>
+                                <Descriptions.Item label="Go / No-Go">{getOptionLabel(JOURNEY_GO_NO_GO_OPTIONS, journey.go_no_go_status)}</Descriptions.Item>
+                            </Descriptions>
+                        </Card>
+                        <Card bordered={false} style={{ borderRadius: 18 }}>
+                            <Descriptions column={1} size="small">
+                                <Descriptions.Item label="PM triển khai">{journey.delivery_pm_user || JOURNEY_EMPTY_VALUE}</Descriptions.Item>
+                                <Descriptions.Item label="Giám sát triển khai">{journey.delivery_supervisor_user || JOURNEY_EMPTY_VALUE}</Descriptions.Item>
+                                <Descriptions.Item label="Ngày bắt đầu dự kiến">{formatJourneyDate(journey.planned_start_date)}</Descriptions.Item>
+                                <Descriptions.Item label="Ngày kết thúc dự kiến">{formatJourneyDate(journey.planned_end_date)}</Descriptions.Item>
+                                <Descriptions.Item label="Ghi chú triển khai">{journey.delivery_note || JOURNEY_EMPTY_VALUE}</Descriptions.Item>
+                            </Descriptions>
                         </Card>
                     </Col>
                 </Row>
@@ -106,210 +209,187 @@ const SaleJourneyDetail: React.FC = () => {
             key: 'survey',
             label: <span><SearchOutlined /> Khảo sát</span>,
             children: (
-                <div>
-                    <div style={{ marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div>
-                            <Text type="secondary">Trạng thái:</Text>
-                            <Tag color={journey.survey_status === 'completed' ? 'success' : 'processing'} style={{ marginLeft: 8 }}>
-                                {journey.survey_status || 'Chưa thực hiện'}
-                            </Tag>
-                        </div>
-                        <Button type="primary" shape="round" icon={<PlusOutlined />} onClick={() => setShowSurveyModal(true)}>Đặt lịch khảo sát</Button>
-                    </div>
-                    
-                    <Card style={{ borderRadius: 16, border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
-                        <Empty description="Chưa có dữ liệu khảo sát hiện trường" />
-                    </Card>
-                </div>
-            )
+                <Card bordered={false} style={{ borderRadius: 18 }}>
+                    <Space direction="vertical" size={12} style={{ width: '100%' }}>
+                        <Space wrap>
+                            <Text type="secondary">Tiến độ khảo sát:</Text>
+                            <Tag color={journey.survey_status === 'completed' ? 'success' : 'processing'}>{journey.survey_status || 'not_started'}</Tag>
+                        </Space>
+                        <Text>Giám sát hiện trường: {journey.delivery_supervisor_user || journey.supervisor_name || JOURNEY_EMPTY_VALUE}</Text>
+                        <Text>Khảo sát gần nhất: {formatJourneyDate(journey.latest_site_report_at, true)}</Text>
+                        <Button type="primary" onClick={() => setShowSurveyModal(true)}>Đặt lịch khảo sát</Button>
+                    </Space>
+                </Card>
+            ),
         },
         {
             key: 'finance',
-            label: <span><DollarOutlined /> Báo giá & Thanh toán</span>,
+            label: <span><DollarOutlined /> Báo giá và thanh toán</span>,
             children: (
                 <Row gutter={[20, 20]}>
                     <Col xs={24} md={12}>
-                        <Card title="Dự toán & Báo giá" style={{ borderRadius: 16, border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
-                            <Descriptions size="small" column={1}>
-                                <Descriptions.Item label="Trạng thái báo giá">
-                                    <Tag color={journey.quote_status === 'sent' ? 'blue' : 'default'}>{journey.quote_status || 'Chưa gửi'}</Tag>
-                                </Descriptions.Item>
-                                <Descriptions.Item label="Giá trị dự kiến">{journey.estimated_cost_total?.toLocaleString('vi-VN') || '0'} đ</Descriptions.Item>
-                                <Descriptions.Item label="Duyệt thi công (PM)">
-                                    <Tag color={journey.pm_approval === 'approved' ? 'success' : 'default'}>{journey.pm_approval || 'Chờ duyệt'}</Tag>
-                                </Descriptions.Item>
+                        <Card bordered={false} style={{ borderRadius: 18 }}>
+                            <Descriptions column={1} size="small">
+                                <Descriptions.Item label="Trạng thái báo giá">{journey.quote_status || JOURNEY_EMPTY_VALUE}</Descriptions.Item>
+                                <Descriptions.Item label="Giá trị hợp đồng">{journey.total_contract_value?.toLocaleString('vi-VN') || '0'} đ</Descriptions.Item>
+                                <Descriptions.Item label="Đợt thanh toán tiếp theo">{journey.next_milestone_name || JOURNEY_EMPTY_VALUE}</Descriptions.Item>
+                                <Descriptions.Item label="Hạn mốc tiếp theo">{formatJourneyDate(journey.next_milestone_due)}</Descriptions.Item>
                             </Descriptions>
                         </Card>
                     </Col>
                     <Col xs={24} md={12}>
-                        <Card title="Tình hình thanh toán" style={{ borderRadius: 16, border: 'none', boxShadow: '0 4px 12px rgba(24, 144, 255, 0.05)' }}>
-                            <div style={{ textAlign: 'center', padding: '16px 0' }}>
-                                <Row>
-                                    <Col span={12}>
-                                        <Text type="secondary" style={{ display: 'block', fontSize: 12 }}>Đã thu</Text>
-                                        <Title level={3} style={{ margin: 0, color: '#52c41a' }}>{journey.collected_amount?.toLocaleString('vi-VN') || '0'}</Title>
-                                    </Col>
-                                    <Col span={12}>
-                                        <Text type="secondary" style={{ display: 'block', fontSize: 12 }}>Còn nợ</Text>
-                                        <Title level={3} style={{ margin: 0, color: '#ff4d4f' }}>{journey.outstanding_amount?.toLocaleString('vi-VN') || '0'}</Title>
-                                    </Col>
-                                </Row>
-                            </div>
+                        <Card bordered={false} style={{ borderRadius: 18 }}>
+                            <Descriptions column={1} size="small">
+                                <Descriptions.Item label="Đã thu">{journey.collected_amount?.toLocaleString('vi-VN') || '0'} đ</Descriptions.Item>
+                                <Descriptions.Item label="Còn nợ">{journey.outstanding_amount?.toLocaleString('vi-VN') || '0'} đ</Descriptions.Item>
+                                <Descriptions.Item label="Ghi chú thanh toán">{journey.last_payment_note || JOURNEY_EMPTY_VALUE}</Descriptions.Item>
+                            </Descriptions>
                         </Card>
                     </Col>
                 </Row>
-            )
+            ),
         },
         {
             key: 'timeline',
-            label: <span><ClockCircleOutlined /> Lịch sử & Hoạt động</span>,
+            label: <span><FileTextOutlined /> Lịch sử và tương tác</span>,
             children: (
-                <Row gutter={[20, 20]}>
-                    <Col xs={24} md={16}>
-                        <Card style={{ borderRadius: 16, border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
-                            {(journey.activities || []).length > 0 ? (
-                                <Timeline
-                                    mode="left"
-                                    items={journey.activities.map((a: any) => ({
-                                        color: a.activity_action?.includes('Hoàn thành') ? 'green' : 'blue',
-                                        children: (
-                                            <div style={{ marginBottom: 12 }}>
-                                                <Text strong style={{ fontSize: 14 }}>{a.activity_action}</Text>
-                                                <div style={{ fontSize: 11, color: '#bfbfbf' }}>{dayjs(a.activity_time).format('DD/MM/YYYY HH:mm')} · {a.activity_actor}</div>
-                                                <div style={{ 
-                                                    marginTop: 8, padding: '10px 14px', background: '#f5f5f5', 
-                                                    borderRadius: 8, fontSize: 13, color: '#595959' 
-                                                }}>
-                                                    {a.activity_summary}
-                                                </div>
-                                            </div>
-                                        ),
-                                    }))}
-                                />
-                            ) : (
-                                <Empty description="Chưa có lịch sử hoạt động" style={{ padding: '40px 0' }} />
-                            )}
-                        </Card>
-                    </Col>
-                    <Col xs={24} md={8}>
-                        <Space direction="vertical" style={{ width: '100%' }} size={12}>
-                            <Button type="primary" block size="large" shape="round" icon={<FileTextOutlined />} onClick={() => setShowLogModal(true)}>
-                                Ghi log tư vấn
-                            </Button>
-                            <Button block size="large" shape="round" icon={<BellOutlined />} onClick={() => setShowFollowUpModal(true)}>
-                                Theo dõi (Follow-up)
-                            </Button>
-                            <Card size="small" title="Ghi chú quan trọng" style={{ borderRadius: 12, marginTop: 8 }}>
-                                <Text type="secondary" style={{ fontSize: 13 }}>Không có ghi chú nào được đánh dấu.</Text>
-                            </Card>
-                        </Space>
-                    </Col>
-                </Row>
-            )
-        }
+                <Space direction="vertical" size={12} style={{ width: '100%' }}>
+                    <Button type="primary" onClick={() => setShowLogModal(true)}>Ghi log tư vấn</Button>
+                    <Button onClick={() => setShowFollowUpModal(true)}>Ghi chú follow-up</Button>
+                    <Card bordered={false} style={{ borderRadius: 18 }}>
+                        <Descriptions column={1} size="small">
+                            <Descriptions.Item label="Thread portal chưa đọc">{(journey.unread_thread_count || 0).toString()}</Descriptions.Item>
+                            <Descriptions.Item label="Ngữ cảnh thread gần nhất">{journey.latest_thread_context || JOURNEY_EMPTY_VALUE}</Descriptions.Item>
+                            <Descriptions.Item label="Trạng thái thread gần nhất">{journey.latest_thread_status || JOURNEY_EMPTY_VALUE}</Descriptions.Item>
+                            <Descriptions.Item label="Hoạt động gần nhất">{formatJourneyDate(journey.last_activity_at, true)}</Descriptions.Item>
+                        </Descriptions>
+                    </Card>
+                </Space>
+            ),
+        },
     ];
-
-    const HeaderGradient = {
-        background: journey.sla_status === 'overdue' 
-            ? 'linear-gradient(135deg, #fff1f0 0%, #ffa39e 100%)' 
-            : journey.sla_status === 'at_risk'
-            ? 'linear-gradient(135deg, #fff7e6 0%, #ffd591 100%)'
-            : 'linear-gradient(135deg, #f6ffed 0%, #b7eb8f 100%)',
-        color: journey.sla_status === 'overdue' ? '#a8071a' : journey.sla_status === 'at_risk' ? '#ad4e00' : '#237804'
-    };
 
     return (
         <div style={{ paddingBottom: 40 }}>
             <div style={{ marginBottom: 16 }}>
-                <Button 
-                    type="link" 
-                    icon={<ArrowLeftOutlined />} 
-                    onClick={() => navigate('/sale/dashboard')}
-                    style={{ padding: 0, color: '#595959' }}
-                >
-                    Quay lại Inbox
+                <Button type="link" icon={<ArrowLeftOutlined />} onClick={() => navigate('/sale/dashboard')} style={{ padding: 0 }}>
+                    Quay lại danh sách yêu cầu dịch vụ
                 </Button>
             </div>
 
-            <Card style={{ marginBottom: 24, borderRadius: 20, border: 'none', background: HeaderGradient.background }}>
-                <Row gutter={24} align="middle">
-                    <Col flex="auto">
-                        <Space size={12}>
-                            <Tag style={{ background: 'rgba(255,255,255,0.4)', borderRadius: 4, border: 'none', fontWeight: 700, color: HeaderGradient.color }}>
-                                {journey.journey_code}
-                            </Tag>
-                            <Tag color="processing" style={{ borderRadius: 4, border: 'none' }}>{journey.current_step_display || journey.current_step}</Tag>
-                            <Badge status={journey.sla_status === 'overdue' ? 'error' : journey.sla_status === 'at_risk' ? 'warning' : 'success'} text={<span style={{ color: HeaderGradient.color, fontWeight: 500 }}>{journey.sla_status === 'overdue' ? 'Quá hạn SLA' : 'Đúng hạn'}</span>} />
+            <Card bordered={false} style={{ marginBottom: 24, borderRadius: 24, background: slaMeta.background }}>
+                <Row gutter={[16, 16]} align="middle">
+                    <Col xs={24} lg={16}>
+                        <Space size={[8, 8]} wrap>
+                            <Tag color="blue">{journey.journey_code}</Tag>
+                            <Tag color={priorityMeta.color}>{priorityMeta.label}</Tag>
+                            <Tag color="processing">{getJourneyStepLabel(journey.current_step)}</Tag>
+                            <Tag style={{ color: slaMeta.color, border: `1px solid ${slaMeta.color}22` }}>{slaMeta.label}</Tag>
                         </Space>
-                        <Title level={3} style={{ margin: '12px 0 4px', color: HeaderGradient.color }}>{journey.idx_customer_id?.primary_text || journey.customer_name}</Title>
-                        <Text style={{ fontSize: 16, opacity: 0.8, color: HeaderGradient.color }}>{journey.request_title}</Text>
+                        <Title level={3} style={{ margin: '12px 0 4px' }}>{customerName}</Title>
+                        <Text style={{ display: 'block', fontSize: 16 }}>{journey.request_title || JOURNEY_EMPTY_VALUE}</Text>
+                        <Text type="secondary" style={{ display: 'block', marginTop: 12 }}>
+                            Sale: {journey.sales_owner_user || JOURNEY_EMPTY_VALUE} · Cập nhật: {formatJourneyDate(journey.last_activity_at, true)}
+                        </Text>
                     </Col>
-                    <Col style={{ textAlign: 'right' }}>
-                        <div style={{ padding: '12px 16px', background: 'rgba(255,255,255,0.3)', borderRadius: 12 }}>
-                            <Text type="secondary" style={{ display: 'block', fontSize: 11, marginBottom: 4 }}>Sale phụ trách</Text>
-                            <Space>
-                                <Avatar size={24} icon={<UserOutlined />} />
-                                <Text strong style={{ color: HeaderGradient.color }}>{journey.owner_user || 'Nguyễn Văn Sale'}</Text>
-                            </Space>
-                        </div>
+                    <Col xs={24} lg={8} style={{ textAlign: 'right' }}>
+                        <Space wrap>
+                            <Button icon={<EditOutlined />} onClick={() => setShowEditDrawer(true)}>Cập nhật</Button>
+                            <Popconfirm
+                                title="Xóa yêu cầu dịch vụ"
+                                description="Hồ sơ Journey hiện tại sẽ bị xóa khỏi hệ thống."
+                                okText="Xóa"
+                                cancelText="Hủy"
+                                okButtonProps={{ danger: true }}
+                                onConfirm={handleDelete}
+                            >
+                                <Button danger icon={<DeleteOutlined />}>Xóa</Button>
+                            </Popconfirm>
+                        </Space>
                     </Col>
                 </Row>
             </Card>
 
-            <div className="detail-tabs-wrapper">
-                <Tabs
-                    activeKey={activeTab}
-                    onChange={(key) => setSearchParams({ tab: key })}
-                    items={tabItems}
-                    size="large"
-                    type="line"
-                    style={{ background: '#fff', padding: '0 24px 24px', borderRadius: 20, boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}
-                />
-            </div>
+            <Tabs
+                activeKey={activeTab}
+                onChange={(key) => setSearchParams({ tab: key })}
+                items={tabItems}
+                size="large"
+                style={{ background: '#fff', padding: '0 24px 24px', borderRadius: 24 }}
+            />
 
-            <Modal title="Ghi log tư vấn khách hàng" open={showLogModal} onCancel={() => setShowLogModal(false)} footer={null} width={600} centered>
-                <ConsultationLogForm onSubmit={() => { message.success('Đã lưu log tư vấn'); setShowLogModal(false); }} onCancel={() => setShowLogModal(false)} />
+            <JourneyUpsertDrawer
+                open={showEditDrawer}
+                mode="edit"
+                journey={journey}
+                customers={customers}
+                pipelines={pipelines}
+                stages={stages}
+                saving={saving}
+                onCancel={() => setShowEditDrawer(false)}
+                onSubmit={handleUpdate}
+            />
+
+            <Modal title="Ghi log tư vấn khách hàng" open={showLogModal} footer={null} width={600} centered onCancel={() => setShowLogModal(false)}>
+                <ConsultationLogForm
+                    onSubmit={() => {
+                        message.success('Đã lưu log tư vấn.');
+                        setShowLogModal(false);
+                    }}
+                    onCancel={() => setShowLogModal(false)}
+                />
             </Modal>
 
-            <Modal 
-                title="Lên lịch khảo sát hiện trường" 
-                open={showSurveyModal} 
-                onCancel={() => setShowSurveyModal(false)}
-                onOk={() => { message.success('Đã lên lịch khảo sát'); setShowSurveyModal(false); }}
+            <Modal
+                title="Lên lịch khảo sát hiện trường"
+                open={showSurveyModal}
+                centered
                 okText="Xác nhận lịch"
                 cancelText="Hủy"
-                centered
+                onCancel={() => setShowSurveyModal(false)}
+                onOk={() => {
+                    message.success('Đã lưu lịch khảo sát.');
+                    setShowSurveyModal(false);
+                    surveyForm.resetFields();
+                }}
             >
                 <Form form={surveyForm} layout="vertical" style={{ paddingTop: 16 }}>
-                    <Form.Item label="Thời gian khảo sát" name="survey_at" rules={[{ required: true }]}>
+                    <Form.Item label="Thời gian khảo sát" name="survey_at" rules={[{ required: true, message: 'Vui lòng chọn thời gian khảo sát' }]}>
                         <DatePicker showTime style={{ width: '100%' }} />
                     </Form.Item>
-                    <Form.Item label="Nhân sự kỹ thuật" name="surveyor" initialValue="Chưa phân công">
-                        <Select options={[{ value: 'unassigned', label: 'Chờ phân công' }]} />
+                    <Form.Item label="Giám sát triển khai" name="surveyor" initialValue={journey.delivery_supervisor_user}>
+                        <Input placeholder="Nhập username giám sát phụ trách" />
                     </Form.Item>
                     <Form.Item label="Địa điểm gặp" name="address" initialValue={journey.site_address}>
                         <Input />
                     </Form.Item>
                     <Form.Item label="Ghi chú từ Sale" name="note">
-                        <TextArea rows={2} />
+                        <TextArea rows={3} />
                     </Form.Item>
                 </Form>
             </Modal>
-            {/* Follow-up Modal */}
-            <Modal 
-                title="Ghi chú Follow-up KH" 
-                open={showFollowUpModal} 
-                onCancel={() => { setShowFollowUpModal(false); followForm.resetFields(); }}
-                onOk={() => { message.success('Đã lưu follow-up'); setShowFollowUpModal(false); followForm.resetFields(); }} 
-                okText="Lưu" 
-                cancelText="Hủy"
+
+            <Modal
+                title="Ghi chú follow-up khách hàng"
+                open={showFollowUpModal}
                 centered
+                okText="Lưu"
+                cancelText="Hủy"
+                onCancel={() => {
+                    setShowFollowUpModal(false);
+                    followForm.resetFields();
+                }}
+                onOk={() => {
+                    message.success('Đã lưu follow-up.');
+                    setShowFollowUpModal(false);
+                    followForm.resetFields();
+                }}
             >
                 <Form form={followForm} layout="vertical" style={{ paddingTop: 16 }}>
-                    <Form.Item label="Thời điểm follow-up" name="follow_up_at" rules={[{ required: true }]}>
+                    <Form.Item label="Thời điểm follow-up" name="follow_up_at" rules={[{ required: true, message: 'Vui lòng chọn thời điểm follow-up' }]}>
                         <DatePicker showTime style={{ width: '100%' }} />
                     </Form.Item>
-                    <Form.Item label="Phản hồi của khách" name="customer_response" rules={[{ required: true }]}>
+                    <Form.Item label="Phản hồi của khách" name="customer_response" rules={[{ required: true, message: 'Vui lòng ghi nhận phản hồi của khách hàng' }]}>
                         <TextArea rows={3} />
                     </Form.Item>
                     <Form.Item label="Cam kết tiếp theo" name="next_commitment">
@@ -321,4 +401,4 @@ const SaleJourneyDetail: React.FC = () => {
     );
 };
 
-export default SaleJourneyDetail;
+export default SaleJourneyContext;

@@ -1,101 +1,106 @@
 import React from 'react';
-import { Layout, Menu, Badge, Grid, Input } from 'antd';
+import { Badge, Grid, Input, Layout, Menu } from 'antd';
 import {
-    InboxOutlined,
+    BellOutlined,
     ClockCircleOutlined,
     FormOutlined,
+    InboxOutlined,
     MessageOutlined,
-    UserOutlined,
-    BellOutlined,
     SearchOutlined,
-    HistoryOutlined
+    TeamOutlined,
+    UserOutlined,
 } from '@ant-design/icons';
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { UserMenu } from '../../components/common/Header/UserMenu';
+import { useAuth } from '../../hooks/useAuth';
 import './SaleLayout.css';
 
 const { Header, Content, Sider } = Layout;
-const { useBreakpoint } = Grid;
 const { Search } = Input;
 
 export const SaleLayout: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { role, user } = useAuth();
-    const screens = useBreakpoint();
+    const { role } = useAuth();
+    const screens = Grid.useBreakpoint();
     const isMobile = !screens.md;
 
     React.useEffect(() => {
-        if (role !== 'sale') {
-            if (user && user.role) {
-                navigate(`/${user.role}/dashboard`);
-            } else {
-                navigate('/login');
-            }
+        if (role && role !== 'sale') {
+            navigate(`/${role}/dashboard`);
+            return;
         }
-    }, [role, user, navigate]);
 
-    // Convert pathname to menu active key
+        if (!role) {
+            navigate('/login');
+        }
+    }, [navigate, role]);
+
     const getActiveKey = () => {
-        const path = location.pathname;
-        if (path === '/sale/dashboard') return 'journeys';
-        if (path === '/sale/sla') return 'sla';
-        if (path === '/sale/surveys') return 'surveys';
-        if (path === '/sale/communications') return 'communications';
-        if (path.includes('/sale/profile')) return 'profile';
-        return 'journeys';
+        if (location.pathname.startsWith('/sale/customers')) {
+            return '/sale/customers';
+        }
+
+        if (location.pathname.startsWith('/sale/dashboard')) {
+            return '/sale/dashboard';
+        }
+
+        if (location.pathname.startsWith('/sale/sla')) {
+            return '/sale/sla';
+        }
+
+        if (location.pathname.startsWith('/sale/surveys')) {
+            return '/sale/surveys';
+        }
+
+        if (location.pathname.startsWith('/sale/communications')) {
+            return '/sale/communications';
+        }
+
+        if (location.pathname.startsWith('/sale/profile')) {
+            return '/sale/profile';
+        }
+
+        return '/sale/dashboard';
     };
 
-    const menuItems = [
+    const mobileMenuItems = [
         {
-            key: 'journeys',
+            key: '/sale/dashboard',
             icon: <InboxOutlined />,
-            label: 'Hành trình',
-            onClick: () => navigate('/sale/dashboard')
+            label: 'Yêu cầu dịch vụ',
+            onClick: () => navigate('/sale/dashboard'),
         },
         {
-            key: 'sla',
+            key: '/sale/customers',
+            icon: <TeamOutlined />,
+            label: 'Khách hàng',
+            onClick: () => navigate('/sale/customers'),
+        },
+        {
+            key: '/sale/sla',
             icon: <ClockCircleOutlined />,
-            label: 'SLA',
-            onClick: () => navigate('/sale/sla')
+            label: 'Cảnh báo tiến độ',
+            onClick: () => navigate('/sale/sla'),
         },
         {
-            key: 'surveys',
+            key: '/sale/surveys',
             icon: <FormOutlined />,
             label: 'Khảo sát',
-            onClick: () => navigate('/sale/surveys')
+            onClick: () => navigate('/sale/surveys'),
         },
         {
-            key: 'communications',
+            key: '/sale/communications',
             icon: <MessageOutlined />,
             label: 'Giao tiếp',
-            onClick: () => navigate('/sale/communications')
+            onClick: () => navigate('/sale/communications'),
         },
         {
-            key: 'profile',
+            key: '/sale/profile',
             icon: <UserOutlined />,
             label: 'Cá nhân',
-            onClick: () => navigate('/sale/profile')
+            onClick: () => navigate('/sale/profile'),
         },
-        // {
-        //     key: 'stock-out',
-        //     icon: <FormOutlined />,
-        //     label: 'Tạo phiếu xuất',
-        //     onClick: () => navigate('/sale/inventory/stock-out')
-        // },
-        // {
-        //     key: 'allocation',
-        //     icon: <FormOutlined />,
-        //     label: 'Tạo phiếu mượn',
-        //     onClick: () => navigate('/sale/assets/allocation')
-        // },
-        // {
-        //     key: 'inventory-history',
-        //     icon: <HistoryOutlined />,
-        //     label: 'Lịch sử',
-        //     onClick: () => navigate('/sale/inventory/history')
-        // }
     ];
 
     const desktopMenuItems = [
@@ -104,18 +109,34 @@ export const SaleLayout: React.FC = () => {
             icon: <InboxOutlined />,
             label: 'Hành trình khách hàng',
             children: [
-                { key: '/sale/dashboard', label: 'Journey Inbox', onClick: () => navigate('/sale/dashboard') },
-                { key: '/sale/sla', label: 'SLA Queue', onClick: () => navigate('/sale/sla') },
-                { key: '/sale/surveys', label: 'Khảo sát', onClick: () => navigate('/sale/surveys') },
-                { key: '/sale/communications', label: 'Giao tiếp khách hàng', onClick: () => navigate('/sale/communications') },
-                { key: '/sale/inventory/stock-out', label: 'Tạo phiếu xuất', onClick: () => navigate('/sale/inventory/stock-out') },
-                { key: '/sale/assets/allocation', label: 'Tạo phiếu mượn', onClick: () => navigate('/sale/assets/allocation') },
-                { key: '/sale/inventory/history', label: 'Lịch sử xuất/nhập', onClick: () => navigate('/sale/inventory/history') },
+                {
+                    key: '/sale/dashboard',
+                    label: 'Yêu cầu dịch vụ',
+                    onClick: () => navigate('/sale/dashboard'),
+                },
+                {
+                    key: '/sale/customers',
+                    label: 'Khách hàng',
+                    onClick: () => navigate('/sale/customers'),
+                },
+                {
+                    key: '/sale/sla',
+                    label: 'Cảnh báo tiến độ',
+                    onClick: () => navigate('/sale/sla'),
+                },
+                {
+                    key: '/sale/surveys',
+                    label: 'Khảo sát',
+                    onClick: () => navigate('/sale/surveys'),
+                },
+                {
+                    key: '/sale/communications',
+                    label: 'Giao tiếp khách hàng',
+                    onClick: () => navigate('/sale/communications'),
+                },
             ],
         },
     ];
-
-    // User menu logic moved to shared UserMenu component
 
     return (
         <Layout className="sale-layout">
@@ -129,16 +150,26 @@ export const SaleLayout: React.FC = () => {
                         left: 0,
                         top: 0,
                         bottom: 0,
-                        background: '#001529'
+                        background: '#001529',
                     }}
                 >
-                    <div style={{ height: 64, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 18, fontWeight: 'bold' }}>
+                    <div
+                        style={{
+                            height: 64,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: '#fff',
+                            fontSize: 18,
+                            fontWeight: 700,
+                        }}
+                    >
                         SIRA Sale
                     </div>
                     <Menu
                         theme="dark"
                         mode="inline"
-                        selectedKeys={[location.pathname]}
+                        selectedKeys={[getActiveKey()]}
                         defaultOpenKeys={['journeys-group']}
                         items={desktopMenuItems}
                     />
@@ -153,9 +184,9 @@ export const SaleLayout: React.FC = () => {
 
                     {!isMobile && (
                         <Search
-                            placeholder="Tìm hành trình..."
+                            placeholder="Tìm hành trình, khách hàng hoặc nội dung yêu cầu..."
                             allowClear
-                            style={{ maxWidth: 400, margin: '0 24px' }}
+                            style={{ maxWidth: 460, margin: '0 24px' }}
                             prefix={<SearchOutlined />}
                         />
                     )}
@@ -167,18 +198,18 @@ export const SaleLayout: React.FC = () => {
                         <UserMenu avatarColor="#52c41a" />
                     </div>
                 </Header>
+
                 <Content className="sale-content">
                     <Outlet />
                 </Content>
             </Layout>
 
-            {/* Mobile Bottom Navigation */}
             {isMobile && (
                 <div className="sale-bottom-nav">
                     <Menu
                         mode="horizontal"
                         selectedKeys={[getActiveKey()]}
-                        items={menuItems.map(item => ({
+                        items={mobileMenuItems.map((item) => ({
                             ...item,
                             label: (
                                 <div className="bottom-nav-item">
@@ -186,7 +217,7 @@ export const SaleLayout: React.FC = () => {
                                     <span className="bottom-nav-text">{item.label}</span>
                                 </div>
                             ),
-                            icon: null
+                            icon: null,
                         }))}
                         className="bottom-menu"
                     />

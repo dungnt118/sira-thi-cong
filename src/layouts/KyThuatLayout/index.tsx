@@ -19,18 +19,18 @@ const { Header, Content } = Layout;
 export const KyThuatLayout: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { role, user } = useAuth();
+    const { role } = useAuth();
 
     React.useEffect(() => {
-        if (role !== 'ky-thuat') {
-            if (user && user.role) {
-                // Redirect to user's correct dashboard based on their role
-                navigate(`/${user.role}/dashboard`);
-            } else {
-                navigate('/login');
-            }
+        if (role && role !== 'ky-thuat') {
+            navigate(`/${role}/dashboard`);
+            return;
         }
-    }, [role, user, navigate]);
+
+        if (!role) {
+            navigate('/login');
+        }
+    }, [role, navigate]);
     
     // Convert pathname to menu active key
     const getActiveKey = () => {

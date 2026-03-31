@@ -69,6 +69,8 @@ import SurveyCoordination from '../pages/sale/Journeys/SurveyCoordination';
 import SaleSurveyDetail from '../pages/sale/Journeys/SaleSurveyDetail';
 import CommunicationsCenter from '../pages/sale/Journeys/CommunicationsCenter';
 import SaleJourneyDetail from '../pages/sale/Journeys/SaleJourneyContext';
+import SaleCustomerList from '../pages/sale/Customers/CustomerList';
+import SaleCustomerDetail from '../pages/sale/Customers/CustomerDetail';
 
 // Portal Sub-pages
 import PublishedTimeline from '../pages/public/portal/PublishedTimeline';
@@ -255,6 +257,8 @@ function App() {
                             <Route path="/sale" element={<SaleLayout />}>
                                 <Route index element={<Navigate to="/sale/dashboard" replace />} />
                                 <Route path="dashboard" element={<SaleDashboard />} />
+                                <Route path="customers" element={<SaleCustomerList />} />
+                                <Route path="customers/:customerId" element={<SaleCustomerDetail />} />
                                 <Route path="sla" element={<SLAQueue />} />
                                 <Route path="surveys" element={<SurveyCoordination />} />
                                 <Route path="communications" element={<CommunicationsCenter />} />
