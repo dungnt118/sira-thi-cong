@@ -28,6 +28,7 @@ export interface IAssetAllocation {
   history?: IHistoryItem[];
   asset_name?: string;
   asset_code?: string;
+  journey_name?: string;
 }
 
 export interface ISignaturesItem {
@@ -63,6 +64,7 @@ export interface ICreateAssetAllocationInput {
   history?: IHistoryItem[];
   asset_name?: string;
   asset_code?: string;
+  journey_name?: string;
 }
 
 export type IAssetAllocationListResponse = ApiListResponse<IAssetAllocation>

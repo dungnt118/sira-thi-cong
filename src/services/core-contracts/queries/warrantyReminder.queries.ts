@@ -29,6 +29,7 @@ export const FIND_WARRANTYREMINDER_DTO = gql`
         sent_at
         status
         message
+        journey_name
       }
     }
   }
@@ -63,6 +64,7 @@ export const QUERY_WARRANTYREMINDERS_DTO = gql`
         sent_at
         status
         message
+        journey_name
       }
     }
   }

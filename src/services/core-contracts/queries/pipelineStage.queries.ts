@@ -21,6 +21,7 @@ export const FIND_PIPELINESTAGE_DTO = gql`
         order
         color
         system_stage
+        journey_step_code
       }
     }
   }
@@ -47,6 +48,7 @@ export const QUERY_PIPELINESTAGES_DTO = gql`
         order
         color
         system_stage
+        journey_step_code
       }
     }
   }

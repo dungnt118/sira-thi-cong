@@ -26,6 +26,7 @@ export interface IStockRequest {
   converted_order_id?: string;
   idx_converted_order_id?: IndexedContentItem;
   created_at?: string | Date;
+  journey_name?: string;
 }
 
 export interface IItemsItem {
@@ -53,6 +54,7 @@ export interface ICreateStockRequestInput {
   review_note?: string;
   converted_order_id?: string;
   created_at?: string | Date;
+  journey_name?: string;
 }
 
 export type IStockRequestListResponse = ApiListResponse<IStockRequest>

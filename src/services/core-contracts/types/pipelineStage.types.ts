@@ -14,6 +14,7 @@ export interface IPipelineStage {
   order?: number;
   color?: string;
   system_stage?: PipelineStageSystemStageEnum;
+  journey_step_code?: PipelineStageJourneyStepCodeEnum;
 }
 
 export interface ICreatePipelineStageInput {
@@ -22,10 +23,13 @@ export interface ICreatePipelineStageInput {
   order?: number;
   color?: string;
   system_stage?: PipelineStageSystemStageEnum2;
+  journey_step_code?: PipelineStageJourneyStepCodeEnum2;
 }
 
 export type IPipelineStageListResponse = ApiListResponse<IPipelineStage>
 
 // Union types generated from value_options
 export type PipelineStageSystemStageEnum = 'new' | 'in_progress' | 'won' | 'lost';
+export type PipelineStageJourneyStepCodeEnum = 'lead_intake' | 'qualification' | 'survey_planning' | 'site_survey' | 'survey_review' | 'estimate_preparation' | 'quotation_preparation' | 'quotation_sent' | 'quotation_approved' | 'contract_signing' | 'project_execution' | 'handover_acceptance' | 'warranty_aftercare';
 export type PipelineStageSystemStageEnum2 = 'new' | 'in_progress' | 'won' | 'lost';
+export type PipelineStageJourneyStepCodeEnum2 = 'lead_intake' | 'qualification' | 'survey_planning' | 'site_survey' | 'survey_review' | 'estimate_preparation' | 'quotation_preparation' | 'quotation_sent' | 'quotation_approved' | 'contract_signing' | 'project_execution' | 'handover_acceptance' | 'warranty_aftercare';

@@ -41,6 +41,7 @@ export interface IPaymentMilestone {
   receipt_note?: string;
   contract_id?: string;
   idx_contract_id?: IndexedContentItem;
+  journey_name?: string;
 }
 
 export interface ICreatePaymentMilestoneInput {
@@ -68,6 +69,7 @@ export interface ICreatePaymentMilestoneInput {
   latest_collection_task_id?: string;
   receipt_note?: string;
   contract_id?: string;
+  journey_name?: string;
 }
 
 export type IPaymentMilestoneListResponse = ApiListResponse<IPaymentMilestone>

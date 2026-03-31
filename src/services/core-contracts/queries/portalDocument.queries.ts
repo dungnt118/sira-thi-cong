@@ -21,7 +21,6 @@ export const FIND_PORTALDOCUMENT_DTO = gql`
         journey_code
         context_type
         published_context
-        file_name
         file_type
         files
         thumbnail_url
@@ -54,7 +53,6 @@ export const QUERY_PORTALDOCUMENTS_DTO = gql`
         journey_code
         context_type
         published_context
-        file_name
         file_type
         files
         thumbnail_url

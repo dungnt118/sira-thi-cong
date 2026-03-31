@@ -48,6 +48,7 @@ export const FIND_ASSETALLOCATION_DTO = gql`
         }
         asset_name
         asset_code
+        journey_name
       }
     }
   }
@@ -101,6 +102,7 @@ export const QUERY_ASSETALLOCATIONS_DTO = gql`
         }
         asset_name
         asset_code
+        journey_name
       }
     }
   }

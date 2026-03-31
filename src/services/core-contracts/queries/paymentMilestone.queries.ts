@@ -56,6 +56,7 @@ export const FIND_PAYMENTMILESTONE_DTO = gql`
         contract_id
         idx_contract_id
         contract_id
+        journey_name
       }
     }
   }
@@ -117,6 +118,7 @@ export const QUERY_PAYMENTMILESTONES_DTO = gql`
         contract_id
         idx_contract_id
         contract_id
+        journey_name
       }
     }
   }

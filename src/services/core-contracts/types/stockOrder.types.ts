@@ -34,6 +34,11 @@ export interface IStockOrder {
   signatures?: ISignaturesItem[];
   history?: IHistoryItem[];
   items?: IItemsItem[];
+  journey_source_id?: string;
+  idx_journey_source_id?: IndexedContentItem;
+  distributor_source_id?: string;
+  idx_distributor_source_id?: IndexedContentItem;
+  journey_name?: string;
 }
 
 export interface ISignaturesItem {
@@ -91,6 +96,9 @@ export interface ICreateStockOrderInput {
   signatures?: ISignaturesItem[];
   history?: IHistoryItem[];
   items?: IItemsItem[];
+  journey_source_id?: string;
+  distributor_source_id?: string;
+  journey_name?: string;
 }
 
 export type IStockOrderListResponse = ApiListResponse<IStockOrder>
@@ -99,12 +107,12 @@ export type IStockOrderListResponse = ApiListResponse<IStockOrder>
 export type StockOrderTypeEnum = 'out' | 'in';
 export type StockOrderStatusEnum = 'draft' | 'requested' | 'approved' | 'dispatched' | 'received' | 'completed' | 'discrepancy' | 'cancelled';
 export type StockOrderJourneyStepCodeEnum = 'lead_intake' | 'qualification' | 'survey_planning' | 'site_survey' | 'survey_review' | 'estimate_preparation' | 'quotation_preparation' | 'quotation_sent' | 'quotation_approved' | 'contract_signing' | 'project_execution' | 'handover_acceptance' | 'warranty_aftercare';
-export type StockOrderSourceEnum = 'distributor' | 'project' | 'other';
+export type StockOrderSourceEnum = 'distributor' | 'journey' | 'other';
 export type StockOrderDiscrepancyStatusEnum = 'none' | 'pending_review' | 'confirmed' | 'resolved';
 export type SignaturesRoleEnum = 'pm' | 'accountant' | 'warehouse' | 'supervisor';
 export type ItemsUnitEnum = 'kg' | 'lit' | 'm2' | 'thung' | 'cuon' | 'cai';
 export type StockOrderTypeEnum2 = 'out' | 'in';
 export type StockOrderStatusEnum2 = 'draft' | 'requested' | 'approved' | 'dispatched' | 'received' | 'completed' | 'discrepancy' | 'cancelled';
 export type StockOrderJourneyStepCodeEnum2 = 'lead_intake' | 'qualification' | 'survey_planning' | 'site_survey' | 'survey_review' | 'estimate_preparation' | 'quotation_preparation' | 'quotation_sent' | 'quotation_approved' | 'contract_signing' | 'project_execution' | 'handover_acceptance' | 'warranty_aftercare';
-export type StockOrderSourceEnum2 = 'distributor' | 'project' | 'other';
+export type StockOrderSourceEnum2 = 'distributor' | 'journey' | 'other';
 export type StockOrderDiscrepancyStatusEnum2 = 'none' | 'pending_review' | 'confirmed' | 'resolved';

@@ -67,6 +67,13 @@ export const FIND_STOCKORDER_DTO = gql`
           remaining_percent
           discrepancy_note
         }
+        journey_source_id
+        idx_journey_source_id
+        journey_source_id
+        distributor_source_id
+        idx_distributor_source_id
+        distributor_source_id
+        journey_name
       }
     }
   }
@@ -139,6 +146,13 @@ export const QUERY_STOCKORDERS_DTO = gql`
           remaining_percent
           discrepancy_note
         }
+        journey_source_id
+        idx_journey_source_id
+        journey_source_id
+        distributor_source_id
+        idx_distributor_source_id
+        distributor_source_id
+        journey_name
       }
     }
   }

@@ -57,6 +57,29 @@ export const FIND_JOURNEY_DTO = gql`
         published_step_count
         missing_document_count
         document_count
+        contact_phone
+        contact_email
+        sales_pipeline_id
+        idx_sales_pipeline_id
+        sales_pipeline_id
+        sales_stage_id
+        idx_sales_stage_id
+        sales_stage_id
+        sales_owner_user
+        duplicate_customer_id
+        idx_duplicate_customer_id
+        duplicate_customer_id
+        delivery_pm_user
+        delivery_supervisor_user
+        planned_start_date
+        planned_end_date
+        delivery_note
+        latest_project_settlement_id
+        idx_latest_project_settlement_id
+        latest_project_settlement_id
+        latest_closeout_package_id
+        idx_latest_closeout_package_id
+        latest_closeout_package_id
       }
     }
   }
@@ -119,6 +142,29 @@ export const QUERY_JOURNEYS_DTO = gql`
         published_step_count
         missing_document_count
         document_count
+        contact_phone
+        contact_email
+        sales_pipeline_id
+        idx_sales_pipeline_id
+        sales_pipeline_id
+        sales_stage_id
+        idx_sales_stage_id
+        sales_stage_id
+        sales_owner_user
+        duplicate_customer_id
+        idx_duplicate_customer_id
+        duplicate_customer_id
+        delivery_pm_user
+        delivery_supervisor_user
+        planned_start_date
+        planned_end_date
+        delivery_note
+        latest_project_settlement_id
+        idx_latest_project_settlement_id
+        latest_project_settlement_id
+        latest_closeout_package_id
+        idx_latest_closeout_package_id
+        latest_closeout_package_id
       }
     }
   }

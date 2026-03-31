@@ -37,6 +37,7 @@ export const FIND_WARRANTYCARD_DTO = gql`
         issued_at
         materials
         qr_code
+        journey_name
       }
     }
   }
@@ -79,6 +80,7 @@ export const QUERY_WARRANTYCARDS_DTO = gql`
         issued_at
         materials
         qr_code
+        journey_name
       }
     }
   }

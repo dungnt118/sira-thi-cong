@@ -14,7 +14,6 @@ export interface IPortalDocument {
   journey_code?: string;
   context_type?: PortalDocumentContextTypeEnum;
   published_context?: string;
-  file_name?: string;
   file_type?: PortalDocumentFileTypeEnum;
   files?: HeadlessFileUpload[];
   thumbnail_url?: string;
@@ -29,7 +28,6 @@ export interface ICreatePortalDocumentInput {
   journey_code?: string;
   context_type?: PortalDocumentContextTypeEnum2;
   published_context?: string;
-  file_name?: string;
   file_type?: PortalDocumentFileTypeEnum2;
   files?: HeadlessFileUpload[];
   thumbnail_url?: string;

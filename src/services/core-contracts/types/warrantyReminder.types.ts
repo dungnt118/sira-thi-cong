@@ -21,6 +21,7 @@ export interface IWarrantyReminder {
   sent_at?: string | Date;
   status?: WarrantyReminderStatusEnum;
   message?: string;
+  journey_name?: string;
 }
 
 export interface ICreateWarrantyReminderInput {
@@ -35,6 +36,7 @@ export interface ICreateWarrantyReminderInput {
   sent_at?: string | Date;
   status?: WarrantyReminderStatusEnum2;
   message?: string;
+  journey_name?: string;
 }
 
 export type IWarrantyReminderListResponse = ApiListResponse<IWarrantyReminder>

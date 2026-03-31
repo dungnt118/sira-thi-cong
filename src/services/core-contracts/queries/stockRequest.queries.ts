@@ -41,6 +41,7 @@ export const FIND_STOCKREQUEST_DTO = gql`
         idx_converted_order_id
         converted_order_id
         created_at
+        journey_name
       }
     }
   }
@@ -87,6 +88,7 @@ export const QUERY_STOCKREQUESTS_DTO = gql`
         idx_converted_order_id
         converted_order_id
         created_at
+        journey_name
       }
     }
   }

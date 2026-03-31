@@ -28,6 +28,7 @@ export interface IWarrantyCard {
   issued_at?: string | Date;
   materials?: string[];
   qr_code?: string;
+  journey_name?: string;
 }
 
 export interface ICreateWarrantyCardInput {
@@ -48,6 +49,7 @@ export interface ICreateWarrantyCardInput {
   issued_at?: string | Date;
   materials?: string[];
   qr_code?: string;
+  journey_name?: string;
 }
 
 export type IWarrantyCardListResponse = ApiListResponse<IWarrantyCard>
