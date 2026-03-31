@@ -1,0 +1,260 @@
+# CI/CD: build & push Docker images — tương đương build-multiple-images.bat
+# Tag: <DOCKER_REPO>:<tên_project>_cms_v<version>  (vd: dungnt118/freepbx:bac_cms_v3.0.0)
+# Chi tiết Secrets/Variables/inputs: Docs/ci-cd/github-actions-docker-portainer.md
+#
+# Secrets (chỉ giá trị nhạy cảm):
+#   DOCKERHUB_USERNAME   — Docker Hub user
+#   DOCKERHUB_TOKEN        — Docker Hub Access Token
+#   PORTAINER_API_TOKEN    — Portainer → My account → Access tokens (X-API-Key)
+#   (Pull private qua API dùng thêm DOCKERHUB_* → header X-Registry-Auth; UI Registry Portainer không tự áp cho proxy Docker.)
+#
+# Variables (không nhạy cảm — Actions → Variables):
+#   PORTAINER_URL                 — Base URL, vd https://portainer.demego.vn (không / cuối)
+#   PORTAINER_ENDPOINT_ID         — ID endpoint Docker (số)
+#   PORTAINER_CONTAINER_NAME      — Tên container thuần; có giá trị → ưu tiên recreate container
+#   PORTAINER_STACK_ID            — ID stack (fallback redeploy stack khi không dùng container)
+#   DOCKER_IMAGE_REPO             — mặc định dungnt118/freepbx nếu trống
+#   PORTAINER_RECREATE_STATIC_PROJECT — project StaticBuild cho deploy_image (mặc định qltn_multitenant)
+#   PORTAINER_CONTAINER_NETWORK   — mặc định qltn-shared-net
+#   PORTAINER_NETWORK_ALIASES     — CSV alias DNS (mặc định cms)
+#   PORTAINER_CONTAINER_BOOTSTRAP_SPEC — tuỳ chọn: đường dẫn JSON bootstrap (mặc định deploy/portainer-container-bootstrap.json)
+#
+# Tương thích chuyển đổi: nếu Variable trống, workflow vẫn đọc Secret cùng tên (PORTAINER_URL, …).
+
+name: Docker — build & push (multi StaticBuild)
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Phiên bản image (vd: 3.0.0 hoặc 3.0.0-rc1)'
+        required: true
+        type: string
+      push_images:
+        description: 'Push lên Docker Hub sau khi build'
+        required: true
+        type: boolean
+        default: true
+  push:
+    branches:
+      - main
+      - 'develop*'
+
+concurrency:
+  group: docker-build-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Repository Variables: DOCKER_IMAGE_REPO (vd: dungnt118/freepbx). Nếu trống → mặc định bên dưới.
+  DOCKER_IMAGE_REPO: ${{ vars.DOCKER_IMAGE_REPO != '' && vars.DOCKER_IMAGE_REPO || 'dungnt118/sira-thi-cong' }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Không dùng cache setup; mặc định npm install / build.
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Cài dependencies
+        run: npm ci
+
+      # docker/Dockerfile dùng COPY . . — nhưng workflow này vẫn để build ngoài (tiết kiệm thời gian/layer khi build multi).
+      # Tuy nhiên docker/Dockerfile của dự án hiện tại là multi-stage build, tự chạy npm run build bên trong.
+      # Ta có 2 lựa chọn: 
+      # 1. Để Dockerfile tự build (khuyên dùng cho tính độc lập).
+      # 2. Build ngoài rồi COPY vào.
+      # Ở đây ta sẽ điều chỉnh để workflow chỉ chuẩn bị môi trường và gọi Docker build.
+      - name: Build frontend (kiểm tra trước khi đóng gói)
+        run: npm run build
+        env:
+          NODE_OPTIONS: --max-old-space-size=6144
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Resolve version
+        id: ver
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            V="${{ inputs.version }}"
+          else
+            PKG=$(node -p "require('./package.json').version")
+            V="${PKG}-${GITHUB_SHA:0:7}"
+          fi
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+          echo "Using VERSION=$V"
+
+      - name: Login Docker Hub
+        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.push_images) }}
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build (và push) Docker image
+        id: docker_build
+        shell: bash
+        env:
+          VERSION: ${{ steps.ver.outputs.version }}
+          DOCKER_REPO: ${{ env.DOCKER_IMAGE_REPO }}
+          PORTAINER_RECREATE_STATIC_PROJECT: ${{ vars.PORTAINER_RECREATE_STATIC_PROJECT }}
+        run: |
+          set -euo pipefail
+          
+          # Mặc định sử dụng docker/Dockerfile
+          DOCKERFILE="docker/Dockerfile"
+          if [ ! -f "$DOCKERFILE" ]; then
+            echo "::error::Không tìm thấy $DOCKERFILE"
+            exit 1
+          fi
+
+          PUSH=0
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            if [ "${{ inputs.push_images }}" = "true" ]; then PUSH=1; fi
+          else
+            PUSH=1
+          fi
+
+          # PROJECT_NAME lấy từ package.json hoặc mặc định
+          PROJECT_NAME=$(node -p "require('./package.json').name")
+          TAG="${DOCKER_REPO}:${PROJECT_NAME}_v${VERSION}"
+          
+          echo "::group::Build $TAG ($DOCKERFILE)"
+          docker build -t "$TAG" -f "$DOCKERFILE" .
+          echo "::endgroup::"
+          
+          if [ "$PUSH" -eq 1 ]; then
+            echo "::group::Push $TAG"
+            docker push "$TAG"
+            echo "::endgroup::"
+          fi
+
+          echo "deploy_image=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "Hoàn tất build image, VERSION=$VERSION, PUSH=$PUSH, deploy_image=${TAG}"
+
+      # Portainer: ưu tiên recreate container thuần (network qltn-shared-net); không có tên container → redeploy stack (legacy)
+      - name: Portainer — deploy (container hoặc stack)
+        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.push_images) }}
+        shell: bash
+        env:
+          # Ưu tiên Variables; fallback Secrets cùng tên khi đang migrate
+          PORTAINER_URL: ${{ vars.PORTAINER_URL != '' && vars.PORTAINER_URL || secrets.PORTAINER_URL }}
+          PORTAINER_API_TOKEN: ${{ secrets.PORTAINER_API_TOKEN }}
+          PORTAINER_ENDPOINT_ID: ${{ vars.PORTAINER_ENDPOINT_ID != '' && vars.PORTAINER_ENDPOINT_ID || secrets.PORTAINER_ENDPOINT_ID }}
+          PORTAINER_STACK_ID: ${{ vars.PORTAINER_STACK_ID != '' && vars.PORTAINER_STACK_ID || secrets.PORTAINER_STACK_ID }}
+          PORTAINER_CONTAINER_NAME: ${{ vars.PORTAINER_CONTAINER_NAME != '' && vars.PORTAINER_CONTAINER_NAME || secrets.PORTAINER_CONTAINER_NAME }}
+          PORTAINER_CONTAINER_NETWORK: ${{ vars.PORTAINER_CONTAINER_NETWORK }}
+          PORTAINER_NETWORK_ALIASES: ${{ vars.PORTAINER_NETWORK_ALIASES }}
+          PORTAINER_CONTAINER_BOOTSTRAP_SPEC: ${{ vars.PORTAINER_CONTAINER_BOOTSTRAP_SPEC }}
+          PORTAINER_RECREATE_STATIC_PROJECT: ${{ vars.PORTAINER_RECREATE_STATIC_PROJECT }}
+          DEPLOY_IMAGE: ${{ steps.docker_build.outputs.deploy_image }}
+          # Private Docker Hub: Docker API qua Portainer cần X-Registry-Auth (cùng credential đã push)
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${PORTAINER_URL:-}" ] || [ -z "${PORTAINER_API_TOKEN:-}" ] || [ -z "${PORTAINER_ENDPOINT_ID:-}" ]; then
+            echo "::notice::Bỏ qua Portainer: thiếu PORTAINER_URL / PORTAINER_API_TOKEN / PORTAINER_ENDPOINT_ID."
+            exit 0
+          fi
+
+          export PORTAINER_URL
+          export PORTAINER_API_TOKEN
+          export PORTAINER_ENDPOINT_ID
+
+          if [ -n "${PORTAINER_CONTAINER_NAME:-}" ]; then
+            if [ -z "${DEPLOY_IMAGE:-}" ]; then
+              RPROJ="${PORTAINER_RECREATE_STATIC_PROJECT:-qltn_multitenant}"
+              echo "::error::Có PORTAINER_CONTAINER_NAME nhưng không có image deploy (không build StaticBuild.${RPROJ}.Dockerfile trong job này?)."
+              exit 1
+            fi
+            export PORTAINER_NEW_IMAGE="${DEPLOY_IMAGE}"
+            export PORTAINER_CONTAINER_NAME
+            export PORTAINER_NETWORK_ALIASES="${PORTAINER_NETWORK_ALIASES:-cms}"
+            echo "::group::Portainer recreate container ${PORTAINER_CONTAINER_NAME} → ${PORTAINER_NEW_IMAGE} (net ${PORTAINER_CONTAINER_NETWORK})"
+            chmod +x scripts/portainer-recreate-container.sh
+            bash scripts/portainer-recreate-container.sh
+            echo "::endgroup::"
+            exit 0
+          fi
+
+          if [ -z "${PORTAINER_STACK_ID:-}" ]; then
+            echo "::notice::Bỏ qua Portainer: không có PORTAINER_CONTAINER_NAME và không có PORTAINER_STACK_ID."
+            exit 0
+          fi
+
+          TOKEN="${PORTAINER_API_TOKEN}"
+          BASE="${PORTAINER_URL%/}"
+          echo "::group::Portainer redeploy stack ${PORTAINER_STACK_ID} (endpoint ${PORTAINER_ENDPOINT_ID})"
+
+          try_git_redeploy() {
+            local code
+            code="$(curl -sS -o /tmp/portainer_git_redeploy_body -w "%{http_code}" -X POST \
+              -H "X-API-Key: ${TOKEN}" \
+              "${BASE}/api/stacks/${PORTAINER_STACK_ID}/git/redeploy?endpointId=${PORTAINER_ENDPOINT_ID}")" || true
+            printf '%s' "$code"
+          }
+
+          HTTP_CODE="$(try_git_redeploy)"
+          if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "204" ]; then
+            echo "Portainer: git/redeploy thành công (HTTP ${HTTP_CODE})."
+            echo "::endgroup::"
+            exit 0
+          fi
+          echo "git/redeploy HTTP ${HTTP_CODE} (stack có thể không nguồn Git) — thử PUT stack với pullImage=true..."
+          if [ -f /tmp/portainer_git_redeploy_body ] && [ -s /tmp/portainer_git_redeploy_body ]; then
+            head -c 500 /tmp/portainer_git_redeploy_body || true
+            echo
+          fi
+
+          STACK_JSON="$(curl -fsS -H "X-API-Key: ${TOKEN}" \
+            "${BASE}/api/stacks/${PORTAINER_STACK_ID}?endpointId=${PORTAINER_ENDPOINT_ID}")"
+          ENV_JSON="$(echo "$STACK_JSON" | jq -c '[(.Env // .env // [])[] | select(. != null) | {name: (.name // .Name // ""), value: (.value // .Value // "")}]')"
+
+          FILE_HTTP="$(curl -sS -o /tmp/portainer_stack_file -w "%{http_code}" -H "X-API-Key: ${TOKEN}" \
+            "${BASE}/api/stacks/${PORTAINER_STACK_ID}/file?endpointId=${PORTAINER_ENDPOINT_ID}")" || true
+
+          CONTENT=""
+          if [ "$FILE_HTTP" = "200" ] && [ -s /tmp/portainer_stack_file ]; then
+            if jq -e . /tmp/portainer_stack_file >/dev/null 2>&1; then
+              CONTENT="$(jq -r '(.StackFileContent // .stackFileContent) // empty' /tmp/portainer_stack_file)"
+            fi
+            if [ -z "$CONTENT" ]; then
+              CONTENT="$(cat /tmp/portainer_stack_file)"
+            fi
+          fi
+
+          if [ -z "$CONTENT" ]; then
+            CONTENT="$(echo "$STACK_JSON" | jq -r '(.StackFileContent // .stackFileContent) // empty')"
+          fi
+
+          if [ -z "$CONTENT" ] || [ "$CONTENT" = "null" ]; then
+            echo "::error::Không lấy được compose (HTTP ${FILE_HTTP} cho GET .../stacks/{id}/file)."
+            echo "::endgroup::"
+            exit 1
+          fi
+
+          PUT_BODY="$(jq -n \
+            --arg content "$CONTENT" \
+            --argjson env "$ENV_JSON" \
+            '{StackFileContent: $content, Env: $env, PullImage: true}')"
+
+          curl -fsS -X PUT \
+            -H "X-API-Key: ${TOKEN}" \
+            -H "Content-Type: application/json" \
+            "${BASE}/api/stacks/${PORTAINER_STACK_ID}?endpointId=${PORTAINER_ENDPOINT_ID}" \
+            -d "$PUT_BODY"
+
+          echo "Portainer: PUT stack (pullImage=true) thành công."
+          echo "::endgroup::"

@@ -1,0 +1,24 @@
+{
+  "AttachStdout": true,
+  "AttachStderr": true,
+  "Tty": false,
+  "OpenStdin": false,
+  "Env": [],
+  "ExposedPorts": {
+    "80/tcp": {}
+  },
+  "HostConfig": {
+    "PortBindings": {
+      "80/tcp": [
+        {
+          "HostIp": "",
+          "HostPort": "8248"
+        }
+      ]
+    },
+    "RestartPolicy": {
+      "Name": "unless-stopped",
+      "MaximumRetryCount": 0
+    }
+  }
+}
