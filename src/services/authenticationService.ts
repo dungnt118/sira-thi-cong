@@ -14,6 +14,7 @@ import {
     TENANT_KEY,
     TOKEN_ENDPOINT
 } from 'app/services/storeService';
+import { clearUserData } from '@/utils/authUtils';
 import { hideLoading } from 'app/store/actions/fuse/loading.action';
 import { showMessage } from 'app/store/actions/fuse/message.actions';
 import moment from 'moment';
@@ -321,6 +322,7 @@ class elsagaService extends FuseUtils.EventEmitter {
             localStorage.removeItem('access_token');
             localStorage.removeItem('expires_at');
             localStorage.removeItem('refresh_token');
+            clearUserData();
             set(ID_TOKEN, null);
             set(AUTH_FLOW, null);
         }

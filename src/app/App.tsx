@@ -159,8 +159,8 @@ function App() {
                             <Route path="/portal/:token/threads" element={<ThreadInbox />} />
                             <Route path="/portal/:token/threads/:threadId" element={<ThreadDetail />} />
 
-                            {/* ===== ADMIN V2 ROUTES ===== */}
-                            <Route path="/admin-v2" element={<AdminLayoutV2 />}>
+                            {/* ===== ADMIN ROUTES ===== */}
+                            <Route path="/admin" element={<AdminLayoutV2 />}>
                                 <Route index element={<DashboardV2 />} />
                                 <Route path="dashboard" element={<DashboardV2 />} />
                                 <Route path="users" element={<UserManagement />} />

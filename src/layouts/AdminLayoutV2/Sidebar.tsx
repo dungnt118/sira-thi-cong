@@ -31,32 +31,32 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ collapsed, onCollapse, isDr
     // Menu items
     const menuItems: MenuProps['items'] = [
         {
-            key: '/admin-v2',
+            key: '/admin',
             icon: <DashboardOutlined />,
             label: 'Dashboard',
         },
         {
-            key: '/admin-v2/users',
+            key: '/admin/users',
             icon: <UserOutlined />,
             label: 'Quản lý người dùng',
         },
         {
-            key: '/admin-v2/roles',
+            key: '/admin/roles',
             icon: <SafetyOutlined />,
             label: 'Quản lý vai trò',
         },
         {
-            key: '/admin-v2/audit',
+            key: '/admin/audit',
             icon: <FileTextOutlined />,
             label: 'Nhật ký hệ thống',
         },
         {
-            key: '/admin-v2/reports',
+            key: '/admin/reports',
             icon: <BarChartOutlined />,
             label: 'Báo cáo',
         },
         {
-            key: '/admin-v2/settings',
+            key: '/admin/settings',
             icon: <SettingOutlined />,
             label: 'Cài đặt',
         },

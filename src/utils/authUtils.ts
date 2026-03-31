@@ -6,6 +6,8 @@ export interface UserData {
 
 const AUTH_KEY = 'userData';
 
+export const MANUAL_ROLE_KEY = 'manualActiveRole';
+
 export const setUserData = (data: UserData) => {
     localStorage.setItem(AUTH_KEY, JSON.stringify(data));
 };
@@ -20,19 +22,28 @@ export const getUserData = (): UserData | null => {
     }
 };
 
+export const getManualRoleOverride = (): string | null => {
+    return localStorage.getItem(MANUAL_ROLE_KEY);
+};
+
+export const clearManualRoleOverride = () => {
+    localStorage.removeItem(MANUAL_ROLE_KEY);
+};
+
 export const clearUserData = () => {
     localStorage.removeItem(AUTH_KEY);
+    clearManualRoleOverride();
 };
 
 export const getCurrentRole = (): string | null => {
-    const data = getUserData();
-    return data ? data.role : null;
+    return getManualRoleOverride() || (getUserData()?.role || null);
 };
 
 export const switchRole = (newRole: string) => {
     const data = getUserData();
     if (data && data.roles.includes(newRole)) {
         setUserData({ ...data, role: newRole });
+        localStorage.setItem(MANUAL_ROLE_KEY, newRole);
         return true;
     }
     return false;
@@ -43,6 +54,7 @@ export const forceSwitchRole = (newRole: string, path: string) => {
     if (data) {
         const updatedRoles = data.roles.includes(newRole) ? data.roles : [...data.roles, newRole];
         setUserData({ ...data, role: newRole, roles: updatedRoles });
+        localStorage.setItem(MANUAL_ROLE_KEY, newRole);
         window.location.href = path;
         return true;
     }
@@ -53,5 +65,6 @@ export const resetCurrentRole = () => {
     const data = getUserData();
     if (data) {
         setUserData({ ...data, role: '' });
+        clearManualRoleOverride();
     }
 };

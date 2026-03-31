@@ -1,4 +1,5 @@
 import type { UserSessionContext } from 'types/auth/UserSessionContext';
+import { MANUAL_ROLE_KEY } from '@/utils/authUtils';
 import {
   REMOVE_USER_DATA,
   SET_USER_DATA,
@@ -37,8 +38,24 @@ const userReducer = (state: UserState = initialState, action: UserActions): User
       const tenantFilters =
         payload.tenants?.map((tenant: any) => tenant?._id).filter((id: any): id is string => Boolean(id)) ?? [];
       const tenantId = tenantFilters.length > 0 ? tenantFilters[0] : null;
-      const roles = (payload.user as any)?.roles || [];
-      const role = roles.length > 0 ? roles[0].toLowerCase() : 'sale';
+      
+      // Ưu tiên lấy role từ: 
+      // 1. Manual override trong localStorage (nếu có, để hỗ trợ Chuyển quyền nhanh)
+      // 2. activeRole từ payload server
+      // 3. roles đầu tiên từ payload.user.roles
+      // 4. Default là 'sale'
+      const manualOverride = localStorage.getItem(MANUAL_ROLE_KEY);
+      const serverActiveRole = payload.activeRole;
+      const userRoles = (payload.user as any)?.roles || [];
+      
+      let role = 'sale';
+      if (manualOverride) {
+        role = manualOverride.toLowerCase();
+      } else if (serverActiveRole) {
+        role = serverActiveRole.toLowerCase();
+      } else if (userRoles.length > 0) {
+        role = userRoles[0].toLowerCase();
+      }
 
       return {
         ...state,

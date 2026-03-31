@@ -646,7 +646,7 @@ const Reports: React.FC = () => {
                                     type="link"
                                     size="small"
                                     icon={<EyeOutlined />}
-                                    onClick={() => navigate(`/admin-v2/projects/${record.projectCode}`)}
+                                    onClick={() => navigate(`/admin/projects/${record.projectCode}`)}
                                 />
                                 <Button type="link" size="small">
                                     Nhắc
