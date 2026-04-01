@@ -1,5 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Card, Steps, Button, Typography, Space, Row, Col, Result, Form, message, Modal, Divider, Empty } from 'antd';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { 
+    Card, Steps, Button, Typography, Space, Row, Col, 
+    Result, Form, message, Modal, Divider, Empty, Spin 
+} from 'antd';
 import { 
     CheckCircleOutlined, 
     FormOutlined, 
@@ -8,19 +11,17 @@ import {
     DownloadOutlined, 
     HighlightOutlined,
     EyeOutlined,
-    ClockCircleOutlined
+    ClockCircleOutlined,
+    LoadingOutlined
 } from '@ant-design/icons';
-import { mockJourneys, mockSurveys } from '../../../data/journeyMockData';
+import { journeyService } from '@/services/core-contracts/services/journey.service';
+import { surveyRecordService } from '@/services/core-contracts/services/surveyRecord.service';
+import { IJourney } from '@/services/core-contracts/types/journey.types';
+import { ISurveyRecord } from '@/services/core-contracts/types/surveyRecord.types';
 import DynamicSurveyForm from '../../shared/Surveys/DynamicSurveyForm';
 import html2pdf from 'html2pdf.js';
 
 const { Text, Title } = Typography;
-
-const mockTemplates = [
-    { id: 'TPL-CTST', name: 'Khảo sát Chống thấm Sân thượng', description: 'Template chuẩn cho thấm dột bề mặt lộ thiên.' },
-    { id: 'TPL-CTWC', name: 'Khảo sát Chống thấm WC', description: 'Kiểm tra hộp kỹ thuật, đường ống, kẽ gạch.' },
-    { id: 'TPL-CBTN', name: 'Khảo sát Cải tạo Nhà', description: 'Template tổng hợp đánh giá kết cấu, tường, điện nước.' }
-];
 
 export interface Step03SurveyProps {
     journeyId: string;
@@ -29,46 +30,73 @@ export interface Step03SurveyProps {
     onEditStateChange?: (isEditing: boolean) => void;
 }
 
-export const Step03Survey: React.FC<Step03SurveyProps> = ({ journeyId, isEditable = false, onSave, onEditStateChange }) => {
-    const journey = mockJourneys.find(j => j.id === journeyId) || mockJourneys[0];
-
-    const [overallStatus, setOverallStatus] = useState<'in_progress' | 'completed'>(
-        journey.survey_status === 'completed' ? 'completed' : 'in_progress'
-    );
+export const Step03Survey: React.FC<Step03SurveyProps> = ({ 
+    journeyId, 
+    isEditable = false, 
+    onSave, 
+    onEditStateChange 
+}) => {
+    const [journey, setJourney] = useState<IJourney | null>(null);
+    const [surveyRecord, setSurveyRecord] = useState<ISurveyRecord | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
+    
+    const [overallStatus, setOverallStatus] = useState<'in_progress' | 'completed'>( 'in_progress');
     const [formStep, setFormStep] = useState(0);
     const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
     const [surveyDataForm] = Form.useForm();
     const [isEditing, setIsEditing] = useState(false);
-    const [initialData, setInitialData] = useState<any>(null);
 
+    // Initial load
     useEffect(() => {
-        // Load data from mockSurveys
-        const surveyRecord = mockSurveys.find(s => s.journey_id === journeyId);
-        if (surveyRecord) {
-            // Map mockSurvey (SurveyRecord) to Form data structure
-            const mappedData = {
-                header: {
-                    urgency: 'Trong tuần',
-                    original_request: journey.request_description
-                },
-                zones: surveyRecord.area_list.map(a => ({
-                    areaType: a.area_type,
-                    location_desc: a.area_name,
-                    dims_area: a.measurement_notes,
-                    issueTypes: [a.current_condition],
-                    causeOptions: ['Chưa xác định'],
-                    proposed_solution: surveyRecord.proposed_solution
-                })),
-                customer_signature: surveyRecord.customer_signature
-            };
-            setInitialData(mappedData);
-            surveyDataForm.setFieldsValue(mappedData);
-        }
-    }, [journeyId, surveyDataForm, journey.request_description]);
+        const fetchData = async () => {
+            setIsLoading(true);
+            try {
+                // 1. Fetch Journey
+                const jData = await journeyService.findJourneyDto(journeyId);
+                setJourney(jData);
+                
+                // 2. Fetch Existing Survey Record
+                const sRecords = await surveyRecordService.querySurveyRecordsDto({
+                    filter: { journey_id: { _eq: journeyId } }
+                });
+                
+                if (sRecords.data && sRecords.data.length > 0) {
+                    const record = sRecords.data[0];
+                    setSurveyRecord(record);
+                    setOverallStatus(record.survey_status === 'completed' ? 'completed' : 'in_progress');
+                    
+                    // Map back to DynamicSurveyForm structure
+                    const mappedFormData = {
+                        header: {
+                            urgency: 'Trong tuần',
+                            original_request: jData.request_description
+                        },
+                        zones: record.condition_items?.map((item, idx) => ({
+                            zoneCode: `KV-${(idx + 1).toString().padStart(2, '0')}`,
+                            areaType: item.area_name || 'Khác',
+                            location_desc: '', // We combined this into area_name in ISurveyRecord
+                            status_desc: item.condition_note || '',
+                            dims_area: item.measurement_note || '',
+                            safetyOptions: item.risk_note ? [item.risk_note] : [],
+                            proposed_solution: record.proposed_solution || ''
+                        })) || []
+                    };
+                    surveyDataForm.setFieldsValue(mappedFormData);
+                }
+            } catch (error) {
+                console.error('Failed to fetch survey data:', error);
+                message.error('Không thể tải dữ liệu khảo sát');
+            } finally {
+                setIsLoading(false);
+            }
+        };
 
-    // Robust data selection
+        fetchData();
+    }, [journeyId, surveyDataForm]);
+
+    // Data for rendering
     const formValues = Form.useWatch([], surveyDataForm);
-    const currentSurveyData = isEditing ? formValues : ( (formValues?.zones && formValues.zones.length > 0) ? formValues : initialData);
     
     // E-Signature States
     const [isSigModalOpen, setIsSigModalOpen] = useState(false);
@@ -134,7 +162,7 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({ journeyId, isEditabl
         if (element) {
             const opt = {
                 margin:       10,
-                filename:     `SURVEY-${journey.journey_code}.pdf`,
+                filename:     `SURVEY-${journey?.journey_code || journeyId}.pdf`,
                 image:        { type: 'jpeg' as const, quality: 0.98 },
                 html2canvas:  { scale: 2 },
                 jsPDF:        { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
@@ -153,74 +181,126 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({ journeyId, isEditabl
         }
     };
 
+    const onCompleteSurvey = async () => {
+        if (!sigData) {
+            message.warning('Vui lòng xin chữ ký Khách hàng trước khi chốt hồ sơ!');
+            return;
+        }
+
+        setIsSaving(true);
+        try {
+            const values = surveyDataForm.getFieldsValue();
+            
+            // Map DynamicSurveyForm -> ISurveyRecord
+            const payload = {
+                journey_id: journeyId,
+                journey_step_code: 'site_survey' as any,
+                survey_status: 'completed' as any,
+                customer_name: journey?.customer_full_name,
+                site_address: journey?.site_address,
+                proposed_solution: values.zones?.[0]?.proposed_solution || '',
+                condition_items: values.zones?.map((z: any) => ({
+                    area_name: z.areaType,
+                    condition_note: `${z.issueTypes?.join(', ') || ''} - ${z.status_desc || ''}`,
+                    measurement_note: z.dims_area?.toString() || '0',
+                    risk_note: z.safetyOptions?.join(', ') || ''
+                })),
+                // Signatures could be handled as attachments or separate fields in a real app
+                // For now we just log success
+            };
+
+            if (surveyRecord?._id) {
+                await surveyRecordService.updateSurveyRecord(surveyRecord._id, payload);
+            } else {
+                await surveyRecordService.createSurveyRecord(payload);
+            }
+
+            message.success('Hồ sơ KS đã chốt và nộp về hệ thống thành công!');
+            setOverallStatus('completed');
+            setIsEditing(false);
+            if (onSave) onSave(payload);
+        } catch (error) {
+            console.error('Failed to complete survey:', error);
+            message.error('Không thể lưu hồ sơ khảo sát');
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
     const renderA4Sheet = (data: any) => (
         <div style={{ width: '100%', overflowX: 'auto', WebkitOverflowScrolling: 'touch', border: '1px solid #d9d9d9', borderRadius: 8, background: '#f0f2f5', padding: '16px 0' }}>
             <div id={`printable-a4-${journeyId}`} style={{ 
                 width: '210mm', minHeight: '297mm', background: '#fff', 
-                padding: '20mm', boxShadow: '0 0 10px rgba(0,0,0,0.1)', 
+                padding: '15mm 20mm', boxShadow: '0 0 10px rgba(0,0,0,0.1)', 
                 fontFamily: '"Times New Roman", Times, serif',
-                margin: '0 auto'
+                margin: '0 auto',
+                color: '#000'
             }}>
                 <div style={{ textAlign: 'center', marginBottom: 20 }}>
-                    <div style={{ fontSize: 16, fontWeight: 'bold' }}>CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
-                    <div style={{ fontSize: 14, fontWeight: 'bold', textDecoration: 'underline' }}>Độc lập - Tự do - Hạnh phúc</div>
+                    <div style={{ fontSize: 14, fontWeight: 'bold' }}>CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+                    <div style={{ fontSize: 13, fontWeight: 'bold' }}>Độc lập - Tự do - Hạnh phúc</div>
+                    <div style={{ margin: '5px auto', width: 100, borderTop: '1px solid #000' }}></div>
                 </div>
                 
-                <div style={{ textAlign: 'center', margin: '40px 0' }}>
-                    <div style={{ fontSize: 24, fontWeight: 'bold' }}>BIÊN BẢN KHẢO SÁT HIỆN TRẠNG</div>
-                    <div style={{ fontSize: 13, fontStyle: 'italic', marginTop: 5 }}>Số: SUR-{journey.journey_code} / SIRA</div>
+                <div style={{ textAlign: 'center', margin: '30px 0' }}>
+                    <div style={{ fontSize: 20, fontWeight: 'bold' }}>BIÊN BẢN KHẢO SÁT HIỆN TRẠNG</div>
+                    <div style={{ fontSize: 12, fontStyle: 'italic', marginTop: 5 }}>Số: SUR-{journey?.journey_code || 'N/A'} / SIRA</div>
                 </div>
 
-                <div style={{ lineHeight: 1.8, fontSize: 14 }}>
-                    <p>Hôm nay, ngày {new Date().getDate()} tháng {new Date().getMonth() + 1} năm {new Date().getFullYear()}, tại công trình:</p>
+                <div style={{ lineHeight: 1.6, fontSize: 14 }}>
+                    <p style={{ marginBottom: 15 }}>Hôm nay, ngày {new Date().getDate()} tháng {new Date().getMonth() + 1} năm {new Date().getFullYear()}, tại địa chỉ: {journey?.site_address || '---'}</p>
                     
-                    <strong>I. Thành phần Khách hàng:</strong>
-                    <p style={{ marginLeft: 20, margin: 0 }}>Ông/Bà: <strong>{journey.customer_name}</strong></p>
-                    <p style={{ marginLeft: 20, margin: 0 }}>Địa chỉ khảo sát: {journey.site_address}</p>
-                    <br />
+                    <div style={{ fontWeight: 'bold', marginBottom: 5 }}>I. Thành phần Khách hàng:</div>
+                    <div style={{ marginLeft: 15, marginBottom: 10 }}>
+                        <div>- Ông/Bà: <strong>{journey?.customer_full_name || '---'}</strong></div>
+                        <div>- Điện thoại: {journey?.customer_phone || '---'}</div>
+                    </div>
 
-                    <strong>II. Thành phần Đội ngũ SIRA:</strong>
-                    <p style={{ marginLeft: 20, margin: 0 }}>Ông/Bà: Bùi Văn Kỹ thuật</p>
-                    <p style={{ marginLeft: 20, margin: 0 }}>Chức trách: Nhân sự Khảo sát trực tiếp</p>
-                    <br />
+                    <div style={{ fontWeight: 'bold', marginBottom: 5 }}>II. Đại diện Công ty SIRA (Đơn vị khảo sát):</div>
+                    <div style={{ marginLeft: 15, marginBottom: 15 }}>
+                        <div>- Ông/Bà: {journey?.supervisor_name || 'Nhân viên kỹ thuật'}</div>
+                        <div>- Chức vụ: Chuyên viên khảo sát hiện trường</div>
+                    </div>
 
-                    <strong>III. Kết quả khảo sát:</strong>
-                    <div style={{ marginTop: 10 }}>
+                    <div style={{ fontWeight: 'bold', marginBottom: 5 }}>III. Nội dung khảo sát & Ghi nhận hiện trạng:</div>
+                    <div style={{ marginLeft: 10 }}>
                         {data?.zones?.map((z: any, idx: number) => (
-                            <div key={idx} style={{ marginBottom: 15, paddingBottom: 10 }}>
-                                <div style={{ fontWeight: 'bold' }}>{idx + 1}. Khu vực {z?.areaType || ''}</div>
-                                <ul style={{ margin: '5px 0' }}>
-                                    <li><strong>Vị trí:</strong> {z?.location_desc || '---'}</li>
-                                    <li><strong>S diện tích:</strong> {z.dims_area||0}m²</li>
-                                    <li><strong>Hiện trạng ghi nhận:</strong> {z?.issueTypes?.join(', ') || '---'}</li>
-                                    <li><strong>Nhận định nguyên nhân gốc:</strong> {z?.causeOptions?.join(', ') || '---'}</li>
-                                    <li><strong>Phát đồ cứu hộ sơ bộ:</strong> {z?.proposed_solution || '---'}</li>
-                                </ul>
+                            <div key={idx} style={{ marginBottom: 15, borderBottom: '1px dashed #eee', paddingBottom: 10 }}>
+                                <div style={{ fontWeight: 'bold' }}>{idx + 1}. Hạng mục: {z?.areaType || 'Không định danh'}</div>
+                                <div style={{ marginLeft: 10 }}>
+                                    <div>+ Vị trí chi tiết: {z?.location_desc || 'Theo thực tế'}</div>
+                                    <div>+ Khối lượng sơ bộ: {z.dims_area || '0'} m²</div>
+                                    <div>+ Tình trạng: <span style={{ color: '#d00' }}>{z?.issueTypes?.join(', ') || 'Chưa ghi nhận'}</span></div>
+                                    <div>+ Ghi chú: {z.status_desc || '---'}</div>
+                                    <div style={{ fontWeight: 'bold', marginTop: 3 }}>+ Đề xuất sơ bộ: {z?.proposed_solution || '---'}</div>
+                                </div>
                             </div>
                         ))}
                         {(!data?.zones || data?.zones?.length === 0) && (
-                            <p style={{ fontStyle: 'italic', color: '#666' }}>Không ghi nhận khu vực bất thường nào.</p>
+                            <p style={{ fontStyle: 'italic', color: '#666' }}>Không ghi nhận hạng mục khảo sát nào.</p>
                         )}
                     </div>
 
-                    <br />
-                    <p>Biên bản kết thúc vào lúc .... giờ .... cùng ngày. Cả hai bên đã kiểm tra hiện trạng thực tế, thống nhất với số liệu ghi nhận.</p>
-                    <p>Phòng Kỹ Thuật sẽ lập Biện pháp thi công chi tiết làm cơ sở Bảng Gía để báo khách hàng trong vòng 24hr.</p>
+                    <div style={{ marginTop: 20 }}>
+                        <p>Hai bên cùng xác nhận các thông tin trên là đúng với thực tế quan sát tại hiện trường. Kết quả khảo sát này là cơ sở để SIRA lập biện pháp thi công và báo giá chính thức.</p>
+                    </div>
                     
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 50, textAlign: 'center' }}>
-                        <div style={{ width: '40%' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 40, textAlign: 'center' }}>
+                        <div style={{ width: '45%' }}>
                             <strong>ĐẠI DIỆN KHÁCH HÀNG</strong>
-                            <div style={{ fontStyle: 'italic', fontSize: 12 }}>(Ký và ghi rõ họ tên)</div>
-                            <div style={{ height: 120, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                {(sigData || data?.customer_signature) ? (
-                                    <img src={sigData || data.customer_signature} alt="Client Signature" style={{ maxHeight: '100%', maxWidth: '100%' }} />
-                                ) : null}
+                            <div style={{ fontStyle: 'italic', fontSize: 11 }}>(Ký và ghi rõ họ tên)</div>
+                            <div style={{ height: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 10 }}>
+                                {sigData ? (
+                                    <img src={sigData} alt="Signature" style={{ maxHeight: '100%', maxWidth: '100%' }} />
+                                ) : (
+                                    <div style={{ color: '#eee', height: 40 }}>[Chữ ký]</div>
+                                )}
                             </div>
                         </div>
-                        <div style={{ width: '40%' }}>
-                            <strong>ĐẠI DIỆN KỸ THUẬT (SIRA)</strong>
-                            <div style={{ fontStyle: 'italic', fontSize: 12 }}>(Ký và ghi rõ họ tên)</div>
-                            <div style={{ height: 120 }}></div>
+                        <div style={{ width: '45%' }}>
+                            <strong>ĐẠI DIỆN KỸ THUẬT</strong>
+                            <div style={{ fontStyle: 'italic', fontSize: 11 }}>(Ký và ghi rõ họ tên)</div>
+                            <div style={{ height: 100, marginTop: 10 }}></div>
                         </div>
                     </div>
                 </div>
@@ -228,36 +308,50 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({ journeyId, isEditabl
         </div>
     );
 
+    if (isLoading) {
+        return (
+            <Card bordered={false} className="ky-card" style={{ textAlign: 'center', padding: '40px 0' }}>
+                <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} tip="Đang tải dữ liệu hồ sơ..." />
+            </Card>
+        );
+    }
+
     const renderStepContent = () => {
+        const templates = [
+            { id: 'TPL-CTST', name: 'Chống thấm Sân thượng', description: 'Chuẩn cho bề mặt lộ thiên.' },
+            { id: 'TPL-CTWC', name: 'Chống thấm WC', description: 'Kiểm tra hộp KT, ống xuyên sàn.' },
+            { id: 'TPL-GENERAL', name: 'Khảo sát Tổng hợp', description: 'Đánh giá chung nhiều hạng mục.' }
+        ];
+
         switch (formStep) {
             case 0:
                 return (
                     <div style={{ padding: '16px 0' }}>
-                        <Text strong style={{ fontSize: 16 }}>Chọn Mẫu Khảo Sát Tương Ứng</Text>
-                        <p style={{ color: '#666', marginBottom: 24 }}>Phân loại này giúp sinh form phù hợp với công việc tại hiện trường.</p>
+                        <Text strong style={{ fontSize: 16 }}>Chọn Mẫu Khảo Sát</Text>
+                        <p style={{ color: '#666', marginBottom: 24 }}>Phân loại này giúp sinh form phù hợp với hạng mục tại hiện trường.</p>
                         <Row gutter={[12, 12]}>
-                            {mockTemplates.map(tpl => (
-                                <Col xs={24} sm={12} key={tpl.id}>
+                            {templates.map(tpl => (
+                                <Col xs={24} sm={8} key={tpl.id}>
                                     <div
                                         className="ky-card"
                                         style={{ 
                                             background: '#fff',
                                             padding: 16,
-                                            border: selectedTemplate === tpl.id ? '2px solid #13a8a8' : '1px solid #f0f0f0',
+                                            border: selectedTemplate === tpl.id ? '2px solid #1677ff' : '1px solid #f0f0f0',
+                                            borderRadius: 8,
                                             cursor: 'pointer'
                                         }}
                                         onClick={() => setSelectedTemplate(tpl.id)}
                                     >
-                                        <div style={{ fontWeight: 600, color: selectedTemplate === tpl.id ? '#13a8a8' : '#333' }}>{tpl.name}</div>
-                                        <Text type="secondary" style={{ fontSize: 12 }}>{tpl.id}</Text>
-                                        <p style={{ marginTop: 8, fontSize: 13, color: '#666', marginBottom: 0 }}>{tpl.description}</p>
+                                        <div style={{ fontWeight: 600, color: selectedTemplate === tpl.id ? '#1677ff' : '#333' }}>{tpl.name}</div>
+                                        <p style={{ marginTop: 8, fontSize: 12, color: '#666', marginBottom: 0 }}>{tpl.description}</p>
                                     </div>
                                 </Col>
                             ))}
                         </Row>
                         <div style={{ marginTop: 24 }}>
-                            <Button type="primary" block disabled={!selectedTemplate} onClick={() => setFormStep(1)} style={{ backgroundColor: selectedTemplate ? '#13a8a8' : undefined }}>
-                                Bắt đầu nhập liệu Form
+                            <Button type="primary" block size="large" disabled={!selectedTemplate} onClick={() => setFormStep(1)}>
+                                Bắt đầu nhập liệu
                             </Button>
                         </div>
                     </div>
@@ -269,8 +363,8 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({ journeyId, isEditabl
                         
                         <div style={{ marginTop: 24, display: 'flex', gap: 12 }}>
                             <Button onClick={() => setFormStep(0)} style={{ flex: 1 }}>Quay lại</Button>
-                            <Button type="primary" onClick={handleFormSubmit} style={{ flex: 2, backgroundColor: '#13a8a8' }}>
-                                Rà soát Biên bản
+                            <Button type="primary" size="large" onClick={handleFormSubmit} style={{ flex: 2 }}>
+                                Xem Biên bản
                             </Button>
                         </div>
                     </div>
@@ -280,15 +374,16 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({ journeyId, isEditabl
                     <div style={{ padding: '16px 0' }}>
                         <Result
                             status="info"
-                            title="Xác nhận Kết quả Khảo Sát"
-                            subTitle="Bạn (Kỹ thuật viên) hãy kiểm tra lại toàn bộ số liệu và hình ảnh trước khi xin chữ ký Khách hàng."
+                            title="Xác nhận Kết quả"
+                            subTitle="Hãy kiểm tra lại số liệu trước khi xin chữ ký Khách hàng."
+                            style={{ padding: '16px 0' }}
                         />
-                        {renderA4Sheet(currentSurveyData)}
+                        {renderA4Sheet(formValues)}
                         
                         <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
                             <Button key="back" onClick={() => setFormStep(1)} style={{ flex: 1 }}>Sửa lại</Button>
-                            <Button key="submit" type="primary" onClick={() => { message.success('Đã lưu dữ liệu'); setFormStep(3); }} style={{ flex: 2, backgroundColor: '#13a8a8' }}>
-                                Chuyển sang Bước Ký Tên
+                            <Button key="submit" type="primary" size="large" onClick={() => setFormStep(3)} style={{ flex: 2 }}>
+                                Tiến hành Ký tên
                             </Button>
                         </div>
                     </div>
@@ -296,48 +391,28 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({ journeyId, isEditabl
             case 3:
                 return (
                     <div style={{ padding: '16px 0', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                        <style>
-                            {`
-                            @media print {
-                                body * { visibility: hidden; }
-                                #printable-a4-${journeyId}, #printable-a4-${journeyId} * { visibility: visible; }
-                                #printable-a4-${journeyId} { position: absolute; left: 0; top: 0; width: 100%; box-shadow: none !important; margin: 0 !important; padding: 0 !important; }
-                                .ky-thuat-layout { padding-bottom: 0 !important; }
-                                .ky-thuat-header, .ky-thuat-bottom-nav, .no-print { display: none !important; }
-                            }
-                            `}
-                        </style>
-
-                        <Space style={{ marginBottom: 24, flexWrap: 'wrap', justifyContent: 'center' }} className="no-print">
-                            <Button type="primary" icon={<HighlightOutlined />} onClick={() => setIsSigModalOpen(true)} style={{ backgroundColor: '#13a8a8' }}>
-                                Xin chữ ký Khách hàng (Mobile)
+                        <Space style={{ marginBottom: 24, flexWrap: 'wrap', justifyContent: 'center' }}>
+                            <Button type="primary" size="large" icon={<HighlightOutlined />} onClick={() => setIsSigModalOpen(true)}>
+                                Lấy chữ ký Khách hàng
                             </Button>
-                            <Button icon={<DownloadOutlined />} onClick={handleDownloadPDF} type="dashed">Lưu dạng PDF</Button>
+                            <Button icon={<DownloadOutlined />} onClick={handleDownloadPDF} type="dashed">Lưu PDF</Button>
                         </Space>
 
-                        <div style={{ width: '100%', marginBottom: 24 }} className="no-print">
+                        <div style={{ width: '100%', marginBottom: 24 }}>
                             <Button 
                                 type="primary" 
                                 size="large" 
                                 block
+                                loading={isSaving}
                                 icon={<CheckCircleOutlined />} 
-                                style={{ background: '#52c41a', borderColor: '#52c41a' }}
-                                onClick={() => {
-                                    if (!sigData && !currentSurveyData?.customer_signature) {
-                                        message.warning('Vui lòng xin chữ ký Khách hàng trước khi chốt hồ sơ!');
-                                        return;
-                                    }
-                                    message.success('Hồ sơ KS đã chốt và đẩy về Sale/Thiết kế thống nhất!');
-                                    setOverallStatus('completed');
-                                    setIsEditing(false);
-                                    if (onSave) onSave({ ...currentSurveyData, customer_signature: sigData || currentSurveyData?.customer_signature });
-                                }}
+                                style={{ background: '#52c41a', borderColor: '#52c41a', height: 50 }}
+                                onClick={onCompleteSurvey}
                             >
-                                Đóng Hồ Sơ & Nộp Về Trụ Sở
+                                Đóng & Nộp Hồ Sơ Khảo Sát
                             </Button>
                         </div>
 
-                        {renderA4Sheet(currentSurveyData)}
+                        {renderA4Sheet(formValues)}
                     </div>
                 );
             default: return null;
@@ -346,43 +421,44 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({ journeyId, isEditabl
 
     const renderReadOnly = () => {
         return (
-            <div style={{ padding: '0 12px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-                    <Space>
+            <div>
+                <Card bordered={false} style={{ background: '#f6faff', marginBottom: 20 }}>
+                    <Space align="start">
                         {overallStatus === 'completed' ? (
-                            <CheckCircleOutlined style={{ color: '#52c41a', fontSize: 24 }} />
+                            <CheckCircleOutlined style={{ color: '#52c41a', fontSize: 32 }} />
                         ) : (
-                            <ClockCircleOutlined style={{ color: '#1890ff', fontSize: 24 }} />
+                            <ClockCircleOutlined style={{ color: '#1677ff', fontSize: 32 }} />
                         )}
                         <div>
                             <Title level={5} style={{ margin: 0 }}>
-                                {overallStatus === 'completed' ? 'Hồ sơ khảo sát đã hoàn thành' : 'Hồ sơ khảo sát đang thực hiện'}
+                                {overallStatus === 'completed' ? 'Hồ sơ khảo sát đã hoàn tất' : 'Hồ sơ khảo sát đang thực hiện'}
                             </Title>
-                            <Text type="secondary">Số hiệu: SUR-{journey.journey_code}</Text>
+                            <Text type="secondary">Mã hồ sơ: SUR-{journey?.journey_code || '---'}</Text>
                         </div>
                     </Space>
-                    <Space>
-                        <Button icon={<DownloadOutlined />} onClick={handleDownloadPDF} disabled={!currentSurveyData || !currentSurveyData.zones}>
-                            Tải PDF
-                        </Button>
-                    </Space>
-                </div>
+                </Card>
 
-                {currentSurveyData && currentSurveyData.zones && currentSurveyData.zones.length > 0 ? (
-                    renderA4Sheet(currentSurveyData)
+                {surveyRecord ? (
+                    renderA4Sheet({ 
+                        zones: surveyRecord.condition_items?.map(i => ({
+                            areaType: i.area_name,
+                            location_desc: '',
+                            issueTypes: [i.condition_note],
+                            dims_area: i.measurement_note,
+                            proposed_solution: surveyRecord.proposed_solution
+                        })) 
+                    })
                 ) : (
-                    <div style={{ textAlign: 'center', padding: '40px 0', background: '#f5f5f5', borderRadius: 8 }}>
-                        <Empty description="Kỹ thuật viên chưa bắt đầu nhập liệu form khảo sát." />
-                    </div>
+                    <Empty 
+                        image={Empty.PRESENTED_IMAGE_SIMPLE}
+                        description="Chưa có dữ liệu khảo sát chính thức cho hành trình này." 
+                    />
                 )}
 
-                <Divider />
-                <div style={{ textAlign: 'center' }}>
-                    <Text type="secondary" style={{ fontSize: 12 }}>
-                        {overallStatus === 'completed' 
-                            ? 'Biên bản đã được ký nhận và lưu trữ chính thức.' 
-                            : 'Bản thảo biên bản khảo sát hiện trường.'}
-                    </Text>
+                <div style={{ marginTop: 24, textAlign: 'center' }}>
+                    <Button icon={<DownloadOutlined />} onClick={handleDownloadPDF} disabled={!surveyRecord}>
+                        Xuất file PDF
+                    </Button>
                 </div>
             </div>
         );
@@ -390,9 +466,10 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({ journeyId, isEditabl
 
     return (
         <Card 
-            title={isEditing ? "Thực hiện: Khảo sát hiện trạng" : "Kết quả khảo sát kỹ thuật"} 
+            title={isEditing ? "Đang tiến hành Khảo sát" : "Chi tiết Khảo sát"} 
             bordered={false} 
             className="ky-card"
+            style={{ borderRadius: 12 }}
             extra={isEditable && (
                 <Button 
                     type={isEditing ? "default" : "primary"}
@@ -403,26 +480,20 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({ journeyId, isEditabl
                         if (onEditStateChange) onEditStateChange(newEditing);
                     }}
                 >
-                    {isEditing ? "Xem lại" : (overallStatus === 'completed' ? "Cập nhật lại" : "Bắt đầu khảo sát")}
+                    {isEditing ? "Xem lại" : (overallStatus === 'completed' ? "Cập nhật" : "Khảo sát ngay")}
                 </Button>
             )}
         >
-            {!isEditable && (
-                <div style={{ marginBottom: 16 }}>
-                    <Text type="secondary">Bạn đang ở chế độ Chỉ đọc (Chưa có quyền KeyRole hoặc chưa được phân công).</Text>
-                </div>
-            )}
-            
             {isEditing ? (
                 <div>
-                     <div style={{ marginBottom: 16 }}>
+                     <div style={{ marginBottom: 20 }}>
                         <Steps
                             current={formStep}
                             size="small"
                             items={[
                                 { title: 'Mẫu', icon: <FormOutlined /> },
                                 { title: 'Data', icon: <EditOutlined /> },
-                                { title: 'Preview', icon: <CheckCircleOutlined /> },
+                                { title: 'Review', icon: <CheckCircleOutlined /> },
                                 { title: 'Ký', icon: <FilePdfOutlined /> }
                             ]}
                         />
@@ -432,43 +503,40 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({ journeyId, isEditabl
             ) : renderReadOnly()}
 
             <Modal
-                title="Khách hàng Ký trực tiếp"
+                title="Khách hàng ký xác nhận"
                 open={isSigModalOpen}
                 onCancel={() => setIsSigModalOpen(false)}
                 footer={[
-                    <Button key="clear" onClick={handleClearSignature}>Ký lại (Xóa)</Button>,
-                    <Button key="save" type="primary" onClick={handleSaveSignature} style={{ backgroundColor: '#13a8a8' }}>Xác nhận Lưu</Button>
+                    <Button key="clear" onClick={handleClearSignature}>Ký lại</Button>,
+                    <Button key="save" type="primary" onClick={handleSaveSignature}>Lưu chữ ký</Button>
                 ]}
                 width="100%"
-                style={{ top: 20 }}
-                bodyStyle={{ padding: '16px 0' }}
+                style={{ top: 10 }}
+                bodyStyle={{ padding: 0 }}
             >
-                <div>
-                    <p style={{ padding: '0 16px', marginBottom: 16, fontSize: 13, color: '#666' }}>
-                        Khách hàng vui lòng dùng ngón tay ký trực tiếp vào khung dưới đây.
-                    </p>
-                    <div style={{ 
-                        borderTop: '2px dashed #d9d9d9', 
-                        borderBottom: '2px dashed #d9d9d9', 
-                        background: '#fafafa', 
-                        overflow: 'hidden', 
-                        touchAction: 'none', 
-                        display: 'flex', 
-                        justifyContent: 'center' 
-                    }}>
-                        <canvas 
-                            ref={sigPadRef}
-                            width={350}
-                            height={250}
-                            style={{ cursor: 'crosshair', background: '#fff' }}
-                            onMouseDown={startDrawing}
-                            onMouseMove={draw}
-                            onMouseUp={stopDrawing}
-                            onTouchStart={startDrawing}
-                            onTouchMove={draw}
-                            onTouchEnd={stopDrawing}
-                        />
-                    </div>
+                <div style={{ textAlign: 'center', padding: '10px 0' }}>
+                    <Text type="secondary">Vui lòng ký vào khung bên dưới</Text>
+                </div>
+                <div style={{ 
+                    borderTop: '1px solid #f0f0f0', 
+                    borderBottom: '1px solid #f0f0f0', 
+                    background: '#fff', 
+                    touchAction: 'none',
+                    display: 'flex',
+                    justifyContent: 'center'
+                }}>
+                    <canvas 
+                        ref={sigPadRef}
+                        width={350}
+                        height={250}
+                        style={{ cursor: 'crosshair' }}
+                        onMouseDown={startDrawing}
+                        onMouseMove={draw}
+                        onMouseUp={stopDrawing}
+                        onTouchStart={startDrawing}
+                        onTouchMove={draw}
+                        onTouchEnd={stopDrawing}
+                    />
                 </div>
             </Modal>
         </Card>
@@ -476,3 +544,4 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({ journeyId, isEditabl
 };
 
 export default Step03Survey;
+

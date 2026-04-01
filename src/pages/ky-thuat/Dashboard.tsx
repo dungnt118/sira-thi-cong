@@ -1,39 +1,83 @@
-import React from 'react';
-import { Card, Typography, Space, Row, Col, Badge, Progress, List, Button } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Card, Typography, Space, Row, Col, Badge, Progress, List, Button, Spin } from 'antd';
 import { 
     CalendarOutlined, 
-    EnvironmentOutlined 
+    EnvironmentOutlined,
+    LoadingOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { mockJourneys } from '../../data/journeyMockData';
+import { useAuth } from '@/hooks/useAuth';
+import { journeyService } from '@/services/core-contracts/services/journey.service';
+import { IJourney } from '@/services/core-contracts/types/journey.types';
 
 const { Title, Text } = Typography;
 
 export const Dashboard: React.FC = () => {
     const navigate = useNavigate();
+    const { user } = useAuth();
+    const [journeys, setJourneys] = useState<IJourney[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const myTasks = mockJourneys.filter(j => j.owner_user_id === 'u-kt-01');
+    const fetchMyJourneys = async () => {
+        setIsLoading(true);
+        try {
+            // Fetch all journeys to match PM view behavior as requested
+            const response = await journeyService.queryJourneysDto({});
+            setJourneys(response.data || []);
+        } catch (error) {
+            console.error('Failed to fetch journeys:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchMyJourneys();
+    }, []);
 
     const stats = [
-        { title: 'Cần xử lý mới', value: myTasks.filter(j => ['S03_SURVEY', 'S04_SOLUTION'].includes(j.current_step_code)).length, color: '#faad14' },
-        { title: 'Đang triển khai', value: myTasks.filter(j => ['S08_CONSTRUCT', 'S09_ACCEPTANCE'].includes(j.current_step_code)).length, color: '#1890ff' },
-        { title: 'Bảo trì / Bảo hành', value: myTasks.filter(j => ['S11_MAINTAIN', 'S12_WARRANTY'].includes(j.current_step_code)).length, color: '#52c41a' },
+        { 
+            title: 'Khảo sát & Giải pháp', 
+            value: journeys.filter(j => ['lead_intake', 'qualification', 'survey_planning', 'site_survey', 'survey_review'].includes(j.current_step || '')).length, 
+            color: '#faad14' 
+        },
+        { 
+            title: 'Đang thi công', 
+            value: journeys.filter(j => ['project_execution'].includes(j.current_step || '')).length, 
+            color: '#1890ff' 
+        },
+        { 
+            title: 'Hoàn tất / Bảo hành', 
+            value: journeys.filter(j => ['handover_acceptance', 'warranty_aftercare'].includes(j.current_step || '')).length, 
+            color: '#52c41a' 
+        },
     ];
 
-    const todayTasks = myTasks.map(j => ({
-        id: j.journey_code,
-        type: j.current_step,
-        customer: j.customer_name,
-        phone: j.customer_phone,
-        address: j.site_address,
-        time: j.created_at.replace('T', ' '),
-        status: j.project_status === 'active' ? 'in-progress' : 'pending',
-        route: `/ky-thuat/journeys/${j.id}`
-    }));
+    const todayTasks = journeys.map(j => {
+        const dateObj = j.last_activity_at ? new Date(j.last_activity_at) : new Date();
+        return {
+            id: j.journey_code || j._id.slice(-8),
+            type: j.current_step?.replace(/_/g, ' ').toUpperCase() || 'N/A',
+            customer: j.customer_full_name || 'Khách hàng',
+            phone: j.customer_phone || 'N/A',
+            address: j.site_address || 'Địa chỉ công trình',
+            time: dateObj.toLocaleDateString('vi-VN') + ' ' + dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+            status: j.project_status === 'active' ? 'in-progress' : 'pending',
+            route: `/ky-thuat/journeys/${j._id}`
+        };
+    });
+
+    if (isLoading) {
+        return (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} tip="Đang tải dữ liệu..." />
+            </div>
+        );
+    }
 
     return (
         <div style={{ paddingBottom: 24 }}>
-            <Title level={4} className="ky-thuat-page-title">Xin chào, Kỹ thuật viên!</Title>
+            <Title level={4} className="ky-thuat-page-title">Xin chào, {user?.title || 'Kỹ thuật viên'}!</Title>
             
             <Row gutter={[12, 12]} style={{ marginBottom: 24 }}>
                 {stats.map(stat => (
@@ -41,7 +85,7 @@ export const Dashboard: React.FC = () => {
                         <Card 
                             bodyStyle={{ padding: '12px 8px', textAlign: 'center' }} 
                             className="ky-card"
-                            style={{ borderTop: `3px solid ${stat.color}` }}
+                            style={{ borderTop: `3px solid ${stat.color}`, height: '100%' }}
                         >
                             <div style={{ fontSize: 24, fontWeight: 'bold', color: stat.color }}>{stat.value}</div>
                             <div style={{ fontSize: 11, color: '#8c8c8c' }}>{stat.title}</div>
@@ -52,22 +96,26 @@ export const Dashboard: React.FC = () => {
 
             <div style={{ background: '#fff', borderRadius: 8, padding: 16, marginBottom: 24 }} className="ky-card">
                 <Text strong style={{ fontSize: 16, display: 'block', marginBottom: 16 }}>
-                    Tiến độ công việc tuần
+                    Tiến độ công việc tổng thể
                 </Text>
-                <Progress percent={65} strokeColor="#13a8a8" status="active" />
+                <Progress 
+                    percent={Math.round(journeys.filter(j => j.project_status === 'completed').length / (journeys.length || 1) * 100)} 
+                    strokeColor="#13a8a8" 
+                    status="active" 
+                />
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, fontSize: 12, color: '#8c8c8c' }}>
-                    <span>Đã hoàn thành: 15</span>
-                    <span>Mục tiêu: 23</span>
+                    <span>Sắp hoàn thành: {journeys.filter(j => (j.progress_pct || 0) > 80).length}</span>
+                    <span>Tổng hành trình: {journeys.length}</span>
                 </div>
             </div>
 
-            <Title level={5} style={{ marginBottom: 16 }}>Lịch trình hôm nay</Title>
+            <Title level={5} style={{ marginBottom: 16 }}>Danh sách Hành trình</Title>
             
             <List
                 itemLayout="vertical"
                 dataSource={todayTasks}
                 renderItem={(item) => (
-                    <Card className="ky-card" bodyStyle={{ padding: 16 }} onClick={() => navigate(item.route)} hoverable>
+                    <Card className="ky-card" bodyStyle={{ padding: 16 }} onClick={() => navigate(item.route)} hoverable style={{ marginBottom: 12 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
                             <Badge 
                                 color={item.status === 'pending' ? 'orange' : 'blue'} 
@@ -88,10 +136,11 @@ export const Dashboard: React.FC = () => {
                             block 
                             style={{ backgroundColor: item.status === 'pending' ? '#13a8a8' : '#1890ff' }}
                         >
-                            Chuyển tới xử lý {item.type}
+                            Chuyển tới xử lý chi tiết
                         </Button>
                     </Card>
                 )}
+                locale={{ emptyText: <Text type="secondary">Không có hành trình nào được tìm thấy trên hệ thống.</Text> }}
             />
         </div>
     );

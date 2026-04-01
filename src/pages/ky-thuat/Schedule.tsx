@@ -1,58 +1,71 @@
-import React, { useState } from 'react';
-import { Card, Typography, List, Badge, Radio } from 'antd';
-import { CalendarOutlined, ClockCircleOutlined, EnvironmentOutlined } from '@ant-design/icons';
+import React, { useState, useEffect } from 'react';
+import { Card, Typography, List, Badge, Radio, Spin, Empty } from 'antd';
+import { CalendarOutlined, ClockCircleOutlined, EnvironmentOutlined, LoadingOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { journeyService } from '@/services/core-contracts/services/journey.service';
+import { IJourney } from '@/services/core-contracts/types/journey.types';
 
 const { Title, Text } = Typography;
 
 export const Schedule: React.FC = () => {
     const navigate = useNavigate();
+    const { user } = useAuth();
     const [filter, setFilter] = useState('upcoming');
+    const [journeys, setJourneys] = useState<IJourney[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const schedules = [
-        {
-            id: 'SR-2026-001',
-            type: 'Khảo sát',
-            customer: 'Nguyễn Văn A',
-            time: '14:00',
-            date: 'Hôm nay, 16/03/2026',
-            address: '123 Nguyễn Thị Minh Khai, Q3',
-            status: 'upcoming'
-        },
-        {
-            id: 'PRJ-2026-005',
-            type: 'Thi công',
-            customer: 'Biệt thự Bác Nam (Ngày 3)',
-            time: '08:00 - 17:00',
-            date: 'Hôm nay, 16/03/2026',
-            address: 'Khu biệt thự Thảo Điền, Q2',
-            status: 'in-progress'
-        },
-        {
-            id: 'MAINT-2026-012',
-            type: 'Bảo trì',
-            customer: 'Chị Lan - Chống thấm mái',
-            time: '09:00 - 10:00',
-            date: 'Ngày mai, 17/03/2026',
-            address: '45 Lê Lợi, Q1',
-            status: 'upcoming'
-        },
-        {
-            id: 'SR-2026-008',
-            type: 'Khảo sát',
-            customer: 'Công ty ABC',
-            time: '15:00',
-            date: '15/03/2026',
-            address: 'Tòa nhà Bitexco, Q1',
-            status: 'completed'
+    const fetchMyJourneys = async () => {
+        setIsLoading(true);
+        try {
+            const response = await journeyService.queryJourneysDto({});
+            setJourneys(response.data || []);
+        } catch (error) {
+            console.error('Failed to fetch schedules:', error);
+        } finally {
+            setIsLoading(false);
         }
-    ];
+    };
 
-    const filteredSchedules = schedules.filter(s => 
+    useEffect(() => {
+        fetchMyJourneys();
+    }, []);
+
+    const mappedSchedules = journeys.map(j => {
+        const dateObj = j.last_activity_at ? new Date(j.last_activity_at) : new Date();
+        const type = j.current_step?.includes('survey') ? 'Khảo sát' : 
+                     j.current_step?.includes('execution') ? 'Thi công' : 
+                     j.current_step?.includes('warranty') ? 'Bảo trì' : 'Khác';
+        
+        let status: 'upcoming' | 'in-progress' | 'completed' = 'upcoming';
+        if (j.project_status === 'completed') status = 'completed';
+        else if (j.project_status === 'active') status = 'in-progress';
+
+        return {
+            id: j._id,
+            code: j.journey_code || j._id.slice(-8),
+            type,
+            customer: j.customer_full_name || 'Khách hàng',
+            time: dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+            date: dateObj.toLocaleDateString('vi-VN'),
+            address: j.site_address || 'N/A',
+            status
+        };
+    });
+
+    const filteredSchedules = mappedSchedules.filter(s => 
         filter === 'all' ? true : 
         filter === 'upcoming' ? (s.status === 'upcoming' || s.status === 'in-progress') : 
         s.status === 'completed'
     );
+
+    if (isLoading) {
+        return (
+            <div style={{ textAlign: 'center', padding: '48px 0' }}>
+                <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} tip="Đang tải lịch trình..." />
+            </div>
+        );
+    }
 
     return (
         <div>
@@ -68,17 +81,14 @@ export const Schedule: React.FC = () => {
 
             <List
                 dataSource={filteredSchedules}
+                locale={{ emptyText: <Empty description="Không có lịch trình phù hợp" /> }}
                 renderItem={item => (
                     <Card 
                         className="ky-card" 
                         size="small"
-                        onClick={() => {
-                            if (item.type === 'Khảo sát' && item.status !== 'completed') {
-                                navigate(`/ky-thuat/survey/${item.id}`);
-                            } else if (item.type === 'Thi công') {
-                                navigate(`/ky-thuat/execution`);
-                            }
-                        }}
+                        style={{ marginBottom: 12 }}
+                        onClick={() => navigate(`/ky-thuat/journeys/${item.id}`)}
+                        hoverable
                     >
                         <div style={{ display: 'flex' }}>
                             <div style={{ 
@@ -98,6 +108,9 @@ export const Schedule: React.FC = () => {
                                 <Text type="secondary" style={{ fontSize: 12, display: 'block' }}>
                                     <EnvironmentOutlined /> {item.address}
                                 </Text>
+                                <div style={{ marginTop: 8 }}>
+                                    <Text type="secondary" style={{ fontSize: 11 }}>Mã: {item.code}</Text>
+                                </div>
                             </div>
                         </div>
                     </Card>

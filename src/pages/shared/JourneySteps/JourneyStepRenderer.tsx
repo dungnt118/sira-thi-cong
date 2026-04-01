@@ -25,6 +25,22 @@ export interface JourneyStepRendererProps {
     onRefresh?: () => void;
 }
 
+export const MAP_ENUM_TO_STEP_CODE: Record<string, string> = {
+    'lead_intake': 'S01_INFO',
+    'qualification': 'S01_INFO',
+    'survey_planning': 'S02_CONSULT',
+    'site_survey': 'S03_SURVEY',
+    'survey_review': 'S03_SURVEY',
+    'estimate_preparation': 'S04_SOLUTION',
+    'quotation_preparation': 'S05_QUOTE',
+    'quotation_sent': 'S05_QUOTE',
+    'quotation_approved': 'S05_QUOTE',
+    'contract_signing': 'S06_CONTRACT',
+    'project_execution': 'S08_CONSTRUCT',
+    'handover_acceptance': 'S09_ACCEPTANCE',
+    'warranty_aftercare': 'S12_WARRANTY',
+};
+
 export const JourneyStepRenderer: React.FC<JourneyStepRendererProps> = ({ 
     stepCode, 
     journeyId, 
@@ -35,6 +51,9 @@ export const JourneyStepRenderer: React.FC<JourneyStepRendererProps> = ({
     const screens = Grid.useBreakpoint();
     const isMobile = !screens.md;
     const [isInternalEdit, setIsInternalEdit] = React.useState(false);
+
+    // Resolve step code if it's an enum value
+    const resolvedStepCode = MAP_ENUM_TO_STEP_CODE[stepCode] || stepCode;
 
     const handleConfirmStep = () => {
         message.success(`Đã xác nhận hoàn thành bước ${stepCode}. Chuyển sang bước tiếp theo...`);
@@ -49,7 +68,7 @@ export const JourneyStepRenderer: React.FC<JourneyStepRendererProps> = ({
             onSave: () => { if (onRefresh) onRefresh(); }
         };
 
-        switch (stepCode) {
+        switch (resolvedStepCode) {
             case 'S01_INFO': return <Step01Info {...commonProps} />;
             case 'S02_CONSULT': return <Step02Consult {...commonProps} />;
             case 'S03_SURVEY': return <Step03Survey {...commonProps} />;
@@ -63,7 +82,7 @@ export const JourneyStepRenderer: React.FC<JourneyStepRendererProps> = ({
             case 'S11_MAINTAIN': return <Step11Maintain {...commonProps} />;
             case 'S12_WARRANTY': return <Step12Warranty {...commonProps} />;
             case 'S13_CARE': return <Step13Care {...commonProps} />;
-            default: return <Empty description="Component cho bước này đang được phát triển" />;
+            default: return <Empty description={`Component cho bước ${resolvedStepCode} đang được phát triển`} />;
         }
     };
 
