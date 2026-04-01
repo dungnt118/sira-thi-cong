@@ -4,12 +4,14 @@ import {
     SaveOutlined, EditOutlined, EyeOutlined, UserOutlined, PhoneOutlined, 
     MailOutlined, HomeOutlined, LoadingOutlined, InfoCircleOutlined, 
     EnvironmentOutlined, ToolOutlined, ShareAltOutlined, CalendarOutlined,
-    FlagOutlined, RocketOutlined, FormOutlined
+    FlagOutlined, RocketOutlined, FormOutlined, TeamOutlined
 } from '@ant-design/icons';
 import { journeyService } from '../../../services/core-contracts/services/journey.service';
 import { customerService } from '../../../services/core-contracts/services/customer.service';
 import { IJourney } from '../../../services/core-contracts/types/journey.types';
 import { ICustomer } from '../../../services/core-contracts/types/customer.types';
+
+import { AuthorizedUserSelect } from '../../../components/authorizedusers/AuthorizedUser';
 
 const { TextArea } = Input;
 const { Text, Title } = Typography;
@@ -33,6 +35,27 @@ const SOURCE_CHANNEL_CONFIG: Record<string, string> = {
     hotline: 'Hotline',
     referral: 'Giới thiệu',
     direct: 'Trực tiếp'
+};
+
+const GO_NO_GO_CONFIG: Record<string, { label: string; color: string }> = {
+    draft: { label: 'Nháp', color: 'default' },
+    go: { label: 'GO ✓', color: 'success' },
+    no_go: { label: 'NO-GO ✗', color: 'error' },
+    on_hold: { label: 'Tạm hoãn', color: 'warning' },
+    pending: { label: 'Chờ xét', color: 'processing' },
+};
+
+const PROJECT_STATUS_CONFIG: Record<string, { label: string; color: string }> = {
+    not_started: { label: 'Chưa bắt đầu', color: 'default' },
+    active: { label: 'Đang triển khai', color: 'processing' },
+    completed: { label: 'Hoàn thành', color: 'success' },
+    cancelled: { label: 'Đã hủy', color: 'error' },
+};
+
+const SLA_STATUS_CONFIG: Record<string, { label: string; color: string }> = {
+    on_time: { label: 'Đúng hạn', color: 'success' },
+    at_risk: { label: 'Rủi ro', color: 'warning' },
+    overdue: { label: 'Quá hạn', color: 'error' },
 };
 
 export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = false, onSave, onEditStateChange }) => {
@@ -103,11 +126,13 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                 source_channel: values.source_channel,
                 priority: values.priority,
                 request_description: values.request_description,
-                customer_full_name: values.full_name,
-                customer_phone: values.phone,
-                customer_email: values.email,
-                customer_address: values.customer_address,
                 customer_province: values.city,
+                pm_user: values.pm_user,
+                supervisor_users: values.supervisor_users,
+                technical_users: values.technical_users,
+                delivery_note: values.delivery_note,
+                go_no_go_status: values.go_no_go_status,
+                project_status: values.project_status,
             };
             
             await journeyService.updateJourney(journeyId, journeyUpdate);
@@ -243,7 +268,45 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                             <Form.Item label="Ghi chú nghiệp vụ" name="customer_notes">
                                 <TextArea rows={4} />
                             </Form.Item>
-                            
+                        </Col>
+
+                        <Col span={24}>
+                            <Divider orientation="left" plain><TeamOutlined /> Điều phối nhân sự</Divider>
+                            <Row gutter={24}>
+                                <Col xs={24} md={8}>
+                                    <Form.Item label="Quản lý dự án (PM)" name="pm_user">
+                                        <AuthorizedUserSelect allowMultiple={false} placeholder="Chọn PM" />
+                                    </Form.Item>
+                                </Col>
+                                <Col xs={24} md={8}>
+                                    <Form.Item label="Giám sát (Supervisors)" name="supervisor_users">
+                                        <AuthorizedUserSelect allowMultiple={true} placeholder="Chọn Giám sát" />
+                                    </Form.Item>
+                                </Col>
+                                <Col xs={24} md={8}>
+                                    <Form.Item label="Kỹ thuật (Technical)" name="technical_users">
+                                        <AuthorizedUserSelect allowMultiple={true} placeholder="Chọn Kỹ thuật" />
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+                            <Form.Item label="Ghi chú bàn giao/phối hợp" name="delivery_note">
+                                <TextArea rows={2} placeholder="Nhập ghi chú cho đội ngũ thực hiện..." />
+                            </Form.Item>
+
+                            <Divider />
+                            <Row gutter={24}>
+                                <Col xs={24} md={12}>
+                                    <Form.Item label="Trạng thái Go/No-Go" name="go_no_go_status">
+                                        <Select options={Object.entries(GO_NO_GO_CONFIG).map(([k, v]) => ({ value: k, label: v.label }))} />
+                                    </Form.Item>
+                                </Col>
+                                <Col xs={24} md={12}>
+                                    <Form.Item label="Trạng thái triển khai" name="project_status">
+                                        <Select options={Object.entries(PROJECT_STATUS_CONFIG).map(([k, v]) => ({ value: k, label: v.label }))} />
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+
                             <Space style={{ width: '100%', justifyContent: 'flex-end', marginTop: 16 }}>
                                 <Button onClick={() => { setIsEditing(false); onEditStateChange?.(false); }}>Hủy</Button>
                                 <Button type="primary" htmlType="submit" icon={<SaveOutlined />} loading={isLoading}>
@@ -262,8 +325,27 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                                 <Descriptions.Item label="Thi công">{journeyData.site_address || '—'}</Descriptions.Item>
                                 <Descriptions.Item label="Kênh">{SOURCE_CHANNEL_CONFIG[journeyData.source_channel || ''] || journeyData.source_channel || '—'}</Descriptions.Item>
                                 <Descriptions.Item label="Ưu tiên"><Tag color={priorityCfg.color}>{priorityCfg.label}</Tag></Descriptions.Item>
+                                <Descriptions.Item label="Go/No-Go">
+                                    <Tag color={GO_NO_GO_CONFIG[journeyData.go_no_go_status || '']?.color}>{GO_NO_GO_CONFIG[journeyData.go_no_go_status || '']?.label || '—'}</Tag>
+                                </Descriptions.Item>
+                                <Descriptions.Item label="SLA">
+                                    <Tag color={SLA_STATUS_CONFIG[journeyData.sla_status || '']?.color}>{SLA_STATUS_CONFIG[journeyData.sla_status || '']?.label || '—'}</Tag>
+                                </Descriptions.Item>
+                                <Descriptions.Item label="Triển khai">
+                                    <Tag color={PROJECT_STATUS_CONFIG[journeyData.project_status || '']?.color}>{PROJECT_STATUS_CONFIG[journeyData.project_status || '']?.label || '—'}</Tag>
+                                </Descriptions.Item>
                                 <Descriptions.Item label="Mô tả">
                                     <div style={{ whiteSpace: 'pre-wrap', color: '#666', minHeight: 40 }}>{journeyData.request_description || '...'}</div>
+                                </Descriptions.Item>
+                            </Descriptions>
+
+                            <Divider orientation="left" plain style={{ marginTop: 24 }}><TeamOutlined /> Điều phối nhân sự</Divider>
+                            <Descriptions bordered size="small" column={1}>
+                                <Descriptions.Item label="PM">{journeyData.pm_user ? <AuthorizedUserSelect value={journeyData.pm_user} disabled style={{ border: 'none', background: 'transparent', padding: 0 }} /> : '—'}</Descriptions.Item>
+                                <Descriptions.Item label="Giám sát">{journeyData.supervisor_users?.length ? <AuthorizedUserSelect value={journeyData.supervisor_users} allowMultiple disabled style={{ border: 'none', background: 'transparent', padding: 0 }} /> : '—'}</Descriptions.Item>
+                                <Descriptions.Item label="Kỹ thuật">{journeyData.technical_users?.length ? <AuthorizedUserSelect value={journeyData.technical_users} allowMultiple disabled style={{ border: 'none', background: 'transparent', padding: 0 }} /> : '—'}</Descriptions.Item>
+                                <Descriptions.Item label="Ghi chú bàn giao">
+                                    <div style={{ color: '#888', fontStyle: 'italic' }}>{journeyData.delivery_note || 'Chưa gán'}</div>
                                 </Descriptions.Item>
                             </Descriptions>
                         </Col>

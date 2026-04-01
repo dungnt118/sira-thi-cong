@@ -11,10 +11,6 @@ export interface IWorkTask {
   journey_id?: string;
   idx_journey_id?: IndexedContentItem;
   journey_step_code?: WorkTaskJourneyStepCodeEnum;
-  role?: string;
-  idx_role?: IndexedContentItem;
-  assignee?: any;
-  assigned_by?: any;
   title?: string;
   description?: string;
   is_required?: boolean;
@@ -32,9 +28,6 @@ export interface IWorkTask {
 export interface ICreateWorkTaskInput {
   journey_id?: string;
   journey_step_code?: WorkTaskJourneyStepCodeEnum2;
-  role?: string;
-  assignee?: any;
-  assigned_by?: any;
   title?: string;
   description?: string;
   is_required?: boolean;

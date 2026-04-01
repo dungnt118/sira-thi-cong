@@ -18,11 +18,6 @@ export const FIND_WORKTASK_DTO = gql`
         idx_journey_id
         journey_id
         journey_step_code
-        role
-        idx_role
-        role
-        assignee
-        assigned_by
         title
         description
         is_required
@@ -58,11 +53,6 @@ export const QUERY_WORKTASKS_DTO = gql`
         idx_journey_id
         journey_id
         journey_step_code
-        role
-        idx_role
-        role
-        assignee
-        assigned_by
         title
         description
         is_required

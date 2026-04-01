@@ -22,6 +22,7 @@ import PortalDashboard from '../../../components/portal/PortalDashboard';
 import { journeyService } from '../../../services/core-contracts/services/journey.service';
 import { employeeService } from '../../../services/core-contracts/services/employee.service';
 import { IJourney } from '../../../services/core-contracts/types/journey.types';
+import { AuthorizedUserSelect } from '../../../components/authorizedusers/AuthorizedUser';
 import { mockJourneyTemplates } from '../../../data/journeyMockData';
 import type { GoNoGoStatus, SlaStatus, PortalPublishStatus } from '../../../types/journey';
 import JourneyForm from './JourneyForm';
@@ -425,8 +426,12 @@ const JourneyDetail360: React.FC = () => {
                             assignForm.validateFields().then(async values => {
                                 setIsSubmitting(true);
                                 try {
-                                    await journeyService.updateJourney(journey._id, { owner_user_id: values.owner_user_id });
-                                    message.success("Đã phân công phụ trách!");
+                                    await journeyService.updateJourney(journey._id, { 
+                                        pm_user: values.pm_user,
+                                        supervisor_users: values.supervisor_users,
+                                        technical_users: values.technical_users
+                                    });
+                                    message.success("Đã phân công nhân sự!");
                                     setShowAssignModal(false);
                                     fetchJourney();
                                 } catch (error) {
@@ -437,9 +442,19 @@ const JourneyDetail360: React.FC = () => {
                             });
                         }}
                     >
-                        <Form form={assignForm} layout="vertical">
-                            <Form.Item label="Người phụ trách mới" name="owner_user_id" rules={[{ required: true }]}>
-                                <Select placeholder="Chọn PM/Sale" options={employees} />
+                        <Form form={assignForm} layout="vertical" initialValues={{
+                            pm_user: journey.pm_user,
+                            supervisor_users: journey.supervisor_users,
+                            technical_users: journey.technical_users
+                        }}>
+                            <Form.Item label="Quản lý dự án (PM)" name="pm_user">
+                                <AuthorizedUserSelect allowMultiple={false} placeholder="Chọn PM" />
+                            </Form.Item>
+                            <Form.Item label="Giám sát (Supervisors)" name="supervisor_users">
+                                <AuthorizedUserSelect allowMultiple={true} placeholder="Chọn Giám sát" />
+                            </Form.Item>
+                            <Form.Item label="Kỹ thuật (Technical)" name="technical_users">
+                                <AuthorizedUserSelect allowMultiple={true} placeholder="Chọn Kỹ thuật" />
                             </Form.Item>
                         </Form>
                     </Modal>

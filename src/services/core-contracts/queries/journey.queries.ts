@@ -19,7 +19,7 @@ export const FIND_JOURNEY_DTO = gql`
         customer_id
         idx_customer_id
         customer_id
-        owner_user_id
+        owner_user
         site_address
         requested_service
         priority
@@ -63,12 +63,13 @@ export const FIND_JOURNEY_DTO = gql`
         sales_stage_id
         idx_sales_stage_id
         sales_stage_id
-        sales_owner_user
+        sale_users
+        supervisor_users
+        technical_users
         duplicate_customer_id
         idx_duplicate_customer_id
         duplicate_customer_id
-        delivery_pm_user
-        delivery_supervisor_user
+        pm_user
         planned_start_date
         planned_end_date
         delivery_note
@@ -108,7 +109,7 @@ export const QUERY_JOURNEYS_DTO = gql`
         customer_id
         idx_customer_id
         customer_id
-        owner_user_id
+        owner_user
         site_address
         requested_service
         priority
@@ -152,12 +153,13 @@ export const QUERY_JOURNEYS_DTO = gql`
         sales_stage_id
         idx_sales_stage_id
         sales_stage_id
-        sales_owner_user
+        sale_users
+        supervisor_users
+        technical_users
         duplicate_customer_id
         idx_duplicate_customer_id
         duplicate_customer_id
-        delivery_pm_user
-        delivery_supervisor_user
+        pm_user
         planned_start_date
         planned_end_date
         delivery_note

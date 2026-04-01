@@ -10,8 +10,9 @@ export interface ISiteReport {
   _id: string;
   journey_id?: string;
   idx_journey_id?: IndexedContentItem;
+  worktaskId?: string;
+  idx_worktaskId?: IndexedContentItem;
   journey_step_code?: SiteReportJourneyStepCodeEnum;
-  supervisor_user?: any;
   title?: string;
   content?: string;
   progress_pct?: number;
@@ -19,12 +20,13 @@ export interface ISiteReport {
   issue_summary?: string;
   next_action?: string;
   createdAt?: string | Date;
+  createdBy?: any;
 }
 
 export interface ICreateSiteReportInput {
   journey_id?: string;
+  worktaskId?: string;
   journey_step_code?: SiteReportJourneyStepCodeEnum2;
-  supervisor_user?: any;
   title?: string;
   content?: string;
   progress_pct?: number;
@@ -32,6 +34,7 @@ export interface ICreateSiteReportInput {
   issue_summary?: string;
   next_action?: string;
   createdAt?: string | Date;
+  createdBy?: any;
 }
 
 export type ISiteReportListResponse = ApiListResponse<ISiteReport>

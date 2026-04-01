@@ -1,0 +1,5 @@
+.authorized-user-select--comfortable.ant-select-multiple.ant-select-lg .ant-select-selector {
+  min-height: 56px !important;
+  padding-top: 9px !important;
+  padding-bottom: 9px !important;
+}

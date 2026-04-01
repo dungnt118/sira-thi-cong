@@ -17,8 +17,10 @@ export const FIND_SITEREPORT_DTO = gql`
         journey_id
         idx_journey_id
         journey_id
+        worktaskId
+        idx_worktaskId
+        worktaskId
         journey_step_code
-        supervisor_user
         title
         content
         progress_pct
@@ -26,6 +28,7 @@ export const FIND_SITEREPORT_DTO = gql`
         issue_summary
         next_action
         createdAt
+        createdBy
       }
     }
   }
@@ -47,8 +50,11 @@ export const QUERY_SITEREPORTS_DTO = gql`
         _id
         journey_id
         idx_journey_id
+        journey_id
+        worktaskId
+        idx_worktaskId
+        worktaskId
         journey_step_code
-        supervisor_user
         title
         content
         progress_pct
@@ -56,6 +62,7 @@ export const QUERY_SITEREPORTS_DTO = gql`
         issue_summary
         next_action
         createdAt
+        createdBy
       }
     }
   }

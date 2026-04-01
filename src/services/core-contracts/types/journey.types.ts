@@ -12,7 +12,7 @@ export interface IJourney {
   request_title?: string;
   customer_id?: string;
   idx_customer_id?: IndexedContentItem;
-  owner_user_id?: any;
+  owner_user?: any;
   site_address?: string;
   requested_service?: string;
   priority?: JourneyPriorityEnum;
@@ -54,11 +54,12 @@ export interface IJourney {
   idx_sales_pipeline_id?: IndexedContentItem;
   sales_stage_id?: string;
   idx_sales_stage_id?: IndexedContentItem;
-  sales_owner_user?: any;
+  sale_users?: any;
+  supervisor_users?: any;
+  technical_users?: any;
   duplicate_customer_id?: string;
   idx_duplicate_customer_id?: IndexedContentItem;
-  delivery_pm_user?: any;
-  delivery_supervisor_user?: any;
+  pm_user?: any;
   planned_start_date?: string | Date;
   planned_end_date?: string | Date;
   delivery_note?: string;
@@ -78,7 +79,7 @@ export interface ICreateJourneyInput {
   journey_code?: string;
   request_title?: string;
   customer_id?: string;
-  owner_user_id?: any;
+  owner_user?: any;
   site_address?: string;
   requested_service?: string;
   priority?: JourneyPriorityEnum2;
@@ -118,10 +119,11 @@ export interface ICreateJourneyInput {
   document_count?: number;
   sales_pipeline_id?: string;
   sales_stage_id?: string;
-  sales_owner_user?: any;
+  sale_users?: any;
+  supervisor_users?: any;
+  technical_users?: any;
   duplicate_customer_id?: string;
-  delivery_pm_user?: any;
-  delivery_supervisor_user?: any;
+  pm_user?: any;
   planned_start_date?: string | Date;
   planned_end_date?: string | Date;
   delivery_note?: string;
