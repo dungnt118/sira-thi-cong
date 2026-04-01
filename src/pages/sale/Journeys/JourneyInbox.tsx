@@ -111,7 +111,7 @@ const JourneyInbox: React.FC = () => {
         JOURNEY_EMPTY_VALUE;
 
     const resolveCustomerPhone = (journey: IJourney) =>
-        journey.contact_phone ||
+        journey.customer_phone ||
         journey.idx_customer_id?.secondary_text ||
         resolveCustomer(journey)?.phone ||
         JOURNEY_EMPTY_VALUE;
@@ -219,8 +219,8 @@ const JourneyInbox: React.FC = () => {
         setSelectedJourney(null);
         setPrefillValues({
             customer_id: customer._id,
-            contact_phone: customer.phone,
-            contact_email: customer.email,
+            customer_phone: customer.phone,
+            customer_email: customer.email,
             site_address: [customer.address, customer.ward, customer.district, customer.province]
                 .filter(Boolean)
                 .join(', '),

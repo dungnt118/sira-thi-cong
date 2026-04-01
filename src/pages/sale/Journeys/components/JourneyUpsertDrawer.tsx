@@ -53,8 +53,8 @@ const mapJourneyToForm = (
     journey_code: journey?.journey_code ?? initialValues?.journey_code,
     request_title: journey?.request_title ?? initialValues?.request_title,
     customer_id: journey?.customer_id ?? initialValues?.customer_id,
-    contact_phone: journey?.contact_phone ?? initialValues?.contact_phone,
-    contact_email: journey?.contact_email ?? initialValues?.contact_email,
+    customer_phone: journey?.customer_phone ?? initialValues?.customer_phone,
+    customer_email: journey?.customer_email ?? initialValues?.customer_email,
     source_channel: journey?.source_channel ?? initialValues?.source_channel ?? 'direct',
     priority: journey?.priority ?? initialValues?.priority ?? 'medium',
     go_no_go_status: journey?.go_no_go_status ?? initialValues?.go_no_go_status ?? 'draft',
@@ -164,8 +164,8 @@ export const JourneyUpsertDrawer: React.FC<JourneyUpsertDrawerProps> = ({
         }
 
         form.setFieldsValue({
-            contact_phone: form.getFieldValue('contact_phone') || customer.phone,
-            contact_email: form.getFieldValue('contact_email') || customer.email,
+            customer_phone: form.getFieldValue('customer_phone') || customer.phone,
+            customer_email: form.getFieldValue('customer_email') || customer.email,
             site_address: form.getFieldValue('site_address') || customer.address,
         });
     };
@@ -258,12 +258,12 @@ export const JourneyUpsertDrawer: React.FC<JourneyUpsertDrawerProps> = ({
                         </Form.Item>
                     </Col>
                     <Col xs={24} md={12}>
-                        <Form.Item label="Số điện thoại tiếp nhận" name="contact_phone">
+                        <Form.Item label="Số điện thoại tiếp nhận" name="customer_phone">
                             <Input placeholder="Nhập số điện thoại liên hệ" />
                         </Form.Item>
                     </Col>
                     <Col xs={24} md={12}>
-                        <Form.Item label="Email tiếp nhận" name="contact_email">
+                        <Form.Item label="Email tiếp nhận" name="customer_email">
                             <Input placeholder="Nhập email liên hệ" />
                         </Form.Item>
                     </Col>

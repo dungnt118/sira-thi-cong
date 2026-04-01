@@ -47,7 +47,6 @@ export const QUERY_SITEREPORTS_DTO = gql`
         _id
         journey_id
         idx_journey_id
-        journey_id
         journey_step_code
         supervisor_user
         title

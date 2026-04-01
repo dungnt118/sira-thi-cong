@@ -64,7 +64,7 @@ const SLAQueue: React.FC = () => {
         journey.idx_customer_id?.primary_text || 'Khách hàng ẩn';
 
     const resolveCustomerPhone = (journey: IJourney) =>
-        journey.idx_customer_id?.secondary_text || journey.contact_phone || '—';
+        journey.idx_customer_id?.secondary_text || journey.customer_phone || '—';
 
     const overdueJourneys = journeys.filter((journey) => journey.sla_status === 'overdue');
     const atRiskJourneys = journeys.filter((journey) => journey.sla_status === 'at_risk');

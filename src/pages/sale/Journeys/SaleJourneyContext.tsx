@@ -120,7 +120,7 @@ const SaleJourneyContext: React.FC = () => {
 
     const customer = customers.find((item) => item._id === journey.customer_id);
     const customerName = journey.idx_customer_id?.primary_text || customer?.full_name || JOURNEY_EMPTY_VALUE;
-    const customerPhone = journey.contact_phone || journey.idx_customer_id?.secondary_text || customer?.phone || JOURNEY_EMPTY_VALUE;
+    const customerPhone = journey.customer_phone || journey.idx_customer_id?.secondary_text || customer?.phone || JOURNEY_EMPTY_VALUE;
     const pipelineName = journey.idx_sales_pipeline_id?.primary_text || pipelines.find((item) => item._id === journey.sales_pipeline_id)?.name || JOURNEY_EMPTY_VALUE;
     const stageName = journey.idx_sales_stage_id?.primary_text || stages.find((item) => item._id === journey.sales_stage_id)?.name || JOURNEY_EMPTY_VALUE;
     const slaMeta = JOURNEY_SLA_META[journey.sla_status || ''] || { label: journey.sla_status || JOURNEY_EMPTY_VALUE, color: '#8c8c8c', background: '#fafafa' };
@@ -173,7 +173,7 @@ const SaleJourneyContext: React.FC = () => {
                                 <Descriptions.Item label="Tiêu đề yêu cầu">{journey.request_title || JOURNEY_EMPTY_VALUE}</Descriptions.Item>
                                 <Descriptions.Item label="Khách hàng">{customerName}</Descriptions.Item>
                                 <Descriptions.Item label="Số điện thoại">{customerPhone}</Descriptions.Item>
-                                <Descriptions.Item label="Email">{journey.contact_email || JOURNEY_EMPTY_VALUE}</Descriptions.Item>
+                                <Descriptions.Item label="Email">{journey.customer_email || JOURNEY_EMPTY_VALUE}</Descriptions.Item>
                                 <Descriptions.Item label="Kênh tiếp nhận">{getOptionLabel(JOURNEY_SOURCE_CHANNEL_OPTIONS, journey.source_channel)}</Descriptions.Item>
                                 <Descriptions.Item label="Loại dịch vụ">{journey.requested_service || JOURNEY_EMPTY_VALUE}</Descriptions.Item>
                                 <Descriptions.Item label="Địa chỉ công trình">{journey.site_address || JOURNEY_EMPTY_VALUE}</Descriptions.Item>

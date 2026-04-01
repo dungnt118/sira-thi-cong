@@ -78,10 +78,10 @@ const JourneyForm: React.FC<JourneyFormProps> = ({
         }
 
         try {
-            const res = await customerService.queryCustomersDto({ 
-                filter: { 
-                    phone: { contains: value }
-                } as any 
+            const res = await customerService.queryCustomersDto({
+                filter: {
+                    phone: { contains: value },
+                },
             });
             if (res.data) {
                 setCustomerOptions(res.data.map(c => ({

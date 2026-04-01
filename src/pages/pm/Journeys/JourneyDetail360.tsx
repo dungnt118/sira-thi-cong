@@ -22,7 +22,7 @@ import PortalDashboard from '../../../components/portal/PortalDashboard';
 import { journeyService } from '../../../services/core-contracts/services/journey.service';
 import { employeeService } from '../../../services/core-contracts/services/employee.service';
 import { IJourney } from '../../../services/core-contracts/types/journey.types';
-import { mockJourneyTemplates } from '../../../data/journeyMockData'; 
+import { mockJourneyTemplates } from '../../../data/journeyMockData';
 import type { GoNoGoStatus, SlaStatus, PortalPublishStatus } from '../../../types/journey';
 import JourneyForm from './JourneyForm';
 
@@ -140,10 +140,10 @@ const JourneyDetail360: React.FC = () => {
             });
         }
 
-        return { 
-            allowedGroupCodes: [...new Set(allowedGroupCodes)], 
+        return {
+            allowedGroupCodes: [...new Set(allowedGroupCodes)],
             editableGroupCodes: [...new Set(editableGroupCodes)],
-            finalizableGroupCodes: [...new Set(finalizableGroupCodes)] 
+            finalizableGroupCodes: [...new Set(finalizableGroupCodes)]
         };
     }, [role, journeySteps]);
 
@@ -163,11 +163,11 @@ const JourneyDetail360: React.FC = () => {
         const isEditable = userRoleConfig.editableGroupCodes.includes(groupCode);
         const isFinalizable = userRoleConfig.finalizableGroupCodes.includes(groupCode);
         return (
-            <JourneyStepRenderer 
-                stepCode={stepCode} 
-                journeyId={journey._id} 
-                isEditable={isEditable} 
-                canFinalize={isFinalizable} 
+            <JourneyStepRenderer
+                stepCode={stepCode}
+                journeyId={journey._id}
+                isEditable={isEditable}
+                canFinalize={isFinalizable}
                 onRefresh={fetchJourney}
             />
         );
@@ -202,7 +202,7 @@ const JourneyDetail360: React.FC = () => {
         {
             key: 'GRP_LABOR',
             label: <span><TeamOutlined /> Nhân công</span>,
-            children: <StepLabor journeyId={journey._id} isEditable={userRoleConfig.editableGroupCodes.includes('GRP_05_QUOTE') || role === 'pm'} />, 
+            children: <StepLabor journeyId={journey._id} isEditable={userRoleConfig.editableGroupCodes.includes('GRP_05_QUOTE') || role === 'pm'} />,
         },
         // 6. Tab Báo giá/HĐ (GRP_05_QUOTE)
         {
@@ -223,31 +223,31 @@ const JourneyDetail360: React.FC = () => {
             children: renderTabContent('GRP_07_DEPOSIT', 'S07_ADVANCE'),
         },
         // 10. Tab Log (PM only)
-        {
-            key: 'LOG',
-            label: <span><ClockCircleOutlined /> Log</span>,
-            children: (
-                <Timeline
-                    items={(journey as any).activities?.map((a: any) => ({
-                        dot: <CheckCircleOutlined style={{ color: '#52c41a' }} />,
-                        children: (
-                            <div>
-                                <div>
-                                    <Text strong>{a.activity_action}</Text>
-                                    <Text type="secondary" style={{ marginLeft: 8, fontSize: 11 }}>{a.activity_time?.split('T')[0]}</Text>
-                                </div>
-                                <Text type="secondary" style={{ fontSize: 12 }}>{a.activity_actor} · {a.activity_context}</Text>
-                                <div style={{ fontSize: 13, marginTop: 2 }}>{a.activity_summary}</div>
-                            </div>
-                        ),
-                    })) || []}
-                />
-            ),
-        },
+        // {
+        //     key: 'LOG',
+        //     label: <span><ClockCircleOutlined /> Log</span>,
+        //     children: (
+        //         <Timeline
+        //             items={(journey as any).activities?.map((a: any) => ({
+        //                 dot: <CheckCircleOutlined style={{ color: '#52c41a' }} />,
+        //                 children: (
+        //                     <div>
+        //                         <div>
+        //                             <Text strong>{a.activity_action}</Text>
+        //                             <Text type="secondary" style={{ marginLeft: 8, fontSize: 11 }}>{a.activity_time?.split('T')[0]}</Text>
+        //                         </div>
+        //                         <Text type="secondary" style={{ fontSize: 12 }}>{a.activity_actor} · {a.activity_context}</Text>
+        //                         <div style={{ fontSize: 13, marginTop: 2 }}>{a.activity_summary}</div>
+        //                     </div>
+        //                 ),
+        //             })) || []}
+        //         />
+        //     ),
+        // },
         // 11. Tab Phát sinh (GRP_08_CONSTRUCT)
         {
             key: 'GRP_08_CONSTRUCT',
-            label: <span><ExclamationCircleOutlined /> Phát sinh</span>,
+            label: <span><ExclamationCircleOutlined /> Nhật ký thi công</span>,
             children: renderTabContent('GRP_08_CONSTRUCT', 'S08_CONSTRUCT'),
         },
         // 12. Tab Tài liệu (GRP_09_ACCEPTANCE or GRP_08_CONSTRUCT)
@@ -273,7 +273,7 @@ const JourneyDetail360: React.FC = () => {
     ].filter(item => {
         // Filter tabs based on user visibility
         if (item.key === 'LOG') return role === 'pm' || role === 'sale';
-        
+
         // Custom keys that don't match standardProcedureGroupCd exactly
         if (item.key === 'GRP_LABOR') return userRoleConfig.allowedGroupCodes.includes('GRP_05_QUOTE') || role === 'pm' || role === 'sale';
         if (item.key === 'GRP_MATERIALS') return userRoleConfig.allowedGroupCodes.includes('GRP_05_QUOTE') || role === 'pm' || role === 'sale';
@@ -336,7 +336,7 @@ const JourneyDetail360: React.FC = () => {
                         </Space>
                     </Col>
                 </Row>
-                
+
                 {journeySteps.length > 0 && !isMobile && (
                     <div style={{ marginTop: 24, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.1)', overflowX: 'auto' }}>
                         <Steps
@@ -373,26 +373,26 @@ const JourneyDetail360: React.FC = () => {
             {/* Modals for Sale */}
             {role === 'sale' && (
                 <>
-                    <Modal 
-                        title="Ghi log tư vấn" 
-                        open={showLogModal} 
-                        onCancel={() => setShowLogModal(false)} 
-                        footer={null} 
+                    <Modal
+                        title="Ghi log tư vấn"
+                        open={showLogModal}
+                        onCancel={() => setShowLogModal(false)}
+                        footer={null}
                         width={600}
                     >
-                        <ConsultationLogForm 
+                        <ConsultationLogForm
                             onSubmit={(values) => {
                                 console.log('Log submitted:', values);
                                 message.success("Đã lưu log tư vấn!");
                                 setShowLogModal(false);
-                            }} 
-                            onCancel={() => setShowLogModal(false)} 
+                            }}
+                            onCancel={() => setShowLogModal(false)}
                         />
                     </Modal>
 
-                    <Modal 
-                        title="Ghi chú Follow-up" 
-                        open={showFollowUpModal} 
+                    <Modal
+                        title="Ghi chú Follow-up"
+                        open={showFollowUpModal}
                         onCancel={() => setShowFollowUpModal(false)}
                         onOk={() => {
                             followUpForm.validateFields().then(values => {
@@ -484,10 +484,10 @@ const JourneyDetail360: React.FC = () => {
                         width={publishTab === 'preview' ? 1000 : 600}
                         styles={{ body: { padding: 0 } }}
                     >
-                        <Tabs 
-                            activeKey={publishTab} 
-                            onChange={setPublishTab} 
-                            centered 
+                        <Tabs
+                            activeKey={publishTab}
+                            onChange={setPublishTab}
+                            centered
                             style={{ marginBottom: 0 }}
                             items={[
                                 {
@@ -495,18 +495,18 @@ const JourneyDetail360: React.FC = () => {
                                     label: 'Cấu hình Publish',
                                     children: (
                                         <div style={{ padding: 24 }}>
-                                            <Alert 
-                                                type="info" 
+                                            <Alert
+                                                type="info"
                                                 showIcon
-                                                message="Khách hàng sẽ thấy các thay đổi mới trên Portal sau khi bạn publish." 
-                                                style={{ marginBottom: 20 }} 
+                                                message="Khách hàng sẽ thấy các thay đổi mới trên Portal sau khi bạn publish."
+                                                style={{ marginBottom: 20 }}
                                             />
-                                            
+
                                             <Form layout="vertical">
                                                 <Form.Item label={<Text strong>Nội dung publish</Text>}>
-                                                    <Checkbox.Group 
-                                                        options={['Tổng quan', 'Timeline', 'Tài liệu']} 
-                                                        defaultValue={['Tổng quan', 'Timeline']} 
+                                                    <Checkbox.Group
+                                                        options={['Tổng quan', 'Timeline', 'Tài liệu']}
+                                                        defaultValue={['Tổng quan', 'Timeline']}
                                                     />
                                                 </Form.Item>
 
@@ -517,9 +517,9 @@ const JourneyDetail360: React.FC = () => {
                                                             {`${window.location.origin}/portal/${journey.journey_code}`}
                                                         </Text>
                                                         <Space>
-                                                            <Button 
-                                                                size="small" 
-                                                                type="link" 
+                                                            <Button
+                                                                size="small"
+                                                                type="link"
                                                                 icon={<PaperClipOutlined />}
                                                                 onClick={() => {
                                                                     navigator.clipboard.writeText(`${window.location.origin}/portal/${journey.journey_code}`);
@@ -528,14 +528,14 @@ const JourneyDetail360: React.FC = () => {
                                                             >
                                                                 Copy
                                                             </Button>
-                                                            <Button 
-                                                                size="small" 
-                                                                type="link" 
+                                                            <Button
+                                                                size="small"
+                                                                type="link"
                                                                 icon={<SendOutlined />}
                                                                 onClick={() => window.open(`/portal/${journey.journey_code}`, '_blank')}
                                                             >
                                                                 Mở
-                             </Button>
+                                                            </Button>
                                                         </Space>
                                                     </div>
                                                 </div>
@@ -547,11 +547,11 @@ const JourneyDetail360: React.FC = () => {
                                     key: 'preview',
                                     label: 'Xem trước giao diện',
                                     children: (
-                                        <div style={{ 
-                                            padding: isMobile ? 8 : 24, 
-                                            background: '#f0f2f5', 
-                                            maxHeight: '70vh', 
-                                            overflowY: 'auto' 
+                                        <div style={{
+                                            padding: isMobile ? 8 : 24,
+                                            background: '#f0f2f5',
+                                            maxHeight: '70vh',
+                                            overflowY: 'auto'
                                         }}>
                                             <PortalDashboard journey={journey as any} isPreview />
                                         </div>
@@ -569,8 +569,8 @@ const JourneyDetail360: React.FC = () => {
                         destroyOnClose
                     >
                         {journey && (
-                            <JourneyForm 
-                                initialValues={journey as any} 
+                            <JourneyForm
+                                initialValues={journey as any}
                                 onSubmit={async (values) => {
                                     setIsSubmitting(true);
                                     try {
@@ -583,7 +583,7 @@ const JourneyDetail360: React.FC = () => {
                                     } finally {
                                         setIsSubmitting(false);
                                     }
-                                }} 
+                                }}
                                 onCancel={() => setIsEditDrawerVisible(false)}
                                 isLoading={isSubmitting}
                             />

@@ -1,12 +1,20 @@
-import React, { useState } from 'react';
-import { Card, Form, Input, Button, Result, Space, Divider, Typography, Progress, Timeline, Image, Row, Col, Alert, InputNumber } from 'antd';
-import { SaveOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
+import React, { useState, useEffect, useMemo } from 'react';
+import { 
+    Card, Form, Input, Button, Result, Space, Divider, 
+    Typography, Progress, Timeline, Image, Row, Col, 
+    Alert, InputNumber, message, Spin, Empty, Avatar, Tag 
+} from 'antd';
+import { 
+    SaveOutlined, EditOutlined, EyeOutlined, RocketOutlined, 
+    BuildOutlined, CheckCircleOutlined, PictureOutlined, 
+    LoadingOutlined, UserOutlined, PlusOutlined, ClockCircleOutlined 
+} from '@ant-design/icons';
 
-import { mockConstructReports } from '../../../data/journeyMockData';
-import { RocketOutlined, BuildOutlined, CheckCircleOutlined, PictureOutlined } from '@ant-design/icons';
+import { siteReportService } from '../../../services/core-contracts/services/siteReport.service';
+import { ISiteReport } from '../../../services/core-contracts/types/siteReport.types';
 
 const { TextArea } = Input;
-const { Text, Title } = Typography;
+const { Text, Title, Paragraph } = Typography;
 
 export interface Step08ConstructProps {
     journeyId: string;
@@ -15,117 +23,311 @@ export interface Step08ConstructProps {
     onEditStateChange?: (isEditing: boolean) => void;
 }
 
-export const Step08Construct: React.FC<Step08ConstructProps> = ({ journeyId, isEditable = false, onSave, onEditStateChange }) => {
+export const Step08Construct: React.FC<Step08ConstructProps> = ({ 
+    journeyId, 
+    isEditable = false, 
+    onSave, 
+    onEditStateChange 
+}) => {
     const [form] = Form.useForm();
     const [isEditing, setIsEditing] = useState(false);
+    const [reports, setReports] = useState<ISiteReport[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const reports = mockConstructReports.filter(r => r.journey_id === journeyId);
-
-    const handleFinish = (values: any) => {
-        if (onSave) onSave(values);
-        setIsEditing(false);
-        if (onEditStateChange) onEditStateChange(false);
+    const fetchReports = async () => {
+        if (!journeyId) return;
+        setIsLoading(true);
+        try {
+            const response = await siteReportService.querySiteReportsDto({
+                group: {
+                    op: 'AND',
+                    children: [
+                        { 
+                            id: 'journey_id', 
+                            value: journeyId, 
+                            operation: 'eq', 
+                            children: [], 
+                            propType: 'OBJECTID' as any 
+                        }
+                    ]
+                },
+                sorted: [{ id: 'createdAt', desc: false }] 
+            });
+            setReports(response.data || []);
+        } catch (error) {
+            console.error('Failed to fetch site reports:', error);
+            message.error('Không thể tải nhật ký thi công');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
+    useEffect(() => {
+        fetchReports();
+    }, [journeyId]);
+
+    const handleFinish = async (values: any) => {
+        if (!journeyId) return;
+        setIsSubmitting(true);
+        try {
+            await siteReportService.createSiteReport({
+                journey_id: journeyId,
+                journey_step_code: 'project_execution',
+                content: values.notes,
+                progress_pct: values.progress,
+                title: `Nhật ký ngày ${new Date().toLocaleDateString('vi-VN')}`,
+            });
+            
+            message.success('Đã lưu nhật ký mới');
+            setIsEditing(false);
+            if (onEditStateChange) onEditStateChange(false);
+            form.resetFields();
+            
+            await fetchReports();
+            if (onSave) onSave(values);
+        } catch (error) {
+            console.error('Failed to save site report:', error);
+            message.error('Lỗi khi lưu nhật ký thi công');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    // Memoize timeline items for performance and safety
+    const timelineItems = useMemo(() => {
+        try {
+            if (!reports || reports.length === 0) return [];
+            
+            return reports.slice().reverse().map((report, idx) => {
+                if (!report) return null;
+                
+                const reportId = typeof report._id === 'string' ? report._id : `report-${idx}-${Math.random()}`;
+                const dateObj = report.createdAt ? new Date(report.createdAt) : null;
+                const isValidDate = dateObj && !isNaN(dateObj.getTime());
+                const dateStr = isValidDate ? dateObj.toLocaleDateString('vi-VN') : 'N/A';
+                const timeStr = isValidDate ? dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : '';
+                
+                // Extra defensive handling for complex fields
+                const supervisor = (report.supervisor_user && typeof report.supervisor_user === 'object') ? report.supervisor_user : null;
+                const supervisorTitle = supervisor?.title || (typeof report.supervisor_user === 'string' ? report.supervisor_user : 'Giám sát hiện trường');
+                const progress = typeof report.progress_pct === 'number' ? report.progress_pct : (Number(report.progress_pct) || 0);
+
+                return {
+                    key: String(reportId),
+                    label: (
+                        <div style={{ textAlign: 'right', paddingRight: 8 }}>
+                            <Text strong>{dateStr}</Text>
+                            <br />
+                            <Text type="secondary" style={{ fontSize: 11 }}>{timeStr}</Text>
+                        </div>
+                    ),
+                    color: progress >= 100 ? 'green' : 'blue',
+                    children: (
+                        <Card 
+                            size="small" 
+                            style={{ borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.05)', marginBottom: 16 }}
+                            title={
+                                <Space>
+                                    <Avatar 
+                                        size="small" 
+                                        icon={<UserOutlined />} 
+                                        src={typeof supervisor?.avatar === 'string' ? supervisor.avatar : undefined} 
+                                    />
+                                    <Text strong>{String(supervisorTitle)}</Text>
+                                    <Tag color="cyan">{progress}%</Tag>
+                                </Space>
+                            }
+                        >
+                            <div style={{ padding: '4px 0' }}>
+                                <Paragraph style={{ margin: 0 }}>{String(report.content || 'Không có nội dung')}</Paragraph>
+                            </div>
+                            
+                            {report.medias && Array.isArray(report.medias) && report.medias.length > 0 && (
+                                <div style={{ marginTop: 12 }}>
+                                    <Space wrap>
+                                        {report.medias.filter(Boolean).map((img: any, i: number) => {
+                                            const imgSrc = typeof img === 'string' ? img : (img.url || img.path || '');
+                                            if (!imgSrc || typeof imgSrc !== 'string') return null;
+                                            return (
+                                                <Image 
+                                                    key={`img-${i}`} 
+                                                    width={80} 
+                                                    height={60} 
+                                                    src={imgSrc} 
+                                                    fallback="https://via.placeholder.com/80x60?text=No+Image"
+                                                    style={{ borderRadius: 4, objectFit: 'cover', border: '1px solid #f0f0f0' }}
+                                                />
+                                            );
+                                        })}
+                                    </Space>
+                                </div>
+                            )}
+                        </Card>
+                    )
+                };
+            }).filter(Boolean);
+        } catch (err) {
+            console.error("Timeline render process error:", err);
+            return [];
+        }
+    }, [reports]);
+
+    const latestReport = reports.length > 0 ? reports[reports.length - 1] : null;
+    const overallProgress = Number(latestReport?.progress_pct) || 0;
+
     const renderReadOnly = () => {
-        if (reports.length === 0) {
+        if (isLoading) {
             return (
-                <Result
-                    status="info"
-                    title="Đang chuẩn bị thi công"
-                    subTitle="Chưa có nhật ký thi công nào được ghi nhận. Quá trình thi công sẽ bắt đầu sau khi tạm ứng được xác nhận."
-                />
+                <div style={{ textAlign: 'center', padding: '40px 0' }}>
+                    <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} tip="Đang tải nhật ký..." />
+                </div>
             );
         }
 
-        const latestReport = reports[reports.length - 1];
+        if (reports.length === 0) {
+            return (
+                <Empty
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                    description={
+                        <span>
+                            Chưa có nhật ký thi công nào được ghi nhận. <br />
+                            Quá trình thi công sẽ bắt đầu sau khi tạm ứng được xác nhận.
+                        </span>
+                    }
+                >
+                    {isEditable && (
+                        <Button type="primary" onClick={() => {
+                            setIsEditing(true);
+                            if (onEditStateChange) onEditStateChange(true);
+                        }}>Bắt đầu nhật ký đầu tiên</Button>
+                    )}
+                </Empty>
+            );
+        }
 
         return (
             <div style={{ padding: '0 12px' }}>
-                <div style={{ marginBottom: 24, padding: 16, background: '#f0f2f5', borderRadius: 8 }}>
-                    <Row align="middle" gutter={16}>
-                        <Col span={4} style={{ textAlign: 'center' }}>
-                            <RocketOutlined style={{ fontSize: 40, color: '#1890ff' }} />
+                <div style={{ marginBottom: 24, padding: 16, background: '#f0f2f5', borderRadius: 12, border: '1px solid #e8e8e8' }}>
+                    <Row align="middle" gutter={24}>
+                        <Col xs={24} sm={4} style={{ textAlign: 'center' }}>
+                            <RocketOutlined style={{ fontSize: 48, color: '#1890ff' }} />
                         </Col>
-                        <Col span={20}>
-                            <Title level={4} style={{ margin: '0 0 8px 0' }}>Tiến độ tổng thể: {latestReport.progress_pct}%</Title>
-                            <Progress percent={latestReport.progress_pct} status="active" strokeColor="#1890ff" />
+                        <Col xs={24} sm={20}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 8 }}>
+                                <Title level={4} style={{ margin: 0 }}>Tiến độ tổng thể</Title>
+                                <Text strong style={{ fontSize: 20, color: '#1890ff' }}>{overallProgress}%</Text>
+                            </div>
+                            <Progress 
+                                percent={overallProgress} 
+                                status={overallProgress >= 100 ? "success" : "active"} 
+                                strokeWidth={12}
+                                strokeColor={overallProgress >= 100 ? '#52c41a' : '#1890ff'} 
+                            />
                         </Col>
                     </Row>
                 </div>
 
-                <Title level={5}><BuildOutlined /> Nhật ký thi công hàng ngày</Title>
-                <Timeline mode="left">
-                    {reports.map((report, idx) => (
-                        <Timeline.Item 
-                            key={report.id} 
-                            label={report.date}
-                            color={idx === reports.length - 1 ? 'blue' : 'gray'}
-                        >
-                            <Card size="small" title={<span>Giám sát: <strong>{report.supervisor}</strong></span>}>
-                                <Text>{report.content}</Text>
-                                {report.images && report.images.length > 0 && (
-                                    <div style={{ marginTop: 12 }}>
-                                        <Space wrap>
-                                            {report.images.map((img, i) => (
-                                                <Image 
-                                                    key={i} 
-                                                    width={80} 
-                                                    height={60} 
-                                                    src={img} 
-                                                    fallback="https://via.placeholder.com/80x60?text=No+Image"
-                                                    style={{ borderRadius: 4, objectFit: 'cover' }}
-                                                />
-                                            ))}
-                                        </Space>
-                                        <div style={{ marginTop: 4 }}>
-                                            <Text type="secondary" style={{ fontSize: '12px' }}><PictureOutlined /> {report.images.length} ảnh hiện trường</Text>
-                                        </div>
-                                    </div>
-                                )}
-                            </Card>
-                        </Timeline.Item>
-                    ))}
-                </Timeline>
+                <Divider orientation="left">
+                    <Title level={5} style={{ margin: 0 }}>
+                        <ClockCircleOutlined /> Lịch sử nhật ký hiện trường
+                    </Title>
+                </Divider>
+                
+                <Timeline 
+                    mode="left" 
+                    pending={overallProgress < 100 ? "Đang tiếp tục thi công..." : false}
+                    items={timelineItems as any}
+                />
 
-                {latestReport.progress_pct === 100 && (
+                {overallProgress >= 100 && (
                     <Alert 
                         message="Thi công hoàn tất" 
-                        description="Hạng mục đã hoàn thành 100% khối lượng. Đang chuyển sang bước Nghiệm thu & Bàn giao."
+                        description="Hạng mục đã hoàn thành 100% khối lượng. Đang chuẩn bị các bước Nghiệm thu & Bàn giao."
                         type="success"
                         showIcon
                         icon={<CheckCircleOutlined />}
-                        style={{ marginTop: 16 }}
+                        style={{ marginTop: 24, borderRadius: 8 }}
                     />
                 )}
             </div>
         );
     };
 
-    const renderEditable = () => (
-        <Form form={form} layout="vertical" onFinish={handleFinish}>
-            <Divider orientation="left">Nhật ký mới</Divider>
-            <Form.Item label="Tiến độ (%)" name="progress" initialValue={reports.length > 0 ? reports[reports.length-1].progress_pct : 0}>
-                <InputNumber min={0} max={100} style={{ width: 120 }} />
-            </Form.Item>
-            <Form.Item label="Nội dung công việc" name="notes" rules={[{ required: true }]}>
-                <TextArea rows={4} placeholder="Nhập chi tiết các hạng mục đã thi công trong ngày..." />
-            </Form.Item>
-            <Form.Item label="Hình ảnh hiện trường">
-                <Button icon={<PictureOutlined />}>Tải ảnh lên</Button>
-            </Form.Item>
-            <Space style={{ marginTop: 16 }}>
-                <Button type="primary" htmlType="submit" icon={<SaveOutlined />}>Lưu nhật ký</Button>
-                <Button onClick={() => setIsEditing(false)}>Hủy</Button>
-            </Space>
-        </Form>
-    );
+    const renderEditable = () => {
+        const lastProgress = Number(latestReport?.progress_pct) || 0;
+        
+        return (
+            <Form form={form} layout="vertical" onFinish={handleFinish} initialValues={{ progress: lastProgress }}>
+                <Divider orientation="left" plain>
+                    <Title level={5} style={{ margin: 0 }}><PlusOutlined /> Ghi nhận nhật ký mới</Title>
+                </Divider>
+                
+                <Row gutter={24}>
+                    <Col xs={24} sm={8}>
+                        <Form.Item 
+                            label="Cập nhật tiến độ (%)" 
+                            name="progress" 
+                            rules={[{ required: true, message: 'Nhập % tiến độ' }]}
+                        >
+                            <InputNumber 
+                                min={lastProgress} 
+                                max={100} 
+                                style={{ width: '100%' }} 
+                                addonAfter="%"
+                                placeholder={`Từ ${lastProgress}%...`}
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col xs={24} sm={16}>
+                        <Alert 
+                            type="info" 
+                            showIcon 
+                            message={`Tiến độ hiện tại đang ở mức ${lastProgress}%. Vui lòng cập nhật con số mới sau ca thi công.`}
+                            style={{ marginBottom: 24 }}
+                        />
+                    </Col>
+                </Row>
+                
+                <Form.Item label="Nội dung công việc hôm nay" name="notes" rules={[{ required: true, message: 'Vui lòng mô tả công việc' }]}>
+                    <TextArea rows={5} placeholder="Ví dụ: Đã hoàn thành lắp đặt hệ khung xương, đi dây điện âm trần..." />
+                </Form.Item>
+                
+                <Form.Item label="Hình ảnh hiện trường (Tải lên)">
+                    <Button icon={<PictureOutlined />} disabled>Tải ảnh lên (Sắp hỗ trợ)</Button>
+                </Form.Item>
+                
+                <Divider />
+                
+                <Space size="middle" style={{ width: '100%', justifyContent: 'flex-end' }}>
+                    <Button onClick={() => {
+                        setIsEditing(false);
+                        onEditStateChange?.(false);
+                    }}>Hủy bỏ</Button>
+                    <Button 
+                        type="primary" 
+                        htmlType="submit" 
+                        icon={isSubmitting ? <LoadingOutlined /> : <PlusOutlined />} 
+                        loading={isSubmitting}
+                    >
+                        Lưu nhật ký & Cập nhật tiến độ
+                    </Button>
+                </Space>
+            </Form>
+        );
+    };
 
     return (
         <Card 
-            title={isEditing ? "Thực hiện: Triển khai / Thi công" : "Chi tiết bước: Triển khai / Thi công"} 
+            title={
+                <Space>
+                    <BuildOutlined style={{ color: '#1890ff' }} />
+                    <span style={{ fontSize: 16 }}>{isEditing ? "Ghi nhận tiến độ thi công" : "Nhật ký thi công dự án"}</span>
+                </Space>
+            } 
             bordered={false} 
-            className="ky-card"
+            className="ky-card-detail"
+            style={{ boxShadow: '0 2px 10px rgba(0,0,0,0.05)', borderRadius: 12 }}
             extra={isEditable && (
                 <Button 
                     type={isEditing ? "default" : "primary"}
@@ -141,9 +343,13 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({ journeyId, isE
             )}
         >
             {!isEditable && (
-                <div style={{ marginBottom: 16 }}>
-                    <Text type="secondary">Bạn đang ở chế độ Chỉ đọc (Chưa có quyền KeyRole hoặc chưa được phân công).</Text>
-                </div>
+                <Alert
+                    message="Chế độ xem"
+                    description="Bạn chỉ có quyền xem nhật ký thi công này. Các cập nhật tiến độ chỉ dành cho Giám sát hoặc PM."
+                    type="warning"
+                    showIcon
+                    style={{ marginBottom: 20 }}
+                />
             )}
             {isEditing ? renderEditable() : renderReadOnly()}
         </Card>
