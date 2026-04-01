@@ -280,6 +280,7 @@ function App() {
                                 <Route path="journeys/:id" element={<KTJourneyDetail />} />
                                 <Route path="diary/:projectId" element={<ProjectDiary />} />
                                 <Route path="inventory/stock-out" element={<OutboundForm />} />
+                                <Route path="inventory/stock-in" element={<InboundForm />} />
                                 <Route path="inventory/history" element={<InventoryHistory />} />
                                 <Route path="assets/allocation" element={<AllocationForm />} />
                             </Route>

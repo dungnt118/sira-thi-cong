@@ -6,6 +6,7 @@ import {
     ArrowRightOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../hooks/useAuth';
 import useLocalStorageData from '../../../hooks/useLocalStorageData';
 import type { StockOrder, StockOrderStatus } from '../../../types/v3';
 import mockStockOrdersData from '../../../data/mock/stockOrders.json';
@@ -15,6 +16,7 @@ const { useBreakpoint } = Grid;
 
 const InventoryHistory: React.FC = () => {
     const navigate = useNavigate();
+    const { role } = useAuth();
     const screens = useBreakpoint();
     const isMobile = !screens.md;
     
@@ -24,6 +26,11 @@ const InventoryHistory: React.FC = () => {
     const [activeTabType, setActiveTabType] = useState('OUT'); // IN, OUT
     const [activeStep, setActiveStep] = useState('REQUESTED'); // Default to Requested
     const [searchText, setSearchText] = useState('');
+    
+    const handleCreateOrder = () => {
+        const pathSuffix = activeTabType === 'OUT' ? 'stock-out' : 'stock-in';
+        navigate(`/${role}/inventory/${pathSuffix}`);
+    };
 
     const stats = useMemo(() => {
         let totalIn = 0;
@@ -185,6 +192,17 @@ const InventoryHistory: React.FC = () => {
                 marginBottom: 24 
             }}>
                 <Title level={isMobile ? 5 : 4} style={{ margin: 0 }}>⏱️ Lịch sử xuất/nhập kho</Title>
+                <div style={{ display: 'flex', gap: 12 }}>
+                    {role === 'supervisor' && (
+                        <Button 
+                            type="primary" 
+                            icon={activeTabType === 'OUT' ? <ExportOutlined /> : <ImportOutlined />}
+                            onClick={handleCreateOrder}
+                        >
+                            {activeTabType === 'OUT' ? 'Tạo phiếu xuất' : 'Tạo phiếu nhập'}
+                        </Button>
+                    )}
+                </div>
             </div>
 
             <Row gutter={[12, 12]} style={{ marginBottom: 24 }}>
