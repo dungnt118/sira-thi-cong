@@ -14,6 +14,7 @@ import {
     ClockCircleOutlined,
     LoadingOutlined
 } from '@ant-design/icons';
+import { useAuth } from '@/hooks/useAuth';
 import { journeyService } from '@/services/core-contracts/services/journey.service';
 import { surveyRecordService } from '@/services/core-contracts/services/surveyRecord.service';
 import { IJourney } from '@/services/core-contracts/types/journey.types';
@@ -36,6 +37,7 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({
     onSave, 
     onEditStateChange 
 }) => {
+    const { isAdmin } = useAuth();
     const [journey, setJourney] = useState<IJourney | null>(null);
     const [surveyRecord, setSurveyRecord] = useState<ISurveyRecord | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -470,7 +472,7 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({
             bordered={false} 
             className="ky-card"
             style={{ borderRadius: 12 }}
-            extra={isEditable && (
+            extra={(isEditable || isAdmin) && (
                 <Button 
                     type={isEditing ? "default" : "primary"}
                     icon={isEditing ? <EyeOutlined /> : <EditOutlined />}

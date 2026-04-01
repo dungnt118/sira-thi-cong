@@ -9,6 +9,7 @@ import {
     BuildOutlined, CheckCircleOutlined, PictureOutlined, 
     LoadingOutlined, UserOutlined, PlusOutlined, ClockCircleOutlined 
 } from '@ant-design/icons';
+import { useAuth } from '@/hooks/useAuth';
 
 import { siteReportService } from '../../../services/core-contracts/services/siteReport.service';
 import { ISiteReport } from '../../../services/core-contracts/types/siteReport.types';
@@ -31,6 +32,7 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
     onSave, 
     onEditStateChange 
 }) => {
+    const { isAdmin } = useAuth();
     const [form] = Form.useForm();
     const [isEditing, setIsEditing] = useState(false);
     const [reports, setReports] = useState<ISiteReport[]>([]);
@@ -350,7 +352,7 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
             bordered={false} 
             className="ky-card-detail"
             style={{ boxShadow: '0 2px 10px rgba(0,0,0,0.05)', borderRadius: 12 }}
-            extra={isEditable && (
+            extra={(isEditable || isAdmin) && (
                 <Button 
                     type={isEditing ? "default" : "primary"}
                     icon={isEditing ? <EyeOutlined /> : <EditOutlined />}
@@ -364,7 +366,7 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
                 </Button>
             )}
         >
-            {!isEditable && (
+            {(!isEditable && !isAdmin) && (
                 <Alert
                     message="Chế độ xem"
                     description="Bạn chỉ có quyền xem nhật ký thi công này. Các cập nhật tiến độ chỉ dành cho Giám sát hoặc PM."

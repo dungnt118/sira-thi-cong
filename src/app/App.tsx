@@ -85,7 +85,7 @@ const ProjectDiary = lazy(() => import('../pages/giam-sat/ProjectDiary'));
 const MaterialReceipt = lazy(() => import('../pages/giam-sat/MaterialReceipt'));
 const GiamSatProfile = lazy(() => import('../pages/giam-sat/GiamSatProfile'));
 const SupervisorDashboard = lazy(() => import('../pages/giam-sat/SupervisorDashboard'));
-const SupervisorProjectList = lazy(() => import('../pages/giam-sat/SupervisorProjectList'));
+const SupervisorJourneyList = lazy(() => import('../pages/giam-sat/SupervisorJourneyList'));
 
 // V3 Accountant Pages
 import AccountantV3Layout from '../layouts/AccountantV3Layout';
@@ -271,12 +271,13 @@ function App() {
                             <Route path="/supervisor" element={<GiamSatLayout />}>
                                 <Route index element={<Navigate to="/supervisor/dashboard" replace />} />
                                 <Route path="dashboard" element={<SupervisorDashboard />} />
-                                <Route path="projects" element={<SupervisorProjectList />} />
+                                <Route path="projects" element={<SupervisorJourneyList />} />
                                 <Route path="checklist/:id" element={<SupervisorChecklist />} />
                                 <Route path="evidence/:projectId/:stepId" element={<SupervisorEvidenceUpload />} />
                                 <Route path="incident" element={<SupervisorIncidentReport />} />
                                 <Route path="materials" element={<MaterialReceipt />} />
                                 <Route path="profile" element={<GiamSatProfile />} />
+                                <Route path="journeys/:id" element={<KTJourneyDetail />} />
                                 <Route path="diary/:projectId" element={<ProjectDiary />} />
                                 <Route path="inventory/stock-out" element={<OutboundForm />} />
                                 <Route path="inventory/history" element={<InventoryHistory />} />

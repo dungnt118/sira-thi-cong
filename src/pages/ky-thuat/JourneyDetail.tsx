@@ -48,7 +48,7 @@ const TECH_MILESTONES = [
 export const JourneyDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const { user } = useAuth();
+    const { user, isAdmin } = useAuth();
     const screens = useBreakpoint();
     const isMobile = !screens.md;
 
@@ -81,9 +81,9 @@ export const JourneyDetail: React.FC = () => {
 
     const isEditable = useMemo(() => {
         if (!journey || !user?._id) return false;
-        // Technical staff can edit if they are the owner or supervisor
-        return journey.owner_user_id === user._id || journey.delivery_supervisor_user === user._id;
-    }, [journey, user?._id]);
+        // Admin or assigned staff
+        return isAdmin || journey.owner_user_id === user._id || journey.delivery_supervisor_user === user._id;
+    }, [journey, user?._id, isAdmin]);
 
     if (isLoading) {
         return (

@@ -52,7 +52,7 @@ const JourneyDetail360: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const activeTab = searchParams.get('tab') || 'GRP_01_INFO';
     const navigate = useNavigate();
-    const { role } = useAuth();
+    const { role, isAdmin } = useAuth();
 
     const [journey, setJourney] = useState<IJourney | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -116,8 +116,8 @@ const JourneyDetail360: React.FC = () => {
         const editableGroupCodes: string[] = [];
         const finalizableGroupCodes: string[] = [];
 
-        if (role === 'pm') {
-            // PM sees everything, can edit and can finalize
+        if (role === 'pm' || isAdmin) {
+            // Admin or PM sees everything, can edit and can finalize
             journeySteps.forEach(s => {
                 if (s.standardProcedureGroupCd) {
                     allowedGroupCodes.push(s.standardProcedureGroupCd);
@@ -145,7 +145,7 @@ const JourneyDetail360: React.FC = () => {
             editableGroupCodes: [...new Set(editableGroupCodes)],
             finalizableGroupCodes: [...new Set(finalizableGroupCodes)]
         };
-    }, [role, journeySteps]);
+    }, [role, isAdmin, journeySteps]);
 
     if (!journey) {
         return (
@@ -289,7 +289,7 @@ const JourneyDetail360: React.FC = () => {
                 <Button icon={<ArrowLeftOutlined />} type="text" onClick={() => navigate(-1)} style={{ padding: isMobile ? '4px 8px' : undefined }}>
                     {!isMobile && 'Quay lại'}
                 </Button>
-                {role === 'pm' && (
+                {(role === 'pm' || isAdmin) && (
                     <Space size={isMobile ? 4 : 8} wrap={isMobile}>
                         <Button icon={<EditOutlined />} onClick={() => setIsEditDrawerVisible(true)}>{isMobile ? '' : 'Sửa hành trình'}</Button>
                         <Button icon={<UserOutlined />} onClick={() => setShowAssignModal(true)}>{isMobile ? '' : 'Phân công'}</Button>

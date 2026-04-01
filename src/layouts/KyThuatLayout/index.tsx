@@ -19,10 +19,10 @@ const { Header, Content } = Layout;
 export const KyThuatLayout: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { role } = useAuth();
+    const { role, isAdmin } = useAuth();
 
     React.useEffect(() => {
-        if (role && role !== 'ky-thuat') {
+        if (role && role !== 'ky-thuat' && !isAdmin) {
             navigate(`/${role}/dashboard`);
             return;
         }
@@ -30,7 +30,7 @@ export const KyThuatLayout: React.FC = () => {
         if (!role) {
             navigate('/login');
         }
-    }, [role, navigate]);
+    }, [role, isAdmin, navigate]);
     
     // Convert pathname to menu active key
     const getActiveKey = () => {

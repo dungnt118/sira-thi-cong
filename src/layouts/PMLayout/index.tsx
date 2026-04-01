@@ -197,7 +197,7 @@ const PMTopBar: React.FC = () => {
 
 export const PMLayout: React.FC = () => {
     const navigate = useNavigate();
-    const { role } = useAuth();
+    const { role, isAdmin } = useAuth();
     const dispatch = useAppDispatch();
     const journeySetting = useAppSelector(state => state.schemas.journeySetting);
 
@@ -215,7 +215,7 @@ export const PMLayout: React.FC = () => {
     }, [dispatch, journeySetting]);
 
     React.useEffect(() => {
-        if (role && role !== 'pm') {
+        if (role && role !== 'pm' && !isAdmin) {
             navigate(`/${role}/dashboard`);
             return;
         }
@@ -223,7 +223,7 @@ export const PMLayout: React.FC = () => {
         if (!role) {
             navigate('/login');
         }
-    }, [role, navigate]);
+    }, [role, isAdmin, navigate]);
 
     return <BaseLayout sidebar={<PMSidebar />} topBar={<PMTopBar />} />;
 };
