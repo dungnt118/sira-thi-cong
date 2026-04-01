@@ -22,13 +22,15 @@ export interface JourneyStepRendererProps {
     journeyId: string;
     isEditable?: boolean;
     canFinalize?: boolean;
+    onRefresh?: () => void;
 }
 
 export const JourneyStepRenderer: React.FC<JourneyStepRendererProps> = ({ 
     stepCode, 
     journeyId, 
     isEditable = false,
-    canFinalize = false 
+    canFinalize = false,
+    onRefresh
 }) => {
     const screens = Grid.useBreakpoint();
     const isMobile = !screens.md;
@@ -36,14 +38,15 @@ export const JourneyStepRenderer: React.FC<JourneyStepRendererProps> = ({
 
     const handleConfirmStep = () => {
         message.success(`Đã xác nhận hoàn thành bước ${stepCode}. Chuyển sang bước tiếp theo...`);
-        // Logic to update journey status would go here
+        if (onRefresh) onRefresh();
     };
 
     const renderStep = () => {
         const commonProps = { 
             journeyId, 
             isEditable: isEditable,
-            onEditStateChange: (editing: boolean) => setIsInternalEdit(editing)
+            onEditStateChange: (editing: boolean) => setIsInternalEdit(editing),
+            onSave: () => { if (onRefresh) onRefresh(); }
         };
 
         switch (stepCode) {

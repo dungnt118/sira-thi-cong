@@ -88,6 +88,7 @@
 | File | Schema | Vai trò |
 | --- | --- | --- |
 | `ProjectAssignment-SEED-20260330.json` | `ProjectAssignment` | Phân công nhân sự theo vai trò trên hành trình |
+| `WorkTask-SEED-20260401.json` | `WorkTask` | Nhiệm vụ phát sinh theo bước hành trình, assignee và SLA |
 | `StockRequest-SEED-20260330.json` | `StockRequest` | Yêu cầu xuất hoặc nhập vật tư |
 | `StockOrder-SEED-20260330.json` | `StockOrder` | Phiếu xuất và phiếu nhập kho |
 | `MaterialReceiptConfirmation-SEED-20260330.json` | `MaterialReceiptConfirmation` | Xác nhận nhận hàng tại công trình hoặc kho |

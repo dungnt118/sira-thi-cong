@@ -1,0 +1,365 @@
+import React, { useEffect, useState } from 'react';
+import {
+    Form, Input, Select, DatePicker, Row, Col, 
+    Divider, Typography, Space, Button, message, Spin, AutoComplete
+} from 'antd';
+import {
+    UserOutlined, HomeOutlined, CustomerServiceOutlined,
+    CalendarOutlined, InfoCircleOutlined, PhoneOutlined, MailOutlined
+} from '@ant-design/icons';
+import dayjs from 'dayjs';
+import type { IJourney, ICreateJourneyInput } from '../../../services/core-contracts/types/journey.types';
+import { customerService } from '../../../services/core-contracts/services/customer.service';
+import { employeeService } from '../../../services/core-contracts/services/employee.service';
+
+const { TextArea } = Input;
+const { Text } = Typography;
+
+interface JourneyFormProps {
+    initialValues?: Partial<IJourney>;
+    onSubmit: (values: ICreateJourneyInput) => Promise<void>;
+    onCancel: () => void;
+    isLoading?: boolean;
+}
+
+const PRIORITY_OPTIONS = [
+    { value: 'low', label: 'Thấp' },
+    { value: 'medium', label: 'Trung bình' },
+    { value: 'high', label: 'Cao' },
+    { value: 'critical', label: 'Khẩn cấp' },
+];
+
+const SOURCE_CHANNEL_OPTIONS = [
+    { value: 'marketing', label: 'Marketing' },
+    { value: 'hotline', label: 'Hotline' },
+    { value: 'referral', label: 'Giới thiệu' },
+    { value: 'direct', label: 'Trực tiếp' },
+];
+
+const JourneyForm: React.FC<JourneyFormProps> = ({
+    initialValues,
+    onSubmit,
+    onCancel,
+    isLoading = false
+}) => {
+    const [form] = Form.useForm();
+    const [employees, setEmployees] = useState<{ label: string; value: string }[]>([]);
+    const [customerOptions, setCustomerOptions] = useState<{ value: string; label: string; customer: any }[]>([]);
+    const [isFetchingMetadata, setIsFetchingMetadata] = useState(false);
+    const [isSavingCustomer, setIsSavingCustomer] = useState(false);
+    const [selectedCustomerId, setSelectedCustomerId] = useState<string | undefined>(initialValues?.customer_id);
+
+    useEffect(() => {
+        const fetchMetadata = async () => {
+            setIsFetchingMetadata(true);
+            try {
+                // Pre-fetch employees as before
+                const empRes = await employeeService.queryContent({ limit: 100 });
+                if (empRes.data) {
+                    setEmployees(empRes.data.map(e => ({ 
+                        label: e.name || 'N/A', 
+                        value: e._id 
+                    })));
+                }
+            } catch (error) {
+                console.error('Failed to fetch metadata:', error);
+            } finally {
+                setIsFetchingMetadata(false);
+            }
+        };
+
+        fetchMetadata();
+    }, []);
+
+    const handleSearchPhone = async (value: string) => {
+        if (!value || value.length < 3) {
+            setCustomerOptions([]);
+            return;
+        }
+
+        try {
+            const res = await customerService.queryCustomersDto({ 
+                filter: { 
+                    phone: { contains: value }
+                } as any 
+            });
+            if (res.data) {
+                setCustomerOptions(res.data.map(c => ({
+                    value: c.phone || '',
+                    label: `${c.phone} - ${c.full_name}`,
+                    customer: c
+                })));
+            }
+        } catch (error) {
+            console.error('Search error:', error);
+        }
+    };
+
+    const onSelectPhone = (value: string, option: any) => {
+        const c = option.customer;
+        setSelectedCustomerId(c._id);
+        form.setFieldsValue({
+            customer_full_name: c.full_name,
+            customer_email: c.email,
+            customer_address: c.address,
+            site_address: c.address || form.getFieldValue('site_address')
+        });
+    };
+
+    useEffect(() => {
+        if (initialValues) {
+            form.setFieldsValue({
+                ...initialValues,
+                planned_start_date: initialValues.planned_start_date ? dayjs(initialValues.planned_start_date) : undefined,
+                planned_end_date: initialValues.planned_end_date ? dayjs(initialValues.planned_end_date) : undefined,
+            });
+        }
+    }, [initialValues, form]);
+
+    const handleFinish = async (values: any) => {
+        let customerId = selectedCustomerId;
+
+                // Step 1: Ensure customer exists if phone is provided
+                if (!customerId && values.customer_phone) {
+                    setIsSavingCustomer(true);
+                    try {
+                        const newCustomer = await customerService.createCustomer({
+                            phone: values.customer_phone,
+                            full_name: values.customer_full_name,
+                            email: values.customer_email,
+                            address: values.customer_address,
+                            province: values.customer_province,
+                            district: values.customer_district,
+                            ward: values.customer_ward
+                        });
+                        customerId = newCustomer._id;
+                        message.success(`Đã tạo hồ sơ khách hàng mới: ${newCustomer.full_name}`);
+                    } catch (error) {
+                        message.error("Không thể tạo hồ sơ khách hàng mới (Thiếu thông tin bắt buộc?).");
+                        setIsSavingCustomer(false);
+                        return;
+                    } finally {
+                        setIsSavingCustomer(false);
+                    }
+                }
+
+        // Step 2: Format and Submit Journey
+        const formattedValues: ICreateJourneyInput = {
+            ...values,
+            customer_id: customerId,
+            planned_start_date: values.planned_start_date ? values.planned_start_date.toISOString() : undefined,
+            planned_end_date: values.planned_end_date ? values.planned_end_date.toISOString() : undefined,
+        };
+        onSubmit(formattedValues);
+    };
+
+    return (
+        <Spin spinning={isFetchingMetadata || isSavingCustomer}>
+            <Form
+                form={form}
+                layout="vertical"
+                onFinish={handleFinish}
+                initialValues={{
+                    priority: 'medium',
+                    source_channel: 'direct',
+                }}
+            >
+                <Divider orientation="left" style={{ marginTop: 0 }}>
+                    <Space><UserOutlined /> <Text strong>Thông tin Khách hàng (Ưu tiên SĐT)</Text></Space>
+                </Divider>
+
+                <Row gutter={16}>
+                    <Col span={12}>
+                        <Form.Item
+                            label="Số điện thoại"
+                            name="customer_phone"
+                            rules={[{ required: true, message: 'Vui lòng nhập SĐT khách hàng' }]}
+                        >
+                            <AutoComplete
+                                onSearch={handleSearchPhone}
+                                onSelect={onSelectPhone}
+                                options={customerOptions}
+                                placeholder="Gõ số điện thoại để tìm..."
+                                onChange={() => setSelectedCustomerId(undefined)}
+                            >
+                                <Input prefix={<PhoneOutlined />} />
+                            </AutoComplete>
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item
+                            label="Họ và tên"
+                            name="customer_full_name"
+                            rules={[{ required: true, message: 'Vui lòng nhập tên khách hàng' }]}
+                        >
+                            <Input prefix={<UserOutlined />} placeholder="Tự động nhận diện hoặc nhập mới" />
+                        </Form.Item>
+                    </Col>
+                </Row>
+
+                <Row gutter={16}>
+                    <Col span={12}>
+                        <Form.Item label="Email" name="customer_email">
+                            <Input prefix={<MailOutlined />} placeholder="abc@gmail.com" />
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item label="Địa chỉ liên hệ" name="customer_address">
+                            <Input prefix={<HomeOutlined />} placeholder="Số nhà, đường, phường..." />
+                        </Form.Item>
+                    </Col>
+                </Row>
+
+                <Row gutter={16}>
+                    <Col span={8}>
+                        <Form.Item 
+                            label="Tỉnh/Thành" 
+                            name="customer_province"
+                            rules={[{ required: true, message: 'Bắt buộc' }]}
+                        >
+                            <Input placeholder="VD: Hà Nội" />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item 
+                            label="Quận/Huyện" 
+                            name="customer_district"
+                            rules={[{ required: true, message: 'Bắt buộc' }]}
+                        >
+                            <Input placeholder="VD: Cầu Giấy" />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item 
+                            label="Phường/Xã" 
+                            name="customer_ward"
+                            rules={[{ required: true, message: 'Bắt buộc' }]}
+                        >
+                            <Input placeholder="VD: Dịch Vọng" />
+                        </Form.Item>
+                    </Col>
+                </Row>
+
+                <Divider orientation="left">
+                    <Space><InfoCircleOutlined /> <Text strong>Thông tin Hành trình & Kỹ thuật</Text></Space>
+                </Divider>
+                
+                <Row gutter={16}>
+                    <Col span={12}>
+                        <Form.Item
+                            label="Mã hành trình"
+                            name="journey_code"
+                            rules={[{ required: true, message: 'Vui lòng nhập mã hành trình' }]}
+                        >
+                            <Input placeholder="VD: HN-2024-001" />
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item
+                            label="Tiêu đề yêu cầu"
+                            name="request_title"
+                            rules={[{ required: true, message: 'Vui lòng nhập tiêu đề' }]}
+                        >
+                            <Input placeholder="VD: Khảo sát chống thấm sân thượng" />
+                        </Form.Item>
+                    </Col>
+                </Row>
+
+                <Row gutter={16}>
+                    <Col span={12}>
+                        <Form.Item
+                            label="Địa chỉ công trình"
+                            name="site_address"
+                        >
+                            <Input prefix={<HomeOutlined />} placeholder="Nếu khác địa chỉ liên hệ" />
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item
+                            label="Người phụ trách (PM)"
+                            name="owner_user_id"
+                        >
+                            <Select
+                                showSearch
+                                placeholder="Chọn người phụ trách"
+                                options={employees}
+                                filterOption={(input, option) =>
+                                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                                }
+                                prefix={<UserOutlined />}
+                            />
+                        </Form.Item>
+                    </Col>
+                </Row>
+
+                <Divider orientation="left">
+                    <Space><CustomerServiceOutlined /> <Text strong>Chi tiết dịch vụ</Text></Space>
+                </Divider>
+
+                <Row gutter={16}>
+                    <Col span={12}>
+                        <Form.Item
+                            label="Dịch vụ yêu cầu"
+                            name="requested_service"
+                        >
+                            <Input placeholder="VD: Chống thấm, Cải tạo, ..." />
+                        </Form.Item>
+                    </Col>
+                    <Col span={6}>
+                        <Form.Item
+                            label="Mức ưu tiên"
+                            name="priority"
+                        >
+                            <Select options={PRIORITY_OPTIONS} />
+                        </Form.Item>
+                    </Col>
+                    <Col span={6}>
+                        <Form.Item
+                            label="Kênh nguồn"
+                            name="source_channel"
+                        >
+                            <Select options={SOURCE_CHANNEL_OPTIONS} />
+                        </Form.Item>
+                    </Col>
+                </Row>
+
+                <Row gutter={16}>
+                    <Col span={12}>
+                        <Form.Item
+                            label="Ngày bắt đầu (dự kiến)"
+                            name="planned_start_date"
+                        >
+                            <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" prefix={<CalendarOutlined />} />
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item
+                            label="Ngày kết thúc (dự kiến)"
+                            name="planned_end_date"
+                        >
+                            <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" prefix={<CalendarOutlined />} />
+                        </Form.Item>
+                    </Col>
+                </Row>
+
+                <Form.Item
+                    label="Mô tả chi tiết yêu cầu"
+                    name="request_description"
+                >
+                    <TextArea rows={3} placeholder="Nhập các ghi chú chi tiết từ khách hàng..." />
+                </Form.Item>
+
+                <div style={{ textAlign: 'right', marginTop: 24 }}>
+                    <Space>
+                        <Button onClick={onCancel}>Hủy</Button>
+                        <Button type="primary" htmlType="submit" loading={isLoading || isSavingCustomer}>
+                            {initialValues?._id ? 'Cập nhật' : 'Tạo mới'}
+                        </Button>
+                    </Space>
+                </div>
+            </Form>
+        </Spin>
+    );
+};
+
+export default JourneyForm;

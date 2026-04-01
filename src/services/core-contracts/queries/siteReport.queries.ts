@@ -18,18 +18,14 @@ export const FIND_SITEREPORT_DTO = gql`
         idx_journey_id
         journey_id
         journey_step_code
-        project_id
-        idx_project_id
-        project_id
-        report_date
         supervisor_user
         title
         content
         progress_pct
-        images
-        weather_note
+        medias
         issue_summary
         next_action
+        createdAt
       }
     }
   }
@@ -53,18 +49,14 @@ export const QUERY_SITEREPORTS_DTO = gql`
         idx_journey_id
         journey_id
         journey_step_code
-        project_id
-        idx_project_id
-        project_id
-        report_date
         supervisor_user
         title
         content
         progress_pct
-        images
-        weather_note
+        medias
         issue_summary
         next_action
+        createdAt
       }
     }
   }

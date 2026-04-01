@@ -50,8 +50,6 @@ export interface IJourney {
   published_step_count?: number;
   missing_document_count?: number;
   document_count?: number;
-  contact_phone?: string;
-  contact_email?: string;
   sales_pipeline_id?: string;
   idx_sales_pipeline_id?: IndexedContentItem;
   sales_stage_id?: string;
@@ -68,6 +66,12 @@ export interface IJourney {
   idx_latest_project_settlement_id?: IndexedContentItem;
   latest_closeout_package_id?: string;
   idx_latest_closeout_package_id?: IndexedContentItem;
+  customer_full_name?: string;
+  customer_phone?: string;
+  customer_email?: string;
+  customer_address?: string;
+  customer_province?: string;
+  customer_ward?: string;
 }
 
 export interface ICreateJourneyInput {
@@ -112,8 +116,6 @@ export interface ICreateJourneyInput {
   published_step_count?: number;
   missing_document_count?: number;
   document_count?: number;
-  contact_phone?: string;
-  contact_email?: string;
   sales_pipeline_id?: string;
   sales_stage_id?: string;
   sales_owner_user?: any;
@@ -125,6 +127,12 @@ export interface ICreateJourneyInput {
   delivery_note?: string;
   latest_project_settlement_id?: string;
   latest_closeout_package_id?: string;
+  customer_full_name?: string;
+  customer_phone?: string;
+  customer_email?: string;
+  customer_address?: string;
+  customer_province?: string;
+  customer_ward?: string;
 }
 
 export type IJourneyListResponse = ApiListResponse<IJourney>

@@ -11,32 +11,27 @@ export interface ISiteReport {
   journey_id?: string;
   idx_journey_id?: IndexedContentItem;
   journey_step_code?: SiteReportJourneyStepCodeEnum;
-  project_id?: string;
-  idx_project_id?: IndexedContentItem;
-  report_date?: string | Date;
   supervisor_user?: any;
   title?: string;
   content?: string;
   progress_pct?: number;
-  images?: HeadlessFileUpload[];
-  weather_note?: string;
+  medias?: HeadlessFileUpload[];
   issue_summary?: string;
   next_action?: string;
+  createdAt?: string | Date;
 }
 
 export interface ICreateSiteReportInput {
   journey_id?: string;
   journey_step_code?: SiteReportJourneyStepCodeEnum2;
-  project_id?: string;
-  report_date?: string | Date;
   supervisor_user?: any;
   title?: string;
   content?: string;
   progress_pct?: number;
-  images?: HeadlessFileUpload[];
-  weather_note?: string;
+  medias?: HeadlessFileUpload[];
   issue_summary?: string;
   next_action?: string;
+  createdAt?: string | Date;
 }
 
 export type ISiteReportListResponse = ApiListResponse<ISiteReport>

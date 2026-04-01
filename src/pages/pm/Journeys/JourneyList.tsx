@@ -1,19 +1,22 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
     Table, Card, Button, Tag, Input, Select, Space, Row, Col,
-    Statistic, Badge, Avatar, Typography, Tooltip, Grid, Empty, Drawer
+    Statistic, Badge, Avatar, Typography, Tooltip, Grid, Empty, Drawer,
+    Modal, message, Popconfirm, Dropdown, Menu
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
     SearchOutlined, AppstoreOutlined, UnorderedListOutlined,
     AlertOutlined, ClockCircleOutlined, ExclamationCircleOutlined,
     MessageOutlined, ReloadOutlined, UserOutlined, FilterOutlined,
-    StopOutlined
+    StopOutlined, PlusOutlined, MoreOutlined, EditOutlined, DeleteOutlined,
+    EyeOutlined, LayoutOutlined, DashboardOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '@/store/hooks';
-import { search_indexed_content } from '@/store/actions/schemas/schemas.action';
-import type { IJourney } from '../../../services/core-contracts/types/journey.types';
+import type { IJourney, ICreateJourneyInput } from '../../../services/core-contracts/types/journey.types';
+import { journeyService } from '../../../services/core-contracts/services/journey.service';
+import JourneyForm from './JourneyForm';
 
 const { Text } = Typography;
 const { useBreakpoint } = Grid;
@@ -60,24 +63,31 @@ const JourneyList: React.FC = () => {
     const [filterPriority, setFilterPriority] = useState<string>('ALL');
     const [filterStep, setFilterStep] = useState<string>('ALL');
     const [isFilterVisible, setIsFilterVisible] = useState(false);
+    
+    // CRUD state
+    const [isFormVisible, setIsFormVisible] = useState(false);
+    const [editingJourney, setEditingJourney] = useState<IJourney | null>(null);
+    const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Fetch journeys from live backend
+    // Fetch journeys from real backend
     const fetchJourneys = async () => {
         setIsLoading(true);
         try {
-            const res = await dispatch(search_indexed_content({
-                schemas: ['Journey'],
-                key: keyword,
-                limit: 100
-            }));
+            const filter: any = {};
+            if (keyword) filter.keyword = keyword;
+            if (filterSla !== 'ALL') filter.sla_status = filterSla;
+            if (filterPriority !== 'ALL') filter.priority = filterPriority;
+            if (filterStep !== 'ALL') filter.current_step = filterStep;
+
+            const res = await journeyService.queryJourneysDto(filter);
             
             if (res.code === 0 && res.data) {
-                // Map indexed content to IJourney structure if needed, 
-                // but usually search_indexed_content returns available fields directly
-                setJourneys(res.data as any);
+                setJourneys(res.data);
             }
         } catch (error) {
             console.error('Failed to fetch journeys:', error);
+            message.error('Không thể tải danh sách hành trình');
         } finally {
             setIsLoading(false);
         }
@@ -91,23 +101,80 @@ const JourneyList: React.FC = () => {
         fetchJourneys();
     };
 
+    const handleCreate = () => {
+        setEditingJourney(null);
+        setIsFormVisible(true);
+    };
 
+    const handleEdit = (record: IJourney) => {
+        setEditingJourney(record);
+        setIsFormVisible(true);
+    };
+
+    const handleDelete = async (id: string) => {
+        try {
+            const success = await journeyService.deleteJourney(id);
+            if (success) {
+                message.success('Đã xóa hành trình');
+                fetchJourneys();
+            }
+        } catch (error) {
+            message.error('Lỗi khi xóa hành trình');
+        }
+    };
+
+    const handleBulkDelete = async () => {
+        if (selectedRowKeys.length === 0) return;
+        Modal.confirm({
+            title: `Xác nhận xóa ${selectedRowKeys.length} hành trình?`,
+            onOk: async () => {
+                try {
+                    const success = await journeyService.deleteMultiJourney(selectedRowKeys as string[]);
+                    if (success) {
+                        message.success('Đã xóa các hành trình đã chọn');
+                        setSelectedRowKeys([]);
+                        fetchJourneys();
+                    }
+                } catch (error) {
+                    message.error('Lỗi khi xóa hàng loạt');
+                }
+            }
+        });
+    };
+
+    const handleFormSubmit = async (values: ICreateJourneyInput) => {
+        setIsSubmitting(true);
+        try {
+            if (editingJourney) {
+                await journeyService.updateJourney(editingJourney._id, values);
+                message.success('Đã cập nhật hành trình');
+            } else {
+                await journeyService.createJourney(values);
+                message.success('Đã tạo hành trình mới');
+            }
+            setIsFormVisible(false);
+            fetchJourneys();
+        } catch (error) {
+            console.error('Submit error:', error);
+            message.error(editingJourney ? 'Lỗi khi cập nhật' : 'Lỗi khi tạo mới');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     const filtered = useMemo(() => {
-        return journeys.filter(j => {
-            const matchSla = filterSla === 'ALL' || j.sla_status === filterSla;
-            const matchPriority = filterPriority === 'ALL' || j.priority === filterPriority;
-            const matchStep = filterStep === 'ALL' || j.current_step === filterStep;
-            return matchSla && matchPriority && matchStep;
-        });
-    }, [journeys, filterSla, filterPriority, filterStep]);
+        // queryJourneysDto already applies server-side filters if we use them, 
+        // but for keyword search specifically, we might need to refetch.
+        // Current implementation refetches on keyword change in useEffect.
+        return journeys;
+    }, [journeys]);
 
     const kpis = useMemo(() => ({
-        total_open: filtered.length,
-        overdue_sla: filtered.filter(j => j.sla_status === 'overdue').length,
-        blocked: filtered.filter(j => (j.blocked_task_count || 0) > 0).length,
-        unread_threads: filtered.reduce((acc, j) => acc + (j.unread_thread_count || 0), 0),
-    }), [filtered]);
+        total_open: journeys.length,
+        overdue_sla: journeys.filter(j => j.sla_status === 'overdue').length,
+        blocked: journeys.filter(j => (j.blocked_task_count || 0) > 0).length,
+        unread_threads: journeys.reduce((acc, j) => acc + (j.unread_thread_count || 0), 0),
+    }), [journeys]);
 
     const columns: ColumnsType<IJourney> = [
         {
@@ -121,7 +188,7 @@ const JourneyList: React.FC = () => {
                     >
                         {j.journey_code || 'N/A'}
                     </div>
-                    <Text type="secondary" style={{ fontSize: 12 }}>{j.idx_customer_id?.title || 'Khách hàng ẩn danh'}</Text>
+                    <Text type="secondary" style={{ fontSize: 12 }}>{j.idx_customer_id?.title || j.customer_full_name || 'Khách hàng ẩn danh'}</Text>
                 </div>
             ),
         },
@@ -189,6 +256,41 @@ const JourneyList: React.FC = () => {
                 return <Text type="secondary" style={{ fontSize: 11 }}>{date}</Text>;
             },
         },
+        {
+            title: 'Thao tác',
+            key: 'actions',
+            width: 80,
+            fixed: 'right',
+            render: (_, j) => (
+                <Dropdown
+                    overlay={
+                        <Menu>
+                            <Menu.Item key="view" icon={<EyeOutlined />} onClick={(e) => { e.domEvent.stopPropagation(); navigate(`/pm/journeys/${j._id}`); }}>Chi tiết</Menu.Item>
+                            <Menu.Item key="edit" icon={<EditOutlined />} onClick={(e) => { e.domEvent.stopPropagation(); handleEdit(j); }}>Chỉnh sửa</Menu.Item>
+                            <Menu.Item key="board" icon={<LayoutOutlined />} onClick={(e) => { e.domEvent.stopPropagation(); navigate(`/pm/journeys/board?id=${j._id}`); }}>Kanban</Menu.Item>
+                            <Menu.Divider />
+                            <Menu.Item key="delete" icon={<DeleteOutlined />} danger>
+                                <Popconfirm
+                                    title="Xóa hành trình này?"
+                                    onConfirm={(e) => {
+                                        e?.stopPropagation();
+                                        handleDelete(j._id);
+                                    }}
+                                    onCancel={(e) => e?.stopPropagation()}
+                                    okText="Xóa"
+                                    cancelText="Hủy"
+                                >
+                                    <span onClick={(e) => e.stopPropagation()} style={{ display: 'block' }}>Xóa</span>
+                                </Popconfirm>
+                            </Menu.Item>
+                        </Menu>
+                    }
+                    trigger={['click']}
+                >
+                    <Button type="text" icon={<MoreOutlined />} onClick={(e) => e.stopPropagation()} />
+                </Dropdown>
+            ),
+        },
     ];
 
     return (
@@ -201,11 +303,14 @@ const JourneyList: React.FC = () => {
                 </Col>
                 <Col xs={24} sm={12} style={{ textAlign: isMobile ? 'left' : 'right' }}>
                     <Space wrap>
+                        <Tooltip title="Thêm hành trình mới">
+                            <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>Hành trình mới</Button>
+                        </Tooltip>
                         <Tooltip title="Xem dạng Board">
-                            <Button icon={<AppstoreOutlined />} onClick={() => navigate('/pm/journeys/board')}>{isMobile ? '' : 'Board'}</Button>
+                            <Button icon={<LayoutOutlined />} onClick={() => navigate('/pm/journeys/board')}>{isMobile ? '' : 'Board'}</Button>
                         </Tooltip>
                         <Tooltip title="Action Center">
-                            <Button icon={<AlertOutlined />} onClick={() => navigate('/pm/journeys/action-center')}>{isMobile ? '' : 'Action Center'}</Button>
+                            <Button icon={<AlertOutlined />} onClick={() => navigate('/pm/journeys/action-center')}>{isMobile ? '' : 'Action'}</Button>
                         </Tooltip>
                         <Button icon={<ReloadOutlined />} onClick={handleRefresh} loading={isLoading}>Làm mới</Button>
                     </Space>
@@ -307,11 +412,13 @@ const JourneyList: React.FC = () => {
                     <Col>
                         <Button onClick={() => { setKeyword(''); setFilterSla('ALL'); setFilterPriority('ALL'); setFilterStep('ALL'); }}>Xóa lọc</Button>
                     </Col>
-                    {isMobile && (
-                        <Col>
-                            <Button icon={<FilterOutlined />} onClick={() => setIsFilterVisible(true)}>Bộ lọc</Button>
-                        </Col>
-                    )}
+                    <Col>
+                        {selectedRowKeys.length > 0 && (
+                            <Button danger icon={<DeleteOutlined />} onClick={handleBulkDelete}>
+                                Xóa {selectedRowKeys.length}
+                            </Button>
+                        )}
+                    </Col>
                 </Row>
 
                 {isMobile ? (
@@ -327,7 +434,7 @@ const JourneyList: React.FC = () => {
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                     <div>
                                         <Text strong style={{ color: '#1976D2' }}>{j.journey_code || 'N/A'}</Text>
-                                        <div style={{ fontWeight: 500, marginTop: 2 }}>{j.idx_customer_id?.title || 'N/A'}</div>
+                                        <div style={{ fontWeight: 500, marginTop: 2 }}>{j.idx_customer_id?.title || j.customer_full_name || 'N/A'}</div>
                                         <Text type="secondary" style={{ fontSize: 11 }}>{j.request_title}</Text>
                                     </div>
                                     <div style={{ textAlign: 'right' }}>
@@ -348,14 +455,38 @@ const JourneyList: React.FC = () => {
                         columns={columns}
                         dataSource={filtered}
                         rowKey="_id"
-                        pagination={{ pageSize: 10, showTotal: (t) => `${t} hành trình` }}
+                        pagination={{ pageSize: 15, showTotal: (t) => `${t} hành trình` }}
                         locale={{ emptyText: <Empty description="Không có hành trình nào phù hợp bộ lọc" /> }}
-                        size="middle"
+                        size="small"
                         loading={isLoading}
-                        onRow={(j) => ({ onClick: () => navigate(`/pm/journeys/${j._id}`), style: { cursor: 'pointer' } })}
+                        onRow={(j) => ({ 
+                            onClick: () => navigate(`/pm/journeys/${j._id}`), 
+                            style: { cursor: 'pointer' } 
+                        })}
+                        rowSelection={{
+                            selectedRowKeys,
+                            onChange: setSelectedRowKeys,
+                        }}
                     />
                 )}
             </Card>
+
+            {/* Create/Edit Drawer */}
+            <Drawer
+                title={editingJourney ? "Chỉnh sửa hành trình" : "Tạo hành trình mới"}
+                width={720}
+                onClose={() => setIsFormVisible(false)}
+                open={isFormVisible}
+                maskClosable={false}
+                destroyOnClose
+            >
+                <JourneyForm
+                    initialValues={editingJourney || {}}
+                    onSubmit={handleFormSubmit}
+                    onCancel={() => setIsFormVisible(false)}
+                    isLoading={isSubmitting}
+                />
+            </Drawer>
 
             {/* DLG-01 Filter Drawer (Mobile) */}
             <Drawer
@@ -367,11 +498,21 @@ const JourneyList: React.FC = () => {
             >
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                     <div>
+                        <Text strong>Tìm kiếm</Text>
+                        <Input
+                            placeholder="Từ khóa..."
+                            prefix={<SearchOutlined />}
+                            value={keyword}
+                            onChange={e => setKeyword(e.target.value)}
+                            style={{ marginTop: 8 }}
+                        />
+                    </div>
+                    <div>
                         <Text strong>Bước hiện tại</Text>
                         <Select
                             style={{ width: '100%', marginTop: 8 }}
                             value={filterStep}
-                            onChange={(v) => { setFilterStep(v); setIsFilterVisible(false); }}
+                            onChange={(v) => { setFilterStep(v); }}
                             options={[
                                 { value: 'ALL', label: 'Tất cả bước' },
                                 ...JOURNEY_STEPS_CONFIG.map(s => ({ value: s.key, label: s.label }))
@@ -383,7 +524,7 @@ const JourneyList: React.FC = () => {
                         <Select
                             style={{ width: '100%', marginTop: 8 }}
                             value={filterSla}
-                            onChange={(v) => { setFilterSla(v); setIsFilterVisible(false); }}
+                            onChange={(v) => { setFilterSla(v); }}
                             options={[
                                 { value: 'ALL', label: 'Tất cả SLA' },
                                 ...Object.entries(SLA_CONFIG).map(([val, cfg]) => ({ value: val, label: cfg.label }))
@@ -395,14 +536,17 @@ const JourneyList: React.FC = () => {
                         <Select
                             style={{ width: '100%', marginTop: 8 }}
                             value={filterPriority}
-                            onChange={(v) => { setFilterPriority(v); setIsFilterVisible(false); }}
+                            onChange={(v) => { setFilterPriority(v); }}
                             options={[
                                 { value: 'ALL', label: 'Tất cả ưu tiên' },
                                 ...Object.entries(PRIORITY_CONFIG).map(([val, cfg]) => ({ value: val, label: cfg.label }))
                             ]}
                         />
                     </div>
-                    <Button block onClick={() => { setKeyword(''); setFilterSla('ALL'); setFilterPriority('ALL'); setFilterStep('ALL'); setIsFilterVisible(false); }}>Xóa bộ lọc</Button>
+                    <Space direction="vertical" style={{ width: '100%', marginTop: 8 }}>
+                        <Button type="primary" block onClick={() => setIsFilterVisible(false)}>Áp dụng</Button>
+                        <Button block onClick={() => { setKeyword(''); setFilterSla('ALL'); setFilterPriority('ALL'); setFilterStep('ALL'); setIsFilterVisible(false); }}>Xóa bộ lọc</Button>
+                    </Space>
                 </div>
             </Drawer>
         </div>

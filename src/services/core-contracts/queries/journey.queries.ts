@@ -57,8 +57,6 @@ export const FIND_JOURNEY_DTO = gql`
         published_step_count
         missing_document_count
         document_count
-        contact_phone
-        contact_email
         sales_pipeline_id
         idx_sales_pipeline_id
         sales_pipeline_id
@@ -80,6 +78,12 @@ export const FIND_JOURNEY_DTO = gql`
         latest_closeout_package_id
         idx_latest_closeout_package_id
         latest_closeout_package_id
+        customer_full_name
+        customer_phone
+        customer_email
+        customer_address
+        customer_province
+        customer_ward
       }
     }
   }
@@ -142,8 +146,6 @@ export const QUERY_JOURNEYS_DTO = gql`
         published_step_count
         missing_document_count
         document_count
-        contact_phone
-        contact_email
         sales_pipeline_id
         idx_sales_pipeline_id
         sales_pipeline_id
@@ -165,6 +167,12 @@ export const QUERY_JOURNEYS_DTO = gql`
         latest_closeout_package_id
         idx_latest_closeout_package_id
         latest_closeout_package_id
+        customer_full_name
+        customer_phone
+        customer_email
+        customer_address
+        customer_province
+        customer_ward
       }
     }
   }

@@ -1,7 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
     Card, Tabs, Tag, Button, Space, Typography, Row, Col,
-    Badge, Statistic, Timeline, Descriptions, Modal,
+    Badge, Statistic, Timeline, Descriptions, Modal, Drawer,
     Form, Select, Alert, Checkbox, message, Steps, Empty,
     DatePicker, Input, Grid
 } from 'antd';
@@ -12,17 +12,19 @@ import {
     SendOutlined, ExclamationCircleOutlined, CheckCircleOutlined,
     ClockCircleOutlined, MessageOutlined,
     TeamOutlined,
-    FormOutlined, PaperClipOutlined
+    FormOutlined, PaperClipOutlined, EditOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
-import { demoDataService } from '../../../services/core-graphql/localstorage/demoDataService';
-import { mockJourneys as defaultJourneys, mockPortalThreads as defaultThreads, mockJourneyTemplates } from '../../../data/journeyMockData';
-import type { GoNoGoStatus, SlaStatus, PortalPublishStatus } from '../../../types/journey';
 import { useAuth } from '../../../hooks/useAuth';
 import { JourneyStepRenderer, StepLabor, StepMaterials } from '../../shared/JourneySteps';
 import { ConsultationLogForm } from '../../../components/journey/SharedModals';
 import PortalDashboard from '../../../components/portal/PortalDashboard';
+import { journeyService } from '../../../services/core-contracts/services/journey.service';
+import { employeeService } from '../../../services/core-contracts/services/employee.service';
+import { IJourney } from '../../../services/core-contracts/types/journey.types';
+import { mockJourneyTemplates } from '../../../data/journeyMockData'; 
+import type { GoNoGoStatus, SlaStatus, PortalPublishStatus } from '../../../types/journey';
+import JourneyForm from './JourneyForm';
 
 const { Text, Title } = Typography;
 const { TextArea } = Input;
@@ -52,22 +54,52 @@ const JourneyDetail360: React.FC = () => {
     const navigate = useNavigate();
     const { role } = useAuth();
 
-    const [mockJourneys, setMockJourneys] = useLocalStorageData<any[]>(demoDataService.KEYS.JOURNEYS, defaultJourneys);
-    const [mockPortalThreads] = useLocalStorageData<any[]>(demoDataService.KEYS.PORTAL_THREADS, defaultThreads);
+    const [journey, setJourney] = useState<IJourney | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [employees, setEmployees] = useState<{ label: string; value: string }[]>([]);
 
-    const journey = mockJourneys.find(j => j.id === journeyId);
-    const threads = mockPortalThreads.filter(t => t.journey_id === journeyId);
-    
+    const fetchJourney = async () => {
+        if (!journeyId) return;
+        setIsLoading(true);
+        try {
+            const data = await journeyService.findJourneyDto(journeyId);
+            setJourney(data);
+        } catch (error) {
+            console.error('Failed to fetch journey:', error);
+            message.error('Không thể tải thông tin hành trình');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const fetchEmployees = async () => {
+        try {
+            const res = await employeeService.queryContent({ limit: 100 });
+            if (res.data) {
+                setEmployees(res.data.map(e => ({ label: e.name || 'N/A', value: e._id })));
+            }
+        } catch (error) {
+            console.error('Failed to fetch employees:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchJourney();
+        fetchEmployees();
+    }, [journeyId]);
+
     // Resolve template/steps
-    const template = mockJourneyTemplates.find(t => t.id === journey?.template_id) || mockJourneyTemplates[0];
+    const template = mockJourneyTemplates.find(t => t.id === 'default') || mockJourneyTemplates[0];
     const journeySteps = template?.steps || [];
-    const currentStepIndex = journeySteps.findIndex(s => s.step_code === journey?.current_step_code);
+    const currentStepIndex = journeySteps.findIndex(s => s.step_code === journey?.current_step);
 
     const [showAssignModal, setShowAssignModal] = useState(false);
     const [showPriorityModal, setShowPriorityModal] = useState(false);
     const [showPublishModal, setShowPublishModal] = useState(false);
     const [showLogModal, setShowLogModal] = useState(false);
     const [showFollowUpModal, setShowFollowUpModal] = useState(false);
+    const [isEditDrawerVisible, setIsEditDrawerVisible] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [publishTab, setPublishTab] = useState('settings');
     const [assignForm] = Form.useForm();
     const [priorityForm] = Form.useForm();
@@ -127,14 +159,16 @@ const JourneyDetail360: React.FC = () => {
     }
 
     const renderTabContent = (groupCode: string, stepCode: string) => {
+        if (!journey) return null;
         const isEditable = userRoleConfig.editableGroupCodes.includes(groupCode);
         const isFinalizable = userRoleConfig.finalizableGroupCodes.includes(groupCode);
         return (
             <JourneyStepRenderer 
                 stepCode={stepCode} 
-                journeyId={journey.id!} 
+                journeyId={journey._id} 
                 isEditable={isEditable} 
                 canFinalize={isFinalizable} 
+                onRefresh={fetchJourney}
             />
         );
     };
@@ -144,22 +178,7 @@ const JourneyDetail360: React.FC = () => {
         {
             key: 'GRP_01_INFO',
             label: <span><FormOutlined /> Yêu cầu</span>,
-            children: (
-                <Space direction="vertical" style={{ width: '100%' }} size="large">
-                    {renderTabContent('GRP_01_INFO', 'S01_INFO')}
-                    
-                    <Card title="Thông tin Dự án (Gộp)" size="small">
-                        <Descriptions bordered size="small" column={{ xs: 1, sm: 2 }}>
-                            <Descriptions.Item label="Trạng thái DA">{journey.project_status}</Descriptions.Item>
-                            <Descriptions.Item label="Mã DA">{journey.project_code || '—'}</Descriptions.Item>
-                            <Descriptions.Item label="Ngày bắt đầu">{journey.plan_start || '—'}</Descriptions.Item>
-                            <Descriptions.Item label="Ngày kết thúc">{journey.plan_end || '—'}</Descriptions.Item>
-                            <Descriptions.Item label="Tiến độ">{journey.progress_pct !== undefined ? `${journey.progress_pct}%` : '—'}</Descriptions.Item>
-                            <Descriptions.Item label="Task bị block">{journey.blocked_task_count ?? '—'}</Descriptions.Item>
-                        </Descriptions>
-                    </Card>
-                </Space>
-            ),
+            children: renderTabContent('GRP_01_INFO', 'S01_INFO'),
         },
         // 2. Tab Tạo lịch hẹn (GRP_02_CONTACT)
         {
@@ -183,7 +202,7 @@ const JourneyDetail360: React.FC = () => {
         {
             key: 'GRP_LABOR',
             label: <span><TeamOutlined /> Nhân công</span>,
-            children: <StepLabor journeyId={journey.id!} isEditable={userRoleConfig.editableGroupCodes.includes('GRP_05_QUOTE') || role === 'pm'} />, 
+            children: <StepLabor journeyId={journey._id} isEditable={userRoleConfig.editableGroupCodes.includes('GRP_05_QUOTE') || role === 'pm'} />, 
         },
         // 6. Tab Báo giá/HĐ (GRP_05_QUOTE)
         {
@@ -195,7 +214,7 @@ const JourneyDetail360: React.FC = () => {
         {
             key: 'GRP_MATERIALS',
             label: <span><BoxPlotOutlined /> Vật tư</span>,
-            children: <StepMaterials journeyId={journey.id!} isEditable={userRoleConfig.editableGroupCodes.includes('GRP_05_QUOTE') || role === 'pm'} />,
+            children: <StepMaterials journeyId={journey._id} isEditable={userRoleConfig.editableGroupCodes.includes('GRP_05_QUOTE') || role === 'pm'} />,
         },
         // 9. Tab Thanh toán (GRP_07_DEPOSIT or GRP_10_PAYMENT)
         {
@@ -209,19 +228,19 @@ const JourneyDetail360: React.FC = () => {
             label: <span><ClockCircleOutlined /> Log</span>,
             children: (
                 <Timeline
-                    items={journey.activities.map((a: any) => ({
+                    items={(journey as any).activities?.map((a: any) => ({
                         dot: <CheckCircleOutlined style={{ color: '#52c41a' }} />,
                         children: (
                             <div>
                                 <div>
                                     <Text strong>{a.activity_action}</Text>
-                                    <Text type="secondary" style={{ marginLeft: 8, fontSize: 11 }}>{a.activity_time.split('T')[0]}</Text>
+                                    <Text type="secondary" style={{ marginLeft: 8, fontSize: 11 }}>{a.activity_time?.split('T')[0]}</Text>
                                 </div>
                                 <Text type="secondary" style={{ fontSize: 12 }}>{a.activity_actor} · {a.activity_context}</Text>
                                 <div style={{ fontSize: 13, marginTop: 2 }}>{a.activity_summary}</div>
                             </div>
                         ),
-                    }))}
+                    })) || []}
                 />
             ),
         },
@@ -243,21 +262,11 @@ const JourneyDetail360: React.FC = () => {
             label: <span><MessageOutlined /> Portal/Chat</span>,
             children: (
                 <div>
-                     <Row gutter={16} style={{ marginBottom: 16 }}>
-                        <Col span={12}><Statistic title="Publish Status" value={PORTAL_CONFIG[journey.portal_publish_status as PortalPublishStatus]?.label || journey.portal_publish_status} /></Col>
+                    <Row gutter={16} style={{ marginBottom: 16 }}>
+                        <Col span={12}><Statistic title="Publish Status" value={journey.portal_publish_status || 'hidden'} /></Col>
                         <Col span={12}><Statistic title="Chưa đọc" value={journey.unread_thread_count ?? 0} valueStyle={{ color: journey.unread_thread_count ? '#ff4d4f' : '#52c41a' }} /></Col>
                     </Row>
-                    {threads.map(t => (
-                        <Card key={t.thread_id} size="small" style={{ marginBottom: 8, borderRadius: 8 }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <Text strong>{t.context_label}</Text>
-                                <Badge status={t.status === 'open' ? 'processing' : 'default'} text={t.status} />
-                            </div>
-                            <div style={{ marginTop: 8, fontSize: 12, color: '#666' }}>
-                                {t.messages[t.messages.length - 1]?.message_body}
-                            </div>
-                        </Card>
-                    ))}
+                    <Empty description="Tính năng Chat Portal đang được kết nối với backend..." />
                 </div>
             ),
         }
@@ -282,6 +291,7 @@ const JourneyDetail360: React.FC = () => {
                 </Button>
                 {role === 'pm' && (
                     <Space size={isMobile ? 4 : 8} wrap={isMobile}>
+                        <Button icon={<EditOutlined />} onClick={() => setIsEditDrawerVisible(true)}>{isMobile ? '' : 'Sửa hành trình'}</Button>
                         <Button icon={<UserOutlined />} onClick={() => setShowAssignModal(true)}>{isMobile ? '' : 'Phân công'}</Button>
                         <Button icon={<FlagOutlined />} onClick={() => setShowPriorityModal(true)}>{isMobile ? '' : 'Ưu tiên'}</Button>
                         <Button type="primary" icon={<SendOutlined />} onClick={() => setShowPublishModal(true)}>Publish Portal</Button>
@@ -304,13 +314,13 @@ const JourneyDetail360: React.FC = () => {
                                 {journey.journey_code}
                             </Tag>
                         </div>
-                        <Title level={4} style={{ color: '#fff', margin: '4px 0' }}>{journey.customer_name}</Title>
+                        <Title level={4} style={{ color: '#fff', margin: '4px 0' }}>{journey.idx_customer_id?.title || journey.customer_full_name || 'Khách hàng ẩn danh'}</Title>
                         <Text style={{ color: 'rgba(255,255,255,0.8)' }}>{journey.request_title}</Text>
                         <div style={{ marginTop: 8 }}>
                             <Space size="large">
                                 <UserOutlined style={{ color: 'rgba(255,255,255,0.8)' }} />
                                 <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13 }}>
-                                    Phụ trách: <Text strong style={{ color: '#fff' }}>{journey.owner_user}</Text>
+                                    Phụ trách: <Text strong style={{ color: '#fff' }}>{journey.supervisor_name || 'Chưa gán'}</Text>
                                 </Text>
                             </Space>
                         </div>
@@ -411,14 +421,25 @@ const JourneyDetail360: React.FC = () => {
                         title="Phân công phụ trách"
                         open={showAssignModal}
                         onCancel={() => setShowAssignModal(false)}
-                        onOk={() => setShowAssignModal(false)}
+                        onOk={() => {
+                            assignForm.validateFields().then(async values => {
+                                setIsSubmitting(true);
+                                try {
+                                    await journeyService.updateJourney(journey._id, { owner_user_id: values.owner_user_id });
+                                    message.success("Đã phân công phụ trách!");
+                                    setShowAssignModal(false);
+                                    fetchJourney();
+                                } catch (error) {
+                                    message.error("Lỗi khi phân công");
+                                } finally {
+                                    setIsSubmitting(false);
+                                }
+                            });
+                        }}
                     >
                         <Form form={assignForm} layout="vertical">
-                            <Form.Item label="Người phụ trách mới" name="owner_user_id">
-                                <Select placeholder="Chọn PM/Sale">
-                                    <Select.Option value="u-pm-01">Nguyễn Văn PM</Select.Option>
-                                    <Select.Option value="u-sale-01">Trần Thị Sale</Select.Option>
-                                </Select>
+                            <Form.Item label="Người phụ trách mới" name="owner_user_id" rules={[{ required: true }]}>
+                                <Select placeholder="Chọn PM/Sale" options={employees} />
                             </Form.Item>
                         </Form>
                     </Modal>
@@ -428,13 +449,18 @@ const JourneyDetail360: React.FC = () => {
                         open={showPriorityModal}
                         onCancel={() => setShowPriorityModal(false)}
                         onOk={() => {
-                            priorityForm.validateFields().then(values => {
-                                const updatedJourneys = mockJourneys.map(j => 
-                                    (j.id === journey.id) ? { ...j, priority: values.priority } : j
-                                );
-                                setMockJourneys(updatedJourneys);
-                                message.success("Đã đổi mức ưu tiên!");
-                                setShowPriorityModal(false);
+                            priorityForm.validateFields().then(async values => {
+                                setIsSubmitting(true);
+                                try {
+                                    await journeyService.updateJourney(journey._id, { priority: values.priority });
+                                    message.success("Đã đổi mức ưu tiên!");
+                                    setShowPriorityModal(false);
+                                    fetchJourney();
+                                } catch (error) {
+                                    message.error("Lỗi khi cập nhật mức ưu tiên");
+                                } finally {
+                                    setIsSubmitting(false);
+                                }
                             });
                         }}
                     >
@@ -527,13 +553,42 @@ const JourneyDetail360: React.FC = () => {
                                             maxHeight: '70vh', 
                                             overflowY: 'auto' 
                                         }}>
-                                            <PortalDashboard journey={journey} isPreview />
+                                            <PortalDashboard journey={journey as any} isPreview />
                                         </div>
                                     )
                                 }
                             ]}
                         />
                     </Modal>
+
+                    <Drawer
+                        title="Chỉnh sửa Hành trình"
+                        width={720}
+                        onClose={() => setIsEditDrawerVisible(false)}
+                        open={isEditDrawerVisible}
+                        destroyOnClose
+                    >
+                        {journey && (
+                            <JourneyForm 
+                                initialValues={journey as any} 
+                                onSubmit={async (values) => {
+                                    setIsSubmitting(true);
+                                    try {
+                                        await journeyService.updateJourney(journey._id, values);
+                                        message.success("Cập nhật hành trình thành công!");
+                                        setIsEditDrawerVisible(false);
+                                        fetchJourney();
+                                    } catch (error) {
+                                        message.error("Lỗi khi cập nhật");
+                                    } finally {
+                                        setIsSubmitting(false);
+                                    }
+                                }} 
+                                onCancel={() => setIsEditDrawerVisible(false)}
+                                isLoading={isSubmitting}
+                            />
+                        )}
+                    </Drawer>
                 </>
             )}
         </div>
