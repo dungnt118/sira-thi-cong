@@ -12,6 +12,8 @@ import {
 
 import { siteReportService } from '../../../services/core-contracts/services/siteReport.service';
 import { ISiteReport } from '../../../services/core-contracts/types/siteReport.types';
+import { UploadFiles } from '../../../components/files/UploadFiles';
+import { getFileLink } from '@/services/storeService';
 
 const { TextArea } = Input;
 const { Text, Title, Paragraph } = Typography;
@@ -34,6 +36,16 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
     const [reports, setReports] = useState<ISiteReport[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const latestReport = reports.length > 0 ? reports[reports.length - 1] : null;
+    const lastProgress = Number(latestReport?.progress_pct) || 0;
+
+    // Sync form values when entering edit mode - Top level hook
+    useEffect(() => {
+        if (isEditing) {
+            form.setFieldsValue({ progress: lastProgress });
+        }
+    }, [isEditing, lastProgress, form]);
 
     const fetchReports = async () => {
         if (!journeyId) return;
@@ -77,6 +89,7 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
                 content: values.notes,
                 progress_pct: values.progress,
                 title: `Nhật ký ngày ${new Date().toLocaleDateString('vi-VN')}`,
+                medias: values.medias || []
             });
             
             message.success('Đã lưu nhật ký mới');
@@ -132,7 +145,7 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
                                     <Avatar 
                                         size="small" 
                                         icon={<UserOutlined />} 
-                                        src={typeof supervisor?.avatar === 'string' ? supervisor.avatar : undefined} 
+                                        src={typeof supervisor?.avatar === 'string' ? getFileLink(supervisor.avatar) : undefined} 
                                     />
                                     <Text strong>{String(supervisorTitle)}</Text>
                                     <Tag color="cyan">{progress}%</Tag>
@@ -147,8 +160,8 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
                                 <div style={{ marginTop: 12 }}>
                                     <Space wrap>
                                         {report.medias.filter(Boolean).map((img: any, i: number) => {
-                                            const imgSrc = typeof img === 'string' ? img : (img.url || img.path || '');
-                                            if (!imgSrc || typeof imgSrc !== 'string') return null;
+                                            const imgSrc = getFileLink(img.file_path || img.url || img);
+                                            if (!imgSrc) return null;
                                             return (
                                                 <Image 
                                                     key={`img-${i}`} 
@@ -173,7 +186,6 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
         }
     }, [reports]);
 
-    const latestReport = reports.length > 0 ? reports[reports.length - 1] : null;
     const overallProgress = Number(latestReport?.progress_pct) || 0;
 
     const renderReadOnly = () => {
@@ -255,10 +267,8 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
     };
 
     const renderEditable = () => {
-        const lastProgress = Number(latestReport?.progress_pct) || 0;
-        
         return (
-            <Form form={form} layout="vertical" onFinish={handleFinish} initialValues={{ progress: lastProgress }}>
+            <Form form={form} layout="vertical" onFinish={handleFinish} initialValues={{ progress: lastProgress, medias: [] }}>
                 <Divider orientation="left" plain>
                     <Title level={5} style={{ margin: 0 }}><PlusOutlined /> Ghi nhận nhật ký mới</Title>
                 </Divider>
@@ -268,7 +278,19 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
                         <Form.Item 
                             label="Cập nhật tiến độ (%)" 
                             name="progress" 
-                            rules={[{ required: true, message: 'Nhập % tiến độ' }]}
+                            rules={[
+                                { required: true, message: 'Nhập % tiến độ' },
+                                { 
+                                    validator: async (_, value) => {
+                                        if (value !== undefined && value < lastProgress) {
+                                            throw new Error(`Tiến độ không được thấp hơn mức cũ (${lastProgress}%)`);
+                                        }
+                                        if (value > 100) {
+                                            throw new Error('Tiến độ không được vượt quá 100%');
+                                        }
+                                    }
+                                }
+                            ]}
                         >
                             <InputNumber 
                                 min={lastProgress} 
@@ -293,8 +315,8 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
                     <TextArea rows={5} placeholder="Ví dụ: Đã hoàn thành lắp đặt hệ khung xương, đi dây điện âm trần..." />
                 </Form.Item>
                 
-                <Form.Item label="Hình ảnh hiện trường (Tải lên)">
-                    <Button icon={<PictureOutlined />} disabled>Tải ảnh lên (Sắp hỗ trợ)</Button>
+                <Form.Item label="Hình ảnh hiện trường" name="medias">
+                    <UploadFiles />
                 </Form.Item>
                 
                 <Divider />

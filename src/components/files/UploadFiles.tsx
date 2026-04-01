@@ -1,13 +1,13 @@
 import React from 'react';
 
 import { DeleteOutlined, LinkOutlined, PlusOutlined, SearchOutlined, UploadOutlined } from '@ant-design/icons';
-import _ from 'lodash';
+import _ from '@/@lodash';
 import { Button, Checkbox, Image, Input, List, message, Modal, Space, Spin, Tabs, Tooltip, Upload } from 'antd';
-import { getFileLink } from 'app/services/storeService';
+import { getFileLink } from '@/services/storeService';
 import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import type { HeadlessFileUpload } from 'types/apis';
-import { PropDefinition } from 'types/schemas/PropDefinition';
+import type { HeadlessFileUpload } from '@/types/apis';
+import { PropDefinition } from '@/types/schemas/PropDefinition';
 import { useFileUpload } from './useFileUpload';
 
 /** Icon inline action: hỗ trợ class Font Awesome (chuỗi) khi không có @fortawesome trong project */

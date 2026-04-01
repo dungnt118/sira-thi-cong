@@ -1,11 +1,12 @@
 import { LinkOutlined, SearchOutlined, UploadOutlined } from "@ant-design/icons";
-import { Button, Image, Input, message, Modal, Space, Spin, Tabs, Tooltip } from 'antd';
+import { Button, Image, Input, message, Modal, Space, Spin, Tabs, Tooltip, Tag } from 'antd';
 import Upload from 'antd/lib/upload';
-import { ACCESS_TOKEN, get, getFileLink, getFileUrl, UPLOAD_URL } from 'app/services/storeService';
+import { ACCESS_TOKEN, get, getFileLink, getFileUrl, UPLOAD_URL } from '@/services/storeService';
+import _ from '@/@lodash';
 
 import { forwardRef, CSSProperties, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { HeadlessFileUpload } from 'types/apis/HeadlessFileUpload';
-import { PropDefinition } from "types/schemas/PropDefinition";
+import type { HeadlessFileUpload } from '@/types/apis';
+import { PropDefinition } from "@/types/schemas/PropDefinition";
 import { useFileUpload } from './useFileUpload';
 import type { FilterComponentProps, PropTypeInput, PropTypeReadonly } from './types';
 
