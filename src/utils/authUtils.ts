@@ -40,25 +40,25 @@ export const getCurrentRole = (): string | null => {
 };
 
 export const switchRole = (newRole: string) => {
+    localStorage.setItem(MANUAL_ROLE_KEY, newRole);
     const data = getUserData();
-    if (data && data.roles.includes(newRole)) {
-        setUserData({ ...data, role: newRole });
-        localStorage.setItem(MANUAL_ROLE_KEY, newRole);
+    if (data) {
+        const updatedRoles = data.roles?.includes?.(newRole) ? data.roles : [...(data.roles || []), newRole];
+        setUserData({ ...data, role: newRole, roles: updatedRoles });
         return true;
     }
-    return false;
+    return true; // Still true because we set the manual key
 };
 
 export const forceSwitchRole = (newRole: string, path: string) => {
+    localStorage.setItem(MANUAL_ROLE_KEY, newRole);
     const data = getUserData();
     if (data) {
-        const updatedRoles = data.roles.includes(newRole) ? data.roles : [...data.roles, newRole];
+        const updatedRoles = data.roles?.includes?.(newRole) ? data.roles : [...(data.roles || []), newRole];
         setUserData({ ...data, role: newRole, roles: updatedRoles });
-        localStorage.setItem(MANUAL_ROLE_KEY, newRole);
-        window.location.href = path;
-        return true;
     }
-    return false;
+    window.location.href = path;
+    return true;
 };
 
 export const resetCurrentRole = () => {

@@ -17,6 +17,8 @@ import gql from 'graphql-tag';
 import { ApiResponseCode } from 'types/apis/ApiResponse';
 import type { UserSessionContext } from 'types/auth/UserSessionContext';
 
+import { setUserData as persistUserData } from '@/utils/authUtils';
+
 export const SET_USER_DATA = '[USER] SET DATA' as const;
 export const REMOVE_USER_DATA = '[USER] REMOVE DATA' as const;
 export const USER_LOGGED_OUT = '[USER] LOGGED OUT' as const;
@@ -173,6 +175,15 @@ export const setUserData = (
   dispatch(setNavigation(menuGraph));
   dispatch(setNavigationList(menuGraph));
   dispatch(updateUserData({ ...session }));
+  
+  // Sync to localStorage for Quick Role Switch support
+  if (session.user) {
+    persistUserData({
+      username: session.user.username || '',
+      role: session.activeRole || '',
+      roles: (session.user as any).roles || []
+    });
+  }
 };
 
 export const updateUserSettings = (settings: Record<string, unknown>): AppThunk => (dispatch, getState) => {
