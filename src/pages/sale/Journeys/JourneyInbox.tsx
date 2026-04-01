@@ -91,8 +91,8 @@ const JourneyInbox: React.FC = () => {
             setPipelines(pipelineRes?.data || []);
             setStages(stageRes?.data || []);
         } catch (error) {
-            console.error('Không thể tải dữ liệu yêu cầu dịch vụ', error);
-            message.error('Không thể tải dữ liệu yêu cầu dịch vụ.');
+            console.error('Không thể tải dữ liệu yêu cầu', error);
+            message.error('Không thể tải dữ liệu yêu cầu.');
         } finally {
             setLoading(false);
         }
@@ -235,10 +235,10 @@ const JourneyInbox: React.FC = () => {
         try {
             if (drawerMode === 'create') {
                 await journeyService.createJourney(payload);
-                message.success('Đã tạo yêu cầu dịch vụ mới.');
+                message.success('Đã tạo yêu cầu mới.');
             } else if (selectedJourney?._id) {
                 await journeyService.updateJourney(selectedJourney._id, payload);
-                message.success('Đã cập nhật yêu cầu dịch vụ.');
+                message.success('Đã cập nhật yêu cầu.');
             }
 
             closeDrawer();
@@ -256,11 +256,11 @@ const JourneyInbox: React.FC = () => {
 
         try {
             await journeyService.deleteJourney(journey._id);
-            message.success(`Đã xóa ${journey.journey_code || 'yêu cầu dịch vụ'}.`);
+            message.success(`Đã xóa ${journey.journey_code || 'yêu cầu'}.`);
             await loadData();
         } catch (error) {
             console.error('Không thể xóa Journey', error);
-            message.error('Không thể xóa yêu cầu dịch vụ.');
+            message.error('Không thể xóa yêu cầu.');
         }
     };
 
@@ -272,7 +272,7 @@ const JourneyInbox: React.FC = () => {
                         Hệ thống quản lý bán hàng
                     </Text>
                     <Title level={2} style={{ margin: '4px 0 8px' }}>
-                        Yêu cầu dịch vụ
+                        Yêu cầu
                     </Title>
                     <Text type="secondary">
                         Quản lý toàn bộ lead, nhu cầu khách hàng và trạng thái bán hàng trực tiếp trên Journey.
@@ -402,7 +402,7 @@ const JourneyInbox: React.FC = () => {
                 {filteredJourneys.length === 0 ? (
                     <Card bordered={false} style={{ borderRadius: 20, textAlign: 'center', padding: '48px 0' }}>
                         <Empty
-                            description="Không có yêu cầu dịch vụ phù hợp với bộ lọc hiện tại."
+                            description="Không có yêu cầu phù hợp với bộ lọc hiện tại."
                             image={Empty.PRESENTED_IMAGE_SIMPLE}
                         />
                         <Button type="primary" onClick={openCreateDrawer}>
@@ -548,7 +548,7 @@ const JourneyInbox: React.FC = () => {
                                                             Sửa
                                                         </Button>
                                                         <Popconfirm
-                                                            title="Xóa yêu cầu dịch vụ"
+                                                            title="Xóa yêu cầu"
                                                             description="Thao tác này sẽ xóa trực tiếp Journey hiện tại."
                                                             okText="Xóa"
                                                             cancelText="Hủy"

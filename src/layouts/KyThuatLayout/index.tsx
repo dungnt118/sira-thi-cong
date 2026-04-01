@@ -65,24 +65,6 @@ export const KyThuatLayout: React.FC = () => {
             icon: <UserOutlined />,
             label: 'Cá nhân',
             onClick: () => navigate('/ky-thuat/profile')
-        },
-        {
-            key: 'stock-out',
-            icon: <FormOutlined />,
-            label: 'Phiếu xuất',
-            onClick: () => navigate('/ky-thuat/inventory/stock-out')
-        },
-        {
-            key: 'allocation',
-            icon: <FormOutlined />,
-            label: 'Phiếu mượn',
-            onClick: () => navigate('/ky-thuat/assets/allocation')
-        },
-        {
-            key: 'inventory-history',
-            icon: <HistoryOutlined />,
-            label: 'Lịch sử',
-            onClick: () => navigate('/ky-thuat/inventory/history')
         }
     ];
 

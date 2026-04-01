@@ -68,7 +68,7 @@ export const SaleLayout: React.FC = () => {
         {
             key: '/sale/dashboard',
             icon: <InboxOutlined />,
-            label: 'Yêu cầu dịch vụ',
+            label: 'Yêu cầu',
             onClick: () => navigate('/sale/dashboard'),
         },
         {
@@ -111,7 +111,7 @@ export const SaleLayout: React.FC = () => {
             children: [
                 {
                     key: '/sale/dashboard',
-                    label: 'Yêu cầu dịch vụ',
+                    label: 'Yêu cầu',
                     onClick: () => navigate('/sale/dashboard'),
                 },
                 {
@@ -209,7 +209,7 @@ export const SaleLayout: React.FC = () => {
                     <Menu
                         mode="horizontal"
                         selectedKeys={[getActiveKey()]}
-                        items={mobileMenuItems.map((item) => ({
+                        items={React.useMemo(() => mobileMenuItems.map((item) => ({
                             ...item,
                             label: (
                                 <div className="bottom-nav-item">
@@ -218,7 +218,7 @@ export const SaleLayout: React.FC = () => {
                                 </div>
                             ),
                             icon: null,
-                        }))}
+                        })), [mobileMenuItems])}
                         className="bottom-menu"
                     />
                 </div>
