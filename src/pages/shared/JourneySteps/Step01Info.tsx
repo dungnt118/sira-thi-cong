@@ -1,17 +1,27 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Card, Form, Input, Button, Space, Typography, Row, Col, Descriptions, Tag, message, Divider, Select, Alert, Empty, Avatar } from 'antd';
+import { 
+    Card, Form, Input, Button, Space, Typography, Row, Col, 
+    Descriptions, Tag, message, Divider, Select, Alert, Empty, 
+    Avatar, Collapse, List, Badge, Modal 
+} from 'antd';
 import { 
     SaveOutlined, EditOutlined, EyeOutlined, UserOutlined, PhoneOutlined, 
     MailOutlined, HomeOutlined, LoadingOutlined, InfoCircleOutlined, 
     EnvironmentOutlined, ToolOutlined, ShareAltOutlined, CalendarOutlined,
-    FlagOutlined, RocketOutlined, FormOutlined, TeamOutlined
+    FlagOutlined, RocketOutlined, FormOutlined, TeamOutlined,
+    CheckCircleOutlined, ClockCircleOutlined, CloseCircleOutlined, UnorderedListOutlined,
+    PaperClipOutlined, FileTextOutlined
 } from '@ant-design/icons';
 import { journeyService } from '../../../services/core-contracts/services/journey.service';
 import { customerService } from '../../../services/core-contracts/services/customer.service';
+import { workTaskService } from '../../../services/core-contracts/services/workTask.service';
 import { IJourney } from '../../../services/core-contracts/types/journey.types';
 import { ICustomer } from '../../../services/core-contracts/types/customer.types';
-
+import { IWorkTask } from '../../../services/core-contracts/types/workTask.types';
+import { IJourneyDocument } from '../../../services/core-contracts/types/journeyDocument.types';
+import { journeyDocumentService } from '../../../services/core-contracts/services/journeyDocument.service';
 import { AuthorizedUserSelect } from '../../../components/authorizedusers/AuthorizedUser';
+import { CreateJourneyDocumentModal } from '../../../components/journey/CreateJourneyDocumentModal';
 
 const { TextArea } = Input;
 const { Text, Title } = Typography;
@@ -58,12 +68,34 @@ const SLA_STATUS_CONFIG: Record<string, { label: string; color: string }> = {
     overdue: { label: 'Quá hạn', color: 'error' },
 };
 
+const STEP_NAME_MAPPING: Record<string, string> = {
+    lead_intake: '1. Tiếp nhận (Lead Intake)',
+    qualification: '2. Thẩm định (Qualification)',
+    survey_planning: '3. Lập phương án KS (Survey Planning)',
+    site_survey: '4. Khảo sát (Site Survey)',
+    survey_review: '5. Duyệt khảo sát (Survey Review)',
+    estimate_preparation: '6. Lập dự toán (Estimate)',
+    quotation_preparation: '7. Lập báo giá (Quotation)',
+    quotation_sent: '8. Gửi báo giá',
+    quotation_approved: '9. Khách duyệt',
+    contract_signing: '10. Ký hợp đồng',
+    project_execution: '11. Thi công',
+    handover_acceptance: '12. Nghiệm thu bàn giao',
+    warranty_aftercare: '13. Bảo hành/CSKH'
+};
+
 export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = false, onSave, onEditStateChange }) => {
     const [form] = Form.useForm();
     const [isEditing, setIsEditing] = useState(false);
     const [journeyData, setJourneyData] = useState<IJourney | null>(null);
     const [customerData, setCustomerData] = useState<ICustomer | null>(null);
+    const [workTasks, setWorkTasks] = useState<IWorkTask[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isLoadingTasks, setIsLoadingTasks] = useState(false);
+    const [documents, setDocuments] = useState<IJourneyDocument[]>([]);
+    const [isLoadingDocs, setIsLoadingDocs] = useState(false);
+    const [editingDoc, setEditingDoc] = useState<IJourneyDocument | null>(null);
+    const [isDocModalOpen, setIsDocModalOpen] = useState(false);
 
     const fetchData = async () => {
         setIsLoading(true);
@@ -112,8 +144,58 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
         }
     };
 
+    const fetchTasks = async () => {
+        setIsLoadingTasks(true);
+        try {
+            console.log("Fetching tasks for journey:", journeyId);
+            const res = await workTaskService.queryWorkTasksDto({
+                idx_journey_id: { _id: { _eq: journeyId } }
+            } as any);
+            if (res.data) {
+                console.log(`Fetched ${res.data.length} tasks`);
+                setWorkTasks(res.data);
+            }
+        } catch (error) {
+            console.error("Fetch tasks error:", error);
+        } finally {
+            setIsLoadingTasks(false);
+        }
+    };
+
+    const fetchDocuments = async () => {
+        setIsLoadingDocs(true);
+        try {
+            const res = await journeyDocumentService.queryJourneyDocumentsDto({
+                idx_journey_id: { _id: { _eq: journeyId } }
+            } as any);
+            if (res.data) {
+                setDocuments(res.data);
+            }
+        } catch (error) {
+            console.error("Fetch documents error:", error);
+        } finally {
+            setIsLoadingDocs(false);
+        }
+    };
+
     useEffect(() => {
         fetchData();
+        fetchTasks();
+        fetchDocuments();
+
+        // Listen for task updates from other components
+        const handleRefresh = () => {
+            console.log("Refresh event received");
+            fetchTasks();
+            fetchDocuments();
+        };
+
+        window.addEventListener('journey-tasks-updated', handleRefresh);
+        window.addEventListener('journey-documents-updated', handleRefresh);
+        return () => {
+            window.removeEventListener('journey-tasks-updated', handleRefresh);
+            window.removeEventListener('journey-documents-updated', handleRefresh);
+        };
     }, [journeyId]);
 
     const handleFinish = async (values: any) => {
@@ -172,9 +254,9 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
         <Card 
             title={
                 <Space>
-                    <FormOutlined style={{ color: '#1890ff' }} />
+                    <InfoCircleOutlined style={{ color: '#1890ff' }} />
                     <span style={{ fontSize: 16 }}>
-                        {isEditing ? "Hiệu chỉnh Yêu cầu & Khách hàng" : "Thông tin Yêu cầu"}
+                        {isEditing ? "Hiệu chỉnh Tổng quan Hồ sơ" : "Thông tin Tổng quan Hồ sơ"}
                     </span>
                 </Space>
             } 
@@ -316,68 +398,214 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                         </Col>
                     </Row>
                 ) : (
-                    <Row gutter={[24, 24]}>
-                        <Col xs={24} lg={12}>
-                            <Title level={5}><RocketOutlined style={{ color: '#1890ff', marginRight: 8 }} /> Yêu cầu & Dịch vụ</Title>
-                            <Descriptions bordered size="small" column={1}>
-                                <Descriptions.Item label="Tiêu đề">{journeyData.request_title || '—'}</Descriptions.Item>
-                                <Descriptions.Item label="Dịch vụ"><Tag color="blue">{journeyData.requested_service || '—'}</Tag></Descriptions.Item>
-                                <Descriptions.Item label="Thi công">{journeyData.site_address || '—'}</Descriptions.Item>
-                                <Descriptions.Item label="Kênh">{SOURCE_CHANNEL_CONFIG[journeyData.source_channel || ''] || journeyData.source_channel || '—'}</Descriptions.Item>
-                                <Descriptions.Item label="Ưu tiên"><Tag color={priorityCfg.color}>{priorityCfg.label}</Tag></Descriptions.Item>
-                                <Descriptions.Item label="Go/No-Go">
-                                    <Tag color={GO_NO_GO_CONFIG[journeyData.go_no_go_status || '']?.color}>{GO_NO_GO_CONFIG[journeyData.go_no_go_status || '']?.label || '—'}</Tag>
-                                </Descriptions.Item>
-                                <Descriptions.Item label="SLA">
-                                    <Tag color={SLA_STATUS_CONFIG[journeyData.sla_status || '']?.color}>{SLA_STATUS_CONFIG[journeyData.sla_status || '']?.label || '—'}</Tag>
-                                </Descriptions.Item>
-                                <Descriptions.Item label="Triển khai">
-                                    <Tag color={PROJECT_STATUS_CONFIG[journeyData.project_status || '']?.color}>{PROJECT_STATUS_CONFIG[journeyData.project_status || '']?.label || '—'}</Tag>
-                                </Descriptions.Item>
-                                <Descriptions.Item label="Mô tả">
-                                    <div style={{ whiteSpace: 'pre-wrap', color: '#666', minHeight: 40 }}>{journeyData.request_description || '...'}</div>
-                                </Descriptions.Item>
-                            </Descriptions>
+                    <>
+                        <Row gutter={[24, 24]}>
+                            <Col xs={24} lg={12}>
+                                <Title level={5}><RocketOutlined style={{ color: '#1890ff', marginRight: 8 }} /> Yêu cầu & Dịch vụ</Title>
+                                <Descriptions bordered size="small" column={1}>
+                                    <Descriptions.Item label="Tiêu đề">{journeyData.request_title || '—'}</Descriptions.Item>
+                                    <Descriptions.Item label="Dịch vụ"><Tag color="blue">{journeyData.requested_service || '—'}</Tag></Descriptions.Item>
+                                    <Descriptions.Item label="Thi công">{journeyData.site_address || '—'}</Descriptions.Item>
+                                    <Descriptions.Item label="Kênh">{SOURCE_CHANNEL_CONFIG[journeyData.source_channel || ''] || journeyData.source_channel || '—'}</Descriptions.Item>
+                                    <Descriptions.Item label="Ưu tiên"><Tag color={priorityCfg.color}>{priorityCfg.label}</Tag></Descriptions.Item>
+                                    <Descriptions.Item label="Go/No-Go">
+                                        <Tag color={GO_NO_GO_CONFIG[journeyData.go_no_go_status || '']?.color}>{GO_NO_GO_CONFIG[journeyData.go_no_go_status || '']?.label || '—'}</Tag>
+                                    </Descriptions.Item>
+                                    <Descriptions.Item label="SLA">
+                                        <Tag color={SLA_STATUS_CONFIG[journeyData.sla_status || '']?.color}>{SLA_STATUS_CONFIG[journeyData.sla_status || '']?.label || '—'}</Tag>
+                                    </Descriptions.Item>
+                                    <Descriptions.Item label="Triển khai">
+                                        <Tag color={PROJECT_STATUS_CONFIG[journeyData.project_status || '']?.color}>{PROJECT_STATUS_CONFIG[journeyData.project_status || '']?.label || '—'}</Tag>
+                                    </Descriptions.Item>
+                                    <Descriptions.Item label="Mô tả">
+                                        <div style={{ whiteSpace: 'pre-wrap', color: '#666', minHeight: 40 }}>{journeyData.request_description || '...'}</div>
+                                    </Descriptions.Item>
+                                </Descriptions>
 
-                            <Divider orientation="left" plain style={{ marginTop: 24 }}><TeamOutlined /> Điều phối nhân sự</Divider>
-                            <Descriptions bordered size="small" column={1}>
-                                <Descriptions.Item label="PM">{journeyData.pm_user ? <AuthorizedUserSelect value={journeyData.pm_user} disabled style={{ border: 'none', background: 'transparent', padding: 0 }} /> : '—'}</Descriptions.Item>
-                                <Descriptions.Item label="Giám sát">{journeyData.supervisor_users?.length ? <AuthorizedUserSelect value={journeyData.supervisor_users} allowMultiple disabled style={{ border: 'none', background: 'transparent', padding: 0 }} /> : '—'}</Descriptions.Item>
-                                <Descriptions.Item label="Kỹ thuật">{journeyData.technical_users?.length ? <AuthorizedUserSelect value={journeyData.technical_users} allowMultiple disabled style={{ border: 'none', background: 'transparent', padding: 0 }} /> : '—'}</Descriptions.Item>
-                                <Descriptions.Item label="Ghi chú bàn giao">
-                                    <div style={{ color: '#888', fontStyle: 'italic' }}>{journeyData.delivery_note || 'Chưa gán'}</div>
-                                </Descriptions.Item>
-                            </Descriptions>
-                        </Col>
-                        
-                        <Col xs={24} lg={12}>
-                            <Title level={5}><UserOutlined style={{ color: '#52c41a', marginRight: 8 }} /> Hồ sơ Khách hàng</Title>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12, padding: '8px 0' }}>
-                                <Avatar size={48} style={{ backgroundColor: '#f6ffed' }} icon={<UserOutlined style={{ color: '#52c41a' }} />} />
-                                <div>
-                                    <div style={{ fontWeight: 600, fontSize: 16 }}>{customerData?.full_name || journeyData.customer_full_name || 'Khách hàng ẩn danh'}</div>
-                                    <Tag color="green">{customerData?.code || 'PRE-LINKED'}</Tag>
+                                <Divider orientation="left" plain style={{ marginTop: 24 }}><TeamOutlined /> Điều phối nhân sự</Divider>
+                                <Descriptions bordered size="small" column={1}>
+                                    <Descriptions.Item label="PM">
+                                        {journeyData.pm_user ? <Typography.Text>{journeyData.pm_user}</Typography.Text> : '—'}
+                                    </Descriptions.Item>
+                                    <Descriptions.Item label="Giám sát">
+                                        {journeyData.supervisor_users?.length ? <Typography.Text>{journeyData.supervisor_users.join(', ')}</Typography.Text> : '—'}
+                                    </Descriptions.Item>
+                                    <Descriptions.Item label="Kỹ thuật">
+                                        {journeyData.technical_users?.length ? <Typography.Text>{journeyData.technical_users.join(', ')}</Typography.Text> : '—'}
+                                    </Descriptions.Item>
+                                    <Descriptions.Item label="Ghi chú bàn giao">
+                                        <div style={{ color: '#888', fontStyle: 'italic' }}>{journeyData.delivery_note || 'Chưa gán'}</div>
+                                    </Descriptions.Item>
+                                </Descriptions>
+                            </Col>
+                            
+                            <Col xs={24} lg={12}>
+                                <Title level={5}><UserOutlined style={{ color: '#52c41a', marginRight: 8 }} /> Hồ sơ Khách hàng</Title>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12, padding: '8px 0' }}>
+                                    <Avatar size={48} style={{ backgroundColor: '#f6ffed' }} icon={<UserOutlined style={{ color: '#52c41a' }} />} />
+                                    <div>
+                                        <div style={{ fontWeight: 600, fontSize: 16 }}>{customerData?.full_name || journeyData.customer_full_name || 'Khách hàng ẩn danh'}</div>
+                                        <Tag color="green">{customerData?.code || 'PRE-LINKED'}</Tag>
+                                    </div>
                                 </div>
-                            </div>
-                            <Descriptions bordered size="small" column={1}>
-                                <Descriptions.Item label="Điện thoại"><strong>{customerData?.phone || journeyData.customer_phone || '—'}</strong></Descriptions.Item>
-                                <Descriptions.Item label="Email">{customerData?.email || journeyData.customer_email || '—'}</Descriptions.Item>
-                                <Descriptions.Item label="Địa chỉ">
-                                    {[
-                                        customerData?.address || journeyData.customer_address,
-                                        customerData?.district,
-                                        customerData?.city || journeyData.customer_province
-                                    ].filter(Boolean).join(', ') || '—'}
-                                </Descriptions.Item>
-                                <Descriptions.Item label="Ngày tạo">{customerData?.createdAt ? new Date(customerData.createdAt).toLocaleDateString('vi-VN') : '—'}</Descriptions.Item>
-                                <Descriptions.Item label="Ghi chú">
-                                    <div style={{ fontSize: 13, color: '#888' }}>{customerData?.notes || 'Chưa có ghi chú'}</div>
-                                </Descriptions.Item>
-                            </Descriptions>
-                        </Col>
-                    </Row>
+                                <Descriptions bordered size="small" column={1}>
+                                    <Descriptions.Item label="Điện thoại"><strong>{customerData?.phone || journeyData.customer_phone || '—'}</strong></Descriptions.Item>
+                                    <Descriptions.Item label="Email">{customerData?.email || journeyData.customer_email || '—'}</Descriptions.Item>
+                                    <Descriptions.Item label="Địa chỉ">
+                                        {[
+                                            customerData?.address || journeyData.customer_address,
+                                            customerData?.district,
+                                            customerData?.city || journeyData.customer_province
+                                        ].filter(Boolean).join(', ') || '—'}
+                                    </Descriptions.Item>
+                                    <Descriptions.Item label="Ngày tạo">{customerData?.createdAt ? new Date(customerData.createdAt).toLocaleDateString('vi-VN') : '—'}</Descriptions.Item>
+                                    <Descriptions.Item label="Ghi chú">
+                                        <div style={{ fontSize: 13, color: '#888' }}>{customerData?.notes || 'Chưa có ghi chú'}</div>
+                                    </Descriptions.Item>
+                                </Descriptions>
+                            </Col>
+
+                            <Col span={24}>
+                                <Divider orientation="left" plain><UnorderedListOutlined style={{ marginRight: 8 }} /> Nhiệm vụ công việc</Divider>
+                                {workTasks.length === 0 ? (
+                                    <Empty description="Chưa có nhiệm vụ nào được khởi tạo" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                                ) : (
+                                    <Collapse 
+                                        ghost 
+                                        expandIconPosition="end"
+                                        defaultActiveKey={Object.keys(STEP_NAME_MAPPING)}
+                                    >
+                                        {Object.entries(STEP_NAME_MAPPING).map(([stepCode, stepName]) => {
+                                            const stepTasks = workTasks.filter(t => t.journey_step_code === stepCode);
+                                            if (stepTasks.length === 0) return null;
+                                            
+                                            const finishedCount = stepTasks.filter(t => t.status === 'finished').length;
+                                            const totalCount = stepTasks.length;
+                                            
+                                            return (
+                                                <Collapse.Panel 
+                                                    header={
+                                                        <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', paddingRight: 24 }}>
+                                                            <Text strong>{stepName}</Text>
+                                                            <Space>
+                                                                <Badge 
+                                                                    count={`${finishedCount}/${totalCount}`} 
+                                                                    style={{ backgroundColor: finishedCount === totalCount ? '#52c41a' : '#1890ff' }} 
+                                                                />
+                                                                <Text type="secondary" style={{ fontSize: 12 }}>nhiệm vụ</Text>
+                                                            </Space>
+                                                        </div>
+                                                    } 
+                                                    key={stepCode}
+                                                >
+                                                    <List
+                                                        size="small"
+                                                        dataSource={stepTasks}
+                                                        renderItem={task => (
+                                                            <List.Item style={{ padding: '8px 16px' }}>
+                                                                <div style={{ display: 'flex', width: '100%', alignItems: 'center', gap: 12 }}>
+                                                                    <div>
+                                                                        {task.status === 'finished' ? (
+                                                                            <CheckCircleOutlined style={{ color: '#52c41a' }} />
+                                                                        ) : task.status === 'skipped' ? (
+                                                                            <CloseCircleOutlined style={{ color: '#ff4d4f' }} />
+                                                                        ) : (
+                                                                            <ClockCircleOutlined style={{ color: '#faad14' }} />
+                                                                        )}
+                                                                    </div>
+                                                                    <div style={{ flex: 1 }}>
+                                                                        <div style={{ fontWeight: 500, textDecoration: task.status === 'finished' ? 'line-through' : 'none', color: task.status === 'finished' ? '#888' : 'inherit' }}>
+                                                                            {task.title}
+                                                                            {task.is_required && <Tag color="red" style={{ marginLeft: 8, fontSize: 10 }}>Bắt buộc</Tag>}
+                                                                        </div>
+                                                                        {task.description && <div style={{ fontSize: 12, color: '#999' }}>{task.description}</div>}
+                                                                    </div>
+                                                                    <div>
+                                                                        <Tag color={task.status === 'finished' ? 'success' : task.status === 'skipped' ? 'error' : 'orange'}>
+                                                                            {task.status === 'finished' ? 'Xong' : task.status === 'skipped' ? 'Bỏ qua' : 'Chờ'}
+                                                                        </Tag>
+                                                                    </div>
+                                                                </div>
+                                                            </List.Item>
+                                                        )}
+                                                    />
+                                                </Collapse.Panel>
+                                            );
+                                        })}
+                                    </Collapse>
+                                )}
+                            </Col>
+                        </Row>
+
+                        <Divider orientation="left" plain>
+                            <Space>
+                                <PaperClipOutlined />
+                                <Text strong>Tài liệu công trình</Text>
+                                <Badge count={documents.length} style={{ backgroundColor: '#52c41a' }} />
+                            </Space>
+                        </Divider>
+
+                        <List
+                            loading={isLoadingDocs}
+                            dataSource={documents}
+                            grid={{ gutter: 16, xs: 1, sm: 2, md: 2, lg: 3, xl: 3, xxl: 4 }}
+                            renderItem={doc => (
+                                <List.Item>
+                                    <Card size="small" hoverable actions={[
+                                        <EditOutlined key="edit" onClick={() => { setEditingDoc(doc); setIsDocModalOpen(true); }} />,
+                                        <Divider type="vertical" />,
+                                        <Button type="text" danger icon={<CloseCircleOutlined />} onClick={async () => {
+                                            Modal.confirm({
+                                                title: 'Xóa tài liệu',
+                                                content: 'Bạn có chắc chắn muốn xóa tài liệu này?',
+                                                onOk: async () => {
+                                                    await journeyDocumentService.deleteJourneyDocument(doc._id);
+                                                    message.success("Đã xóa tài liệu");
+                                                    fetchDocuments();
+                                                }
+                                            });
+                                        }} />
+                                    ]}>
+                                        <Card.Meta
+                                            avatar={<Avatar icon={<FileTextOutlined />} style={{ backgroundColor: '#1890ff' }} />}
+                                            title={<Text ellipsis={{ tooltip: doc.description }}>{doc.description || 'Không có mô tả'}</Text>}
+                                            description={
+                                                <Space direction="vertical" size={2}>
+                                                    <Tag color="cyan">{doc.context_type?.toUpperCase()}</Tag>
+                                                    <Text type="secondary" style={{ fontSize: 11 }}>
+                                                        {doc.files && doc.files.length > 0 ? (
+                                                            <Space wrap>
+                                                                {doc.files.map((f, i) => (
+                                                                    <Button key={i} size="small" type="link" href={f.url} target="_blank" style={{ padding: 0 }}>
+                                                                        File {i+1}
+                                                                    </Button>
+                                                                ))}
+                                                            </Space>
+                                                        ) : 'Không có file'}
+                                                    </Text>
+                                                </Space>
+                                            }
+                                        />
+                                    </Card>
+                                </List.Item>
+                            )}
+                            locale={{ emptyText: <Empty description="Chưa có tài liệu nào được tải lên" /> }}
+                        />
+                    </>
                 )}
             </Form>
+
+            <CreateJourneyDocumentModal
+                open={isDocModalOpen}
+                onCancel={() => { setIsDocModalOpen(false); setEditingDoc(null); }}
+                onSuccess={() => {
+                    setIsDocModalOpen(false);
+                    setEditingDoc(null);
+                    fetchDocuments();
+                }}
+                journeyId={journeyId!}
+                editingDoc={editingDoc}
+            />
         </Card>
     );
 };

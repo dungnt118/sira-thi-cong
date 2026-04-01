@@ -12,14 +12,17 @@ import {
     SendOutlined, ExclamationCircleOutlined, CheckCircleOutlined,
     ClockCircleOutlined, MessageOutlined,
     TeamOutlined,
-    FormOutlined, PaperClipOutlined, EditOutlined
+    FormOutlined, PaperClipOutlined, EditOutlined, RocketOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
 import { JourneyStepRenderer, StepLabor, StepMaterials } from '../../shared/JourneySteps';
 import { ConsultationLogForm } from '../../../components/journey/SharedModals';
+import { CreateJourneyDocumentModal } from '../../../components/journey/CreateJourneyDocumentModal';
 import PortalDashboard from '../../../components/portal/PortalDashboard';
 import { journeyService } from '../../../services/core-contracts/services/journey.service';
+import { workTaskService } from '../../../services/core-contracts/services/workTask.service';
+import { customerJourneySettingService } from '../../../services/core-contracts/services/customerJourneySetting.service';
 import { employeeService } from '../../../services/core-contracts/services/employee.service';
 import { IJourney } from '../../../services/core-contracts/types/journey.types';
 import { AuthorizedUserSelect } from '../../../components/authorizedusers/AuthorizedUser';
@@ -58,6 +61,9 @@ const JourneyDetail360: React.FC = () => {
     const [journey, setJourney] = useState<IJourney | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [employees, setEmployees] = useState<{ label: string; value: string }[]>([]);
+
+    const [isDocModalOpen, setIsDocModalOpen] = useState(false);
+    const [editingDoc, setEditingDoc] = useState<any>(null);
 
     const fetchJourney = async () => {
         if (!journeyId) return;
@@ -99,12 +105,92 @@ const JourneyDetail360: React.FC = () => {
     const [showPublishModal, setShowPublishModal] = useState(false);
     const [showLogModal, setShowLogModal] = useState(false);
     const [showFollowUpModal, setShowFollowUpModal] = useState(false);
+    const [showCreateDocModal, setShowCreateDocModal] = useState(false);
     const [isEditDrawerVisible, setIsEditDrawerVisible] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [publishTab, setPublishTab] = useState('settings');
     const [assignForm] = Form.useForm();
     const [priorityForm] = Form.useForm();
     const [followUpForm] = Form.useForm();
+    const [modal, modalContextHolder] = Modal.useModal();
+    
+    /** Xử lý khởi tạo nhiệm vụ hàng loạt theo cấu hình */
+    const handleInitializeTasks = () => {
+        console.log("handleInitializeTasks triggered");
+        modal.confirm({
+            title: 'Khởi tạo danh sách công việc?',
+            icon: <ExclamationCircleOutlined />,
+            content: 'Hệ thống sẽ XÓA các nhiệm vụ hiện tại (nếu có) của hành trình này và tạo mới dựa trên cấu hình mẫu. Bạn có chắc chắn?',
+            okText: 'Đồng ý',
+            cancelText: 'Hủy',
+            onOk: async () => {
+                console.log("Initialization confirmed");
+                setIsSubmitting(true);
+                try {
+                    // 1. Fetch singleton setting
+                    const setting = await customerJourneySettingService.findSetting();
+                    if (!setting) {
+                        message.error("Không tìm thấy cấu hình mẫu (CustomerJourneySetting)");
+                        return;
+                    }
+
+                    // 2. Clear old tasks for this journey
+                    const res = await workTaskService.queryWorkTasksDto({
+                        idx_journey_id: { _id: { _eq: journeyId } }
+                    } as any);
+                    if (res?.data?.length) {
+                        console.log(`Found ${res.data.length} tasks to delete`);
+                        await workTaskService.deleteMultiWorkTask(res.data.map(t => t._id));
+                    }
+
+                    // 3. Batch create new tasks from setting checklist
+                    const stages = [
+                        { code: 'lead_intake', data: setting.lead_intake },
+                        { code: 'qualification', data: setting.qualification },
+                        { code: 'survey_planning', data: setting.survey_planning },
+                        { code: 'site_survey', data: setting.site_survey },
+                        { code: 'survey_review', data: setting.survey_review },
+                        { code: 'estimate_preparation', data: setting.estimate_preparation },
+                        { code: 'quotation_preparation', data: setting.quotation_preparation },
+                        { code: 'quotation_sent', data: setting.quotation_sent },
+                        { code: 'quotation_approved', data: setting.quotation_approved },
+                        { code: 'contract_signing', data: setting.contract_signing },
+                        { code: 'project_execution', data: setting.project_execution },
+                        { code: 'handover_acceptance', data: setting.handover_acceptance },
+                        { code: 'warranty_aftercare', data: setting.warranty_aftercare },
+                    ];
+
+                    let createdCount = 0;
+                    for (const stage of stages) {
+                        if (stage.data?.is_enabled && stage.data.checklist?.length) {
+                            for (const item of stage.data.checklist) {
+                                await workTaskService.createWorkTask({
+                                    journey_id: journeyId,
+                                    journey_step_code: stage.code as any,
+                                    title: item.name,
+                                    description: item.description,
+                                    is_required: item.is_required,
+                                    status: 'pending'
+                                });
+                                createdCount++;
+                            }
+                        }
+                    }
+
+                    console.log(`Successfully created ${createdCount} tasks`);
+                    message.success(`Đã khởi tạo ${createdCount} nhiệm vụ công việc thành công!`);
+                    fetchJourney();
+                    // Dispatch event for components to refresh
+                    window.dispatchEvent(new CustomEvent('journey-tasks-updated'));
+                } catch (error) {
+                    console.error("Initialize tasks error:", error);
+                    message.error("Lỗi khi khởi tạo công việc: " + (error instanceof Error ? error.message : "Unknown error"));
+                } finally {
+                    setIsSubmitting(false);
+                }
+            }
+        });
+    };
 
     const screens = Grid.useBreakpoint();
     const isMobile = !screens.md;
@@ -175,10 +261,10 @@ const JourneyDetail360: React.FC = () => {
     };
 
     const tabItems = [
-        // 1. Tab Yêu cầu (GRP_01_INFO) + Dự án data
+        // 1. Tab Tổng quan (GRP_01_INFO) + Dự án data
         {
             key: 'GRP_01_INFO',
-            label: <span><FormOutlined /> Yêu cầu</span>,
+            label: <span><FormOutlined /> Tổng quan</span>,
             children: renderTabContent('GRP_01_INFO', 'S01_INFO'),
         },
         // 2. Tab Tạo lịch hẹn (GRP_02_CONTACT)
@@ -285,6 +371,7 @@ const JourneyDetail360: React.FC = () => {
 
     return (
         <div style={{ padding: isMobile ? '4px 0' : '24px' }}>
+            {modalContextHolder}
             {/* Back + Primary Actions */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isMobile ? 8 : 16 }}>
                 <Button icon={<ArrowLeftOutlined />} type="text" onClick={() => navigate(-1)} style={{ padding: isMobile ? '4px 8px' : undefined }}>
@@ -292,6 +379,16 @@ const JourneyDetail360: React.FC = () => {
                 </Button>
                 {(role === 'pm' || isAdmin) && (
                     <Space size={isMobile ? 4 : 8} wrap={isMobile}>
+                        {(currentStepIndex < 0 || currentStepIndex < 5) && (
+                            <Button 
+                                icon={<RocketOutlined />} 
+                                onClick={handleInitializeTasks}
+                                loading={isSubmitting}
+                            >
+                                {isMobile ? '' : 'Khởi tạo công việc'}
+                            </Button>
+                        )}
+                        <Button icon={<FileTextOutlined />} onClick={() => { setEditingDoc(null); setShowCreateDocModal(true); }}>{isMobile ? '' : 'Tạo tài liệu'}</Button>
                         <Button icon={<EditOutlined />} onClick={() => setIsEditDrawerVisible(true)}>{isMobile ? '' : 'Sửa hành trình'}</Button>
                         <Button icon={<UserOutlined />} onClick={() => setShowAssignModal(true)}>{isMobile ? '' : 'Phân công'}</Button>
                         <Button icon={<FlagOutlined />} onClick={() => setShowPriorityModal(true)}>{isMobile ? '' : 'Ưu tiên'}</Button>
@@ -491,6 +588,17 @@ const JourneyDetail360: React.FC = () => {
                         </Form>
                     </Modal>
 
+                    <CreateJourneyDocumentModal
+                        open={showCreateDocModal}
+                        onCancel={() => setShowCreateDocModal(false)}
+                        onSuccess={() => {
+                            setShowCreateDocModal(false);
+                            // Trình duyệt sẽ tự refetch dữ liệu nhờ Event
+                            window.dispatchEvent(new CustomEvent('journey-documents-updated'));
+                        }}
+                        journeyId={journeyId!}
+                    />
+
                     <Modal
                         title="Publish lên Portal"
                         open={showPublishModal}
@@ -606,6 +714,22 @@ const JourneyDetail360: React.FC = () => {
                     </Drawer>
                 </>
             )}
+
+            <CreateJourneyDocumentModal
+                open={showCreateDocModal}
+                onCancel={() => {
+                    setShowCreateDocModal(false);
+                    setEditingDoc(null);
+                }}
+                onSuccess={() => {
+                    setShowCreateDocModal(false);
+                    setEditingDoc(null);
+                    // Standard event to trigger list refresh in Step01Info or elsewhere
+                    window.dispatchEvent(new CustomEvent('journey-documents-updated'));
+                }}
+                journeyId={journeyId!}
+                editingDoc={editingDoc}
+            />
         </div>
     );
 };
