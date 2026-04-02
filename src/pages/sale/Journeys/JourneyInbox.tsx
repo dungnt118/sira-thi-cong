@@ -431,7 +431,7 @@ const JourneyInbox: React.FC = () => {
                                     <Card
                                         hoverable
                                         variant="borderless"
-                                        onClick={() => navigate(`/sale/dashboard/${journey._id}`)}
+                                        onClick={() => navigate(`/sale/journeys/${journey._id}`)}
                                         style={{ borderRadius: 20 }}
                                         styles={{ body: { padding: 24 } }}
                                     >
@@ -536,7 +536,7 @@ const JourneyInbox: React.FC = () => {
                                                             icon={<EyeOutlined />}
                                                             onClick={(event) => {
                                                                 event.stopPropagation();
-                                                                navigate(`/sale/dashboard/${journey._id}`);
+                                                                navigate(`/sale/journeys/${journey._id}`);
                                                             }}
                                                         >
                                                             Mở hồ sơ

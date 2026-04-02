@@ -507,6 +507,9 @@ const JourneyDetail360: React.FC = () => {
             ),
         }
     ].filter(item => {
+        // Tab Tổng quan (GRP_01_INFO) luôn hiển thị cho tất cả vai trò
+        if (item.key === 'GRP_01_INFO') return true;
+
         // Filter tabs based on user visibility
         if (item.key === 'LOG') return role === 'pm' || role === 'sale';
 
