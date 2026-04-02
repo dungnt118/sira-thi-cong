@@ -61,7 +61,7 @@ export const authorizedUserService = {
      */
     async getUserDetail(userId: string): Promise<AuthorizedUser | null> {
         const response = await query<AuthorizedUser>(GET_AUTHORIZED_USER, { userId });
-        return response.data;
+        return response.data ?? null;
     },
 
     /**
@@ -74,7 +74,7 @@ export const authorizedUserService = {
         role?: string;
     }): Promise<AuthorizedUser | null> {
         const response = await mutate<AuthorizedUser>(CREATE_AUTHORIZED_USER, payload);
-        return response.data;
+        return response.data ?? null;
     },
 
     /**

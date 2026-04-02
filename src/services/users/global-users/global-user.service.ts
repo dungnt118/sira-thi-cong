@@ -11,7 +11,7 @@ import type {
     IGlobalUserListFilter,
     IGlobalUserListResponse,
     IUpdateGlobalUserPayload
-} from '../types';
+} from './global-user.types';
 import {
     ACTIVATE_GLOBAL_USER,
     CONFIRM_GLOBAL_USER_EMAIL,
