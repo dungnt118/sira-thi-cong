@@ -344,7 +344,7 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
                     <span style={{ fontSize: 16 }}>{isEditing ? "Ghi nhận tiến độ thi công" : "Nhật ký thi công dự án"}</span>
                 </Space>
             } 
-            bordered={false} 
+            variant="borderless" 
             className="ky-card-detail"
             style={{ boxShadow: '0 2px 10px rgba(0,0,0,0.05)', borderRadius: 12 }}
             extra={(isEditable || isAdmin) && (
@@ -376,3 +376,4 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
 };
 
 export default Step08Construct;
+

@@ -165,7 +165,8 @@ const AllocationForm: React.FC = () => {
                 <Col xs={24} lg={9}>
                     <Card 
                         title="Thông tin người nhận & Dự án"
-                        bodyStyle={{ padding: isMobile ? '12px' : '24px' }}
+                        variant="borderless"
+                        styles={{ body: { padding: isMobile ? '12px' : '24px' } }}
                     >
                         <Form form={form} layout="vertical">
                             <Form.Item 

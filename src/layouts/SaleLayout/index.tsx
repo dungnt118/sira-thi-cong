@@ -138,6 +138,17 @@ export const SaleLayout: React.FC = () => {
         },
     ];
 
+    const memoizedMobileMenuItems = React.useMemo(() => mobileMenuItems.map((item) => ({
+        ...item,
+        label: (
+            <div className="bottom-nav-item">
+                <span className="bottom-nav-icon">{item.icon}</span>
+                <span className="bottom-nav-text">{item.label}</span>
+            </div>
+        ),
+        icon: null,
+    })), [mobileMenuItems]);
+
     return (
         <Layout className="sale-layout">
             {!isMobile && (
@@ -209,16 +220,7 @@ export const SaleLayout: React.FC = () => {
                     <Menu
                         mode="horizontal"
                         selectedKeys={[getActiveKey()]}
-                        items={React.useMemo(() => mobileMenuItems.map((item) => ({
-                            ...item,
-                            label: (
-                                <div className="bottom-nav-item">
-                                    <span className="bottom-nav-icon">{item.icon}</span>
-                                    <span className="bottom-nav-text">{item.label}</span>
-                                </div>
-                            ),
-                            icon: null,
-                        })), [mobileMenuItems])}
+                        items={memoizedMobileMenuItems}
                         className="bottom-menu"
                     />
                 </div>

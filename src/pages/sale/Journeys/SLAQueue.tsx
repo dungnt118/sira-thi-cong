@@ -252,6 +252,7 @@ const SLAQueue: React.FC = () => {
                 </Col>
                 <Col xs={24} sm={8}>
                     <Card
+                        variant="borderless"
                         style={{
                             borderRadius: 16,
                             border: 'none',
@@ -274,12 +275,13 @@ const SLAQueue: React.FC = () => {
             </Row>
 
             <Card
+                variant="borderless"
                 style={{
                     borderRadius: 16,
                     boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
                     border: 'none',
                 }}
-                bodyStyle={{ padding: 0 }}
+                styles={{ body: { padding: 0 } }}
             >
                 <Table
                     columns={columns}

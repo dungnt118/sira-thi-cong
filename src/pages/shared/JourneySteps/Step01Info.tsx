@@ -261,7 +261,7 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                     </span>
                 </Space>
             } 
-            bordered={false} 
+            variant="borderless" 
             className="ky-card-detail"
             style={{ boxShadow: '0 2px 10px rgba(0,0,0,0.05)', borderRadius: 12 }}
             extra={isEditable && (
@@ -661,3 +661,4 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
 };
 
 export default Step01Info;
+

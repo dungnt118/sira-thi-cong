@@ -317,7 +317,7 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({
 
     if (isLoading) {
         return (
-            <Card bordered={false} className="ky-card" style={{ textAlign: 'center', padding: '40px 0' }}>
+            <Card variant="borderless" className="ky-card" style={{ textAlign: 'center', padding: '40px 0' }}>
                 <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} tip="Đang tải dữ liệu hồ sơ..." />
             </Card>
         );
@@ -429,7 +429,7 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({
     const renderReadOnly = () => {
         return (
             <div>
-                <Card bordered={false} style={{ background: '#f6faff', marginBottom: 20 }}>
+                <Card variant="borderless" style={{ background: '#f6faff', marginBottom: 20 }}>
                     <Space align="start">
                         {overallStatus === 'completed' ? (
                             <CheckCircleOutlined style={{ color: '#52c41a', fontSize: 32 }} />
@@ -474,7 +474,7 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({
     return (
         <Card 
             title={isEditing ? "Đang tiến hành Khảo sát" : "Chi tiết Khảo sát"} 
-            bordered={false} 
+            variant="borderless" 
             className="ky-card"
             style={{ borderRadius: 12 }}
             extra={(isEditable || isAdmin) && (
@@ -519,7 +519,7 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({
                 ]}
                 width="100%"
                 style={{ top: 10 }}
-                bodyStyle={{ padding: 0 }}
+                styles={{ body: { padding: 0 } }}
             >
                 <div style={{ textAlign: 'center', padding: '10px 0' }}>
                     <Text type="secondary">Vui lòng ký vào khung bên dưới</Text>
@@ -551,4 +551,5 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({
 };
 
 export default Step03Survey;
+
 

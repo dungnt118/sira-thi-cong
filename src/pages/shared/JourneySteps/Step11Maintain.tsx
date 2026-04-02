@@ -91,7 +91,7 @@ export const Step11Maintain: React.FC<Step11MaintainProps> = ({ journeyId, isEdi
     return (
         <Card 
             title={isEditing ? "Thực hiện: Bảo trì định kỳ" : "Chi tiết bước: Bảo trì định kỳ"} 
-            bordered={false} 
+            variant="borderless" 
             className="ky-card"
             extra={isEditable && (
                 <Button 
@@ -118,3 +118,4 @@ export const Step11Maintain: React.FC<Step11MaintainProps> = ({ journeyId, isEdi
 };
 
 export default Step11Maintain;
+

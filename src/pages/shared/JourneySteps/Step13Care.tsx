@@ -95,7 +95,7 @@ export const Step13Care: React.FC<Step13CareProps> = ({ journeyId, isEditable = 
     return (
         <Card 
             title={isEditing ? "Thực hiện: Chăm sóc khách hàng" : "Chi tiết bước: Chăm sóc khách hàng"} 
-            bordered={false} 
+            variant="borderless" 
             className="ky-card"
             extra={isEditable && (
                 <Button 
@@ -122,3 +122,4 @@ export const Step13Care: React.FC<Step13CareProps> = ({ journeyId, isEditable = 
 };
 
 export default Step13Care;
+

@@ -167,7 +167,7 @@ const SaleJourneyContext: React.FC = () => {
             children: (
                 <Row gutter={[20, 20]}>
                     <Col xs={24} xl={14}>
-                        <Card bordered={false} style={{ borderRadius: 18 }}>
+                        <Card variant="borderless" style={{ borderRadius: 18 }}>
                             <Descriptions column={1} size="small" bordered>
                                 <Descriptions.Item label="Mã hành trình">{journey.journey_code}</Descriptions.Item>
                                 <Descriptions.Item label="Tiêu đề yêu cầu">{journey.request_title || JOURNEY_EMPTY_VALUE}</Descriptions.Item>
@@ -192,7 +192,7 @@ const SaleJourneyContext: React.FC = () => {
                                 <Descriptions.Item label="Go / No-Go">{getOptionLabel(JOURNEY_GO_NO_GO_OPTIONS, journey.go_no_go_status)}</Descriptions.Item>
                             </Descriptions>
                         </Card>
-                        <Card bordered={false} style={{ borderRadius: 18 }}>
+                        <Card variant="borderless" style={{ borderRadius: 18 }}>
                             <Descriptions column={1} size="small">
                                 <Descriptions.Item label="PM triển khai">{journey.pm_user || JOURNEY_EMPTY_VALUE}</Descriptions.Item>
                                 <Descriptions.Item label="Giám sát triển khai">{journey.supervisor_users || JOURNEY_EMPTY_VALUE}</Descriptions.Item>
@@ -209,7 +209,7 @@ const SaleJourneyContext: React.FC = () => {
             key: 'survey',
             label: <span><SearchOutlined /> Khảo sát</span>,
             children: (
-                <Card bordered={false} style={{ borderRadius: 18 }}>
+                <Card variant="borderless" style={{ borderRadius: 18 }}>
                     <Space direction="vertical" size={12} style={{ width: '100%' }}>
                         <Space wrap>
                             <Text type="secondary">Tiến độ khảo sát:</Text>
@@ -228,7 +228,7 @@ const SaleJourneyContext: React.FC = () => {
             children: (
                 <Row gutter={[20, 20]}>
                     <Col xs={24} md={12}>
-                        <Card bordered={false} style={{ borderRadius: 18 }}>
+                        <Card variant="borderless" style={{ borderRadius: 18 }}>
                             <Descriptions column={1} size="small">
                                 <Descriptions.Item label="Trạng thái báo giá">{journey.quote_status || JOURNEY_EMPTY_VALUE}</Descriptions.Item>
                                 <Descriptions.Item label="Giá trị hợp đồng">{journey.total_contract_value?.toLocaleString('vi-VN') || '0'} đ</Descriptions.Item>
@@ -238,7 +238,7 @@ const SaleJourneyContext: React.FC = () => {
                         </Card>
                     </Col>
                     <Col xs={24} md={12}>
-                        <Card bordered={false} style={{ borderRadius: 18 }}>
+                        <Card variant="borderless" style={{ borderRadius: 18 }}>
                             <Descriptions column={1} size="small">
                                 <Descriptions.Item label="Đã thu">{journey.collected_amount?.toLocaleString('vi-VN') || '0'} đ</Descriptions.Item>
                                 <Descriptions.Item label="Còn nợ">{journey.outstanding_amount?.toLocaleString('vi-VN') || '0'} đ</Descriptions.Item>
@@ -256,7 +256,7 @@ const SaleJourneyContext: React.FC = () => {
                 <Space direction="vertical" size={12} style={{ width: '100%' }}>
                     <Button type="primary" onClick={() => setShowLogModal(true)}>Ghi log tư vấn</Button>
                     <Button onClick={() => setShowFollowUpModal(true)}>Ghi chú follow-up</Button>
-                    <Card bordered={false} style={{ borderRadius: 18 }}>
+                    <Card variant="borderless" style={{ borderRadius: 18 }}>
                         <Descriptions column={1} size="small">
                             <Descriptions.Item label="Thread portal chưa đọc">{(journey.unread_thread_count || 0).toString()}</Descriptions.Item>
                             <Descriptions.Item label="Ngữ cảnh thread gần nhất">{journey.latest_thread_context || JOURNEY_EMPTY_VALUE}</Descriptions.Item>
@@ -277,7 +277,7 @@ const SaleJourneyContext: React.FC = () => {
                 </Button>
             </div>
 
-            <Card bordered={false} style={{ marginBottom: 24, borderRadius: 24, background: slaMeta.background }}>
+            <Card variant="borderless" style={{ marginBottom: 24, borderRadius: 24, background: slaMeta.background }}>
                 <Row gutter={[16, 16]} align="middle">
                     <Col xs={24} lg={16}>
                         <Space size={[8, 8]} wrap>

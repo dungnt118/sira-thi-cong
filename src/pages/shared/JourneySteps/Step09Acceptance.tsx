@@ -102,7 +102,7 @@ export const Step09Acceptance: React.FC<Step09AcceptanceProps> = ({ journeyId, i
     return (
         <Card 
             title={isEditing ? "Thực hiện: Nghiệm thu / Bàn giao" : "Chi tiết bước: Nghiệm thu / Bàn giao"} 
-            bordered={false} 
+            variant="borderless" 
             className="ky-card"
             extra={isEditable && (
                 <Button 
@@ -129,3 +129,4 @@ export const Step09Acceptance: React.FC<Step09AcceptanceProps> = ({ journeyId, i
 };
 
 export default Step09Acceptance;
+

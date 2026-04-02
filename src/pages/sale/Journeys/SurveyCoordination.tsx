@@ -86,7 +86,7 @@ const SurveyCoordination: React.FC = () => {
                 </Button>
             </div>
 
-            <Card style={{ borderRadius: 16, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: 'none' }} bodyStyle={{ padding: '8px 16px' }}>
+            <Card variant="borderless" style={{ borderRadius: 16, boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }} styles={{ body: { padding: '8px 16px' } }}>
                 <Tabs
                     size="large"
                     items={[

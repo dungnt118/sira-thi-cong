@@ -273,3 +273,4 @@ const StepLabor: React.FC<StepLaborProps> = ({ journeyId, isEditable = false }) 
 };
 
 export default StepLabor;
+

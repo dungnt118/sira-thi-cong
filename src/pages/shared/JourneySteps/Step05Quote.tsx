@@ -194,7 +194,7 @@ const Step05Quote: React.FC<Step05QuoteProps> = ({ journeyId, isEditable = false
     return (
         <Card 
             title={isEditing ? "Thực hiện: Báo giá / Hợp đồng" : "Chi tiết bước: Báo giá / Hợp đồng"} 
-            bordered={false} 
+            variant="borderless" 
             className="ky-card"
             extra={isEditable && (
                 <Space>
@@ -350,3 +350,4 @@ const Step05Quote: React.FC<Step05QuoteProps> = ({ journeyId, isEditable = false
 };
 
 export default Step05Quote;
+

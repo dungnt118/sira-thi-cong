@@ -292,12 +292,12 @@ const JourneyInbox: React.FC = () => {
 
             <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
                 <Col xs={12} lg={6}>
-                    <Card bordered={false} style={{ borderRadius: 18 }}>
+                    <Card variant="borderless" style={{ borderRadius: 18 }}>
                         <Statistic title="Tổng hành trình" value={stats.total} />
                     </Card>
                 </Col>
                 <Col xs={12} lg={6}>
-                    <Card bordered={false} style={{ borderRadius: 18 }}>
+                    <Card variant="borderless" style={{ borderRadius: 18 }}>
                         <Statistic
                             title="Trễ hạn"
                             value={stats.overdue}
@@ -307,21 +307,21 @@ const JourneyInbox: React.FC = () => {
                     </Card>
                 </Col>
                 <Col xs={12} lg={6}>
-                    <Card bordered={false} style={{ borderRadius: 18 }}>
+                    <Card variant="borderless" style={{ borderRadius: 18 }}>
                         <Statistic title="Có rủi ro" value={stats.atRisk} valueStyle={{ color: '#d48806' }} />
                     </Card>
                 </Col>
                 <Col xs={12} lg={6}>
-                    <Card bordered={false} style={{ borderRadius: 18 }}>
+                    <Card variant="borderless" style={{ borderRadius: 18 }}>
                         <Statistic title="Chờ khảo sát" value={stats.waitingSurvey} valueStyle={{ color: '#1677ff' }} />
                     </Card>
                 </Col>
             </Row>
 
             <Card
-                bordered={false}
+                variant="borderless"
                 style={{ borderRadius: 20, marginBottom: 24 }}
-                bodyStyle={{ paddingBottom: 8 }}
+                styles={{ body: { paddingBottom: 8 } }}
             >
                 <Row gutter={[16, 16]}>
                     <Col xs={24} lg={8}>
@@ -400,7 +400,7 @@ const JourneyInbox: React.FC = () => {
 
             <Spin spinning={loading}>
                 {filteredJourneys.length === 0 ? (
-                    <Card bordered={false} style={{ borderRadius: 20, textAlign: 'center', padding: '48px 0' }}>
+                    <Card variant="borderless" style={{ borderRadius: 20, textAlign: 'center', padding: '48px 0' }}>
                         <Empty
                             description="Không có yêu cầu phù hợp với bộ lọc hiện tại."
                             image={Empty.PRESENTED_IMAGE_SIMPLE}
@@ -430,10 +430,10 @@ const JourneyInbox: React.FC = () => {
                                 <Col xs={24} key={journey._id}>
                                     <Card
                                         hoverable
-                                        bordered={false}
+                                        variant="borderless"
                                         onClick={() => navigate(`/sale/dashboard/${journey._id}`)}
                                         style={{ borderRadius: 20 }}
-                                        bodyStyle={{ padding: 24 }}
+                                        styles={{ body: { padding: 24 } }}
                                     >
                                         <Row gutter={[16, 16]} align="middle">
                                             <Col xs={24} lg={16}>

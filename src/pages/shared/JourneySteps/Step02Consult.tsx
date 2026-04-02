@@ -248,7 +248,7 @@ export const Step02Consult: React.FC<Step02ConsultProps> = ({ journeyId, isEdita
                      'Chi tiết lịch hẹn'}
                 </span>
             } 
-            bordered={false} 
+            variant="borderless" 
             className="ky-card"
         >
             {activeMode === 'list' && renderList()}
@@ -259,3 +259,4 @@ export const Step02Consult: React.FC<Step02ConsultProps> = ({ journeyId, isEdita
 };
 
 export default Step02Consult;
+

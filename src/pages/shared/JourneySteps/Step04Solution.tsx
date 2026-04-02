@@ -190,7 +190,7 @@ export const Step04Solution: React.FC<Step04SolutionProps> = ({ journeyId, isEdi
     return (
         <Card 
             title={isEditing ? "Thực hiện: Xây Dựng Giải pháp & Dự toán" : "Chi tiết: Giải pháp & Dự toán"} 
-            bordered={false} 
+            variant="borderless" 
             className="ky-card"
             extra={isEditable && (
                 <Button 
@@ -442,3 +442,4 @@ export const Step04Solution: React.FC<Step04SolutionProps> = ({ journeyId, isEdi
 };
 
 export default Step04Solution;
+

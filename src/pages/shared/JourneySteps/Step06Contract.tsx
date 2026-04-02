@@ -119,7 +119,7 @@ export const Step06Contract: React.FC<Step06ContractProps> = ({ journeyId, isEdi
     return (
         <Card 
             title={isEditing ? "Thực hiện: Ký kết hợp đồng" : "Chi tiết bước: Ký kết hợp đồng"} 
-            bordered={false} 
+            variant="borderless" 
             className="ky-card"
             extra={isEditable && (
                 <Button 
@@ -146,3 +146,4 @@ export const Step06Contract: React.FC<Step06ContractProps> = ({ journeyId, isEdi
 };
 
 export default Step06Contract;
+

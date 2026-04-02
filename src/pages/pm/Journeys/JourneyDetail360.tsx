@@ -13,7 +13,8 @@ import {
     SendOutlined, ExclamationCircleOutlined, CheckCircleOutlined,
     ClockCircleOutlined, MessageOutlined, CloseCircleOutlined,
     TeamOutlined,
-    FormOutlined, PaperClipOutlined, EditOutlined, RocketOutlined, PlusOutlined
+    FormOutlined, PaperClipOutlined, EditOutlined, RocketOutlined, PlusOutlined,
+    AuditOutlined, ProjectOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
@@ -24,6 +25,7 @@ import { CreateSiteReportModal } from '../../../components/journey/CreateSiteRep
 import PortalDashboard from '../../../components/portal/PortalDashboard';
 import { journeyService } from '../../../services/core-contracts/services/journey.service';
 import { workTaskService } from '../../../services/core-contracts/services/workTask.service';
+import { siteReportService } from '../../../services/core-contracts/services/siteReport.service';
 import { customerJourneySettingService } from '../../../services/core-contracts/services/customerJourneySetting.service';
 import { employeeService } from '../../../services/core-contracts/services/employee.service';
 import { IJourney } from '../../../services/core-contracts/types/journey.types';
@@ -102,6 +104,7 @@ const JourneyDetail360: React.FC = () => {
     const [isDocModalOpen, setIsDocModalOpen] = useState(false);
     const [editingDoc, setEditingDoc] = useState<any>(null);
     const [selectedTaskStepCode, setSelectedTaskStepCode] = useState<string | null>(null);
+    const [reportCountByTask, setReportCountByTask] = useState<Record<string, number>>({});
 
     const fetchJourney = async () => {
         if (!journeyId) return;
@@ -136,10 +139,40 @@ const JourneyDetail360: React.FC = () => {
                 group: { id: 'journey_id', operation: 'eq', value: journeyId }
             } as any);
             setWorkTasks(res.data || []);
+            fetchReportCounts();
         } catch (error) {
             console.error('Failed to fetch work tasks:', error);
         } finally {
             setIsLoadingTasks(false);
+        }
+    };
+
+    const fetchReportCounts = async () => {
+        if (!journeyId) return;
+        try {
+            const res = await siteReportService.querySiteReportsDto({
+                group: { id: 'journey_id', operation: 'eq', value: journeyId }
+            } as any);
+            const counts: Record<string, number> = {};
+            res.data?.forEach(report => {
+                if (report.worktaskId) {
+                    counts[report.worktaskId] = (counts[report.worktaskId] || 0) + 1;
+                }
+            });
+            setReportCountByTask(counts);
+        } catch (error) {
+            console.error('Failed to fetch report counts:', error);
+        }
+    };
+
+    const handleStatusUpdate = async (taskId: string, newStatus: string) => {
+        try {
+            await workTaskService.updateWorkTask(taskId, { status: newStatus as any });
+            message.success('Đã cập nhật trạng thái công việc');
+            fetchWorkTasks();
+        } catch (error) {
+            console.error('Failed to update status:', error);
+            message.error('Lỗi khi cập nhật trạng thái');
         }
     };
 
@@ -155,8 +188,10 @@ const JourneyDetail360: React.FC = () => {
         };
 
         window.addEventListener('journey-tasks-updated', handleTaskRefresh);
+        window.addEventListener('journey-site-reports-updated', handleTaskRefresh);
         return () => {
             window.removeEventListener('journey-tasks-updated', handleTaskRefresh);
+            window.removeEventListener('journey-site-reports-updated', handleTaskRefresh);
         };
     }, [journeyId]);
 
@@ -536,7 +571,7 @@ const JourneyDetail360: React.FC = () => {
             </div>
 
             {/* Journey Header Card */}
-            <Card style={{ marginBottom: isMobile ? 8 : 16, borderRadius: 10, background: 'linear-gradient(135deg, #1e3a5f 0%, #1976D2 100%)', border: 'none' }}>
+            <Card variant="borderless" style={{ marginBottom: isMobile ? 8 : 16, borderRadius: 10, background: 'linear-gradient(135deg, #1e3a5f 0%, #1976D2 100%)' }}>
                 <Row gutter={24} align="middle">
                     <Col xs={24} md={16}>
                         <div style={{ marginBottom: 4 }}>
@@ -1055,9 +1090,31 @@ const JourneyDetail360: React.FC = () => {
                                     <Space wrap>
                                         <Text strong>{task.title || 'Công việc chưa đặt tên'}</Text>
                                         {task.is_required && <Tag color="red">Bắt buộc</Tag>}
-                                        <Tag color={TASK_STATUS_CONFIG[task.status || 'pending']?.color || 'default'}>
-                                            {TASK_STATUS_CONFIG[task.status || 'pending']?.label || task.status || 'Chưa rõ'}
-                                        </Tag>
+                                        <Select
+                                            size="small"
+                                            value={task.status || 'pending'}
+                                            onChange={(val) => handleStatusUpdate(task._id, val)}
+                                            style={{ minWidth: 100 }}
+                                            onClick={(e) => e.stopPropagation()}
+                                            options={[
+                                                { label: 'Chờ', value: 'pending' },
+                                                { label: 'Xong', value: 'finished' },
+                                                { label: 'Bỏ qua', value: 'skipped' },
+                                            ]}
+                                        />
+                                        {reportCountByTask[task._id] > 0 && (
+                                            <Badge 
+                                                count={reportCountByTask[task._id]} 
+                                                style={{ backgroundColor: '#1890ff', cursor: 'pointer' }}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setSearchParams({ tab: 'GRP_08_CONSTRUCT' });
+                                                    setSelectedTaskStepCode(null);
+                                                    setIsJourneyDrawerVisible(false);
+                                                }}
+                                                title="Xem báo cáo"
+                                            />
+                                        )}
                                     </Space>
                                 )}
                                 description={(
@@ -1069,14 +1126,14 @@ const JourneyDetail360: React.FC = () => {
                             />
                             <Button 
                                 type="link" 
-                                icon={<PlusOutlined />} 
+                                icon={<AuditOutlined />} 
                                 size="small"
                                 onClick={() => {
                                     setSelectedTaskForReport(task);
                                     setIsReportModalOpen(true);
                                 }}
                             >
-                                Tạo báo cáo
+                                Báo cáo
                             </Button>
                         </List.Item>
                     )}

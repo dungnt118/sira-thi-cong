@@ -172,7 +172,7 @@ export const Step10Payment: React.FC<Step10PaymentProps> = ({ journeyId, isEdita
     return (
         <Card 
             title={isEditing ? "Thực hiện: Quyết toán / Thanh lý" : "Chi tiết bước: Quyết toán / Thanh lý"} 
-            bordered={false} 
+            variant="borderless" 
             className="ky-card"
             extra={isEditable && (
                 <Button 
@@ -199,3 +199,4 @@ export const Step10Payment: React.FC<Step10PaymentProps> = ({ journeyId, isEdita
 };
 
 export default Step10Payment;
+

@@ -34,7 +34,7 @@ const StepMaterials: React.FC<StepMaterialsProps> = ({ journeyId, isEditable = f
 
     if (!materialDetail) {
         return (
-            <Card bordered={false}>
+            <Card variant="borderless">
                 <div style={{ textAlign: 'center', padding: '40px 0' }}>
                     <BoxPlotOutlined style={{ fontSize: 48, color: '#d9d9d9', marginBottom: 16 }} />
                     <Title level={5}>Chưa có thông tin vật tư</Title>
@@ -121,3 +121,4 @@ const StepMaterials: React.FC<StepMaterialsProps> = ({ journeyId, isEditable = f
 };
 
 export default StepMaterials;
+

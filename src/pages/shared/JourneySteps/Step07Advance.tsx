@@ -143,7 +143,7 @@ export const Step07Advance: React.FC<Step07AdvanceProps> = ({ journeyId, isEdita
     return (
         <Card 
             title={isEditing ? "Thực hiện: Tạm ứng / Đặt cọc" : "Chi tiết bước: Tạm ứng / Đặt cọc"} 
-            bordered={false} 
+            variant="borderless" 
             className="ky-card"
             extra={isEditable && (
                 <Button 
@@ -170,3 +170,4 @@ export const Step07Advance: React.FC<Step07AdvanceProps> = ({ journeyId, isEdita
 };
 
 export default Step07Advance;
+

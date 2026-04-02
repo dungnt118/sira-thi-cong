@@ -271,7 +271,7 @@ const OutboundForm: React.FC = () => {
                 <Col xs={24} md={8}>
                     <Card 
                         title="Thông tin tiếp nhận"
-                        bodyStyle={{ padding: isMobile ? '12px' : '24px' }}
+                        styles={{ body: { padding: isMobile ? '12px' : '24px' } }}
                     >
                         <Form form={form} layout="vertical">
                             <Form.Item 

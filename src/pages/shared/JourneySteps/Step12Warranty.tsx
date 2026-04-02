@@ -97,7 +97,7 @@ export const Step12Warranty: React.FC<Step12WarrantyProps> = ({ journeyId, isEdi
     return (
         <Card 
             title={isEditing ? "Thực hiện: Bảo hành / Sửa chữa" : "Chi tiết bước: Bảo hành / Sửa chữa"} 
-            bordered={false} 
+            variant="borderless" 
             className="ky-card"
             extra={isEditable && (
                 <Button 
@@ -124,3 +124,4 @@ export const Step12Warranty: React.FC<Step12WarrantyProps> = ({ journeyId, isEdi
 };
 
 export default Step12Warranty;
+

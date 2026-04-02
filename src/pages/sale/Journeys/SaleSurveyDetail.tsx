@@ -296,7 +296,7 @@ const SaleSurveyDetail: React.FC = () => {
                 Quay lại Hành trình
             </Button>
 
-            <Card style={{ marginBottom: 16, borderRadius: 8 }} bodyStyle={{ padding: '16px 24px' }}>
+            <Card variant="borderless" style={{ marginBottom: 16, borderRadius: 8 }} styles={{ body: { padding: '16px 24px' } }}>
                 <Row align="middle" justify="space-between">
                     <Col>
                         <Space size="large">
