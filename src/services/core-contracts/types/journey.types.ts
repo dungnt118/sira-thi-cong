@@ -1,6 +1,5 @@
-import type { HeadlessReferenceContent, IndexedContentItem } from 'types/apis';
-import type { ApiListResponse, ApiResponse } from 'types/apis/ApiResponse';
-import type { HeadlessFileUpload } from 'types/apis/HeadlessFileUpload';
+import type { IndexedContentItem } from 'types/apis';
+import type { ApiListResponse } from 'types/apis/ApiResponse';
 
 /**
  * Journey interface

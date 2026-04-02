@@ -1,16 +1,17 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import dayjs from 'dayjs';
 import {
     Card, Tabs, Tag, Button, Space, Typography, Row, Col,
     Badge, Statistic, Timeline, Descriptions, Modal, Drawer,
     Form, Select, Alert, Checkbox, message, Steps, Empty,
-    DatePicker, Input, Grid
+    DatePicker, Input, Grid, List
 } from 'antd';
 import {
     CalendarOutlined, FileSearchOutlined, CalculatorOutlined, FileTextOutlined,
     BoxPlotOutlined, DollarOutlined,
     ArrowLeftOutlined, UserOutlined, FlagOutlined,
     SendOutlined, ExclamationCircleOutlined, CheckCircleOutlined,
-    ClockCircleOutlined, MessageOutlined,
+    ClockCircleOutlined, MessageOutlined, CloseCircleOutlined,
     TeamOutlined,
     FormOutlined, PaperClipOutlined, EditOutlined, RocketOutlined
 } from '@ant-design/icons';
@@ -25,6 +26,7 @@ import { workTaskService } from '../../../services/core-contracts/services/workT
 import { customerJourneySettingService } from '../../../services/core-contracts/services/customerJourneySetting.service';
 import { employeeService } from '../../../services/core-contracts/services/employee.service';
 import { IJourney } from '../../../services/core-contracts/types/journey.types';
+import { IWorkTask } from '../../../services/core-contracts/types/workTask.types';
 import { AuthorizedUserSelect } from '../../../components/authorizedusers/AuthorizedUser';
 import { mockJourneyTemplates } from '../../../data/journeyMockData';
 import type { GoNoGoStatus, SlaStatus, PortalPublishStatus } from '../../../types/journey';
@@ -35,10 +37,10 @@ const { TextArea } = Input;
 
 const GO_NO_GO_CONFIG: Record<GoNoGoStatus, { label: string; color: string }> = {
     draft: { label: 'Nháp', color: 'default' },
-    go: { label: 'GO ✓', color: 'success' },
-    no_go: { label: 'NO-GO ✗', color: 'error' },
+    go: { label: 'Tiếp tục ✓', color: 'success' },
+    no_go: { label: 'Dừng ✗', color: 'error' },
     on_hold: { label: 'Tạm hoãn', color: 'warning' },
-    pending: { label: 'Chờ xét', color: 'processing' },
+    pending: { label: 'Chờ duyệt', color: 'processing' },
 };
 const SLA_CONFIG: Record<SlaStatus, { label: string; color: string }> = {
     ontime: { label: 'Đúng hạn', color: 'success' },
@@ -51,6 +53,38 @@ const PORTAL_CONFIG: Record<PortalPublishStatus, { label: string; color: string 
     published: { label: 'Đã publish', color: 'success' },
 };
 
+const HEADER_STEP_CONFIG = [
+    { key: 'lead_intake', label: 'Tiếp nhận' },
+    { key: 'qualification', label: 'Thẩm định' },
+    { key: 'survey_planning', label: 'Lập lịch KS' },
+    { key: 'site_survey', label: 'Khảo sát' },
+    { key: 'survey_review', label: 'Duyệt KS' },
+    { key: 'estimate_preparation', label: 'Lập dự toán' },
+    { key: 'quotation_preparation', label: 'Lập báo giá' },
+    { key: 'quotation_sent', label: 'Gửi báo giá' },
+    { key: 'quotation_approved', label: 'Khách duyệt' },
+    { key: 'contract_signing', label: 'Ký hợp đồng' },
+    { key: 'project_execution', label: 'Thi công' },
+    { key: 'handover_acceptance', label: 'Nghiệm thu' },
+    { key: 'warranty_aftercare', label: 'Bảo hành' }
+] as const;
+
+const TASK_STATUS_CONFIG: Record<string, { label: string; color: string }> = {
+    pending: { label: 'Chờ', color: 'orange' },
+    finished: { label: 'Xong', color: 'success' },
+    skipped: { label: 'Bỏ qua', color: 'error' }
+};
+
+const toUserList = (value: unknown): string[] => {
+    if (!value) {
+        return [];
+    }
+
+    return Array.isArray(value)
+        ? value.filter((item): item is string => Boolean(item)).map((item) => String(item))
+        : [String(value)];
+};
+
 const JourneyDetail360: React.FC = () => {
     const { journeyId } = useParams<{ journeyId: string }>();
     const [searchParams, setSearchParams] = useSearchParams();
@@ -61,9 +95,12 @@ const JourneyDetail360: React.FC = () => {
     const [journey, setJourney] = useState<IJourney | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [employees, setEmployees] = useState<{ label: string; value: string }[]>([]);
+    const [workTasks, setWorkTasks] = useState<IWorkTask[]>([]);
+    const [isLoadingTasks, setIsLoadingTasks] = useState(false);
 
     const [isDocModalOpen, setIsDocModalOpen] = useState(false);
     const [editingDoc, setEditingDoc] = useState<any>(null);
+    const [selectedTaskStepCode, setSelectedTaskStepCode] = useState<string | null>(null);
 
     const fetchJourney = async () => {
         if (!journeyId) return;
@@ -90,15 +127,42 @@ const JourneyDetail360: React.FC = () => {
         }
     };
 
+    const fetchWorkTasks = async () => {
+        if (!journeyId) return;
+        setIsLoadingTasks(true);
+        try {
+            const res = await workTaskService.queryWorkTasksDto({
+                filter: { journey_id: { _eq: journeyId } }
+            } as any);
+            setWorkTasks(res.data || []);
+        } catch (error) {
+            console.error('Failed to fetch work tasks:', error);
+        } finally {
+            setIsLoadingTasks(false);
+        }
+    };
+
     useEffect(() => {
         fetchJourney();
         fetchEmployees();
+        fetchWorkTasks();
+    }, [journeyId]);
+
+    useEffect(() => {
+        const handleTaskRefresh = () => {
+            fetchWorkTasks();
+        };
+
+        window.addEventListener('journey-tasks-updated', handleTaskRefresh);
+        return () => {
+            window.removeEventListener('journey-tasks-updated', handleTaskRefresh);
+        };
     }, [journeyId]);
 
     // Resolve template/steps
     const template = mockJourneyTemplates.find(t => t.id === 'default') || mockJourneyTemplates[0];
     const journeySteps = template?.steps || [];
-    const currentStepIndex = journeySteps.findIndex(s => s.step_code === journey?.current_step);
+    const currentHeaderStepIndex = HEADER_STEP_CONFIG.findIndex((step) => step.key === journey?.current_step);
 
     const [showAssignModal, setShowAssignModal] = useState(false);
     const [showPriorityModal, setShowPriorityModal] = useState(false);
@@ -113,7 +177,7 @@ const JourneyDetail360: React.FC = () => {
     const [priorityForm] = Form.useForm();
     const [followUpForm] = Form.useForm();
     const [modal, modalContextHolder] = Modal.useModal();
-    
+
     /** Xử lý khởi tạo nhiệm vụ hàng loạt theo cấu hình */
     const handleInitializeTasks = () => {
         console.log("handleInitializeTasks triggered");
@@ -136,7 +200,7 @@ const JourneyDetail360: React.FC = () => {
 
                     // 2. Clear old tasks for this journey
                     const res = await workTaskService.queryWorkTasksDto({
-                        idx_journey_id: { _id: { _eq: journeyId } }
+                        group: { id: 'journey_id', operation: 'eq', value: journeyId }
                     } as any);
                     if (res?.data?.length) {
                         console.log(`Found ${res.data.length} tasks to delete`);
@@ -234,6 +298,55 @@ const JourneyDetail360: React.FC = () => {
         };
     }, [role, isAdmin, journeySteps]);
 
+    const taskCountByStep = useMemo(() => {
+        return workTasks.reduce<Record<string, number>>((accumulator, task) => {
+            if (!task.journey_step_code) {
+                return accumulator;
+            }
+
+            accumulator[task.journey_step_code] = (accumulator[task.journey_step_code] || 0) + 1;
+            return accumulator;
+        }, {});
+    }, [workTasks]);
+
+    const selectedStepMeta = useMemo(
+        () => HEADER_STEP_CONFIG.find((step) => step.key === selectedTaskStepCode) || null,
+        [selectedTaskStepCode]
+    );
+
+    const selectedStepTasks = useMemo(
+        () => workTasks.filter((task) => task.journey_step_code === selectedTaskStepCode),
+        [selectedTaskStepCode, workTasks]
+    );
+
+    const openTaskModal = (stepCode: string) => {
+        setSelectedTaskStepCode(stepCode);
+    };
+
+    const renderAssignmentTags = (users: string[], emptyText: string = 'Chưa gán') => {
+        if (users.length === 0) {
+            return <Text style={{ color: 'rgba(255,255,255,0.72)' }}>{emptyText}</Text>;
+        }
+
+        return (
+            <Space size={[6, 6]} wrap>
+                {users.map((user) => (
+                    <Tag
+                        key={user}
+                        style={{
+                            marginInlineEnd: 0,
+                            background: 'rgba(255,255,255,0.14)',
+                            borderColor: 'rgba(255,255,255,0.18)',
+                            color: '#fff'
+                        }}
+                    >
+                        {user}
+                    </Tag>
+                ))}
+            </Space>
+        );
+    };
+
     if (!journey) {
         return (
             <div style={{ padding: 40, textAlign: 'center' }}>
@@ -255,7 +368,10 @@ const JourneyDetail360: React.FC = () => {
                 journeyId={journey._id}
                 isEditable={isEditable}
                 canFinalize={isFinalizable}
-                onRefresh={fetchJourney}
+                onRefresh={() => {
+                    fetchJourney();
+                    fetchWorkTasks();
+                }}
             />
         );
     };
@@ -379,9 +495,9 @@ const JourneyDetail360: React.FC = () => {
                 </Button>
                 {(role === 'pm' || isAdmin) && (
                     <Space size={isMobile ? 4 : 8} wrap={isMobile}>
-                        {(currentStepIndex < 0 || currentStepIndex < 5) && (
-                            <Button 
-                                icon={<RocketOutlined />} 
+                        {(currentHeaderStepIndex < 0 || currentHeaderStepIndex < 5) && (
+                            <Button
+                                icon={<RocketOutlined />}
                                 onClick={handleInitializeTasks}
                                 loading={isSubmitting}
                             >
@@ -414,14 +530,22 @@ const JourneyDetail360: React.FC = () => {
                         </div>
                         <Title level={4} style={{ color: '#fff', margin: '4px 0' }}>{journey.idx_customer_id?.title || journey.customer_full_name || 'Khách hàng ẩn danh'}</Title>
                         <Text style={{ color: 'rgba(255,255,255,0.8)' }}>{journey.request_title}</Text>
-                        <div style={{ marginTop: 8 }}>
-                            <Space size="large">
-                                <UserOutlined style={{ color: 'rgba(255,255,255,0.8)' }} />
-                                <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13 }}>
-                                    Phụ trách: <Text strong style={{ color: '#fff' }}>{journey.supervisor_name || 'Chưa gán'}</Text>
+                        
+                        <div style={{ marginTop: 12 }}>
+                            <Space size="middle">
+                                <CalendarOutlined style={{ color: 'rgba(255,255,255,0.6)' }} />
+                                <Text style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13 }}>
+                                    Kế hoạch: <Text strong style={{ color: '#fff', marginLeft: 4 }}>
+                                        {journey.planned_start_date ? dayjs(journey.planned_start_date).format('DD/MM/YYYY') : 'Chưa định ngày'}
+                                    </Text>
+                                    <Text style={{ margin: '0 8px', color: 'rgba(255,255,255,0.4)' }}>➔</Text>
+                                    <Text strong style={{ color: '#fff' }}>
+                                        {journey.planned_end_date ? dayjs(journey.planned_end_date).format('DD/MM/YYYY') : 'Chưa định ngày'}
+                                    </Text>
                                 </Text>
                             </Space>
                         </div>
+
                     </Col>
                     <Col xs={24} md={8} style={{ textAlign: isMobile ? 'left' : 'right' }}>
                         <Space wrap>
@@ -435,13 +559,68 @@ const JourneyDetail360: React.FC = () => {
                     </Col>
                 </Row>
 
-                {journeySteps.length > 0 && !isMobile && (
+                <div
+                    style={{
+                        marginTop: 16,
+                        padding: isMobile ? 12 : 16,
+                        borderRadius: 12,
+                        background: 'rgba(255,255,255,0.08)',
+                        border: '1px solid rgba(255,255,255,0.12)'
+                    }}
+                >
+                    <Space style={{ marginBottom: 12 }}>
+                        <TeamOutlined style={{ color: '#fff' }} />
+                        <Text strong style={{ color: '#fff' }}>Điều phối nhân sự</Text>
+                    </Space>
+
+                    <Row gutter={[16, 12]}>
+                        <Col xs={24} sm={12} lg={6}>
+                            <Text style={{ color: 'rgba(255,255,255,0.68)', display: 'block', marginBottom: 6 }}>PM</Text>
+                            {renderAssignmentTags(toUserList(journey.pm_user))}
+                        </Col>
+                        <Col xs={24} sm={12} lg={6}>
+                            <Text style={{ color: 'rgba(255,255,255,0.68)', display: 'block', marginBottom: 6 }}>Giám sát</Text>
+                            {renderAssignmentTags(toUserList(journey.supervisor_users))}
+                        </Col>
+                        <Col xs={24} sm={12} lg={6}>
+                            <Text style={{ color: 'rgba(255,255,255,0.68)', display: 'block', marginBottom: 6 }}>Kỹ thuật</Text>
+                            {renderAssignmentTags(toUserList(journey.technical_users))}
+                        </Col>
+                        <Col xs={24} sm={12} lg={6}>
+                            <Text style={{ color: 'rgba(255,255,255,0.68)', display: 'block', marginBottom: 6 }}>Ghi chú bàn giao</Text>
+                            <Text style={{ color: '#fff' }}>{journey.delivery_note || 'Chưa có ghi chú'}</Text>
+                        </Col>
+                    </Row>
+                </div>
+
+                {HEADER_STEP_CONFIG.length > 0 && !isMobile && (
                     <div style={{ marginTop: 24, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.1)', overflowX: 'auto' }}>
                         <Steps
                             size="small"
-                            current={currentStepIndex >= 0 ? currentStepIndex : 0}
-                            items={journeySteps.map(s => ({
-                                title: <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: 12, whiteSpace: 'nowrap' }}>{s.step_name}</span>,
+                            current={currentHeaderStepIndex >= 0 ? currentHeaderStepIndex : 0}
+                            onChange={(index) => {
+                                const step = HEADER_STEP_CONFIG[index];
+                                if (step) {
+                                    openTaskModal(step.key);
+                                }
+                            }}
+                            items={HEADER_STEP_CONFIG.map((step) => ({
+                                title: (
+                                    <Space size={6}>
+                                        <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: 12, whiteSpace: 'nowrap' }}>
+                                            {step.label}
+                                        </span>
+                                        <Badge
+                                            count={taskCountByStep[step.key] || 0}
+                                            overflowCount={99}
+                                            style={{
+                                                backgroundColor: taskCountByStep[step.key] ? '#52c41a' : 'rgba(255,255,255,0.25)',
+                                                color: '#fff',
+                                                boxShadow: 'none'
+                                            }}
+                                        />
+                                    </Space>
+                                )
                             }))}
                             className="journey-dark-steps"
                         />
@@ -523,10 +702,11 @@ const JourneyDetail360: React.FC = () => {
                             assignForm.validateFields().then(async values => {
                                 setIsSubmitting(true);
                                 try {
-                                    await journeyService.updateJourney(journey._id, { 
+                                    await journeyService.updateJourney(journey._id, {
                                         pm_user: values.pm_user,
                                         supervisor_users: values.supervisor_users,
-                                        technical_users: values.technical_users
+                                        technical_users: values.technical_users,
+                                        delivery_note: values.delivery_note
                                     });
                                     message.success("Đã phân công nhân sự!");
                                     setShowAssignModal(false);
@@ -542,7 +722,8 @@ const JourneyDetail360: React.FC = () => {
                         <Form form={assignForm} layout="vertical" initialValues={{
                             pm_user: journey.pm_user,
                             supervisor_users: journey.supervisor_users,
-                            technical_users: journey.technical_users
+                            technical_users: journey.technical_users,
+                            delivery_note: journey.delivery_note
                         }}>
                             <Form.Item label="Quản lý dự án (PM)" name="pm_user">
                                 <AuthorizedUserSelect allowMultiple={false} placeholder="Chọn PM" />
@@ -552,6 +733,9 @@ const JourneyDetail360: React.FC = () => {
                             </Form.Item>
                             <Form.Item label="Kỹ thuật (Technical)" name="technical_users">
                                 <AuthorizedUserSelect allowMultiple={true} placeholder="Chọn Kỹ thuật" />
+                            </Form.Item>
+                            <Form.Item label="Ghi chú bàn giao/phối hợp" name="delivery_note">
+                                <TextArea rows={3} placeholder="Nhập ghi chú cho đội ngũ thực hiện..." />
                             </Form.Item>
                         </Form>
                     </Modal>
@@ -714,6 +898,50 @@ const JourneyDetail360: React.FC = () => {
                     </Drawer>
                 </>
             )}
+
+            <Modal
+                title={selectedStepMeta ? `Danh sách công việc: ${selectedStepMeta.label}` : 'Danh sách công việc'}
+                open={Boolean(selectedTaskStepCode)}
+                onCancel={() => setSelectedTaskStepCode(null)}
+                footer={null}
+                width={720}
+            >
+                <List
+                    loading={isLoadingTasks}
+                    dataSource={selectedStepTasks}
+                    locale={{ emptyText: <Empty description="Chưa có công việc nào ở bước này" /> }}
+                    renderItem={(task) => (
+                        <List.Item>
+                            <List.Item.Meta
+                                avatar={
+                                    task.status === 'finished' ? (
+                                        <CheckCircleOutlined style={{ color: '#52c41a', fontSize: 18 }} />
+                                    ) : task.status === 'skipped' ? (
+                                        <CloseCircleOutlined style={{ color: '#ff4d4f', fontSize: 18 }} />
+                                    ) : (
+                                        <ClockCircleOutlined style={{ color: '#faad14', fontSize: 18 }} />
+                                    )
+                                }
+                                title={(
+                                    <Space wrap>
+                                        <Text strong>{task.title || 'Công việc chưa đặt tên'}</Text>
+                                        {task.is_required && <Tag color="red">Bắt buộc</Tag>}
+                                        <Tag color={TASK_STATUS_CONFIG[task.status || 'pending']?.color || 'default'}>
+                                            {TASK_STATUS_CONFIG[task.status || 'pending']?.label || task.status || 'Chưa rõ'}
+                                        </Tag>
+                                    </Space>
+                                )}
+                                description={(
+                                    <Space direction="vertical" size={2}>
+                                        <Text type="secondary">{task.description || 'Chưa có mô tả'}</Text>
+                                        {task.note && <Text type="secondary">Ghi chú: {task.note}</Text>}
+                                    </Space>
+                                )}
+                            />
+                        </List.Item>
+                    )}
+                />
+            </Modal>
 
             <CreateJourneyDocumentModal
                 open={showCreateDocModal}

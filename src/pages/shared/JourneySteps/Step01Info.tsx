@@ -1,16 +1,15 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
     Card, Form, Input, Button, Space, Typography, Row, Col, 
-    Descriptions, Tag, message, Divider, Select, Alert, Empty, 
-    Avatar, Collapse, List, Badge, Modal 
+    Descriptions, Tag, message, Divider, Select, Empty,
+    Avatar, Collapse, List, Badge, Modal, DatePicker 
 } from 'antd';
+import dayjs from 'dayjs';
 import { 
-    SaveOutlined, EditOutlined, EyeOutlined, UserOutlined, PhoneOutlined, 
-    MailOutlined, HomeOutlined, LoadingOutlined, InfoCircleOutlined, 
-    EnvironmentOutlined, ToolOutlined, ShareAltOutlined, CalendarOutlined,
-    FlagOutlined, RocketOutlined, FormOutlined, TeamOutlined,
+    SaveOutlined, EditOutlined, EyeOutlined, UserOutlined, HomeOutlined,
+    LoadingOutlined, InfoCircleOutlined, EnvironmentOutlined, FlagOutlined, RocketOutlined, TeamOutlined,
     CheckCircleOutlined, ClockCircleOutlined, CloseCircleOutlined, UnorderedListOutlined,
-    PaperClipOutlined, FileTextOutlined
+    PaperClipOutlined, FileTextOutlined, CalendarOutlined
 } from '@ant-design/icons';
 import { journeyService } from '../../../services/core-contracts/services/journey.service';
 import { customerService } from '../../../services/core-contracts/services/customer.service';
@@ -131,6 +130,10 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                     });
                 }
                 
+                // Convert date strings to dayjs for form binding
+                if (journey.planned_start_date) combinedData.planned_start_date = dayjs(journey.planned_start_date);
+                if (journey.planned_end_date) combinedData.planned_end_date = dayjs(journey.planned_end_date);
+
                 // Use a small delay or ensure component is rendered to avoid "form not connected" warning
                 setTimeout(() => {
                     form.setFieldsValue(combinedData);
@@ -149,7 +152,7 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
         try {
             console.log("Fetching tasks for journey:", journeyId);
             const res = await workTaskService.queryWorkTasksDto({
-                idx_journey_id: { _id: { _eq: journeyId } }
+                group: { id: 'journey_id', operation: 'eq', value: journeyId }
             } as any);
             if (res.data) {
                 console.log(`Fetched ${res.data.length} tasks`);
@@ -166,7 +169,7 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
         setIsLoadingDocs(true);
         try {
             const res = await journeyDocumentService.queryJourneyDocumentsDto({
-                idx_journey_id: { _id: { _eq: journeyId } }
+                group: { id: 'journey_id', operation: 'eq', value: journeyId }
             } as any);
             if (res.data) {
                 setDocuments(res.data);
@@ -209,12 +212,10 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                 priority: values.priority,
                 request_description: values.request_description,
                 customer_province: values.city,
-                pm_user: values.pm_user,
-                supervisor_users: values.supervisor_users,
-                technical_users: values.technical_users,
-                delivery_note: values.delivery_note,
                 go_no_go_status: values.go_no_go_status,
                 project_status: values.project_status,
+                planned_start_date: values.planned_start_date ? (typeof values.planned_start_date === 'string' ? values.planned_start_date : values.planned_start_date.toISOString()) : null,
+                planned_end_date: values.planned_end_date ? (typeof values.planned_end_date === 'string' ? values.planned_end_date : values.planned_end_date.toISOString()) : null,
             };
             
             await journeyService.updateJourney(journeyId, journeyUpdate);
@@ -307,6 +308,18 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                             <Form.Item label="Ưu tiên" name="priority">
                                 <Select options={Object.entries(PRIORITY_CONFIG).map(([k, v]) => ({ value: k, label: v.label }))} />
                             </Form.Item>
+                            <Row gutter={12}>
+                                <Col span={12}>
+                                    <Form.Item label="Ngày bắt đầu (Dự kiến)" name="planned_start_date">
+                                        <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" placeholder="Chọn ngày" />
+                                    </Form.Item>
+                                </Col>
+                                <Col span={12}>
+                                    <Form.Item label="Ngày kết thúc (Dự kiến)" name="planned_end_date">
+                                        <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" placeholder="Chọn ngày" />
+                                    </Form.Item>
+                                </Col>
+                            </Row>
                             <Form.Item label="Địa chỉ thi công" name="site_address">
                                 <Input prefix={<EnvironmentOutlined />} />
                             </Form.Item>
@@ -352,7 +365,7 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                             </Form.Item>
                         </Col>
 
-                        <Col span={24}>
+                        <Col span={24} style={{ display: 'none' }}>
                             <Divider orientation="left" plain><TeamOutlined /> Điều phối nhân sự</Divider>
                             <Row gutter={24}>
                                 <Col xs={24} md={8}>
@@ -396,6 +409,29 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                                 </Button>
                             </Space>
                         </Col>
+
+                        <Col span={24}>
+                            <Divider orientation="left" plain><FlagOutlined /> Trạng thái điều hành</Divider>
+                            <Row gutter={24}>
+                                <Col xs={24} md={12}>
+                                    <Form.Item label="Trạng thái Go/No-Go" name="go_no_go_status">
+                                        <Select options={Object.entries(GO_NO_GO_CONFIG).map(([k, v]) => ({ value: k, label: v.label }))} />
+                                    </Form.Item>
+                                </Col>
+                                <Col xs={24} md={12}>
+                                    <Form.Item label="Trạng thái triển khai" name="project_status">
+                                        <Select options={Object.entries(PROJECT_STATUS_CONFIG).map(([k, v]) => ({ value: k, label: v.label }))} />
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+
+                            <Space style={{ width: '100%', justifyContent: 'flex-end', marginTop: 16 }}>
+                                <Button onClick={() => { setIsEditing(false); onEditStateChange?.(false); }}>Hủy</Button>
+                                <Button type="primary" htmlType="submit" icon={<SaveOutlined />} loading={isLoading}>
+                                    Lưu thay đổi
+                                </Button>
+                            </Space>
+                        </Col>
                     </Row>
                 ) : (
                     <>
@@ -417,13 +453,26 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                                     <Descriptions.Item label="Triển khai">
                                         <Tag color={PROJECT_STATUS_CONFIG[journeyData.project_status || '']?.color}>{PROJECT_STATUS_CONFIG[journeyData.project_status || '']?.label || '—'}</Tag>
                                     </Descriptions.Item>
+                                    <Descriptions.Item label="Thời gian dự kiến">
+                                        <Space split={<Text type="secondary">➔</Text>}>
+                                            <Space size={4}>
+                                                <CalendarOutlined style={{ color: '#1890ff', fontSize: 12 }} />
+                                                <Text>{journeyData.planned_start_date ? dayjs(journeyData.planned_start_date).format('DD/MM/YYYY') : '—'}</Text>
+                                            </Space>
+                                            <Space size={4}>
+                                                <CalendarOutlined style={{ color: '#52c41a', fontSize: 12 }} />
+                                                <Text>{journeyData.planned_end_date ? dayjs(journeyData.planned_end_date).format('DD/MM/YYYY') : '—'}</Text>
+                                            </Space>
+                                        </Space>
+                                    </Descriptions.Item>
                                     <Descriptions.Item label="Mô tả">
                                         <div style={{ whiteSpace: 'pre-wrap', color: '#666', minHeight: 40 }}>{journeyData.request_description || '...'}</div>
                                     </Descriptions.Item>
                                 </Descriptions>
 
+                                <div style={{ display: 'none' }}>
                                 <Divider orientation="left" plain style={{ marginTop: 24 }}><TeamOutlined /> Điều phối nhân sự</Divider>
-                                <Descriptions bordered size="small" column={1}>
+                                <Descriptions bordered size="small" column={1} style={{ display: 'none' }}>
                                     <Descriptions.Item label="PM">
                                         {journeyData.pm_user ? <Typography.Text>{journeyData.pm_user}</Typography.Text> : '—'}
                                     </Descriptions.Item>
@@ -437,6 +486,7 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                                         <div style={{ color: '#888', fontStyle: 'italic' }}>{journeyData.delivery_note || 'Chưa gán'}</div>
                                     </Descriptions.Item>
                                 </Descriptions>
+                                </div>
                             </Col>
                             
                             <Col xs={24} lg={12}>

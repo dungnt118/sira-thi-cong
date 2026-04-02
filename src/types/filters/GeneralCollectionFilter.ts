@@ -6,8 +6,7 @@ export interface GeneralCollectionFilter {
     limit?: number;
     group?: GroupQueryFilter;
     withRecords?: boolean;
-    text?: string|null|undefined;
+    text?: string | null | undefined;
     sorted?: Array<QueryOrder>;
-    /** Điều kiện theo field (GeneralCollectionFilterInput phía GraphQL) */
-    filter?: Record<string, unknown>;
+
 } 

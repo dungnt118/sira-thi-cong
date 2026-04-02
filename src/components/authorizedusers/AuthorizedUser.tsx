@@ -1,10 +1,10 @@
 import { gql } from '@apollo/client';
 import { Avatar, Empty, Popover, Select, Space, Spin, Tag, Typography } from 'antd';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { queryList } from '../../services/graphqlService';
 import { getFileLink } from '../../services/storeService';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import type { AuthorizationPolicy } from '../../types/auth/AuthorizationPolicy';
 import type { ApiListResponse } from '../../types/apis/ApiResponse';
+import type { AuthorizationPolicy } from '../../types/auth/AuthorizationPolicy';
 import type { PropDefinition } from '../../types/schemas/PropDefinition';
 import './AuthorizedUser.css';
 
