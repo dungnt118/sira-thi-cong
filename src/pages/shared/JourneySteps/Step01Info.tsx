@@ -29,8 +29,10 @@ import {
     classifyJourneyFile,
     getJourneyFileDisplayName,
     resolveJourneyFileHref,
+    resolvePdfPreviewHref,
     type JourneyFileKind,
 } from '../../../utils/journeyDocumentFileDisplay';
+import { PdfViewer } from '../../../components/common/PdfViewer';
 import type { HeadlessFileUpload } from 'types/apis/HeadlessFileUpload';
 
 const { TextArea } = Input;
@@ -335,7 +337,10 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
     }, [documents]);
 
     const openFilePreview = (file: HeadlessFileUpload) => {
-        const url = resolveJourneyFileHref(file);
+        const url = classifyJourneyFile(file) === 'pdf' 
+            ? resolvePdfPreviewHref(file) 
+            : resolveJourneyFileHref(file);
+            
         if (!url) {
             message.warning('Không phân giải được đường dẫn file (cần file_id / file_path hoặc URL hợp lệ, không dùng blob).');
             return;
@@ -847,15 +852,10 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                 }
             >
                 {filePreview?.kind === 'pdf' && filePreview.url ? (
-                    <iframe
+                    <PdfViewer
+                        url={filePreview.url}
                         title={filePreview.name}
-                        src={filePreview.url}
-                        style={{
-                            width: '100%',
-                            height: '72vh',
-                            border: '1px solid #f0f0f0',
-                            borderRadius: 8,
-                        }}
+                        height="72vh"
                     />
                 ) : null}
                 {filePreview?.kind === 'image' && filePreview.url ? (
