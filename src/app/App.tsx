@@ -53,7 +53,8 @@ import InventoryCatalog from '../pages/pm/Inventory/InventoryCatalog';
 // PM Journey Pages
 import JourneyList from '../pages/pm/Journeys/JourneyList';
 import JourneyBoard from '../pages/pm/Journeys/JourneyBoard';
-import JourneyDetail360 from '../pages/pm/Journeys/JourneyDetail360';
+// Shared Journey Detail (used by all roles)
+import JourneyDetail360 from '../pages/shared/Journeys/JourneyDetail360';
 import ActionCenter from '../pages/pm/Journeys/ActionCenter';
 import CustomerJourneySettingPage from '../pages/pm/Settings/CustomerJourneySettingPage';
 import EstimateTemplateList from '../pages/pm/Settings/EstimateTemplateList';
@@ -108,7 +109,6 @@ import {
     Schedule as KTSchedule,
     SurveyForm as KTSurveyForm,
     Execution as KTExecution,
-    JourneyDetail as KTJourneyDetail
 } from '../pages/ky-thuat';
 
 // V3 Public Pages
@@ -261,6 +261,8 @@ function App() {
                                 <Route path="surveys" element={<SurveyCoordination />} />
                                 <Route path="communications" element={<CommunicationsCenter />} />
                                 <Route path="dashboard/:journeyId" element={<SaleJourneyDetail />} />
+                                {/* Unified journey detail for Sale */}
+                                <Route path="journeys/:journeyId" element={<JourneyDetail360 />} />
                                 <Route path="dashboard/:journeyId/surveys/:surveyId" element={<SaleSurveyDetail />} />
                                 <Route path="inventory/stock-out" element={<OutboundForm />} />
                                 <Route path="inventory/history" element={<InventoryHistory />} />
@@ -277,7 +279,8 @@ function App() {
                                 <Route path="incident" element={<SupervisorIncidentReport />} />
                                 <Route path="materials" element={<MaterialReceipt />} />
                                 <Route path="profile" element={<GiamSatProfile />} />
-                                <Route path="journeys/:id" element={<KTJourneyDetail />} />
+                                {/* Unified journey detail for Supervisor */}
+                                <Route path="journeys/:journeyId" element={<JourneyDetail360 />} />
                                 <Route path="diary/:projectId" element={<ProjectDiary />} />
                                 <Route path="inventory/stock-out" element={<OutboundForm />} />
                                 <Route path="inventory/stock-in" element={<InboundForm />} />
@@ -314,6 +317,8 @@ function App() {
                                     <Route path="schedule" element={<ComingSoon title="Lịch Bảo hành" />} />
                                 </Route>
                                 <Route path="reports" element={<ComingSoon title="Báo cáo Tổng hợp" />} />
+                                {/* Unified journey detail for Accountant */}
+                                <Route path="journeys/:journeyId" element={<JourneyDetail360 />} />
                             </Route>
 
                             {/* ===== KỸ THUẬT ROUTES (V4) ===== */}
@@ -323,7 +328,8 @@ function App() {
                                 <Route path="schedule" element={<KTSchedule />} />
                                 <Route path="survey/:id" element={<KTSurveyForm />} />
                                 <Route path="execution" element={<KTExecution />} />
-                                <Route path="journeys/:id" element={<KTJourneyDetail />} />
+                                {/* Unified journey detail for Kỹ thuật */}
+                                <Route path="journeys/:journeyId" element={<JourneyDetail360 />} />
                                 <Route path="profile" element={<ComingSoon title="Hồ sơ Kỹ thuật" />} />
                                 <Route path="inventory/stock-out" element={<OutboundForm />} />
                                 <Route path="inventory/history" element={<InventoryHistory />} />

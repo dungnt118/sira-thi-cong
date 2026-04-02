@@ -1,3 +1,10 @@
+/**
+ * @deprecated
+ * Giao diện chi tiết Journey dành riêng cho Kỹ thuật đã được hợp nhất vào
+ * `src/pages/shared/Journeys/JourneyDetail360.tsx`.
+ * Route mới: `/ky-thuat/journeys/:journeyId` và `/supervisor/journeys/:journeyId`.
+ * File này không còn được sử dụng trong routing chính.
+ */
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
     Button, Card, Typography, Space, Row, Col, 

@@ -1,3 +1,10 @@
+/**
+ * @deprecated
+ * Giao diện chi tiết Journey dành riêng cho Sale đã được hợp nhất vào
+ * `src/pages/shared/Journeys/JourneyDetail360.tsx`.
+ * Route mới cho Sale: `/sale/journeys/:journeyId`.
+ * File này giữ lại route cũ `/sale/dashboard/:journeyId` để backward-compatibility.
+ */
 import React, { useEffect, useState } from 'react';
 import {
     Button,
