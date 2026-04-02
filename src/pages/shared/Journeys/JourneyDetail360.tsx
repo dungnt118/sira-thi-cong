@@ -241,12 +241,13 @@ const JourneyDetail360: React.FC = () => {
                         return;
                     }
 
-                    // 2. Clear old tasks for this journey
+                    // 2. Clear old tasks for this journey (using high limit to ensure all are found)
                     const res = await workTaskService.queryContent({
-                        group: { id: 'journey_id', operation: 'eq', value: journeyId }
+                        group: { id: 'journey_id', operation: 'eq', value: journeyId },
+                        limit: 200
                     } as any);
                     if (res?.data?.length) {
-                        console.log(`Found ${res.data.length} tasks to delete`);
+                        console.log(`Found ${res.data.length} old tasks to delete`);
                         await workTaskService.deleteMultiWorkTask(res.data.map(t => t._id));
                     }
 
@@ -267,25 +268,30 @@ const JourneyDetail360: React.FC = () => {
                         { code: 'warranty_aftercare', data: setting.warranty_aftercare },
                     ];
 
-                    let createdCount = 0;
+                    const tasksToCreate: any[] = [];
                     for (const stage of stages) {
                         if (stage.data?.is_enabled && stage.data.checklist?.length) {
                             for (const item of stage.data.checklist) {
-                                await workTaskService.createWorkTask({
+                                tasksToCreate.push({
                                     journey_id: journeyId,
-                                    journey_step_code: stage.code as any,
+                                    journey_step_code: stage.code,
                                     title: item.name,
                                     description: item.description,
                                     is_required: item.is_required,
                                     status: 'pending'
                                 });
-                                createdCount++;
                             }
                         }
                     }
 
-                    console.log(`Successfully created ${createdCount} tasks`);
-                    message.success(`Đã khởi tạo ${createdCount} nhiệm vụ công việc thành công!`);
+                    if (tasksToCreate.length > 0) {
+                        console.log(`Sending ${tasksToCreate.length} tasks to bulk create`);
+                        await workTaskService.saveManyWorkTasks(tasksToCreate);
+                    }
+
+                    console.log(`Successfully initialized ${tasksToCreate.length} tasks`);
+                    message.success(`Đã khởi tạo ${tasksToCreate.length} nhiệm vụ công việc thành công!`);
+
                     fetchJourney();
                     // Dispatch event for components to refresh
                     window.dispatchEvent(new CustomEvent('journey-tasks-updated'));

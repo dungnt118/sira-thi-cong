@@ -5,6 +5,7 @@ import {
   query_content,
   count_content,
   save_content,
+  save_many_content,
   update_partial_content,
   delete_content,
   delete_multi_content,
@@ -41,6 +42,14 @@ export const workTaskService = {
     });
     if (!response?.data) throw new Error('Không thể tạo WorkTask');
     return response.data as IWorkTask;
+  },
+  async saveManyWorkTasks(data: ICreateWorkTaskInput[]): Promise<IWorkTask[]> {
+    const response = await save_many_content({
+      schema: 'WorkTask',
+      data: data as any[],
+    });
+    if (!response?.data) throw new Error('Không thể lưu danh sách WorkTask');
+    return response.data as IWorkTask[];
   },
 
   async updateWorkTask(id: string, input: Partial<ICreateWorkTaskInput>): Promise<IWorkTask> {

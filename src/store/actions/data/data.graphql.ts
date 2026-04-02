@@ -10,7 +10,7 @@ mutation SaveContent($data: Dictionary!,$schema:String!,$update_if_duplicate:Boo
 }
 `
 export const SAVE_MANY_CONTENT = gql`
-mutation SaveManyContent($data: [Dictionary],$fields:[String],$schema:String!,$update_if_duplicate:Boolean,$sessionId:String){
+mutation SaveManyContent($data: [Dictionary],$fields:String,$schema:String!,$update_if_duplicate:Boolean,$sessionId:String){
 	response: save_many_content(data: $data,fields:$fields,schema:$schema,update_if_duplicate:$update_if_duplicate,sessionId:$sessionId){
 	  code		
 	  message
