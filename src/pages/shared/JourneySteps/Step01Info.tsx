@@ -553,27 +553,34 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                             </Col>
 
                             <Col span={24}>
-                                <Divider orientation="left" plain>
-                                    <Space>
-                                        <UnorderedListOutlined />
-                                        <Text strong>Công việc hiện tại ({STEP_NAME_MAPPING[journeyData.current_step || ''] || 'Đang xác định'})</Text>
-                                    </Space>
-                                </Divider>
-                                <StepWorkTaskList
-                                    tasks={workTasks.filter(t => t.journey_step_code === journeyData.current_step)}
-                                    loading={isLoadingTasks}
-                                    reportCounts={reportCountByTask}
-                                    onStatusUpdate={handleStatusUpdate}
-                                    onCreateReport={(task) => {
-                                        setSelectedTaskForReport(task);
-                                        setIsReportModalOpen(true);
-                                    }}
-                                    onViewReports={() => {
-                                        // In many layouts, this tab exists.
-                                        const event = new CustomEvent('switch-journey-tab', { detail: 'GRP_08_CONSTRUCT' });
-                                        window.dispatchEvent(event);
-                                    }}
-                                />
+                                {(() => {
+                                    const currentStep = journeyData.current_step || 'lead_intake';
+                                    return (
+                                        <>
+                                            <Divider orientation="left" plain>
+                                                <Space>
+                                                    <UnorderedListOutlined />
+                                                    <Text strong>Công việc hiện tại ({STEP_NAME_MAPPING[currentStep] || 'Đang xác định'})</Text>
+                                                </Space>
+                                            </Divider>
+                                            <StepWorkTaskList
+                                                tasks={workTasks.filter(t => t.journey_step_code === currentStep)}
+                                                loading={isLoadingTasks}
+                                                reportCounts={reportCountByTask}
+                                                onStatusUpdate={handleStatusUpdate}
+                                                onCreateReport={(task) => {
+                                                    setSelectedTaskForReport(task);
+                                                    setIsReportModalOpen(true);
+                                                }}
+                                                onViewReports={() => {
+                                                    // In many layouts, this tab exists.
+                                                    const event = new CustomEvent('switch-journey-tab', { detail: 'GRP_08_CONSTRUCT' });
+                                                    window.dispatchEvent(event);
+                                                }}
+                                            />
+                                        </>
+                                    );
+                                })()}
                             </Col>
                         </Row>
 
