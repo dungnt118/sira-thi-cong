@@ -26,8 +26,8 @@ export const SaleLayout: React.FC = () => {
     const isMobile = !screens.md;
 
     React.useEffect(() => {
-        if (role && role !== 'sale') {
-            navigate(`/${role}/dashboard`);
+        if (role && role !== 'KD') {
+            navigate(`/${role.toLowerCase()}/dashboard`);
             return;
         }
 
@@ -37,69 +37,69 @@ export const SaleLayout: React.FC = () => {
     }, [navigate, role]);
 
     const getActiveKey = () => {
-        if (location.pathname.startsWith('/sale/customers')) {
-            return '/sale/customers';
+        if (location.pathname.startsWith('/kd/customers')) {
+            return '/kd/customers';
         }
 
-        if (location.pathname.startsWith('/sale/dashboard')) {
-            return '/sale/dashboard';
+        if (location.pathname.startsWith('/kd/dashboard')) {
+            return '/kd/dashboard';
         }
 
-        if (location.pathname.startsWith('/sale/sla')) {
-            return '/sale/sla';
+        if (location.pathname.startsWith('/kd/sla')) {
+            return '/kd/sla';
         }
 
-        if (location.pathname.startsWith('/sale/surveys')) {
-            return '/sale/surveys';
+        if (location.pathname.startsWith('/kd/surveys')) {
+            return '/kd/surveys';
         }
 
-        if (location.pathname.startsWith('/sale/communications')) {
-            return '/sale/communications';
+        if (location.pathname.startsWith('/kd/communications')) {
+            return '/kd/communications';
         }
 
-        if (location.pathname.startsWith('/sale/profile')) {
-            return '/sale/profile';
+        if (location.pathname.startsWith('/kd/profile')) {
+            return '/kd/profile';
         }
 
-        return '/sale/dashboard';
+        return '/kd/dashboard';
     };
 
     const mobileMenuItems = [
         {
-            key: '/sale/dashboard',
+            key: '/kd/dashboard',
             icon: <InboxOutlined />,
             label: 'Yêu cầu',
-            onClick: () => navigate('/sale/dashboard'),
+            onClick: () => navigate('/kd/dashboard'),
         },
         {
-            key: '/sale/customers',
+            key: '/kd/customers',
             icon: <TeamOutlined />,
             label: 'Khách hàng',
-            onClick: () => navigate('/sale/customers'),
+            onClick: () => navigate('/kd/customers'),
         },
         {
-            key: '/sale/sla',
+            key: '/kd/sla',
             icon: <ClockCircleOutlined />,
             label: 'Cảnh báo tiến độ',
-            onClick: () => navigate('/sale/sla'),
+            onClick: () => navigate('/kd/sla'),
         },
         {
-            key: '/sale/surveys',
+            key: '/kd/surveys',
             icon: <FormOutlined />,
             label: 'Khảo sát',
-            onClick: () => navigate('/sale/surveys'),
+            onClick: () => navigate('/kd/surveys'),
         },
         {
-            key: '/sale/communications',
+            key: '/kd/communications',
             icon: <MessageOutlined />,
             label: 'Giao tiếp',
-            onClick: () => navigate('/sale/communications'),
+            onClick: () => navigate('/kd/communications'),
         },
         {
-            key: '/sale/profile',
+            key: '/kd/profile',
             icon: <UserOutlined />,
             label: 'Cá nhân',
-            onClick: () => navigate('/sale/profile'),
+            onClick: () => navigate('/kd/profile'),
         },
     ];
 
@@ -110,29 +110,29 @@ export const SaleLayout: React.FC = () => {
             label: 'Hành trình khách hàng',
             children: [
                 {
-                    key: '/sale/dashboard',
+                    key: '/kd/dashboard',
                     label: 'Yêu cầu',
-                    onClick: () => navigate('/sale/dashboard'),
+                    onClick: () => navigate('/kd/dashboard'),
                 },
                 {
-                    key: '/sale/customers',
+                    key: '/kd/customers',
                     label: 'Khách hàng',
-                    onClick: () => navigate('/sale/customers'),
+                    onClick: () => navigate('/kd/customers'),
                 },
                 {
-                    key: '/sale/sla',
+                    key: '/kd/sla',
                     label: 'Cảnh báo tiến độ',
-                    onClick: () => navigate('/sale/sla'),
+                    onClick: () => navigate('/kd/sla'),
                 },
                 {
-                    key: '/sale/surveys',
+                    key: '/kd/surveys',
                     label: 'Khảo sát',
-                    onClick: () => navigate('/sale/surveys'),
+                    onClick: () => navigate('/kd/surveys'),
                 },
                 {
-                    key: '/sale/communications',
+                    key: '/kd/communications',
                     label: 'Giao tiếp khách hàng',
-                    onClick: () => navigate('/sale/communications'),
+                    onClick: () => navigate('/kd/communications'),
                 },
             ],
         },

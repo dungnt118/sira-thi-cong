@@ -15,22 +15,22 @@ type MenuItem = Required<MenuProps>['items'][number];
 
 const menuItems: MenuItem[] = [
     {
-        key: '/accountant/dashboard',
+        key: '/kt/dashboard',
         icon: <DashboardOutlined />,
         label: LABELS.ACCOUNTANT.DASHBOARD,
     },
     {
-        key: '/accountant/financial-summary',
+        key: '/kt/financial-summary',
         icon: <DollarOutlined />,
         label: LABELS.ACCOUNTANT.FINANCIAL_SUMMARY,
     },
     {
-        key: '/accountant/payment-tracking',
+        key: '/kt/payment-tracking',
         icon: <FileTextOutlined />,
         label: LABELS.ACCOUNTANT.PAYMENT_TRACKING,
     },
     {
-        key: '/accountant/reports',
+        key: '/kt/reports',
         icon: <BarChartOutlined />,
         label: LABELS.ACCOUNTANT.REPORTS,
     },

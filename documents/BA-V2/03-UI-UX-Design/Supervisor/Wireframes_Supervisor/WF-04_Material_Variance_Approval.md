@@ -242,11 +242,11 @@ IF variance > 20% OR OL approval rate < 60%
 
 ### API Endpoints
 ```
-GET /api/supervisor/material-variance/{id}
-GET /api/supervisor/material-variance/{id}/history
-POST /api/supervisor/material-variance/{id}/request-info
-POST /api/supervisor/material-variance/{id}/approve
-POST /api/supervisor/material-variance/{id}/reject
+GET /api/gs/material-variance/{id}
+GET /api/gs/material-variance/{id}/history
+POST /api/gs/material-variance/{id}/request-info
+POST /api/gs/material-variance/{id}/approve
+POST /api/gs/material-variance/{id}/reject
 ```
 
 ### Calculations

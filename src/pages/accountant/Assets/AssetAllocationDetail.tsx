@@ -1,17 +1,17 @@
 import React, { useState, useMemo } from 'react';
-import { 
-    Card, Row, Col, Typography, Tag, Button, 
-    Space, Steps, message, Modal, 
+import {
+    Card, Row, Col, Typography, Tag, Button,
+    Space, Steps, message, Modal,
     Alert, Descriptions, Result
 } from 'antd';
-import { 
+import {
     ArrowLeftOutlined, CheckCircleOutlined,
     ClockCircleOutlined, WarningOutlined, SignatureOutlined,
     CarOutlined, HomeOutlined
 } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
 import useLocalStorageData from '../../../hooks/useLocalStorageData';
-import { 
+import {
     AssetAllocation, AssetAllocationStatus, AssetAllocationSignature
 } from '../../../types/v3';
 import SiraSignaturePad from '../../../components/common/SignaturePad';
@@ -21,15 +21,15 @@ const { Title, Text } = Typography;
 const AssetAllocationDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    
+
     // We initialize allocations
     const [allocations, setAllocations] = useLocalStorageData<AssetAllocation[]>('ASSET_ALLOCATIONS', []);
     const [cachedSignatures, setCachedSignatures] = useLocalStorageData<Record<string, string>>('CACHED_SIGNATURES', {});
 
     const order = useMemo(() => allocations.find(o => o.id === id || o.code === id), [allocations, id]);
-    
+
     const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
-    const [signingRole, setSigningRole] = useState<'accountant' | 'borrower' | null>(null);
+    const [signingRole, setSigningRole] = useState<'KT' | 'borrower' | null>(null);
 
     if (!order) {
         return <Result status="404" title="Không tìm thấy phiếu" subTitle="Phiếu cấp phát tài sản này không tồn tại hoặc đã bị xóa." />;
@@ -73,14 +73,14 @@ const AssetAllocationDetail: React.FC = () => {
 
         const signature: AssetAllocationSignature = {
             role: roleToSign as any,
-            userName: roleToSign === 'accountant' ? 'Kế toán' : order.requestedBy,
+            userName: roleToSign === 'KT' ? 'Kế toán' : order.requestedBy,
             userId: `user-${roleToSign}`,
             signedAt: new Date().toISOString(),
             signatureDataUrl: dataUrl
         };
 
         let nextStatus: AssetAllocationStatus = order.status;
-        if (order.status === 'REQUESTED' && roleToSign === 'accountant') nextStatus = 'APPROVED';
+        if (order.status === 'REQUESTED' && roleToSign === 'KT') nextStatus = 'APPROVED';
         if (order.status === 'APPROVED' && roleToSign === 'borrower') nextStatus = 'RECEIVED';
 
         const updatedOrder: AssetAllocation = {
@@ -99,7 +99,7 @@ const AssetAllocationDetail: React.FC = () => {
         };
 
         setAllocations(allocations.map(o => o.id === order.id ? updatedOrder : o));
-        
+
         if (nextStatus === 'RECEIVED') {
             const currentAssetsStr = localStorage.getItem('ASSETS');
             if (currentAssetsStr) {
@@ -107,7 +107,7 @@ const AssetAllocationDetail: React.FC = () => {
                     const assets = JSON.parse(currentAssetsStr);
                     const newAssets = assets.map((a: any) => a.id === order.assetId ? { ...a, status: 'IN_USE', assignedTo: order.requestedBy } : a);
                     localStorage.setItem('ASSETS', JSON.stringify(newAssets));
-                } catch (e) {}
+                } catch (e) { }
             }
         }
 
@@ -132,7 +132,7 @@ const AssetAllocationDetail: React.FC = () => {
             <Card bordered={false} className="order-detail-card">
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24 }}>
                     <Space>
-                        <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/accountant/assets/allocation-history')} />
+                        <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/kt/assets/allocation-history')} />
                         <div>
                             <Text type="secondary">Chi tiết Phiếu Yêu cầu mượn Tài sản</Text>
                             <Title level={4} style={{ margin: 0 }}>{order.code}</Title>
@@ -140,9 +140,9 @@ const AssetAllocationDetail: React.FC = () => {
                     </Space>
                 </div>
 
-                <Steps 
-                    current={getCurrentStep(order.status)} 
-                    items={steps} 
+                <Steps
+                    current={getCurrentStep(order.status)}
+                    items={steps}
                     style={{ marginBottom: 40 }}
                 />
 
@@ -175,19 +175,19 @@ const AssetAllocationDetail: React.FC = () => {
                             {/* ACCOUNTANT */}
                             <div style={{ marginBottom: 20 }}>
                                 <Text strong>1. Kế toán duyệt xuất</Text>
-                                {order.signatures?.find((s) => s.role === 'accountant') ? (
+                                {order.signatures?.find((s) => s.role === 'KT') ? (
                                     <div style={{ marginTop: 8, textAlign: 'center' }}>
-                                        <img src={order.signatures.find((s) => s.role === 'accountant')?.signatureDataUrl} style={{ height: 60 }} />
+                                        <img src={order.signatures.find((s) => s.role === 'KT')?.signatureDataUrl} style={{ height: 60 }} />
                                     </div>
                                 ) : (
                                     <>
-                                        <Button block type={order.status === 'REQUESTED' ? 'primary' : 'dashed'} disabled={order.status !== 'REQUESTED'} size="small" style={{ marginTop: 8 }} icon={<CheckCircleOutlined />} onClick={() => { setSigningRole('accountant'); setIsSignatureModalOpen(true); }}>
+                                        <Button block type={order.status === 'REQUESTED' ? 'primary' : 'dashed'} disabled={order.status !== 'REQUESTED'} size="small" style={{ marginTop: 8 }} icon={<CheckCircleOutlined />} onClick={() => { setSigningRole('KT'); setIsSignatureModalOpen(true); }}>
                                             Kế toán Ký Duyệt
                                         </Button>
-                                        {cachedSignatures['accountant'] && (
+                                        {cachedSignatures['KT'] && (
                                             <div style={{ marginTop: 8, padding: 8, background: '#f5f5f5', borderRadius: 4, textAlign: 'center' }}>
-                                                <Text type="secondary" style={{ fontSize: 11 }}>Dùng nhanh chữ ký Kế toán:</Text><br/>
-                                                <img src={cachedSignatures['accountant']} style={{ height: 40, cursor: 'pointer' }} onClick={() => handleUseCachedSignature('accountant')} />
+                                                <Text type="secondary" style={{ fontSize: 11 }}>Dùng nhanh chữ ký Kế toán:</Text><br />
+                                                <img src={cachedSignatures['KT']} style={{ height: 40, cursor: 'pointer' }} onClick={() => handleUseCachedSignature('KT')} />
                                             </div>
                                         )}
                                     </>
@@ -211,10 +211,10 @@ const AssetAllocationDetail: React.FC = () => {
                             </div>
 
                             {order.status === 'RECEIVED' && (
-                                <Alert 
-                                    message="Đang sử dụng" 
-                                    type="success" 
-                                    showIcon 
+                                <Alert
+                                    message="Đang sử dụng"
+                                    type="success"
+                                    showIcon
                                     style={{ marginTop: 12 }}
                                 />
                             )}
@@ -234,16 +234,16 @@ const AssetAllocationDetail: React.FC = () => {
             </Card>
 
             <Modal
-                title={`Ký tên xác nhận: ${signingRole === 'accountant' ? 'KẾ TOÁN' : 'NGƯỜI MƯỢN'}`}
+                title={`Ký tên xác nhận: ${signingRole === 'KT' ? 'KẾ TOÁN' : 'NGƯỜI MƯỢN'}`}
                 open={isSignatureModalOpen}
                 onCancel={() => setIsSignatureModalOpen(false)}
                 footer={null}
                 width={450}
             >
-                <SiraSignaturePad 
-                    onSave={handleSign} 
-                    title={signingRole === 'accountant' ? 'Chữ ký của Kế toán' : 'Chữ ký của Người mượn'}
-                    description="Vui lòng ký vào khung bên dưới và bấm Xác nhận" 
+                <SiraSignaturePad
+                    onSave={handleSign}
+                    title={signingRole === 'KT' ? 'Chữ ký của Kế toán' : 'Chữ ký của Người mượn'}
+                    description="Vui lòng ký vào khung bên dưới và bấm Xác nhận"
                 />
             </Modal>
         </div>

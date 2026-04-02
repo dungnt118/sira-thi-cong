@@ -66,7 +66,7 @@ const SaleSurveyDetail: React.FC = () => {
         }
     };
 
-    const handleBack = () => navigate(`/sale/dashboard/${journey.id}?tab=survey`);
+    const handleBack = () => navigate(`/kd/dashboard/${journey.id}?tab=survey`);
 
     const handleFormSubmit = async () => {
         try {

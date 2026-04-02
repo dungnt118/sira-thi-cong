@@ -24,7 +24,7 @@ export const REGISTRATION_ID = "registrationId";
 export const UPLOAD_FILE_CAPACITY = "upload_file_capacity";
 export const CHAT_ENDPOINT = "chat_endpoint";
 export const GRAPHQL_ENDPOINT = "graphql_endpoint";
-export const BASE_URL="base_url";
+export const BASE_URL = "base_url";
 export const TOKEN_ENDPOINT = "token_endpoint";
 export const SUBSCRIPTION_ENDPOINT = "subscription_endpoint";
 export const ACCESS_TOKEN = "access_token";
@@ -86,7 +86,7 @@ export function get(key: string, defaultValue?: any): any {
 }
 
 export function set(key: string, value: any): void {
-    if (value == null || value == undefined) {        
+    if (value == null || value == undefined) {
         localStorage.removeItem(key);
     } else {
         if (typeof value === 'string') {
@@ -116,21 +116,21 @@ export function getFileLink(fileId: string | null | undefined, defaultImage?: st
     if (!fileId || fileId.startsWith("http") || fileId.startsWith("data:image")) {
         return fileId;
     }
-    
+
     let baseUrl = get(FILE_PREVIEW_URL) as string | undefined;
     if (baseUrl && !baseUrl.endsWith("?load=")) {
         baseUrl += "?load=";
     }
-    
+
     // Encode fileId và regCode để xử lý các ký tự đặc biệt trong đường dẫn (vd: data/image.png)
     const encodedFileId = encodeURIComponent(fileId);
     const regCode = (get(REGCODE) as string) || '';
-    
+
     let url = `${baseUrl ?? ''}${encodedFileId}`;
     if (regCode) {
         url += `&regCode=${encodeURIComponent(regCode)}`;
     }
-    
+
     return url;
 }
 
@@ -145,16 +145,16 @@ export function get_auth_type(): string {
 export function GET_USER_SESSION_INFO_QUERY(): string {
     const authMe = (appconfig as any)?.auth_me;
     if (authMe) {
-        return `mutation ($tenantId:String){
-            response: ${authMe} (tenantId: $tenantId ) {
+        return `mutation ($role:String){
+            response: ${authMe} (role: $role ) {
                 code
                 message
                 data
             }
           }`;
     } else {
-        return `query ($tenantId:String){
-            response: get_user_session_info (tenantId: $tenantId ) {
+        return `query ($role:String){
+            response: get_user_session_info (role: $role ) {
                 code
                 message
                 data

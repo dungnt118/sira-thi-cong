@@ -64,7 +64,7 @@ const CommunicationsCenter: React.FC = () => {
             const newMessage = {
                 id: Date.now().toString(),
                 sender: 'Nguyễn Văn Sale',
-                sender_role: 'sale',
+                sender_role: 'KD',
                 message_body: values.message_body,
                 sent_at: new Date().toISOString(),
                 official_response: values.official_response
@@ -190,7 +190,7 @@ const CommunicationsCenter: React.FC = () => {
                                     <div style={{ textAlign: 'center', marginTop: 40, color: '#bfbfbf' }}>Chưa có tin nhắn nào trong hội thoại này</div>
                                 )}
                                 {selectedThread.messages?.map((msg: any, idx: number) => {
-                                    const isMe = msg.sender_role === 'sale' || msg.sender_role === 'pm';
+                                    const isMe = msg.sender_role === 'KD' || msg.sender_role === 'QL';
                                     return (
                                         <div key={msg.id || idx} style={{ 
                                             marginBottom: 20, 

@@ -317,7 +317,7 @@ const JourneyDetail360: React.FC = () => {
         const editableGroupCodes: string[] = [];
         const finalizableGroupCodes: string[] = [];
 
-        if (role === 'pm' || isAdmin) {
+        if (role === 'QL' || isAdmin) {
             // Admin or PM sees everything, can edit and can finalize
             journeySteps.forEach(s => {
                 if (s.standardProcedureGroupCd) {
@@ -471,7 +471,7 @@ const JourneyDetail360: React.FC = () => {
         {
             key: 'GRP_LABOR',
             label: <span><TeamOutlined /> Nhân công</span>,
-            children: <StepLabor journeyId={journey._id} isEditable={userRoleConfig.editableGroupCodes.includes('GRP_05_QUOTE') || role === 'pm'} />,
+            children: <StepLabor journeyId={journey._id} isEditable={userRoleConfig.editableGroupCodes.includes('GRP_05_QUOTE') || role === 'QL'} />,
         },
         // 6. Tab Báo giá/HĐ (GRP_05_QUOTE)
         {
@@ -483,7 +483,7 @@ const JourneyDetail360: React.FC = () => {
         {
             key: 'GRP_MATERIALS',
             label: <span><BoxPlotOutlined /> Vật tư</span>,
-            children: <StepMaterials journeyId={journey._id} isEditable={userRoleConfig.editableGroupCodes.includes('GRP_05_QUOTE') || role === 'pm'} />,
+            children: <StepMaterials journeyId={journey._id} isEditable={userRoleConfig.editableGroupCodes.includes('GRP_05_QUOTE') || role === 'QL'} />,
         },
         // 9. Tab Thanh toán (GRP_07_DEPOSIT or GRP_10_PAYMENT)
         {
@@ -510,7 +510,7 @@ const JourneyDetail360: React.FC = () => {
             children: (
                 <JourneyDocumentsTab
                     journeyId={journey._id}
-                    isEditable={role === 'pm' || isAdmin}
+                    isEditable={role === 'QL' || isAdmin}
                 />
             ),
         },
@@ -536,11 +536,11 @@ const JourneyDetail360: React.FC = () => {
         if (item.key === 'GRP_DOCUMENTS') return true;
 
         // Filter tabs based on user visibility
-        if (item.key === 'LOG') return role === 'pm' || role === 'sale';
+        if (item.key === 'LOG') return role === 'QL' || role === 'KD';
 
         // Custom keys that don't match standardProcedureGroupCd exactly
-        if (item.key === 'GRP_LABOR') return userRoleConfig.allowedGroupCodes.includes('GRP_05_QUOTE') || role === 'pm' || role === 'sale';
-        if (item.key === 'GRP_MATERIALS') return userRoleConfig.allowedGroupCodes.includes('GRP_05_QUOTE') || role === 'pm' || role === 'sale';
+        if (item.key === 'GRP_LABOR') return userRoleConfig.allowedGroupCodes.includes('GRP_05_QUOTE') || role === 'QL' || role === 'KD';
+        if (item.key === 'GRP_MATERIALS') return userRoleConfig.allowedGroupCodes.includes('GRP_05_QUOTE') || role === 'QL' || role === 'KD';
         if (item.key === 'GRP_ACCEPTANCE') return userRoleConfig.allowedGroupCodes.includes('GRP_09_ACCEPTANCE') || userRoleConfig.allowedGroupCodes.includes('GRP_08_CONSTRUCT');
 
         return userRoleConfig.allowedGroupCodes.includes(item.key);
@@ -554,7 +554,7 @@ const JourneyDetail360: React.FC = () => {
                 <Button icon={<ArrowLeftOutlined />} type="text" onClick={() => navigate(-1)} style={{ padding: isMobile ? '4px 8px' : undefined }}>
                     {!isMobile && 'Quay lại'}
                 </Button>
-                {(role === 'pm' || isAdmin) && (
+                {(role === 'QL' || isAdmin) && (
                     <Space size={isMobile ? 4 : 8} wrap={isMobile}>
                         {(currentHeaderStepIndex < 0 || currentHeaderStepIndex < 5) && (
                             <Button
@@ -572,7 +572,7 @@ const JourneyDetail360: React.FC = () => {
                         <Button type="primary" icon={<SendOutlined />} onClick={() => setShowPublishModal(true)}>Publish Portal</Button>
                     </Space>
                 )}
-                {role === 'sale' && (
+                {role === 'KD' && (
                     <Space size={isMobile ? 4 : 8} wrap={isMobile}>
                         <Button icon={<MessageOutlined />} onClick={() => setShowLogModal(true)}>{isMobile ? '' : 'Ghi Log'}</Button>
                         <Button icon={<ClockCircleOutlined />} onClick={() => setShowFollowUpModal(true)}>{isMobile ? '' : 'Follow-up'}</Button>

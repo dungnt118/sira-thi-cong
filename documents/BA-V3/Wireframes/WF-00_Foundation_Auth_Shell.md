@@ -20,7 +20,7 @@ Flow:
      - Admin   → /admin/dashboard
      - PM      → /pm/dashboard
      - Thợ     → /worker/projects
-     - Kế toán → /accountant/dashboard
+     - Kế toán → /kt/dashboard
   4. Admin: Quản lý User (tạo, sửa, phân role)
   5. Admin: Đặt lại mật khẩu cho user khác
 ```

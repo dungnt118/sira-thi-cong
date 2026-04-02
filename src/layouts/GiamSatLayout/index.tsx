@@ -1,6 +1,7 @@
 import React from 'react';
 import { Layout, Badge } from 'antd';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
 import {
     HomeOutlined,
     AppstoreOutlined,
@@ -19,17 +20,30 @@ export const GiamSatLayout: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
+    const { role } = useAuth();
+
+    React.useEffect(() => {
+        if (role && role !== 'GS') {
+            navigate(`/${role.toLowerCase()}/dashboard`);
+            return;
+        }
+
+        if (!role) {
+            navigate('/login');
+        }
+    }, [navigate, role]);
+
     const navTabs = [
-        { key: '/supervisor/dashboard', icon: <HomeOutlined />, label: 'Trang chủ' },
-        { key: '/supervisor/projects', icon: <AppstoreOutlined />, label: 'Dự án' },
-        { key: '/supervisor/materials', icon: <InboxOutlined />, label: 'Vật tư' },
-        { key: '/supervisor/inventory/history', icon: <HistoryOutlined />, label: 'Lịch sử' },
-        { key: '/supervisor/profile', icon: <UserOutlined />, label: 'Cá nhân' },
+        { key: '/gs/dashboard', icon: <HomeOutlined />, label: 'Trang chủ' },
+        { key: '/gs/projects', icon: <AppstoreOutlined />, label: 'Dự án' },
+        { key: '/gs/materials', icon: <InboxOutlined />, label: 'Vật tư' },
+        { key: '/gs/inventory/history', icon: <HistoryOutlined />, label: 'Lịch sử' },
+        { key: '/gs/profile', icon: <UserOutlined />, label: 'Cá nhân' },
     ];
 
-    const activeTab = navTabs.find(t => 
+    const activeTab = navTabs.find(t =>
         location.pathname.startsWith(t.key)
-    )?.key || '/supervisor/dashboard';
+    )?.key || '/gs/dashboard';
 
     return (
         <Layout className="giam-sat-layout">
@@ -54,7 +68,7 @@ export const GiamSatLayout: React.FC = () => {
                 {navTabs.map(tab => {
                     const isActive = activeTab === tab.key;
                     return (
-                        <div 
+                        <div
                             key={tab.key}
                             className={`bottom-nav-tab ${isActive ? 'active' : ''}`}
                             onClick={() => navigate(tab.key)}

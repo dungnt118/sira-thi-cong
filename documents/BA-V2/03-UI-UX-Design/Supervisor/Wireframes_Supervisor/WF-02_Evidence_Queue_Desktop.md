@@ -184,7 +184,7 @@
 
 ### API Endpoints
 ```
-GET /api/supervisor/evidence/queue?
+GET /api/gs/evidence/queue?
   project={projectId}&
   stage={stage}&
   dateFrom={date}&
@@ -195,9 +195,9 @@ GET /api/supervisor/evidence/queue?
   sort={field}&
   order={asc|desc}
 
-POST /api/supervisor/evidence/batch-approve
-POST /api/supervisor/evidence/batch-reject
-GET /api/supervisor/evidence/export
+POST /api/gs/evidence/batch-approve
+POST /api/gs/evidence/batch-reject
+GET /api/gs/evidence/export
 ```
 
 ### Real-time Updates

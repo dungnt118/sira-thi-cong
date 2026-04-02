@@ -1,9 +1,9 @@
 import React from 'react';
 import { Layout, Menu, Badge } from 'antd';
-import { 
-    HomeOutlined, 
-    CalendarOutlined, 
-    ToolOutlined, 
+import {
+    HomeOutlined,
+    CalendarOutlined,
+    ToolOutlined,
     UserOutlined,
     BellOutlined,
     FormOutlined,
@@ -22,8 +22,8 @@ export const KyThuatLayout: React.FC = () => {
     const { role, isAdmin } = useAuth();
 
     React.useEffect(() => {
-        if (role && role !== 'ky-thuat' && !isAdmin) {
-            navigate(`/${role}/dashboard`);
+        if (role && role !== 'KYT' && !isAdmin) {
+            navigate(`/${role.toLowerCase()}/dashboard`);
             return;
         }
 
@@ -31,13 +31,13 @@ export const KyThuatLayout: React.FC = () => {
             navigate('/login');
         }
     }, [role, isAdmin, navigate]);
-    
+
     // Convert pathname to menu active key
     const getActiveKey = () => {
         const path = location.pathname;
-        if (path.includes('/ky-thuat/schedule')) return 'schedule';
-        if (path.includes('/ky-thuat/execution')) return 'execution';
-        if (path.includes('/ky-thuat/profile')) return 'profile';
+        if (path.includes('/kyt/schedule')) return 'schedule';
+        if (path.includes('/kyt/execution')) return 'execution';
+        if (path.includes('/kyt/profile')) return 'profile';
         return 'dashboard';
     };
 
@@ -46,25 +46,25 @@ export const KyThuatLayout: React.FC = () => {
             key: 'dashboard',
             icon: <HomeOutlined />,
             label: 'Tổng quan',
-            onClick: () => navigate('/ky-thuat/dashboard')
+            onClick: () => navigate('/kyt/dashboard')
         },
         {
             key: 'schedule',
             icon: <CalendarOutlined />,
             label: 'Lịch trình',
-            onClick: () => navigate('/ky-thuat/schedule')
+            onClick: () => navigate('/kyt/schedule')
         },
         {
             key: 'execution',
             icon: <ToolOutlined />,
             label: 'Thi công',
-            onClick: () => navigate('/ky-thuat/execution')
+            onClick: () => navigate('/kyt/execution')
         },
         {
             key: 'profile',
             icon: <UserOutlined />,
             label: 'Cá nhân',
-            onClick: () => navigate('/ky-thuat/profile')
+            onClick: () => navigate('/kyt/profile')
         }
     ];
 

@@ -23,21 +23,21 @@ interface UserMenuProps {
     showName?: boolean;
 }
 
-export const UserMenu: React.FC<UserMenuProps> = ({ 
+export const UserMenu: React.FC<UserMenuProps> = ({
     avatarColor = '#1890ff',
-    showName = true 
+    showName = true
 }) => {
     const navigate = useNavigate();
     const { user, role, logout } = useAuth();
 
     const roles = [
-        { key: 'admin', title: 'Quản Trị Viên', icon: <UserOutlined />, path: '/admin/dashboard', color: '#1890ff' },
-        { key: 'pm', title: 'Quản Lý Dự Án', icon: <ProjectOutlined />, path: '/pm/dashboard', color: '#722ed1' },
-        { key: 'sale', title: 'Kinh Doanh (Sale)', icon: <CustomerServiceOutlined />, path: '/sale/dashboard', color: '#eb2f96' },
-        { key: 'ky-thuat', title: 'Kỹ Thuật', icon: <ProjectOutlined />, path: '/ky-thuat/dashboard', color: '#13a8a8' },
-        { key: 'supervisor', title: 'Giám Sát', icon: <SafetyOutlined />, path: '/supervisor/dashboard', color: '#52c41a' },
-        { key: 'accountant', title: 'Kế Toán', icon: <DollarOutlined />, path: '/accountant/dashboard', color: '#fa8c16' },
-        { key: 'partner', title: 'Đối Tác', icon: <TeamOutlined />, path: '/partner/dashboard', color: '#13c2c2' },
+        { key: 'ADMIN', title: 'Quản Trị Viên', icon: <UserOutlined />, path: '/admin/dashboard', color: '#1890ff' },
+        { key: 'QL', title: 'Quản Lý Dự Án', icon: <ProjectOutlined />, path: '/pm/dashboard', color: '#722ed1' },
+        { key: 'KD', title: 'Kinh Doanh (Sale)', icon: <CustomerServiceOutlined />, path: '/kd/dashboard', color: '#eb2f96' },
+        { key: 'KYT', title: 'Kỹ Thuật', icon: <ProjectOutlined />, path: '/kyt/dashboard', color: '#13a8a8' },
+        { key: 'GS', title: 'Giám Sát', icon: <SafetyOutlined />, path: '/gs/dashboard', color: '#52c41a' },
+        { key: 'KT', title: 'Kế Toán', icon: <DollarOutlined />, path: '/kt/dashboard', color: '#fa8c16' },
+        { key: 'PARTNER', title: 'Đối Tác', icon: <TeamOutlined />, path: '/partner/dashboard', color: '#13c2c2' },
     ];
 
     const handleSwitch = (roleKey: string, path: string) => {
@@ -61,13 +61,13 @@ export const UserMenu: React.FC<UserMenuProps> = ({
             key: 'profile',
             icon: <UserOutlined />,
             label: 'Hồ sơ cá nhân',
-            onClick: () => navigate(`/${role}/profile`),
+            onClick: () => navigate(`/${role?.toLowerCase()}/profile`),
         },
         {
             key: 'settings',
             icon: <SettingOutlined />,
             label: 'Cài đặt',
-            onClick: () => navigate(`/${role}/settings`),
+            onClick: () => navigate(`/${role?.toLowerCase()}/settings`),
         },
         { type: 'divider' },
         {
@@ -97,9 +97,9 @@ export const UserMenu: React.FC<UserMenuProps> = ({
     return (
         <Dropdown menu={{ items: menuItems }} placement="bottomRight" trigger={['click']}>
             <Space style={{ cursor: 'pointer' }}>
-                <Avatar 
-                    icon={<UserOutlined />} 
-                    style={{ backgroundColor: avatarColor }} 
+                <Avatar
+                    icon={<UserOutlined />}
+                    style={{ backgroundColor: avatarColor }}
                 />
                 {showName && (
                     <span style={{ fontWeight: 500 }}>

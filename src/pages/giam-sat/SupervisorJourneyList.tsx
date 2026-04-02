@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
-    Card, Input, Tag, Typography, List, Row, Col, Select, Space, Button, 
+    Card, Input, Tag, Typography, List, Row, Col, Select, Space, Button,
     Progress, Spin, Empty, message, Badge
 } from 'antd';
 import {
@@ -45,30 +45,30 @@ export const SupervisorJourneyList: React.FC = () => {
 
     const filteredJourneys = useMemo(() => {
         return journeys.filter(j => {
-            const matchesSearch = 
+            const matchesSearch =
                 (j.journey_code?.toLowerCase().includes(searchTerm.toLowerCase())) ||
                 (j.customer_full_name?.toLowerCase().includes(searchTerm.toLowerCase())) ||
                 (j.site_address?.toLowerCase().includes(searchTerm.toLowerCase()));
-            
-            const matchesStatus = statusFilter === 'ALL' || 
+
+            const matchesStatus = statusFilter === 'ALL' ||
                 (statusFilter === 'IN_PROGRESS' && j.project_status === 'active') ||
                 (statusFilter === 'COMPLETED' && j.project_status === 'completed') ||
                 (statusFilter === 'SURVEY' && ['site_survey', 'survey_review'].includes(j.current_step || ''));
-            
+
             return matchesSearch && matchesStatus;
         });
     }, [journeys, searchTerm, statusFilter]);
 
     const myJourneys = useMemo(() => {
         if (!user?._id) return [];
-        return filteredJourneys.filter(j => 
+        return filteredJourneys.filter(j =>
             j.supervisor_users === user._id || j.owner_user === user._id
         );
     }, [filteredJourneys, user?._id]);
 
     const otherJourneys = useMemo(() => {
         if (!user?._id) return filteredJourneys;
-        return filteredJourneys.filter(j => 
+        return filteredJourneys.filter(j =>
             j.supervisor_users !== user._id && j.owner_user !== user._id
         );
     }, [filteredJourneys, user?._id]);
@@ -76,20 +76,20 @@ export const SupervisorJourneyList: React.FC = () => {
     const renderJourneyCard = (j: IJourney, isOwn: boolean) => {
         const progress = j.progress_pct || 0;
         const statusColor = j.project_status === 'completed' ? 'green' : (j.project_status === 'active' ? 'orange' : 'default');
-        
+
         return (
             <Card
                 key={j._id}
                 className="gs-premium-card"
-                style={{ 
-                    marginBottom: 16, 
+                style={{
+                    marginBottom: 16,
                     borderRadius: 12,
                     borderLeft: `5px solid ${isOwn ? '#fa8c16' : '#d9d9d9'}`,
                     boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
                     overflow: 'hidden'
                 }}
                 hoverable
-                onClick={() => navigate(`/supervisor/journeys/${j._id}`)}
+                onClick={() => navigate(`/gs/journeys/${j._id}`)}
                 bodyStyle={{ padding: '16px' }}
             >
                 <Row gutter={16} align="middle">
@@ -110,11 +110,11 @@ export const SupervisorJourneyList: React.FC = () => {
                     </Col>
                     <Col xs={6} sm={4} style={{ textAlign: 'right' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                            <Progress 
-                                type="circle" 
-                                percent={progress} 
-                                size={45} 
-                                strokeColor={progress >= 100 ? '#52c41a' : '#fa8c16'} 
+                            <Progress
+                                type="circle"
+                                percent={progress}
+                                size={45}
+                                strokeColor={progress >= 100 ? '#52c41a' : '#fa8c16'}
                             />
                         </div>
                     </Col>
@@ -132,19 +132,19 @@ export const SupervisorJourneyList: React.FC = () => {
                         </div>
                     </Space>
                     <Space>
-                        <Button 
-                            size="small" 
+                        <Button
+                            size="small"
                             icon={<BookOutlined />}
-                            onClick={(e) => { e.stopPropagation(); navigate(`/supervisor/journeys/${j._id}`); }}
+                            onClick={(e) => { e.stopPropagation(); navigate(`/gs/journeys/${j._id}`); }}
                         >
                             Nhật ký
                         </Button>
-                        <Button 
-                            type="primary" 
-                            size="small" 
+                        <Button
+                            type="primary"
+                            size="small"
                             icon={<BuildOutlined />}
                             style={{ backgroundColor: '#fa8c16', borderColor: '#fa8c16' }}
-                            onClick={(e) => { e.stopPropagation(); navigate(`/supervisor/journeys/${j._id}`); }}
+                            onClick={(e) => { e.stopPropagation(); navigate(`/gs/journeys/${j._id}`); }}
                         >
                             Chi tiết
                         </Button>
@@ -176,36 +176,36 @@ export const SupervisorJourneyList: React.FC = () => {
                         enterButton={<SearchOutlined />}
                         style={{ borderRadius: 8, overflow: 'hidden' }}
                     />
-                    
+
                     <Row gutter={8}>
                         <Col span={24}>
                             <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 8 }}>
-                                <Button 
-                                    shape="round" 
+                                <Button
+                                    shape="round"
                                     type={statusFilter === 'ALL' ? 'primary' : 'default'}
                                     onClick={() => setStatusFilter('ALL')}
                                     style={statusFilter === 'ALL' ? { backgroundColor: '#fa8c16', borderColor: '#fa8c16' } : {}}
                                 >
                                     Tất cả
                                 </Button>
-                                <Button 
-                                    shape="round" 
+                                <Button
+                                    shape="round"
                                     type={statusFilter === 'IN_PROGRESS' ? 'primary' : 'default'}
                                     onClick={() => setStatusFilter('IN_PROGRESS')}
                                     style={statusFilter === 'IN_PROGRESS' ? { backgroundColor: '#fa8c16', borderColor: '#fa8c16' } : {}}
                                 >
                                     Đang thi công
                                 </Button>
-                                <Button 
-                                    shape="round" 
+                                <Button
+                                    shape="round"
                                     type={statusFilter === 'SURVEY' ? 'primary' : 'default'}
                                     onClick={() => setStatusFilter('SURVEY')}
                                     style={statusFilter === 'SURVEY' ? { backgroundColor: '#fa8c16', borderColor: '#fa8c16' } : {}}
                                 >
                                     Khảo sát
                                 </Button>
-                                <Button 
-                                    shape="round" 
+                                <Button
+                                    shape="round"
                                     type={statusFilter === 'COMPLETED' ? 'primary' : 'default'}
                                     onClick={() => setStatusFilter('COMPLETED')}
                                     style={statusFilter === 'COMPLETED' ? { backgroundColor: '#fa8c16', borderColor: '#fa8c16' } : {}}
@@ -238,14 +238,14 @@ export const SupervisorJourneyList: React.FC = () => {
             )}
 
             {myJourneys.length === 0 && otherJourneys.length === 0 && (
-                <Empty 
-                    image={Empty.PRESENTED_IMAGE_SIMPLE} 
+                <Empty
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
                     description={
                         <Space direction="vertical">
                             <Text type="secondary">Không tìm thấy hành trình nào phù hợp</Text>
                             <Button type="link" onClick={() => { setSearchTerm(''); setStatusFilter('ALL'); }}>Xóa bộ lọc</Button>
                         </Space>
-                    } 
+                    }
                 />
             )}
         </div>

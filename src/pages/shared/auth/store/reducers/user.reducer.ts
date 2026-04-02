@@ -43,18 +43,18 @@ const userReducer = (state: UserState = initialState, action: UserActions): User
       // 1. Manual override trong localStorage (nếu có, để hỗ trợ Chuyển quyền nhanh)
       // 2. activeRole từ payload server
       // 3. roles đầu tiên từ payload.user.roles
-      // 4. Default là 'sale'
+      // 4. Default là 'KD'
       const manualOverride = localStorage.getItem(MANUAL_ROLE_KEY);
       const serverActiveRole = payload.activeRole;
       const userRoles = (payload.user as any)?.roles || [];
       
-      let role = 'sale';
+      let role = 'KD';
       if (manualOverride) {
-        role = manualOverride.toLowerCase();
+        role = manualOverride.toUpperCase();
       } else if (serverActiveRole) {
-        role = serverActiveRole.toLowerCase();
+        role = serverActiveRole.toUpperCase();
       } else if (userRoles.length > 0) {
-        role = userRoles[0].toLowerCase();
+        role = userRoles[0].toUpperCase();
       }
 
       return {

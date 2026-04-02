@@ -17,32 +17,32 @@ type MenuItem = Required<MenuProps>['items'][number];
 
 const menuItems: MenuItem[] = [
     {
-        key: '/supervisor/dashboard',
+        key: '/gs/dashboard',
         icon: <DashboardOutlined />,
         label: LABELS.SUPERVISOR.DASHBOARD,
     },
     {
-        key: '/supervisor/projects',
+        key: '/gs/projects',
         icon: <ProjectOutlined />,
         label: LABELS.SUPERVISOR.PROJECTS,
     },
     {
-        key: '/supervisor/evidence-queue',
+        key: '/gs/evidence-queue',
         icon: <FileImageOutlined />,
         label: LABELS.SUPERVISOR.EVIDENCE_QUEUE,
     },
     {
-        key: '/supervisor/quality-issues',
+        key: '/gs/quality-issues',
         icon: <WarningOutlined />,
         label: LABELS.SUPERVISOR.QUALITY_ISSUES,
     },
     {
-        key: '/supervisor/team-performance',
+        key: '/gs/team-performance',
         icon: <TeamOutlined />,
         label: LABELS.SUPERVISOR.TEAM_PERFORMANCE,
     },
     {
-        key: '/supervisor/reports',
+        key: '/gs/reports',
         icon: <BarChartOutlined />,
         label: LABELS.SUPERVISOR.REPORTS,
     },

@@ -15,10 +15,10 @@ const { Header, Content, Footer } = Layout;
 
 // Bottom nav tabs for mobile supervisor
 const navTabs = [
-    { key: '/supervisor/home', icon: <HomeOutlined />, label: 'Trang chủ' },
-    { key: '/supervisor/projects', icon: <AppstoreOutlined />, label: 'Công trình' },
-    { key: '/supervisor/materials', icon: <InboxOutlined />, label: 'Vật tư' },
-    { key: '/supervisor/profile', icon: <UserOutlined />, label: 'Tôi' },
+    { key: '/gs/home', icon: <HomeOutlined />, label: 'Trang chủ' },
+    { key: '/gs/projects', icon: <AppstoreOutlined />, label: 'Công trình' },
+    { key: '/gs/materials', icon: <InboxOutlined />, label: 'Vật tư' },
+    { key: '/gs/profile', icon: <UserOutlined />, label: 'Tôi' },
 ];
 
 export const SupervisorLayout: React.FC = () => {
@@ -28,7 +28,7 @@ export const SupervisorLayout: React.FC = () => {
 
     const activeTab = navTabs.find(t =>
         location.pathname.startsWith(t.key)
-    )?.key || '/supervisor/home';
+    )?.key || '/gs/home';
 
     const userMenuItems: MenuProps['items'] = [
         { key: 'profile', icon: <UserOutlined />, label: 'Hồ sơ của tôi' },

@@ -168,9 +168,9 @@
 
 ### API Endpoints
 ```
-GET /api/supervisor/dashboard/summary
-GET /api/supervisor/dashboard/progress-trend?period=month
-GET /api/supervisor/dashboard/activities?limit=5
+GET /api/gs/dashboard/summary
+GET /api/gs/dashboard/progress-trend?period=month
+GET /api/gs/dashboard/activities?limit=5
 ```
 
 ### Real-time Updates

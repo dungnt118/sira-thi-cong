@@ -16,8 +16,8 @@ import type { NavigationItem } from 'app/store/types/fuse.types';
 import gql from 'graphql-tag';
 import { ApiResponseCode } from 'types/apis/ApiResponse';
 import type { UserSessionContext } from 'types/auth/UserSessionContext';
-
-import { setUserData as persistUserData } from '@/utils/authUtils';
+import { BAC_USER_CLIENT_ID } from 'app/services/users/user.constants';
+import { getCurrentRole, setUserData as persistUserData } from '@/utils/authUtils';
 
 export const SET_USER_DATA = '[USER] SET DATA' as const;
 export const REMOVE_USER_DATA = '[USER] REMOVE DATA' as const;
@@ -41,7 +41,7 @@ interface Auth0TokenData {
 
 interface SwitchAccountParams {
   tenantId?: string;
-  roleId?: string;
+  role?: string;
 }
 
 export interface SetUserDataAction {
@@ -103,9 +103,10 @@ export const setUserDataAuth0 = (tokenData: Auth0TokenData): AppThunk =>
 
 export const loadUserData = (_forceReload = false): AppThunk<Promise<void>> => async (dispatch) => {
   try {
+    const currentRole = getCurrentRole();
     const response = await graphqlService.query<UserSessionContext>(
       gql(GET_USER_SESSION_INFO_QUERY()),
-      {},
+      { role: currentRole },
       dispatch,
     );
 
@@ -148,11 +149,11 @@ export const update_user_field = (
       payload: updatedField,
     });
 
-export const switch_account = ({ tenantId, roleId }: SwitchAccountParams): AppThunk<Promise<void>> =>
+export const switch_account = ({ role }: SwitchAccountParams): AppThunk<Promise<void>> =>
   async (dispatch) => {
     const response = await graphqlService.mutate<UserSessionContext>(
       gql(GET_USER_SESSION_INFO_QUERY()),
-      { tenantId, roleId },
+      { role },
       dispatch,
     );
 
@@ -175,13 +176,17 @@ export const setUserData = (
   dispatch(setNavigation(menuGraph));
   dispatch(setNavigationList(menuGraph));
   dispatch(updateUserData({ ...session }));
-  
+
   // Sync to localStorage for Quick Role Switch support
   if (session.user) {
+    const context = (session.user as any).identity_contexts?.find((ctx: any) => ctx.clientId === BAC_USER_CLIENT_ID);
+    const roles = context?.roles || (session.user as any).roles || [];
+    const activeRole = session.activeRole || context?.defaultRole || roles[0] || '';
+
     persistUserData({
       username: session.user.username || '',
-      role: session.activeRole || '',
-      roles: (session.user as any).roles || []
+      role: activeRole,
+      roles: roles,
     });
   }
 };

@@ -21,7 +21,7 @@ const InventoryDashboard: React.FC = () => {
     const navigate = useNavigate();
     const [form] = Form.useForm();
     const [skuForm] = Form.useForm();
-    
+
     // Use LocalStorage for state management
     const [groups, setGroups] = useLocalStorageData<MaterialGroup[]>('MATERIAL_GROUPS', (mockMaterialsData as any).groups);
     const [materials, setMaterials] = useLocalStorageData<Material[]>('MATERIALS', (mockMaterialsData as any).materials);
@@ -111,9 +111,9 @@ const InventoryDashboard: React.FC = () => {
     };
 
     const groupColumns: ColumnsType<any> = [
-        { 
-            title: 'Tên Nhóm hàng', 
-            dataIndex: 'name', 
+        {
+            title: 'Tên Nhóm hàng',
+            dataIndex: 'name',
             key: 'name',
             render: (text, record) => (
                 <Space>
@@ -123,8 +123,8 @@ const InventoryDashboard: React.FC = () => {
                 </Space>
             )
         },
-        { 
-            title: 'Tổng Dung lượng', 
+        {
+            title: 'Tổng Dung lượng',
             key: 'capacity',
             render: (_, record) => (
                 <Text strong style={{ color: '#1890ff' }}>
@@ -132,21 +132,21 @@ const InventoryDashboard: React.FC = () => {
                 </Text>
             )
         },
-        { 
-            title: 'Số lượng Nguyên', 
-            dataIndex: 'totalFull', 
+        {
+            title: 'Số lượng Nguyên',
+            dataIndex: 'totalFull',
             key: 'full',
             render: (v, record) => <Tag color="blue">{v} {record.packageUnit}</Tag>
         },
-        { 
-            title: 'Số lượng Dở', 
-            dataIndex: 'totalPartial', 
+        {
+            title: 'Số lượng Dở',
+            dataIndex: 'totalPartial',
             key: 'partial',
             render: (v, record) => <Tag color="orange">{v} {record.packageUnit}</Tag>
         },
-        { 
-            title: 'Tổng Giá trị (Ước tính)', 
-            dataIndex: 'totalValue', 
+        {
+            title: 'Tổng Giá trị (Ước tính)',
+            dataIndex: 'totalValue',
             key: 'val',
             align: 'right',
             render: (v) => <Text strong>{v.toLocaleString('vi-VN')}đ</Text>
@@ -157,9 +157,9 @@ const InventoryDashboard: React.FC = () => {
             width: 250,
             render: (_, record) => (
                 <Space onClick={(e) => e.stopPropagation()}>
-                    <Button 
-                        size="small" 
-                        icon={<PlusOutlined />} 
+                    <Button
+                        size="small"
+                        icon={<PlusOutlined />}
                         onClick={() => {
                             setSelectedGroup(record);
                             skuForm.resetFields();
@@ -170,25 +170,25 @@ const InventoryDashboard: React.FC = () => {
                     >
                         Thêm SKU
                     </Button>
-                    <Button 
-                        size="small" 
-                        icon={<EditOutlined />} 
+                    <Button
+                        size="small"
+                        icon={<EditOutlined />}
                         onClick={() => {
                             setEditingGroup(record);
                             form.setFieldsValue(record);
                             setIsGroupModalOpen(true);
                         }}
                     />
-                    <Popconfirm 
-                        title="Xóa nhóm hàng? (Chỉ khi không có SKU)" 
+                    <Popconfirm
+                        title="Xóa nhóm hàng? (Chỉ khi không có SKU)"
                         onConfirm={(e) => handleDeleteGroup(record.id, e as any)}
                         okText="Xóa"
                         cancelText="Hủy"
                     >
-                        <Button 
-                            size="small" 
-                            danger 
-                            icon={<DeleteOutlined />} 
+                        <Button
+                            size="small"
+                            danger
+                            icon={<DeleteOutlined />}
                         />
                     </Popconfirm>
                 </Space>
@@ -199,14 +199,14 @@ const InventoryDashboard: React.FC = () => {
     const expandedRowRender = (group: any) => {
         const skuColumns: ColumnsType<Material> = [
             { title: 'Mã SKU', dataIndex: 'code', key: 'code', width: 120 },
-            { 
-                title: 'Quy cách', 
-                dataIndex: 'name', 
-                key: 'name', 
-                render: (v) => <Text strong>{v} {group.baseUnit}</Text> 
+            {
+                title: 'Quy cách',
+                dataIndex: 'name',
+                key: 'name',
+                render: (v) => <Text strong>{v} {group.baseUnit}</Text>
             },
-            { 
-                title: 'Tồn Kho thực tế', 
+            {
+                title: 'Tồn Kho thực tế',
                 key: 'cap',
                 render: (_, m) => (
                     <Space direction="vertical" size={0}>
@@ -216,9 +216,9 @@ const InventoryDashboard: React.FC = () => {
                 )
             },
             { title: 'Đơn giá', dataIndex: 'unitCost', key: 'cost', align: 'right', render: (v) => v.toLocaleString('vi-VN') + 'đ' },
-            { 
-                title: 'Thành tiền', 
-                key: 'total', 
+            {
+                title: 'Thành tiền',
+                key: 'total',
                 align: 'right',
                 render: (_, m) => {
                     const totalVal = (m.currentStock * m.unitCost) + ((m.partialStock || 0) / (m.capacity || 1)) * m.unitCost;
@@ -239,11 +239,11 @@ const InventoryDashboard: React.FC = () => {
         ];
 
         return (
-            <Table 
-                columns={skuColumns} 
-                dataSource={group.skus} 
-                pagination={false} 
-                size="small" 
+            <Table
+                columns={skuColumns}
+                dataSource={group.skus}
+                pagination={false}
+                size="small"
                 rowKey="id"
                 style={{ margin: '8px 0', background: '#fafafa', borderRadius: 4 }}
             />
@@ -252,23 +252,23 @@ const InventoryDashboard: React.FC = () => {
 
     return (
         <div>
-            <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center', 
-                marginBottom: 24 
+            <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: 24
             }}>
                 <Title level={4} style={{ margin: 0 }}>📦 Quản lý Vật tư tiêu hao</Title>
                 <Space>
-                    <Button icon={<BankOutlined />} onClick={() => navigate('/accountant/inventory/distributors')}>Nhà phân phối</Button>
+                    <Button icon={<BankOutlined />} onClick={() => navigate('/kt/inventory/distributors')}>Nhà phân phối</Button>
                     <Button icon={<PlusOutlined />} type="primary" onClick={() => {
                         setEditingGroup(null);
                         form.resetFields();
                         setIsGroupModalOpen(true);
                     }}>Khai báo Nhóm hàng</Button>
-                    <Button icon={<HistoryOutlined />} onClick={() => navigate('/accountant/inventory/history')}>Lịch sử</Button>
-                    <Button icon={<MinusOutlined />} onClick={() => navigate('/accountant/inventory/stock-out')}>Xuất kho</Button>
-                    <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/accountant/inventory/stock-in')}>Nhập kho</Button>
+                    <Button icon={<HistoryOutlined />} onClick={() => navigate('/kt/inventory/history')}>Lịch sử</Button>
+                    <Button icon={<MinusOutlined />} onClick={() => navigate('/kt/inventory/stock-out')}>Xuất kho</Button>
+                    <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/kt/inventory/stock-in')}>Nhập kho</Button>
                 </Space>
             </div>
 
@@ -352,7 +352,7 @@ const InventoryDashboard: React.FC = () => {
                 onCancel={() => setIsSkuModalOpen(false)}
                 width={500}
             >
-                <Alert 
+                <Alert
                     message={`SKU này sẽ kế thừa ĐVT cơ sở (${selectedGroup?.baseUnit}) và ĐVT đóng gói (${selectedGroup?.packageUnit}) từ Nhóm.`}
                     type="info"
                     showIcon
@@ -367,14 +367,14 @@ const InventoryDashboard: React.FC = () => {
                             </Form.Item>
                         </Col>
                         <Col span={12}>
-                            <Form.Item 
-                                name="capacity" 
-                                label={`Số lượng quy cách (mỗi ${selectedGroup?.packageUnit})`} 
+                            <Form.Item
+                                name="capacity"
+                                label={`Số lượng quy cách (mỗi ${selectedGroup?.packageUnit})`}
                                 rules={[{ required: true }]}
                             >
-                                <InputNumber 
-                                    style={{ width: '100%' }} 
-                                    placeholder="VD: 15" 
+                                <InputNumber
+                                    style={{ width: '100%' }}
+                                    placeholder="VD: 15"
                                     addonAfter={selectedGroup?.baseUnit}
                                 />
                             </Form.Item>

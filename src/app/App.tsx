@@ -146,206 +146,206 @@ function App() {
                             <Suspense fallback={<div style={{ padding: 20 }}>Loading...</div>}>
                                 <Routes>
 
-                            {/* ===== AUTO REDIRECTS ===== */}
-                            <Route path="/personal/profile" element={<Navigate to="/sale/dashboard" replace />} />
-                            
-                            {/* ===== PUBLIC ROUTES ===== */}
+                                    {/* ===== AUTO REDIRECTS ===== */}
+                                    <Route path="/personal/profile" element={<Navigate to="/kd/dashboard" replace />} />
 
-                            <Route path="/login" element={<Login />} />
-                            <Route path="/portal/:token" element={<CustomerPortal />} />
-                            <Route path="/portal/:token/timeline" element={<PublishedTimeline />} />
-                            <Route path="/portal/:token/documents" element={<PortalDocuments />} />
-                            <Route path="/portal/:token/threads" element={<ThreadInbox />} />
-                            <Route path="/portal/:token/threads/:threadId" element={<ThreadDetail />} />
+                                    {/* ===== PUBLIC ROUTES ===== */}
 
-                            {/* ===== ADMIN ROUTES ===== */}
-                            <Route path="/admin" element={<AdminLayoutV2 />}>
-                                <Route index element={<DashboardV2 />} />
-                                <Route path="dashboard" element={<DashboardV2 />} />
-                                <Route path="users" element={<UserManagement />} />
-                                <Route path="roles" element={<RoleManagement />} />
-                                <Route path="audit" element={<AuditLog />} />
-                                <Route path="reports" element={<Reports />} />
-                                <Route path="settings" element={<SystemSettings />} />
-                            </Route>
+                                    <Route path="/login" element={<Login />} />
+                                    <Route path="/portal/:token" element={<CustomerPortal />} />
+                                    <Route path="/portal/:token/timeline" element={<PublishedTimeline />} />
+                                    <Route path="/portal/:token/documents" element={<PortalDocuments />} />
+                                    <Route path="/portal/:token/threads" element={<ThreadInbox />} />
+                                    <Route path="/portal/:token/threads/:threadId" element={<ThreadDetail />} />
 
-                            {/* ===== PM ROUTES (V3) ===== */}
-                            <Route path="/pm" element={<PMLayout />}>
-                                <Route index element={<Navigate to="/pm/dashboard" replace />} />
-                                <Route path="dashboard" element={<PMDashboard />} />
+                                    {/* ===== ADMIN ROUTES ===== */}
+                                    <Route path="/admin" element={<AdminLayoutV2 />}>
+                                        <Route index element={<DashboardV2 />} />
+                                        <Route path="dashboard" element={<DashboardV2 />} />
+                                        <Route path="users" element={<UserManagement />} />
+                                        <Route path="roles" element={<RoleManagement />} />
+                                        <Route path="audit" element={<AuditLog />} />
+                                        <Route path="reports" element={<Reports />} />
+                                        <Route path="settings" element={<SystemSettings />} />
+                                    </Route>
 
-                                {/* --- Journey Module (PM) --- */}
-                                <Route path="journeys">
-                                    <Route index element={<JourneyList />} />
-                                    <Route path="board" element={<JourneyBoard />} />
-                                    <Route path="action-center" element={<ActionCenter />} />
-                                    <Route path=":journeyId" element={<JourneyDetail360 />} />
-                                </Route>
+                                    {/* ===== PM ROUTES (V3) ===== */}
+                                    <Route path="/pm" element={<PMLayout />}>
+                                        <Route index element={<Navigate to="/pm/dashboard" replace />} />
+                                        <Route path="dashboard" element={<PMDashboard />} />
 
-                                {/* --- App Settings (PM) --- */}
-                                <Route path="settings">
-                                    <Route path="customer-journey" element={<CustomerJourneySettingPage />} />
-                                    <Route path="estimate-templates" element={<EstimateTemplateList />} />
-                                </Route>
+                                        {/* --- Journey Module (PM) --- */}
+                                        <Route path="journeys">
+                                            <Route index element={<JourneyList />} />
+                                            <Route path="board" element={<JourneyBoard />} />
+                                            <Route path="action-center" element={<ActionCenter />} />
+                                            <Route path=":journeyId" element={<JourneyDetail360 />} />
+                                        </Route>
 
-                                {/* --- CRM Module --- */}
-                                <Route path="crm">
-                                    <Route index element={<Navigate to="/pm/crm/service-requests" replace />} />
-                                    <Route path="customers" element={<CustomerList />} />
-                                    <Route path="customers/new" element={<CustomerCreate />} />
-                                    <Route path="customers/:id" element={<CustomerDetail />} />
+                                        {/* --- App Settings (PM) --- */}
+                                        <Route path="settings">
+                                            <Route path="customer-journey" element={<CustomerJourneySettingPage />} />
+                                            <Route path="estimate-templates" element={<EstimateTemplateList />} />
+                                        </Route>
 
-                                    <Route path="service-requests" element={<ServiceRequestList />} />
-                                    <Route path="service-requests/new" element={<CustomerCreate />} />
-                                    <Route path="service-requests/:id" element={<ServiceRequestDetail />} />
-                                    <Route path="service-requests/:id/survey" element={<SurveyUpload />} />
-                                    <Route path="service-requests/:id/quotation" element={<Quotation />} />
+                                        {/* --- CRM Module --- */}
+                                        <Route path="crm">
+                                            <Route index element={<Navigate to="/pm/crm/service-requests" replace />} />
+                                            <Route path="customers" element={<CustomerList />} />
+                                            <Route path="customers/new" element={<CustomerCreate />} />
+                                            <Route path="customers/:id" element={<CustomerDetail />} />
 
-                                    <Route path="pipeline" element={<Pipeline />} />
-                                    <Route path="pipeline-settings" element={<PipelineSettings />} />
-                                </Route>
+                                            <Route path="service-requests" element={<ServiceRequestList />} />
+                                            <Route path="service-requests/new" element={<CustomerCreate />} />
+                                            <Route path="service-requests/:id" element={<ServiceRequestDetail />} />
+                                            <Route path="service-requests/:id/survey" element={<SurveyUpload />} />
+                                            <Route path="service-requests/:id/quotation" element={<Quotation />} />
 
-                                {/* --- Construction Module (PM) --- */}
-                                <Route path="construction">
-                                    <Route index element={<Navigate to="/pm/construction/projects" replace />} />
-                                    <Route path="projects" element={<PMProjectList />} />
-                                    <Route path="projects/create" element={<PMProjectCreate />} />
-                                    <Route path="projects/:id/edit" element={<PMProjectCreate />} />
-                                    <Route path="projects/:id" element={<PMProjectDetail />} />
-                                    <Route path="projects/:id/finance" element={<ProjectFinance />} />
-                                    <Route path="projects/:id/materials" element={<MaterialPlan />} />
-                                    <Route path="evidence" element={<EvidenceQueue />} />
-                                    <Route path="evidence/:id" element={<PhotoApproval />} />
-                                    <Route path="templates" element={<TemplateChecklist />} />
-                                </Route>
+                                            <Route path="pipeline" element={<Pipeline />} />
+                                            <Route path="pipeline-settings" element={<PipelineSettings />} />
+                                        </Route>
 
-                                {/* --- Inventory & Assets (PM view) --- */}
-                                <Route path="inventory">
-                                    <Route path="catalog" element={<InventoryCatalog />} />
-                                    <Route path="plan" element={<MaterialPlanList />} />
-                                    <Route path="plan/:id" element={<MaterialPlan />} />
-                                    <Route path="stock-out" element={<OutboundForm />} />
-                                    <Route path="history" element={<InventoryHistory />} />
-                                </Route>
-                                <Route path="assets">
-                                    <Route path="allocation" element={<AllocationForm />} />
-                                </Route>
+                                        {/* --- Construction Module (PM) --- */}
+                                        <Route path="construction">
+                                            <Route index element={<Navigate to="/pm/construction/projects" replace />} />
+                                            <Route path="projects" element={<PMProjectList />} />
+                                            <Route path="projects/create" element={<PMProjectCreate />} />
+                                            <Route path="projects/:id/edit" element={<PMProjectCreate />} />
+                                            <Route path="projects/:id" element={<PMProjectDetail />} />
+                                            <Route path="projects/:id/finance" element={<ProjectFinance />} />
+                                            <Route path="projects/:id/materials" element={<MaterialPlan />} />
+                                            <Route path="evidence" element={<EvidenceQueue />} />
+                                            <Route path="evidence/:id" element={<PhotoApproval />} />
+                                            <Route path="templates" element={<TemplateChecklist />} />
+                                        </Route>
 
-                                {/* --- Finance (PM view) --- */}
-                                <Route path="finance">
-                                    <Route path="projects" element={<ProjectFinanceList />} />
-                                    <Route path="projects/:id" element={<ProjectFinance />} />
-                                </Route>
+                                        {/* --- Inventory & Assets (PM view) --- */}
+                                        <Route path="inventory">
+                                            <Route path="catalog" element={<InventoryCatalog />} />
+                                            <Route path="plan" element={<MaterialPlanList />} />
+                                            <Route path="plan/:id" element={<MaterialPlan />} />
+                                            <Route path="stock-out" element={<OutboundForm />} />
+                                            <Route path="history" element={<InventoryHistory />} />
+                                        </Route>
+                                        <Route path="assets">
+                                            <Route path="allocation" element={<AllocationForm />} />
+                                        </Route>
 
-                                {/* --- Teams/Labor Management --- */}
-                                <Route path="teams/internal" element={<Teams />} />
-                                <Route path="teams/outsource" element={<Teams />} />
-                                <Route path="teams/workers" element={<WorkerManagement />} />
-                                <Route path="teams/workers/:id" element={<WorkerDetail />} />
-                                <Route path="teams/groups" element={<TeamManagement />} />
-                                <Route path="teams/prices" element={<LaborPriceConfig />} />
-                                <Route path="teams/groups/:id" element={<TeamDetail />} />
-                                <Route path="teams/outsource/:id" element={<CollaboratorDetail />} />
-                                
-                                <Route path="financials/milestones" element={<Financials />} />
-                                <Route path="reports" element={<PMReports />} />
-                            </Route>
+                                        {/* --- Finance (PM view) --- */}
+                                        <Route path="finance">
+                                            <Route path="projects" element={<ProjectFinanceList />} />
+                                            <Route path="projects/:id" element={<ProjectFinance />} />
+                                        </Route>
 
-                            {/* ===== SALE ROUTES (Phase 1) ===== */}
-                            <Route path="/sale" element={<SaleLayout />}>
-                                <Route index element={<Navigate to="/sale/dashboard" replace />} />
-                                <Route path="dashboard" element={<SaleDashboard />} />
-                                <Route path="customers" element={<SaleCustomerList />} />
-                                <Route path="customers/:customerId" element={<SaleCustomerDetail />} />
-                                <Route path="sla" element={<SLAQueue />} />
-                                <Route path="surveys" element={<SurveyCoordination />} />
-                                <Route path="communications" element={<CommunicationsCenter />} />
-                                <Route path="dashboard/:journeyId" element={<SaleJourneyDetail />} />
-                                {/* Unified journey detail for Sale */}
-                                <Route path="journeys/:journeyId" element={<JourneyDetail360 />} />
-                                <Route path="dashboard/:journeyId/surveys/:surveyId" element={<SaleSurveyDetail />} />
-                                <Route path="inventory/stock-out" element={<OutboundForm />} />
-                                <Route path="inventory/history" element={<InventoryHistory />} />
-                                <Route path="assets/allocation" element={<AllocationForm />} />
-                            </Route>
+                                        {/* --- Teams/Labor Management --- */}
+                                        <Route path="teams/internal" element={<Teams />} />
+                                        <Route path="teams/outsource" element={<Teams />} />
+                                        <Route path="teams/workers" element={<WorkerManagement />} />
+                                        <Route path="teams/workers/:id" element={<WorkerDetail />} />
+                                        <Route path="teams/groups" element={<TeamManagement />} />
+                                        <Route path="teams/prices" element={<LaborPriceConfig />} />
+                                        <Route path="teams/groups/:id" element={<TeamDetail />} />
+                                        <Route path="teams/outsource/:id" element={<CollaboratorDetail />} />
 
-                            {/* ===== SUPERVISOR ROUTES (V4) ===== */}
-                            <Route path="/supervisor" element={<GiamSatLayout />}>
-                                <Route index element={<Navigate to="/supervisor/dashboard" replace />} />
-                                <Route path="dashboard" element={<SupervisorDashboard />} />
-                                <Route path="projects" element={<SupervisorJourneyList />} />
-                                <Route path="checklist/:id" element={<SupervisorChecklist />} />
-                                <Route path="evidence/:projectId/:stepId" element={<SupervisorEvidenceUpload />} />
-                                <Route path="incident" element={<SupervisorIncidentReport />} />
-                                <Route path="materials" element={<MaterialReceipt />} />
-                                <Route path="profile" element={<GiamSatProfile />} />
-                                {/* Unified journey detail for Supervisor */}
-                                <Route path="journeys/:journeyId" element={<JourneyDetail360 />} />
-                                <Route path="diary/:projectId" element={<ProjectDiary />} />
-                                <Route path="inventory/stock-out" element={<OutboundForm />} />
-                                <Route path="inventory/stock-in" element={<InboundForm />} />
-                                <Route path="inventory/history" element={<InventoryHistory />} />
-                                <Route path="assets/allocation" element={<AllocationForm />} />
-                            </Route>
+                                        <Route path="financials/milestones" element={<Financials />} />
+                                        <Route path="reports" element={<PMReports />} />
+                                    </Route>
 
-                            {/* ===== ACCOUNTANT ROUTES (V3) ===== */}
-                            <Route path="/accountant" element={<AccountantV3Layout />}>
-                                <Route index element={<Navigate to="/accountant/dashboard" replace />} />
-                                <Route path="dashboard" element={<InventoryDashboard />} />
-                                <Route path="inventory" element={<Navigate to="/accountant/inventory/materials" replace />} />
-                                <Route path="inventory/materials" element={<InventoryDashboard />} />
-                                <Route path="inventory/stock-out" element={<OutboundForm />} />
-                                <Route path="inventory/stock-in" element={<InboundForm />} />
-                                <Route path="inventory/distributors" element={<DistributorList />} />
-                                <Route path="inventory/order/:id" element={<StockOrderDetail />} />
-                                <Route path="inventory/history" element={<InventoryHistory />} />
+                                    {/* ===== SALE ROUTES (KD) ===== */}
+                                    <Route path="/kd" element={<SaleLayout />}>
+                                        <Route index element={<Navigate to="/kd/dashboard" replace />} />
+                                        <Route path="dashboard" element={<SaleDashboard />} />
+                                        <Route path="customers" element={<SaleCustomerList />} />
+                                        <Route path="customers/:customerId" element={<SaleCustomerDetail />} />
+                                        <Route path="sla" element={<SLAQueue />} />
+                                        <Route path="surveys" element={<SurveyCoordination />} />
+                                        <Route path="communications" element={<CommunicationsCenter />} />
+                                        <Route path="dashboard/:journeyId" element={<SaleJourneyDetail />} />
+                                        {/* Unified journey detail for Sale */}
+                                        <Route path="journeys/:journeyId" element={<JourneyDetail360 />} />
+                                        <Route path="dashboard/:journeyId/surveys/:surveyId" element={<SaleSurveyDetail />} />
+                                        <Route path="inventory/stock-out" element={<OutboundForm />} />
+                                        <Route path="inventory/history" element={<InventoryHistory />} />
+                                        <Route path="assets/allocation" element={<AllocationForm />} />
+                                    </Route>
 
-                                {/* Assets Module */}
-                                <Route path="assets" element={<Navigate to="/accountant/assets/list" replace />} />
-                                <Route path="assets/list" element={<AssetsDashboard />} />
-                                <Route path="assets/allocation" element={<AllocationForm />} />
-                                <Route path="assets/allocation/:id" element={<AssetAllocationDetail />} />
-                                <Route path="assets/allocation-history" element={<AssetAllocationHistory />} />
-                                <Route path="assets/maintenance" element={<ComingSoon title="Bảo trì tài sản" />} />
-                                <Route path="finance">
-                                    <Route index element={<Navigate to="/accountant/finance/milestones" replace />} />
-                                    <Route path="milestones" element={<PaymentDashboard />} />
-                                    <Route path="report" element={<ComingSoon title="Báo cáo Tài chính" />} />
-                                </Route>
-                                <Route path="warranty">
-                                    <Route path="cards" element={<ComingSoon title="Phiếu Bảo hành" />} />
-                                    <Route path="schedule" element={<ComingSoon title="Lịch Bảo hành" />} />
-                                </Route>
-                                <Route path="reports" element={<ComingSoon title="Báo cáo Tổng hợp" />} />
-                                {/* Unified journey detail for Accountant */}
-                                <Route path="journeys/:journeyId" element={<JourneyDetail360 />} />
-                            </Route>
+                                    {/* ===== GIÁM SÁT ROUTES (GS) ===== */}
+                                    <Route path="/gs" element={<GiamSatLayout />}>
+                                        <Route index element={<Navigate to="/gs/dashboard" replace />} />
+                                        <Route path="dashboard" element={<SupervisorDashboard />} />
+                                        <Route path="projects" element={<SupervisorJourneyList />} />
+                                        <Route path="checklist/:id" element={<SupervisorChecklist />} />
+                                        <Route path="evidence/:projectId/:stepId" element={<SupervisorEvidenceUpload />} />
+                                        <Route path="incident" element={<SupervisorIncidentReport />} />
+                                        <Route path="materials" element={<MaterialReceipt />} />
+                                        <Route path="profile" element={<GiamSatProfile />} />
+                                        {/* Unified journey detail for Supervisor */}
+                                        <Route path="journeys/:journeyId" element={<JourneyDetail360 />} />
+                                        <Route path="diary/:projectId" element={<ProjectDiary />} />
+                                        <Route path="inventory/stock-out" element={<OutboundForm />} />
+                                        <Route path="inventory/stock-in" element={<InboundForm />} />
+                                        <Route path="inventory/history" element={<InventoryHistory />} />
+                                        <Route path="assets/allocation" element={<AllocationForm />} />
+                                    </Route>
 
-                            {/* ===== KỸ THUẬT ROUTES (V4) ===== */}
-                            <Route path="/ky-thuat" element={<KyThuatLayout />}>
-                                <Route index element={<Navigate to="/ky-thuat/dashboard" replace />} />
-                                <Route path="dashboard" element={<KTDashboard />} />
-                                <Route path="schedule" element={<KTSchedule />} />
-                                <Route path="survey/:id" element={<KTSurveyForm />} />
-                                <Route path="execution" element={<KTExecution />} />
-                                {/* Unified journey detail for Kỹ thuật */}
-                                <Route path="journeys/:journeyId" element={<JourneyDetail360 />} />
-                                <Route path="profile" element={<ComingSoon title="Hồ sơ Kỹ thuật" />} />
-                                <Route path="inventory/stock-out" element={<OutboundForm />} />
-                                <Route path="inventory/history" element={<InventoryHistory />} />
-                                <Route path="assets/allocation" element={<AllocationForm />} />
-                            </Route>
+                                    {/* ===== KẾ TOÁN ROUTES (KT) ===== */}
+                                    <Route path="/kt" element={<AccountantV3Layout />}>
+                                        <Route index element={<Navigate to="/kt/dashboard" replace />} />
+                                        <Route path="dashboard" element={<InventoryDashboard />} />
+                                        <Route path="inventory" element={<Navigate to="/kt/inventory/materials" replace />} />
+                                        <Route path="inventory/materials" element={<InventoryDashboard />} />
+                                        <Route path="inventory/stock-out" element={<OutboundForm />} />
+                                        <Route path="inventory/stock-in" element={<InboundForm />} />
+                                        <Route path="inventory/distributors" element={<DistributorList />} />
+                                        <Route path="inventory/order/:id" element={<StockOrderDetail />} />
+                                        <Route path="inventory/history" element={<InventoryHistory />} />
 
-                            {/* ===== PARTNER ROUTES ===== */}
-                            <Route path="/partner/*" element={<PartnerLayout />}>
-                                <Route index element={<Navigate to="/partner/dashboard" replace />} />
-                            </Route>
+                                        {/* Assets Module */}
+                                        <Route path="assets" element={<Navigate to="/kt/assets/list" replace />} />
+                                        <Route path="assets/list" element={<AssetsDashboard />} />
+                                        <Route path="assets/allocation" element={<AllocationForm />} />
+                                        <Route path="assets/allocation/:id" element={<AssetAllocationDetail />} />
+                                        <Route path="assets/allocation-history" element={<AssetAllocationHistory />} />
+                                        <Route path="assets/maintenance" element={<ComingSoon title="Bảo trì tài sản" />} />
+                                        <Route path="finance">
+                                            <Route index element={<Navigate to="/kt/finance/milestones" replace />} />
+                                            <Route path="milestones" element={<PaymentDashboard />} />
+                                            <Route path="report" element={<ComingSoon title="Báo cáo Tài chính" />} />
+                                        </Route>
+                                        <Route path="warranty">
+                                            <Route path="cards" element={<ComingSoon title="Phiếu Bảo hành" />} />
+                                            <Route path="schedule" element={<ComingSoon title="Lịch Bảo hành" />} />
+                                        </Route>
+                                        <Route path="reports" element={<ComingSoon title="Báo cáo Tổng hợp" />} />
+                                        {/* Unified journey detail for Accountant */}
+                                        <Route path="journeys/:journeyId" element={<JourneyDetail360 />} />
+                                    </Route>
 
-                            {/* Default + 404 */}
-                            <Route path="/" element={<Navigate to="/login" replace />} />
-                            <Route path="*" element={<NotFound />} />
-                        </Routes>
-                    </Suspense>
+                                    {/* ===== KỸ THUẬT ROUTES (KYT) ===== */}
+                                    <Route path="/kyt" element={<KyThuatLayout />}>
+                                        <Route index element={<Navigate to="/kyt/dashboard" replace />} />
+                                        <Route path="dashboard" element={<KTDashboard />} />
+                                        <Route path="schedule" element={<KTSchedule />} />
+                                        <Route path="survey/:id" element={<KTSurveyForm />} />
+                                        <Route path="execution" element={<KTExecution />} />
+                                        {/* Unified journey detail for Kỹ thuật */}
+                                        <Route path="journeys/:journeyId" element={<JourneyDetail360 />} />
+                                        <Route path="profile" element={<ComingSoon title="Hồ sơ Kỹ thuật" />} />
+                                        <Route path="inventory/stock-out" element={<OutboundForm />} />
+                                        <Route path="inventory/history" element={<InventoryHistory />} />
+                                        <Route path="assets/allocation" element={<AllocationForm />} />
+                                    </Route>
+
+                                    {/* ===== PARTNER ROUTES ===== */}
+                                    <Route path="/partner/*" element={<PartnerLayout />}>
+                                        <Route index element={<Navigate to="/partner/dashboard" replace />} />
+                                    </Route>
+
+                                    {/* Default + 404 */}
+                                    <Route path="/" element={<Navigate to="/login" replace />} />
+                                    <Route path="*" element={<NotFound />} />
+                                </Routes>
+                            </Suspense>
                         </Auth>
                     </BrowserRouter>
                 </Provider>

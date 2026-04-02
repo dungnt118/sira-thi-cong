@@ -218,10 +218,10 @@
 
 ### API Endpoints
 ```
-GET /api/supervisor/evidence/{id}
-POST /api/supervisor/evidence/{id}/approve
-POST /api/supervisor/evidence/{id}/reject
-POST /api/supervisor/evidence/{id}/rate
+GET /api/gs/evidence/{id}
+POST /api/gs/evidence/{id}/approve
+POST /api/gs/evidence/{id}/reject
+POST /api/gs/evidence/{id}/rate
 ```
 
 ### Image Loading

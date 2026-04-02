@@ -4,14 +4,14 @@
 // ============================================================
 
 // ---- ACTOR TYPES ----
-// Roles:
-//   admin      – System admin, full access
-//   pm         – Project Manager (also covers Giám đốc + Kinh doanh/Sales)
-//   supervisor – On-site Supervisor (A Tuấn/Thái/Sinh): handles checklist, evidence,
-//                incidents, acceptance & maintenance ON BEHALF of workers (thợ)
-//               (Workers/thợ have no system account — only profile data)
-//   accountant – Accountant + Hành chính (HCNS): finance, inventory, documents
-export type UserRole = 'admin' | 'pm' | 'supervisor' | 'accountant';
+// Roles (Standardized):
+//   ADMIN – System admin, full access
+//   QL    – Project Manager (Quản lý dự án)
+//   GS    – On-site Supervisor (Giám sát)
+//   KT    – Accountant (Kế toán)
+//   KD    – Sale (Kinh doanh)
+//   KYT   – Technical (Kỹ thuật)
+export type UserRole = 'ADMIN' | 'QL' | 'GS' | 'KT' | 'KD' | 'KYT';
 
 export interface User {
     id: string;

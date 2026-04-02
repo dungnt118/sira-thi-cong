@@ -18,7 +18,7 @@ Liệt kê đầy đủ các màn hình Accountant cần có trong V4 và đối
 
 | ID | Tên màn | Mục tiêu | Route/prototype hiện có | Trạng thái |
 |---|---|---|---|---|
-| ACC-01 | Finance Command Center | Tổng hợp thu, chi, quỹ, tồn kho, cảnh báo | Menu hiện tại dùng `/accountant/dashboard` nhưng đang render `InventoryDashboard` | Có một phần |
+| ACC-01 | Finance Command Center | Tổng hợp thu, chi, quỹ, tồn kho, cảnh báo | Menu hiện tại dùng `/kt/dashboard` nhưng đang render `InventoryDashboard` | Có một phần |
 | ACC-02 | Accountant Inbox | Gom việc chờ xác nhận thu, chờ duyệt chi, chờ ký kho, chờ đối soát | Chưa thấy page riêng | Chưa có |
 | ACC-03 | Exception Center | Theo dõi quá hạn, thiếu chứng từ, lệch quỹ, retention sắp đến hạn | Chưa thấy page riêng | Chưa có |
 
@@ -26,7 +26,7 @@ Liệt kê đầy đủ các màn hình Accountant cần có trong V4 và đối
 
 | ID | Tên màn | Mục tiêu | Route/prototype hiện có | Trạng thái |
 |---|---|---|---|---|
-| ACC-04 | Payment Schedule List | Danh sách đợt thanh toán theo project/hợp đồng | `/accountant/finance/milestones` - `src/pages/accountant/Finance/PaymentDashboard.tsx` | Đã có prototype |
+| ACC-04 | Payment Schedule List | Danh sách đợt thanh toán theo project/hợp đồng | `/kt/finance/milestones` - `src/pages/kt/Finance/PaymentDashboard.tsx` | Đã có prototype |
 | ACC-05 | Receivable Detail | Xem chi tiết milestone, đã thu, còn lại, chứng từ | Chưa thấy page riêng | Chưa có |
 | ACC-06 | Confirm Collection Drawer | Xác nhận thu tiền với số tiền, ngày thu, tham chiếu, chứng từ | Có modal đơn giản trong `PaymentDashboard.tsx` | Có một phần |
 | ACC-07 | Overdue Queue | Danh sách công nợ quá hạn và hành động follow-up | Chưa thấy page riêng | Chưa có |
@@ -60,11 +60,11 @@ Liệt kê đầy đủ các màn hình Accountant cần có trong V4 và đối
 
 | ID | Tên màn | Mục tiêu | Route/prototype hiện có | Trạng thái |
 |---|---|---|---|---|
-| ACC-21 | Inventory Dashboard | Tổng quan vật tư, cảnh báo thiếu, giá trị kho | `/accountant/dashboard`, `/accountant/inventory/materials` - `src/pages/accountant/Inventory/Dashboard.tsx` | Đã có prototype |
+| ACC-21 | Inventory Dashboard | Tổng quan vật tư, cảnh báo thiếu, giá trị kho | `/kt/dashboard`, `/kt/inventory/materials` - `src/pages/kt/Inventory/Dashboard.tsx` | Đã có prototype |
 | ACC-22 | Material Catalog | Danh mục vật tư và tồn kho hiện tại | Tab trong `Inventory/Dashboard.tsx` | Có một phần |
-| ACC-23 | Stock Out Document | Phiếu xuất kho | `/accountant/inventory/stock-out` - `ComingSoon` | Có một phần |
-| ACC-24 | Stock In Document | Phiếu nhập kho | `/accountant/inventory/stock-in` - `ComingSoon` | Có một phần |
-| ACC-25 | Stock History | Lịch sử xuất/nhập | `/accountant/inventory/history` - `ComingSoon` | Có một phần |
+| ACC-23 | Stock Out Document | Phiếu xuất kho | `/kt/inventory/stock-out` - `ComingSoon` | Có một phần |
+| ACC-24 | Stock In Document | Phiếu nhập kho | `/kt/inventory/stock-in` - `ComingSoon` | Có một phần |
+| ACC-25 | Stock History | Lịch sử xuất/nhập | `/kt/inventory/history` - `ComingSoon` | Có một phần |
 | ACC-26 | Inventory Value Detail | Xem giá trị kho theo vật tư/nhóm vật tư | Chưa thấy page riêng | Chưa có |
 | ACC-27 | Pending Signature Queue | Phiếu kho chờ Giám sát ký nhận | Chưa thấy page riêng | Chưa có |
 | ACC-28 | Issue-to-Kỹ thuật Reconciliation | Đối soát vật tư cấp đến kỹ thuật profile | Chưa thấy page riêng | Chưa có |
@@ -76,8 +76,8 @@ Liệt kê đầy đủ các màn hình Accountant cần có trong V4 và đối
 
 | ID | Tên màn | Mục tiêu | Route/prototype hiện có | Trạng thái |
 |---|---|---|---|---|
-| ACC-29 | Warranty Card List | Danh sách phiếu bảo hành | `/accountant/warranty/cards` - `ComingSoon` | Có một phần |
-| ACC-30 | Warranty Schedule | Lịch nhắc bảo hành/bảo trì | `/accountant/warranty/schedule` - `ComingSoon` | Có một phần |
+| ACC-29 | Warranty Card List | Danh sách phiếu bảo hành | `/kt/warranty/cards` - `ComingSoon` | Có một phần |
+| ACC-30 | Warranty Schedule | Lịch nhắc bảo hành/bảo trì | `/kt/warranty/schedule` - `ComingSoon` | Có một phần |
 | ACC-31 | Warranty/Maintenance Case Finance | Theo dõi chi phí hậu mãi và khoản phải thu | Chưa thấy page riêng | Chưa có |
 | ACC-32 | Aftersales Billing | Tạo và theo dõi billing cho bảo trì tính phí | Chưa thấy page riêng | Chưa có |
 | ACC-33 | Retention Release Queue | Hàng đợi giải tỏa retention | Chưa thấy page riêng | Chưa có |
@@ -87,8 +87,8 @@ Liệt kê đầy đủ các màn hình Accountant cần có trong V4 và đối
 
 | ID | Tên màn | Mục tiêu | Route/prototype hiện có | Trạng thái |
 |---|---|---|---|---|
-| ACC-34 | Financial Report Center | Báo cáo tài chính theo nhiều lát cắt | `/accountant/finance/report` - `ComingSoon` | Có một phần |
-| ACC-35 | Summary Reports | Báo cáo tổng hợp kế toán | `/accountant/reports` - `ComingSoon` | Có một phần |
+| ACC-34 | Financial Report Center | Báo cáo tài chính theo nhiều lát cắt | `/kt/finance/report` - `ComingSoon` | Có một phần |
+| ACC-35 | Summary Reports | Báo cáo tổng hợp kế toán | `/kt/reports` - `ComingSoon` | Có một phần |
 | ACC-36 | Reconciliation Workspace | Đối soát giao dịch, quỹ, chứng từ | Chưa thấy page riêng | Chưa có |
 | ACC-37 | AR Aging Report | Báo cáo công nợ theo tuổi nợ | Chưa thấy page riêng | Chưa có |
 | ACC-38 | Cash Book Report | Sổ quỹ tiền mặt theo kỳ | Chưa thấy page riêng | Chưa có |

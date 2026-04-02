@@ -10,7 +10,7 @@ const SurveyForm: React.FC = () => {
     const { id: journeyId } = useParams<{ id: string }>();
     const navigate = useNavigate();
 
-    const handleBack = () => navigate('/ky-thuat/schedule');
+    const handleBack = () => navigate('/kyt/schedule');
 
     if (!journeyId) {
         return <div>Hành trình không hợp lệ.</div>;

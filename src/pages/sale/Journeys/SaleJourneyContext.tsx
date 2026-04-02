@@ -2,8 +2,8 @@
  * @deprecated
  * Giao diện chi tiết Journey dành riêng cho Sale đã được hợp nhất vào
  * `src/pages/shared/Journeys/JourneyDetail360.tsx`.
- * Route mới cho Sale: `/sale/journeys/:journeyId`.
- * File này giữ lại route cũ `/sale/dashboard/:journeyId` để backward-compatibility.
+ * Route mới cho Sale: `/kd/journeys/:journeyId`.
+ * File này giữ lại route cũ `/kd/dashboard/:journeyId` để backward-compatibility.
  */
 import React, { useEffect, useState } from 'react';
 import {
@@ -120,7 +120,7 @@ const SaleJourneyContext: React.FC = () => {
         return (
             <Card style={{ marginTop: 40, textAlign: 'center', borderRadius: 20 }}>
                 <Empty description="Không tìm thấy hồ sơ Journey." />
-                <Button onClick={() => navigate('/sale/dashboard')}>Quay lại danh sách</Button>
+                <Button onClick={() => navigate('/kd/dashboard')}>Quay lại danh sách</Button>
             </Card>
         );
     }
@@ -160,7 +160,7 @@ const SaleJourneyContext: React.FC = () => {
         try {
             await journeyService.deleteJourney(journeyId);
             message.success('Đã xóa yêu cầu dịch vụ.');
-            navigate('/sale/dashboard');
+            navigate('/kd/dashboard');
         } catch (error) {
             console.error('Không thể xóa Journey', error);
             message.error('Không thể xóa yêu cầu dịch vụ.');
@@ -279,7 +279,7 @@ const SaleJourneyContext: React.FC = () => {
     return (
         <div style={{ paddingBottom: 40 }}>
             <div style={{ marginBottom: 16 }}>
-                <Button type="link" icon={<ArrowLeftOutlined />} onClick={() => navigate('/sale/dashboard')} style={{ padding: 0 }}>
+                <Button type="link" icon={<ArrowLeftOutlined />} onClick={() => navigate('/kd/dashboard')} style={{ padding: 0 }}>
                     Quay lại danh sách yêu cầu dịch vụ
                 </Button>
             </div>

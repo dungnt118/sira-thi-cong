@@ -47,7 +47,7 @@ Bộ tài liệu này được làm sạch và tái cấu trúc theo các chứn
 
 ## Quan hệ với prototype hiện tại
 
-Code hiện tại mới có seed mobile cho một phần vai trò này ở các route `/supervisor/*`, nhưng vẫn còn dùng lại component trong `src/pages/kỹ thuật/*`. Trong BA-V4, tên vai trò và luồng nghiệp vụ được chuẩn hóa thống nhất là `Giám sát`; phần naming kỹ thuật di sản sẽ được xử lý ở pha refactor code riêng.
+Code hiện tại mới có seed mobile cho một phần vai trò này ở các route `/gs/*`, nhưng vẫn còn dùng lại component trong `src/pages/kỹ thuật/*`. Trong BA-V4, tên vai trò và luồng nghiệp vụ được chuẩn hóa thống nhất là `Giám sát`; phần naming kỹ thuật di sản sẽ được xử lý ở pha refactor code riêng.
 
 ## Kết luận
 

@@ -33,10 +33,10 @@ export const Schedule: React.FC = () => {
 
     const mappedSchedules = journeys.map(j => {
         const dateObj = j.last_activity_at ? new Date(j.last_activity_at) : new Date();
-        const type = j.current_step?.includes('survey') ? 'Khảo sát' : 
-                     j.current_step?.includes('execution') ? 'Thi công' : 
-                     j.current_step?.includes('warranty') ? 'Bảo trì' : 'Khác';
-        
+        const type = j.current_step?.includes('survey') ? 'Khảo sát' :
+            j.current_step?.includes('execution') ? 'Thi công' :
+                j.current_step?.includes('warranty') ? 'Bảo trì' : 'Khác';
+
         let status: 'upcoming' | 'in-progress' | 'completed' = 'upcoming';
         if (j.project_status === 'completed') status = 'completed';
         else if (j.project_status === 'active') status = 'in-progress';
@@ -53,10 +53,10 @@ export const Schedule: React.FC = () => {
         };
     });
 
-    const filteredSchedules = mappedSchedules.filter(s => 
-        filter === 'all' ? true : 
-        filter === 'upcoming' ? (s.status === 'upcoming' || s.status === 'in-progress') : 
-        s.status === 'completed'
+    const filteredSchedules = mappedSchedules.filter(s =>
+        filter === 'all' ? true :
+            filter === 'upcoming' ? (s.status === 'upcoming' || s.status === 'in-progress') :
+                s.status === 'completed'
     );
 
     if (isLoading) {
@@ -70,7 +70,7 @@ export const Schedule: React.FC = () => {
     return (
         <div>
             <Title level={4} className="ky-thuat-page-title">Lịch trình làm việc</Title>
-            
+
             <div style={{ marginBottom: 16 }}>
                 <Radio.Group value={filter} onChange={e => setFilter(e.target.value)} buttonStyle="solid" style={{ width: '100%', display: 'flex' }}>
                     <Radio.Button value="upcoming" style={{ flex: 1, textAlign: 'center' }}>Sắp tới</Radio.Button>
@@ -83,16 +83,16 @@ export const Schedule: React.FC = () => {
                 dataSource={filteredSchedules}
                 locale={{ emptyText: <Empty description="Không có lịch trình phù hợp" /> }}
                 renderItem={item => (
-                    <Card 
-                        className="ky-card" 
+                    <Card
+                        className="ky-card"
                         size="small"
                         style={{ marginBottom: 12 }}
-                        onClick={() => navigate(`/ky-thuat/journeys/${item.id}`)}
+                        onClick={() => navigate(`/kyt/journeys/${item.id}`)}
                         hoverable
                     >
                         <div style={{ display: 'flex' }}>
-                            <div style={{ 
-                                width: 4, 
+                            <div style={{
+                                width: 4,
                                 backgroundColor: item.type === 'Khảo sát' ? '#faad14' : item.type === 'Thi công' ? '#1890ff' : '#eb2f96',
                                 borderRadius: 4,
                                 marginRight: 12

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Typography, Space, Row, Col, Badge, Progress, List, Button, Spin } from 'antd';
-import { 
-    CalendarOutlined, 
+import {
+    CalendarOutlined,
     EnvironmentOutlined,
     LoadingOutlined
 } from '@ant-design/icons';
@@ -36,20 +36,20 @@ export const Dashboard: React.FC = () => {
     }, []);
 
     const stats = [
-        { 
-            title: 'Khảo sát & Giải pháp', 
-            value: journeys.filter(j => ['lead_intake', 'qualification', 'survey_planning', 'site_survey', 'survey_review'].includes(j.current_step || '')).length, 
-            color: '#faad14' 
+        {
+            title: 'Khảo sát & Giải pháp',
+            value: journeys.filter(j => ['lead_intake', 'qualification', 'survey_planning', 'site_survey', 'survey_review'].includes(j.current_step || '')).length,
+            color: '#faad14'
         },
-        { 
-            title: 'Đang thi công', 
-            value: journeys.filter(j => ['project_execution'].includes(j.current_step || '')).length, 
-            color: '#1890ff' 
+        {
+            title: 'Đang thi công',
+            value: journeys.filter(j => ['project_execution'].includes(j.current_step || '')).length,
+            color: '#1890ff'
         },
-        { 
-            title: 'Hoàn tất / Bảo hành', 
-            value: journeys.filter(j => ['handover_acceptance', 'warranty_aftercare'].includes(j.current_step || '')).length, 
-            color: '#52c41a' 
+        {
+            title: 'Hoàn tất / Bảo hành',
+            value: journeys.filter(j => ['handover_acceptance', 'warranty_aftercare'].includes(j.current_step || '')).length,
+            color: '#52c41a'
         },
     ];
 
@@ -63,7 +63,7 @@ export const Dashboard: React.FC = () => {
             address: j.site_address || 'Địa chỉ công trình',
             time: dateObj.toLocaleDateString('vi-VN') + ' ' + dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
             status: j.project_status === 'active' ? 'in-progress' : 'pending',
-            route: `/ky-thuat/journeys/${j._id}`
+            route: `/kyt/journeys/${j._id}`
         };
     });
 
@@ -78,12 +78,12 @@ export const Dashboard: React.FC = () => {
     return (
         <div style={{ paddingBottom: 24 }}>
             <Title level={4} className="ky-thuat-page-title">Xin chào, {user?.title || 'Kỹ thuật viên'}!</Title>
-            
+
             <Row gutter={[12, 12]} style={{ marginBottom: 24 }}>
                 {stats.map(stat => (
                     <Col span={8} key={stat.title}>
-                        <Card 
-                            bodyStyle={{ padding: '12px 8px', textAlign: 'center' }} 
+                        <Card
+                            bodyStyle={{ padding: '12px 8px', textAlign: 'center' }}
                             className="ky-card"
                             style={{ borderTop: `3px solid ${stat.color}`, height: '100%' }}
                         >
@@ -98,10 +98,10 @@ export const Dashboard: React.FC = () => {
                 <Text strong style={{ fontSize: 16, display: 'block', marginBottom: 16 }}>
                     Tiến độ công việc tổng thể
                 </Text>
-                <Progress 
-                    percent={Math.round(journeys.filter(j => j.project_status === 'completed').length / (journeys.length || 1) * 100)} 
-                    strokeColor="#13a8a8" 
-                    status="active" 
+                <Progress
+                    percent={Math.round(journeys.filter(j => j.project_status === 'completed').length / (journeys.length || 1) * 100)}
+                    strokeColor="#13a8a8"
+                    status="active"
                 />
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, fontSize: 12, color: '#8c8c8c' }}>
                     <span>Sắp hoàn thành: {journeys.filter(j => (j.progress_pct || 0) > 80).length}</span>
@@ -110,30 +110,30 @@ export const Dashboard: React.FC = () => {
             </div>
 
             <Title level={5} style={{ marginBottom: 16 }}>Danh sách Hành trình</Title>
-            
+
             <List
                 itemLayout="vertical"
                 dataSource={todayTasks}
                 renderItem={(item) => (
                     <Card className="ky-card" bodyStyle={{ padding: 16 }} onClick={() => navigate(item.route)} hoverable style={{ marginBottom: 12 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
-                            <Badge 
-                                color={item.status === 'pending' ? 'orange' : 'blue'} 
-                                text={<span style={{ fontWeight: 600 }}>{item.type}</span>} 
+                            <Badge
+                                color={item.status === 'pending' ? 'orange' : 'blue'}
+                                text={<span style={{ fontWeight: 600 }}>{item.type}</span>}
                             />
                             <Text type="secondary">{item.id}</Text>
                         </div>
-                        
+
                         <Title level={5} style={{ margin: '0 0 8px 0' }}>{item.customer}</Title>
-                        
+
                         <Space direction="vertical" size={2} style={{ width: '100%', marginBottom: 16 }}>
-                            <Text type="secondary"><CalendarOutlined style={{ marginRight: 8 }}/> {item.time}</Text>
-                            <Text type="secondary" ellipsis><EnvironmentOutlined style={{ marginRight: 8 }}/> {item.address}</Text>
+                            <Text type="secondary"><CalendarOutlined style={{ marginRight: 8 }} /> {item.time}</Text>
+                            <Text type="secondary" ellipsis><EnvironmentOutlined style={{ marginRight: 8 }} /> {item.address}</Text>
                         </Space>
-                        
-                        <Button 
-                            type="primary" 
-                            block 
+
+                        <Button
+                            type="primary"
+                            block
                             style={{ backgroundColor: item.status === 'pending' ? '#13a8a8' : '#1890ff' }}
                         >
                             Chuyển tới xử lý chi tiết

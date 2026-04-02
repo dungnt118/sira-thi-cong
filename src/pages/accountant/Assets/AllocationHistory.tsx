@@ -1,10 +1,10 @@
 import React, { useState, useMemo } from 'react';
-import { 
-    Typography, Table, Button, Tag, Card, Row, Col, 
+import {
+    Typography, Table, Button, Tag, Card, Row, Col,
     Statistic, Input, Steps, Space, Badge
 } from 'antd';
-import { 
-    ClockCircleOutlined, CheckCircleOutlined, 
+import {
+    ClockCircleOutlined, CheckCircleOutlined,
     CarryOutOutlined, SearchOutlined, PlusOutlined, EditOutlined, EyeOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
@@ -57,7 +57,7 @@ const AssetAllocationHistory: React.FC = () => {
         }
         if (searchText) {
             const lower = searchText.toLowerCase();
-            list = list.filter(o => 
+            list = list.filter(o =>
                 (o.code && o.code.toLowerCase().includes(lower)) ||
                 (o.assetName && o.assetName.toLowerCase().includes(lower)) ||
                 (o.requestedBy && o.requestedBy.toLowerCase().includes(lower))
@@ -77,12 +77,12 @@ const AssetAllocationHistory: React.FC = () => {
 
     const columns = [
         { title: 'Mã phiếu', dataIndex: 'code', key: 'code', render: (t: string) => <Text strong>{t}</Text> },
-        { title: 'Tài sản', key: 'asset', render: (_: any, r: AssetAllocation) => <Space direction="vertical" size={0}><Text strong>{r.assetName}</Text><Text type="secondary" style={{fontSize: 12}}>{r.assetCode}</Text></Space> },
+        { title: 'Tài sản', key: 'asset', render: (_: any, r: AssetAllocation) => <Space direction="vertical" size={0}><Text strong>{r.assetName}</Text><Text type="secondary" style={{ fontSize: 12 }}>{r.assetCode}</Text></Space> },
         { title: 'Người yêu cầu', dataIndex: 'requestedBy', key: 'reqBy' },
         { title: 'Dự án (nếu có)', dataIndex: 'projectName', key: 'proj', render: (v: string) => v || '—' },
-        { 
-            title: 'Trạng thái', 
-            dataIndex: 'status', 
+        {
+            title: 'Trạng thái',
+            dataIndex: 'status',
             key: 'st',
             render: (s: string) => {
                 const colors: Record<string, string> = {
@@ -99,11 +99,11 @@ const AssetAllocationHistory: React.FC = () => {
             title: 'Thao tác',
             key: 'action',
             render: (_: any, r: AssetAllocation) => (
-                <Button 
-                    type={r.status === 'REQUESTED' || r.status === 'APPROVED' ? 'primary' : 'default'} 
-                    size="small" 
+                <Button
+                    type={r.status === 'REQUESTED' || r.status === 'APPROVED' ? 'primary' : 'default'}
+                    size="small"
                     icon={r.status === 'REQUESTED' || r.status === 'APPROVED' ? <EditOutlined /> : <EyeOutlined />}
-                    onClick={() => navigate(`/accountant/assets/allocation/${r.id}`)}
+                    onClick={() => navigate(`/kt/assets/allocation/${r.id}`)}
                 >
                     {r.status === 'REQUESTED' ? 'Duyệt' : (r.status === 'APPROVED' ? 'Ký nhận' : 'Xem')}
                 </Button>
@@ -115,7 +115,7 @@ const AssetAllocationHistory: React.FC = () => {
         <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
                 <Title level={4} style={{ margin: 0 }}>🔄 Lịch sử Quản lý Cấp phát & Mượn tài sản</Title>
-                <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/accountant/assets/allocation')}>
+                <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/kt/assets/allocation')}>
                     Tạo yêu cầu mượn
                 </Button>
             </div>
@@ -144,7 +144,7 @@ const AssetAllocationHistory: React.FC = () => {
             <Card bodyStyle={{ padding: '20px 24px' }} style={{ borderRadius: 8, overflow: 'hidden' }}>
                 <Row gutter={[16, 16]} align="middle" justify="space-between" style={{ marginBottom: 24 }}>
                     <Col flex="1">
-                        <Steps 
+                        <Steps
                             type="navigation"
                             size="small"
                             current={currentStepIndex !== -1 ? currentStepIndex : 0}
@@ -153,11 +153,11 @@ const AssetAllocationHistory: React.FC = () => {
                             items={STATUS_STEPS.map((s, index) => {
                                 const count = stepCounts[s.key] || 0;
                                 const isActive = currentStepIndex === index;
-                                return { 
+                                return {
                                     title: (
                                         <Space size="small">
                                             {s.title}
-                                            <Badge count={count} showZero style={{ 
+                                            <Badge count={count} showZero style={{
                                                 backgroundColor: isActive ? '#1890ff' : '#f0f0f0',
                                                 color: isActive ? '#fff' : '#8c8c8c',
                                                 boxShadow: 'none'

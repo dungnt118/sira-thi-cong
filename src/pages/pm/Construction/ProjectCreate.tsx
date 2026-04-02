@@ -54,7 +54,7 @@ const ProjectCreate: React.FC = () => {
 
     // Pre-fill from customer if coming from CRM
     const customer = mockCustomers.find(c => c.id === customerId);
-    const workers = mockUsers.filter(u => u.role === 'supervisor' && u.isActive);
+    const workers = mockUsers.filter(u => u.role === 'GS' && u.isActive);
 
     const [constructionType, setConstructionType] = useState('Chống thấm sàn');
     const [areaM2, setAreaM2] = useState(100);

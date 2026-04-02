@@ -215,7 +215,7 @@ export const PMLayout: React.FC = () => {
     }, [dispatch, journeySetting]);
 
     React.useEffect(() => {
-        if (role && role !== 'pm' && !isAdmin) {
+        if (role && role !== 'QL' && !isAdmin) {
             navigate(`/${role}/dashboard`);
             return;
         }

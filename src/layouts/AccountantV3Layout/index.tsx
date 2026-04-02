@@ -2,6 +2,7 @@ import React from 'react';
 import { Menu, Badge, Space } from 'antd';
 import type { MenuProps } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
 import {
     DashboardOutlined,
     InboxOutlined,
@@ -16,53 +17,53 @@ import { UserMenu } from '../../components/common/Header/UserMenu';
 
 const menuItems: MenuProps['items'] = [
     {
-        key: '/accountant/dashboard',
+        key: '/kt/dashboard',
         icon: <DashboardOutlined />,
         label: 'Tổng quan',
     },
     {
-        key: '/accountant/inventory',
+        key: '/kt/inventory',
         icon: <InboxOutlined />,
         label: 'QL Vật tư',
         children: [
-            { key: '/accountant/inventory/materials', label: 'Danh mục vật tư' },
-            { key: '/accountant/inventory/distributors', label: 'Nhà phân phối' },
-            { key: '/accountant/inventory/stock-out', label: 'Phiếu xuất kho' },
-            { key: '/accountant/inventory/stock-in', label: 'Phiếu nhập kho' },
-            { key: '/accountant/inventory/history', label: 'Lịch sử xuất/nhập' },
+            { key: '/kt/inventory/materials', label: 'Danh mục vật tư' },
+            { key: '/kt/inventory/distributors', label: 'Nhà phân phối' },
+            { key: '/kt/inventory/stock-out', label: 'Phiếu xuất kho' },
+            { key: '/kt/inventory/stock-in', label: 'Phiếu nhập kho' },
+            { key: '/kt/inventory/history', label: 'Lịch sử xuất/nhập' },
         ],
     },
     {
-        key: '/accountant/assets',
+        key: '/kt/assets',
         icon: <ToolOutlined />,
         label: 'QL Tài sản',
         children: [
-            { key: '/accountant/assets/list', label: 'Danh mục tài sản' },
-            { key: '/accountant/assets/allocation', label: 'Yêu cầu Cấp phát' },
-            { key: '/accountant/assets/allocation-history', label: 'Lịch sử cấp phát' },
-            { key: '/accountant/assets/maintenance', label: 'Bảo trì & Sửa chữa' },
+            { key: '/kt/assets/list', label: 'Danh mục tài sản' },
+            { key: '/kt/assets/allocation', label: 'Yêu cầu Cấp phát' },
+            { key: '/kt/assets/allocation-history', label: 'Lịch sử cấp phát' },
+            { key: '/kt/assets/maintenance', label: 'Bảo trì & Sửa chữa' },
         ],
     },
     {
-        key: '/accountant/finance',
+        key: '/kt/finance',
         icon: <DollarOutlined />,
         label: 'Thanh toán',
         children: [
-            { key: '/accountant/finance/milestones', label: 'Theo dõi đợt TT' },
-            { key: '/accountant/finance/report', label: 'Báo cáo tài chính' },
+            { key: '/kt/finance/milestones', label: 'Theo dõi đợt TT' },
+            { key: '/kt/finance/report', label: 'Báo cáo tài chính' },
         ],
     },
     {
-        key: '/accountant/warranty',
+        key: '/kt/warranty',
         icon: <SafetyOutlined />,
         label: 'Bảo hành',
         children: [
-            { key: '/accountant/warranty/cards', label: 'Phiếu bảo hành' },
-            { key: '/accountant/warranty/schedule', label: 'Lịch nhắc bảo hành' },
+            { key: '/kt/warranty/cards', label: 'Phiếu bảo hành' },
+            { key: '/kt/warranty/schedule', label: 'Lịch nhắc bảo hành' },
         ],
     },
     {
-        key: '/accountant/reports',
+        key: '/kt/reports',
         icon: <BarChartOutlined />,
         label: 'Báo cáo',
     },
@@ -87,7 +88,7 @@ const AccountantSidebar: React.FC = () => {
                 theme="dark"
                 mode="inline"
                 selectedKeys={[location.pathname]}
-                defaultOpenKeys={['/accountant/inventory', '/accountant/assets', '/accountant/finance', '/accountant/warranty']}
+                defaultOpenKeys={['/kt/inventory', '/kt/assets', '/kt/finance', '/kt/warranty']}
                 items={menuItems}
                 onClick={e => navigate(e.key)}
             />
@@ -124,6 +125,20 @@ const AccountantTopBar: React.FC = () => {
 };
 
 export const AccountantV3Layout: React.FC = () => {
+    const navigate = useNavigate();
+    const { role } = useAuth();
+
+    React.useEffect(() => {
+        if (role && role !== 'KT') {
+            navigate(`/${role.toLowerCase()}/dashboard`);
+            return;
+        }
+
+        if (!role) {
+            navigate('/login');
+        }
+    }, [navigate, role]);
+
     return <BaseLayout sidebar={<AccountantSidebar />} topBar={<AccountantTopBar />} />;
 };
 

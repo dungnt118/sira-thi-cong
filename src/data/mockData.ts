@@ -61,11 +61,11 @@ export const getProjectProgress = (project: any) => {
 // MOCK USERS
 // ============================================================
 export const mockUsers: User[] = [
-    { id: 'U001', fullName: 'Nguyễn Văn PM', phone: '0901234567', role: 'pm', isActive: true },
-    { id: 'U002', fullName: 'GS Trần Văn Tuấn', phone: '0912345678', role: 'supervisor', isActive: true },
-    { id: 'U003', fullName: 'GS Lê Văn Thái', phone: '0923456789', role: 'supervisor', isActive: true },
-    { id: 'U004', fullName: 'Kế toán Phạm Thị A', phone: '0934567890', role: 'accountant', isActive: true },
-    { id: 'U005', fullName: 'Admin Lam Bac', phone: '0800000000', role: 'admin', isActive: true },
+    { id: 'U001', fullName: 'Nguyễn Văn PM', phone: '0901234567', role: 'QL', isActive: true },
+    { id: 'U002', fullName: 'GS Trần Văn Tuấn', phone: '0912345678', role: 'GS', isActive: true },
+    { id: 'U003', fullName: 'GS Lê Văn Thái', phone: '0923456789', role: 'GS', isActive: true },
+    { id: 'U004', fullName: 'Kế toán Phạm Thị A', phone: '0934567890', role: 'KT', isActive: true },
+    { id: 'U005', fullName: 'Admin Lam Bac', phone: '0800000000', role: 'ADMIN', isActive: true },
 ];
 
 // ============================================================

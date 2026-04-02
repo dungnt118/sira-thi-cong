@@ -33,12 +33,12 @@ export const Breadcrumbs: React.FC = () => {
 
         // Supervisor routes
         '/supervisor': LABELS.SUPERVISOR.DASHBOARD,
-        '/supervisor/dashboard': LABELS.SUPERVISOR.DASHBOARD,
-        '/supervisor/projects': LABELS.SUPERVISOR.PROJECTS,
-        '/supervisor/evidence-queue': LABELS.SUPERVISOR.EVIDENCE_QUEUE,
-        '/supervisor/quality-issues': LABELS.SUPERVISOR.QUALITY_ISSUES,
-        '/supervisor/team-performance': LABELS.SUPERVISOR.TEAM_PERFORMANCE,
-        '/supervisor/reports': LABELS.SUPERVISOR.REPORTS,
+        '/gs/dashboard': LABELS.SUPERVISOR.DASHBOARD,
+        '/gs/projects': LABELS.SUPERVISOR.PROJECTS,
+        '/gs/evidence-queue': LABELS.SUPERVISOR.EVIDENCE_QUEUE,
+        '/gs/quality-issues': LABELS.SUPERVISOR.QUALITY_ISSUES,
+        '/gs/team-performance': LABELS.SUPERVISOR.TEAM_PERFORMANCE,
+        '/gs/reports': LABELS.SUPERVISOR.REPORTS,
 
         // PM routes
         '/pm': LABELS.PM.DASHBOARD,
@@ -50,11 +50,11 @@ export const Breadcrumbs: React.FC = () => {
         '/pm/reports': LABELS.PM.REPORTS,
 
         // Accountant routes
-        '/accountant': LABELS.ACCOUNTANT.DASHBOARD,
-        '/accountant/dashboard': LABELS.ACCOUNTANT.DASHBOARD,
-        '/accountant/financial-summary': LABELS.ACCOUNTANT.FINANCIAL_SUMMARY,
-        '/accountant/payment-tracking': LABELS.ACCOUNTANT.PAYMENT_TRACKING,
-        '/accountant/reports': LABELS.ACCOUNTANT.REPORTS,
+        '/kt': LABELS.ACCOUNTANT.DASHBOARD,
+        '/kt/dashboard': LABELS.ACCOUNTANT.DASHBOARD,
+        '/kt/financial-summary': LABELS.ACCOUNTANT.FINANCIAL_SUMMARY,
+        '/kt/payment-tracking': LABELS.ACCOUNTANT.PAYMENT_TRACKING,
+        '/kt/reports': LABELS.ACCOUNTANT.REPORTS,
 
         // Partner routes
         '/partner': LABELS.PARTNER.DASHBOARD,

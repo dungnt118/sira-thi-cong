@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
-    Card, Button, Progress, Typography, Avatar, Row, Col, Badge, 
+    Card, Button, Progress, Typography, Avatar, Row, Col, Badge,
     List, Empty, Spin, message, Space, Statistic, Tag
 } from 'antd';
 import {
@@ -42,7 +42,7 @@ const SupervisorDashboard: React.FC = () => {
     // Filter journeys for this supervisor
     const myJourneys = useMemo(() => {
         if (!user?._id) return [];
-        return journeys.filter(j => 
+        return journeys.filter(j =>
             j.supervisor_users === user._id || j.owner_user === user._id
         );
     }, [journeys, user?._id]);
@@ -76,11 +76,11 @@ const SupervisorDashboard: React.FC = () => {
     return (
         <div className="supervisor-dashboard" style={{ paddingBottom: 80 }}>
             {/* Premium Header Greeting */}
-            <Card 
-                bodyStyle={{ padding: '24px 20px' }} 
-                style={{ 
-                    marginBottom: 20, 
-                    borderRadius: 16, 
+            <Card
+                bodyStyle={{ padding: '24px 20px' }}
+                style={{
+                    marginBottom: 20,
+                    borderRadius: 16,
                     background: 'linear-gradient(135deg, #fa8c16 0%, #ffbb96 100%)',
                     border: 'none',
                     boxShadow: '0 4px 15px rgba(250, 140, 22, 0.2)'
@@ -121,11 +121,11 @@ const SupervisorDashboard: React.FC = () => {
             {/* Action Cards */}
             <Row gutter={12} style={{ marginBottom: 24 }}>
                 <Col span={12}>
-                    <Card 
-                        hoverable 
-                        bodyStyle={{ padding: 16 }} 
+                    <Card
+                        hoverable
+                        bodyStyle={{ padding: 16 }}
                         style={{ borderRadius: 12, height: '100%' }}
-                        onClick={() => navigate('/supervisor/materials')}
+                        onClick={() => navigate('/gs/materials')}
                     >
                         <Space size={12}>
                             <div style={{ padding: 8, backgroundColor: '#fff7e6', borderRadius: 8 }}>
@@ -139,11 +139,11 @@ const SupervisorDashboard: React.FC = () => {
                     </Card>
                 </Col>
                 <Col span={12}>
-                    <Card 
-                        hoverable 
-                        bodyStyle={{ padding: 16 }} 
+                    <Card
+                        hoverable
+                        bodyStyle={{ padding: 16 }}
                         style={{ borderRadius: 12, height: '100%' }}
-                        onClick={() => navigate('/supervisor/incident')}
+                        onClick={() => navigate('/gs/incident')}
                     >
                         <Space size={12}>
                             <div style={{ padding: 8, backgroundColor: '#fff2f0', borderRadius: 8 }}>
@@ -162,7 +162,7 @@ const SupervisorDashboard: React.FC = () => {
             <div style={{ marginBottom: 24 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                     <Title level={5} style={{ margin: 0 }}><NotificationOutlined /> Việc cần ưu tiên</Title>
-                    <Button type="link" size="small" onClick={() => navigate('/supervisor/projects')}>
+                    <Button type="link" size="small" onClick={() => navigate('/gs/projects')}>
                         Xem tất cả hành trình <RightOutlined style={{ fontSize: 10 }} />
                     </Button>
                 </div>
@@ -177,7 +177,7 @@ const SupervisorDashboard: React.FC = () => {
                             hoverable
                             style={{ marginBottom: 12, borderRadius: 12 }}
                             bodyStyle={{ padding: '16px' }}
-                            onClick={() => navigate(`/supervisor/journeys/${j._id}`)}
+                            onClick={() => navigate(`/gs/journeys/${j._id}`)}
                         >
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                 <div style={{ flex: 1 }}>
@@ -196,12 +196,12 @@ const SupervisorDashboard: React.FC = () => {
                                 </div>
                                 <div style={{ textAlign: 'right' }}>
                                     <div style={{ fontSize: 16, fontWeight: 'bold', color: '#fa8c16' }}>{j.progress_pct || 0}%</div>
-                                    <Progress 
-                                        percent={j.progress_pct || 0} 
-                                        showInfo={false} 
-                                        strokeColor="#fa8c16" 
-                                        size="small" 
-                                        style={{ width: 60 }} 
+                                    <Progress
+                                        percent={j.progress_pct || 0}
+                                        showInfo={false}
+                                        strokeColor="#fa8c16"
+                                        size="small"
+                                        style={{ width: 60 }}
                                     />
                                     <div style={{ marginTop: 8 }}>
                                         <Button size="small" type="primary" style={{ backgroundColor: '#fa8c16', borderColor: '#fa8c16' }}>Xử lý</Button>
@@ -214,16 +214,16 @@ const SupervisorDashboard: React.FC = () => {
             </div>
 
             {/* Quick Summary Card */}
-            <Card 
-                title={<span style={{ fontSize: 14 }}><ClockCircleOutlined /> Lịch sử vận hành gần đây</span>} 
-                size="small" 
+            <Card
+                title={<span style={{ fontSize: 14 }}><ClockCircleOutlined /> Lịch sử vận hành gần đây</span>}
+                size="small"
                 style={{ borderRadius: 12 }}
             >
                 <List
                     size="small"
                     dataSource={myJourneys.slice(0, 4)}
                     renderItem={j => (
-                        <List.Item style={{ padding: '10px 0' }} onClick={() => navigate(`/supervisor/journeys/${j._id}`)}>
+                        <List.Item style={{ padding: '10px 0' }} onClick={() => navigate(`/gs/journeys/${j._id}`)}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%', cursor: 'pointer' }}>
                                 <Avatar size="small" src={null} icon={<BuildOutlined />} style={{ backgroundColor: '#fff7e6', color: '#fa8c16' }} />
                                 <div style={{ flex: 1 }}>

@@ -1,19 +1,19 @@
 // @ts-nocheck
 import React, { useState, useMemo } from 'react';
-import { 
-    Form, Input, Select, InputNumber, Button, Card, 
+import {
+    Form, Input, Select, InputNumber, Button, Card,
     Typography, Space, Row, Col, message,
     Radio, Table, Divider, Tag
 } from 'antd';
-import { 
-    PlusOutlined, SaveOutlined, ArrowLeftOutlined, 
-    InfoCircleOutlined, DeleteOutlined 
+import {
+    PlusOutlined, SaveOutlined, ArrowLeftOutlined,
+    InfoCircleOutlined, DeleteOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import useLocalStorageData from '../../../hooks/useLocalStorageData';
-import { 
-    Material, Distributor, StockOrder, 
-    StockOrderSource, MaterialGroup 
+import {
+    Material, Distributor, StockOrder,
+    StockOrderSource, MaterialGroup
 } from '../../../types/v3';
 import mockMaterialsData from '../../../data/mock/materials.json';
 import mockDistributors from '../../../data/mock/distributors.json';
@@ -25,7 +25,7 @@ const InboundForm: React.FC = () => {
     const navigate = useNavigate();
     const [form] = Form.useForm();
     const [sourceType, setSourceType] = useState<StockOrderSource>('DISTRIBUTOR');
-    
+
     // Watch form fields for reactivity and calculation
     const watchedQuantity = Form.useWatch('quantity', form);
     const watchedRemainingQuantity = Form.useWatch('remainingQuantity', form);
@@ -36,7 +36,7 @@ const InboundForm: React.FC = () => {
     const [materials, setMaterials] = useLocalStorageData<Material[]>('MATERIALS', (mockMaterialsData as any).materials);
     const [distributors] = useLocalStorageData<Distributor[]>('DISTRIBUTORS', mockDistributors as Distributor[]);
     const [stockOrders, setStockOrders] = useLocalStorageData<StockOrder[]>('STOCK_ORDERS', []);
-    
+
     const [selectedItems, setSelectedItems] = useState<any[]>([]);
 
     // Calculate temporary total for the current input
@@ -61,7 +61,7 @@ const InboundForm: React.FC = () => {
         const qty = isPartial ? 0 : (values.quantity || 0);
         const remQty = values.remainingQuantity || 0;
         const cost = values.unitCost || material.unitCost || 0;
-        
+
         const newItem = {
             key: Date.now(),
             materialId: material.id,
@@ -92,7 +92,7 @@ const InboundForm: React.FC = () => {
         }
 
         const formValues = form.getFieldsValue();
-        
+
         const newStockOrder: StockOrder = {
             id: `PN-${Date.now()}`,
             code: `PN-${new Date().getFullYear()}-${(stockOrders.length + 1).toString().padStart(3, '0')}`,
@@ -133,7 +133,7 @@ const InboundForm: React.FC = () => {
             if (addedItems.length > 0) {
                 let newStock = m.currentStock;
                 let newPartial = m.partialStock || 0;
-                
+
                 addedItems.forEach(item => {
                     if (item.isPartial) {
                         newPartial += item.remainingQuantity;
@@ -152,29 +152,31 @@ const InboundForm: React.FC = () => {
         }));
 
         message.success('Nhập kho thành công');
-        navigate('/accountant/inventory');
+        navigate('/kt/inventory');
     };
 
     const itemColumns = [
-        { title: 'Vật tư', dataIndex: 'materialName', key: 'name', render: (val: string, record: any) => (
-            <div>
-                <div>{val}</div>
-                {record.isPartial && <Tag color="warning" style={{ fontSize: 10 }}>Hàng dở dang</Tag>}
-            </div>
-        )},
-        { 
-            title: 'Quy cách', 
-            dataIndex: 'materialId', 
+        {
+            title: 'Vật tư', dataIndex: 'materialName', key: 'name', render: (val: string, record: any) => (
+                <div>
+                    <div>{val}</div>
+                    {record.isPartial && <Tag color="warning" style={{ fontSize: 10 }}>Hàng dở dang</Tag>}
+                </div>
+            )
+        },
+        {
+            title: 'Quy cách',
+            dataIndex: 'materialId',
             key: 'sku',
             render: (_: string, record: any) => {
                 const materialsMatch = materials.find(m => m.id === record.materialId);
                 return <Tag color="blue">{materialsMatch?.unit || 'đơn vị'}</Tag>;
             }
         },
-        { 
-            title: 'SL Nhập', 
-            key: 'qty', 
-            render: (_: any, record: any) => record.isPartial ? `${record.remainingQuantity} (${record.baseUnit} lẻ)` : `${record.quantity} ${record.unit}` 
+        {
+            title: 'SL Nhập',
+            key: 'qty',
+            render: (_: any, record: any) => record.isPartial ? `${record.remainingQuantity} (${record.baseUnit} lẻ)` : `${record.quantity} ${record.unit}`
         },
         { title: 'Đơn giá', dataIndex: 'unitCost', key: 'cost', render: (val: number) => (val || 0).toLocaleString('vi-VN') + 'đ' },
         { title: 'Thành tiền', dataIndex: 'total', key: 'total', render: (val: number) => (val || 0).toLocaleString('vi-VN') + 'đ' },
@@ -190,7 +192,7 @@ const InboundForm: React.FC = () => {
     return (
         <div>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
-                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/accountant/inventory')} style={{ marginRight: '16px' }} />
+                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/kt/inventory')} style={{ marginRight: '16px' }} />
                 <Title level={4} style={{ margin: 0 }}>📋 Phiếu Nhập Kho</Title>
             </div>
 
@@ -201,7 +203,7 @@ const InboundForm: React.FC = () => {
                             <Row gutter={12}>
                                 <Col span={8}>
                                     <Form.Item name="materialId" label="Chọn vật tư">
-                                        <Select 
+                                        <Select
                                             showSearch
                                             placeholder="Gõ mã SKU hoặc tên"
                                             optionFilterProp="children"
@@ -231,7 +233,7 @@ const InboundForm: React.FC = () => {
                                         {sourceType === 'PROJECT' && (
                                             <Col span={6}>
                                                 <Form.Item name="isPartial" valuePropName="checked" label=" ">
-                                                    <Button 
+                                                    <Button
                                                         type={watchedIsPartial ? 'primary' : 'default'}
                                                         onClick={() => form.setFieldsValue({ isPartial: !watchedIsPartial })}
                                                         block
@@ -254,21 +256,21 @@ const InboundForm: React.FC = () => {
                                         </Col>
                                         <Col span={6}>
                                             <Form.Item name="unitCost" label="Đơn giá nhập">
-                                                <InputNumber 
-                                                    min={0} 
-                                                    style={{ width: '100%' }} 
-                                                    formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} 
+                                                <InputNumber
+                                                    min={0}
+                                                    style={{ width: '100%' }}
+                                                    formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                                                     parser={value => (value ? value.replace(/\$\s?|(,*)/g, '') : '') as any}
                                                 />
                                             </Form.Item>
                                         </Col>
                                         <Col span={6}>
                                             <Form.Item label="Thành tiền VNĐ">
-                                                <InputNumber 
-                                                    disabled 
-                                                    value={tempTotal} 
-                                                    style={{ width: '100%', background: '#f5f5f5', color: '#333', fontWeight: 'bold' }} 
-                                                    formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} 
+                                                <InputNumber
+                                                    disabled
+                                                    value={tempTotal}
+                                                    style={{ width: '100%', background: '#f5f5f5', color: '#333', fontWeight: 'bold' }}
+                                                    formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                                                 />
                                             </Form.Item>
                                         </Col>
@@ -283,10 +285,10 @@ const InboundForm: React.FC = () => {
 
                         <Divider style={{ margin: '24px 0' }} />
 
-                        <Table 
-                            dataSource={selectedItems} 
-                            columns={itemColumns} 
-                            pagination={false} 
+                        <Table
+                            dataSource={selectedItems}
+                            columns={itemColumns}
+                            pagination={false}
                             size="small"
                         />
                     </Card>
@@ -303,8 +305,8 @@ const InboundForm: React.FC = () => {
                             </Form.Item>
 
                             {sourceType === 'DISTRIBUTOR' ? (
-                                <Form.Item 
-                                    name="distributorId" 
+                                <Form.Item
+                                    name="distributorId"
                                     label="Nhà phân phối"
                                     rules={[{ required: true, message: 'Chọn NPP' }]}
                                 >
@@ -315,8 +317,8 @@ const InboundForm: React.FC = () => {
                                     </Select>
                                 </Form.Item>
                             ) : (
-                                <Form.Item 
-                                    name="projectId" 
+                                <Form.Item
+                                    name="projectId"
                                     label="Dự án/Công trình"
                                     rules={[{ required: true, message: 'Chọn dự án' }]}
                                 >

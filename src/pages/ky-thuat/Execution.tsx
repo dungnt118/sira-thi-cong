@@ -19,7 +19,7 @@ export const Execution: React.FC = () => {
         try {
             // Fetch all journeys to match PM view behavior as requested
             const response = await journeyService.queryJourneysDto({});
-            
+
             const filtered = (response.data || []).filter(j => j.current_step === 'project_execution');
             setActiveJourneys(filtered);
         } catch (error) {
@@ -54,7 +54,7 @@ export const Execution: React.FC = () => {
                             <Title level={5} style={{ margin: 0, flex: 1, paddingRight: 8 }}>{item.customer_full_name || 'Khách hàng'} - {item.request_title || 'N/A'}</Title>
                             <Tag color="processing">Thi công</Tag>
                         </div>
-                        
+
                         <Space direction="vertical" size={2} style={{ width: '100%', marginBottom: 16 }}>
                             <Text type="secondary" style={{ fontSize: 13 }}>Mã: {item.journey_code || item._id.slice(-8)}</Text>
                             <Text type="secondary" ellipsis style={{ fontSize: 13 }}>Địa chỉ: {item.site_address || 'N/A'}</Text>
@@ -70,11 +70,11 @@ export const Execution: React.FC = () => {
                             </div>
                         </div>
 
-                        <Button 
-                            type="primary" 
-                            block 
-                            icon={<RocketOutlined />} 
-                            onClick={() => navigate(`/ky-thuat/journeys/${item._id}`)}
+                        <Button
+                            type="primary"
+                            block
+                            icon={<RocketOutlined />}
+                            onClick={() => navigate(`/kyt/journeys/${item._id}`)}
                             style={{ height: 40, borderRadius: 8 }}
                         >
                             Cập nhật Nhật ký thi công <ArrowRightOutlined />
@@ -82,7 +82,7 @@ export const Execution: React.FC = () => {
                     </Card>
                 )}
             />
-            
+
             <div style={{ marginTop: 24, padding: 16, background: '#e6f7ff', borderRadius: 8, border: '1px solid #91d5ff' }}>
                 <Text style={{ fontSize: 13, color: '#0050b3' }}>
                     <strong>Ghi chú:</strong> Chỉ những hành trình đang ở bước "Thi công" mới hiển thị tại đây. Để xem các bước khác, vui lòng kiểm tra tại "Tổng quan" hoặc "Lịch trình".

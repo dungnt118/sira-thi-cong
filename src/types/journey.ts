@@ -82,7 +82,7 @@ export interface PortalMessage {
     id: string;
     thread_id: string;
     sender: string;
-    sender_role: 'customer' | 'pm' | 'sale';
+    sender_role: 'customer' | 'QL' | 'KD' | 'ADMIN' | 'GS' | 'KYT' | 'KT';
     message_body: string;
     attachments?: string[];
     official_response?: boolean;
