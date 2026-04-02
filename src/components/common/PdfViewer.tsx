@@ -123,8 +123,7 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
                     }}
                     onLoad={handleLoad}
                     onError={handleInternalError}
-                    // Bổ sung các policy cần thiết để xem PDF và tải về
-                    sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads allow-modals"
+                    // Loại bỏ sandbox để trình xem PDF native của trình duyệt hoạt động tốt nhất
                 />
             )}
             

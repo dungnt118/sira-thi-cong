@@ -44,16 +44,10 @@ export function classifyJourneyFile(file: HeadlessFileUpload): JourneyFileKind {
 }
 
 /**
- * Link cho iframe / embed PDF: thêm fragment để trình xem PDF browser native hiển thị toolbar.
+ * Link cho iframe / embed PDF: phải giống hệt link tải để đảm bảo tính nhất quán.
  */
 export function resolvePdfPreviewHref(file: HeadlessFileUpload): string | undefined {
-    const href = resolveJourneyFileHref(file);
-    if (!href) return undefined;
-    if (classifyJourneyFile(file) !== 'pdf') return href;
-    
-    // Nếu link đã có fragment, không ghi đè. Thông thường link getFileLink là query-based.
-    if (href.includes('#')) return href;
-    return `${href}#toolbar=1&view=FitH`;
+    return resolveJourneyFileHref(file);
 }
 
 export function getJourneyFileDisplayName(file: HeadlessFileUpload): string {

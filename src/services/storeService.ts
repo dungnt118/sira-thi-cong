@@ -125,9 +125,13 @@ export function getFileLink(fileId: string | null | undefined, defaultImage?: st
     // Encode fileId và regCode để xử lý các ký tự đặc biệt trong đường dẫn (vd: data/image.png)
     const encodedFileId = encodeURIComponent(fileId);
     const regCode = (get(REGCODE) as string) || '';
-    const encodedRegCode = regCode ? encodeURIComponent(regCode) : '';
     
-    return `${baseUrl ?? ''}${encodedFileId}&regCode=${encodedRegCode}`;
+    let url = `${baseUrl ?? ''}${encodedFileId}`;
+    if (regCode) {
+        url += `&regCode=${encodeURIComponent(regCode)}`;
+    }
+    
+    return url;
 }
 
 /// Alias cho getFileLink để đồng bộ với cách gọi ở các module exts
