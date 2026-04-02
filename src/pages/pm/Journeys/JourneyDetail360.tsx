@@ -775,7 +775,10 @@ const JourneyDetail360: React.FC = () => {
                         return {
                             title: (
                                 <span 
-                                    onClick={() => { openTaskModal(step.key); setIsJourneyDrawerVisible(false); }}
+                                    onClick={() => { 
+                                        openTaskModal(step.key); 
+                                        setTimeout(() => setIsJourneyDrawerVisible(false), 50); 
+                                    }}
                                     style={{ 
                                         color: stats.percentage === 100 ? '#52c41a' : 'inherit', 
                                         fontWeight: stats.total > 0 ? 600 : 400,
@@ -786,7 +789,13 @@ const JourneyDetail360: React.FC = () => {
                                 </span>
                             ),
                             description: stats.total > 0 && (
-                                <div onClick={() => { openTaskModal(step.key); setIsJourneyDrawerVisible(false); }} style={{ cursor: 'pointer' }}>
+                                <div 
+                                    onClick={() => { 
+                                        openTaskModal(step.key); 
+                                        setTimeout(() => setIsJourneyDrawerVisible(false), 50); 
+                                    }} 
+                                    style={{ cursor: 'pointer' }}
+                                >
                                     <Space size={8} style={{ marginTop: 4 }}>
                                         <Badge
                                             count={stats.total}
