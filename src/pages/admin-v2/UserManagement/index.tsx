@@ -166,6 +166,22 @@ const UserManagement: React.FC = () => {
             },
         },
         {
+            title: 'Vai trò mặc định',
+            key: 'defaultRole',
+            width: 150,
+            render: (_, record) => {
+                const context = record.identity_contexts?.find(ctx => ctx.clientId === BAC_USER_CLIENT_ID);
+                const defaultRole = context?.defaultRole;
+                if (!defaultRole) return '-';
+                
+                return (
+                    <Tag color="gold" style={{ fontWeight: 'bold' }}>
+                        {ROLE_LABEL_MAP[defaultRole] || defaultRole}
+                    </Tag>
+                );
+            },
+        },
+        {
             title: 'Trạng thái',
             dataIndex: 'isActive',
             key: 'isActive',
@@ -223,6 +239,7 @@ const UserManagement: React.FC = () => {
             phoneNumber: user.phoneNumber,
             username: user.username,
             roles: context?.roles || [],
+            defaultRole: context?.defaultRole || '',
             isActive: user.isActive ? 'Active' : 'Inactive',
         });
         setIsModalOpen(true);
@@ -257,11 +274,12 @@ const UserManagement: React.FC = () => {
                     });
                 }
 
-                // 2. Update Identity Context (Roles)
+                // 2. Update Identity Context (Roles & Default Role)
                 await authorizedUserService.updateIdentityContext({
                     userId: editingUser._id,
                     clientId: BAC_USER_CLIENT_ID,
                     roles: values.roles,
+                    defaultRole: values.defaultRole,
                 });
 
                 message.success('Cập nhật người dùng thành công');
@@ -279,11 +297,12 @@ const UserManagement: React.FC = () => {
                 });
 
                 if (newGlobalUser && newGlobalUser.id) {
-                    // 2. Create Authorized User with roles
+                    // 2. Create Authorized User with roles & default role
                     await authorizedUserService.createAuthorizedUser({
                         globalUserId: newGlobalUser.id,
                         clientId: BAC_USER_CLIENT_ID,
                         roles: values.roles,
+                        role: values.defaultRole,
                     });
                     message.success('Tạo người dùng mới thành công');
                 }
@@ -479,7 +498,7 @@ const UserManagement: React.FC = () => {
 
                     <Form.Item 
                         name="roles" 
-                        label="Phân quyền (BAC User)" 
+                        label="Các vai trò khả dụng (BAC User)" 
                         rules={[{ required: true, message: 'Chọn ít nhất 1 vai trò' }]}
                     >
                         <Select 
@@ -491,6 +510,27 @@ const UserManagement: React.FC = () => {
                                 <Option key={role.Value} value={role.Value}>{role.Label}</Option>
                             ))}
                         </Select>
+                    </Form.Item>
+
+                    <Form.Item noStyle shouldUpdate={(prev, curr) => prev.roles !== curr.roles}>
+                        {({ getFieldValue }) => {
+                            const selectedRoles = getFieldValue('roles') || [];
+                            return (
+                                <Form.Item 
+                                    name="defaultRole" 
+                                    label="Vai trò mặc định" 
+                                    rules={[{ required: true, message: 'Vui lòng chọn vai trò mặc định' }]}
+                                >
+                                    <Select placeholder="Chọn vai trò mặc định">
+                                        {selectedRoles.map((role: string) => (
+                                            <Option key={role} value={role}>
+                                                {ROLE_LABEL_MAP[role] || role}
+                                            </Option>
+                                        ))}
+                                    </Select>
+                                </Form.Item>
+                            );
+                        }}
                     </Form.Item>
                 </Form>
             </Modal>

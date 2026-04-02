@@ -71,6 +71,7 @@ export const authorizedUserService = {
         globalUserId: string;
         clientId: string;
         roles: string[];
+        role?: string;
     }): Promise<AuthorizedUser | null> {
         const response = await mutate<AuthorizedUser>(CREATE_AUTHORIZED_USER, payload);
         return response.data;
