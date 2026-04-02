@@ -152,7 +152,6 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                             email: customer.email,
                             customer_code: customer.code,
                             customer_address: customer.address,
-                            district: customer.district,
                             city: customer.city,
                             customer_notes: customer.notes
                         });
@@ -294,7 +293,6 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                     phone: values.phone,
                     email: values.email,
                     address: values.customer_address,
-                    district: values.district,
                     city: values.city,
                     notes: values.customer_notes
                 });
@@ -511,12 +509,7 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                                 <Input prefix={<HomeOutlined />} />
                             </Form.Item>
                             <Row gutter={12}>
-                                <Col span={12}>
-                                    <Form.Item label="Quận/Huyện" name="district">
-                                        <Input />
-                                    </Form.Item>
-                                </Col>
-                                <Col span={12}>
+                                <Col span={24}>
                                     <Form.Item label="Tỉnh/Thành" name="city">
                                         <Input />
                                     </Form.Item>
@@ -666,7 +659,6 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                                     <Descriptions.Item label="Địa chỉ">
                                         {[
                                             customerData?.address || journeyData.customer_address,
-                                            customerData?.district,
                                             customerData?.city || journeyData.customer_province
                                         ].filter(Boolean).join(', ') || '—'}
                                     </Descriptions.Item>

@@ -132,7 +132,6 @@ const JourneyForm: React.FC<JourneyFormProps> = ({
                             email: values.customer_email,
                             address: values.customer_address,
                             province: values.customer_province,
-                            district: values.customer_district,
                             ward: values.customer_ward
                         });
                         customerId = newCustomer._id;
@@ -214,7 +213,7 @@ const JourneyForm: React.FC<JourneyFormProps> = ({
                 </Row>
 
                 <Row gutter={16}>
-                    <Col span={8}>
+                    <Col span={12}>
                         <Form.Item 
                             label="Tỉnh/Thành" 
                             name="customer_province"
@@ -223,16 +222,7 @@ const JourneyForm: React.FC<JourneyFormProps> = ({
                             <Input placeholder="VD: Hà Nội" />
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
-                        <Form.Item 
-                            label="Quận/Huyện" 
-                            name="customer_district"
-                            rules={[{ required: true, message: 'Bắt buộc' }]}
-                        >
-                            <Input placeholder="VD: Cầu Giấy" />
-                        </Form.Item>
-                    </Col>
-                    <Col span={8}>
+                    <Col span={12}>
                         <Form.Item 
                             label="Phường/Xã" 
                             name="customer_ward"

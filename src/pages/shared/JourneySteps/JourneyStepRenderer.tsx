@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button, Card, Empty, Space, Typography, message, Grid } from 'antd';
-import { CheckCircleOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, LoadingOutlined } from '@ant-design/icons';
+import { journeyService } from '../../../services/core-contracts/services/journey.service';
 import Step01Info from './Step01Info';
 import Step02Consult from './Step02Consult';
 import Step03Survey from './Step03Survey';
@@ -41,6 +42,12 @@ export const MAP_ENUM_TO_STEP_CODE: Record<string, string> = {
     'warranty_aftercare': 'S12_WARRANTY',
 };
 
+const JOURNEY_STEP_SEQUENCE = [
+    'lead_intake', 'qualification', 'survey_planning', 'site_survey', 'survey_review',
+    'estimate_preparation', 'quotation_preparation', 'quotation_sent', 'quotation_approved',
+    'contract_signing', 'project_execution', 'handover_acceptance', 'warranty_aftercare'
+];
+
 export const JourneyStepRenderer: React.FC<JourneyStepRendererProps> = ({ 
     stepCode, 
     journeyId, 
@@ -51,13 +58,35 @@ export const JourneyStepRenderer: React.FC<JourneyStepRendererProps> = ({
     const screens = Grid.useBreakpoint();
     const isMobile = !screens.md;
     const [isInternalEdit, setIsInternalEdit] = React.useState(false);
+    const [isUpdating, setIsUpdating] = React.useState(false);
 
     // Resolve step code if it's an enum value
     const resolvedStepCode = MAP_ENUM_TO_STEP_CODE[stepCode] || stepCode;
 
-    const handleConfirmStep = () => {
-        message.success(`Đã xác nhận hoàn thành bước ${stepCode}. Chuyển sang bước tiếp theo...`);
-        if (onRefresh) onRefresh();
+    const handleConfirmStep = async () => {
+        const currentIndex = JOURNEY_STEP_SEQUENCE.indexOf(stepCode);
+        if (currentIndex === -1) {
+            message.error("Không xác định được bước hiện tại trong quy trình");
+            return;
+        }
+
+        if (currentIndex === JOURNEY_STEP_SEQUENCE.length - 1) {
+            message.info("Đây là bước cuối cùng của hành trình!");
+            return;
+        }
+
+        const nextStep = JOURNEY_STEP_SEQUENCE[currentIndex + 1];
+        setIsUpdating(true);
+        try {
+            await journeyService.updateJourney(journeyId, { current_step: nextStep as any });
+            message.success(`Đã xác nhận hoàn thành. Chuyển sang bước kế tiếp!`);
+            if (onRefresh) onRefresh();
+        } catch (error) {
+            console.error("Failed to advance step:", error);
+            message.error("Lỗi khi cập nhật trạng thái bước");
+        } finally {
+            setIsUpdating(false);
+        }
     };
 
     const renderStep = () => {
@@ -88,22 +117,28 @@ export const JourneyStepRenderer: React.FC<JourneyStepRendererProps> = ({
 
     return (
         <Space direction="vertical" style={{ width: '100%' }} size={isMobile ? 'small' : 'middle'}>
-            {renderStep()}
-            
             {canFinalize && !isInternalEdit && (
-                <Card size="small" style={{ border: '1px solid #d9f7be', background: '#f6ffed' }}>
+                <Card size="small" style={{ border: '1px solid #d9f7be', background: '#f6ffed', marginBottom: 8 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div>
                             <Text strong><CheckCircleOutlined style={{ color: '#52c41a' }} /> Xác nhận Hoàn thành Bước</Text>
                             <br />
                             <Text type="secondary" style={{ fontSize: 12 }}>Bạn có vai trò chốt bước này. Nhấp xác nhận để kết thúc và chuyển sang bước tiếp theo.</Text>
                         </div>
-                        <Button type="primary" onClick={handleConfirmStep} style={{ background: '#52c41a', borderColor: '#52c41a' }}>
+                        <Button 
+                            type="primary" 
+                            onClick={handleConfirmStep} 
+                            loading={isUpdating}
+                            icon={isUpdating ? <LoadingOutlined /> : <CheckCircleOutlined />}
+                            style={{ background: '#52c41a', borderColor: '#52c41a' }}
+                        >
                             Xác nhận Hoàn thành
                         </Button>
                     </div>
                 </Card>
             )}
+
+            {renderStep()}
         </Space>
     );
 };
