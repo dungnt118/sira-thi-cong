@@ -1,7 +1,8 @@
 import history from '@history';
 import elsagaService from '@/services/authenticationService';
 import * as graphqlService from 'app/services/graphqlService';
-import { GET_USER_SESSION_INFO_QUERY } from 'app/services/storeService';
+import * as storeService from 'app/services/storeService';
+import { GET_USER_SESSION_INFO_QUERY, REGCODE } from 'app/services/storeService';
 import type { AppThunk, RootState } from 'app/store';
 import { hideLoading } from 'app/store/actions/fuse/loading.action';
 import { showMessage } from 'app/store/actions/fuse/message.actions';
@@ -178,6 +179,7 @@ export const setUserData = (
   
   // Sync to localStorage for Quick Role Switch support
   if (session.user) {
+    storeService.set(REGCODE, session.regcode);
     persistUserData({
       username: session.user.username || '',
       role: session.activeRole || '',

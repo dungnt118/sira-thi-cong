@@ -33,10 +33,12 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
     useEffect(() => {
         const timer = setTimeout(() => {
             if (isLoading) {
-                // Nếu sau 10s vẫn đang loading, có thể có vấn đề hoặc file quá nặng
-                // Chúng ta vẫn để nó load, nhưng có thể hiện thông báo nhỏ nếu cần.
+                // Nếu sau 8s vẫn đang loading, có thể có vấn đề (CORS, CSP, hoặc backend error).
+                // Chuyển sang trạng thái lỗi để hiển thị nút tải về fallback.
+                setHasError(true);
+                setIsLoading(false);
             }
-        }, 10000);
+        }, 8000);
         return () => clearTimeout(timer);
     }, [isLoading, key]);
 
@@ -121,8 +123,8 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
                     }}
                     onLoad={handleLoad}
                     onError={handleInternalError}
-                    // Bổ sung các policy cần thiết
-                    sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+                    // Bổ sung các policy cần thiết để xem PDF và tải về
+                    sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads allow-modals"
                 />
             )}
             
