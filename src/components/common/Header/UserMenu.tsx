@@ -28,9 +28,9 @@ export const UserMenu: React.FC<UserMenuProps> = ({
     showName = true
 }) => {
     const navigate = useNavigate();
-    const { user, role, logout } = useAuth();
+    const { user, role, availableRoles, logout } = useAuth();
 
-    const roles = [
+    const rolesList = [
         { key: 'ADMIN', title: 'Quản Trị Viên', icon: <UserOutlined />, path: '/admin/dashboard', color: '#1890ff' },
         { key: 'QL', title: 'Quản Lý Dự Án', icon: <ProjectOutlined />, path: '/pm/dashboard', color: '#722ed1' },
         { key: 'KD', title: 'Kinh Doanh (Sale)', icon: <CustomerServiceOutlined />, path: '/kd/dashboard', color: '#eb2f96' },
@@ -74,12 +74,14 @@ export const UserMenu: React.FC<UserMenuProps> = ({
             key: 'switch-role',
             icon: <SwapOutlined />,
             label: <Text strong>Chuyển quyền nhanh</Text>,
-            children: roles.filter(r => r.key !== role).map(r => ({
-                key: `switch-${r.key}`,
-                icon: React.cloneElement(r.icon as React.ReactElement<any>, { style: { color: r.color } }),
-                label: r.title,
-                onClick: () => handleSwitch(r.key, r.path),
-            })),
+            children: (rolesList || [])
+                .filter(r => availableRoles?.includes(r.key) && r.key !== role)
+                .map(r => ({
+                    key: `switch-${r.key}`,
+                    icon: React.cloneElement(r.icon as React.ReactElement<any>, { style: { color: r.color } }),
+                    label: r.title,
+                    onClick: () => handleSwitch(r.key, r.path),
+                })),
         },
         { type: 'divider' },
         {

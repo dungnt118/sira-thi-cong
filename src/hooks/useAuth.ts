@@ -24,6 +24,22 @@ export const useAuth = () => {
                         return rCode?.toLowerCase?.() === 'admin';
                     });
 
+    // availableRoles logic: ONLY filter contexts matching BAC_USER_CLIENT_ID ('bac.user')
+    // as per user requirement. Other contexts like 'tenant.manager' are ignored for this list.
+    const BAC_USER_CLIENT_ID = 'bac.user';
+    const identityContexts = sessionData?.user?.identity_contexts || [];
+    const bacContext = identityContexts.find((c: any) => c.clientId === BAC_USER_CLIENT_ID);
+    
+    let availableRoles: string[] = [];
+    if (bacContext && bacContext.roles) {
+        availableRoles = bacContext.roles.map((r: any) => String(r).toUpperCase());
+    }
+
+    // fallback: if no context found, use the current active role
+    if (availableRoles.length === 0 && role) {
+        availableRoles = [role.toUpperCase()];
+    }
+
     const logout = () => {
         dispatch(logoutUser());
     };
@@ -33,6 +49,7 @@ export const useAuth = () => {
         session: sessionData,
         role,
         roles,
+        availableRoles, // New property
         isAdmin,
         logout,
         isAuthenticated: !!(sessionData?.user?._id || userState?._id || authState?.isAuthenticated)
