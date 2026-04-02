@@ -35,6 +35,7 @@ import { mockJourneyTemplates } from '../../../data/journeyMockData';
 import type { GoNoGoStatus, SlaStatus, PortalPublishStatus } from '../../../types/journey';
 import JourneyForm from '../../pm/Journeys/JourneyForm';
 import { StepWorkTaskList } from '../../../components/journey/StepWorkTaskList';
+import { JourneyDocumentsTab } from '../../../components/journey/JourneyDocumentsTab';
 
 const { Text, Title } = Typography;
 const { TextArea } = Input;
@@ -349,16 +350,16 @@ const JourneyDetail360: React.FC = () => {
 
     const taskStatsByStep = useMemo(() => {
         const stats: Record<string, { total: number; finished: number; percentage: number }> = {};
-        
+
         HEADER_STEP_CONFIG.forEach(step => {
             const stepTasks = workTasks.filter(t => t.journey_step_code === step.key);
             const total = stepTasks.length;
             const finished = stepTasks.filter(t => t.status === 'finished').length;
             const percentage = total > 0 ? Math.round((finished / total) * 100) : 0;
-            
+
             stats[step.key] = { total, finished, percentage };
         });
-        
+
         return stats;
     }, [workTasks]);
 
@@ -498,9 +499,20 @@ const JourneyDetail360: React.FC = () => {
         },
         // 12. Tab Tài liệu (GRP_09_ACCEPTANCE or GRP_08_CONSTRUCT)
         {
-            key: 'GRP_DOCS',
+            key: 'GRP_ACCEPTANCE',
             label: <span><PaperClipOutlined /> Tài liệu</span>,
             children: renderTabContent('GRP_09_ACCEPTANCE', 'S09_ACCEPTANCE'),
+        },
+        // 12b. Tab Tài liệu công trình - công khai, không giới hạn quyền
+        {
+            key: 'GRP_DOCUMENTS',
+            label: <span><PaperClipOutlined /> Tài liệu công trình</span>,
+            children: (
+                <JourneyDocumentsTab
+                    journeyId={journey._id}
+                    isEditable={role === 'pm' || isAdmin}
+                />
+            ),
         },
         // 13. Tab Portal/Chat (GRP_06_CONTRACT)
         {
@@ -520,13 +532,16 @@ const JourneyDetail360: React.FC = () => {
         // Tab Tổng quan (GRP_01_INFO) luôn hiển thị cho tất cả vai trò
         if (item.key === 'GRP_01_INFO') return true;
 
+        // Tab Tài liệu công trình luôn hiển thị công khai cho tất cả vai trò
+        if (item.key === 'GRP_DOCUMENTS') return true;
+
         // Filter tabs based on user visibility
         if (item.key === 'LOG') return role === 'pm' || role === 'sale';
 
         // Custom keys that don't match standardProcedureGroupCd exactly
         if (item.key === 'GRP_LABOR') return userRoleConfig.allowedGroupCodes.includes('GRP_05_QUOTE') || role === 'pm' || role === 'sale';
         if (item.key === 'GRP_MATERIALS') return userRoleConfig.allowedGroupCodes.includes('GRP_05_QUOTE') || role === 'pm' || role === 'sale';
-        if (item.key === 'GRP_DOCS') return userRoleConfig.allowedGroupCodes.includes('GRP_09_ACCEPTANCE') || userRoleConfig.allowedGroupCodes.includes('GRP_08_CONSTRUCT');
+        if (item.key === 'GRP_ACCEPTANCE') return userRoleConfig.allowedGroupCodes.includes('GRP_09_ACCEPTANCE') || userRoleConfig.allowedGroupCodes.includes('GRP_08_CONSTRUCT');
 
         return userRoleConfig.allowedGroupCodes.includes(item.key);
     });
@@ -576,7 +591,7 @@ const JourneyDetail360: React.FC = () => {
                         </div>
                         <Title level={4} style={{ color: '#fff', margin: '4px 0' }}>{journey.idx_customer_id?.title || journey.customer_full_name || 'Khách hàng ẩn danh'}</Title>
                         <Text style={{ color: 'rgba(255,255,255,0.8)' }}>{journey.request_title}</Text>
-                        
+
                         <div style={{ marginTop: 12 }}>
                             <Space size="middle">
                                 <CalendarOutlined style={{ color: 'rgba(255,255,255,0.6)' }} />
@@ -594,14 +609,14 @@ const JourneyDetail360: React.FC = () => {
 
                         {isMobile && (
                             <div style={{ marginTop: 16 }}>
-                                <Button 
-                                    type="primary" 
-                                    ghost 
-                                    icon={<RocketOutlined />} 
+                                <Button
+                                    type="primary"
+                                    ghost
+                                    icon={<RocketOutlined />}
                                     onClick={() => setIsJourneyDrawerVisible(true)}
-                                    style={{ 
-                                        borderRadius: 8, 
-                                        borderColor: 'rgba(255,255,255,0.4)', 
+                                    style={{
+                                        borderRadius: 8,
+                                        borderColor: 'rgba(255,255,255,0.4)',
                                         color: '#fff',
                                         background: 'rgba(255,255,255,0.1)'
                                     }}
@@ -679,11 +694,11 @@ const JourneyDetail360: React.FC = () => {
 
                                 return {
                                     title: (
-                                        <span 
+                                        <span
                                             onClick={() => openTaskModal(step.key)}
-                                            style={{ 
-                                                color: stats.percentage === 100 ? '#52c41a' : 'rgba(255,255,255,0.85)', 
-                                                fontSize: 12, 
+                                            style={{
+                                                color: stats.percentage === 100 ? '#52c41a' : 'rgba(255,255,255,0.85)',
+                                                fontSize: 12,
                                                 whiteSpace: 'nowrap',
                                                 fontWeight: stats.total > 0 ? 600 : 400,
                                                 cursor: 'pointer'
@@ -693,7 +708,7 @@ const JourneyDetail360: React.FC = () => {
                                         </span>
                                     ),
                                     description: stats.total > 0 ? (
-                                        <div 
+                                        <div
                                             onClick={() => openTaskModal(step.key)}
                                             style={{ marginTop: -4, cursor: 'pointer' }}
                                         >
@@ -712,8 +727,8 @@ const JourneyDetail360: React.FC = () => {
                                                         padding: '0 4px'
                                                     }}
                                                 />
-                                                <span style={{ 
-                                                    color: 'rgba(255,255,255,0.6)', 
+                                                <span style={{
+                                                    color: 'rgba(255,255,255,0.6)',
                                                     fontSize: 10,
                                                     whiteSpace: 'nowrap'
                                                 }}>
@@ -738,11 +753,11 @@ const JourneyDetail360: React.FC = () => {
                 width={320}
                 styles={{ body: { padding: '24px 16px' } }}
             >
-                <Alert 
-                    message="Thông tin lộ trình" 
-                    description="Nhấp vào từng bước để xem danh sách nhiệm vụ chi tiết." 
-                    type="info" 
-                    showIcon 
+                <Alert
+                    message="Thông tin lộ trình"
+                    description="Nhấp vào từng bước để xem danh sách nhiệm vụ chi tiết."
+                    type="info"
+                    showIcon
                     style={{ marginBottom: 24 }}
                 />
                 <Steps
@@ -767,13 +782,13 @@ const JourneyDetail360: React.FC = () => {
 
                         return {
                             title: (
-                                <span 
-                                    onClick={() => { 
-                                        openTaskModal(step.key); 
-                                        setTimeout(() => setIsJourneyDrawerVisible(false), 50); 
+                                <span
+                                    onClick={() => {
+                                        openTaskModal(step.key);
+                                        setTimeout(() => setIsJourneyDrawerVisible(false), 50);
                                     }}
-                                    style={{ 
-                                        color: stats.percentage === 100 ? '#52c41a' : 'inherit', 
+                                    style={{
+                                        color: stats.percentage === 100 ? '#52c41a' : 'inherit',
                                         fontWeight: stats.total > 0 ? 600 : 400,
                                         cursor: 'pointer'
                                     }}
@@ -782,11 +797,11 @@ const JourneyDetail360: React.FC = () => {
                                 </span>
                             ),
                             description: stats.total > 0 && (
-                                <div 
-                                    onClick={() => { 
-                                        openTaskModal(step.key); 
-                                        setTimeout(() => setIsJourneyDrawerVisible(false), 50); 
-                                    }} 
+                                <div
+                                    onClick={() => {
+                                        openTaskModal(step.key);
+                                        setTimeout(() => setIsJourneyDrawerVisible(false), 50);
+                                    }}
                                     style={{ cursor: 'pointer' }}
                                 >
                                     <Space size={8} style={{ marginTop: 4 }}>
@@ -1084,7 +1099,7 @@ const JourneyDetail360: React.FC = () => {
                 footer={null}
                 width={720}
             >
-                <StepWorkTaskList 
+                <StepWorkTaskList
                     tasks={selectedStepTasks}
                     loading={isLoadingTasks}
                     reportCounts={reportCountByTask}
