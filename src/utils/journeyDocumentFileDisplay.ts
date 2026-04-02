@@ -1,6 +1,27 @@
 import type { HeadlessFileUpload } from 'types/apis/HeadlessFileUpload';
+import { getFileLink } from '../services/storeService';
 
 export type JourneyFileKind = 'pdf' | 'image' | 'video' | 'other';
+
+/**
+ * Link hiển thị / xem / tải file đính kèm: ưu tiên file_id / file_path qua getFileLink,
+ * không dùng blob: (chỉ tồn tại tạm trên trình duyệt).
+ */
+export function resolveJourneyFileHref(file: HeadlessFileUpload | null | undefined): string | undefined {
+    if (!file) return undefined;
+
+    if (file.file_id || file.file_path) {
+        const out = getFileLink(file.file_id || file.file_path);
+        if (out) return out;
+    }
+
+    const raw = file.url?.trim();
+    if (!raw) return undefined;
+    if (raw.startsWith('blob:')) return undefined;
+    if (raw.startsWith('https://') || raw.startsWith('http://') || raw.startsWith('data:')) return raw;
+
+    return getFileLink(raw);
+}
 
 function getExtension(pathOrName?: string): string {
     if (!pathOrName) return '';

@@ -28,6 +28,7 @@ import { siteReportService } from '../../../services/core-contracts/services/sit
 import {
     classifyJourneyFile,
     getJourneyFileDisplayName,
+    resolveJourneyFileHref,
     type JourneyFileKind,
 } from '../../../utils/journeyDocumentFileDisplay';
 import type { HeadlessFileUpload } from 'types/apis/HeadlessFileUpload';
@@ -336,9 +337,9 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
     }, [documents]);
 
     const openFilePreview = (file: HeadlessFileUpload) => {
-        const url = file.url?.trim();
+        const url = resolveJourneyFileHref(file);
         if (!url) {
-            message.warning('Không có đường dẫn file để mở.');
+            message.warning('Không phân giải được đường dẫn file (cần file_id / file_path hoặc URL hợp lệ, không dùng blob).');
             return;
         }
         const kind = classifyJourneyFile(file);
@@ -360,7 +361,7 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
     const renderAttachedFileRow = (file: HeadlessFileUpload, docKey: string, fileIdx: number) => {
         const kind = classifyJourneyFile(file);
         const displayName = getJourneyFileDisplayName(file);
-        const url = file.url?.trim();
+        const url = resolveJourneyFileHref(file);
 
         const nameControl = (
             <Button
@@ -747,6 +748,10 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                                             renderItem={(doc) => {
                                                 const firstFile = doc.files?.[0];
                                                 const firstKind = firstFile ? classifyJourneyFile(firstFile) : null;
+                                                const firstFileHref = firstFile ? resolveJourneyFileHref(firstFile) : undefined;
+                                                const classificationTitle = doc.context_type
+                                                    ? (CONTEXT_TYPE_LABELS[doc.context_type] || doc.context_type)
+                                                    : 'Chưa phân loại';
                                                 return (
                                                     <List.Item>
                                                         <Card
@@ -770,8 +775,8 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                                                         >
                                                             <Card.Meta
                                                                 avatar={
-                                                                    firstFile && firstKind === 'image' && firstFile.url ? (
-                                                                        <Avatar src={firstFile.url} shape="square" size={48} style={{ borderRadius: 8 }} />
+                                                                    firstFile && firstKind === 'image' && firstFileHref ? (
+                                                                        <Avatar src={firstFileHref} shape="square" size={48} style={{ borderRadius: 8 }} />
                                                                     ) : firstFile && firstKind ? (
                                                                         <Avatar
                                                                             style={{ backgroundColor: '#f0f5ff' }}
@@ -781,14 +786,20 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                                                                         <Avatar icon={<FileTextOutlined />} style={{ backgroundColor: '#1890ff' }} />
                                                                     )
                                                                 }
-                                                                title={<Text ellipsis={{ tooltip: doc.description }}>{doc.description || 'Không có mô tả'}</Text>}
+                                                                title={
+                                                                    <Text strong ellipsis={{ tooltip: classificationTitle }} style={{ fontSize: 15 }}>
+                                                                        {classificationTitle}
+                                                                    </Text>
+                                                                }
                                                                 description={
                                                                     <Space direction="vertical" size={4} style={{ width: '100%' }}>
-                                                                        <Tag color="cyan">
-                                                                            {doc.context_type
-                                                                                ? (CONTEXT_TYPE_LABELS[doc.context_type] || doc.context_type)
-                                                                                : '—'}
-                                                                        </Tag>
+                                                                        <Text
+                                                                            type="secondary"
+                                                                            ellipsis={{ tooltip: doc.description || undefined }}
+                                                                            style={{ fontSize: 13, display: 'block' }}
+                                                                        >
+                                                                            {doc.description?.trim() ? doc.description : 'Không có mô tả'}
+                                                                        </Text>
                                                                         {doc.published_at ? (
                                                                             <Text type="secondary" style={{ fontSize: 11 }}>
                                                                                 Ban hành: {dayjs(doc.published_at).format('DD/MM/YYYY')}
