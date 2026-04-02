@@ -13,13 +13,14 @@ import {
     SendOutlined, ExclamationCircleOutlined, CheckCircleOutlined,
     ClockCircleOutlined, MessageOutlined, CloseCircleOutlined,
     TeamOutlined,
-    FormOutlined, PaperClipOutlined, EditOutlined, RocketOutlined
+    FormOutlined, PaperClipOutlined, EditOutlined, RocketOutlined, PlusOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
 import { JourneyStepRenderer, StepLabor, StepMaterials } from '../../shared/JourneySteps';
 import { ConsultationLogForm } from '../../../components/journey/SharedModals';
 import { CreateJourneyDocumentModal } from '../../../components/journey/CreateJourneyDocumentModal';
+import { CreateSiteReportModal } from '../../../components/journey/CreateSiteReportModal';
 import PortalDashboard from '../../../components/portal/PortalDashboard';
 import { journeyService } from '../../../services/core-contracts/services/journey.service';
 import { workTaskService } from '../../../services/core-contracts/services/workTask.service';
@@ -132,7 +133,7 @@ const JourneyDetail360: React.FC = () => {
         setIsLoadingTasks(true);
         try {
             const res = await workTaskService.queryWorkTasksDto({
-                filter: { journey_id: { _eq: journeyId } }
+                group: { id: 'journey_id', operation: 'eq', value: journeyId }
             } as any);
             setWorkTasks(res.data || []);
         } catch (error) {
@@ -171,11 +172,14 @@ const JourneyDetail360: React.FC = () => {
     const [showFollowUpModal, setShowFollowUpModal] = useState(false);
     const [showCreateDocModal, setShowCreateDocModal] = useState(false);
     const [isEditDrawerVisible, setIsEditDrawerVisible] = useState(false);
+    const [isJourneyDrawerVisible, setIsJourneyDrawerVisible] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [publishTab, setPublishTab] = useState('settings');
     const [assignForm] = Form.useForm();
     const [priorityForm] = Form.useForm();
     const [followUpForm] = Form.useForm();
+    const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+    const [selectedTaskForReport, setSelectedTaskForReport] = useState<IWorkTask | null>(null);
     const [modal, modalContextHolder] = Modal.useModal();
 
     /** Xử lý khởi tạo nhiệm vụ hàng loạt theo cấu hình */
@@ -298,16 +302,28 @@ const JourneyDetail360: React.FC = () => {
         };
     }, [role, isAdmin, journeySteps]);
 
-    const taskCountByStep = useMemo(() => {
-        return workTasks.reduce<Record<string, number>>((accumulator, task) => {
-            if (!task.journey_step_code) {
-                return accumulator;
-            }
-
-            accumulator[task.journey_step_code] = (accumulator[task.journey_step_code] || 0) + 1;
-            return accumulator;
-        }, {});
+    const taskStatsByStep = useMemo(() => {
+        const stats: Record<string, { total: number; finished: number; percentage: number }> = {};
+        
+        HEADER_STEP_CONFIG.forEach(step => {
+            const stepTasks = workTasks.filter(t => t.journey_step_code === step.key);
+            const total = stepTasks.length;
+            const finished = stepTasks.filter(t => t.status === 'finished').length;
+            const percentage = total > 0 ? Math.round((finished / total) * 100) : 0;
+            
+            stats[step.key] = { total, finished, percentage };
+        });
+        
+        return stats;
     }, [workTasks]);
+
+    const taskCountByStep = useMemo(() => {
+        const counts: Record<string, number> = {};
+        Object.keys(taskStatsByStep).forEach(key => {
+            counts[key] = taskStatsByStep[key].total;
+        });
+        return counts;
+    }, [taskStatsByStep]);
 
     const selectedStepMeta = useMemo(
         () => HEADER_STEP_CONFIG.find((step) => step.key === selectedTaskStepCode) || null,
@@ -546,6 +562,24 @@ const JourneyDetail360: React.FC = () => {
                             </Space>
                         </div>
 
+                        {isMobile && (
+                            <div style={{ marginTop: 16 }}>
+                                <Button 
+                                    type="primary" 
+                                    ghost 
+                                    icon={<RocketOutlined />} 
+                                    onClick={() => setIsJourneyDrawerVisible(true)}
+                                    style={{ 
+                                        borderRadius: 8, 
+                                        borderColor: 'rgba(255,255,255,0.4)', 
+                                        color: '#fff',
+                                        background: 'rgba(255,255,255,0.1)'
+                                    }}
+                                >
+                                    Theo dõi lộ trình
+                                </Button>
+                            </div>
+                        )}
                     </Col>
                     <Col xs={24} md={8} style={{ textAlign: isMobile ? 'left' : 'right' }}>
                         <Space wrap>
@@ -604,29 +638,124 @@ const JourneyDetail360: React.FC = () => {
                                     openTaskModal(step.key);
                                 }
                             }}
-                            items={HEADER_STEP_CONFIG.map((step) => ({
-                                title: (
-                                    <Space size={6}>
-                                        <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: 12, whiteSpace: 'nowrap' }}>
+                            items={HEADER_STEP_CONFIG.map((step) => {
+                                const stats = taskStatsByStep[step.key] || { total: 0, finished: 0, percentage: 0 };
+                                let badgeColor = 'rgba(255,255,255,0.25)';
+                                if (stats.total > 0) {
+                                    if (stats.percentage === 100) badgeColor = '#52c41a';
+                                    else if (stats.percentage > 50) badgeColor = '#faad14';
+                                    else badgeColor = '#1890ff';
+                                }
+
+                                return {
+                                    title: (
+                                        <span style={{ 
+                                            color: stats.percentage === 100 ? '#52c41a' : 'rgba(255,255,255,0.85)', 
+                                            fontSize: 12, 
+                                            whiteSpace: 'nowrap',
+                                            fontWeight: stats.total > 0 ? 600 : 400
+                                        }}>
                                             {step.label}
                                         </span>
-                                        <Badge
-                                            count={taskCountByStep[step.key] || 0}
-                                            overflowCount={99}
-                                            style={{
-                                                backgroundColor: taskCountByStep[step.key] ? '#52c41a' : 'rgba(255,255,255,0.25)',
-                                                color: '#fff',
-                                                boxShadow: 'none'
-                                            }}
-                                        />
-                                    </Space>
-                                )
-                            }))}
+                                    ),
+                                    description: stats.total > 0 ? (
+                                        <div style={{ marginTop: -4 }}>
+                                            <Space size={4} align="center">
+                                                <Badge
+                                                    count={stats.total}
+                                                    overflowCount={99}
+                                                    style={{
+                                                        backgroundColor: badgeColor,
+                                                        color: '#fff',
+                                                        boxShadow: 'none',
+                                                        fontSize: 9,
+                                                        height: 14,
+                                                        lineHeight: '14px',
+                                                        minWidth: 14,
+                                                        padding: '0 4px'
+                                                    }}
+                                                />
+                                                <span style={{ 
+                                                    color: 'rgba(255,255,255,0.6)', 
+                                                    fontSize: 10,
+                                                    whiteSpace: 'nowrap'
+                                                }}>
+                                                    {stats.finished}/{stats.total}
+                                                </span>
+                                            </Space>
+                                        </div>
+                                    ) : null
+                                };
+                            })}
                             className="journey-dark-steps"
                         />
                     </div>
                 )}
             </Card>
+
+            <Drawer
+                title="Lộ trình Hành trình"
+                placement="right"
+                onClose={() => setIsJourneyDrawerVisible(false)}
+                open={isJourneyDrawerVisible}
+                width={320}
+                styles={{ body: { padding: '24px 16px' } }}
+            >
+                <Alert 
+                    message="Thông tin lộ trình" 
+                    description="Nhấp vào từng bước để xem danh sách nhiệm vụ chi tiết." 
+                    type="info" 
+                    showIcon 
+                    style={{ marginBottom: 24 }}
+                />
+                <Steps
+                    direction="vertical"
+                    size="small"
+                    current={currentHeaderStepIndex >= 0 ? currentHeaderStepIndex : 0}
+                    onChange={(index) => {
+                        const step = HEADER_STEP_CONFIG[index];
+                        if (step) {
+                            openTaskModal(step.key);
+                            setIsJourneyDrawerVisible(false);
+                        }
+                    }}
+                    items={HEADER_STEP_CONFIG.map((step) => {
+                        const stats = taskStatsByStep[step.key] || { total: 0, finished: 0, percentage: 0 };
+                        let badgeColor = '#d9d9d9';
+                        if (stats.total > 0) {
+                            if (stats.percentage === 100) badgeColor = '#52c41a';
+                            else if (stats.percentage > 50) badgeColor = '#faad14';
+                            else badgeColor = '#1890ff';
+                        }
+
+                        return {
+                            title: (
+                                <span style={{ 
+                                    color: stats.percentage === 100 ? '#52c41a' : 'inherit', 
+                                    fontWeight: stats.total > 0 ? 600 : 400 
+                                }}>
+                                    {step.label}
+                                </span>
+                            ),
+                            description: stats.total > 0 && (
+                                <Space size={8} style={{ marginTop: 4 }}>
+                                    <Badge
+                                        count={stats.total}
+                                        style={{
+                                            backgroundColor: badgeColor,
+                                            color: '#fff',
+                                            fontSize: 10
+                                        }}
+                                    />
+                                    <span style={{ fontSize: 12, color: 'rgba(0,0,0,0.45)' }}>
+                                        Hoàn thành {stats.finished}/{stats.total}
+                                    </span>
+                                </Space>
+                            )
+                        };
+                    })}
+                />
+            </Drawer>
 
             {/* 360 Tabs */}
             <Card style={{ borderRadius: 10 }}>
@@ -938,6 +1067,17 @@ const JourneyDetail360: React.FC = () => {
                                     </Space>
                                 )}
                             />
+                            <Button 
+                                type="link" 
+                                icon={<PlusOutlined />} 
+                                size="small"
+                                onClick={() => {
+                                    setSelectedTaskForReport(task);
+                                    setIsReportModalOpen(true);
+                                }}
+                            >
+                                Tạo báo cáo
+                            </Button>
                         </List.Item>
                     )}
                 />
@@ -957,6 +1097,25 @@ const JourneyDetail360: React.FC = () => {
                 }}
                 journeyId={journeyId!}
                 editingDoc={editingDoc}
+            />
+
+            <CreateSiteReportModal
+                open={isReportModalOpen}
+                onCancel={() => {
+                    setIsReportModalOpen(false);
+                    setSelectedTaskForReport(null);
+                }}
+                onSuccess={() => {
+                    setIsReportModalOpen(false);
+                    setSelectedTaskForReport(null);
+                    fetchWorkTasks();
+                    // Optional: trigger SiteReport list refresh too if needed
+                    window.dispatchEvent(new CustomEvent('journey-site-reports-updated'));
+                }}
+                journeyId={journeyId!}
+                stepCode={selectedTaskForReport?.journey_step_code || selectedTaskStepCode || ''}
+                taskId={selectedTaskForReport?._id}
+                taskTitle={selectedTaskForReport?.title}
             />
         </div>
     );
