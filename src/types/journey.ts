@@ -197,7 +197,6 @@ export interface Journey {
     request_title: string;
     request_description?: string;
     owner_user: string;
-    owner_user_id: string;
     priority: PriorityLevel;
     current_step: string;
     current_step_code: string;

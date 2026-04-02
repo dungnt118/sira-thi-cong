@@ -62,14 +62,14 @@ export const SupervisorJourneyList: React.FC = () => {
     const myJourneys = useMemo(() => {
         if (!user?._id) return [];
         return filteredJourneys.filter(j => 
-            j.delivery_supervisor_user === user._id || j.owner_user_id === user._id
+            j.supervisor_users === user._id || j.owner_user === user._id
         );
     }, [filteredJourneys, user?._id]);
 
     const otherJourneys = useMemo(() => {
         if (!user?._id) return filteredJourneys;
         return filteredJourneys.filter(j => 
-            j.delivery_supervisor_user !== user._id && j.owner_user_id !== user._id
+            j.supervisor_users !== user._id && j.owner_user !== user._id
         );
     }, [filteredJourneys, user?._id]);
 

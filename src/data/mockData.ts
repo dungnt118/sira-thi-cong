@@ -21,7 +21,7 @@ const mapJourneyToProject = (j: Journey): Project => ({
     templateId: j.template_id || 'TPL-001',
     status: (j.project_status === 'completed' ? 'COMPLETED' : 
              j.project_status === 'active' ? 'IN_PROGRESS' : 'SCHEDULED') as ProjectStatus,
-    pmId: j.owner_user_id || 'U001',
+    pmId: j.owner_user || 'U001',
     pmName: j.owner_user || 'Nguyễn Văn PM',
     workerIds: [j.supervisor_name || ''],
     workerNames: [j.supervisor_name || ''],

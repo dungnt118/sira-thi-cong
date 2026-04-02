@@ -478,7 +478,7 @@ const JourneyInbox: React.FC = () => {
                                                     <Space size={6}>
                                                         <UserOutlined />
                                                         <Text type="secondary">
-                                                            Sale: {journey.sales_owner_user || JOURNEY_EMPTY_VALUE}
+                                                            Sale: {journey.sale_users || JOURNEY_EMPTY_VALUE}
                                                         </Text>
                                                     </Space>
                                                     <Space size={6}>
@@ -514,7 +514,7 @@ const JourneyInbox: React.FC = () => {
                                                                     Chủ sở hữu
                                                                 </Text>
                                                                 <Text strong>
-                                                                    {journey.owner_user_id || JOURNEY_EMPTY_VALUE}
+                                                                    {journey.owner_user || JOURNEY_EMPTY_VALUE}
                                                                 </Text>
                                                             </div>
                                                         </Space>

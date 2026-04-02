@@ -60,7 +60,12 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({
                 
                 // 2. Fetch Existing Survey Record
                 const sRecords = await surveyRecordService.querySurveyRecordsDto({
-                    filter: { journey_id: { _eq: journeyId } }
+                    group: {
+                        id: 'journey_id',
+                        operation: 'eq',
+                        value: journeyId,
+                        children: [],
+                    },
                 });
                 
                 if (sRecords.data && sRecords.data.length > 0) {

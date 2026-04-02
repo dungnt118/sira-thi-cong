@@ -82,7 +82,7 @@ export const JourneyDetail: React.FC = () => {
     const isEditable = useMemo(() => {
         if (!journey || !user?._id) return false;
         // Admin or assigned staff
-        return isAdmin || journey.owner_user_id === user._id || journey.delivery_supervisor_user === user._id;
+        return isAdmin || journey.owner_user === user._id || journey.supervisor_users === user._id;
     }, [journey, user?._id, isAdmin]);
 
     if (isLoading) {

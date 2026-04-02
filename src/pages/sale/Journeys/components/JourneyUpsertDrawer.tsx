@@ -68,12 +68,12 @@ const mapJourneyToForm = (
     site_address: journey?.site_address ?? initialValues?.site_address,
     sales_pipeline_id: journey?.sales_pipeline_id ?? initialValues?.sales_pipeline_id,
     sales_stage_id: journey?.sales_stage_id ?? initialValues?.sales_stage_id,
-    sales_owner_user: journey?.sales_owner_user ?? initialValues?.sales_owner_user ?? currentUsername,
-    owner_user_id: journey?.owner_user_id ?? initialValues?.owner_user_id ?? currentUsername,
+    sale_users: journey?.sale_users ?? initialValues?.sale_users ?? currentUsername,
+    owner_user: journey?.owner_user ?? initialValues?.owner_user ?? currentUsername,
     duplicate_customer_id: journey?.duplicate_customer_id ?? initialValues?.duplicate_customer_id,
-    delivery_pm_user: journey?.delivery_pm_user ?? initialValues?.delivery_pm_user,
-    delivery_supervisor_user:
-        journey?.delivery_supervisor_user ?? initialValues?.delivery_supervisor_user,
+    pm_user: journey?.pm_user ?? initialValues?.pm_user,
+    supervisor_users:
+        journey?.supervisor_users ?? initialValues?.supervisor_users,
     planned_start_date: journey?.planned_start_date
         ? dayjs(journey.planned_start_date)
         : initialValues?.planned_start_date
@@ -317,12 +317,12 @@ export const JourneyUpsertDrawer: React.FC<JourneyUpsertDrawerProps> = ({
                         </Form.Item>
                     </Col>
                     <Col xs={24} md={12}>
-                        <Form.Item label="Phụ trách kinh doanh" name="sales_owner_user">
+                        <Form.Item label="Phụ trách kinh doanh" name="sale_users">
                             <Input placeholder="Nhập username phụ trách kinh doanh" />
                         </Form.Item>
                     </Col>
                     <Col xs={24} md={12}>
-                        <Form.Item label="Chủ sở hữu hành trình" name="owner_user_id">
+                        <Form.Item label="Chủ sở hữu hành trình" name="owner_user">
                             <Input placeholder="Nhập username chủ sở hữu hành trình" />
                         </Form.Item>
                     </Col>
@@ -368,12 +368,12 @@ export const JourneyUpsertDrawer: React.FC<JourneyUpsertDrawerProps> = ({
                 <Title level={5}>Thông tin bàn giao cho delivery</Title>
                 <Row gutter={16}>
                     <Col xs={24} md={12}>
-                        <Form.Item label="PM triển khai" name="delivery_pm_user">
+                        <Form.Item label="PM triển khai" name="pm_user">
                             <Input placeholder="Nhập username PM triển khai" />
                         </Form.Item>
                     </Col>
                     <Col xs={24} md={12}>
-                        <Form.Item label="Giám sát triển khai" name="delivery_supervisor_user">
+                        <Form.Item label="Giám sát triển khai" name="supervisor_users">
                             <Input placeholder="Nhập username giám sát triển khai" />
                         </Form.Item>
                     </Col>

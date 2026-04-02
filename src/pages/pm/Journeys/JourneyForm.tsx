@@ -79,8 +79,11 @@ const JourneyForm: React.FC<JourneyFormProps> = ({
 
         try {
             const res = await customerService.queryCustomersDto({
-                filter: {
-                    phone: { contains: value },
+                group: {
+                    id: 'phone',
+                    operation: 'similar',
+                    value: value,
+                    children: [],
                 },
             });
             if (res.data) {
@@ -277,7 +280,7 @@ const JourneyForm: React.FC<JourneyFormProps> = ({
                     <Col span={12}>
                         <Form.Item
                             label="Người phụ trách (PM)"
-                            name="owner_user_id"
+                            name="owner_user"
                         >
                             <Select
                                 showSearch

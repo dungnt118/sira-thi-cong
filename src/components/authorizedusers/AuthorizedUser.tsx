@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 import { Avatar, Empty, Popover, Select, Space, Spin, Tag, Typography } from 'antd';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { queryList } from '../../services/graphqlService';
 import { getFileLink } from '../../services/storeService';
 import type { ApiListResponse } from '../../types/apis/ApiResponse';
@@ -417,7 +417,7 @@ const renderEmptyState = (property?: PropDefinition) => {
     return <Text type="secondary">-</Text>;
 };
 
-const wrapReadonlyContent = (content: JSX.Element, isEdit?: boolean) => {
+const wrapReadonlyContent = (content: React.ReactNode, isEdit?: boolean) => {
     if (!isEdit) {
         return content;
     }

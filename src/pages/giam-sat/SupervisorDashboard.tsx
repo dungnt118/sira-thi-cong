@@ -43,7 +43,7 @@ const SupervisorDashboard: React.FC = () => {
     const myJourneys = useMemo(() => {
         if (!user?._id) return [];
         return journeys.filter(j => 
-            j.delivery_supervisor_user === user._id || j.owner_user_id === user._id
+            j.supervisor_users === user._id || j.owner_user === user._id
         );
     }, [journeys, user?._id]);
 

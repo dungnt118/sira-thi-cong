@@ -55,16 +55,11 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
         try {
             const response = await siteReportService.querySiteReportsDto({
                 group: {
-                    op: 'AND',
-                    children: [
-                        { 
-                            id: 'journey_id', 
-                            value: journeyId, 
-                            operation: 'eq', 
-                            children: [], 
-                            propType: 'OBJECTID' as any 
-                        }
-                    ]
+                    id: 'journey_id',
+                    operation: 'eq',
+                    value: journeyId,
+                    children: [],
+                    propType: 'OBJECTID' as any
                 },
                 sorted: [{ id: 'createdAt', desc: false }] 
             });
@@ -124,8 +119,8 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
                 const timeStr = isValidDate ? dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : '';
                 
                 // Extra defensive handling for complex fields
-                const supervisor = (report.supervisor_user && typeof report.supervisor_user === 'object') ? report.supervisor_user : null;
-                const supervisorTitle = supervisor?.title || (typeof report.supervisor_user === 'string' ? report.supervisor_user : 'Giám sát hiện trường');
+                const creator = (report.createdBy && typeof report.createdBy === 'object') ? report.createdBy : null;
+                const creatorTitle = creator?.title || (typeof report.createdBy === 'string' ? report.createdBy : 'Thành viên SIRA');
                 const progress = typeof report.progress_pct === 'number' ? report.progress_pct : (Number(report.progress_pct) || 0);
 
                 return {
@@ -147,9 +142,9 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
                                     <Avatar 
                                         size="small" 
                                         icon={<UserOutlined />} 
-                                        src={typeof supervisor?.avatar === 'string' ? getFileLink(supervisor.avatar) : undefined} 
+                                        src={typeof creator?.avatar === 'string' ? getFileLink(creator.avatar) : undefined} 
                                     />
-                                    <Text strong>{String(supervisorTitle)}</Text>
+                                    <Text strong>{String(creatorTitle)}</Text>
                                     <Tag color="cyan">{progress}%</Tag>
                                 </Space>
                             }

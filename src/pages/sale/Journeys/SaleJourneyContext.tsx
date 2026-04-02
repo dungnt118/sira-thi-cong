@@ -187,15 +187,15 @@ const SaleJourneyContext: React.FC = () => {
                                 <Descriptions.Item label="Bước hiện tại">{getJourneyStepLabel(journey.current_step)}</Descriptions.Item>
                                 <Descriptions.Item label="Quy trình bán hàng">{pipelineName}</Descriptions.Item>
                                 <Descriptions.Item label="Giai đoạn bán hàng">{stageName}</Descriptions.Item>
-                                <Descriptions.Item label="Sale phụ trách">{journey.sales_owner_user || JOURNEY_EMPTY_VALUE}</Descriptions.Item>
-                                <Descriptions.Item label="Chủ sở hữu">{journey.owner_user_id || JOURNEY_EMPTY_VALUE}</Descriptions.Item>
+                                <Descriptions.Item label="Sale phụ trách">{journey.sale_users || JOURNEY_EMPTY_VALUE}</Descriptions.Item>
+                                <Descriptions.Item label="Chủ sở hữu">{journey.owner_user || JOURNEY_EMPTY_VALUE}</Descriptions.Item>
                                 <Descriptions.Item label="Go / No-Go">{getOptionLabel(JOURNEY_GO_NO_GO_OPTIONS, journey.go_no_go_status)}</Descriptions.Item>
                             </Descriptions>
                         </Card>
                         <Card bordered={false} style={{ borderRadius: 18 }}>
                             <Descriptions column={1} size="small">
-                                <Descriptions.Item label="PM triển khai">{journey.delivery_pm_user || JOURNEY_EMPTY_VALUE}</Descriptions.Item>
-                                <Descriptions.Item label="Giám sát triển khai">{journey.delivery_supervisor_user || JOURNEY_EMPTY_VALUE}</Descriptions.Item>
+                                <Descriptions.Item label="PM triển khai">{journey.pm_user || JOURNEY_EMPTY_VALUE}</Descriptions.Item>
+                                <Descriptions.Item label="Giám sát triển khai">{journey.supervisor_users || JOURNEY_EMPTY_VALUE}</Descriptions.Item>
                                 <Descriptions.Item label="Ngày bắt đầu dự kiến">{formatJourneyDate(journey.planned_start_date)}</Descriptions.Item>
                                 <Descriptions.Item label="Ngày kết thúc dự kiến">{formatJourneyDate(journey.planned_end_date)}</Descriptions.Item>
                                 <Descriptions.Item label="Ghi chú triển khai">{journey.delivery_note || JOURNEY_EMPTY_VALUE}</Descriptions.Item>
@@ -215,7 +215,7 @@ const SaleJourneyContext: React.FC = () => {
                             <Text type="secondary">Tiến độ khảo sát:</Text>
                             <Tag color={journey.survey_status === 'completed' ? 'success' : 'processing'}>{journey.survey_status || 'not_started'}</Tag>
                         </Space>
-                        <Text>Giám sát hiện trường: {journey.delivery_supervisor_user || journey.supervisor_name || JOURNEY_EMPTY_VALUE}</Text>
+                        <Text>Giám sát hiện trường: {journey.supervisor_users || journey.supervisor_name || JOURNEY_EMPTY_VALUE}</Text>
                         <Text>Khảo sát gần nhất: {formatJourneyDate(journey.latest_site_report_at, true)}</Text>
                         <Button type="primary" onClick={() => setShowSurveyModal(true)}>Đặt lịch khảo sát</Button>
                     </Space>
@@ -289,7 +289,7 @@ const SaleJourneyContext: React.FC = () => {
                         <Title level={3} style={{ margin: '12px 0 4px' }}>{customerName}</Title>
                         <Text style={{ display: 'block', fontSize: 16 }}>{journey.request_title || JOURNEY_EMPTY_VALUE}</Text>
                         <Text type="secondary" style={{ display: 'block', marginTop: 12 }}>
-                            Sale: {journey.sales_owner_user || JOURNEY_EMPTY_VALUE} · Cập nhật: {formatJourneyDate(journey.last_activity_at, true)}
+                            Sale: {journey.sale_users || JOURNEY_EMPTY_VALUE} · Cập nhật: {formatJourneyDate(journey.last_activity_at, true)}
                         </Text>
                     </Col>
                     <Col xs={24} lg={8} style={{ textAlign: 'right' }}>
@@ -357,7 +357,7 @@ const SaleJourneyContext: React.FC = () => {
                     <Form.Item label="Thời gian khảo sát" name="survey_at" rules={[{ required: true, message: 'Vui lòng chọn thời gian khảo sát' }]}>
                         <DatePicker showTime style={{ width: '100%' }} />
                     </Form.Item>
-                    <Form.Item label="Giám sát triển khai" name="surveyor" initialValue={journey.delivery_supervisor_user}>
+                    <Form.Item label="Giám sát triển khai" name="surveyor" initialValue={journey.supervisor_users}>
                         <Input placeholder="Nhập username giám sát phụ trách" />
                     </Form.Item>
                     <Form.Item label="Địa điểm gặp" name="address" initialValue={journey.site_address}>
