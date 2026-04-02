@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
     Card,
     Table,
@@ -14,6 +14,7 @@ import {
     Statistic,
     Popconfirm,
     message,
+    Tooltip,
 } from 'antd';
 import {
     UserOutlined,
@@ -23,434 +24,473 @@ import {
     SearchOutlined,
     CheckCircleOutlined,
     CloseCircleOutlined,
+    SyncOutlined,
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
+import { useOutletContext } from 'react-router-dom';
+
+// Services & Constants
+import { globalUserService } from 'services/users/global-users/global-user.service';
+import { authorizedUserService } from 'services/users/authorized-users/authorized-user.service';
+import { BAC_USER_CLIENT_ID, ROLE_COLOR_MAP, ROLE_LABEL_MAP, USER_ROLES } from 'services/users/user.constants';
+import type { AuthorizedUser, IdentityContext } from 'services/users/authorized-users/authorizedusers.types';
+import type { IGlobalUser } from 'services/users/global-users/global-user.types';
 
 const { Search } = Input;
 const { Option } = Select;
 
-interface User {
-    _id: string;
-    name: string;
-    email: string;
-    phone: string;
-    username: string;
-    role: 'Admin' | 'PM' | 'Supervisor' | 'Accountant' | 'Outsource Leader' | 'Staff';
-    outsourceCompanyId?: string;
-    outsourceCompanyName?: string;
-    status: 'Active' | 'Inactive';
-    lastLogin?: Date;
-    createdTime: Date;
-}
-
-import { useOutletContext } from 'react-router-dom';
-
 /**
- * User Management Page - CRUD for 6 roles
- * Roles: Admin, PM, Supervisor, Accountant, Outsource Leader, Staff
+ * User Management Page - Refactored for BAC User Client
+ * Managed Roles: QL, GS, KYT, KT, KD, ADMIN
  */
 const UserManagement: React.FC = () => {
     const { isMobile } = useOutletContext<{ isMobile: boolean }>();
+    
+    // State
+    const [users, setUsers] = useState<AuthorizedUser[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [total, setTotal] = useState(0);
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
+    
+    // Filters
     const [searchText, setSearchText] = useState('');
     const [filterRole, setFilterRole] = useState<string>('');
     const [filterStatus, setFilterStatus] = useState<string>('');
+
+    // Modal state
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingUser, setEditingUser] = useState<User | null>(null);
+    const [editingUser, setEditingUser] = useState<AuthorizedUser | null>(null);
+    const [submitting, setSubmitting] = useState(false);
     const [form] = Form.useForm();
 
-    // Mock data - replace with GraphQL/API calls
-    const mockUsers: User[] = [
-        {
-            _id: '1',
-            name: 'Nguyễn Văn A',
-            email: 'admin@sira.vn',
-            phone: '0901234567',
-            username: 'admin',
-            role: 'Admin',
-            status: 'Active',
-            lastLogin: new Date('2024-02-13T08:30:00'),
-            createdTime: new Date('2024-01-01'),
-        },
-        {
-            _id: '2',
-            name: 'Trần Thị B',
-            email: 'pm.tranb@sira.vn',
-            phone: '0902345678',
-            username: 'pm_tranb',
-            role: 'PM',
-            status: 'Active',
-            lastLogin: new Date('2024-02-13T09:15:00'),
-            createdTime: new Date('2024-01-05'),
-        },
-        {
-            _id: '3',
-            name: 'Lê Văn C',
-            email: 'supervisor.lec@sira.vn',
-            phone: '0903456789',
-            username: 'sv_lec',
-            role: 'Supervisor',
-            status: 'Active',
-            lastLogin: new Date('2024-02-12T16:45:00'),
-            createdTime: new Date('2024-01-10'),
-        },
-        {
-            _id: '4',
-            name: 'Phạm Thị D',
-            email: 'accountant@sira.vn',
-            phone: '0904567890',
-            username: 'acc_phamd',
-            role: 'Accountant',
-            status: 'Active',
-            lastLogin: new Date('2024-02-13T07:20:00'),
-            createdTime: new Date('2024-01-15'),
-        },
-        {
-            _id: '5',
-            name: 'Hoàng Văn E',
-            email: 'partner@company-a.vn',
-            phone: '0905678901',
-            username: 'partner_hoange',
-            role: 'Outsource Leader',
-            outsourceCompanyId: 'company-a',
-            outsourceCompanyName: 'Công ty TNHH Xây dựng A',
-            status: 'Active',
-            lastLogin: new Date('2024-02-13T06:00:00'),
-            createdTime: new Date('2024-02-01'),
-        },
-        {
-            _id: '6',
-            name: 'Vũ Thị F',
-            email: 'staff.vuf@sira.vn',
-            phone: '0906789012',
-            username: 'staff_vuf',
-            role: 'Staff',
-            status: 'Inactive',
-            createdTime: new Date('2024-01-20'),
-        },
-    ];
+    /**
+     * Fetch users from backend
+     */
+    const fetchUsers = useCallback(async () => {
+        setLoading(true);
+        try {
+            const response = await authorizedUserService.searchUsers({
+                keyword: searchText,
+                clientId: BAC_USER_CLIENT_ID,
+                isActive: filterStatus === 'Active' ? true : filterStatus === 'Inactive' ? false : null,
+                page,
+                pageSize,
+            });
 
-    const [users] = useState<User[]>(mockUsers);
+            if (response.success) {
+                // Further filter by role if needed (client-side if server doesn't support direct role filter in search)
+                let data = response.data;
+                if (filterRole) {
+                    data = data.filter(u => {
+                        const context = u.identity_contexts?.find(ctx => ctx.clientId === BAC_USER_CLIENT_ID);
+                        return context?.roles.includes(filterRole);
+                    });
+                }
+                setUsers(data);
+                setTotal(response.total);
+            }
+        } catch (error) {
+            console.error('Fetch users error:', error);
+            message.error('Không thể tải danh sách người dùng');
+        } finally {
+            setLoading(false);
+        }
+    }, [searchText, filterStatus, filterRole, page, pageSize]);
 
-    // Statistics
-    const totalUsers = users.length;
-    const activeUsers = users.filter((u) => u.status === 'Active').length;
-    const usersByRole = {
-        Admin: users.filter((u) => u.role === 'Admin').length,
-        PM: users.filter((u) => u.role === 'PM').length,
-        Supervisor: users.filter((u) => u.role === 'Supervisor').length,
-        Accountant: users.filter((u) => u.role === 'Accountant').length,
-        'Outsource Leader': users.filter((u) => u.role === 'Outsource Leader').length,
-        Staff: users.filter((u) => u.role === 'Staff').length,
+    useEffect(() => {
+        fetchUsers();
+    }, [fetchUsers]);
+
+    /**
+     * Delete/Deactivate User
+     */
+    const handleDelete = async (userId: string) => {
+        try {
+            const success = await authorizedUserService.deactivateUser(userId);
+            if (success) {
+                message.success('Đã vô hiệu hóa người dùng');
+                fetchUsers();
+            } else {
+                message.error('Vô hiệu hóa thất bại');
+            }
+        } catch (error) {
+            message.error('Lỗi khi vô hiệu hóa người dùng');
+        }
     };
 
-    // Filtered users
-    const filteredUsers = users.filter((user) => {
-        const matchSearch =
-            !searchText ||
-            user.name.toLowerCase().includes(searchText.toLowerCase()) ||
-            user.email.toLowerCase().includes(searchText.toLowerCase()) ||
-            user.username.toLowerCase().includes(searchText.toLowerCase());
-
-        const matchRole = !filterRole || user.role === filterRole;
-        const matchStatus = !filterStatus || user.status === filterStatus;
-
-        return matchSearch && matchRole && matchStatus;
-    });
-
-    // Table columns
-    const columns: ColumnsType<User> = [
+    /**
+     * Table columns
+     */
+    const columns: ColumnsType<AuthorizedUser> = [
         {
-            title: 'Tên',
-            dataIndex: 'name',
-            key: 'name',
-            width: 150,
-            sorter: (a, b) => a.name.localeCompare(b.name),
+            title: 'Họ và tên',
+            dataIndex: 'fullName',
+            key: 'fullName',
+            width: 180,
+            render: (text, record) => (
+                <div>
+                    <div style={{ fontWeight: 'bold' }}>{text || 'N/A'}</div>
+                    <div style={{ fontSize: '12px', color: '#8c8c8c' }}>@{record.username}</div>
+                </div>
+            ),
         },
         {
-            title: 'Email',
-            dataIndex: 'email',
-            key: 'email',
-            width: 200,
-        },
-        {
-            title: 'Số điện thoại',
-            dataIndex: 'phone',
-            key: 'phone',
-            width: 120,
-        },
-        {
-            title: 'Username',
-            dataIndex: 'username',
-            key: 'username',
-            width: 120,
+            title: 'Liên hệ',
+            key: 'contact',
+            width: 220,
+            render: (_, record) => (
+                <div>
+                    <div>{record.email}</div>
+                    <div style={{ fontSize: '12px' }}>{record.phoneNumber}</div>
+                </div>
+            ),
         },
         {
             title: 'Vai trò',
-            dataIndex: 'role',
-            key: 'role',
-            width: 140,
-            render: (role: string) => {
-                const colors: Record<string, string> = {
-                    Admin: 'red',
-                    PM: 'blue',
-                    Supervisor: 'green',
-                    Accountant: 'orange',
-                    'Outsource Leader': 'purple',
-                    Staff: 'default',
-                };
-                return <Tag color={colors[role]}>{role}</Tag>;
+            key: 'roles',
+            width: 250,
+            render: (_, record) => {
+                const context = record.identity_contexts?.find(ctx => ctx.clientId === BAC_USER_CLIENT_ID);
+                if (!context || !context.roles.length) return <Tag>Chưa gán quyền</Tag>;
+                
+                return (
+                    <Space size={[0, 4]} wrap>
+                        {context.roles.map(role => (
+                            <Tag key={role} color={ROLE_COLOR_MAP[role] || 'blue'}>
+                                {ROLE_LABEL_MAP[role] || role}
+                            </Tag>
+                        ))}
+                    </Space>
+                );
             },
         },
         {
-            title: 'Công ty (nếu Outsource)',
-            dataIndex: 'outsourceCompanyName',
-            key: 'outsourceCompanyName',
-            width: 180,
-            render: (text) => text || '-',
-        },
-        {
             title: 'Trạng thái',
-            dataIndex: 'status',
-            key: 'status',
-            width: 100,
-            render: (status: string) => (
-                <Tag color={status === 'Active' ? 'success' : 'default'} icon={status === 'Active' ? <CheckCircleOutlined /> : <CloseCircleOutlined />}>
-                    {status === 'Active' ? 'Hoạt động' : 'Ngừng'}
+            dataIndex: 'isActive',
+            key: 'isActive',
+            width: 120,
+            render: (isActive: boolean) => (
+                <Tag 
+                    color={isActive ? 'success' : 'default'} 
+                    icon={isActive ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
+                >
+                    {isActive ? 'Hoạt động' : 'Ngừng'}
                 </Tag>
             ),
         },
         {
-            title: 'Đăng nhập lần cuối',
-            dataIndex: 'lastLogin',
-            key: 'lastLogin',
-            width: 150,
-            render: (date?: Date) => (date ? new Date(date).toLocaleString('vi-VN') : '-'),
-        },
-        {
             title: 'Thao tác',
             key: 'actions',
-            width: 120,
+            width: 150,
             fixed: 'right',
             render: (_, record) => (
                 <Space size="small">
-                    <Button type="link" size="small" icon={<EditOutlined />} onClick={() => handleEdit(record)}>
-                        Sửa
-                    </Button>
+                    <Tooltip title="Chỉnh sửa">
+                        <Button 
+                            type="text" 
+                            icon={<EditOutlined />} 
+                            onClick={() => handleEdit(record)} 
+                        />
+                    </Tooltip>
                     <Popconfirm
-                        title="Xác nhận vô hiệu hóa?"
-                        description={`Bạn có chắc muốn vô hiệu hóa người dùng "${record.name}"?`}
+                        title="Vô hiệu hóa người dùng?"
                         onConfirm={() => handleDelete(record._id)}
                         okText="Có"
                         cancelText="Không"
                     >
-                        <Button type="link" danger size="small" icon={<DeleteOutlined />}>
-                            Xóa
-                        </Button>
+                        <Button 
+                            type="text" 
+                            danger 
+                            icon={<DeleteOutlined />} 
+                        />
                     </Popconfirm>
                 </Space>
             ),
         },
     ];
 
+    /**
+     * Edit User
+     */
+    const handleEdit = (user: AuthorizedUser) => {
+        setEditingUser(user);
+        const context = user.identity_contexts?.find(ctx => ctx.clientId === BAC_USER_CLIENT_ID);
+        
+        form.setFieldsValue({
+            fullName: user.fullName,
+            email: user.email,
+            phoneNumber: user.phoneNumber,
+            username: user.username,
+            roles: context?.roles || [],
+            isActive: user.isActive ? 'Active' : 'Inactive',
+        });
+        setIsModalOpen(true);
+    };
+
+    /**
+     * Create User
+     */
     const handleCreate = () => {
         setEditingUser(null);
         form.resetFields();
+        form.setFieldsValue({ isActive: 'Active', roles: [] });
         setIsModalOpen(true);
     };
 
-    const handleEdit = (user: User) => {
-        setEditingUser(user);
-        form.setFieldsValue(user);
-        setIsModalOpen(true);
-    };
-
-    const handleDelete = (_userId: string) => {
-        message.success('Đã vô hiệu hóa người dùng');
-        // TODO: Call API to deactivate user
-    };
-
+    /**
+     * Save User (Create or Update)
+     */
     const handleModalOk = async () => {
         try {
             const values = await form.validateFields();
-            console.log('Form values:', values);
+            setSubmitting(true);
 
             if (editingUser) {
+                // 1. Update Global User
+                if (editingUser.globalUserId) {
+                    await globalUserService.updateUser({
+                        userId: editingUser.globalUserId,
+                        fullName: values.fullName,
+                        email: values.email,
+                        phoneNumber: values.phoneNumber,
+                    });
+                }
+
+                // 2. Update Identity Context (Roles)
+                await authorizedUserService.updateIdentityContext({
+                    userId: editingUser._id,
+                    clientId: BAC_USER_CLIENT_ID,
+                    roles: values.roles,
+                });
+
                 message.success('Cập nhật người dùng thành công');
             } else {
-                message.success('Tạo người dùng mới thành công');
+                // NEW USER FLOW
+                // 1. Create Global User
+                const newGlobalUser = await globalUserService.createUser({
+                    login: values.username,
+                    password: values.password,
+                    profile: {
+                        displayName: values.fullName,
+                        email: values.email,
+                        phone: values.phoneNumber,
+                    }
+                });
+
+                if (newGlobalUser && newGlobalUser.id) {
+                    // 2. Create Authorized User with roles
+                    await authorizedUserService.createAuthorizedUser({
+                        globalUserId: newGlobalUser.id,
+                        clientId: BAC_USER_CLIENT_ID,
+                        roles: values.roles,
+                    });
+                    message.success('Tạo người dùng mới thành công');
+                }
             }
 
             setIsModalOpen(false);
-            form.resetFields();
-            // TODO: Call API to create/update user
-        } catch (error) {
-            console.error('Validation error:', error);
-        }
-    };
-
-    const handleModalCancel = () => {
-        setIsModalOpen(false);
-        form.resetFields();
-    };
-
-    const handleRoleChange = (role: string) => {
-        // Clear outsourceCompanyId if role is not Outsource Leader
-        if (role !== 'Outsource Leader') {
-            form.setFieldsValue({ outsourceCompanyId: undefined });
+            fetchUsers();
+        } catch (error: any) {
+            console.error('Save user error:', error);
+            message.error(error.message || 'Thao tác thất bại');
+        } finally {
+            setSubmitting(false);
         }
     };
 
     return (
         <div style={{ padding: 0 }}>
             {/* Statistics */}
-            <Row gutter={[isMobile ? 8 : 16, isMobile ? 8 : 16]} style={{ marginBottom: isMobile ? 16 : 24 }}>
-                <Col xs={12} sm={6}>
-                    <Card>
-                        <Statistic title="Tổng người dùng" value={totalUsers} prefix={<UserOutlined />} />
+            <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+                <Col xs={24} sm={8}>
+                    <Card size="small">
+                        <Statistic 
+                            title="Tổng số tài khoản" 
+                            value={total} 
+                            prefix={<UserOutlined />} 
+                        />
                     </Card>
                 </Col>
-                <Col xs={12} sm={6}>
+                <Col xs={24} sm={8}>
                     <Card size="small">
-                        <Statistic title="Đang hoạt động" value={activeUsers} valueStyle={{ color: '#52c41a', fontSize: isMobile ? 18 : 24 }} prefix={<CheckCircleOutlined />} />
+                        <Statistic 
+                            title="Đang hoạt động" 
+                            value={users.filter(u => u.isActive).length} 
+                            valueStyle={{ color: '#52c41a' }}
+                            prefix={<CheckCircleOutlined />} 
+                        />
                     </Card>
                 </Col>
-                <Col xs={12} sm={6}>
-                    <Card size="small">
-                        <Statistic title="PM" value={usersByRole.PM} valueStyle={{ fontSize: isMobile ? 18 : 24 }} />
-                        <div style={{ fontSize: 10, color: '#666', marginTop: 4 }}>
-                            SV: {usersByRole.Supervisor} | Out: {usersByRole['Outsource Leader']}
-                        </div>
-                    </Card>
-                </Col>
-                <Col xs={12} sm={6}>
-                    <Card size="small">
-                        <Statistic title="Nhân viên" value={usersByRole.Staff} valueStyle={{ fontSize: isMobile ? 18 : 24 }} />
-                        <div style={{ fontSize: 10, color: '#666', marginTop: 4 }}>
-                            Adm: {usersByRole.Admin} | Acc: {usersByRole.Accountant}
-                        </div>
-                    </Card>
+                <Col xs={24} sm={8}>
+                    <Button 
+                        type="primary" 
+                        size="large"
+                        icon={<PlusOutlined />} 
+                        onClick={handleCreate}
+                        block
+                        style={{ height: '100%' }}
+                    >
+                        Tạo người dùng mới
+                    </Button>
                 </Col>
             </Row>
 
-            {/* Filters & Actions */}
+            {/* Filters */}
             <Card style={{ marginBottom: 16 }}>
-                <Row gutter={16} align="middle">
-                    <Col flex="auto">
-                        <Space size="middle">
-                            <Search
-                                placeholder="Tìm theo tên, email, username..."
-                                allowClear
-                                style={{ width: 300 }}
-                                onChange={(e) => setSearchText(e.target.value)}
-                                prefix={<SearchOutlined />}
-                            />
-                            <Select placeholder="Vai trò" allowClear style={{ width: 160 }} onChange={setFilterRole}>
-                                <Option value="Admin">Admin</Option>
-                                <Option value="PM">PM</Option>
-                                <Option value="Supervisor">Supervisor</Option>
-                                <Option value="Accountant">Accountant</Option>
-                                <Option value="Outsource Leader">Outsource Leader</Option>
-                                <Option value="Staff">Staff</Option>
-                            </Select>
-                            <Select placeholder="Trạng thái" allowClear style={{ width: 140 }} onChange={setFilterStatus}>
-                                <Option value="Active">Hoạt động</Option>
-                                <Option value="Inactive">Ngừng</Option>
-                            </Select>
-                        </Space>
+                <Row gutter={[16, 16]} align="middle">
+                    <Col xs={24} md={10}>
+                        <Search
+                            placeholder="Tìm theo tên, email, username..."
+                            allowClear
+                            onSearch={val => {
+                                setSearchText(val);
+                                setPage(1);
+                            }}
+                            prefix={<SearchOutlined />}
+                        />
                     </Col>
-                    <Col>
-                        <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
-                            Tạo người dùng mới
+                    <Col xs={12} md={5}>
+                        <Select 
+                            placeholder="Vai trò" 
+                            allowClear 
+                            style={{ width: '100%' }} 
+                            onChange={val => {
+                                setFilterRole(val);
+                                setPage(1);
+                            }}
+                        >
+                            {USER_ROLES.map(role => (
+                                <Option key={role.Value} value={role.Value}>{role.Label}</Option>
+                            ))}
+                        </Select>
+                    </Col>
+                    <Col xs={12} md={5}>
+                        <Select 
+                            placeholder="Trạng thái" 
+                            allowClear 
+                            style={{ width: '100%' }} 
+                            onChange={val => {
+                                setFilterStatus(val);
+                                setPage(1);
+                            }}
+                        >
+                            <Option value="Active">Hoạt động</Option>
+                            <Option value="Inactive">Ngừng</Option>
+                        </Select>
+                    </Col>
+                    <Col xs={24} md={4}>
+                        <Button 
+                            icon={<SyncOutlined spin={loading} />} 
+                            onClick={fetchUsers}
+                            block
+                        >
+                            Làm mới
                         </Button>
                     </Col>
                 </Row>
             </Card>
 
-            {/* Users Table */}
-            <Card title={`Danh sách người dùng (${filteredUsers.length})`}>
-                <Table columns={columns} dataSource={filteredUsers} rowKey="_id" scroll={{ x: 1400 }} pagination={{ pageSize: 10, showSizeChanger: true }} />
+            {/* Table */}
+            <Card>
+                <Table 
+                    columns={columns} 
+                    dataSource={users} 
+                    rowKey="_id" 
+                    loading={loading}
+                    scroll={{ x: 1000 }}
+                    pagination={{
+                        current: page,
+                        pageSize: pageSize,
+                        total: total,
+                        onChange: (p, s) => {
+                            setPage(p);
+                            setPageSize(s);
+                        },
+                        showSizeChanger: true,
+                        pageSizeOptions: ['10', '20', '50'],
+                    }}
+                />
             </Card>
 
             {/* Create/Edit Modal */}
             <Modal
-                title={editingUser ? 'Chỉnh sửa người dùng' : 'Tạo người dùng mới'}
+                title={editingUser ? 'Cập nhật tài khoản' : 'Tạo mới tài khoản'}
                 open={isModalOpen}
                 onOk={handleModalOk}
-                onCancel={handleModalCancel}
-                width={600}
-                okText="Lưu"
+                onCancel={() => setIsModalOpen(false)}
+                confirmLoading={submitting}
+                width={700}
+                okText="Lưu thông tin"
                 cancelText="Hủy"
+                destroyOnClose
             >
-                <Form form={form} layout="vertical">
-                    <Form.Item name="name" label="Họ và tên" rules={[{ required: true, message: 'Vui lòng nhập họ tên' }]}>
-                        <Input placeholder="Nguyễn Văn A" />
-                    </Form.Item>
-
-                    <Form.Item
-                        name="email"
-                        label="Email"
-                        rules={[
-                            { required: true, message: 'Vui lòng nhập email' },
-                            { type: 'email', message: 'Email không hợp lệ' },
-                        ]}
-                    >
-                        <Input placeholder="user@sira.vn" />
-                    </Form.Item>
-
+                <Form form={form} layout="vertical" initialValues={{ roles: [] }}>
                     <Row gutter={16}>
                         <Col span={12}>
-                            <Form.Item name="phone" label="Số điện thoại" rules={[{ required: true, message: 'Vui lòng nhập SĐT' }]}>
-                                <Input placeholder="0901234567" />
+                            <Form.Item 
+                                name="fullName" 
+                                label="Họ và tên" 
+                                rules={[{ required: true, message: 'Vui lòng nhập họ tên' }]}
+                            >
+                                <Input placeholder="Nguyễn Văn A" />
                             </Form.Item>
                         </Col>
                         <Col span={12}>
-                            <Form.Item name="username" label="Username" rules={[{ required: true, message: 'Vui lòng nhập username' }]}>
+                            <Form.Item 
+                                name="username" 
+                                label="Tên đăng nhập" 
+                                rules={[{ required: true, message: 'Vui lòng nhập username' }]}
+                            >
                                 <Input placeholder="username" disabled={!!editingUser} />
                             </Form.Item>
                         </Col>
                     </Row>
 
-                    {!editingUser && (
-                        <Form.Item name="password" label="Mật khẩu" rules={[{ required: true, message: 'Vui lòng nhập mật khẩu' }]}>
-                            <Input.Password placeholder="Mật khẩu" />
-                        </Form.Item>
-                    )}
-
                     <Row gutter={16}>
                         <Col span={12}>
-                            <Form.Item name="role" label="Vai trò" rules={[{ required: true, message: 'Vui lòng chọn vai trò' }]}>
-                                <Select placeholder="Chọn vai trò" onChange={handleRoleChange}>
-                                    <Option value="Admin">Admin</Option>
-                                    <Option value="PM">PM</Option>
-                                    <Option value="Supervisor">Supervisor</Option>
-                                    <Option value="Accountant">Accountant</Option>
-                                    <Option value="Outsource Leader">Outsource Leader</Option>
-                                    <Option value="Staff">Staff</Option>
-                                </Select>
+                            <Form.Item 
+                                name="email" 
+                                label="Email" 
+                                rules={[
+                                    { required: true, message: 'Vui lòng nhập email' },
+                                    { type: 'email', message: 'Email không hợp lệ' },
+                                ]}
+                            >
+                                <Input placeholder="email@domain.com" />
                             </Form.Item>
                         </Col>
                         <Col span={12}>
-                            <Form.Item name="status" label="Trạng thái" rules={[{ required: true, message: 'Vui lòng chọn trạng thái' }]}>
-                                <Select placeholder="Chọn trạng thái">
-                                    <Option value="Active">Hoạt động</Option>
-                                    <Option value="Inactive">Ngừng</Option>
-                                </Select>
+                            <Form.Item name="phoneNumber" label="Số điện thoại">
+                                <Input placeholder="090..." />
                             </Form.Item>
                         </Col>
                     </Row>
 
-                    <Form.Item noStyle shouldUpdate={(prev, curr) => prev.role !== curr.role}>
-                        {({ getFieldValue }) =>
-                            getFieldValue('role') === 'Outsource Leader' ? (
-                                <Form.Item name="outsourceCompanyId" label="Cộng tác viên" rules={[{ required: true, message: 'Vui lòng chọn công ty' }]}>
-                                    <Select placeholder="Chọn công ty">
-                                        <Option value="company-a">Công ty TNHH Xây dựng A</Option>
-                                        <Option value="company-b">Công ty TNHH Xây dựng B</Option>
-                                        <Option value="company-c">Công ty TNHH Xây dựng C</Option>
-                                    </Select>
-                                </Form.Item>
-                            ) : null
-                        }
+                    {!editingUser && (
+                        <Form.Item 
+                            name="password" 
+                            label="Mật khẩu khởi tạo" 
+                            rules={[{ required: true, message: 'Vui lòng nhập mật khẩu' }]}
+                        >
+                            <Input.Password placeholder="Nhập mật khẩu" />
+                        </Form.Item>
+                    )}
+
+                    <Form.Item 
+                        name="roles" 
+                        label="Phân quyền (BAC User)" 
+                        rules={[{ required: true, message: 'Chọn ít nhất 1 vai trò' }]}
+                    >
+                        <Select 
+                            mode="multiple" 
+                            placeholder="Chọn các vai trò"
+                            style={{ width: '100%' }}
+                        >
+                            {USER_ROLES.map(role => (
+                                <Option key={role.Value} value={role.Value}>{role.Label}</Option>
+                            ))}
+                        </Select>
                     </Form.Item>
                 </Form>
             </Modal>
