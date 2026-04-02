@@ -4,10 +4,18 @@ import {
     Upload, Button, message, Space, Typography, Switch,
     Row, Col
 } from 'antd';
-import { UploadOutlined, FileTextOutlined } from '@ant-design/icons';
+import {
+    UploadOutlined,
+    FilePdfOutlined,
+    FileImageOutlined,
+    VideoCameraOutlined,
+    FileOutlined,
+} from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { journeyDocumentService } from '../../services/core-contracts/services/journeyDocument.service';
 import { IJourneyDocument } from '../../services/core-contracts/types/journeyDocument.types';
+import { classifyJourneyFile } from '../../utils/journeyDocumentFileDisplay';
+import type { UploadFile } from 'antd/es/upload/interface';
 
 const { TextArea } = Input;
 const { Text } = Typography;
@@ -59,6 +67,21 @@ export const CreateJourneyDocumentModal: React.FC<CreateJourneyDocumentModalProp
             }
         }
     }, [open, editingDoc, form, stepCode]);
+
+    const uploadIconRender = (file: UploadFile) => {
+        const kind = classifyJourneyFile({
+            name: file.name,
+            url: typeof file.url === 'string' ? file.url : undefined,
+            mime_type:
+                file.originFileObj && typeof (file.originFileObj as File).type === 'string'
+                    ? (file.originFileObj as File).type
+                    : undefined,
+        });
+        if (kind === 'pdf') return <FilePdfOutlined style={{ color: '#f5222d' }} />;
+        if (kind === 'image') return <FileImageOutlined style={{ color: '#52c41a' }} />;
+        if (kind === 'video') return <VideoCameraOutlined style={{ color: '#fa8c16' }} />;
+        return <FileOutlined style={{ color: '#1890ff' }} />;
+    };
 
     const handleOk = async () => {
         try {
@@ -170,6 +193,8 @@ export const CreateJourneyDocumentModal: React.FC<CreateJourneyDocumentModalProp
                         onChange={({ fileList }) => setFileList(fileList)}
                         beforeUpload={() => false} // Manual upload
                         multiple
+                        iconRender={uploadIconRender}
+                        showUploadList={{ showRemoveIcon: true }}
                     >
                         <Button icon={<UploadOutlined />}>Tải lên file (PDF, Docx, Image...)</Button>
                     </Upload>

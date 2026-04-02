@@ -9,7 +9,8 @@ import {
     SaveOutlined, EditOutlined, EyeOutlined, UserOutlined, HomeOutlined,
     LoadingOutlined, InfoCircleOutlined, EnvironmentOutlined, FlagOutlined, RocketOutlined, TeamOutlined,
     CheckCircleOutlined, ClockCircleOutlined, CloseCircleOutlined, UnorderedListOutlined,
-    PaperClipOutlined, FileTextOutlined, CalendarOutlined, AuditOutlined
+    PaperClipOutlined, FileTextOutlined, CalendarOutlined, AuditOutlined,
+    FilePdfOutlined, FileImageOutlined, VideoCameraOutlined, FileOutlined, DownloadOutlined
 } from '@ant-design/icons';
 import { journeyService } from '../../../services/core-contracts/services/journey.service';
 import { customerService } from '../../../services/core-contracts/services/customer.service';
@@ -24,6 +25,12 @@ import { CreateJourneyDocumentModal } from '../../../components/journey/CreateJo
 import { StepWorkTaskList } from '../../../components/journey/StepWorkTaskList';
 import { CreateSiteReportModal } from '../../../components/journey/CreateSiteReportModal';
 import { siteReportService } from '../../../services/core-contracts/services/siteReport.service';
+import {
+    classifyJourneyFile,
+    getJourneyFileDisplayName,
+    type JourneyFileKind,
+} from '../../../utils/journeyDocumentFileDisplay';
+import type { HeadlessFileUpload } from 'types/apis/HeadlessFileUpload';
 
 const { TextArea } = Input;
 const { Text, Title } = Typography;
@@ -70,6 +77,15 @@ const SLA_STATUS_CONFIG: Record<string, { label: string; color: string }> = {
     overdue: { label: 'Quá hạn', color: 'error' },
 };
 
+const CONTEXT_TYPE_LABELS: Record<string, string> = {
+    survey: 'Tài liệu khảo sát',
+    quotation: 'Báo giá / Dự toán',
+    contract: 'Hợp đồng / PLHĐ',
+    progress: 'Tiến độ / Báo cáo',
+    payment: 'Chứng từ thanh toán',
+    general: 'Tài liệu chung',
+};
+
 const STEP_NAME_MAPPING: Record<string, string> = {
     lead_intake: '1. Tiếp nhận (Lead Intake)',
     qualification: '2. Thẩm định (Qualification)',
@@ -84,6 +100,15 @@ const STEP_NAME_MAPPING: Record<string, string> = {
     project_execution: '11. Thi công',
     handover_acceptance: '12. Nghiệm thu bàn giao',
     warranty_aftercare: '13. Bảo hành/CSKH'
+};
+
+const JOURNEY_STEP_SORT_ORDER = Object.keys(STEP_NAME_MAPPING);
+
+const FILE_KIND_LABEL: Record<JourneyFileKind, string> = {
+    pdf: 'PDF',
+    image: 'Ảnh',
+    video: 'Video',
+    other: 'Tài liệu',
 };
 
 export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = false, onSave, onEditStateChange }) => {
@@ -101,6 +126,11 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
     const [selectedTaskForReport, setSelectedTaskForReport] = useState<IWorkTask | null>(null);
     const [reportCountByTask, setReportCountByTask] = useState<Record<string, number>>({});
+    const [filePreview, setFilePreview] = useState<{
+        kind: JourneyFileKind;
+        url: string;
+        name: string;
+    } | null>(null);
 
     const fetchData = async () => {
         setIsLoading(true);
@@ -287,6 +317,100 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
         const key = journeyData?.priority || '';
         return PRIORITY_CONFIG[key] || { label: key || '—', color: 'default' };
     }, [journeyData?.priority]);
+
+    const documentsGroupedByStep = useMemo(() => {
+        const map = new Map<string, IJourneyDocument[]>();
+        documents.forEach((d) => {
+            const key = d.journey_step_code || '__unassigned';
+            if (!map.has(key)) map.set(key, []);
+            map.get(key)!.push(d);
+        });
+        const entries = [...map.entries()].sort((a, b) => {
+            if (a[0] === '__unassigned') return 1;
+            if (b[0] === '__unassigned') return -1;
+            const ia = JOURNEY_STEP_SORT_ORDER.indexOf(a[0]);
+            const ib = JOURNEY_STEP_SORT_ORDER.indexOf(b[0]);
+            return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+        });
+        return entries;
+    }, [documents]);
+
+    const openFilePreview = (file: HeadlessFileUpload) => {
+        const url = file.url?.trim();
+        if (!url) {
+            message.warning('Không có đường dẫn file để mở.');
+            return;
+        }
+        const kind = classifyJourneyFile(file);
+        setFilePreview({
+            kind,
+            url,
+            name: getJourneyFileDisplayName(file),
+        });
+    };
+
+    const renderFileKindIcon = (kind: JourneyFileKind, size = 18) => {
+        const style = { fontSize: size };
+        if (kind === 'pdf') return <FilePdfOutlined style={{ ...style, color: '#f5222d' }} />;
+        if (kind === 'image') return <FileImageOutlined style={{ ...style, color: '#52c41a' }} />;
+        if (kind === 'video') return <VideoCameraOutlined style={{ ...style, color: '#fa8c16' }} />;
+        return <FileOutlined style={{ ...style, color: '#1890ff' }} />;
+    };
+
+    const renderAttachedFileRow = (file: HeadlessFileUpload, docKey: string, fileIdx: number) => {
+        const kind = classifyJourneyFile(file);
+        const displayName = getJourneyFileDisplayName(file);
+        const url = file.url?.trim();
+
+        const nameControl = (
+            <Button
+                type="link"
+                size="small"
+                style={{ padding: 0, height: 'auto', textAlign: 'left', whiteSpace: 'normal', wordBreak: 'break-word' }}
+                onClick={() => openFilePreview(file)}
+                disabled={!url}
+            >
+                <Space align="start" size={8}>
+                    {kind !== 'image' ? renderFileKindIcon(kind) : null}
+                    <span>{displayName}</span>
+                    <Tag style={{ margin: 0 }}>{FILE_KIND_LABEL[kind]}</Tag>
+                </Space>
+            </Button>
+        );
+
+        if (kind === 'image' && url) {
+            return (
+                <div key={`${docKey}-f-${fileIdx}`} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+                    <button
+                        type="button"
+                        onClick={() => openFilePreview(file)}
+                        style={{
+                            border: '1px solid #f0f0f0',
+                            borderRadius: 8,
+                            padding: 0,
+                            cursor: 'pointer',
+                            background: '#fafafa',
+                            overflow: 'hidden',
+                            flexShrink: 0,
+                        }}
+                        aria-label={`Xem ảnh ${displayName}`}
+                    >
+                        <img
+                            src={url}
+                            alt=""
+                            style={{ width: 48, height: 48, objectFit: 'cover', display: 'block' }}
+                            onError={(e) => {
+                                (e.target as HTMLImageElement).style.display = 'none';
+                            }}
+                        />
+                    </button>
+                    <div style={{ flex: 1, minWidth: 0 }}>{nameControl}</div>
+                </div>
+            );
+        }
+
+        return <div key={`${docKey}-f-${fileIdx}`} style={{ marginBottom: 6 }}>{nameControl}</div>;
+    };
 
     return (
         <Card
@@ -592,55 +716,178 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                             </Space>
                         </Divider>
 
-                        <List
-                            loading={isLoadingDocs}
-                            dataSource={documents}
-                            grid={{ gutter: 16, xs: 1, sm: 2, md: 2, lg: 3, xl: 3, xxl: 4 }}
-                            renderItem={doc => (
-                                <List.Item>
-                                    <Card size="small" hoverable actions={[
-                                        <EditOutlined key="edit" onClick={() => { setEditingDoc(doc); setIsDocModalOpen(true); }} />,
-                                        <Divider type="vertical" />,
-                                        <Button type="text" danger icon={<CloseCircleOutlined />} onClick={async () => {
-                                            Modal.confirm({
-                                                title: 'Xóa tài liệu',
-                                                content: 'Bạn có chắc chắn muốn xóa tài liệu này?',
-                                                onOk: async () => {
-                                                    await journeyDocumentService.deleteJourneyDocument(doc._id);
-                                                    message.success("Đã xóa tài liệu");
-                                                    fetchDocuments();
-                                                }
-                                            });
-                                        }} />
-                                    ]}>
-                                        <Card.Meta
-                                            avatar={<Avatar icon={<FileTextOutlined />} style={{ backgroundColor: '#1890ff' }} />}
-                                            title={<Text ellipsis={{ tooltip: doc.description }}>{doc.description || 'Không có mô tả'}</Text>}
-                                            description={
-                                                <Space direction="vertical" size={2}>
-                                                    <Tag color="cyan">{doc.context_type?.toUpperCase()}</Tag>
-                                                    <Text type="secondary" style={{ fontSize: 11 }}>
-                                                        {doc.files && doc.files.length > 0 ? (
-                                                            <Space wrap>
-                                                                {doc.files.map((f, i) => (
-                                                                    <Button key={i} size="small" type="link" href={f.url} target="_blank" style={{ padding: 0 }}>
-                                                                        File {i + 1}
-                                                                    </Button>
-                                                                ))}
-                                                            </Space>
-                                                        ) : 'Không có file'}
-                                                    </Text>
-                                                </Space>
-                                            }
+                        {isLoadingDocs ? (
+                            <div style={{ textAlign: 'center', padding: 32 }}>
+                                <LoadingOutlined style={{ fontSize: 28, color: '#1890ff' }} />
+                                <div style={{ marginTop: 12 }}><Text type="secondary">Đang tải tài liệu...</Text></div>
+                            </div>
+                        ) : documents.length === 0 ? (
+                            <Empty description="Chưa có tài liệu nào được tải lên" />
+                        ) : (
+                            <Collapse
+                                bordered={false}
+                                style={{ background: 'transparent' }}
+                                defaultActiveKey={documentsGroupedByStep.map(([k]) => k)}
+                                items={documentsGroupedByStep.map(([stepKey, stepDocs]) => ({
+                                    key: stepKey,
+                                    label: (
+                                        <Space wrap>
+                                            <Text strong>
+                                                {stepKey === '__unassigned'
+                                                    ? 'Chưa gán bước hành trình'
+                                                    : (STEP_NAME_MAPPING[stepKey] || stepKey)}
+                                            </Text>
+                                            <Badge count={stepDocs.length} style={{ backgroundColor: '#1890ff' }} />
+                                        </Space>
+                                    ),
+                                    children: (
+                                        <List
+                                            dataSource={stepDocs}
+                                            grid={{ gutter: 16, xs: 1, sm: 2, md: 2, lg: 3, xl: 3, xxl: 4 }}
+                                            renderItem={(doc) => {
+                                                const firstFile = doc.files?.[0];
+                                                const firstKind = firstFile ? classifyJourneyFile(firstFile) : null;
+                                                return (
+                                                    <List.Item>
+                                                        <Card
+                                                            size="small"
+                                                            hoverable
+                                                            actions={[
+                                                                <EditOutlined key="edit" onClick={() => { setEditingDoc(doc); setIsDocModalOpen(true); }} />,
+                                                                <Divider type="vertical" />,
+                                                                <Button type="text" danger icon={<CloseCircleOutlined />} onClick={() => {
+                                                                    Modal.confirm({
+                                                                        title: 'Xóa tài liệu',
+                                                                        content: 'Bạn có chắc chắn muốn xóa tài liệu này?',
+                                                                        onOk: async () => {
+                                                                            await journeyDocumentService.deleteJourneyDocument(doc._id);
+                                                                            message.success('Đã xóa tài liệu');
+                                                                            fetchDocuments();
+                                                                        },
+                                                                    });
+                                                                }} />,
+                                                            ]}
+                                                        >
+                                                            <Card.Meta
+                                                                avatar={
+                                                                    firstFile && firstKind === 'image' && firstFile.url ? (
+                                                                        <Avatar src={firstFile.url} shape="square" size={48} style={{ borderRadius: 8 }} />
+                                                                    ) : firstFile && firstKind ? (
+                                                                        <Avatar
+                                                                            style={{ backgroundColor: '#f0f5ff' }}
+                                                                            icon={renderFileKindIcon(firstKind, 22)}
+                                                                        />
+                                                                    ) : (
+                                                                        <Avatar icon={<FileTextOutlined />} style={{ backgroundColor: '#1890ff' }} />
+                                                                    )
+                                                                }
+                                                                title={<Text ellipsis={{ tooltip: doc.description }}>{doc.description || 'Không có mô tả'}</Text>}
+                                                                description={
+                                                                    <Space direction="vertical" size={4} style={{ width: '100%' }}>
+                                                                        <Tag color="cyan">
+                                                                            {doc.context_type
+                                                                                ? (CONTEXT_TYPE_LABELS[doc.context_type] || doc.context_type)
+                                                                                : '—'}
+                                                                        </Tag>
+                                                                        {doc.published_at ? (
+                                                                            <Text type="secondary" style={{ fontSize: 11 }}>
+                                                                                Ban hành: {dayjs(doc.published_at).format('DD/MM/YYYY')}
+                                                                            </Text>
+                                                                        ) : null}
+                                                                        {doc.is_published === false ? (
+                                                                            <Tag>Chưa publish Portal</Tag>
+                                                                        ) : null}
+                                                                        <div style={{ marginTop: 4 }}>
+                                                                            {doc.files && doc.files.length > 0 ? (
+                                                                                doc.files.map((f, i) => renderAttachedFileRow(f, doc._id, i))
+                                                                            ) : (
+                                                                                <Text type="secondary" style={{ fontSize: 12 }}>Không có file</Text>
+                                                                            )}
+                                                                        </div>
+                                                                    </Space>
+                                                                }
+                                                            />
+                                                        </Card>
+                                                    </List.Item>
+                                                );
+                                            }}
                                         />
-                                    </Card>
-                                </List.Item>
-                            )}
-                            locale={{ emptyText: <Empty description="Chưa có tài liệu nào được tải lên" /> }}
-                        />
+                                    ),
+                                }))}
+                            />
+                        )}
                     </>
                 )}
             </Form>
+
+            <Modal
+                open={!!filePreview}
+                title={filePreview?.name}
+                onCancel={() => setFilePreview(null)}
+                width={filePreview?.kind === 'pdf' ? 'min(1100px, 96vw)' : 720}
+                destroyOnClose
+                footer={
+                    <Space wrap>
+                        {filePreview?.url ? (
+                            <Button
+                                type="primary"
+                                icon={<DownloadOutlined />}
+                                href={filePreview.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                Tải xuống / Mở tab mới
+                            </Button>
+                        ) : null}
+                        <Button onClick={() => setFilePreview(null)}>Đóng</Button>
+                    </Space>
+                }
+            >
+                {filePreview?.kind === 'pdf' && filePreview.url ? (
+                    <iframe
+                        title={filePreview.name}
+                        src={filePreview.url}
+                        style={{
+                            width: '100%',
+                            height: '72vh',
+                            border: '1px solid #f0f0f0',
+                            borderRadius: 8,
+                        }}
+                    />
+                ) : null}
+                {filePreview?.kind === 'image' && filePreview.url ? (
+                    <div style={{ textAlign: 'center' }}>
+                        <img
+                            src={filePreview.url}
+                            alt={filePreview.name}
+                            style={{ maxWidth: '100%', maxHeight: '72vh', objectFit: 'contain' }}
+                        />
+                    </div>
+                ) : null}
+                {filePreview?.kind === 'video' && filePreview.url ? (
+                    <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                        <video
+                            src={filePreview.url}
+                            controls
+                            style={{ width: '100%', maxHeight: '70vh', borderRadius: 8, background: '#000' }}
+                        />
+                        <Text type="secondary">
+                            Nếu video không phát được (giới hạn máy chủ hoặc trình duyệt), hãy dùng nút &quot;Tải xuống / Mở tab mới&quot; phía dưới.
+                        </Text>
+                    </Space>
+                ) : null}
+                {filePreview?.kind === 'other' && filePreview.url ? (
+                    <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                        <Text>
+                            Định dạng này không xem trực tiếp trên trình duyệt. Hãy tải file về và mở bằng ứng dụng phù hợp
+                            (Word, Excel, AutoCAD, ZIP…).
+                        </Text>
+                        <Text type="secondary" style={{ fontSize: 13 }}>
+                            Gợi ý: sau khi tải, kiểm tra nguồn file và chỉ mở nếu bạn tin cậy người gửi.
+                        </Text>
+                    </Space>
+                ) : null}
+            </Modal>
 
             <CreateJourneyDocumentModal
                 open={isDocModalOpen}
