@@ -24,6 +24,8 @@ export interface JourneyStepRendererProps {
     isEditable?: boolean;
     canFinalize?: boolean;
     journeyCurrentStep?: string; // The actual current_step from the journey object
+    workTasks?: any[]; // All worktasks for validation
+    stepLabel?: string; // Human readable name for the current step
     onRefresh?: () => void;
 }
 
@@ -55,6 +57,8 @@ export const JourneyStepRenderer: React.FC<JourneyStepRendererProps> = ({
     isEditable = false,
     canFinalize = false,
     journeyCurrentStep,
+    workTasks = [],
+    stepLabel = '',
     onRefresh
 }) => {
     const screens = Grid.useBreakpoint();
@@ -77,6 +81,24 @@ export const JourneyStepRenderer: React.FC<JourneyStepRendererProps> = ({
             const errorMsg = `Không xác định được bước '${actualStep}' trong quy trình`;
             console.error(errorMsg);
             message.error(errorMsg);
+            return;
+        }
+
+        // 1. Validation Logic: Check mandatory worktasks for this step
+        const stepTasks = workTasks.filter(t => t.journey_step_code === actualStep);
+        const unfinishedMandatoryTasks = stepTasks.filter(t => t.is_required && t.status !== 'finished');
+        
+        if (unfinishedMandatoryTasks.length > 0) {
+            const taskNames = unfinishedMandatoryTasks.map(t => `"${t.title}"`).join(', ');
+            message.warning({
+                content: (
+                    <span>
+                        Chưa thể hoàn thành! Còn <b>{unfinishedMandatoryTasks.length}</b> đầu việc bắt buộc chưa xong: 
+                        <br />{taskNames}
+                    </span>
+                ),
+                duration: 5
+            });
             return;
         }
 
@@ -131,7 +153,7 @@ export const JourneyStepRenderer: React.FC<JourneyStepRendererProps> = ({
                 <Card size="small" style={{ border: '1px solid #d9f7be', background: '#f6ffed', marginBottom: 8 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div>
-                            <Text strong><CheckCircleOutlined style={{ color: '#52c41a' }} /> Xác nhận Hoàn thành Bước</Text>
+                            <Text strong><CheckCircleOutlined style={{ color: '#52c41a' }} /> Xác nhận Hoàn thành Bước {stepLabel}</Text>
                             <br />
                             <Text type="secondary" style={{ fontSize: 12 }}>Bạn có vai trò chốt bước này. Nhấp xác nhận để kết thúc và chuyển sang bước tiếp theo.</Text>
                         </div>

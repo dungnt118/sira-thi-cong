@@ -430,6 +430,8 @@ const JourneyDetail360: React.FC = () => {
                 isEditable={isEditable}
                 canFinalize={isFinalizable}
                 journeyCurrentStep={journey.current_step}
+                workTasks={workTasks}
+                stepLabel={HEADER_STEP_CONFIG.find(s => s.key === journey.current_step)?.label}
                 onRefresh={() => {
                     fetchJourney();
                     fetchWorkTasks();
