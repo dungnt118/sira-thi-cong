@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Spin, Button, Result, Space, Typography, Card } from 'antd';
 import { DownloadOutlined, ReloadOutlined, FullscreenOutlined, FilePdfOutlined } from '@ant-design/icons';
 
 const { Text } = Typography;
 
 export interface PdfViewerProps {
-    /** URL của file PDF (nên bao gồm cả fragment #toolbar=1 nếu muốn hiện toolbar) */
+    /** URL của file PDF để tải về và hiển thị */
     url: string;
     /** Tiêu đề hiển thị (cho accessibility) */
     title?: string;
@@ -16,139 +16,200 @@ export interface PdfViewerProps {
 }
 
 /**
- * Trình xem PDF "Chuẩn" sử dụng tính năng native của trình duyệt.
- * Hỗ trợ Loading state, Error handling và các nút thao tác cơ bản.
+ * Trình xem PDF – tải file về dưới dạng blob rồi tạo object URL để đưa vào iframe.
+ * Cách này tránh các lỗi CORS / X-Frame-Options / Content-Disposition khi trình
+ * duyệt cố tải URL gốc trực tiếp vào iframe.
  */
-export const PdfViewer: React.FC<PdfViewerProps> = ({ 
-    url, 
-    title = 'Tài liệu PDF', 
+export const PdfViewer: React.FC<PdfViewerProps> = ({
+    url,
+    title = 'Tài liệu PDF',
     height = '72vh',
-    onError 
+    onError,
 }) => {
+    const [blobUrl, setBlobUrl] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [hasError, setHasError] = useState(false);
-    const [key, setKey] = useState(0);
+    const [retryKey, setRetryKey] = useState(0);
+    const prevBlobUrlRef = useRef<string | null>(null);
 
-    // Timeout để xử lý trường hợp iframe không kích hoạt onLoad/onError (ví dụ bị chặn bởi CSP hoặc X-Frame-Options)
+    // Fetch PDF → blob → object URL
     useEffect(() => {
-        const timer = setTimeout(() => {
-            if (isLoading) {
-                // Nếu sau 8s vẫn đang loading, có thể có vấn đề (CORS, CSP, hoặc backend error).
-                // Chuyển sang trạng thái lỗi để hiển thị nút tải về fallback.
-                setHasError(true);
-                setIsLoading(false);
-            }
-        }, 8000);
-        return () => clearTimeout(timer);
-    }, [isLoading, key]);
+        if (!url) {
+            setHasError(true);
+            setIsLoading(false);
+            return;
+        }
 
-    const handleLoad = () => {
-        setIsLoading(false);
-    };
-
-    const handleInternalError = () => {
-        setIsLoading(false);
-        setHasError(true);
-        if (onError) onError();
-    };
-
-    const reload = () => {
         setIsLoading(true);
         setHasError(false);
-        setKey(prev => prev + 1);
+        setBlobUrl(null);
+
+        let cancelled = false;
+
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                if (cancelled) return;
+
+                // Revoke URL cũ (nếu có) để tránh memory leak
+                if (prevBlobUrlRef.current) {
+                    URL.revokeObjectURL(prevBlobUrlRef.current);
+                }
+
+                const objectUrl = URL.createObjectURL(blob);
+                prevBlobUrlRef.current = objectUrl;
+                setBlobUrl(objectUrl);
+                setIsLoading(false);
+            })
+            .catch(err => {
+                if (cancelled) return;
+                console.error('[PdfViewer] Không thể tải file PDF:', err);
+                setHasError(true);
+                setIsLoading(false);
+                if (onError) onError();
+            });
+
+        return () => {
+            cancelled = true;
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [url, retryKey]);
+
+    // Revoke blob URL khi component unmount
+    useEffect(() => {
+        return () => {
+            if (prevBlobUrlRef.current) {
+                URL.revokeObjectURL(prevBlobUrlRef.current);
+                prevBlobUrlRef.current = null;
+            }
+        };
+    }, []);
+
+    const reload = () => {
+        setRetryKey(prev => prev + 1);
     };
 
-    // Chuẩn hóa height để dùng trong style
-    const containerHeight = typeof height === 'number' ? `${height}px` : height;
+    // When height is "100%", the Card should flex-grow inside its parent instead
+    // of being capped to a pixel/viewport value.
+    const isFlexFill = height === '100%';
+    const containerHeight = isFlexFill ? undefined : (typeof height === 'number' ? `${height}px` : height);
 
     return (
-        <Card 
-            size="small" 
+        <Card
+            size="small"
             variant="outlined"
-            styles={{ body: { padding: 0, position: 'relative', overflow: 'hidden' } }}
-            style={{ 
-                width: '100%', 
-                height: containerHeight, 
-                background: '#f0f2f5', 
-                borderRadius: 8,
-                border: '1px solid #d9d9d9'
+            styles={{
+                body: {
+                    padding: 0,
+                    position: 'relative',
+                    overflow: 'hidden',
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                },
+            }}
+            style={{
+                width: '100%',
+                ...(isFlexFill ? { flex: 1, minHeight: 0 } : { height: containerHeight }),
+                background: 'transparent',
+                borderRadius: 0,
+                border: 'none',
+                display: 'flex',
+                flexDirection: 'column',
             }}
         >
+            {/* Loading overlay */}
             {isLoading && (
-                <div style={{ 
-                    position: 'absolute', 
-                    top: 0, left: 0, right: 0, bottom: 0, 
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    background: 'rgba(255,255,255,0.9)',
-                    zIndex: 10,
-                    transition: 'opacity 0.3s'
-                }}>
+                <div
+                    style={{
+                        position: 'absolute',
+                        top: 0, left: 0, right: 0, bottom: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        background: 'rgba(255,255,255,0.92)',
+                        zIndex: 10,
+                    }}
+                >
                     <Space direction="vertical" align="center">
                         <Spin size="large" indicator={<FilePdfOutlined style={{ fontSize: 32 }} spin />} />
-                        <Text strong style={{ color: '#1890ff' }}>Đang chuẩn bị tài liệu...</Text>
+                        <Text strong style={{ color: '#1890ff' }}>Đang tải tài liệu...</Text>
                         <Text type="secondary" style={{ fontSize: 12 }}>Vui lòng đợi trong giây lát</Text>
                     </Space>
                 </div>
             )}
 
-            {hasError ? (
+            {/* Error state */}
+            {hasError && !isLoading && (
                 <div style={{ padding: '40px 20px', textAlign: 'center' }}>
                     <Result
                         status="info"
-                        title="Không thể hiển thị PDF trực tiếp"
-                        subTitle="Hệ thống hoặc trình duyệt không cho phép xem file này ngay tại đây. Bạn có thể tải về để xem nhanh hơn."
+                        title="Không thể hiển thị PDF"
+                        subTitle="Hệ thống không thể tải file này. Bạn có thể tải về máy để xem."
                         extra={[
-                            <Button type="primary" key="download" href={url} target="_blank" icon={<DownloadOutlined />} size="large">
+                            <Button
+                                type="primary"
+                                key="download"
+                                href={url}
+                                target="_blank"
+                                icon={<DownloadOutlined />}
+                                size="large"
+                            >
                                 Tải xuống / Mở tab mới
                             </Button>,
                             <Button key="retry" icon={<ReloadOutlined />} onClick={reload}>
                                 Thử lại
-                            </Button>
+                            </Button>,
                         ]}
                     />
                 </div>
-            ) : (
+            )}
+
+            {/* PDF iframe – chỉ render khi đã có blob URL */}
+            {blobUrl && !hasError && (
                 <iframe
-                    key={key}
+                    key={retryKey}
                     title={title}
-                    src={url}
-                    width="100%"
-                    height="100%"
-                    style={{ 
+                    src={blobUrl}
+                    style={{
                         display: 'block',
                         border: 'none',
                         width: '100%',
-                        height: '100%',
-                        minHeight: '400px'
+                        flex: 1,
+                        minHeight: 0,
                     }}
-                    onLoad={handleLoad}
-                    onError={handleInternalError}
-                    // Loại bỏ sandbox để trình xem PDF native của trình duyệt hoạt động tốt nhất
                 />
             )}
-            
-            {/* Bottom mini-toolbar for quick access */}
-            {!isLoading && !hasError && (
-                <div style={{ 
-                    position: 'absolute', 
-                    bottom: 12, 
-                    right: 24, 
-                    zIndex: 5,
-                    display: 'flex',
-                    gap: 8
-                }}>
-                    <Button 
+
+            {/* Mini toolbar */}
+            {blobUrl && !isLoading && !hasError && (
+                <div
+                    style={{
+                        position: 'absolute',
+                        bottom: 12,
+                        right: 24,
+                        zIndex: 5,
+                        display: 'flex',
+                        gap: 8,
+                    }}
+                >
+                    <Button
                         type="default"
                         shape="round"
-                        size="small" 
-                        icon={<FullscreenOutlined />} 
-                        href={url} 
+                        size="small"
+                        icon={<FullscreenOutlined />}
+                        href={blobUrl}
                         target="_blank"
-                        style={{ 
+                        style={{
                             boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
                             background: 'rgba(255,255,255,0.9)',
                             border: 'none',
-                            fontWeight: 500
+                            fontWeight: 500,
                         }}
                     >
                         Xem toàn màn hình

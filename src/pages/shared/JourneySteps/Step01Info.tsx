@@ -337,10 +337,10 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
     }, [documents]);
 
     const openFilePreview = (file: HeadlessFileUpload) => {
-        const url = classifyJourneyFile(file) === 'pdf' 
-            ? resolvePdfPreviewHref(file) 
+        const url = classifyJourneyFile(file) === 'pdf'
+            ? resolvePdfPreviewHref(file)
             : resolveJourneyFileHref(file);
-            
+
         if (!url) {
             message.warning('Không phân giải được đường dẫn file (cần file_id / file_path hoặc URL hợp lệ, không dùng blob).');
             return;
@@ -832,30 +832,43 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                 open={!!filePreview}
                 title={filePreview?.name}
                 onCancel={() => setFilePreview(null)}
-                width={filePreview?.kind === 'pdf' ? 'min(1100px, 96vw)' : 720}
-                destroyOnClose
-                footer={
-                    <Space wrap>
-                        {filePreview?.url ? (
-                            <Button
-                                type="primary"
-                                icon={<DownloadOutlined />}
-                                href={filePreview.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                Tải xuống / Mở tab mới
-                            </Button>
-                        ) : null}
-                        <Button onClick={() => setFilePreview(null)}>Đóng</Button>
-                    </Space>
-                }
+                width={filePreview?.kind === 'pdf' ? 'min(1200px, 96vw)' : 720}
+                /* ── Full-height dialog ── */
+                style={{ top: 0, paddingBottom: 0, margin: '0 auto' }}
+                styles={{
+                    content: filePreview?.kind === 'pdf' ? {
+                        height: '100dvh',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        padding: 0,
+                        borderRadius: 0,
+                        overflow: 'hidden',
+                    } : {},
+                    header: filePreview?.kind === 'pdf' ? {
+                        padding: '12px 16px',
+                        marginBottom: 0,
+                        borderBottom: '1px solid #f0f0f0',
+                        flexShrink: 0,
+                    } : {},
+                    body: filePreview?.kind === 'pdf' ? {
+                        flex: 1,
+                        padding: 0,
+                        overflow: 'hidden',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        minHeight: 0,
+                    } : {
+                        padding: '16px 24px',
+                    },
+                }}
+                destroyOnHidden
+                footer={null}
             >
                 {filePreview?.kind === 'pdf' && filePreview.url ? (
                     <PdfViewer
                         url={filePreview.url}
                         title={filePreview.name}
-                        height="72vh"
+                        height="100%"
                     />
                 ) : null}
                 {filePreview?.kind === 'image' && filePreview.url ? (
