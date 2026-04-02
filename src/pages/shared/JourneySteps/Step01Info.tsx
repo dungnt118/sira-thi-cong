@@ -157,7 +157,7 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
         setIsLoadingTasks(true);
         try {
             console.log("Fetching tasks for journey:", journeyId);
-            const res = await workTaskService.queryWorkTasksDto({
+            const res = await workTaskService.queryContent({
                 group: { id: 'journey_id', operation: 'eq', value: journeyId }
             } as any);
             if (res.data) {

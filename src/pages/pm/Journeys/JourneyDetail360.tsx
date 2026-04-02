@@ -136,7 +136,7 @@ const JourneyDetail360: React.FC = () => {
         if (!journeyId) return;
         setIsLoadingTasks(true);
         try {
-            const res = await workTaskService.queryWorkTasksDto({
+            const res = await workTaskService.queryContent({
                 group: { id: 'journey_id', operation: 'eq', value: journeyId }
             } as any);
             setWorkTasks(res.data || []);
@@ -239,7 +239,7 @@ const JourneyDetail360: React.FC = () => {
                     }
 
                     // 2. Clear old tasks for this journey
-                    const res = await workTaskService.queryWorkTasksDto({
+                    const res = await workTaskService.queryContent({
                         group: { id: 'journey_id', operation: 'eq', value: journeyId }
                     } as any);
                     if (res?.data?.length) {
