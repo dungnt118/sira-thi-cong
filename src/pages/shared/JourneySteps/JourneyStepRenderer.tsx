@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Card, Empty, Space, Typography, message, Grid } from 'antd';
+import { Button, Card, Empty, Space, Typography, message, Grid, notification } from 'antd';
 import { CheckCircleOutlined, LoadingOutlined } from '@ant-design/icons';
 import { journeyService } from '../../../services/core-contracts/services/journey.service';
 import Step01Info from './Step01Info';
@@ -26,6 +26,7 @@ export interface JourneyStepRendererProps {
     journeyCurrentStep?: string; // The actual current_step from the journey object
     workTasks?: any[]; // All worktasks for validation
     stepLabel?: string; // Human readable name for the current step
+    modalApi?: any; // The Modal instance from parent context
     onRefresh?: () => void;
 }
 
@@ -59,6 +60,7 @@ export const JourneyStepRenderer: React.FC<JourneyStepRendererProps> = ({
     journeyCurrentStep,
     workTasks = [],
     stepLabel = '',
+    modalApi,
     onRefresh
 }) => {
     const screens = Grid.useBreakpoint();
@@ -88,17 +90,40 @@ export const JourneyStepRenderer: React.FC<JourneyStepRendererProps> = ({
         const stepTasks = workTasks.filter(t => t.journey_step_code === actualStep);
         const unfinishedMandatoryTasks = stepTasks.filter(t => t.is_required && t.status !== 'finished');
         
+        console.log("Validation check:", {
+            stepTasksCount: stepTasks.length,
+            unfinishedMandatoryCount: unfinishedMandatoryTasks.length,
+            unfinishedMandatoryTasks
+        });
+
         if (unfinishedMandatoryTasks.length > 0) {
-            const taskNames = unfinishedMandatoryTasks.map(t => `"${t.title}"`).join(', ');
-            message.warning({
-                content: (
-                    <span>
-                        Chưa thể hoàn thành! Còn <b>{unfinishedMandatoryTasks.length}</b> đầu việc bắt buộc chưa xong: 
-                        <br />{taskNames}
-                    </span>
-                ),
-                duration: 5
-            });
+            const taskNames = unfinishedMandatoryTasks.map(t => t.title).join(', ');
+            console.warn("Validation failed: Unfinished mandatory tasks", unfinishedMandatoryTasks);
+            
+            if (modalApi) {
+                modalApi.warning({
+                    title: 'Chưa thể Hoàn thành Bước',
+                    content: (
+                        <div>
+                            Còn <b>{unfinishedMandatoryTasks.length}</b> đầu việc bắt buộc chưa xong:
+                            <ul style={{ marginTop: 8, paddingLeft: 20 }}>
+                                {unfinishedMandatoryTasks.map((t, idx) => (
+                                    <li key={idx}>{t.title}</li>
+                                ))}
+                            </ul>
+                            <i style={{ fontSize: 12 }}>Vui lòng hoàn thành các việc này để tiếp tục.</i>
+                        </div>
+                    ),
+                    okText: 'Đã hiểu'
+                });
+            } else {
+                // Fallback for unexpected context issues
+                notification.warning({
+                    message: 'Chưa thể Hoàn thành Bước',
+                    description: `Còn ${unfinishedMandatoryTasks.length} đầu việc bắt buộc chưa xong.`,
+                    duration: 8
+                });
+            }
             return;
         }
 

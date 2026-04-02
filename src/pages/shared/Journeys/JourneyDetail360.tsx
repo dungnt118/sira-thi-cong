@@ -432,6 +432,7 @@ const JourneyDetail360: React.FC = () => {
                 journeyCurrentStep={journey.current_step}
                 workTasks={workTasks}
                 stepLabel={HEADER_STEP_CONFIG.find(s => s.key === journey.current_step)?.label}
+                modalApi={modal}
                 onRefresh={() => {
                     fetchJourney();
                     fetchWorkTasks();
@@ -531,7 +532,7 @@ const JourneyDetail360: React.FC = () => {
     });
 
     return (
-        <div style={{ padding: isMobile ? '4px 0' : '24px' }}>
+        <div style={{ padding: isMobile ? '8px' : '24px', background: '#f5f7fa', minHeight: '100vh' }}>
             {modalContextHolder}
             {/* Back + Primary Actions */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isMobile ? 8 : 16 }}>
