@@ -23,6 +23,7 @@ export interface JourneyStepRendererProps {
     journeyId: string;
     isEditable?: boolean;
     canFinalize?: boolean;
+    journeyCurrentStep?: string; // The actual current_step from the journey object
     onRefresh?: () => void;
 }
 
@@ -53,6 +54,7 @@ export const JourneyStepRenderer: React.FC<JourneyStepRendererProps> = ({
     journeyId, 
     isEditable = false,
     canFinalize = false,
+    journeyCurrentStep,
     onRefresh
 }) => {
     const screens = Grid.useBreakpoint();
@@ -64,9 +66,17 @@ export const JourneyStepRenderer: React.FC<JourneyStepRendererProps> = ({
     const resolvedStepCode = MAP_ENUM_TO_STEP_CODE[stepCode] || stepCode;
 
     const handleConfirmStep = async () => {
-        const currentIndex = JOURNEY_STEP_SEQUENCE.indexOf(stepCode);
+        // We use journeyCurrentStep if provided (the actual progress), 
+        // fallback to mapping existing stepCode back to a sequence key if possible
+        const actualStep = journeyCurrentStep || (Object.keys(MAP_ENUM_TO_STEP_CODE).find(key => MAP_ENUM_TO_STEP_CODE[key] === stepCode) || stepCode);
+        
+        console.log("handleConfirmStep triggered", { actualStep, stepCode, journeyCurrentStep });
+
+        const currentIndex = JOURNEY_STEP_SEQUENCE.indexOf(actualStep);
         if (currentIndex === -1) {
-            message.error("Không xác định được bước hiện tại trong quy trình");
+            const errorMsg = `Không xác định được bước '${actualStep}' trong quy trình`;
+            console.error(errorMsg);
+            message.error(errorMsg);
             return;
         }
 

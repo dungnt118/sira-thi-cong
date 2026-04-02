@@ -429,6 +429,7 @@ const JourneyDetail360: React.FC = () => {
                 journeyId={journey._id}
                 isEditable={isEditable}
                 canFinalize={isFinalizable}
+                journeyCurrentStep={journey.current_step}
                 onRefresh={() => {
                     fetchJourney();
                     fetchWorkTasks();
