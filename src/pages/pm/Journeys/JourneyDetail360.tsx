@@ -34,6 +34,7 @@ import { AuthorizedUserSelect } from '../../../components/authorizedusers/Author
 import { mockJourneyTemplates } from '../../../data/journeyMockData';
 import type { GoNoGoStatus, SlaStatus, PortalPublishStatus } from '../../../types/journey';
 import JourneyForm from './JourneyForm';
+import { StepWorkTaskList } from '../../../components/journey/StepWorkTaskList';
 
 const { Text, Title } = Typography;
 const { TextArea } = Input;
@@ -1063,6 +1064,7 @@ const JourneyDetail360: React.FC = () => {
                 </>
             )}
 
+
             <Modal
                 title={selectedStepMeta ? `Danh sách công việc: ${selectedStepMeta.label}` : 'Danh sách công việc'}
                 open={Boolean(selectedTaskStepCode)}
@@ -1070,73 +1072,20 @@ const JourneyDetail360: React.FC = () => {
                 footer={null}
                 width={720}
             >
-                <List
+                <StepWorkTaskList 
+                    tasks={selectedStepTasks}
                     loading={isLoadingTasks}
-                    dataSource={selectedStepTasks}
-                    locale={{ emptyText: <Empty description="Chưa có công việc nào ở bước này" /> }}
-                    renderItem={(task) => (
-                        <List.Item>
-                            <List.Item.Meta
-                                avatar={
-                                    task.status === 'finished' ? (
-                                        <CheckCircleOutlined style={{ color: '#52c41a', fontSize: 18 }} />
-                                    ) : task.status === 'skipped' ? (
-                                        <CloseCircleOutlined style={{ color: '#ff4d4f', fontSize: 18 }} />
-                                    ) : (
-                                        <ClockCircleOutlined style={{ color: '#faad14', fontSize: 18 }} />
-                                    )
-                                }
-                                title={(
-                                    <Space wrap>
-                                        <Text strong>{task.title || 'Công việc chưa đặt tên'}</Text>
-                                        {task.is_required && <Tag color="red">Bắt buộc</Tag>}
-                                        <Select
-                                            size="small"
-                                            value={task.status || 'pending'}
-                                            onChange={(val) => handleStatusUpdate(task._id, val)}
-                                            style={{ minWidth: 100 }}
-                                            onClick={(e) => e.stopPropagation()}
-                                            options={[
-                                                { label: 'Chờ', value: 'pending' },
-                                                { label: 'Xong', value: 'finished' },
-                                                { label: 'Bỏ qua', value: 'skipped' },
-                                            ]}
-                                        />
-                                        {reportCountByTask[task._id] > 0 && (
-                                            <Badge 
-                                                count={reportCountByTask[task._id]} 
-                                                style={{ backgroundColor: '#1890ff', cursor: 'pointer' }}
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setSearchParams({ tab: 'GRP_08_CONSTRUCT' });
-                                                    setSelectedTaskStepCode(null);
-                                                    setIsJourneyDrawerVisible(false);
-                                                }}
-                                                title="Xem báo cáo"
-                                            />
-                                        )}
-                                    </Space>
-                                )}
-                                description={(
-                                    <Space direction="vertical" size={2}>
-                                        <Text type="secondary">{task.description || 'Chưa có mô tả'}</Text>
-                                        {task.note && <Text type="secondary">Ghi chú: {task.note}</Text>}
-                                    </Space>
-                                )}
-                            />
-                            <Button 
-                                type="link" 
-                                icon={<AuditOutlined />} 
-                                size="small"
-                                onClick={() => {
-                                    setSelectedTaskForReport(task);
-                                    setIsReportModalOpen(true);
-                                }}
-                            >
-                                Báo cáo
-                            </Button>
-                        </List.Item>
-                    )}
+                    reportCounts={reportCountByTask}
+                    onStatusUpdate={handleStatusUpdate}
+                    onCreateReport={(task) => {
+                        setSelectedTaskForReport(task);
+                        setIsReportModalOpen(true);
+                    }}
+                    onViewReports={() => {
+                        setSearchParams({ tab: 'GRP_08_CONSTRUCT' });
+                        setSelectedTaskStepCode(null);
+                        setIsJourneyDrawerVisible(false);
+                    }}
                 />
             </Modal>
 

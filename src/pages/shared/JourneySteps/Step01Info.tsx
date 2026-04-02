@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { 
-    Card, Form, Input, Button, Space, Typography, Row, Col, 
+import {
+    Card, Form, Input, Button, Space, Typography, Row, Col,
     Descriptions, Tag, message, Divider, Select, Empty,
-    Avatar, Collapse, List, Badge, Modal, DatePicker 
+    Avatar, Collapse, List, Badge, Modal, DatePicker
 } from 'antd';
 import dayjs from 'dayjs';
-import { 
+import {
     SaveOutlined, EditOutlined, EyeOutlined, UserOutlined, HomeOutlined,
     LoadingOutlined, InfoCircleOutlined, EnvironmentOutlined, FlagOutlined, RocketOutlined, TeamOutlined,
     CheckCircleOutlined, ClockCircleOutlined, CloseCircleOutlined, UnorderedListOutlined,
-    PaperClipOutlined, FileTextOutlined, CalendarOutlined
+    PaperClipOutlined, FileTextOutlined, CalendarOutlined, AuditOutlined
 } from '@ant-design/icons';
 import { journeyService } from '../../../services/core-contracts/services/journey.service';
 import { customerService } from '../../../services/core-contracts/services/customer.service';
@@ -21,6 +21,9 @@ import { IJourneyDocument } from '../../../services/core-contracts/types/journey
 import { journeyDocumentService } from '../../../services/core-contracts/services/journeyDocument.service';
 import { AuthorizedUserSelect } from '../../../components/authorizedusers/AuthorizedUser';
 import { CreateJourneyDocumentModal } from '../../../components/journey/CreateJourneyDocumentModal';
+import { StepWorkTaskList } from '../../../components/journey/StepWorkTaskList';
+import { CreateSiteReportModal } from '../../../components/journey/CreateSiteReportModal';
+import { siteReportService } from '../../../services/core-contracts/services/siteReport.service';
 
 const { TextArea } = Input;
 const { Text, Title } = Typography;
@@ -48,8 +51,8 @@ const SOURCE_CHANNEL_CONFIG: Record<string, string> = {
 
 const GO_NO_GO_CONFIG: Record<string, { label: string; color: string }> = {
     draft: { label: 'Nháp', color: 'default' },
-    go: { label: 'GO ✓', color: 'success' },
-    no_go: { label: 'NO-GO ✗', color: 'error' },
+    go: { label: 'Làm ✓', color: 'success' },
+    no_go: { label: 'Dừng ✗', color: 'error' },
     on_hold: { label: 'Tạm hoãn', color: 'warning' },
     pending: { label: 'Chờ xét', color: 'processing' },
 };
@@ -95,6 +98,9 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
     const [isLoadingDocs, setIsLoadingDocs] = useState(false);
     const [editingDoc, setEditingDoc] = useState<IJourneyDocument | null>(null);
     const [isDocModalOpen, setIsDocModalOpen] = useState(false);
+    const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+    const [selectedTaskForReport, setSelectedTaskForReport] = useState<IWorkTask | null>(null);
+    const [reportCountByTask, setReportCountByTask] = useState<Record<string, number>>({});
 
     const fetchData = async () => {
         setIsLoading(true);
@@ -102,9 +108,9 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
             const journey = await journeyService.findJourneyDto(journeyId);
             if (journey) {
                 setJourneyData(journey);
-                
+
                 let combinedData: any = { ...journey };
-                
+
                 if (journey.idx_customer_id?._id) {
                     const customer = await customerService.findCustomerDto(journey.idx_customer_id._id);
                     if (customer) {
@@ -129,7 +135,7 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                         city: journey.customer_province
                     });
                 }
-                
+
                 // Convert date strings to dayjs for form binding
                 if (journey.planned_start_date) combinedData.planned_start_date = dayjs(journey.planned_start_date);
                 if (journey.planned_end_date) combinedData.planned_end_date = dayjs(journey.planned_end_date);
@@ -157,11 +163,40 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
             if (res.data) {
                 console.log(`Fetched ${res.data.length} tasks`);
                 setWorkTasks(res.data);
+                fetchReportCounts();
             }
         } catch (error) {
             console.error("Fetch tasks error:", error);
         } finally {
             setIsLoadingTasks(false);
+        }
+    };
+
+    const fetchReportCounts = async () => {
+        try {
+            const res = await siteReportService.querySiteReportsDto({
+                group: { id: 'journey_id', operation: 'eq', value: journeyId }
+            } as any);
+            const counts: Record<string, number> = {};
+            res.data?.forEach(report => {
+                if (report.worktaskId) {
+                    counts[report.worktaskId] = (counts[report.worktaskId] || 0) + 1;
+                }
+            });
+            setReportCountByTask(counts);
+        } catch (error) {
+            console.error('Failed to fetch report counts:', error);
+        }
+    };
+
+    const handleStatusUpdate = async (taskId: string, newStatus: string) => {
+        try {
+            await workTaskService.updateWorkTask(taskId, { status: newStatus as any });
+            message.success('Đã cập nhật trạng thái công việc');
+            fetchTasks();
+        } catch (error) {
+            console.error('Failed to update status:', error);
+            message.error('Lỗi khi cập nhật trạng thái');
         }
     };
 
@@ -195,9 +230,11 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
 
         window.addEventListener('journey-tasks-updated', handleRefresh);
         window.addEventListener('journey-documents-updated', handleRefresh);
+        window.addEventListener('journey-site-reports-updated', handleRefresh);
         return () => {
             window.removeEventListener('journey-tasks-updated', handleRefresh);
             window.removeEventListener('journey-documents-updated', handleRefresh);
+            window.removeEventListener('journey-site-reports-updated', handleRefresh);
         };
     }, [journeyId]);
 
@@ -217,7 +254,7 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                 planned_start_date: values.planned_start_date ? (typeof values.planned_start_date === 'string' ? values.planned_start_date : values.planned_start_date.toISOString()) : null,
                 planned_end_date: values.planned_end_date ? (typeof values.planned_end_date === 'string' ? values.planned_end_date : values.planned_end_date.toISOString()) : null,
             };
-            
+
             await journeyService.updateJourney(journeyId, journeyUpdate);
 
             if (journeyData?.idx_customer_id?._id) {
@@ -235,7 +272,7 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
             setIsEditing(false);
             if (onEditStateChange) onEditStateChange(false);
             message.success('Cập nhật thành công');
-            
+
             await fetchData();
             if (onSave) onSave(values);
         } catch (error) {
@@ -252,7 +289,7 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
     }, [journeyData?.priority]);
 
     return (
-        <Card 
+        <Card
             title={
                 <Space>
                     <InfoCircleOutlined style={{ color: '#1890ff' }} />
@@ -260,12 +297,12 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                         {isEditing ? "Hiệu chỉnh Tổng quan Hồ sơ" : "Thông tin Tổng quan Hồ sơ"}
                     </span>
                 </Space>
-            } 
-            variant="borderless" 
+            }
+            variant="borderless"
             className="ky-card-detail"
             style={{ boxShadow: '0 2px 10px rgba(0,0,0,0.05)', borderRadius: 12 }}
             extra={isEditable && (
-                <Button 
+                <Button
                     type={isEditing ? "default" : "primary"}
                     icon={isEditing ? <EyeOutlined /> : <EditOutlined />}
                     onClick={() => {
@@ -327,7 +364,7 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                                 <TextArea rows={4} />
                             </Form.Item>
                         </Col>
-                        
+
                         <Col xs={24} md={12}>
                             <Divider orientation="left" plain><UserOutlined /> Khách hàng</Divider>
                             <Form.Item label="Tên khách hàng" name="full_name" rules={[{ required: true, message: 'Bắt buộc' }]}>
@@ -391,7 +428,7 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                             <Divider />
                             <Row gutter={24}>
                                 <Col xs={24} md={12}>
-                                    <Form.Item label="Trạng thái Go/No-Go" name="go_no_go_status">
+                                    <Form.Item label="Làm hay Dừng" name="go_no_go_status">
                                         <Select options={Object.entries(GO_NO_GO_CONFIG).map(([k, v]) => ({ value: k, label: v.label }))} />
                                     </Form.Item>
                                 </Col>
@@ -471,24 +508,24 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                                 </Descriptions>
 
                                 <div style={{ display: 'none' }}>
-                                <Divider orientation="left" plain style={{ marginTop: 24 }}><TeamOutlined /> Điều phối nhân sự</Divider>
-                                <Descriptions bordered size="small" column={1} style={{ display: 'none' }}>
-                                    <Descriptions.Item label="PM">
-                                        {journeyData.pm_user ? <Typography.Text>{journeyData.pm_user}</Typography.Text> : '—'}
-                                    </Descriptions.Item>
-                                    <Descriptions.Item label="Giám sát">
-                                        {journeyData.supervisor_users?.length ? <Typography.Text>{journeyData.supervisor_users.join(', ')}</Typography.Text> : '—'}
-                                    </Descriptions.Item>
-                                    <Descriptions.Item label="Kỹ thuật">
-                                        {journeyData.technical_users?.length ? <Typography.Text>{journeyData.technical_users.join(', ')}</Typography.Text> : '—'}
-                                    </Descriptions.Item>
-                                    <Descriptions.Item label="Ghi chú bàn giao">
-                                        <div style={{ color: '#888', fontStyle: 'italic' }}>{journeyData.delivery_note || 'Chưa gán'}</div>
-                                    </Descriptions.Item>
-                                </Descriptions>
+                                    <Divider orientation="left" plain style={{ marginTop: 24 }}><TeamOutlined /> Điều phối nhân sự</Divider>
+                                    <Descriptions bordered size="small" column={1} style={{ display: 'none' }}>
+                                        <Descriptions.Item label="PM">
+                                            {journeyData.pm_user ? <Typography.Text>{journeyData.pm_user}</Typography.Text> : '—'}
+                                        </Descriptions.Item>
+                                        <Descriptions.Item label="Giám sát">
+                                            {journeyData.supervisor_users?.length ? <Typography.Text>{journeyData.supervisor_users.join(', ')}</Typography.Text> : '—'}
+                                        </Descriptions.Item>
+                                        <Descriptions.Item label="Kỹ thuật">
+                                            {journeyData.technical_users?.length ? <Typography.Text>{journeyData.technical_users.join(', ')}</Typography.Text> : '—'}
+                                        </Descriptions.Item>
+                                        <Descriptions.Item label="Ghi chú bàn giao">
+                                            <div style={{ color: '#888', fontStyle: 'italic' }}>{journeyData.delivery_note || 'Chưa gán'}</div>
+                                        </Descriptions.Item>
+                                    </Descriptions>
                                 </div>
                             </Col>
-                            
+
                             <Col xs={24} lg={12}>
                                 <Title level={5}><UserOutlined style={{ color: '#52c41a', marginRight: 8 }} /> Hồ sơ Khách hàng</Title>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12, padding: '8px 0' }}>
@@ -516,74 +553,27 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                             </Col>
 
                             <Col span={24}>
-                                <Divider orientation="left" plain><UnorderedListOutlined style={{ marginRight: 8 }} /> Nhiệm vụ công việc</Divider>
-                                {workTasks.length === 0 ? (
-                                    <Empty description="Chưa có nhiệm vụ nào được khởi tạo" image={Empty.PRESENTED_IMAGE_SIMPLE} />
-                                ) : (
-                                    <Collapse 
-                                        ghost 
-                                        expandIconPosition="end"
-                                        defaultActiveKey={Object.keys(STEP_NAME_MAPPING)}
-                                    >
-                                        {Object.entries(STEP_NAME_MAPPING).map(([stepCode, stepName]) => {
-                                            const stepTasks = workTasks.filter(t => t.journey_step_code === stepCode);
-                                            if (stepTasks.length === 0) return null;
-                                            
-                                            const finishedCount = stepTasks.filter(t => t.status === 'finished').length;
-                                            const totalCount = stepTasks.length;
-                                            
-                                            return (
-                                                <Collapse.Panel 
-                                                    header={
-                                                        <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', paddingRight: 24 }}>
-                                                            <Text strong>{stepName}</Text>
-                                                            <Space>
-                                                                <Badge 
-                                                                    count={`${finishedCount}/${totalCount}`} 
-                                                                    style={{ backgroundColor: finishedCount === totalCount ? '#52c41a' : '#1890ff' }} 
-                                                                />
-                                                                <Text type="secondary" style={{ fontSize: 12 }}>nhiệm vụ</Text>
-                                                            </Space>
-                                                        </div>
-                                                    } 
-                                                    key={stepCode}
-                                                >
-                                                    <List
-                                                        size="small"
-                                                        dataSource={stepTasks}
-                                                        renderItem={task => (
-                                                            <List.Item style={{ padding: '8px 16px' }}>
-                                                                <div style={{ display: 'flex', width: '100%', alignItems: 'center', gap: 12 }}>
-                                                                    <div>
-                                                                        {task.status === 'finished' ? (
-                                                                            <CheckCircleOutlined style={{ color: '#52c41a' }} />
-                                                                        ) : task.status === 'skipped' ? (
-                                                                            <CloseCircleOutlined style={{ color: '#ff4d4f' }} />
-                                                                        ) : (
-                                                                            <ClockCircleOutlined style={{ color: '#faad14' }} />
-                                                                        )}
-                                                                    </div>
-                                                                    <div style={{ flex: 1 }}>
-                                                                        <div style={{ fontWeight: 500, textDecoration: task.status === 'finished' ? 'line-through' : 'none', color: task.status === 'finished' ? '#888' : 'inherit' }}>
-                                                                            {task.title}
-                                                                            {task.is_required && <Tag color="red" style={{ marginLeft: 8, fontSize: 10 }}>Bắt buộc</Tag>}
-                                                                        </div>
-                                                                        {task.description && <div style={{ fontSize: 12, color: '#999' }}>{task.description}</div>}
-                                                                    </div>
-                                                                    <div>
-                                                                        <Tag color={task.status === 'finished' ? 'success' : task.status === 'skipped' ? 'error' : 'orange'}>
-                                                                            {task.status === 'finished' ? 'Xong' : task.status === 'skipped' ? 'Bỏ qua' : 'Chờ'}
-                                                                        </Tag>
-                                                                    </div>
-                                                                </div>
-                                                            </List.Item>
-                                                        )}
-                                                    />
-                                                </Collapse.Panel>
-                                            );
-                                        })}
-                                    </Collapse>
-                                )}
+                                <Divider orientation="left" plain>
+                                    <Space>
+                                        <UnorderedListOutlined />
+                                        <Text strong>Công việc hiện tại ({STEP_NAME_MAPPING[journeyData.current_step || ''] || 'Đang xác định'})</Text>
+                                    </Space>
+                                </Divider>
+                                <StepWorkTaskList
+                                    tasks={workTasks.filter(t => t.journey_step_code === journeyData.current_step)}
+                                    loading={isLoadingTasks}
+                                    reportCounts={reportCountByTask}
+                                    onStatusUpdate={handleStatusUpdate}
+                                    onCreateReport={(task) => {
+                                        setSelectedTaskForReport(task);
+                                        setIsReportModalOpen(true);
+                                    }}
+                                    onViewReports={() => {
+                                        // In many layouts, this tab exists.
+                                        const event = new CustomEvent('switch-journey-tab', { detail: 'GRP_08_CONSTRUCT' });
+                                        window.dispatchEvent(event);
+                                    }}
+                                />
                             </Col>
                         </Row>
 
@@ -627,7 +617,7 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                                                             <Space wrap>
                                                                 {doc.files.map((f, i) => (
                                                                     <Button key={i} size="small" type="link" href={f.url} target="_blank" style={{ padding: 0 }}>
-                                                                        File {i+1}
+                                                                        File {i + 1}
                                                                     </Button>
                                                                 ))}
                                                             </Space>
@@ -655,6 +645,24 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                 }}
                 journeyId={journeyId!}
                 editingDoc={editingDoc}
+            />
+
+            <CreateSiteReportModal
+                open={isReportModalOpen}
+                onCancel={() => {
+                    setIsReportModalOpen(false);
+                    setSelectedTaskForReport(null);
+                }}
+                onSuccess={() => {
+                    setIsReportModalOpen(false);
+                    setSelectedTaskForReport(null);
+                    fetchTasks();
+                    window.dispatchEvent(new CustomEvent('journey-site-reports-updated'));
+                }}
+                journeyId={journeyId!}
+                stepCode={selectedTaskForReport?.journey_step_code || journeyData?.current_step || ''}
+                taskId={selectedTaskForReport?._id}
+                taskTitle={selectedTaskForReport?.title}
             />
         </Card>
     );
