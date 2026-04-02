@@ -199,7 +199,8 @@ const JourneyDetail360: React.FC = () => {
     // Resolve template/steps
     const template = mockJourneyTemplates.find(t => t.id === 'default') || mockJourneyTemplates[0];
     const journeySteps = template?.steps || [];
-    const currentHeaderStepIndex = HEADER_STEP_CONFIG.findIndex((step) => step.key === journey?.current_step);
+    const currentStepCode = journey?.current_step || 'lead_intake';
+    const currentHeaderStepIndex = HEADER_STEP_CONFIG.findIndex((step) => step.key === currentStepCode);
 
     const [showAssignModal, setShowAssignModal] = useState(false);
     const [showPriorityModal, setShowPriorityModal] = useState(false);
@@ -685,17 +686,24 @@ const JourneyDetail360: React.FC = () => {
 
                                 return {
                                     title: (
-                                        <span style={{ 
-                                            color: stats.percentage === 100 ? '#52c41a' : 'rgba(255,255,255,0.85)', 
-                                            fontSize: 12, 
-                                            whiteSpace: 'nowrap',
-                                            fontWeight: stats.total > 0 ? 600 : 400
-                                        }}>
+                                        <span 
+                                            onClick={() => openTaskModal(step.key)}
+                                            style={{ 
+                                                color: stats.percentage === 100 ? '#52c41a' : 'rgba(255,255,255,0.85)', 
+                                                fontSize: 12, 
+                                                whiteSpace: 'nowrap',
+                                                fontWeight: stats.total > 0 ? 600 : 400,
+                                                cursor: 'pointer'
+                                            }}
+                                        >
                                             {step.label}
                                         </span>
                                     ),
                                     description: stats.total > 0 ? (
-                                        <div style={{ marginTop: -4 }}>
+                                        <div 
+                                            onClick={() => openTaskModal(step.key)}
+                                            style={{ marginTop: -4, cursor: 'pointer' }}
+                                        >
                                             <Space size={4} align="center">
                                                 <Badge
                                                     count={stats.total}
@@ -766,27 +774,33 @@ const JourneyDetail360: React.FC = () => {
 
                         return {
                             title: (
-                                <span style={{ 
-                                    color: stats.percentage === 100 ? '#52c41a' : 'inherit', 
-                                    fontWeight: stats.total > 0 ? 600 : 400 
-                                }}>
+                                <span 
+                                    onClick={() => { openTaskModal(step.key); setIsJourneyDrawerVisible(false); }}
+                                    style={{ 
+                                        color: stats.percentage === 100 ? '#52c41a' : 'inherit', 
+                                        fontWeight: stats.total > 0 ? 600 : 400,
+                                        cursor: 'pointer'
+                                    }}
+                                >
                                     {step.label}
                                 </span>
                             ),
                             description: stats.total > 0 && (
-                                <Space size={8} style={{ marginTop: 4 }}>
-                                    <Badge
-                                        count={stats.total}
-                                        style={{
-                                            backgroundColor: badgeColor,
-                                            color: '#fff',
-                                            fontSize: 10
-                                        }}
-                                    />
-                                    <span style={{ fontSize: 12, color: 'rgba(0,0,0,0.45)' }}>
-                                        Hoàn thành {stats.finished}/{stats.total}
-                                    </span>
-                                </Space>
+                                <div onClick={() => { openTaskModal(step.key); setIsJourneyDrawerVisible(false); }} style={{ cursor: 'pointer' }}>
+                                    <Space size={8} style={{ marginTop: 4 }}>
+                                        <Badge
+                                            count={stats.total}
+                                            style={{
+                                                backgroundColor: badgeColor,
+                                                color: '#fff',
+                                                fontSize: 10
+                                            }}
+                                        />
+                                        <span style={{ fontSize: 12, color: 'rgba(0,0,0,0.45)' }}>
+                                            Hoàn thành {stats.finished}/{stats.total}
+                                        </span>
+                                    </Space>
+                                </div>
                             )
                         };
                     })}
