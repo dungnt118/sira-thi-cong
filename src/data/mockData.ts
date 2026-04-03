@@ -365,11 +365,11 @@ export const mockServiceRequests: ServiceRequest[] = [
 // MATERIALS
 // ============================================================
 export const mockMaterials: Material[] = [
-    { id: 'MAT-001', code: 'VT-001', name: 'SIRA PU (lót)', unit: 'kg', currentStock: 162, minStockAlert: 20, unitCost: 45000, category: 'Sơn chống thấm' },
-    { id: 'MAT-002', code: 'VT-002', name: 'SIRA PU (phủ)', unit: 'kg', currentStock: 203, minStockAlert: 20, unitCost: 48000, category: 'Sơn chống thấm' },
-    { id: 'MAT-003', code: 'VT-003', name: 'Primer (lót nền)', unit: 'lít', currentStock: 8, minStockAlert: 10, unitCost: 35000, category: 'Sơn lót' },
-    { id: 'MAT-004', code: 'VT-004', name: 'Sika Latex', unit: 'kg', currentStock: 45, minStockAlert: 5, unitCost: 55000, category: 'Vật liệu trám' },
-    { id: 'MAT-005', code: 'VT-005', name: 'Băng chống thấm Sika', unit: 'cuộn', currentStock: 12, minStockAlert: 3, unitCost: 120000, category: 'Vật liệu trám' },
+    { id: 'MAT-001', code: 'VT-001', name: 'SIRA PU (lót)', unit: 'thung', currentStock: 162, minStockAlert: 20, unitCost: 45000, category: 'Sơn chống thấm' },
+    { id: 'MAT-002', code: 'VT-002', name: 'SIRA PU (phủ)', unit: 'thung', currentStock: 203, minStockAlert: 20, unitCost: 48000, category: 'Sơn chống thấm' },
+    { id: 'MAT-003', code: 'VT-003', name: 'Primer (lót nền)', unit: 'lon', currentStock: 8, minStockAlert: 10, unitCost: 35000, category: 'Sơn lót' },
+    { id: 'MAT-004', code: 'VT-004', name: 'Sika Latex', unit: 'bao', currentStock: 45, minStockAlert: 5, unitCost: 55000, category: 'Vật liệu trám' },
+    { id: 'MAT-005', code: 'VT-005', name: 'Băng chống thấm Sika', unit: 'cuon', currentStock: 12, minStockAlert: 3, unitCost: 120000, category: 'Vật liệu trám' },
 ];
 
 export const mockStandards: MaterialStandard[] = [
