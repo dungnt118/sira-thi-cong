@@ -36,6 +36,13 @@ const PRIORITY_CONFIG: Record<PriorityLevel, { label: string; color: string }> =
     critical: { label: 'Khẩn cấp', color: 'red' },
 };
 
+const SLA_STATUS_LOG_CONFIG: Record<string, { label: string; color: string }> = {
+    on_time: { label: 'Đúng hạn', color: 'success' },
+    at_risk: { label: 'Rủi ro', color: 'warning' },
+    overdue: { label: 'Quá hạn', color: 'error' },
+    completed: { label: 'Hoàn thành', color: 'blue' },
+};
+
 const JOURNEY_STEPS_CONFIG = [
     { key: 'lead_intake', label: 'Tiếp nhận', color: 'cyan' },
     { key: 'qualification', label: 'Thẩm định', color: 'blue' },
@@ -529,23 +536,35 @@ const ActionCenter: React.FC = () => {
                         ) : (
                             recentLogs.map((log, idx) => {
                                 const stepLabel = JOURNEY_STEPS_CONFIG.find(s => s.key === log.step_code)?.label || log.step_code;
+                                const journey = journeys.find(j => j._id === log.journey_id);
+                                const journeyCode = journey?.journey_code || log.idx_journey_id?.title || 'HT-N/A';
+                                const customerName = (Array.isArray(journey?.idx_customer_id) ? journey?.idx_customer_id[0]?.title : journey?.idx_customer_id?.title) || journey?.customer_full_name || '';
+                                const slaCfg = SLA_STATUS_LOG_CONFIG[log.sla_status || ''] || { label: '', color: 'default' };
+
                                 return (
                                     <div key={log._id} style={{ 
                                         padding: '12px 0', 
                                         borderBottom: idx === recentLogs.length - 1 ? 'none' : '1px solid #f0f0f0' 
                                     }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                                            <Text strong style={{ fontSize: 13, color: '#1976D2', cursor: 'pointer' }}
-                                                onClick={() => navigate(`/ql/journeys/${log.journey_id}`)}>
-                                                {log.journey_code}
-                                            </Text>
-                                            <Text type="secondary" style={{ fontSize: 11 }}>
-                                                {dayjs(log.createdAt).format('HH:mm DD/MM')}
-                                            </Text>
+                                        <div style={{ display: 'flex', flexDirection: 'column', marginBottom: 4 }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                                <Text strong style={{ fontSize: 13, color: '#1976D2', cursor: 'pointer', flex: 1 }}
+                                                    onClick={() => navigate(`/ql/journeys/${log.journey_id}`)}>
+                                                    [{journeyCode}] {customerName}
+                                                </Text>
+                                                <Text type="secondary" style={{ fontSize: 10, marginLeft: 8, flexShrink: 0 }}>
+                                                    {dayjs(log.createdAt).format('HH:mm DD/MM')}
+                                                </Text>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <Tag color="blue" style={{ fontSize: 10, lineHeight: '16px', height: 18, margin: 0 }}>{stepLabel}</Tag>
-                                            <Text style={{ fontSize: 12, marginLeft: 8 }}>{log.event_type === 'enter_step' ? 'Vào bước' : 'Cập nhật bước'}</Text>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <Space size={4}>
+                                                <Tag color="blue" style={{ fontSize: 10, lineHeight: '16px', height: 18, margin: 0 }}>{stepLabel}</Tag>
+                                                <Text type="secondary" style={{ fontSize: 11 }}>{log.event_type === 'enter_step' ? 'Vào bước' : 'Cập nhật'}</Text>
+                                            </Space>
+                                            {log.sla_status && (
+                                                <Badge status={slaCfg.color as any} text={<Text style={{ fontSize: 11, color: slaCfg.color === 'error' ? '#ff4d4f' : 'inherit' }}>{slaCfg.label}</Text>} />
+                                            )}
                                         </div>
                                         <div style={{ marginTop: 4 }}>
                                             <Text type="secondary" style={{ fontSize: 11 }}>Bởi: {log.actor_user || 'Hệ thống'}</Text>
