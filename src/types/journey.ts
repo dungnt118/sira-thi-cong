@@ -314,7 +314,7 @@ export interface Journey {
 }
 
 // --- Action Center Item ---
-export type ActionType = 'step_overdue' | 'survey_waiting' | 'portal_unread' | 'publish_pending' | 'blocked';
+export type ActionType = 'step_overdue' | 'survey_waiting' | 'portal_unread' | 'publish_pending' | 'blocked' | 'active_all';
 
 export interface ActionItem {
     id: string;
@@ -324,6 +324,7 @@ export interface ActionItem {
     current_step: string;
     priority: PriorityLevel;
     due_at?: string;
+    start_at?: string;
     owner_user: string;
     source_tab?: string;
     journey_id: string;

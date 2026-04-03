@@ -8,7 +8,7 @@ import {
     SettingOutlined, EditOutlined,
     SaveOutlined, ReloadOutlined, InfoCircleOutlined,
     CheckCircleOutlined, PlusOutlined, DeleteOutlined,
-    CaretRightFilled
+    CaretRightFilled, GlobalOutlined
 } from '@ant-design/icons';
 import { useAppDispatch } from '@/store/hooks';
 import { find_setting, save_setting } from '@/store/actions/data/data.action';
@@ -215,6 +215,23 @@ const CustomerJourneySettingPage: React.FC = () => {
                                         <Space>
                                             <Badge count={idx + 1} style={{ backgroundColor: step.is_enabled !== false ? '#1890ff' : '#d9d9d9' }} />
                                             <Text strong style={{ color: step.is_enabled !== false ? '#262626' : '#bfbfbf' }}>{step.step_name}</Text>
+                                            {step.sla_hours > 0 && (
+                                                <Tag 
+                                                    color={step.is_enabled !== false ? "cyan" : "default"} 
+                                                    style={{ marginLeft: 8, borderRadius: 10, fontSize: 10 }}
+                                                >
+                                                    {step.sla_hours}h
+                                                </Tag>
+                                            )}
+                                            {step.portal_visible !== false && (
+                                                <Tag 
+                                                    color="blue" 
+                                                    style={{ marginLeft: 4, borderRadius: 10, fontSize: 10 }}
+                                                    icon={<GlobalOutlined />}
+                                                >
+                                                    Portal
+                                                </Tag>
+                                            )}
                                         </Space>
                                         {selectedStepCode === step.step_code && <Text style={{ color: '#1890ff', fontSize: 12 }}>Đang chọn</Text>}
                                     </Space>
