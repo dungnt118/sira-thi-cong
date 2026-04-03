@@ -5,7 +5,7 @@
             "name": "Sơn PU (Lót)",
             "baseUnit": "Kg",
             "packageUnit": "thùng",
-            "category": "Sơn chống thấm",
+            "category": "paint_coating",
             "type": "CONSUMABLE"
         },
         {
@@ -13,7 +13,7 @@
             "name": "Sơn PU (Phủ)",
             "baseUnit": "Kg",
             "packageUnit": "thùng",
-            "category": "Sơn chống thấm",
+            "category": "paint_coating",
             "type": "CONSUMABLE"
         },
         {
@@ -21,7 +21,7 @@
             "name": "Primer",
             "baseUnit": "Lít",
             "packageUnit": "lon",
-            "category": "Sơn lót",
+            "category": "primer_putty_fillers",
             "type": "CONSUMABLE"
         }
     ],

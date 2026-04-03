@@ -20,29 +20,13 @@ export const FIND_ASSETALLOCATION_DTO = gql`
         journey_id
         idx_journey_id
         journey_step_code
-        project_id
-        idx_project_id
         requested_by
         request_date
         expected_return_date
         actual_return_date
         status
         notes
-        requested_by_id
-        signatures {
-          role
-          user_name
-          user_id
-          signed_at
-          signature_data_url
-        }
-        project_name
-        history {
-          status
-          updated_by
-          updated_at
-          comment
-        }
+        signature_image
         asset_name
         asset_code
         journey_name
@@ -71,29 +55,13 @@ export const QUERY_ASSETALLOCATIONS_DTO = gql`
         journey_id
         idx_journey_id
         journey_step_code
-        project_id
-        idx_project_id
         requested_by
         request_date
         expected_return_date
         actual_return_date
         status
         notes
-        requested_by_id
-        signatures {
-          role
-          user_name
-          user_id
-          signed_at
-          signature_data_url
-        }
-        project_name
-        history {
-          status
-          updated_by
-          updated_at
-          comment
-        }
+        signature_image
         asset_name
         asset_code
         journey_name

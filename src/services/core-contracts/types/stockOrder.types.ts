@@ -1,6 +1,5 @@
-import type { HeadlessReferenceContent, IndexedContentItem } from 'types/apis';
-import type { ApiListResponse, ApiResponse } from 'types/apis/ApiResponse';
-import type { HeadlessFileUpload } from 'types/apis/HeadlessFileUpload';
+import type { IndexedContentItem } from 'types/apis';
+import type { ApiListResponse } from 'types/apis/ApiResponse';
 
 /**
  * StockOrder interface
@@ -72,7 +71,6 @@ export interface ICreateStockOrderInput {
   discrepancy_status?: StockOrderDiscrepancyStatusEnum2;
   pdf_url?: string;
   signed_at?: string | Date;
-  history?: IHistoryItem[];
   items?: IItemsItem[];
   journey_source_id?: string;
   distributor_source_id?: string;

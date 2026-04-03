@@ -189,12 +189,151 @@ export type MaterialUnit = 'kg' | 'lít' | 'm²' | 'thùng' | 'cuộn' | 'cái';
 
 export type MaterialType = 'CONSUMABLE'; // Assets moved to independent module
 
+/** Khớp Dropdown category trên BAC schema MaterialGroup */
+export type MaterialGroupCategory =
+    | 'waterproofing_sealing'
+    | 'paint_coating'
+    | 'primer_putty_fillers'
+    | 'chemical_adhesive'
+    | 'cement_concrete_mortar'
+    | 'brick_stone_aggregate'
+    | 'steel_rebar_metal'
+    | 'wood_board_formwork'
+    | 'pipe_plumbing'
+    | 'electrical_cable_accessories'
+    | 'hvac_duct_accessories'
+    | 'insulation_acoustic'
+    | 'fasteners_hardware'
+    | 'ppe_safety_consumables'
+    | 'auxiliary_finishing'
+    | 'other';
+
+/** Nhãn hiển thị — khớp BAC MaterialGroup.category value_options */
+export const MATERIAL_GROUP_CATEGORY_LABELS: Record<MaterialGroupCategory, string> = {
+    waterproofing_sealing: 'Chống thấm & kết dính',
+    paint_coating: 'Sơn & lớp phủ bảo vệ',
+    primer_putty_fillers: 'Sơn lót, bột trét, chất trám',
+    chemical_adhesive: 'Hóa chất, keo dán',
+    cement_concrete_mortar: 'Xi măng, bê tông, vữa',
+    brick_stone_aggregate: 'Gạch, đá, cát, đá dăm',
+    steel_rebar_metal: 'Thép, cốt thép, kim loại xây dựng',
+    wood_board_formwork: 'Gỗ, ván, cốp pha',
+    pipe_plumbing: 'Ống nước & phụ kiện cấp thoát',
+    electrical_cable_accessories: 'Dây cáp & phụ kiện điện',
+    hvac_duct_accessories: 'HVAC, ống gió & phụ kiện',
+    insulation_acoustic: 'Cách nhiệt, cách âm',
+    fasteners_hardware: 'Bu lông, vít, phụ kiện lắp ghép',
+    ppe_safety_consumables: 'BHLĐ, an toàn & VTT tiêu hao',
+    auxiliary_finishing: 'Phụ kiện thi công & hoàn thiện',
+    other: 'Khác',
+};
+
+/** Khớp Dropdown base_unit trên BAC schema MaterialGroup */
+export type MaterialGroupBaseUnit =
+    | 'kg'
+    | 'g'
+    | 'ton'
+    | 'liter'
+    | 'ml'
+    | 'm'
+    | 'cm'
+    | 'mm'
+    | 'm2'
+    | 'm3'
+    | 'piece'
+    | 'set'
+    | 'pair'
+    | 'roll'
+    | 'sheet'
+    | 'bottle'
+    | 'bag'
+    | 'drum'
+    | 'tube'
+    | 'box_unit'
+    | 'other';
+
+/** Khớp Dropdown package_unit trên BAC schema MaterialGroup */
+export type MaterialGroupPackageUnit =
+    | 'thung'
+    | 'lon'
+    | 'bao'
+    | 'cuon'
+    | 'cai'
+    | 'kien'
+    | 'pallet'
+    | 'hop'
+    | 'goi'
+    | 'chai'
+    | 'phuy'
+    | 'bo'
+    | 'cap'
+    | 'khay'
+    | 'can'
+    | 'thung_xop'
+    | 'other';
+
+/** Nhãn hiển thị — khớp BAC MaterialGroup.base_unit */
+export const MATERIAL_GROUP_BASE_UNIT_LABELS: Record<MaterialGroupBaseUnit, string> = {
+    kg: 'Kilogram (kg)',
+    g: 'Gram (g)',
+    ton: 'Tấn',
+    liter: 'Lít',
+    ml: 'Mililít (ml)',
+    m: 'Mét (m)',
+    cm: 'Centimet (cm)',
+    mm: 'Milimet (mm)',
+    m2: 'm² (mét vuông)',
+    m3: 'm³ (mét khối)',
+    piece: 'Cái',
+    set: 'Bộ',
+    pair: 'Đôi',
+    roll: 'Cuộn',
+    sheet: 'Tấm',
+    bottle: 'Chai',
+    bag: 'Bao',
+    drum: 'Phuy',
+    tube: 'Ống (theo chiều dài)',
+    box_unit: 'Hộp (đơn vị cơ sở)',
+    other: 'Khác',
+};
+
+/** Nhãn hiển thị — khớp BAC MaterialGroup.package_unit */
+export const MATERIAL_GROUP_PACKAGE_UNIT_LABELS: Record<MaterialGroupPackageUnit, string> = {
+    thung: 'Thùng',
+    lon: 'Lon',
+    bao: 'Bao',
+    cuon: 'Cuộn',
+    cai: 'Cái',
+    kien: 'Kiện',
+    pallet: 'Pallet',
+    hop: 'Hộp',
+    goi: 'Gói',
+    chai: 'Chai',
+    phuy: 'Phuy',
+    bo: 'Bộ',
+    cap: 'Cặp',
+    khay: 'Khay',
+    can: 'Can',
+    thung_xop: 'Thùng xốp',
+    other: 'Khác',
+};
+
+export function materialGroupBaseUnitLabel(code: string | undefined): string {
+    if (!code) return '—';
+    return MATERIAL_GROUP_BASE_UNIT_LABELS[code as MaterialGroupBaseUnit] ?? code;
+}
+
+export function materialGroupPackageLabel(code: string | undefined): string {
+    if (!code) return '—';
+    return MATERIAL_GROUP_PACKAGE_UNIT_LABELS[code as MaterialGroupPackageUnit] ?? code;
+}
+
 export interface MaterialGroup {
     id: string;
     name: string;           // e.g., "Sơn PU"
-    baseUnit: string;       // e.g., "Kg" or "Lít"
-    packageUnit: string;    // e.g., "Thùng", "Lon"
-    category: string;
+    baseUnit: MaterialGroupBaseUnit;
+    packageUnit: MaterialGroupPackageUnit;
+    category?: MaterialGroupCategory;
     type: MaterialType;
 }
 
@@ -204,7 +343,7 @@ export interface Material {
     code: string;           // SKU code (e.g., VT-001-15KG)
     name: string;           // Packaging name (e.g., "15" - inherited capacity)
     capacity?: number;       // Numeric value for aggregation (e.g., 15)
-    unit: string;           // Unit for this SKU (e.g., "thùng" - inherited packageUnit)
+    unit: MaterialGroupPackageUnit; // Kế thừa packageUnit của nhóm
     currentStock: number;   // Number of full containers
     partialStock?: number;   // Total remaining base unit quantity from opened containers
     minStockAlert: number;
@@ -215,10 +354,25 @@ export interface Material {
 // ===== ASSETS (Separated) =====
 export type AssetStatus = 'AVAILABLE' | 'IN_USE' | 'MAINTENANCE' | 'BROKEN' | 'LOST';
 
+/** Khớp Dropdown category trên BAC schema AssetGroup */
+export type AssetGroupCategory =
+    | 'machinery'
+    | 'power_tools'
+    | 'hand_tools'
+    | 'measuring_testing'
+    | 'safety_ppe'
+    | 'lifting_handling'
+    | 'vehicles'
+    | 'it_equipment'
+    | 'office_furniture'
+    | 'electrical_installation'
+    | 'temporary_site'
+    | 'other';
+
 export interface AssetGroup {
     id: string;
-    name: string;           // e.g., "Dụng cụ thi công", "Văn phòng phẩm"
-    category: string;
+    name: string;           // e.g., "Máy mài Bosch #1", "Laptop kỹ thuật"
+    category: AssetGroupCategory;
     depreciationMonths: number;
 }
 

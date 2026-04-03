@@ -11,7 +11,8 @@ import {
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import useLocalStorageData from '../../../hooks/useLocalStorageData';
-import type { Material, MaterialGroup } from '../../../types/v3';
+import type { Material, MaterialGroup, MaterialGroupCategory } from '../../../types/v3';
+import { MATERIAL_GROUP_CATEGORY_LABELS } from '../../../types/v3';
 import mockMaterialsData from '../../../data/mock/materials.json';
 
 const { Title, Text } = Typography;
@@ -118,7 +119,11 @@ const InventoryDashboard: React.FC = () => {
             render: (text, record) => (
                 <Space>
                     <Text strong>{text}</Text>
-                    <Tag>{record.category}</Tag>
+                    {record.category ? (
+                        <Tag>
+                            {MATERIAL_GROUP_CATEGORY_LABELS[record.category as MaterialGroupCategory]}
+                        </Tag>
+                    ) : null}
                     <Text type="secondary" style={{ fontSize: 12 }}>({record.packageUnit})</Text>
                 </Space>
             )
@@ -338,8 +343,15 @@ const InventoryDashboard: React.FC = () => {
                         </Col>
                         <Form.Item name="type" initialValue="CONSUMABLE" hidden><Input /></Form.Item>
                     </Row>
-                    <Form.Item name="category" label="Danh mục">
-                        <Input placeholder="VD: Sơn chống thấm" />
+                    <Form.Item name="category" label="Danh mục (loại vật tư)">
+                        <Select
+                            allowClear
+                            placeholder="Chọn danh mục"
+                            options={(Object.keys(MATERIAL_GROUP_CATEGORY_LABELS) as MaterialGroupCategory[]).map((value) => ({
+                                value,
+                                label: MATERIAL_GROUP_CATEGORY_LABELS[value],
+                            }))}
+                        />
                     </Form.Item>
                 </Form>
             </Modal>

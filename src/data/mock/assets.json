@@ -3,13 +3,13 @@
         {
             "id": "ASG-001",
             "name": "Máy móc & Thiết bị thi công",
-            "category": "Dụng cụ thi công",
+            "category": "machinery",
             "depreciationMonths": 24
         },
         {
             "id": "ASG-002",
             "name": "Thiết bị văn phòng",
-            "category": "Văn phòng phẩm",
+            "category": "it_equipment",
             "depreciationMonths": 36
         }
     ],

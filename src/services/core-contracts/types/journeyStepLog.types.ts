@@ -24,8 +24,6 @@ export interface IJourneyStepLog {
   trigger_source?: JourneyStepLogTriggerSourceEnum;
   worktask_id?: string;
   idx_worktask_id?: IndexedContentItem;
-  activity_event_id?: string;
-  idx_activity_event_id?: IndexedContentItem;
   note?: string;
   metadata?: IMetadataItem;
 }
@@ -52,7 +50,6 @@ export interface ICreateJourneyStepLogInput {
   actor_user?: any;
   trigger_source?: JourneyStepLogTriggerSourceEnum2;
   worktask_id?: string;
-  activity_event_id?: string;
   note?: string;
   metadata?: IMetadataItem;
 }

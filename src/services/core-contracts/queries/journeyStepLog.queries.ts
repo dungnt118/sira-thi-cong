@@ -30,8 +30,6 @@ export const FIND_JOURNEYSTEPLOG_DTO = gql`
         trigger_source
         worktask_id
         idx_worktask_id
-        activity_event_id
-        idx_activity_event_id
         note
         metadata {
           previous_status
@@ -74,8 +72,6 @@ export const QUERY_JOURNEYSTEPLOGS_DTO = gql`
         trigger_source
         worktask_id
         idx_worktask_id
-        activity_event_id
-        idx_activity_event_id
         note
         metadata {
           previous_status
