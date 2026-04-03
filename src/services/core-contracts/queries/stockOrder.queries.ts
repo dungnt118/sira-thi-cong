@@ -27,27 +27,10 @@ export const FIND_STOCKORDER_DTO = gql`
         created_at
         created_by
         journey_code
-        source_id
         signed_by
         discrepancy_status
         pdf_url
-        request_id
-        idx_request_id
-        requested_by
-        reviewed_by
-        reviewed_at
-        review_note
-        request_reason
         signed_at
-        signature_image
-        signatures {
-          role
-          user_name
-          user_id
-          signed_at
-          signature_data_url
-          note
-        }
         history {
           status
           updated_by
@@ -72,6 +55,12 @@ export const FIND_STOCKORDER_DTO = gql`
         distributor_source_id
         idx_distributor_source_id
         journey_name
+        requested_by
+        reviewed_by
+        reviewed_at
+        review_note
+        request_reason
+        signature_image
       }
     }
   }
@@ -104,27 +93,10 @@ export const QUERY_STOCKORDERS_DTO = gql`
         created_at
         created_by
         journey_code
-        source_id
         signed_by
         discrepancy_status
         pdf_url
-        request_id
-        idx_request_id
-        requested_by
-        reviewed_by
-        reviewed_at
-        review_note
-        request_reason
         signed_at
-        signature_image
-        signatures {
-          role
-          user_name
-          user_id
-          signed_at
-          signature_data_url
-          note
-        }
         history {
           status
           updated_by
@@ -149,6 +121,12 @@ export const QUERY_STOCKORDERS_DTO = gql`
         distributor_source_id
         idx_distributor_source_id
         journey_name
+        requested_by
+        reviewed_by
+        reviewed_at
+        review_note
+        request_reason
+        signature_image
       }
     }
   }

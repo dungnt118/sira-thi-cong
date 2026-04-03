@@ -1,8 +1,10 @@
-import type { IndexedContentItem } from 'types/apis';
-import type { ApiListResponse } from 'types/apis/ApiResponse';
+import type { HeadlessReferenceContent, IndexedContentItem } from 'types/apis';
+import type { ApiListResponse, ApiResponse } from 'types/apis/ApiResponse';
+import type { HeadlessFileUpload } from 'types/apis/HeadlessFileUpload';
 
 /**
- * StockOrder interface — đồng bộ với schema BAC (`schema-get` StockOrder), 2026-04-03.
+ * StockOrder interface
+ * Auto-generated from Schema: StockOrder
  */
 export interface IStockOrder {
   _id: string;
@@ -19,50 +21,23 @@ export interface IStockOrder {
   created_at?: string | Date;
   created_by?: any;
   journey_code?: string;
-  source_id?: string;
-  signed_by?: string;
+  signed_by?: any;
   discrepancy_status?: StockOrderDiscrepancyStatusEnum;
   pdf_url?: string;
-  /** @deprecated Liên kết StockRequest — schema đang loại bỏ; không dùng cho bản ghi mới */
-  request_id?: string;
-  /** @deprecated Đi kèm request_id */
-  idx_request_id?: IndexedContentItem;
-  /** Người khởi tạo yêu cầu (PM), thay cho tách bảng StockRequest */
-  requested_by?: any;
-  /** Người duyệt (kế toán/thủ kho) */
-  reviewed_by?: any;
-  reviewed_at?: string | Date;
-  review_note?: string;
-  /** Lý do yêu cầu xuất/nhập (tương đương reason trên StockRequest cũ) */
-  request_reason?: string;
   signed_at?: string | Date;
-  /** Ảnh chữ ký (StockPhoto trên BAC — Text + editor StockPhoto) */
-  signature_image?: string;
-  /** @deprecated Nested cũ trên BAC; ưu tiên `signature_image` */
-  signatures?: ISignaturesItem[];
-  history?: IHistoryItem[];
+
   items?: IItemsItem[];
   journey_source_id?: string;
   idx_journey_source_id?: IndexedContentItem;
   distributor_source_id?: string;
   idx_distributor_source_id?: IndexedContentItem;
   journey_name?: string;
-}
-
-export interface ISignaturesItem {
-  role?: SignaturesRoleEnum;
-  user_name?: string;
-  user_id?: string;
-  signed_at?: string | Date;
-  signature_data_url?: string;
-  note?: string;
-}
-
-export interface IHistoryItem {
-  status?: string;
-  updated_by?: string;
-  updated_at?: string | Date;
-  comment?: string;
+  requested_by?: any;
+  reviewed_by?: any;
+  reviewed_at?: string | Date;
+  review_note?: string;
+  request_reason?: string;
+  signature_image?: string;
 }
 
 export interface IItemsItem {
@@ -93,26 +68,21 @@ export interface ICreateStockOrderInput {
   created_at?: string | Date;
   created_by?: any;
   journey_code?: string;
-  source_id?: string;
-  signed_by?: string;
+  signed_by?: any;
   discrepancy_status?: StockOrderDiscrepancyStatusEnum2;
   pdf_url?: string;
-  /** @deprecated */
-  request_id?: string;
   signed_at?: string | Date;
+  history?: IHistoryItem[];
+  items?: IItemsItem[];
+  journey_source_id?: string;
+  distributor_source_id?: string;
+  journey_name?: string;
   requested_by?: any;
   reviewed_by?: any;
   reviewed_at?: string | Date;
   review_note?: string;
   request_reason?: string;
   signature_image?: string;
-  /** @deprecated */
-  signatures?: ISignaturesItem[];
-  history?: IHistoryItem[];
-  items?: IItemsItem[];
-  journey_source_id?: string;
-  distributor_source_id?: string;
-  journey_name?: string;
 }
 
 export type IStockOrderListResponse = ApiListResponse<IStockOrder>
@@ -123,7 +93,6 @@ export type StockOrderStatusEnum = 'draft' | 'requested' | 'approved' | 'dispatc
 export type StockOrderJourneyStepCodeEnum = 'lead_intake' | 'qualification' | 'survey_planning' | 'site_survey' | 'survey_review' | 'estimate_preparation' | 'quotation_preparation' | 'quotation_sent' | 'quotation_approved' | 'contract_signing' | 'project_execution' | 'handover_acceptance' | 'warranty_aftercare';
 export type StockOrderSourceEnum = 'distributor' | 'journey' | 'other';
 export type StockOrderDiscrepancyStatusEnum = 'none' | 'pending_review' | 'confirmed' | 'resolved';
-export type SignaturesRoleEnum = 'pm' | 'accountant' | 'warehouse' | 'supervisor';
 export type ItemsUnitEnum = 'kg' | 'lit' | 'm2' | 'thung' | 'cuon' | 'cai';
 export type StockOrderTypeEnum2 = 'out' | 'in';
 export type StockOrderStatusEnum2 = 'draft' | 'requested' | 'approved' | 'dispatched' | 'received' | 'completed' | 'discrepancy' | 'cancelled';
