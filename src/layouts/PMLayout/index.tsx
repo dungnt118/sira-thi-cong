@@ -37,14 +37,13 @@ const menuItems: MenuItem[] = [
     {
         key: '/ql/dashboard',
         icon: <DashboardOutlined />,
-        label: 'Tổng Quan',
+        label: 'Dashboard',
     },
     {
         key: '/ql/journeys',
         icon: <NodeIndexOutlined />,
         label: 'Hành trình Khách hàng',
         children: [
-            { key: '/ql/journeys/action-center', label: 'Trung tâm xử lý', icon: <ThunderboltOutlined /> },
             { key: '/ql/journeys', label: 'Danh sách yêu cầu', icon: <UnorderedListOutlined /> },
             { key: '/ql/journeys/board', label: 'Board / Kanban', icon: <AppstoreOutlined /> },
             { key: '/ql/crm/customers', label: 'Danh sách Khách hàng', icon: <TeamOutlined /> },

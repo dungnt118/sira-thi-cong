@@ -4,13 +4,15 @@ import {
     Space, Button, Statistic, Grid, message, Empty
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import {
+import { 
     ClockCircleOutlined, MessageOutlined,
     SendOutlined, StopOutlined, EyeOutlined, ReloadOutlined,
-    ProjectOutlined
+    ProjectOutlined, HistoryOutlined, ArrowRightOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import dayjs from 'dayjs';
 import { journeyService } from '../../../services/core-contracts/services/journey.service';
+import { journeyStepLogService } from '../../../services/core-contracts/services/journeyStepLog.service';
 import type { IJourney } from '../../../services/core-contracts/types/journey.types';
 import type { ActionItem, ActionType, PriorityLevel } from '../../../types/journey';
 import { FilterOperation } from '../../../types/filters/GroupQueryFilter';
@@ -56,7 +58,9 @@ const ActionCenter: React.FC = () => {
     const isMobile = !screens.md;
 
     const [journeys, setJourneys] = useState<IJourney[]>([]);
+    const [recentLogs, setRecentLogs] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [isLoadingLogs, setIsLoadingLogs] = useState(false);
     const [filterType, setFilterType] = useState<string>('ALL');
 
     const fetchJourneys = async () => {
@@ -81,8 +85,26 @@ const ActionCenter: React.FC = () => {
         }
     };
 
+    const fetchRecentLogs = async () => {
+        setIsLoadingLogs(true);
+        try {
+            const res = await journeyStepLogService.queryJourneyStepLogsDto({
+                sorted: [{ id: 'createdAt', desc: true }],
+                limit: 8
+            } as any);
+            if (res.code === 0 && res.data) {
+                setRecentLogs(res.data);
+            }
+        } catch (error) {
+            console.error('Failed to fetch recent logs:', error);
+        } finally {
+            setIsLoadingLogs(false);
+        }
+    };
+
     useEffect(() => {
         fetchJourneys();
+        fetchRecentLogs();
     }, []);
 
     const actionItems = useMemo(() => {
@@ -357,81 +379,193 @@ const ActionCenter: React.FC = () => {
         <div>
             <Row justify="space-between" align="middle" style={{ marginBottom: isMobile ? 16 : 24 }}>
                 <Col>
-                    <h2 style={{ margin: 0, fontSize: isMobile ? 22 : 28 }}>Action Center</h2>
-                    <Text type="secondary">Tổng hợp các việc cần xử lý khẩn ngay hôm nay</Text>
+                    <h2 style={{ margin: 0, fontSize: isMobile ? 22 : 28, color: '#1976D2' }}>Dashboard Quản Lý</h2>
+                    <Text type="secondary">Tổng quan vận hành và các hành động cần xử lý ngay</Text>
                 </Col>
                 <Col>
-                    <Button icon={<ReloadOutlined />} onClick={fetchJourneys} loading={isLoading}>Làm mới</Button>
+                    <Space>
+                        <Button 
+                            icon={<ReloadOutlined />} 
+                            onClick={() => { fetchJourneys(); fetchRecentLogs(); }} 
+                            loading={isLoading || isLoadingLogs}
+                        >
+                            Làm mới
+                        </Button>
+                    </Space>
                 </Col>
             </Row>
 
-            {/* Bucket Cards */}
-            <Row gutter={[12, 12]} style={{ marginBottom: 24 }}>
-                {bucketCounts.map(({ type, count }) => {
-                    const cfg = ACTION_BUCKET_CONFIG[type];
-                    return (
-                        <Col xs={12} sm={8} lg={4.8} style={{ flexBasis: isMobile ? '50%' : undefined, maxWidth: isMobile ? '50%' : undefined }} key={type}>
-                            <Card
-                                size="small"
-                                style={{
-                                    borderLeft: `4px solid ${cfg.color}`, borderRadius: 8,
-                                    cursor: 'pointer',
-                                    height: '100%',
-                                    background: filterType === type ? `${cfg.color}10` : '#fff',
-                                }}
-                                bodyStyle={{ padding: 12 }}
-                                onClick={() => setFilterType(prev => prev === type ? 'ALL' : type)}
-                            >
-                                <div style={{ color: cfg.color, fontSize: 20, marginBottom: 4 }}>{cfg.icon}</div>
-                                <Statistic
-                                    title={<Text style={{ fontSize: 11 }}>{cfg.label}</Text>}
-                                    value={count}
-                                    valueStyle={{ color: cfg.color, fontSize: 22 }}
-                                    loading={isLoading}
-                                />
-                                <Text type="secondary" style={{ fontSize: 10 }}>{cfg.desc}</Text>
-                            </Card>
-                        </Col>
-                    );
-                })}
+            {/* Row 1: KPI Statistics */}
+            <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+                <Col xs={24} sm={12} lg={6}>
+                    <Card bodyStyle={{ padding: '16px 20px', borderLeft: '4px solid #1890ff', borderRadius: 8 }}>
+                        <Statistic
+                            title={<Text strong style={{ fontSize: 13, color: '#1890ff' }}>TỔNG HÀNH TRÌNH</Text>}
+                            value={journeys.length}
+                            prefix={<ProjectOutlined style={{ color: '#1890ff', marginRight: 8 }} />}
+                            valueStyle={{ fontSize: 28, fontWeight: 700 }}
+                        />
+                        <Text type="secondary" style={{ fontSize: 12 }}>Đang thực hiện / Chưa đóng</Text>
+                    </Card>
+                </Col>
+                <Col xs={24} sm={12} lg={6}>
+                    <Card bodyStyle={{ padding: '16px 20px', borderLeft: '4px solid #ff4d4f', borderRadius: 8 }}>
+                        <Statistic
+                            title={<Text strong style={{ fontSize: 13, color: '#ff4d4f' }}>BƯỚC QUÁ HẠN</Text>}
+                            value={actionItems.filter(a => a.action_type === 'step_overdue').length}
+                            prefix={<ClockCircleOutlined style={{ color: '#ff4d4f', marginRight: 8 }} />}
+                            valueStyle={{ color: '#cf1322', fontSize: 28, fontWeight: 700 }}
+                        />
+                        <Text type="secondary" style={{ fontSize: 12 }}>Cần ưu tiên xử lý gấp</Text>
+                    </Card>
+                </Col>
+                <Col xs={24} sm={12} lg={6}>
+                    <Card bodyStyle={{ padding: '16px 20px', borderLeft: '4px solid #fa8c16', borderRadius: 8 }}>
+                        <Statistic
+                            title={<Text strong style={{ fontSize: 13, color: '#fa8c16' }}>KHẢO SÁT CHỜ DUYỆT</Text>}
+                            value={actionItems.filter(a => a.action_type === 'survey_waiting').length}
+                            prefix={<EyeOutlined style={{ color: '#fa8c16', marginRight: 8 }} />}
+                            valueStyle={{ color: '#fa8c16', fontSize: 28, fontWeight: 700 }}
+                        />
+                        <Text type="secondary" style={{ fontSize: 12 }}>Đang chờ Review & Phê duyệt</Text>
+                    </Card>
+                </Col>
+                <Col xs={24} sm={12} lg={6}>
+                    <Card bodyStyle={{ padding: '16px 20px', borderLeft: '4px solid #d4380d', borderRadius: 8 }}>
+                        <Statistic
+                            title={<Text strong style={{ fontSize: 13, color: '#d4380d' }}>TÁC VỤ BỊ BLOCKED</Text>}
+                            value={actionItems.filter(a => a.action_type === 'blocked').length}
+                            prefix={<StopOutlined style={{ color: '#d4380d', marginRight: 8 }} />}
+                            valueStyle={{ color: '#d4380d', fontSize: 28, fontWeight: 700 }}
+                        />
+                        <Text type="secondary" style={{ fontSize: 12 }}>Hành trình đang bị tồn đọng</Text>
+                    </Card>
+                </Col>
             </Row>
 
-            {/* Filter + Table */}
-            <Card bodyStyle={{ padding: isMobile ? 8 : 24 }}>
-                <Row style={{ marginBottom: 16 }} gutter={[8, 8]} justify="space-between" align="middle">
-                    <Col xs={24} sm={12}>
-                        <Space>
-                            <Text strong style={{ fontSize: isMobile ? 16 : 18 }}>Danh sách cần xử lý</Text>
-                            <Badge count={filtered.length} style={{ background: '#1976D2' }} />
-                        </Space>
-                    </Col>
-                    <Col xs={24} sm={12} style={{ textAlign: isMobile ? 'left' : 'right' }}>
-                        <Select
-                            style={{ width: '100%', maxWidth: 200 }}
-                            value={filterType}
-                            onChange={setFilterType}
-                            options={[
-                                { value: 'ALL', label: 'Tất cả loại' },
-                                ...Object.entries(ACTION_BUCKET_CONFIG).map(([k, v]) => ({ value: k, label: v.label })),
-                            ]}
+            <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+                {/* Left: Action Center Detail */}
+                <Col xs={24} lg={17}>
+                    {/* Bucket Cards */}
+                    <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
+                        {bucketCounts.map(({ type, count }) => {
+                            const cfg = ACTION_BUCKET_CONFIG[type];
+                            return (
+                                <Col xs={12} sm={8} lg={4} key={type}>
+                                    <Card
+                                        size="small"
+                                        style={{
+                                            borderLeft: `4px solid ${cfg.color}`, borderRadius: 8,
+                                            cursor: 'pointer',
+                                            height: '100%',
+                                            background: filterType === type ? `${cfg.color}10` : '#fff',
+                                            boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+                                        }}
+                                        bodyStyle={{ padding: 12 }}
+                                        onClick={() => setFilterType(prev => prev === type ? 'ALL' : type)}
+                                    >
+                                        <div style={{ color: cfg.color, fontSize: 18, marginBottom: 4 }}>{cfg.icon}</div>
+                                        <Statistic
+                                            title={<Text style={{ fontSize: 11 }}>{cfg.label}</Text>}
+                                            value={count}
+                                            valueStyle={{ color: cfg.color, fontSize: 20, fontWeight: 700 }}
+                                            loading={isLoading}
+                                        />
+                                    </Card>
+                                </Col>
+                            );
+                        })}
+                    </Row>
+
+                    {/* Filter + Table */}
+                    <Card bodyStyle={{ padding: isMobile ? 8 : 20 }} style={{ borderRadius: 8 }}>
+                        <Row style={{ marginBottom: 16 }} gutter={[8, 8]} justify="space-between" align="middle">
+                            <Col xs={24} sm={12}>
+                                <Space>
+                                    <Text strong style={{ fontSize: isMobile ? 16 : 18 }}>Danh sách cần xử lý</Text>
+                                    <Badge count={filtered.length} style={{ background: '#1976D2' }} />
+                                </Space>
+                            </Col>
+                            <Col xs={24} sm={12} style={{ textAlign: isMobile ? 'left' : 'right' }}>
+                                <Select
+                                    style={{ width: '100%', maxWidth: 200 }}
+                                    value={filterType}
+                                    onChange={setFilterType}
+                                    options={[
+                                        { value: 'ALL', label: 'Tất cả loại' },
+                                        ...Object.entries(ACTION_BUCKET_CONFIG).map(([k, v]) => ({ value: k, label: v.label })),
+                                    ]}
+                                />
+                            </Col>
+                        </Row>
+                        <Table
+                            columns={columns}
+                            dataSource={filtered}
+                            rowKey="id"
+                            size={isMobile ? 'small' : 'middle'}
+                            scroll={{ x: 'max-content' }}
+                            loading={isLoading}
+                            pagination={{
+                                pageSize: 10,
+                                showTotal: (t) => isMobile ? `${t} việc` : `${t} công việc cần xử lý`,
+                                size: isMobile ? 'small' : 'default'
+                            }}
+                            locale={{ emptyText: <Empty description="Tuyệt vời! Bạn đã hoàn thành hết các việc cần xử lý." /> }}
                         />
-                    </Col>
-                </Row>
-                <Table
-                    columns={columns}
-                    dataSource={filtered}
-                    rowKey="id"
-                    size={isMobile ? 'small' : 'middle'}
-                    scroll={{ x: 'max-content' }}
-                    loading={isLoading}
-                    pagination={{
-                        pageSize: 10,
-                        showTotal: (t) => isMobile ? `${t} việc` : `${t} công việc cần xử lý`,
-                        size: isMobile ? 'small' : 'default'
-                    }}
-                    locale={{ emptyText: <Empty description="Tuyệt vời! Bạn đã hoàn thành hết các việc cần xử lý." /> }}
-                />
-            </Card>
+                    </Card>
+                </Col>
+
+                {/* Right: Recent Activity Sidebar */}
+                <Col xs={24} lg={7}>
+                    <Card 
+                        title={<Space><HistoryOutlined style={{ color: '#1890ff' }} /> <Text strong>Hoạt động mới nhất</Text></Space>}
+                        bodyStyle={{ padding: '0 16px' }}
+                        style={{ height: '100%', borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}
+                    >
+                        {isLoadingLogs ? (
+                            <div style={{ textAlign: 'center', padding: 24 }}>Đang tải...</div>
+                        ) : recentLogs.length === 0 ? (
+                            <div style={{ textAlign: 'center', padding: 24 }}>Chưa có hoạt động nào</div>
+                        ) : (
+                            recentLogs.map((log, idx) => {
+                                const stepLabel = JOURNEY_STEPS_CONFIG.find(s => s.key === log.step_code)?.label || log.step_code;
+                                return (
+                                    <div key={log._id} style={{ 
+                                        padding: '12px 0', 
+                                        borderBottom: idx === recentLogs.length - 1 ? 'none' : '1px solid #f0f0f0' 
+                                    }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                                            <Text strong style={{ fontSize: 13, color: '#1976D2', cursor: 'pointer' }}
+                                                onClick={() => navigate(`/ql/journeys/${log.journey_id}`)}>
+                                                {log.journey_code}
+                                            </Text>
+                                            <Text type="secondary" style={{ fontSize: 11 }}>
+                                                {dayjs(log.createdAt).format('HH:mm DD/MM')}
+                                            </Text>
+                                        </div>
+                                        <div>
+                                            <Tag color="blue" style={{ fontSize: 10, lineHeight: '16px', height: 18, margin: 0 }}>{stepLabel}</Tag>
+                                            <Text style={{ fontSize: 12, marginLeft: 8 }}>{log.event_type === 'enter_step' ? 'Vào bước' : 'Cập nhật bước'}</Text>
+                                        </div>
+                                        <div style={{ marginTop: 4 }}>
+                                            <Text type="secondary" style={{ fontSize: 11 }}>Bởi: {log.actor_user || 'Hệ thống'}</Text>
+                                        </div>
+                                    </div>
+                                );
+                            })
+                        )}
+                        <Button 
+                            type="link" 
+                            block 
+                            style={{ marginTop: 8 }} 
+                            onClick={() => navigate('/ql/journeys')}
+                            icon={<ArrowRightOutlined />}
+                        >
+                            Xem tất cả dự án
+                        </Button>
+                    </Card>
+                </Col>
+            </Row>
         </div>
     );
 };

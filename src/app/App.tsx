@@ -13,7 +13,7 @@ import SystemSettings from '../pages/admin-v2/SystemSettings';
 import Reports from '../pages/admin-v2/Reports';
 
 // PM Pages (existing)
-import PMDashboard from '../pages/pm/Dashboard';
+// import PMDashboard from '../pages/pm/Dashboard'; // Legacy mock dashboard removed
 import Teams from '../pages/pm/Teams';
 import WorkerManagement from '../pages/pm/Teams/WorkerManagement';
 import WorkerDetail from '../pages/pm/Teams/WorkerDetail';
@@ -172,13 +172,12 @@ function App() {
                                     {/* ===== PM ROUTES (V3) ===== */}
                                     <Route path="/ql" element={<PMLayout />}>
                                         <Route index element={<Navigate to="/ql/dashboard" replace />} />
-                                        <Route path="dashboard" element={<PMDashboard />} />
+                                        <Route path="dashboard" element={<ActionCenter />} />
 
                                         {/* --- Journey Module (PM) --- */}
                                         <Route path="journeys">
                                             <Route index element={<JourneyList />} />
                                             <Route path="board" element={<JourneyBoard />} />
-                                            <Route path="action-center" element={<ActionCenter />} />
                                             <Route path=":journeyId" element={<JourneyDetail360 />} />
                                         </Route>
 
