@@ -18,10 +18,14 @@ export const FIND_ASSET_DTO = gql`
         name
         group_id
         idx_group_id
-        group_id
         serial_number
         status
         assigned_to
+        assigned_to_id
+        current_allocation_id
+        idx_current_allocation_id
+        assigned_journey_id
+        idx_assigned_journey_id
         purchase_date
         cost
         condition
@@ -49,10 +53,14 @@ export const QUERY_ASSETS_DTO = gql`
         name
         group_id
         idx_group_id
-        group_id
         serial_number
         status
         assigned_to
+        assigned_to_id
+        current_allocation_id
+        idx_current_allocation_id
+        assigned_journey_id
+        idx_assigned_journey_id
         purchase_date
         cost
         condition

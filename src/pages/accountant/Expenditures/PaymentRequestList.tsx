@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
     Table, Card, Tag, Button, Space, Typography,
     Statistic, Row, Col, Input, Select, Badge, Empty,
-    Modal, Form, InputNumber, message, Popconfirm, Divider
+    Modal, Form, InputNumber, message, Popconfirm, Divider, Tooltip
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
@@ -28,11 +28,11 @@ const PaymentRequestList: React.FC = () => {
     const [data, setData] = useState<IPaymentRequest[]>([]);
     const [companyAccounts, setCompanyAccounts] = useState<ICompanyBankAccount[]>([]);
     const [beneficiaryContacts, setBeneficiaryContacts] = useState<IBeneficiaryBankContact[]>([]);
-    
+
     const [loading, setLoading] = useState(false);
     const [searchText, setSearchText] = useState('');
     const [statusFilter, setStatusFilter] = useState<string>('all');
-    
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingRequest, setEditingRequest] = useState<IPaymentRequest | null>(null);
     const [saving, setSaving] = useState(false);
@@ -202,7 +202,7 @@ const PaymentRequestList: React.FC = () => {
                 <Space direction="vertical" size={2}>
                     <Text style={{ fontWeight: 500 }}>{record.payment_content}</Text>
                     <Space style={{ fontSize: 12 }}>
-                        <Tag icon={<UserOutlined />} variant="borderless">{record.beneficiary_name_snapshot || 'Chưa chọn người nhận'}</Tag>
+                        <Tag icon={<UserOutlined />} bordered={false}>{record.beneficiary_name_snapshot || 'Chưa chọn người nhận'}</Tag>
                         <Text type="secondary">→ {record.source_bank_name_snapshot || 'Nguồn: ?'}</Text>
                     </Space>
                 </Space>
@@ -339,7 +339,7 @@ const PaymentRequestList: React.FC = () => {
                 <Form form={form} layout="vertical">
                     <Row gutter={16}>
                         <Col span={8}>
-                            <Form.Item name="code" label="Mã yêu cầu (Hệ thống tự tạo nếu trống)">
+                            <Form.Item name="code" label="Mã yêu cầu">
                                 <Input placeholder="VD: YCC-2026-001" />
                             </Form.Item>
                         </Col>
@@ -373,8 +373,8 @@ const PaymentRequestList: React.FC = () => {
                     <Row gutter={16}>
                         <Col span={12}>
                             <Form.Item name="amount" label="Số tiền yêu cầu" rules={[{ required: true, type: 'number', min: 1000 }]}>
-                                <InputNumber 
-                                    style={{ width: '100%' }} 
+                                <InputNumber
+                                    style={{ width: '100%' }}
                                     formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                                     parser={v => v!.replace(/\$\s?|(,*)/g, '')}
                                     placeholder="0 VNĐ"

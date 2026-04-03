@@ -160,8 +160,8 @@ const BeneficiaryContactList: React.FC = () => {
             key: 'id_tax',
             render: (_, record) => (
                 <Space direction="vertical" size={0}>
-                    {record.identity_no && <Tooltip title="CMND/CCCD"><Tag icon={<IdcardOutlined />} variant="borderless">{record.identity_no}</Tag></Tooltip>}
-                    {record.tax_code && <Tooltip title="Mã số thuế"><Tag color="purple" variant="borderless">MST: {record.tax_code}</Tag></Tooltip>}
+                    {record.identity_no && <Tooltip title="CMND/CCCD"><Tag icon={<IdcardOutlined />} bordered={false}>{record.identity_no}</Tag></Tooltip>}
+                    {record.tax_code && <Tooltip title="Mã số thuế"><Tag color="purple" bordered={false}>MST: {record.tax_code}</Tag></Tooltip>}
                 </Space>
             )
         },

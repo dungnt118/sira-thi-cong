@@ -16,11 +16,9 @@ export const FIND_MATERIALSTANDARD_DTO = gql`
         updatedBy
         material_id
         idx_material_id
-        material_id
         material_name
         construction_type
         idx_construction_type
-        construction_type
         usage_per_m2
         note
       }
@@ -44,11 +42,9 @@ export const QUERY_MATERIALSTANDARDS_DTO = gql`
         _id
         material_id
         idx_material_id
-        material_id
         material_name
         construction_type
         idx_construction_type
-        construction_type
         usage_per_m2
         note
       }

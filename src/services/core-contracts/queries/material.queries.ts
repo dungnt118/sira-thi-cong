@@ -18,13 +18,21 @@ export const FIND_MATERIAL_DTO = gql`
         name
         group_id
         idx_group_id
-        group_id
         capacity
         unit
         current_stock
         partial_stock
         min_stock_alert
         unit_cost
+        opened_lots {
+          source_order_id
+          source_order_code
+          opened_at
+          original_quantity
+          remaining_quantity
+          unit_cost
+          note
+        }
       }
     }
   }
@@ -48,13 +56,21 @@ export const QUERY_MATERIALS_DTO = gql`
         name
         group_id
         idx_group_id
-        group_id
         capacity
         unit
         current_stock
         partial_stock
         min_stock_alert
         unit_cost
+        opened_lots {
+          source_order_id
+          source_order_code
+          opened_at
+          original_quantity
+          remaining_quantity
+          unit_cost
+          note
+        }
       }
     }
   }

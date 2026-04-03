@@ -19,7 +19,6 @@ export const FIND_STOCKORDER_DTO = gql`
         status
         journey_id
         idx_journey_id
-        journey_id
         journey_step_code
         source
         supplier
@@ -27,7 +26,6 @@ export const FIND_STOCKORDER_DTO = gql`
         notes
         project_id
         idx_project_id
-        project_id
         created_at
         created_by
         project_name
@@ -38,7 +36,6 @@ export const FIND_STOCKORDER_DTO = gql`
         pdf_url
         request_id
         idx_request_id
-        request_id
         signed_at
         signatures {
           role
@@ -69,10 +66,8 @@ export const FIND_STOCKORDER_DTO = gql`
         }
         journey_source_id
         idx_journey_source_id
-        journey_source_id
         distributor_source_id
         idx_distributor_source_id
-        distributor_source_id
         journey_name
       }
     }
@@ -98,7 +93,6 @@ export const QUERY_STOCKORDERS_DTO = gql`
         status
         journey_id
         idx_journey_id
-        journey_id
         journey_step_code
         source
         supplier
@@ -106,7 +100,6 @@ export const QUERY_STOCKORDERS_DTO = gql`
         notes
         project_id
         idx_project_id
-        project_id
         created_at
         created_by
         project_name
@@ -117,7 +110,6 @@ export const QUERY_STOCKORDERS_DTO = gql`
         pdf_url
         request_id
         idx_request_id
-        request_id
         signed_at
         signatures {
           role
@@ -148,10 +140,8 @@ export const QUERY_STOCKORDERS_DTO = gql`
         }
         journey_source_id
         idx_journey_source_id
-        journey_source_id
         distributor_source_id
         idx_distributor_source_id
-        distributor_source_id
         journey_name
       }
     }

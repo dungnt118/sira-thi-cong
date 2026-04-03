@@ -19,11 +19,9 @@ export const FIND_STOCKREQUEST_DTO = gql`
         requested_by
         journey_id
         idx_journey_id
-        journey_id
         journey_step_code
         project_id
         idx_project_id
-        project_id
         project_name
         items {
           material_id
@@ -39,7 +37,6 @@ export const FIND_STOCKREQUEST_DTO = gql`
         review_note
         converted_order_id
         idx_converted_order_id
-        converted_order_id
         created_at
         journey_name
       }
@@ -66,11 +63,9 @@ export const QUERY_STOCKREQUESTS_DTO = gql`
         requested_by
         journey_id
         idx_journey_id
-        journey_id
         journey_step_code
         project_id
         idx_project_id
-        project_id
         project_name
         items {
           material_id
@@ -86,7 +81,6 @@ export const QUERY_STOCKREQUESTS_DTO = gql`
         review_note
         converted_order_id
         idx_converted_order_id
-        converted_order_id
         created_at
         journey_name
       }

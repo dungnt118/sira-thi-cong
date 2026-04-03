@@ -15,6 +15,11 @@ export interface IAsset {
   serial_number?: string;
   status?: AssetStatusEnum;
   assigned_to?: string;
+  assigned_to_id?: string;
+  current_allocation_id?: string;
+  idx_current_allocation_id?: IndexedContentItem;
+  assigned_journey_id?: string;
+  idx_assigned_journey_id?: IndexedContentItem;
   purchase_date?: string | Date;
   cost?: number;
   condition?: string;
@@ -28,6 +33,9 @@ export interface ICreateAssetInput {
   serial_number?: string;
   status?: AssetStatusEnum2;
   assigned_to?: string;
+  assigned_to_id?: string;
+  current_allocation_id?: string;
+  assigned_journey_id?: string;
   purchase_date?: string | Date;
   cost?: number;
   condition?: string;

@@ -15,9 +15,12 @@ export const FIND_MATERIALGROUP_DTO = gql`
         createdBy
         updatedBy
         name
+        type
+        category
         base_unit
         package_unit
-        category
+        status
+        sort_order
       }
     }
   }
@@ -38,9 +41,12 @@ export const QUERY_MATERIALGROUPS_DTO = gql`
       data {
         _id
         name
+        type
+        category
         base_unit
         package_unit
-        category
+        status
+        sort_order
       }
     }
   }

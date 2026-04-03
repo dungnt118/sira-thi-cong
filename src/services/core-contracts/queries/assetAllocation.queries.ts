@@ -17,14 +17,11 @@ export const FIND_ASSETALLOCATION_DTO = gql`
         code
         asset_id
         idx_asset_id
-        asset_id
         journey_id
         idx_journey_id
-        journey_id
         journey_step_code
         project_id
         idx_project_id
-        project_id
         requested_by
         request_date
         expected_return_date
@@ -71,14 +68,11 @@ export const QUERY_ASSETALLOCATIONS_DTO = gql`
         code
         asset_id
         idx_asset_id
-        asset_id
         journey_id
         idx_journey_id
-        journey_id
         journey_step_code
         project_id
         idx_project_id
-        project_id
         requested_by
         request_date
         expected_return_date

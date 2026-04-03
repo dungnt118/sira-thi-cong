@@ -18,6 +18,18 @@ export interface IMaterial {
   partial_stock?: number;
   min_stock_alert?: number;
   unit_cost?: number;
+  opened_lots?: IOpenedLotsItem[];
+}
+
+export interface IOpenedLotsItem {
+  source_order_id?: string;
+  idx_source_order_id?: IndexedContentItem;
+  source_order_code?: string;
+  opened_at?: string | Date;
+  original_quantity?: number;
+  remaining_quantity?: number;
+  unit_cost?: number;
+  note?: string;
 }
 
 export interface ICreateMaterialInput {
@@ -30,6 +42,7 @@ export interface ICreateMaterialInput {
   partial_stock?: number;
   min_stock_alert?: number;
   unit_cost?: number;
+  opened_lots?: IOpenedLotsItem[];
 }
 
 export type IMaterialListResponse = ApiListResponse<IMaterial>

@@ -13,8 +13,6 @@ export interface IMaterialReceiptConfirmation {
   journey_id?: string;
   idx_journey_id?: IndexedContentItem;
   journey_step_code?: MaterialReceiptConfirmationJourneyStepCodeEnum;
-  project_id?: string;
-  idx_project_id?: IndexedContentItem;
   receiver_user?: any;
   receipt_time?: string | Date;
   receipt_status?: MaterialReceiptConfirmationReceiptStatusEnum;
@@ -35,7 +33,6 @@ export interface ICreateMaterialReceiptConfirmationInput {
   stock_order_id?: string;
   journey_id?: string;
   journey_step_code?: MaterialReceiptConfirmationJourneyStepCodeEnum2;
-  project_id?: string;
   receiver_user?: any;
   receipt_time?: string | Date;
   receipt_status?: MaterialReceiptConfirmationReceiptStatusEnum2;

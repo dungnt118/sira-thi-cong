@@ -14,7 +14,6 @@ export const FIND_BENEFICIARYBANKCONTACT_DTO = gql`
         updatedAt
         createdBy
         updatedBy
-        code
         contact_type
         contact_name
         phone
@@ -49,7 +48,6 @@ export const QUERY_BENEFICIARYBANKCONTACTS_DTO = gql`
       records
       data {
         _id
-        code
         contact_type
         contact_name
         phone

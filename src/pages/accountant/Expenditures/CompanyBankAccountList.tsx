@@ -105,7 +105,7 @@ const CompanyBankAccountList: React.FC = () => {
                     </div>
                     <Space direction="vertical" size={0}>
                         <Text strong style={{ fontSize: 15 }}>{record.account_name}</Text>
-                        <Text type="secondary" size="small">{record.bank_name}</Text>
+                        <Text type="secondary" style={{ fontSize: 12 }}>{record.bank_name}</Text>
                     </Space>
                 </Space>
             )

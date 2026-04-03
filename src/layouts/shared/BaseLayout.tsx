@@ -58,8 +58,10 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({ sidebar, topBar }) => {
                     open={mobileOpen}
                     onClose={() => setMobileOpen(false)}
                     width={siderWidth}
-                    bodyStyle={{ padding: 0, background: '#001529' }}
-                    headerStyle={{ display: 'none' }}
+                    styles={{
+                        body: { padding: 0, background: '#001529' },
+                        header: { display: 'none' }
+                    }}
                 >
                     <div onClick={() => setMobileOpen(false)}>
                         {sidebar}

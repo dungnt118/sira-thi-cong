@@ -8,7 +8,6 @@ import type { HeadlessFileUpload } from 'types/apis/HeadlessFileUpload';
  */
 export interface IBeneficiaryBankContact {
   _id: string;
-  code?: string;
   contact_type?: BeneficiaryBankContactContactTypeEnum;
   contact_name?: string;
   phone?: string;
@@ -27,7 +26,6 @@ export interface IBeneficiaryBankContact {
 }
 
 export interface ICreateBeneficiaryBankContactInput {
-  code?: string;
   contact_type?: BeneficiaryBankContactContactTypeEnum2;
   contact_name?: string;
   phone?: string;

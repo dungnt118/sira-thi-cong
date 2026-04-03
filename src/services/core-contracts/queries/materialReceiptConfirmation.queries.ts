@@ -16,14 +16,9 @@ export const FIND_MATERIALRECEIPTCONFIRMATION_DTO = gql`
         updatedBy
         stock_order_id
         idx_stock_order_id
-        stock_order_id
         journey_id
         idx_journey_id
-        journey_id
         journey_step_code
-        project_id
-        idx_project_id
-        project_id
         receiver_user
         receipt_time
         receipt_status
@@ -57,14 +52,9 @@ export const QUERY_MATERIALRECEIPTCONFIRMATIONS_DTO = gql`
         _id
         stock_order_id
         idx_stock_order_id
-        stock_order_id
         journey_id
         idx_journey_id
-        journey_id
         journey_step_code
-        project_id
-        idx_project_id
-        project_id
         receiver_user
         receipt_time
         receipt_status
