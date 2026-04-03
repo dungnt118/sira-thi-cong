@@ -1,9 +1,10 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Typography, Table, Button, Tag, Card, Row, Col, Statistic, Tabs, Input, Steps, Space, Badge, Grid, List, message, Modal } from 'antd';
+import { Typography, Table, Button, Tag, Card, Row, Col, Statistic, Tabs, Input, Steps, Space, Badge, Grid, List, message, Modal, Tooltip } from 'antd';
 import {
     FileTextOutlined, ClockCircleOutlined,
     ImportOutlined, ExportOutlined, SearchOutlined,
-    ArrowRightOutlined, FilePdfOutlined, DownloadOutlined
+    ArrowRightOutlined, FilePdfOutlined, DownloadOutlined,
+    InfoCircleOutlined, UserOutlined, CalendarOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
@@ -19,9 +20,20 @@ import {
 } from '../../../utils/journeyDocumentFileDisplay';
 import { PdfViewer } from '../../../components/common/PdfViewer';
 import type { HeadlessFileUpload } from 'types/apis/HeadlessFileUpload';
+import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
 const { useBreakpoint } = Grid;
+
+const SOURCE_LABELS: Record<string, string> = {
+    internal: 'Nội bộ',
+    distributor: 'Nhà phân phối',
+    retail: 'Kho lẻ',
+    journey: 'Hành trình',
+    discrepancy: 'Điều chỉnh',
+    manual: 'Thủ công',
+    project: 'Công trình'
+};
 
 const InventoryHistory: React.FC = () => {
     const navigate = useNavigate();
@@ -124,7 +136,8 @@ const InventoryHistory: React.FC = () => {
             return list.filter(o =>
                 (o.code && o.code.toLowerCase().includes(lower)) ||
                 (o.journey_code && o.journey_code.toLowerCase().includes(lower)) ||
-                (o.journey_name && o.journey_name.toLowerCase().includes(lower))
+                (o.journey_name && o.journey_name.toLowerCase().includes(lower)) ||
+                (o.notes && o.notes.toLowerCase().includes(lower))
             );
         }
 
@@ -172,64 +185,121 @@ const InventoryHistory: React.FC = () => {
         });
     };
 
+    const renderUser = (u: any) => {
+        if (!u) return '—';
+        if (typeof u === 'string') return u;
+        return u.displayName || u.email || u.username || '—';
+    };
+
     const columns = [
         {
             title: 'Mã phiếu',
             dataIndex: 'code',
             key: 'code',
             fixed: 'left' as const,
-            width: 120,
+            width: 130,
             render: (c: string, record: IStockOrder) => (
                 <Button type="link" onClick={() => navigate(`/kt/inventory/order/${record._id}`)} style={{ padding: 0 }}>
                     <Text strong>{c || 'STOCK-ORD'}</Text>
                 </Button>
             )
         },
-        { title: 'Loại', dataIndex: 'type', key: 'type', width: 100, render: (t: string) => <Tag color={t === 'out' ? 'orange' : 'green'}>{t === 'out' ? 'Xuất kho' : 'Nhập kho'}</Tag> },
-        { title: 'Nguồn', dataIndex: 'source', key: 'source', width: 120, render: (s: string) => s?.toUpperCase() || '—' },
+        { 
+            title: 'Yêu cầu bởi', 
+            dataIndex: 'requested_by', 
+            key: 'req_by', 
+            width: 140, 
+            render: (v: any) => (
+                <Space size={4}>
+                    <UserOutlined style={{ fontSize: 13, color: '#8c8c8c' }} />
+                    <Text ellipsis={{ tooltip: renderUser(v) }} style={{ fontSize: 13 }}>{renderUser(v)}</Text>
+                </Space>
+            )
+        },
         {
-            title: 'Đối tượng / Hành trình',
+            title: 'Đối tượng/Công trình',
             key: 'journey',
-            minWidth: 150,
+            minWidth: 180,
             render: (_: any, record: IStockOrder) => {
-                if (record.journey_code) {
+                if (record.journey_code || record.journey_name) {
                     return (
-                        <Space direction="vertical" size={0}>
-                            <Tag color="blue">{record.journey_code}</Tag>
-                            <Text type="secondary" style={{ fontSize: 11 }}>{record.journey_name}</Text>
-                        </Space>
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            {record.journey_code && <Tag color="blue" style={{ width: 'fit-content', marginBottom: 2 }}>{record.journey_code}</Tag>}
+                            <Text strong style={{ fontSize: 12 }}>{record.journey_name || 'Hành trình không tên'}</Text>
+                        </div>
                     );
                 }
                 return <span style={{ color: '#bfbfbf' }}>—</span>;
             }
         },
+        { 
+            title: 'Nguồn', 
+            dataIndex: 'source', 
+            key: 'source', 
+            width: 110, 
+            render: (s: string) => <Tag style={{ margin: 0 }}>{SOURCE_LABELS[s] || s?.toUpperCase() || '—'}</Tag> 
+        },
         {
             title: 'Trạng thái',
             dataIndex: 'status',
             key: 'st',
-            width: 130,
+            width: 120,
             render: (s: string) => getStatusTag(s || 'draft')
         },
-        { title: 'Giá trị', dataIndex: 'total_value', key: 'val', width: 120, render: (v: number) => `${(v || 0).toLocaleString('vi-VN')}đ` },
-        { title: 'Ngày tạo', dataIndex: 'created_at', key: 'date', width: 110, render: (d: any) => d ? new Date(d).toLocaleDateString('vi-VN') : '—' },
+        { title: 'Giá trị', dataIndex: 'total_value', key: 'val', width: 110, align: 'right' as const, render: (v: number) => <Text strong>{(v || 0).toLocaleString('vi-VN')}đ</Text> },
+        { 
+            title: 'Lập phiếu', 
+            dataIndex: 'created_at', 
+            key: 'date', 
+            width: 140, 
+            render: (d: any) => d ? (
+                <div style={{ fontSize: 12 }}>
+                    <CalendarOutlined style={{ marginRight: 4, color: '#bfbfbf' }} />
+                    {dayjs(d).format('DD/MM/YY HH:mm')}
+                </div>
+            ) : '—' 
+        },
+        { 
+            title: 'Duyệt phiếu', 
+            dataIndex: 'reviewed_at', 
+            key: 'rev_date', 
+            width: 140, 
+            render: (d: any) => d ? (
+                <div style={{ fontSize: 12, color: '#52c41a' }}>
+                    <CalendarOutlined style={{ marginRight: 4 }} />
+                    {dayjs(d).format('DD/MM/YY HH:mm')}
+                </div>
+            ) : <Text type="secondary" italic style={{ fontSize: 11 }}>Chưa duyệt</Text>
+        },
+        {
+            title: 'Ghi chú',
+            dataIndex: 'notes',
+            key: 'notes',
+            width: 150,
+            ellipsis: { tooltip: true },
+            render: (n: string) => n || '—'
+        },
         {
             title: 'Minh chứng',
             key: 'docs',
-            width: 100,
+            width: 80,
+            fixed: 'right' as const,
             align: 'center' as const,
             render: (_: any, record: IStockOrder) => {
                 const pdf = record.pdf_files?.[0];
                 if (!pdf) return null;
                 return (
-                    <Button 
-                        type="text" 
-                        size="small"
-                        icon={<FilePdfOutlined style={{ color: '#ff4d4f', fontSize: 18 }} />} 
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            openFilePreview(pdf);
-                        }}
-                    />
+                    <Tooltip title="Xem minh chứng PDF">
+                        <Button 
+                            type="text" 
+                            size="small"
+                            icon={<FilePdfOutlined style={{ color: '#ff4d4f', fontSize: 18 }} />} 
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                openFilePreview(pdf);
+                            }}
+                        />
+                    </Tooltip>
                 );
             }
         },
@@ -362,7 +432,7 @@ const InventoryHistory: React.FC = () => {
                         </div>
 
                         <Input
-                            placeholder="Tìm mã phiếu, đối tượng..."
+                            placeholder="Tìm mã phiếu, đối tượng, ghi chú..."
                             prefix={<SearchOutlined />}
                             value={searchText}
                             onChange={e => setSearchText(e.target.value)}
@@ -410,15 +480,34 @@ const InventoryHistory: React.FC = () => {
                                             </Space>
                                         </div>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                                            <Text type="secondary" style={{ fontSize: 12 }}>Nguồn:</Text>
-                                            <Text style={{ fontSize: 12 }}>{item.source?.toUpperCase() || '—'}</Text>
+                                            <Text type="secondary" style={{ fontSize: 12 }}>Người yêu cầu:</Text>
+                                            <Text style={{ fontSize: 12 }}>{renderUser(item.requested_by)}</Text>
                                         </div>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                                            <Text type="secondary" style={{ fontSize: 12 }}>Hành trình:</Text>
-                                            {item.journey_code ? <Tag color="blue" style={{ margin: 0, fontSize: 10 }}>{item.journey_code}</Tag> : <Text style={{ fontSize: 12 }}>—</Text>}
+                                            <Text type="secondary" style={{ fontSize: 12 }}>Dự án/Hành trình:</Text>
+                                            {item.journey_code || item.journey_name ? (
+                                                <div style={{ textAlign: 'right' }}>
+                                                    {item.journey_code && <Tag color="blue" size="small" style={{ margin: 0, fontSize: 10 }}>{item.journey_code}</Tag>}
+                                                    <br/>
+                                                    <Text style={{ fontSize: 11 }}>{item.journey_name}</Text>
+                                                </div>
+                                            ) : <Text style={{ fontSize: 12 }}>—</Text>}
                                         </div>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                                            <Text type="secondary" style={{ fontSize: 12 }}>Nguồn:</Text>
+                                            <Tag style={{ fontSize: 12 }}>{SOURCE_LABELS[item.source || ''] || item.source?.toUpperCase() || '—'}</Tag>
+                                        </div>
+                                        {item.notes && (
+                                            <div style={{ display: 'flex', gap: 8, marginBottom: 8, padding: '4px 8px', background: '#f5f5f5', borderRadius: 4 }}>
+                                                <InfoCircleOutlined style={{ color: '#bfbfbf', marginTop: 3 }} />
+                                                <Text type="secondary" style={{ fontSize: 11 }}>{item.notes}</Text>
+                                            </div>
+                                        )}
                                         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, paddingTop: 8, borderTop: '1px dashed #f0f0f0' }}>
-                                            <Text type="secondary" style={{ fontSize: 11 }}>{item.created_at ? new Date(item.created_at).toLocaleDateString('vi-VN') : '—'}</Text>
+                                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                <Text type="secondary" style={{ fontSize: 10 }}>Lập: {item.created_at ? dayjs(item.created_at).format('DD/MM/YY HH:mm') : '—'}</Text>
+                                                {item.reviewed_at && <Text style={{ fontSize: 10, color: '#52c41a' }}>Duyệt: {dayjs(item.reviewed_at).format('DD/MM/YY HH:mm')}</Text>}
+                                            </div>
                                             <div style={{ display: 'flex', alignItems: 'center' }}>
                                                 <Text strong style={{ color: '#fa8c16', marginRight: 8 }}>{(item.total_value || 0).toLocaleString('vi-VN')}đ</Text>
                                                 <ArrowRightOutlined style={{ fontSize: 12, color: '#bfbfbf' }} />
