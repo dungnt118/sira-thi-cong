@@ -11,6 +11,8 @@ import {
     BarChartOutlined,
     BellOutlined,
     ToolOutlined,
+    BankOutlined,
+    ContactsOutlined,
 } from '@ant-design/icons';
 import { BaseLayout } from '../shared/BaseLayout';
 import { UserMenu } from '../../components/common/Header/UserMenu';
@@ -54,6 +56,16 @@ const menuItems: MenuProps['items'] = [
         ],
     },
     {
+        key: '/kt/expenditures',
+        icon: <BankOutlined />,
+        label: 'Khoản chi',
+        children: [
+            { key: '/kt/expenditures/payment-requests', label: 'Yêu cầu chi' },
+            { key: '/kt/expenditures/company-bank-accounts', label: 'Tài khoản Công ty' },
+            { key: '/kt/expenditures/beneficiary-contacts', label: 'Tài khoản thụ hưởng' },
+        ],
+    },
+    {
         key: '/kt/warranty',
         icon: <SafetyOutlined />,
         label: 'Bảo hành',
@@ -88,7 +100,7 @@ const AccountantSidebar: React.FC = () => {
                 theme="dark"
                 mode="inline"
                 selectedKeys={[location.pathname]}
-                defaultOpenKeys={['/kt/inventory', '/kt/assets', '/kt/finance', '/kt/warranty']}
+                defaultOpenKeys={['/kt/inventory', '/kt/assets', '/kt/finance', '/kt/warranty', '/kt/expenditures']}
                 items={menuItems}
                 onClick={e => navigate(e.key)}
             />

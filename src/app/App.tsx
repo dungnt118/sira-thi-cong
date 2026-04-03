@@ -101,6 +101,9 @@ import AllocationForm from '../pages/shared/AllocationForm';
 import AssetAllocationDetail from '../pages/accountant/Assets/AssetAllocationDetail';
 import StockOrderDetail from '@pages/accountant/Inventory/StockOrderDetail';
 import InventoryHistory from '../pages/accountant/Inventory/History';
+import PaymentRequestList from '../pages/accountant/Expenditures/PaymentRequestList';
+import CompanyBankAccountList from '../pages/accountant/Expenditures/CompanyBankAccountList';
+import BeneficiaryContactList from '../pages/accountant/Expenditures/BeneficiaryContactList';
 
 // V4 Ky Thuat Pages
 import KyThuatLayout from '../layouts/KyThuatLayout';
@@ -316,6 +319,14 @@ function App() {
                                             <Route path="schedule" element={<ComingSoon title="Lịch Bảo hành" />} />
                                         </Route>
                                         <Route path="reports" element={<ComingSoon title="Báo cáo Tổng hợp" />} />
+                                        {/* Expenditures Module */}
+                                        <Route path="expenditures">
+                                            <Route index element={<Navigate to="/kt/expenditures/payment-requests" replace />} />
+                                            <Route path="payment-requests" element={<PaymentRequestList />} />
+                                            <Route path="company-bank-accounts" element={<CompanyBankAccountList />} />
+                                            <Route path="beneficiary-contacts" element={<BeneficiaryContactList />} />
+                                        </Route>
+
                                         {/* Unified journey detail for Accountant */}
                                         <Route path="journeys/:journeyId" element={<JourneyDetail360 />} />
                                     </Route>
