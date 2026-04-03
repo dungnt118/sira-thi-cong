@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
     Table, Button, Space, Modal, Form, Input, Select, Tag, 
     Typography, Card, message 
@@ -7,19 +7,37 @@ import {
     PlusOutlined, EditOutlined, DeleteOutlined, 
     BankOutlined 
 } from '@ant-design/icons';
-import useLocalStorageData from '../../../hooks/useLocalStorageData';
-import { Distributor } from '../../../types/v3';
-import mockDistributors from '../../../data/mock/distributors.json';
+import { distributorService } from '../../../services/core-contracts/services/distributor.service';
+import type { IDistributor } from '../../../services/core-contracts/types/distributor.types';
 
 const { Title } = Typography;
 
 const DistributorList: React.FC = () => {
-    const [distributors, setDistributors] = useLocalStorageData<Distributor[]>('DISTRIBUTORS', mockDistributors as Distributor[]);
+    const [loading, setLoading] = useState(false);
+    const [distributors, setDistributors] = useState<IDistributor[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingDistributor, setEditingDistributor] = useState<Distributor | null>(null);
+    const [editingDistributor, setEditingDistributor] = useState<IDistributor | null>(null);
     const [form] = Form.useForm();
 
-    const showModal = (distributor?: Distributor) => {
+    const fetchDistributors = async () => {
+        setLoading(true);
+        try {
+            const res = await distributorService.queryDistributorsDto({});
+            if (res.data) {
+                setDistributors(res.data);
+            }
+        } catch (error) {
+            message.error('Không thể tải danh sách nhà phân phối');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchDistributors();
+    }, []);
+
+    const showModal = (distributor?: IDistributor) => {
         setEditingDistributor(distributor || null);
         if (distributor) {
             form.setFieldsValue(distributor);
@@ -29,31 +47,35 @@ const DistributorList: React.FC = () => {
         setIsModalOpen(true);
     };
 
-    const handleSave = () => {
-        form.validateFields().then(values => {
+    const handleSave = async () => {
+        try {
+            const values = await form.validateFields();
             if (editingDistributor) {
-                setDistributors(prev => prev.map(d => d.id === editingDistributor.id ? { ...d, ...values } : d));
+                await distributorService.updateDistributor(editingDistributor._id, values);
                 message.success('Cập nhật nhà phân phối thành công');
             } else {
-                const newDistributor: Distributor = {
-                    ...values,
-                    id: `DIST-${Date.now()}`,
-                    code: `NCC-${values.name.split(' ').map((s: string) => s[0]).join('').toUpperCase()}`
-                };
-                setDistributors(prev => [...prev, newDistributor]);
+                await distributorService.createDistributor(values);
                 message.success('Thêm nhà phân phối thành công');
             }
             setIsModalOpen(false);
-        });
+            fetchDistributors();
+        } catch (error) {
+            message.error('Lỗi khi lưu thông tin nhà phân phối');
+        }
     };
 
     const handleDelete = (id: string) => {
         Modal.confirm({
             title: 'Xác nhận xóa',
             content: 'Bạn có chắc chắn muốn xóa nhà phân phối này?',
-            onOk: () => {
-                setDistributors(prev => prev.filter(d => d.id !== id));
-                message.success('Đã xóa nhà phân phối');
+            onOk: async () => {
+                try {
+                    await distributorService.deleteDistributor(id);
+                    message.success('Đã xóa nhà phân phối');
+                    fetchDistributors();
+                } catch (error) {
+                    message.error('Lỗi khi xóa nhà phân phối');
+                }
             }
         });
     };
@@ -63,21 +85,21 @@ const DistributorList: React.FC = () => {
             title: 'Nhà phân phối',
             dataIndex: 'name',
             key: 'name',
-            render: (text: string, record: Distributor) => (
-                <div>
-                    <div style={{ fontWeight: 'bold' }}>{text}</div>
-                    <div style={{ fontSize: '12px', color: '#888' }}>{record.code}</div>
-                </div>
+            render: (text: string, record: IDistributor) => (
+                <Space direction="vertical" size={0}>
+                    <Text strong>{text}</Text>
+                    <Text type="secondary" style={{ fontSize: '12px' }}>{record.code}</Text>
+                </Space>
             )
         },
         {
             title: 'Liên hệ',
             key: 'contact',
-            render: (_: any, record: Distributor) => (
-                <div>
-                    <div>{record.phone}</div>
-                    <div style={{ fontSize: '12px', color: '#888' }}>{record.email}</div>
-                </div>
+            render: (_: any, record: IDistributor) => (
+                <Space direction="vertical" size={0}>
+                    <Text>{record.phone || '—'}</Text>
+                    <Text type="secondary" style={{ fontSize: '12px' }}>{record.email || '—'}</Text>
+                </Space>
             )
         },
         {
@@ -92,7 +114,7 @@ const DistributorList: React.FC = () => {
             key: 'categories',
             render: (categories: string[]) => (
                 <>
-                    {categories.map(cat => (
+                    {categories?.map(cat => (
                         <Tag color="blue" key={cat}>{cat}</Tag>
                     ))}
                 </>
@@ -102,7 +124,7 @@ const DistributorList: React.FC = () => {
             title: 'Thao tác',
             key: 'actions',
             width: 120,
-            render: (_: any, record: Distributor) => (
+            render: (_: any, record: IDistributor) => (
                 <Space>
                     <Button 
                         type="text" 
@@ -113,17 +135,19 @@ const DistributorList: React.FC = () => {
                         type="text" 
                         danger 
                         icon={<DeleteOutlined />} 
-                        onClick={() => handleDelete(record.id)} 
+                        onClick={() => handleDelete(record._id)} 
                     />
                 </Space>
             )
         }
     ];
 
+    const { Text } = Typography;
+
     return (
         <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px' }}>
-                <Title level={4}><BankOutlined /> Quản lý Nhà phân phối</Title>
+                <Title level={4} style={{ margin: 0 }}><BankOutlined /> Quản lý Nhà phân phối</Title>
                 <Button type="primary" icon={<PlusOutlined />} onClick={() => showModal()}>
                     Thêm mới
                 </Button>
@@ -131,10 +155,12 @@ const DistributorList: React.FC = () => {
 
             <Card bodyStyle={{ padding: 0 }}>
                 <Table 
+                    loading={loading}
                     dataSource={distributors} 
                     columns={columns} 
-                    rowKey="id"
-                    pagination={{ pageSize: 10 }}
+                    rowKey="_id"
+                    pagination={{ pageSize: 15 }}
+                    scroll={{ x: 800 }}
                 />
             </Card>
 
@@ -155,13 +181,13 @@ const DistributorList: React.FC = () => {
                         <Input placeholder="Ví dụ: Công ty SIRA" />
                     </Form.Item>
                     <Form.Item name="phone" label="Số điện thoại">
-                        <Input />
+                        <Input placeholder="Số điện thoại liên hệ" />
                     </Form.Item>
                     <Form.Item name="email" label="Email">
-                        <Input />
+                        <Input placeholder="Email liên hệ" />
                     </Form.Item>
                     <Form.Item name="address" label="Địa chỉ">
-                        <Input.TextArea rows={2} />
+                        <Input.TextArea rows={2} placeholder="Địa chỉ văn phòng / kho" />
                     </Form.Item>
                     <Form.Item name="categories" label="Lĩnh vực cung cấp">
                         <Select mode="tags" placeholder="Chọn hoặc nhập lĩnh vực">

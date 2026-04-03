@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { Card, Row, Col, Statistic, Typography, Space, Button, Alert } from 'antd';
+import React, { useEffect, useState, useCallback } from 'react';
+import { Card, Row, Col, Statistic, Typography, Space, Button, Alert, Spin } from 'antd';
 import {
     InboxOutlined,
     ToolOutlined,
@@ -15,61 +15,111 @@ import {
     DollarOutlined,
     PieChartOutlined,
     SafetyCertificateOutlined,
+    ReloadOutlined,
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import useLocalStorageData from '../../hooks/useLocalStorageData';
-import type { Material, MaterialGroup, Asset, AssetGroup } from '../../types/v3';
-import type { StockOrder } from '../../types/v3';
-import mockMaterialsData from '../../data/mock/materials.json';
-import mockAssetsData from '../../data/mock/assets.json';
+import { materialService } from '../../services/core-contracts/services/material.service';
+import { materialGroupService } from '../../services/core-contracts/services/materialGroup.service';
+import { assetService } from '../../services/core-contracts/services/asset.service';
+import { assetGroupService } from '../../services/core-contracts/services/assetGroup.service';
+import { stockOrderService } from '../../services/core-contracts/services/stockOrder.service';
+import type { StockOrderStatusEnum } from '../../services/core-contracts/types/stockOrder.types';
 
 const { Title, Paragraph, Text } = Typography;
 
+const STOCK_ORDER_CLOSED: StockOrderStatusEnum[] = ['completed', 'cancelled'];
+
+const DASHBOARD_QUERY_LIMIT = 10000;
+
 /**
- * Trang tổng quan kế toán: chỉ số tổng hợp và điều hướng nhanh.
+ * Trang tổng quan kế toán: chỉ số từ API (core-contracts / schema BAC).
  * Khác với Danh mục vật tư (`/kt/inventory/materials`).
  */
 const AccountantOverviewDashboard: React.FC = () => {
     const navigate = useNavigate();
-    // ...
-    // Existing data fetching
-    const [groups] = useLocalStorageData<MaterialGroup[]>('MATERIAL_GROUPS', (mockMaterialsData as any).groups);
-    const [materials] = useLocalStorageData<Material[]>('MATERIALS', (mockMaterialsData as any).materials);
-    const [assetGroups] = useLocalStorageData<AssetGroup[]>('ASSET_GROUPS', (mockAssetsData as any).groups);
-    const [assets] = useLocalStorageData<Asset[]>('ASSETS', (mockAssetsData as any).assets);
-    const [stockOrders] = useLocalStorageData<StockOrder[]>('STOCK_ORDERS', []);
 
-    const materialStats = useMemo(() => {
-        const lowStock = materials.filter(m => m.currentStock <= (m.minStockAlert ?? 0)).length;
-        const totalSkus = materials.length;
-        return { lowStock, totalSkus, groupCount: groups.length };
-    }, [materials, groups]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [materialStats, setMaterialStats] = useState({ groupCount: 0, totalSkus: 0, lowStock: 0 });
+    const [assetStats, setAssetStats] = useState({ total: 0, inUse: 0, groupCount: 0 });
+    const [openOrders, setOpenOrders] = useState(0);
 
-    const assetStats = useMemo(() => {
-        const inUse = assets.filter(a => a.status === 'IN_USE').length;
-        return { total: assets.length, inUse, groupCount: assetGroups.length };
-    }, [assets, assetGroups]);
+    const loadOverview = useCallback(async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const filter = { limit: DASHBOARD_QUERY_LIMIT };
+            const [mgRes, matRes, agRes, astRes, soRes] = await Promise.all([
+                materialGroupService.queryMaterialGroupsDto(filter),
+                materialService.queryMaterialsDto(filter),
+                assetGroupService.queryAssetGroupsDto(filter),
+                assetService.queryAssetsDto(filter),
+                stockOrderService.queryStockOrdersDto(filter),
+            ]);
 
-    const openOrders = useMemo(
-        () => stockOrders.filter(o => o.status !== 'COMPLETED' && o.status !== 'CANCELLED').length,
-        [stockOrders],
-    );
+            const groups = mgRes.data ?? [];
+            const materials = matRes.data ?? [];
+            const assetGroups = agRes.data ?? [];
+            const assets = astRes.data ?? [];
+            const orders = soRes.data ?? [];
 
-    const FlowNode = ({ icon, label, path, color = '#1890ff' }: { icon: React.ReactNode, label: string, path: string, color?: string }) => (
-        <Card 
-            hoverable 
-            size="small" 
-            style={{ 
-                width: 140, 
-                textAlign: 'center', 
+            const lowStock = materials.filter(
+                (m) => (m.current_stock ?? 0) <= (m.min_stock_alert ?? 0),
+            ).length;
+            const inUse = assets.filter((a) => a.status === 'in_use').length;
+            const open = orders.filter(
+                (o) => o.status && !STOCK_ORDER_CLOSED.includes(o.status as StockOrderStatusEnum),
+            ).length;
+
+            setMaterialStats({
+                groupCount: groups.length,
+                totalSkus: materials.length,
+                lowStock,
+            });
+            setAssetStats({
+                total: assets.length,
+                inUse,
+                groupCount: assetGroups.length,
+            });
+            setOpenOrders(open);
+        } catch {
+            setError('Không tải được dữ liệu tổng quan. Kiểm tra kết nối hoặc quyền truy cập.');
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        loadOverview();
+    }, [loadOverview]);
+
+    const FlowNode = ({
+        icon,
+        label,
+        path,
+        color = '#1890ff',
+    }: {
+        icon: React.ReactNode;
+        label: string;
+        path: string;
+        color?: string;
+    }) => (
+        <Card
+            hoverable
+            size="small"
+            style={{
+                width: 140,
+                textAlign: 'center',
                 border: `1px solid ${color}20`,
                 borderRadius: 8,
-                boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+                boxShadow: '0 2px 4px rgba(0,0,0,0.02)',
             }}
             onClick={() => navigate(path)}
         >
             <div style={{ fontSize: 24, color, marginBottom: 8 }}>{icon}</div>
-            <Text strong style={{ fontSize: 12 }}>{label}</Text>
+            <Text strong style={{ fontSize: 12 }}>
+                {label}
+            </Text>
         </Card>
     );
 
@@ -82,65 +132,70 @@ const AccountantOverviewDashboard: React.FC = () => {
     return (
         <div style={{ padding: '0 0 24px' }}>
             <Space direction="vertical" size="large" style={{ width: '100%' }}>
-                <div>
-                    <Title level={3}>
-                        <DashboardOutlined style={{ marginRight: 8 }} />
-                        Tổng quan kế toán
-                    </Title>
-                    <Paragraph type="secondary" style={{ marginBottom: 0 }}>
-                        Bảng điều khiển tổng hợp vật tư, tài sản và chứng từ gần đây. Chi tiết danh mục vật tư nằm tại{' '}
-                        <Text strong>QL Vật tư → Danh mục vật tư</Text>.
-                    </Paragraph>
+                <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: 12 }}>
+                    <div>
+                        <Title level={3} style={{ marginBottom: 8 }}>
+                            <DashboardOutlined style={{ marginRight: 8 }} />
+                            Tổng quan kế toán
+                        </Title>
+                        <Paragraph type="secondary" style={{ marginBottom: 0 }}>
+                            Bảng điều khiển tổng hợp vật tư, tài sản và phiếu kho từ hệ thống. Chi tiết danh mục vật tư tại{' '}
+                            <Text strong>QL Vật tư → Danh mục vật tư</Text>.
+                        </Paragraph>
+                    </div>
+                    <Button icon={<ReloadOutlined />} onClick={loadOverview} loading={loading}>
+                        Làm mới
+                    </Button>
                 </div>
 
-                <Alert
-                    type="info"
-                    showIcon
-                    message="Dữ liệu demo (localStorage)"
-                    description="Các số liệu dưới đây lấy từ mock/local cho đến khi nối API StockOrder & backend thống nhất."
-                />
+                {error ? (
+                    <Alert type="error" showIcon message={error} action={<Button onClick={loadOverview}>Thử lại</Button>} />
+                ) : null}
 
-                <Row gutter={[16, 16]}>
-                    <Col xs={24} sm={12} lg={6}>
-                        <Card>
-                            <Statistic title="Nhóm vật tư" value={materialStats.groupCount} prefix={<InboxOutlined />} />
-                        </Card>
-                    </Col>
-                    <Col xs={24} sm={12} lg={6}>
-                        <Card>
-                            <Statistic title="SKU vật tư" value={materialStats.totalSkus} />
-                        </Card>
-                    </Col>
-                    <Col xs={24} sm={12} lg={6}>
-                        <Card>
-                            <Statistic
-                                title="SKU tồn thấp"
-                                value={materialStats.lowStock}
-                                valueStyle={materialStats.lowStock > 0 ? { color: '#cf1322' } : undefined}
-                            />
-                        </Card>
-                    </Col>
-                    <Col xs={24} sm={12} lg={6}>
-                        <Card>
-                            <Statistic title="Phiếu kho chưa đóng (mock)" value={openOrders} />
-                        </Card>
-                    </Col>
-                </Row>
+                <Spin spinning={loading}>
+                    <>
+                    <Row gutter={[16, 16]}>
+                        <Col xs={24} sm={12} lg={6}>
+                            <Card>
+                                <Statistic title="Nhóm vật tư" value={materialStats.groupCount} prefix={<InboxOutlined />} />
+                            </Card>
+                        </Col>
+                        <Col xs={24} sm={12} lg={6}>
+                            <Card>
+                                <Statistic title="SKU vật tư" value={materialStats.totalSkus} />
+                            </Card>
+                        </Col>
+                        <Col xs={24} sm={12} lg={6}>
+                            <Card>
+                                <Statistic
+                                    title="SKU tồn thấp"
+                                    value={materialStats.lowStock}
+                                    valueStyle={materialStats.lowStock > 0 ? { color: '#cf1322' } : undefined}
+                                />
+                            </Card>
+                        </Col>
+                        <Col xs={24} sm={12} lg={6}>
+                            <Card>
+                                <Statistic title="Phiếu kho chưa đóng" value={openOrders} />
+                            </Card>
+                        </Col>
+                    </Row>
 
-                <Row gutter={[16, 16]}>
-                    <Col xs={24} sm={12} lg={8}>
-                        <Card>
-                            <Statistic title="Tài sản" value={assetStats.total} prefix={<ToolOutlined />} />
-                            <Paragraph type="secondary" style={{ marginTop: 8, marginBottom: 0 }}>
-                                Đang sử dụng: {assetStats.inUse} · Nhóm: {assetStats.groupCount}
-                            </Paragraph>
-                        </Card>
-                    </Col>
-                </Row>
+                    <Row gutter={[16, 16]} style={{ marginTop: 0 }}>
+                        <Col xs={24} sm={12} lg={8}>
+                            <Card>
+                                <Statistic title="Tài sản" value={assetStats.total} prefix={<ToolOutlined />} />
+                                <Paragraph type="secondary" style={{ marginTop: 8, marginBottom: 0 }}>
+                                    Đang sử dụng: {assetStats.inUse} · Nhóm: {assetStats.groupCount}
+                                </Paragraph>
+                            </Card>
+                        </Col>
+                    </Row>
+                    </>
+                </Spin>
 
                 <Card title={<><AuditOutlined /> Quy trình nghiệp vụ (Flow)</>} bodyStyle={{ padding: '24px 16px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-                        {/* Warehouse Flow */}
                         <div>
                             <Text type="secondary" strong style={{ fontSize: 11, textTransform: 'uppercase', marginBottom: 12, display: 'block' }}>
                                 <InboxOutlined /> Quản lý Kho & Vật tư
@@ -158,7 +213,6 @@ const AccountantOverviewDashboard: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Expenditure Flow */}
                         <div>
                             <Text type="secondary" strong style={{ fontSize: 11, textTransform: 'uppercase', marginBottom: 12, display: 'block' }}>
                                 <DollarOutlined /> Quản lý Khoản chi & Ngân hàng
@@ -172,7 +226,6 @@ const AccountantOverviewDashboard: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Asset Flow */}
                         <div>
                             <Text type="secondary" strong style={{ fontSize: 11, textTransform: 'uppercase', marginBottom: 12, display: 'block' }}>
                                 <ToolOutlined /> Quản lý Tài sản

@@ -1,5 +1,6 @@
-import type { IndexedContentItem } from 'types/apis';
-import type { ApiListResponse } from 'types/apis/ApiResponse';
+import type { HeadlessReferenceContent, IndexedContentItem } from 'types/apis';
+import type { ApiListResponse, ApiResponse } from 'types/apis/ApiResponse';
+import type { HeadlessFileUpload } from 'types/apis/HeadlessFileUpload';
 
 /**
  * StockOrder interface
@@ -24,7 +25,6 @@ export interface IStockOrder {
   discrepancy_status?: StockOrderDiscrepancyStatusEnum;
   pdf_url?: string;
   signed_at?: string | Date;
-
   items?: IItemsItem[];
   journey_source_id?: string;
   idx_journey_source_id?: IndexedContentItem;
@@ -36,7 +36,7 @@ export interface IStockOrder {
   reviewed_at?: string | Date;
   review_note?: string;
   request_reason?: string;
-  signature_image?: string;
+  signatures?: ISignaturesItem[];
 }
 
 export interface IItemsItem {
@@ -52,6 +52,17 @@ export interface IItemsItem {
   is_partial?: boolean;
   remaining_percent?: number;
   discrepancy_note?: string;
+}
+
+export interface ISignaturesItem {
+  role?: SignaturesRoleEnum;
+  step_order?: number;
+  system_confirmed?: boolean;
+  signature_image?: string;
+  signature_stroke_data?: any;
+  signed_at?: string | Date;
+  signed_by?: any;
+  note?: string;
 }
 
 export interface ICreateStockOrderInput {
@@ -80,7 +91,7 @@ export interface ICreateStockOrderInput {
   reviewed_at?: string | Date;
   review_note?: string;
   request_reason?: string;
-  signature_image?: string;
+  signatures?: ISignaturesItem[];
 }
 
 export type IStockOrderListResponse = ApiListResponse<IStockOrder>
@@ -92,6 +103,7 @@ export type StockOrderJourneyStepCodeEnum = 'lead_intake' | 'qualification' | 's
 export type StockOrderSourceEnum = 'distributor' | 'journey' | 'other';
 export type StockOrderDiscrepancyStatusEnum = 'none' | 'pending_review' | 'confirmed' | 'resolved';
 export type ItemsUnitEnum = 'kg' | 'lit' | 'm2' | 'thung' | 'cuon' | 'cai';
+export type SignaturesRoleEnum = 'pm' | 'kt' | 'warehouse' | 'gs';
 export type StockOrderTypeEnum2 = 'out' | 'in';
 export type StockOrderStatusEnum2 = 'draft' | 'requested' | 'approved' | 'dispatched' | 'received' | 'completed' | 'discrepancy' | 'cancelled';
 export type StockOrderJourneyStepCodeEnum2 = 'lead_intake' | 'qualification' | 'survey_planning' | 'site_survey' | 'survey_review' | 'estimate_preparation' | 'quotation_preparation' | 'quotation_sent' | 'quotation_approved' | 'contract_signing' | 'project_execution' | 'handover_acceptance' | 'warranty_aftercare';

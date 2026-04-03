@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
     Card, Row, Col, Table, Tag, Button, Statistic,
     Typography, Space, Modal, Form, Input, InputNumber, Select,
@@ -7,13 +7,15 @@ import {
 import type { ColumnsType } from 'antd/es/table';
 import {
     PlusOutlined, MinusOutlined, HistoryOutlined,
-    BankOutlined, EditOutlined, DeleteOutlined
+    BankOutlined, EditOutlined, DeleteOutlined,
+    InboxOutlined, AppstoreOutlined, AlertOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import useLocalStorageData from '../../../hooks/useLocalStorageData';
-import type { Material, MaterialGroup, MaterialGroupCategory } from '../../../types/v3';
-import { MATERIAL_GROUP_CATEGORY_LABELS } from '../../../types/v3';
-import mockMaterialsData from '../../../data/mock/materials.json';
+import { materialService } from '../../../services/core-contracts/services/material.service';
+import { materialGroupService } from '../../../services/core-contracts/services/materialGroup.service';
+import type { IMaterial } from '../../../services/core-contracts/types/material.types';
+import type { IMaterialGroup } from '../../../services/core-contracts/types/materialGroup.types';
+import { MATERIAL_GROUP_CATEGORY_LABELS, type MaterialGroupCategory } from '../../../types/v3';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -23,32 +25,50 @@ const InventoryDashboard: React.FC = () => {
     const [form] = Form.useForm();
     const [skuForm] = Form.useForm();
 
-    // Use LocalStorage for state management
-    const [groups, setGroups] = useLocalStorageData<MaterialGroup[]>('MATERIAL_GROUPS', (mockMaterialsData as any).groups);
-    const [materials, setMaterials] = useLocalStorageData<Material[]>('MATERIALS', (mockMaterialsData as any).materials);
+    const [loading, setLoading] = useState(false);
+    const [groups, setGroups] = useState<IMaterialGroup[]>([]);
+    const [materials, setMaterials] = useState<IMaterial[]>([]);
 
     const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
     const [isSkuModalOpen, setIsSkuModalOpen] = useState(false);
-    const [selectedGroup, setSelectedGroup] = useState<MaterialGroup | null>(null);
-    const [editingGroup, setEditingGroup] = useState<MaterialGroup | null>(null);
-    const [editingSku, setEditingSku] = useState<Material | null>(null);
+    const [selectedGroup, setSelectedGroup] = useState<IMaterialGroup | null>(null);
+    const [editingGroup, setEditingGroup] = useState<IMaterialGroup | null>(null);
+    const [editingSku, setEditingSku] = useState<IMaterial | null>(null);
+
+    const fetchData = async () => {
+        setLoading(true);
+        try {
+            const [groupRes, materialRes] = await Promise.all([
+                materialGroupService.queryMaterialGroupsDto({}),
+                materialService.queryMaterialsDto({})
+            ]);
+            if (groupRes.data) setGroups(groupRes.data);
+            if (materialRes.data) setMaterials(materialRes.data);
+        } catch (error) {
+            message.error('Không thể tải dữ liệu vật tư');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, []);
 
     // Aggregation Logic for Groups
     const groupStats = useMemo(() => {
         return groups.map(group => {
-            const skus = materials.filter(m => m.groupId === group.id);
-            const totalCapacity = skus.reduce((sum, s) => sum + (s.currentStock * (s.capacity || 1) + (s.partialStock || 0)), 0);
-            const totalFull = skus.reduce((sum, s) => sum + s.currentStock, 0);
-            const totalPartial = skus.filter(s => (s.partialStock || 0) > 0).length;
+            const skus = materials.filter(m => m.group_id === group._id);
+            const totalFull = skus.reduce((sum, s) => sum + (s.current_stock || 0), 0);
+            const totalPartial = skus.filter(s => (s.partial_stock || 0) > 0).length;
             const totalValue = skus.reduce((sum, s) => {
-                const fullValue = s.currentStock * s.unitCost;
-                const partialValue = ((s.partialStock || 0) / (s.capacity || 1)) * s.unitCost;
+                const fullValue = (s.current_stock || 0) * (s.unit_cost || 0);
+                const partialValue = ((s.partial_stock || 0) / (s.capacity || 1)) * (s.unit_cost || 0);
                 return sum + (isNaN(fullValue) ? 0 : fullValue) + (isNaN(partialValue) ? 0 : partialValue);
             }, 0);
 
             return {
                 ...group,
-                totalCapacity,
                 totalFull,
                 totalPartial,
                 totalValue,
@@ -58,57 +78,69 @@ const InventoryDashboard: React.FC = () => {
     }, [groups, materials]);
 
     const totalInventoryValue = groupStats.reduce((s: number, g: any) => s + g.totalValue, 0);
-    const lowStockSkus = materials.filter(m => m.currentStock <= m.minStockAlert);
+    const lowStockSkus = materials.filter(m => (m.current_stock || 0) <= (m.min_stock_alert || 0));
 
-    const handleSaveGroup = () => {
-        form.validateFields().then(values => {
+    const handleSaveGroup = async () => {
+        try {
+            const values = await form.validateFields();
             if (editingGroup) {
-                const updated = groups.map(g => g.id === editingGroup.id ? { ...g, ...values } : g);
-                setGroups(updated);
+                await materialGroupService.updateMaterialGroup(editingGroup._id, values);
                 message.success('Cập nhật nhóm hàng thành công');
             } else {
-                const newId = `GRP-${Date.now()}`;
-                setGroups([...groups, { ...values, id: newId }]);
+                await materialGroupService.createMaterialGroup({ ...values, type: 'CONSUMABLE' });
                 message.success('Thêm nhóm hàng mới thành công');
             }
             setIsGroupModalOpen(false);
-        });
+            fetchData();
+        } catch (error) {
+            message.error('Lỗi khi lưu nhóm hàng');
+        }
     };
 
-    const handleDeleteGroup = (id: string, e: React.MouseEvent) => {
+    const handleDeleteGroup = async (id: string, e: React.MouseEvent) => {
         e.stopPropagation();
-        const hasSkus = materials.some(m => m.groupId === id);
+        const hasSkus = materials.some(m => m.group_id === id);
         if (hasSkus) {
             message.error('Không thể xóa nhóm đang có SKU. Vui lòng xóa SKU trước.');
             return;
         }
-        setGroups(groups.filter(g => g.id !== id));
-        message.success('Đã xóa nhóm hàng');
+        try {
+            await materialGroupService.deleteMaterialGroup(id);
+            message.success('Đã xóa nhóm hàng');
+            fetchData();
+        } catch (error) {
+            message.error('Lỗi khi xóa nhóm hàng');
+        }
     };
 
-    const handleSaveSku = () => {
-        skuForm.validateFields().then(values => {
-            const group = groups.find(g => g.id === values.groupId);
+    const handleSaveSku = async () => {
+        try {
+            const values = await skuForm.validateFields();
+            const group = groups.find(g => g._id === values.group_id);
             if (!group) return;
 
-            // Inherit from Group
             const skuData = {
                 ...values,
-                name: `${values.capacity}`, // Name is just the number/capacity now
-                unit: group.packageUnit      // Inherit package unit from group
+                name: `${values.capacity} ${group.base_unit || ''}`,
+                unit: group.package_unit
             };
 
             if (editingSku) {
-                const updated = materials.map(m => m.id === editingSku.id ? { ...m, ...skuData } : m);
-                setMaterials(updated);
+                await materialService.updateMaterial(editingSku._id, skuData);
                 message.success('Cập nhật SKU thành công');
             } else {
-                const newId = `SKU-${Date.now()}`;
-                setMaterials([...materials, { ...skuData, id: newId, currentStock: 0, partialStock: 0 }]);
+                await materialService.createMaterial({ 
+                    ...skuData, 
+                    current_stock: 0, 
+                    partial_stock: 0 
+                } as any);
                 message.success('Thêm SKU mới thành công');
             }
             setIsSkuModalOpen(false);
-        });
+            fetchData();
+        } catch (error) {
+            message.error('Lỗi khi lưu SKU');
+        }
     };
 
     const groupColumns: ColumnsType<any> = [
@@ -120,20 +152,20 @@ const InventoryDashboard: React.FC = () => {
                 <Space>
                     <Text strong>{text}</Text>
                     {record.category ? (
-                        <Tag>
+                        <Tag color="cyan">
                             {MATERIAL_GROUP_CATEGORY_LABELS[record.category as MaterialGroupCategory]}
                         </Tag>
                     ) : null}
-                    <Text type="secondary" style={{ fontSize: 12 }}>({record.packageUnit})</Text>
+                    <Text type="secondary" style={{ fontSize: 12 }}>({record.package_unit})</Text>
                 </Space>
             )
         },
         {
-            title: 'Tổng Dung lượng',
-            key: 'capacity',
+            title: 'Quy cách (Gốc)',
+            key: 'base_unit',
             render: (_, record) => (
                 <Text strong style={{ color: '#1890ff' }}>
-                    {record.totalCapacity.toLocaleString()} {record.baseUnit}
+                    {record.base_unit || '—'}
                 </Text>
             )
         },
@@ -141,13 +173,13 @@ const InventoryDashboard: React.FC = () => {
             title: 'Số lượng Nguyên',
             dataIndex: 'totalFull',
             key: 'full',
-            render: (v, record) => <Tag color="blue">{v} {record.packageUnit}</Tag>
+            render: (v, record) => <Tag color="blue">{v} {record.package_unit}</Tag>
         },
         {
             title: 'Số lượng Dở',
             dataIndex: 'totalPartial',
             key: 'partial',
-            render: (v, record) => <Tag color="orange">{v} {record.packageUnit}</Tag>
+            render: (v, record) => <Tag color="orange">{v} SKU dở</Tag>
         },
         {
             title: 'Tổng Giá trị (Ước tính)',
@@ -168,7 +200,7 @@ const InventoryDashboard: React.FC = () => {
                         onClick={() => {
                             setSelectedGroup(record);
                             skuForm.resetFields();
-                            skuForm.setFieldsValue({ groupId: record.id, minStockAlert: 5 });
+                            skuForm.setFieldsValue({ group_id: record._id, min_stock_alert: 5 });
                             setEditingSku(null);
                             setIsSkuModalOpen(true);
                         }}
@@ -186,7 +218,7 @@ const InventoryDashboard: React.FC = () => {
                     />
                     <Popconfirm
                         title="Xóa nhóm hàng? (Chỉ khi không có SKU)"
-                        onConfirm={(e) => handleDeleteGroup(record.id, e as any)}
+                        onConfirm={(e) => handleDeleteGroup(record._id, e as any)}
                         okText="Xóa"
                         cancelText="Hủy"
                     >
@@ -202,31 +234,31 @@ const InventoryDashboard: React.FC = () => {
     ];
 
     const expandedRowRender = (group: any) => {
-        const skuColumns: ColumnsType<Material> = [
+        const skuColumns: ColumnsType<IMaterial> = [
             { title: 'Mã SKU', dataIndex: 'code', key: 'code', width: 120 },
             {
                 title: 'Quy cách',
                 dataIndex: 'name',
                 key: 'name',
-                render: (v) => <Text strong>{v} {group.baseUnit}</Text>
+                render: (v) => <Text strong>{v}</Text>
             },
             {
                 title: 'Tồn Kho thực tế',
                 key: 'cap',
                 render: (_, m) => (
                     <Space direction="vertical" size={0}>
-                        <Text>{m.currentStock} {group.packageUnit} nguyên</Text>
-                        {(m.partialStock || 0) > 0 && <Text type="warning" style={{ fontSize: 11 }}>+ {m.partialStock} {group.baseUnit} lẻ</Text>}
+                        <Text>{m.current_stock || 0} {group.package_unit} nguyên</Text>
+                        {(m.partial_stock || 0) > 0 && <Text type="warning" style={{ fontSize: 11 }}>+ {m.partial_stock} {group.base_unit} lẻ</Text>}
                     </Space>
                 )
             },
-            { title: 'Đơn giá', dataIndex: 'unitCost', key: 'cost', align: 'right', render: (v) => v.toLocaleString('vi-VN') + 'đ' },
+            { title: 'Đơn giá', dataIndex: 'unit_cost', key: 'cost', align: 'right', render: (v) => (v || 0).toLocaleString('vi-VN') + 'đ' },
             {
                 title: 'Thành tiền',
                 key: 'total',
                 align: 'right',
                 render: (_, m) => {
-                    const totalVal = (m.currentStock * m.unitCost) + ((m.partialStock || 0) / (m.capacity || 1)) * m.unitCost;
+                    const totalVal = ((m.current_stock || 0) * (m.unit_cost || 0)) + (((m.partial_stock || 0) / (m.capacity || 1)) * (m.unit_cost || 0));
                     return (isNaN(totalVal) ? '0' : totalVal.toLocaleString('vi-VN')) + 'đ';
                 }
             },
@@ -249,7 +281,7 @@ const InventoryDashboard: React.FC = () => {
                 dataSource={group.skus}
                 pagination={false}
                 size="small"
-                rowKey="id"
+                rowKey="_id"
                 style={{ margin: '8px 0', background: '#fafafa', borderRadius: 4 }}
             />
         );
@@ -263,39 +295,39 @@ const InventoryDashboard: React.FC = () => {
                 alignItems: 'center',
                 marginBottom: 24
             }}>
-                <Title level={4} style={{ margin: 0 }}>📦 Quản lý Vật tư tiêu hao</Title>
+                <Title level={4} style={{ margin: 0 }}><InboxOutlined style={{ marginRight: 8 }} /> Quản lý Vật tư tiêu hao</Title>
                 <Space>
                     <Button icon={<BankOutlined />} onClick={() => navigate('/kt/inventory/distributors')}>Nhà phân phối</Button>
                     <Button icon={<PlusOutlined />} type="primary" onClick={() => {
                         setEditingGroup(null);
                         form.resetFields();
                         setIsGroupModalOpen(true);
-                    }}>Khai báo Nhóm hàng</Button>
+                    }}>Khai báo Nhóm</Button>
                     <Button icon={<HistoryOutlined />} onClick={() => navigate('/kt/inventory/history')}>Lịch sử</Button>
-                    <Button icon={<MinusOutlined />} onClick={() => navigate('/kt/inventory/stock-out')}>Xuất kho</Button>
                     <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/kt/inventory/stock-in')}>Nhập kho</Button>
+                    <Button danger icon={<MinusOutlined />} onClick={() => navigate('/kt/inventory/stock-out')}>Xuất kho</Button>
                 </Space>
             </div>
 
             <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
                 <Col span={6}>
-                    <Card size="small">
-                        <Statistic title="Tổng giá trị kho" value={totalInventoryValue} suffix="đ" precision={0} />
+                    <Card size="small" bordered={false} className="dashboard-stat-card">
+                        <Statistic title="Tổng giá trị kho" value={totalInventoryValue} suffix="đ" prefix={<AppstoreOutlined />} />
                     </Card>
                 </Col>
                 <Col span={6}>
-                    <Card size="small">
-                        <Statistic title="Số Nhóm hàng" value={groups.length} />
+                    <Card size="small" bordered={false} className="dashboard-stat-card">
+                        <Statistic title="Số Nhóm hàng" value={groups.length} prefix={<InboxOutlined />} />
                     </Card>
                 </Col>
                 <Col span={6}>
-                    <Card size="small">
-                        <Statistic title="Cần nhập thêm (SKU)" value={lowStockSkus.length} valueStyle={{ color: '#cf1322' }} />
+                    <Card size="small" bordered={false} className="dashboard-stat-card">
+                        <Statistic title="Cần nhập thêm (SKU)" value={lowStockSkus.length} valueStyle={{ color: '#cf1322' }} prefix={<AlertOutlined />} />
                     </Card>
                 </Col>
                 <Col span={6}>
-                    <Card size="small">
-                        <Statistic title="Vòng quay kho (Tháng)" value={1.2} />
+                    <Card size="small" bordered={false} className="dashboard-stat-card">
+                        <Statistic title="Vòng quay kho (Tháng)" value={1.2} prefix={<HistoryOutlined />} />
                     </Card>
                 </Col>
             </Row>
@@ -303,10 +335,12 @@ const InventoryDashboard: React.FC = () => {
             <Table
                 columns={groupColumns}
                 dataSource={groupStats}
-                rowKey="id"
+                rowKey="_id"
                 size="middle"
+                loading={loading}
                 expandable={{ expandedRowRender, defaultExpandAllRows: false }}
                 pagination={false}
+                scroll={{ x: 1000 }}
             />
 
             {/* Group Modal */}
@@ -322,7 +356,7 @@ const InventoryDashboard: React.FC = () => {
                     </Form.Item>
                     <Row gutter={16}>
                         <Col span={8}>
-                            <Form.Item name="baseUnit" label="ĐVT cơ sở (L/Kg)" rules={[{ required: true }]}>
+                            <Form.Item name="base_unit" label="ĐVT cơ sở (L/Kg)" rules={[{ required: true }]}>
                                 <Select placeholder="Chọn ĐVT">
                                     <Option value="Kg">Kg</Option>
                                     <Option value="Lít">Lít</Option>
@@ -331,8 +365,8 @@ const InventoryDashboard: React.FC = () => {
                                 </Select>
                             </Form.Item>
                         </Col>
-                        <Col span={12}>
-                            <Form.Item name="packageUnit" label="ĐVT đóng gói" rules={[{ required: true }]}>
+                        <Col span={16}>
+                            <Form.Item name="package_unit" label="ĐVT đóng gói" rules={[{ required: true }]}>
                                 <Select placeholder="Thùng/Lon...">
                                     <Option value="thùng">Thùng</Option>
                                     <Option value="lon">Lon</Option>
@@ -341,15 +375,14 @@ const InventoryDashboard: React.FC = () => {
                                 </Select>
                             </Form.Item>
                         </Col>
-                        <Form.Item name="type" initialValue="CONSUMABLE" hidden><Input /></Form.Item>
                     </Row>
                     <Form.Item name="category" label="Danh mục (loại vật tư)">
                         <Select
                             allowClear
                             placeholder="Chọn danh mục"
-                            options={(Object.keys(MATERIAL_GROUP_CATEGORY_LABELS) as MaterialGroupCategory[]).map((value) => ({
+                            options={(Object.keys(MATERIAL_GROUP_CATEGORY_LABELS) as any).map((value: any) => ({
                                 value,
-                                label: MATERIAL_GROUP_CATEGORY_LABELS[value],
+                                label: (MATERIAL_GROUP_CATEGORY_LABELS as any)[value],
                             }))}
                         />
                     </Form.Item>
@@ -365,13 +398,13 @@ const InventoryDashboard: React.FC = () => {
                 width={500}
             >
                 <Alert
-                    message={`SKU này sẽ kế thừa ĐVT cơ sở (${selectedGroup?.baseUnit}) và ĐVT đóng gói (${selectedGroup?.packageUnit}) từ Nhóm.`}
+                    message={`SKU này sẽ kế thừa ĐVT cơ sở (${selectedGroup?.base_unit}) và ĐVT đóng gói (${selectedGroup?.package_unit}) từ Nhóm.`}
                     type="info"
                     showIcon
                     style={{ marginBottom: 16 }}
                 />
                 <Form form={skuForm} layout="vertical">
-                    <Form.Item name="groupId" hidden><Input /></Form.Item>
+                    <Form.Item name="group_id" hidden><Input /></Form.Item>
                     <Row gutter={16}>
                         <Col span={12}>
                             <Form.Item name="code" label="Mã SKU" rules={[{ required: true }]}>
@@ -381,25 +414,25 @@ const InventoryDashboard: React.FC = () => {
                         <Col span={12}>
                             <Form.Item
                                 name="capacity"
-                                label={`Số lượng quy cách (mỗi ${selectedGroup?.packageUnit})`}
+                                label={`Số lượng quy cách (mỗi ${selectedGroup?.package_unit})`}
                                 rules={[{ required: true }]}
                             >
                                 <InputNumber
                                     style={{ width: '100%' }}
                                     placeholder="VD: 15"
-                                    addonAfter={selectedGroup?.baseUnit}
+                                    addonAfter={selectedGroup?.base_unit}
                                 />
                             </Form.Item>
                         </Col>
                     </Row>
                     <Row gutter={16}>
                         <Col span={12}>
-                            <Form.Item name="unitCost" label="Đơn giá tham chiếu" rules={[{ required: true }]}>
+                            <Form.Item name="unit_cost" label="Đơn giá tham chiếu" rules={[{ required: true }]}>
                                 <InputNumber style={{ width: '100%' }} formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} />
                             </Form.Item>
                         </Col>
                         <Col span={12}>
-                            <Form.Item name="minStockAlert" label="Cảnh báo tồn tối thiểu">
+                            <Form.Item name="min_stock_alert" label="Cảnh báo tồn tối thiểu">
                                 <InputNumber style={{ width: '100%' }} />
                             </Form.Item>
                         </Col>

@@ -1,54 +1,101 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
     Card, Row, Col, Typography, Table, Tag, Button,
     Space, Steps, message, Modal,
-    Alert, Descriptions, Result
+    Alert, Descriptions, Result, Spin
 } from 'antd';
 import {
     ArrowLeftOutlined, FilePdfOutlined, CheckCircleOutlined,
     ClockCircleOutlined, WarningOutlined, SignatureOutlined,
-    CarOutlined, HomeOutlined
+    CarOutlined, HomeOutlined, DownloadOutlined, EyeOutlined
 } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
-import useLocalStorageData from '@hooks/useLocalStorageData';
-import {
-    StockOrder, StockOrderStatus, StockOrderSignature, UserRole
-} from '@/types/v3';
-import SiraSignaturePad from '@components/common/SignaturePad';
+import { useAuth } from '../../../hooks/useAuth';
+import { stockOrderService } from '../../../services/core-contracts/services/stockOrder.service';
+import type {
+    IStockOrder,
+    IStockOrderSignatureItem,
+    StockOrderSignatureRole,
+    StockOrderStatusEnum
+} from '../../../services/core-contracts/types/stockOrder.types';
+import SiraSignaturePad from '../../../components/common/SignaturePad';
 import StockOrderPrintable from './components/StockOrderPrintable';
 import html2pdf from 'html2pdf.js';
-import { DownloadOutlined, EyeOutlined } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
+
+type SigningRoleUi = 'kt' | 'warehouse' | 'gs';
+
+const SIGN_STEP_ORDER: Record<SigningRoleUi, number> = { kt: 2, warehouse: 3, gs: 4 };
+
+function stockOrderSigByRole(order: IStockOrder | null, role: StockOrderSignatureRole) {
+    return order?.signatures?.find((s) => s.role === role);
+}
+
+/** Bản ghi cũ chỉ có `signature_image` (ghi đè mỗi lần ký) — ánh xạ tạm sang cột KT khi đã duyệt và chưa có dòng kt trong `signatures`. */
+function legacyKtSignatureDataUrl(order: IStockOrder): string | undefined {
+    if (order.signatures?.some((s) => s.role === 'kt')) return undefined;
+    if (!order.signature_image) return undefined;
+    if (['approved', 'dispatched', 'received', 'completed', 'discrepancy'].includes(order.status || '')) {
+        return order.signature_image;
+    }
+    return undefined;
+}
 
 const StockOrderDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
+    const { user } = useAuth();
 
-    const [stockOrders, setStockOrders] = useLocalStorageData<StockOrder[]>('STOCK_ORDERS', []);
-    const [cachedSignatures, setCachedSignatures] = useLocalStorageData<Record<string, string>>('CACHED_SIGNATURES', {});
-
-    const order = useMemo(() => stockOrders.find(o => o.id === id || o.code === id), [stockOrders, id]);
-
+    const [loading, setLoading] = useState(true);
+    const [order, setOrder] = useState<IStockOrder | null>(null);
     const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
     const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
-    const [signingRole, setSigningRole] = useState<UserRole | 'warehouse' | null>(null);
+    const [signingRole, setSigningRole] = useState<string | null>(null);
+
+    const fetchOrder = async () => {
+        if (!id) return;
+        setLoading(true);
+        try {
+            const res = await stockOrderService.findStockOrderDto(id);
+            if (res) {
+                setOrder(res);
+            }
+        } catch (error) {
+            message.error('Không thể tải chi tiết phiếu');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchOrder();
+    }, [id]);
+
+    if (loading) {
+        return (
+            <div style={{ padding: 100, textAlign: 'center' }}>
+                <Spin size="large" tip="Đang tải thông tin phiếu..." />
+            </div>
+        );
+    }
 
     if (!order) {
         return <Result status="404" title="Không tìm thấy phiếu" subTitle="Phiếu nhập/xuất này không tồn tại hoặc đã bị xóa." />;
     }
 
-    const getStatusInfo = (status: StockOrderStatus) => {
-        switch (status) {
-            case 'DRAFT': return { color: 'default', text: 'Nháp', icon: <ClockCircleOutlined /> };
-            case 'REQUESTED': return { color: 'processing', text: 'Chờ duyệt', icon: <ClockCircleOutlined /> };
-            case 'APPROVED': return { color: 'cyan', text: 'Đã duyệt', icon: <CheckCircleOutlined /> };
-            case 'DISPATCHED': return { color: 'purple', text: 'Đang giao', icon: <CarOutlined /> };
-            case 'RECEIVED': return { color: 'blue', text: 'Đã nhận', icon: <HomeOutlined /> };
-            case 'COMPLETED': return { color: 'success', text: 'Hoàn thành', icon: <CheckCircleOutlined /> };
-            case 'DISCREPANCY': return { color: 'error', text: 'Thiếu hụt', icon: <WarningOutlined /> };
-            case 'CANCELLED': return { color: 'error', text: 'Đã hủy', icon: <WarningOutlined /> };
-            default: return { color: 'default', text: status, icon: null };
+    const getStatusInfo = (status?: string) => {
+        const s = status || 'draft';
+        switch (s) {
+            case 'draft': return { color: 'default', text: 'Nháp', icon: <ClockCircleOutlined /> };
+            case 'requested': return { color: 'processing', text: 'Chờ duyệt', icon: <ClockCircleOutlined /> };
+            case 'approved': return { color: 'cyan', text: 'Đã duyệt', icon: <CheckCircleOutlined /> };
+            case 'dispatched': return { color: 'purple', text: 'Đang giao', icon: <CarOutlined /> };
+            case 'received': return { color: 'blue', text: 'Đã nhận', icon: <HomeOutlined /> };
+            case 'completed': return { color: 'success', text: 'Hoàn thành', icon: <CheckCircleOutlined /> };
+            case 'discrepancy': return { color: 'error', text: 'Thiếu hụt', icon: <WarningOutlined /> };
+            case 'cancelled': return { color: 'error', text: 'Đã hủy', icon: <WarningOutlined /> };
+            default: return { color: 'default', text: s.toUpperCase(), icon: null };
         }
     };
 
@@ -60,97 +107,77 @@ const StockOrderDetail: React.FC = () => {
         { title: 'Hoàn tất', description: 'Lưu trữ' }
     ];
 
-    const getCurrentStep = (status: StockOrderStatus) => {
-        if (status === 'DRAFT' || status === 'REQUESTED') return 0;
-        if (status === 'APPROVED') return 1;
-        if (status === 'DISPATCHED') return 2;
-        if (status === 'RECEIVED' || status === 'DISCREPANCY') return 3;
-        if (status === 'COMPLETED') return 4;
+    const getCurrentStep = (status?: string) => {
+        const s = status || 'draft';
+        if (s === 'draft' || s === 'requested') return 0;
+        if (s === 'approved') return 1;
+        if (s === 'dispatched') return 2;
+        if (s === 'received' || s === 'discrepancy') return 3;
+        if (s === 'completed') return 4;
         return 0;
     };
 
-    const handleSign = (dataUrl: string) => {
-        const roleToSign = signingRole;
-        if (!roleToSign) {
-            return;
-        }
+    const handleSign = async (dataUrl: string) => {
+        if (!signingRole || !id) return;
 
-        // Cache the signature for reuse
-        setCachedSignatures({
-            ...cachedSignatures,
-            [roleToSign]: dataUrl
-        });
+        try {
+            let nextStatus: StockOrderStatusEnum = (order.status || 'requested') as any;
+            if (order.status === 'requested' && signingRole === 'kt') nextStatus = 'approved';
+            if (order.status === 'approved' && signingRole === 'warehouse') nextStatus = 'dispatched';
+            if (order.status === 'dispatched' && signingRole === 'gs') nextStatus = 'received';
 
-        const signature: StockOrderSignature = {
-            role: roleToSign as any,
-            userName: roleToSign === 'QL' ? 'PM Nguyễn Văn A' : roleToSign === 'KT' ? 'Kế toán Phạm Thị A' : roleToSign === 'warehouse' ? 'Thủ kho Nguyễn Văn C' : 'Giám sát Lê Văn B',
-            userId: `user-${roleToSign}`,
-            signedAt: new Date().toISOString(),
-            signatureDataUrl: dataUrl
-        };
+            const roleKey = signingRole as SigningRoleUi;
+            const nowIso = new Date().toISOString();
+            const signerRef =
+                (user as any)?.username ||
+                (user as any)?.email ||
+                (user as any)?._id ||
+                undefined;
 
-        let nextStatus: StockOrderStatus = order.status;
-        if (order.status === 'REQUESTED' && roleToSign === 'KT') nextStatus = 'APPROVED';
-        if (order.status === 'APPROVED' && roleToSign === 'warehouse') nextStatus = 'DISPATCHED';
-        if (order.status === 'DISPATCHED' && roleToSign === 'GS') nextStatus = 'RECEIVED';
+            const newEntry: IStockOrderSignatureItem = {
+                role: roleKey as StockOrderSignatureRole,
+                step_order: SIGN_STEP_ORDER[roleKey],
+                signature_data_url: dataUrl,
+                signed_at: nowIso,
+                signed_by: signerRef
+            };
+            const prevSigs = order.signatures || [];
+            const signatures: IStockOrderSignatureItem[] = [
+                ...prevSigs.filter((s) => s.role !== roleKey),
+                newEntry
+            ];
 
-        const updatedOrder: StockOrder = {
-            ...order,
-            status: nextStatus as any,
-            signatures: [...(order.signatures || []), signature],
-            history: [
-                ...(order.history || []),
-                {
-                    status: nextStatus as any,
-                    updatedBy: signature.userName,
-                    updatedAt: signature.signedAt,
-                    comment: `Đã ký xác nhận vai trò ${roleToSign}`
-                }
-            ]
-        };
+            await stockOrderService.updateStockOrder(id, {
+                status: nextStatus,
+                signatures,
+                signature_image: dataUrl,
+                signed_at: nowIso,
+                signed_by: signerRef as any
+            });
 
-        setStockOrders(stockOrders.map(o => o.id === order.id ? updatedOrder : o));
-
-        // Use a slight delay or order change to ensure state updates don't trip each other
-        setTimeout(() => {
+            message.success(`Đã ký xác nhận thành công với vai trò ${signingRole.toUpperCase()}`);
             setIsSignatureModalOpen(false);
-            setSigningRole(null);
-        }, 100);
-
-        message.success(`Đã ký xác nhận thành công với vai trò ${roleToSign}`);
-    };
-
-    const handleUseCachedSignature = (role: string) => {
-        const cached = cachedSignatures[role];
-        if (cached) {
-            setSigningRole(role as any);
-            handleSign(cached);
+            fetchOrder();
+        } catch (error) {
+            message.error('Lỗi khi ký xác nhận');
         }
     };
 
-    const handleFinalize = () => {
-        const updatedOrder: StockOrder = {
-            ...order,
-            status: 'COMPLETED',
-            history: [
-                ...(order.history || []),
-                {
-                    status: 'COMPLETED',
-                    updatedBy: 'Hệ thống',
-                    updatedAt: new Date().toISOString(),
-                    comment: 'Đã hoàn tất phiếu và lưu trữ PDF'
-                }
-            ],
-            pdfUrl: `/files/signed-orders/${order.code}.pdf` // Mock URL
-        };
-        setStockOrders(stockOrders.map(o => o.id === order.id ? updatedOrder : o));
-        message.success('Đã hoàn tất phiếu và đồng bộ tệp PDF chữ ký');
+    const handleFinalize = async () => {
+        if (!id) return;
+        try {
+            await stockOrderService.updateStockOrder(id, { status: 'completed' });
+            message.success('Đã hoàn tất phiếu và lưu trữ');
+            fetchOrder();
+        } catch (error) {
+            message.error('Lỗi khi hoàn tất phiếu');
+        }
     };
 
     const handleDownloadPDF = () => {
         const element = document.getElementById('stock-order-printable');
-        if (element) {
-            const fileName = `SIRA-${order.code}.pdf`;
+        if (element && order) {
+            const fileName = `SIRA-${order.code || order._id}.pdf`;
             const opt = {
                 margin: 10,
                 filename: fileName,
@@ -162,30 +189,20 @@ const StockOrderDetail: React.FC = () => {
             const msgKey = 'pdf_gen_loading';
             message.loading({ content: 'Đang khởi tạo bản in...', key: msgKey, duration: 0 });
 
-            console.log('PDF: Starting export for', fileName);
-
-            // Robust cross-browser Blobs (using application/pdf explicitly)
             html2pdf()
                 .from(element)
                 .set(opt)
                 .toPdf()
                 .output('blob')
                 .then((blob: Blob) => {
-                    // Create a new blob with explicit type to help Chrome
                     const pdfBlob = new Blob([blob], { type: 'application/pdf' });
                     const url = window.URL.createObjectURL(pdfBlob);
-
                     const link = document.createElement('a');
                     link.href = url;
-                    link.download = fileName; // Important for Chrome
-
-                    // Chrome sometimes needs the link to be in the DOM
+                    link.download = fileName;
                     link.style.display = 'none';
                     document.body.appendChild(link);
-
-                    // Explicitly click and then cleanup
                     link.click();
-
                     setTimeout(() => {
                         window.URL.revokeObjectURL(url);
                         document.body.removeChild(link);
@@ -193,29 +210,26 @@ const StockOrderDetail: React.FC = () => {
                     }, 100);
                 })
                 .catch((err: any) => {
-                    console.error('PDF: Export Error:', err);
-                    message.error({ content: 'Lỗi khi tạo PDF: ' + (err.message || 'Unknown error'), key: msgKey, duration: 4 });
+                    message.error({ content: 'Lỗi khi tạo PDF', key: msgKey, duration: 4 });
                 });
-        } else {
-            message.error('Không tìm thấy vùng in (element content)');
         }
     };
 
     const itemColumns = [
-        { title: 'Vật tư', dataIndex: 'materialName', key: 'name' },
-        { title: 'ĐVT', dataIndex: 'unit', key: 'unit' },
-        { title: 'Yêu cầu (PM)', dataIndex: 'requestedQuantity', key: 'req', align: 'right' as const },
-        { title: 'Thực xuất (Kho)', dataIndex: 'issuedQuantity', key: 'iss', align: 'right' as const, render: (v: number) => <Text strong style={{ color: '#1890ff' }}>{v}</Text> },
+        { title: 'Vật tư', dataIndex: 'material_name', key: 'name' },
+        { title: 'ĐVT', dataIndex: 'unit', key: 'unit', render: (u: string) => u?.toUpperCase() },
+        { title: 'Yêu cầu', dataIndex: 'requested_quantity', key: 'req', align: 'right' as const },
+        { title: 'Thực xuất', dataIndex: 'issued_quantity', key: 'iss', align: 'right' as const, render: (v: number) => <Text strong style={{ color: '#1890ff' }}>{v || 0}</Text> },
         {
-            title: 'Thực nhận (GS)',
-            dataIndex: 'receivedQuantity',
+            title: 'Thực nhận',
+            dataIndex: 'received_quantity',
             key: 'rec',
             align: 'right' as const,
             render: (v: number, record: any) => v !== undefined ? (
-                <Text strong style={{ color: v < (record.issuedQuantity || 0) ? '#ff4d4f' : '#52c41a' }}>{v}</Text>
+                <Text strong style={{ color: v < (record.issued_quantity || 0) ? '#ff4d4f' : '#52c41a' }}>{v}</Text>
             ) : <Text type="secondary">—</Text>
         },
-        { title: 'Đơn giá', dataIndex: 'unitCost', key: 'cost', align: 'right' as const, render: (v: number) => v.toLocaleString() + 'đ' }
+        { title: 'Đơn giá', dataIndex: 'unit_cost', key: 'cost', align: 'right' as const, render: (v: number) => (v || 0).toLocaleString() + 'đ' }
     ];
 
     return (
@@ -225,15 +239,15 @@ const StockOrderDetail: React.FC = () => {
                     <Space>
                         <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/kt/inventory')} />
                         <div>
-                            <Text type="secondary">{order.type === 'OUT' ? 'Phiếu Xuất Kho' : 'Phiếu Nhập Kho'}</Text>
-                            <Title level={4} style={{ margin: 0 }}>{order.code}</Title>
+                            <Text type="secondary">{order.type === 'out' ? 'Phiếu Xuất Kho' : 'Phiếu Nhập Kho'}</Text>
+                            <Title level={4} style={{ margin: 0 }}>{order.code || order._id}</Title>
                         </div>
                     </Space>
                     <Space>
                         <Button icon={<EyeOutlined />} onClick={() => setIsPrintModalOpen(true)}>
                             Xem bản ký
                         </Button>
-                        {order.status === 'RECEIVED' && (
+                        {order.status === 'received' && (
                             <Button type="primary" icon={<CheckCircleOutlined />} onClick={handleFinalize}>
                                 Hoàn tất & Lưu trữ PDF
                             </Button>
@@ -250,136 +264,127 @@ const StockOrderDetail: React.FC = () => {
                 <Row gutter={24}>
                     <Col span={16}>
                         <Descriptions bordered size="small" column={2} style={{ marginBottom: 24 }}>
-                            <Descriptions.Item label="Ngày tạo">{order.createdAt}</Descriptions.Item>
+                            <Descriptions.Item label="Ngày tạo">{order.created_at ? new Date(order.created_at).toLocaleDateString() : '—'}</Descriptions.Item>
                             <Descriptions.Item label="Trạng thái">
                                 <Tag color={getStatusInfo(order.status).color} icon={getStatusInfo(order.status).icon}>
                                     {getStatusInfo(order.status).text}
                                 </Tag>
                             </Descriptions.Item>
-                            <Descriptions.Item label="Dự án/Nguồn" span={2}>
-                                {order.projectName || (order.source === 'DISTRIBUTOR' ? 'Nhà phân phối' : 'Nguồn khác')}
+                            <Descriptions.Item label="Dự án/Hành trình" span={2}>
+                                {order.journey_code ? `[${order.journey_code}] ${order.journey_name}` : (order.source === 'distributor' ? 'Nhà phân phối' : 'Khác')}
                             </Descriptions.Item>
                             <Descriptions.Item label="Ghi chú" span={2}>{order.notes || 'Không có ghi chú'}</Descriptions.Item>
                         </Descriptions>
 
                         <Text strong style={{ display: 'block', marginBottom: 12 }}>Danh sách vật tư</Text>
                         <Table
-                            dataSource={order.items}
+                            dataSource={order.items || []}
                             columns={itemColumns}
                             pagination={false}
                             size="small"
-                            rowKey={(r: any, i) => `${r.materialId || i}-${i}`}
+                            rowKey={(r: any, i) => `${r.material_id || i}-${i}`}
                         />
                     </Col>
 
                     <Col span={8}>
-                        <Card title={<Space><SignatureOutlined /> Quy trình Ký duyệt & Chốt sổ</Space>} size="small">
-                            {/* PM / REQUESTER (Show either original or new signature button) */}
+                        <Card title={<Space><SignatureOutlined /> Quy trình Ký duyệt</Space>} size="small">
+                            {/* PM / REQUESTER */}
                             <div style={{ marginBottom: 20 }}>
                                 <Text strong>1. Người lập (PM)</Text>
-                                {order.signatures?.find((s: StockOrderSignature) => s.role === 'QL') ? (
-                                    <div style={{ marginTop: 8, textAlign: 'center' }}>
-                                        <img src={order.signatures.find((s: StockOrderSignature) => s.role === 'QL')?.signatureDataUrl} style={{ height: 60 }} />
-                                        <div style={{ fontSize: 11, color: '#888' }}>Đã ký lúc {new Date(order.signatures.find((s: StockOrderSignature) => s.role === 'QL')!.signedAt).toLocaleString()}</div>
-                                    </div>
-                                ) : (
-                                    <>
-                                        <Button block type="dashed" size="small" style={{ marginTop: 8 }} icon={<SignatureOutlined />} onClick={() => { setSigningRole('QL'); setIsSignatureModalOpen(true); }}>
-                                            PM Ký xác nhận
-                                        </Button>
-                                        {cachedSignatures['QL'] && (
-                                            <div style={{ marginTop: 8, padding: 8, background: '#f9f9f9', borderRadius: 4, textAlign: 'center' }}>
-                                                <Text type="secondary" style={{ fontSize: 11 }}>Chữ ký PM cũ (Click dùng nhanh):</Text><br />
-                                                <img src={cachedSignatures['QL']} style={{ height: 40, cursor: 'pointer' }} onClick={() => handleUseCachedSignature('QL')} />
-                                            </div>
-                                        )}
-                                    </>
-                                )}
+                                <div style={{ marginTop: 8, padding: 8, background: '#f5f5f5', borderRadius: 4, textAlign: 'center' }}>
+                                    <Text type="secondary" style={{ fontSize: 11 }}>Đã xác nhận hệ thống</Text>
+                                    {stockOrderSigByRole(order, 'pm')?.signature_data_url && (
+                                        <div style={{ marginTop: 8 }}>
+                                            <img src={stockOrderSigByRole(order, 'pm')!.signature_data_url} style={{ height: 50 }} alt="PM ký" />
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
                             {/* ACCOUNTANT */}
                             <div style={{ marginBottom: 20 }}>
                                 <Text strong>2. Kế toán duyệt</Text>
-                                {order.signatures?.find((s: StockOrderSignature) => s.role === 'KT') ? (
-                                    <div style={{ marginTop: 8, textAlign: 'center' }}>
-                                        <img src={order.signatures.find((s: StockOrderSignature) => s.role === 'KT')?.signatureDataUrl} style={{ height: 60 }} />
-                                    </div>
-                                ) : (
-                                    <>
-                                        <Button block type={order.status === 'REQUESTED' ? 'primary' : 'default'} disabled={order.status !== 'REQUESTED'} size="small" style={{ marginTop: 8 }} icon={<CheckCircleOutlined />} onClick={() => { setSigningRole('KT'); setIsSignatureModalOpen(true); }}>
-                                            Kế toán Duyệt & Ký
-                                        </Button>
-                                        {cachedSignatures['KT'] && (
-                                            <div style={{ marginTop: 8, padding: 8, background: '#f5f5f5', borderRadius: 4, textAlign: 'center' }}>
-                                                <Text type="secondary" style={{ fontSize: 11 }}>Dùng nhanh chữ ký Kế toán:</Text><br />
-                                                <img src={cachedSignatures['KT']} style={{ height: 40, cursor: 'pointer' }} onClick={() => handleUseCachedSignature('KT')} />
+                                {order.status !== 'requested' ? (
+                                    <div style={{ marginTop: 8, textAlign: 'center', background: '#f6ffed', padding: 8, borderRadius: 4 }}>
+                                        <Tag color="success">ĐÃ DUYỆT</Tag>
+                                        {(stockOrderSigByRole(order, 'kt')?.signature_data_url || legacyKtSignatureDataUrl(order)) && (
+                                            <div style={{ marginTop: 8 }}>
+                                                <img
+                                                    src={stockOrderSigByRole(order, 'kt')?.signature_data_url || legacyKtSignatureDataUrl(order)}
+                                                    style={{ height: 50 }}
+                                                    alt="Kế toán ký"
+                                                />
                                             </div>
                                         )}
-                                    </>
+                                    </div>
+                                ) : (
+                                    <Button block type="primary" size="small" style={{ marginTop: 8 }} icon={<CheckCircleOutlined />} onClick={() => { setSigningRole('kt'); setIsSignatureModalOpen(true); }}>
+                                        Kế toán Duyệt & Ký
+                                    </Button>
                                 )}
                             </div>
 
                             {/* WAREHOUSE */}
                             <div style={{ marginBottom: 20 }}>
                                 <Text strong>3. Thủ kho xuất</Text>
-                                {order.signatures?.find((s: StockOrderSignature) => s.role === 'warehouse') ? (
-                                    <div style={{ marginTop: 8, textAlign: 'center' }}>
-                                        <img src={order.signatures.find((s: StockOrderSignature) => s.role === 'warehouse')?.signatureDataUrl} style={{ height: 60 }} />
-                                    </div>
-                                ) : (
-                                    <>
-                                        <Button block type={order.status === 'APPROVED' ? 'primary' : 'default'} disabled={order.status !== 'APPROVED'} size="small" style={{ marginTop: 8 }} icon={<CarOutlined />} onClick={() => { setSigningRole('warehouse'); setIsSignatureModalOpen(true); }}>
-                                            Kho Xuất & Ký
-                                        </Button>
-                                        {cachedSignatures['warehouse'] && (
-                                            <div style={{ marginTop: 8, padding: 8, background: '#f5f5f5', borderRadius: 4, textAlign: 'center' }}>
-                                                <img src={cachedSignatures['warehouse']} style={{ height: 40, cursor: 'pointer' }} onClick={() => handleUseCachedSignature('warehouse')} />
+                                {['dispatched', 'received', 'completed'].includes(order.status || '') ? (
+                                    <div style={{ marginTop: 8, textAlign: 'center', background: '#f6ffed', padding: 8, borderRadius: 4 }}>
+                                        <Tag color="success">ĐÃ XUẤT KHO</Tag>
+                                        {stockOrderSigByRole(order, 'warehouse')?.signature_data_url && (
+                                            <div style={{ marginTop: 8 }}>
+                                                <img
+                                                    src={stockOrderSigByRole(order, 'warehouse')!.signature_data_url}
+                                                    style={{ height: 50 }}
+                                                    alt="Thủ kho ký"
+                                                />
                                             </div>
                                         )}
-                                    </>
+                                    </div>
+                                ) : (
+                                    <Button block type={order.status === 'approved' ? 'primary' : 'default'} disabled={order.status !== 'approved'} size="small" style={{ marginTop: 8 }} icon={<CarOutlined />} onClick={() => { setSigningRole('warehouse'); setIsSignatureModalOpen(true); }}>
+                                        Kho Xuất & Ký
+                                    </Button>
                                 )}
                             </div>
 
                             {/* SUPERVISOR */}
                             <div style={{ marginBottom: 20 }}>
                                 <Text strong>4. Giám sát nhận</Text>
-                                {order.signatures?.find((s: StockOrderSignature) => s.role === 'GS') ? (
-                                    <div style={{ marginTop: 8, textAlign: 'center' }}>
-                                        <img src={order.signatures.find((s: StockOrderSignature) => s.role === 'GS')?.signatureDataUrl} style={{ height: 60 }} />
-                                    </div>
-                                ) : (
-                                    <>
-                                        <Button block type={order.status === 'DISPATCHED' ? 'primary' : 'default'} disabled={order.status !== 'DISPATCHED'} size="small" style={{ marginTop: 8 }} icon={<HomeOutlined />} onClick={() => { setSigningRole('GS'); setIsSignatureModalOpen(true); }}>
-                                            GS Nhận & Ký
-                                        </Button>
-                                        {cachedSignatures['GS'] && (
-                                            <div style={{ marginTop: 8, padding: 8, background: '#f5f5f5', borderRadius: 4, textAlign: 'center' }}>
-                                                <img src={cachedSignatures['GS']} style={{ height: 40, cursor: 'pointer' }} onClick={() => handleUseCachedSignature('GS')} />
+                                {['received', 'completed'].includes(order.status || '') ? (
+                                    <div style={{ marginTop: 8, textAlign: 'center', background: '#f6ffed', padding: 8, borderRadius: 4 }}>
+                                        <Tag color="success">ĐÃ NHẬN HÀNG</Tag>
+                                        {stockOrderSigByRole(order, 'gs')?.signature_data_url && (
+                                            <div style={{ marginTop: 8 }}>
+                                                <img
+                                                    src={stockOrderSigByRole(order, 'gs')!.signature_data_url}
+                                                    style={{ height: 50 }}
+                                                    alt="Giám sát ký"
+                                                />
                                             </div>
                                         )}
-                                    </>
+                                    </div>
+                                ) : (
+                                    <Button block type={order.status === 'dispatched' ? 'primary' : 'default'} disabled={order.status !== 'dispatched'} size="small" style={{ marginTop: 8 }} icon={<HomeOutlined />} onClick={() => { setSigningRole('gs'); setIsSignatureModalOpen(true); }}>
+                                        GS Nhận & Ký
+                                    </Button>
                                 )}
                             </div>
 
-                            {order.status === 'RECEIVED' && (
+                            {(order.status === 'received' || order.status === 'completed') && (
                                 <Alert
-                                    message="Đang chờ Kế toán chốt & lưu trữ PDF"
-                                    type="info"
+                                    message={order.status === 'completed' ? "Phiếu đã được lưu trữ an toàn" : "Đang chờ Kế toán chốt & lưu trữ PDF"}
+                                    type={order.status === 'completed' ? "success" : "info"}
                                     showIcon
                                     style={{ marginTop: 12 }}
                                 />
                             )}
                         </Card>
 
-                        <Card title="Lịch sử xử lý" size="small" style={{ marginTop: 16 }}>
-                            {order.history?.map((h: any, i: number) => (
-                                <div key={i} style={{ fontSize: 12, marginBottom: 10 }}>
-                                    <Text strong>{h.status}</Text> por <Text>{h.updatedBy}</Text>
-                                    <div style={{ color: '#999' }}>{new Date(h.updatedAt).toLocaleString()}</div>
-                                    {h.comment && <div style={{ fontStyle: 'italic' }}>— {h.comment}</div>}
-                                </div>
-                            ))}
-                        </Card>
+                        {order.notes && (
+                            <Card title="Ghi chú hệ thống" size="small" style={{ marginTop: 16 }}>
+                                <Text type="secondary" style={{ fontSize: 12 }}>{order.notes}</Text>
+                            </Card>
+                        )}
                     </Col>
                 </Row>
             </Card>
@@ -393,26 +398,19 @@ const StockOrderDetail: React.FC = () => {
             >
                 <SiraSignaturePad
                     onSave={handleSign}
-                    title={`Chữ ký của ${signingRole === 'KT' ? 'Kế toán' : signingRole === 'warehouse' ? 'Thủ kho' : 'Giám sát'}`}
+                    title={`Chữ ký của ${signingRole === 'kt' ? 'Kế toán' : signingRole === 'warehouse' ? 'Thủ kho' : 'Giám sát'}`}
                     description="Vui lòng ký vào khung bên dưới và bấm Xác nhận"
                 />
             </Modal>
 
-            {/* Modal Xem bản ký */}
             <Modal
                 title={null}
                 open={isPrintModalOpen}
                 onCancel={() => setIsPrintModalOpen(false)}
                 footer={[
-                    <Button key="close" onClick={() => setIsPrintModalOpen(false)}>
-                        Đóng
-                    </Button>,
-                    <Button key="print" icon={<FilePdfOutlined />} onClick={() => window.print()}>
-                        In ấn
-                    </Button>,
-                    <Button key="download" type="primary" icon={<DownloadOutlined />} onClick={handleDownloadPDF}>
-                        Tải PDF
-                    </Button>
+                    <Button key="close" onClick={() => setIsPrintModalOpen(false)}>Đóng</Button>,
+                    <Button key="print" icon={<FilePdfOutlined />} onClick={() => window.print()}>In ấn</Button>,
+                    <Button key="download" type="primary" icon={<DownloadOutlined />} onClick={handleDownloadPDF}>Tải PDF</Button>
                 ]}
                 width={850}
                 style={{ top: 20 }}

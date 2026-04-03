@@ -1,5 +1,4 @@
-// @ts-nocheck
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
     Form, Input, Select, InputNumber, Button, Card,
     Typography, Space, Row, Col, message,
@@ -10,34 +9,60 @@ import {
     InfoCircleOutlined, DeleteOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import useLocalStorageData from '../../../hooks/useLocalStorageData';
-import {
-    Material, Distributor, StockOrder,
-    StockOrderSource, MaterialGroup
-} from '../../../types/v3';
-import mockMaterialsData from '../../../data/mock/materials.json';
-import mockDistributors from '../../../data/mock/distributors.json';
-import { mockProjects } from '../../../data/mockData';
+import { materialService } from '../../../services/core-contracts/services/material.service';
+import { materialGroupService } from '../../../services/core-contracts/services/materialGroup.service';
+import { distributorService } from '../../../services/core-contracts/services/distributor.service';
+import { stockOrderService } from '../../../services/core-contracts/services/stockOrder.service';
+import { journeyService } from '../../../services/core-contracts/services/journey.service';
+import type { IMaterial } from '../../../services/core-contracts/types/material.types';
+import type { IMaterialGroup } from '../../../services/core-contracts/types/materialGroup.types';
+import type { IDistributor } from '../../../services/core-contracts/types/distributor.types';
+import type { IStockOrder, IItemsItem } from '../../../services/core-contracts/types/stockOrder.types';
+import { useAuth } from '../../../hooks/useAuth';
 
 const { Title, Text } = Typography;
 
 const InboundForm: React.FC = () => {
     const navigate = useNavigate();
     const [form] = Form.useForm();
-    const [sourceType, setSourceType] = useState<StockOrderSource>('DISTRIBUTOR');
+    const { user } = useAuth();
+    const [sourceType, setSourceType] = useState<'distributor' | 'journey'>('distributor');
+
+    const [loading, setLoading] = useState(false);
+    const [materials, setMaterials] = useState<IMaterial[]>([]);
+    const [groups, setGroups] = useState<IMaterialGroup[]>([]);
+    const [distributors, setDistributors] = useState<IDistributor[]>([]);
+    const [journeys, setJourneys] = useState<any[]>([]);
+    const [selectedItems, setSelectedItems] = useState<any[]>([]);
 
     // Watch form fields for reactivity and calculation
     const watchedQuantity = Form.useWatch('quantity', form);
-    const watchedRemainingQuantity = Form.useWatch('remainingQuantity', form);
-    const watchedUnitCost = Form.useWatch('unitCost', form);
-    const watchedIsPartial = Form.useWatch('isPartial', form);
+    const watchedRemainingQuantity = Form.useWatch('remaining_quantity', form);
+    const watchedUnitCost = Form.useWatch('unit_cost', form);
+    const watchedIsPartial = Form.useWatch('is_partial', form);
 
-    const [groups] = useLocalStorageData<MaterialGroup[]>('MATERIAL_GROUPS', (mockMaterialsData as any).groups);
-    const [materials, setMaterials] = useLocalStorageData<Material[]>('MATERIALS', (mockMaterialsData as any).materials);
-    const [distributors] = useLocalStorageData<Distributor[]>('DISTRIBUTORS', mockDistributors as Distributor[]);
-    const [stockOrders, setStockOrders] = useLocalStorageData<StockOrder[]>('STOCK_ORDERS', []);
-
-    const [selectedItems, setSelectedItems] = useState<any[]>([]);
+    useEffect(() => {
+        const fetchInitialData = async () => {
+            setLoading(true);
+            try {
+                const [matRes, grpRes, distRes, jrnRes] = await Promise.all([
+                    materialService.queryMaterialsDto({}),
+                    materialGroupService.queryMaterialGroupsDto({}),
+                    distributorService.queryDistributorsDto({}),
+                    journeyService.queryJourneysDto({})
+                ]);
+                if (matRes.data) setMaterials(matRes.data);
+                if (grpRes.data) setGroups(grpRes.data);
+                if (distRes.data) setDistributors(distRes.data);
+                if (jrnRes.data) setJourneys(jrnRes.data);
+            } catch (error) {
+                message.error('Lỗi khi tải dữ liệu khởi tạo');
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchInitialData();
+    }, []);
 
     // Calculate temporary total for the current input
     const tempTotal = useMemo(() => {
@@ -48,44 +73,44 @@ const InboundForm: React.FC = () => {
 
     const handleAddItem = () => {
         const values = form.getFieldsValue();
-        if (!values.materialId || (!values.quantity && !values.remainingQuantity)) {
+        if (!values.material_id || (!values.quantity && !values.remaining_quantity)) {
             message.warning('Vui lòng chọn vật tư và nhập số lượng');
             return;
         }
 
-        const material = materials.find(m => m.id === values.materialId);
+        const material = materials.find(m => m._id === values.material_id);
         if (!material) return;
-        const group = groups.find(g => g.id === material.groupId);
+        const group = groups.find(g => g._id === material.group_id);
 
-        const isPartial = values.isPartial && sourceType === 'PROJECT';
-        const qty = isPartial ? 0 : (values.quantity || 0);
-        const remQty = values.remainingQuantity || 0;
-        const cost = values.unitCost || material.unitCost || 0;
+        const is_partial = values.is_partial && sourceType === 'journey';
+        const qty = is_partial ? 0 : (values.quantity || 0);
+        const remQty = values.remaining_quantity || 0;
+        const cost = values.unit_cost || material.unit_cost || 0;
 
         const newItem = {
             key: Date.now(),
-            materialId: material.id,
-            materialName: `[${material.code}] ${group?.name || 'Vật tư'} - quy cách ${material.capacity}${group?.baseUnit || ''}`,
-            baseUnit: group?.baseUnit || 'đơn vị',
+            material_id: material._id,
+            material_name: `[${material.code}] ${group?.name || 'Vật tư'} - quy cách ${material.capacity}${group?.base_unit || ''}`,
+            base_unit: group?.base_unit || 'đơn vị',
             unit: material.unit,
             quantity: qty,
-            requestedQuantity: qty, // PM requested this
-            issuedQuantity: qty,    // Default same as requested for now
-            isPartial: isPartial,
-            remainingQuantity: remQty, // In liters/kg
-            unitCost: cost,
-            total: isPartial ? (remQty * cost) : (qty * cost),
+            requested_quantity: qty,
+            issued_quantity: qty,
+            is_partial: is_partial,
+            remaining_quantity: remQty,
+            unit_cost: cost,
+            total: is_partial ? (remQty * cost) : (qty * cost),
         };
 
         setSelectedItems([...selectedItems, newItem]);
-        form.setFieldsValue({ materialId: null, quantity: null, unitCost: null, isPartial: false, remainingQuantity: null });
+        form.setFieldsValue({ material_id: null, quantity: null, unit_cost: null, is_partial: false, remaining_quantity: null });
     };
 
     const removeItem = (key: number) => {
         setSelectedItems(selectedItems.filter(item => item.key !== key));
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (selectedItems.length === 0) {
             message.error('Vui lòng thêm ít nhất một mặt hàng');
             return;
@@ -93,83 +118,52 @@ const InboundForm: React.FC = () => {
 
         const formValues = form.getFieldsValue();
 
-        const newStockOrder: StockOrder = {
-            id: `PN-${Date.now()}`,
-            code: `PN-${new Date().getFullYear()}-${(stockOrders.length + 1).toString().padStart(3, '0')}`,
-            type: 'IN',
-            source: sourceType,
-            sourceId: sourceType === 'DISTRIBUTOR' ? formValues.distributorId : formValues.projectId,
-            projectId: sourceType === 'PROJECT' ? formValues.projectId : undefined,
-            items: selectedItems.map(item => ({
-                materialId: item.materialId,
-                materialName: item.materialName,
-                unit: item.unit,
-                quantity: item.quantity,
-                requestedQuantity: item.requestedQuantity,
-                issuedQuantity: item.issuedQuantity,
-                unitCost: item.unitCost,
-                isPartial: item.isPartial,
-                remainingPercent: item.isPartial ? (item.remainingQuantity * 100 / 20) : undefined
-            })),
-            totalValue: selectedItems.reduce((sum, item) => sum + (item.total || 0), 0),
-            status: 'COMPLETED', // Directly completed for now in this legacy form
-            signatures: [],
-            history: [{
-                status: 'COMPLETED',
-                updatedBy: 'Kế toán Phạm Thị A',
-                updatedAt: new Date().toISOString()
-            }],
-            createdBy: 'Kế toán Phạm Thị A',
-            createdAt: new Date().toISOString().split('T')[0],
-            notes: formValues.notes
-        };
+        try {
+            const newStockOrder: any = {
+                type: 'in',
+                status: 'completed',
+                source: sourceType,
+                distributor_source_id: sourceType === 'distributor' ? formValues.distributor_id : undefined,
+                journey_source_id: sourceType === 'journey' ? formValues.journey_id : undefined,
+                items: selectedItems.map(item => ({
+                    material_id: item.material_id,
+                    material_name: item.material_name,
+                    unit: item.unit as any,
+                    quantity: item.quantity,
+                    requested_quantity: item.requested_quantity,
+                    issued_quantity: item.issued_quantity,
+                    unit_cost: item.unit_cost,
+                    is_partial: item.is_partial,
+                    remaining_percent: item.is_partial ? (item.remaining_quantity * 100 / (materials.find(m => m._id === item.material_id)?.capacity || 1)) : 100
+                })),
+                total_value: selectedItems.reduce((sum, item) => sum + (item.total || 0), 0),
+                notes: formValues.notes,
+                created_at: new Date().toISOString()
+            };
 
-        // Update Stock Orders
-        setStockOrders([newStockOrder, ...stockOrders]);
-
-        // Update Inventory Stocks
-        setMaterials(prev => prev.map(m => {
-            const addedItems = selectedItems.filter(item => item.materialId === m.id);
-            if (addedItems.length > 0) {
-                let newStock = m.currentStock;
-                let newPartial = m.partialStock || 0;
-
-                addedItems.forEach(item => {
-                    if (item.isPartial) {
-                        newPartial += item.remainingQuantity;
-                    } else {
-                        newStock += item.quantity;
-                    }
-                });
-
-                return {
-                    ...m,
-                    currentStock: newStock,
-                    partialStock: newPartial
-                };
-            }
-            return m;
-        }));
-
-        message.success('Nhập kho thành công');
-        navigate('/kt/inventory');
+            await stockOrderService.createStockOrder(newStockOrder);
+            message.success('Nhập kho thành công');
+            navigate('/kt/inventory');
+        } catch (error) {
+            message.error('Lỗi khi tạo phiếu nhập kho');
+        }
     };
 
     const itemColumns = [
         {
-            title: 'Vật tư', dataIndex: 'materialName', key: 'name', render: (val: string, record: any) => (
+            title: 'Vật tư', dataIndex: 'material_name', key: 'name', render: (val: string, record: any) => (
                 <div>
                     <div>{val}</div>
-                    {record.isPartial && <Tag color="warning" style={{ fontSize: 10 }}>Hàng dở dang</Tag>}
+                    {record.is_partial && <Tag color="warning" style={{ fontSize: 10 }}>Hàng dở dang</Tag>}
                 </div>
             )
         },
         {
             title: 'Quy cách',
-            dataIndex: 'materialId',
+            dataIndex: 'material_id',
             key: 'sku',
             render: (_: string, record: any) => {
-                const materialsMatch = materials.find(m => m.id === record.materialId);
+                const materialsMatch = materials.find(m => m._id === record.material_id);
                 return <Tag color="blue">{materialsMatch?.unit || 'đơn vị'}</Tag>;
             }
         },
@@ -202,26 +196,27 @@ const InboundForm: React.FC = () => {
                         <Form form={form} layout="vertical">
                             <Row gutter={12}>
                                 <Col span={8}>
-                                    <Form.Item name="materialId" label="Chọn vật tư">
+                                    <Form.Item name="material_id" label="Chọn vật tư">
                                         <Select
                                             showSearch
                                             placeholder="Gõ mã SKU hoặc tên"
                                             optionFilterProp="children"
+                                            loading={loading}
                                             onChange={(val) => {
-                                                const mat = materials.find(m => m.id === val);
-                                                if (mat) form.setFieldsValue({ unitCost: mat.unitCost });
+                                                const mat = materials.find(m => m._id === val);
+                                                if (mat) form.setFieldsValue({ unit_cost: mat.unit_cost });
                                             }}
                                         >
                                             {materials
                                                 .filter(m => {
-                                                    const g = groups.find(group => group.id === m.groupId);
+                                                    const g = groups.find(group => group._id === m.group_id);
                                                     return g?.type === 'CONSUMABLE';
                                                 })
                                                 .map(m => {
-                                                    const group = groups.find(g => g.id === m.groupId);
+                                                    const group = groups.find(g => g._id === m.group_id);
                                                     return (
-                                                        <Select.Option key={m.id} value={m.id}>
-                                                            <Text strong>[{m.code}]</Text> {group?.name} - quy cách {m.capacity}{group?.baseUnit}
+                                                        <Select.Option key={m._id} value={m._id}>
+                                                            <Text strong>[{m.code}]</Text> {group?.name} - quy cách {m.capacity}{group?.base_unit}
                                                         </Select.Option>
                                                     );
                                                 })}
@@ -230,22 +225,22 @@ const InboundForm: React.FC = () => {
                                 </Col>
                                 <Col span={16}>
                                     <Row gutter={8} align="bottom">
-                                        {sourceType === 'PROJECT' && (
+                                        {sourceType === 'journey' && (
                                             <Col span={6}>
-                                                <Form.Item name="isPartial" valuePropName="checked" label=" ">
+                                                <Form.Item name="is_partial" valuePropName="checked" label=" ">
                                                     <Button
-                                                        type={watchedIsPartial ? 'primary' : 'default'}
-                                                        onClick={() => form.setFieldsValue({ isPartial: !watchedIsPartial })}
+                                                        type={Form.useWatch('is_partial', form) ? 'primary' : 'default'}
+                                                        onClick={() => form.setFieldsValue({ is_partial: !form.getFieldValue('is_partial') })}
                                                         block
                                                     >
-                                                        {watchedIsPartial ? '📦 Hàng lẻ' : '📦 Nguyên'}
+                                                        {Form.useWatch('is_partial', form) ? '📦 Hàng lẻ' : '📦 Nguyên'}
                                                     </Button>
                                                 </Form.Item>
                                             </Col>
                                         )}
-                                        <Col span={watchedIsPartial ? 5 : 6}>
-                                            {watchedIsPartial ? (
-                                                <Form.Item name="remainingQuantity" label="Lượng lẻ" rules={[{ required: true }]}>
+                                        <Col span={Form.useWatch('is_partial', form) ? 5 : 6}>
+                                            {Form.useWatch('is_partial', form) ? (
+                                                <Form.Item name="remaining_quantity" label="Lượng lẻ" rules={[{ required: true }]}>
                                                     <InputNumber min={0.1} style={{ width: '100%' }} placeholder="Kg/Lit" />
                                                 </Form.Item>
                                             ) : (
@@ -255,7 +250,7 @@ const InboundForm: React.FC = () => {
                                             )}
                                         </Col>
                                         <Col span={6}>
-                                            <Form.Item name="unitCost" label="Đơn giá nhập">
+                                            <Form.Item name="unit_cost" label="Đơn giá nhập">
                                                 <InputNumber
                                                     min={0}
                                                     style={{ width: '100%' }}
@@ -268,7 +263,11 @@ const InboundForm: React.FC = () => {
                                             <Form.Item label="Thành tiền VNĐ">
                                                 <InputNumber
                                                     disabled
-                                                    value={tempTotal}
+                                                    value={
+                                                        Form.useWatch('is_partial', form) 
+                                                        ? (Form.useWatch('remaining_quantity', form) || 0) * (Form.useWatch('unit_cost', form) || 0)
+                                                        : (Form.useWatch('quantity', form) || 0) * (Form.useWatch('unit_cost', form) || 0)
+                                                    }
                                                     style={{ width: '100%', background: '#f5f5f5', color: '#333', fontWeight: 'bold' }}
                                                     formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                                                 />
@@ -299,32 +298,34 @@ const InboundForm: React.FC = () => {
                         <Form form={form} layout="vertical">
                             <Form.Item label="Hình thức">
                                 <Radio.Group value={sourceType} onChange={e => setSourceType(e.target.value)} size="small" style={{ width: '100%', textAlign: 'center' }}>
-                                    <Radio.Button value="DISTRIBUTOR" style={{ width: '50%' }}>Từ NPP</Radio.Button>
-                                    <Radio.Button value="PROJECT" style={{ width: '50%' }}>Dự án</Radio.Button>
+                                    <Radio.Button value="distributor" style={{ width: '50%' }}>Từ NPP</Radio.Button>
+                                    <Radio.Button value="journey" style={{ width: '50%' }}>Hành trình</Radio.Button>
                                 </Radio.Group>
                             </Form.Item>
 
-                            {sourceType === 'DISTRIBUTOR' ? (
+                            {sourceType === 'distributor' ? (
                                 <Form.Item
-                                    name="distributorId"
+                                    name="distributor_id"
                                     label="Nhà phân phối"
                                     rules={[{ required: true, message: 'Chọn NPP' }]}
                                 >
-                                    <Select placeholder="Chọn NPP" style={{ width: '100%' }}>
+                                    <Select placeholder="Chọn NPP" style={{ width: '100%' }} loading={loading}>
                                         {distributors.map(d => (
-                                            <Select.Option key={d.id} value={d.id}>{d.name}</Select.Option>
+                                            <Select.Option key={d._id} value={d._id}>{d.name}</Select.Option>
                                         ))}
                                     </Select>
                                 </Form.Item>
                             ) : (
                                 <Form.Item
-                                    name="projectId"
-                                    label="Dự án/Công trình"
-                                    rules={[{ required: true, message: 'Chọn dự án' }]}
+                                    name="journey_id"
+                                    label="Hành trình / Công trình"
+                                    rules={[{ required: true, message: 'Chọn hành trình' }]}
                                 >
-                                    <Select placeholder="Chọn dự án" style={{ width: '100%' }}>
-                                        {mockProjects.filter(p => p.status === 'COMPLETED' || p.status === 'IN_PROGRESS').map(p => (
-                                            <Select.Option key={p.id} value={p.id}>{p.name}</Select.Option>
+                                    <Select placeholder="Chọn hành trình" style={{ width: '100%' }} loading={loading} showSearch optionFilterProp="children">
+                                        {journeys.map(j => (
+                                            <Select.Option key={j._id} value={j._id}>
+                                                [{j.journey_code}] {j.customer_name}
+                                            </Select.Option>
                                         ))}
                                     </Select>
                                 </Form.Item>

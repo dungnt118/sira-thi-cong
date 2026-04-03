@@ -31,12 +31,6 @@ export const FIND_STOCKORDER_DTO = gql`
         discrepancy_status
         pdf_url
         signed_at
-        history {
-          status
-          updated_by
-          updated_at
-          comment
-        }
         items {
           material_id
           material_name
@@ -60,7 +54,16 @@ export const FIND_STOCKORDER_DTO = gql`
         reviewed_at
         review_note
         request_reason
-        signature_image
+        signatures {
+          role
+          step_order
+          system_confirmed
+          signature_image
+          signature_stroke_data
+          signed_at
+          signed_by
+          note
+        }
       }
     }
   }
@@ -97,12 +100,6 @@ export const QUERY_STOCKORDERS_DTO = gql`
         discrepancy_status
         pdf_url
         signed_at
-        history {
-          status
-          updated_by
-          updated_at
-          comment
-        }
         items {
           material_id
           material_name
@@ -126,7 +123,16 @@ export const QUERY_STOCKORDERS_DTO = gql`
         reviewed_at
         review_note
         request_reason
-        signature_image
+        signatures {
+          role
+          step_order
+          system_confirmed
+          signature_image
+          signature_stroke_data
+          signed_at
+          signed_by
+          note
+        }
       }
     }
   }
