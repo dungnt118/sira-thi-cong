@@ -10,15 +10,12 @@ import {
     BuildOutlined, EditOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
-import { demoDataService } from '../../../services/core-graphql/localstorage/demoDataService';
-import {
-    mockCustomers as defaultCustomers,
-    mockServiceRequests as defaultServiceRequests
-} from '../../../data/mockData';
-import { mockJourneys as defaultJourneys } from '../../../data/journeyMockData';
-import type { Customer, ServiceRequest } from '../../../types/v3';
-import type { Journey } from '../../../types/journey';
+import { customerService } from '../../../services/core-contracts/services/customer.service';
+import type { ICustomer } from '../../../services/core-contracts/types/customer.types';
+import type { ServiceRequest } from '../../../types/v3';
+import type { IJourney } from '../../../services/core-contracts/types/journey.types';
+import { mockServiceRequests as defaultServiceRequests } from '../../../data/mockData';
+import { journeyService } from '../../../services/core-contracts/services/journey.service';
 
 const { Title, Text } = Typography;
 
@@ -26,15 +23,45 @@ const CustomerDetail: React.FC = () => {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
 
-    const [mockCustomers] = useLocalStorageData<Customer[]>(demoDataService.KEYS.CUSTOMERS, defaultCustomers);
-    const [mockJourneys] = useLocalStorageData<Journey[]>(demoDataService.KEYS.JOURNEYS, defaultJourneys);
-    const [mockServiceRequests] = useLocalStorageData<ServiceRequest[]>(demoDataService.KEYS.SERVICE_REQUESTS, defaultServiceRequests);
+    const [customer, setCustomer] = React.useState<ICustomer | null>(null);
+    const [isLoading, setIsLoading] = React.useState(false);
+    const [customerJourneys, setCustomerJourneys] = React.useState<IJourney[]>([]);
+    const [mockServiceRequests] = React.useState<ServiceRequest[]>(defaultServiceRequests);
 
-    const customer = mockCustomers.find(c => c.id === id);
+    const fetchCustomerData = async () => {
+        if (!id) return;
+        setIsLoading(true);
+        try {
+            const res = await customerService.findCustomerDto(id);
+            if (res) {
+                setCustomer(res);
+                // Also fetch journeys for this customer
+                const journeyRes = await journeyService.queryJourneysDto({
+                    group: {
+                        id: 'customer_phone',
+                        operation: 'equal',
+                        value: res.phone || ''
+                    } as any
+                });
+                if (journeyRes.code === 0 && journeyRes.data) {
+                    setCustomerJourneys(journeyRes.data);
+                }
+            }
+        } catch (error) {
+            console.error('Failed to fetch customer detail:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    React.useEffect(() => {
+        fetchCustomerData();
+    }, [id]);
+
+    if (isLoading) return <Card loading={true} />;
+    if (!customer) return <Card><Text type="danger">Không tìm thấy khách hàng</Text></Card>;
+
     const serviceRequests = mockServiceRequests.filter(sr => sr.customerId === id);
-    const customerJourneys = mockJourneys.filter(j => j.customer_phone === customer?.phone);
-
-    if (!customer) return <div>Không tìm thấy khách hàng</div>;
 
     const dealColumns = [
         { title: 'Mã YC', dataIndex: 'code', key: 'code', render: (t: string) => <Text strong>{t}</Text> },
@@ -81,17 +108,17 @@ const CustomerDetail: React.FC = () => {
                             <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginBottom: 16 }}>
                                 <Avatar size={64} style={{ background: '#1976D2' }} icon={<UserOutlined />} />
                                 <div>
-                                    <Title level={4} style={{ margin: 0 }}>{customer.fullName}</Title>
+                                    <Title level={4} style={{ margin: 0 }}>{customer.full_name}</Title>
                                     <Text type="secondary">{customer.code}</Text>
                                 </div>
                             </div>
                             <Divider style={{ margin: '8px 0' }} />
-                            {[
+                             {[
                                 { id: 'phone', label: <span><PhoneOutlined /> Điện thoại</span>, value: customer.phone },
                                 { id: 'email', label: <span><MailOutlined /> Email</span>, value: customer.email || '—' },
                                 { id: 'address', label: <span><EnvironmentOutlined /> Địa chỉ</span>, value: `${customer.address}, ${customer.district}, ${customer.city}` },
-                                { id: 'pm', label: <span><UserOutlined /> Người phụ trách</span>, value: customer.assignedPmName },
-                                { id: 'date', label: <span><CalendarOutlined /> Ngày tham gia</span>, value: customer.createdAt.split('T')[0] },
+                                { id: 'pm', label: <span><UserOutlined /> Người phụ trách</span>, value: customer.assigned_pm_id || '—' },
+                                { id: 'date', label: <span><CalendarOutlined /> Ngày tham gia</span>, value: String(customer.createdAt).split('T')[0] },
                             ].map(({ id: keyId, label, value }) => (
                                 <Row key={keyId} style={{ marginBottom: 12 }}>
                                     <Col span={8}><Text type="secondary">{label}</Text></Col>
@@ -155,11 +182,11 @@ const CustomerDetail: React.FC = () => {
                             const progress = 50; // Giả lập tiến độ
                             return (
                                 <Card
-                                    key={j.id}
+                                    key={j._id}
                                     size="small"
                                     style={{ marginBottom: 12 }}
                                     hoverable
-                                    onClick={() => navigate(`/ql/journeys/${j.id}`)}
+                                    onClick={() => navigate(`/ql/journeys/${j._id}`)}
                                     extra={
                                         <Button type="link" icon={<ProjectOutlined />}>Chi tiết</Button>
                                     }
@@ -190,7 +217,7 @@ const CustomerDetail: React.FC = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
                 <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/ql/crm/customers')}>Danh bạ</Button>
                 <div>
-                    <Title level={4} style={{ margin: 0 }}>{customer.fullName}</Title>
+                    <Title level={4} style={{ margin: 0 }}>{customer.full_name}</Title>
                     <Text type="secondary">Mã KH: {customer.code}</Text>
                 </div>
             </div>

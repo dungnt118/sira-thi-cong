@@ -9,10 +9,8 @@ import {
     CheckCircleOutlined, SolutionOutlined, FileTextOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
-import { demoDataService } from '../../../services/core-graphql/localstorage/demoDataService';
-import { mockCustomers as defaultCustomers } from '../../../data/mockData';
-import type { Customer } from '../../../types/v3';
+import { customerService } from '../../../services/core-contracts/services/customer.service';
+import type { ICustomer, ICreateCustomerInput } from '../../../services/core-contracts/types/customer.types';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -28,31 +26,44 @@ const DISTRICT_OPTIONS = [
 const CustomerCreate: React.FC = () => {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
-    const [mockCustomers, setMockCustomers] = useLocalStorageData<Customer[]>(demoDataService.KEYS.CUSTOMERS, defaultCustomers);
     const [form] = Form.useForm();
     const [gps, setGps] = useState<{ lat: number; lng: number } | null>(null);
     const [loading, setLoading] = useState(false);
+    const [initialLoading, setInitialLoading] = useState(false);
+    const [existing, setExisting] = useState<ICustomer | null>(null);
 
     const isEdit = !!id && id !== 'new';
-    const existing = isEdit ? mockCustomers.find(c => c.id === id) : null;
 
-    // Pre-fill form if editing
-    React.useEffect(() => {
-        if (existing) {
-            form.setFieldsValue({
-                fullName: existing.fullName,
-                phone: existing.phone,
-                email: existing.email,
-                address: existing.address,
-                district: existing.district,
-                city: existing.city,
-                notes: existing.notes,
-            });
-            if (existing.gpsLat && existing.gpsLng) {
-                setGps({ lat: existing.gpsLat, lng: existing.gpsLng });
+    const fetchExisting = async () => {
+        if (!isEdit || !id) return;
+        setInitialLoading(true);
+        try {
+            const res = await customerService.findCustomerDto(id);
+            if (res) {
+                setExisting(res);
+                form.setFieldsValue({
+                    fullName: res.full_name,
+                    phone: res.phone,
+                    email: res.email,
+                    address: res.address,
+                    district: res.district,
+                    city: res.city,
+                    notes: res.notes,
+                    assignedPmId: res.assigned_pm_id,
+                });
+                // Handle GPS if available in res.geo
             }
+        } catch (error) {
+            console.error('Failed to fetch customer:', error);
+            message.error('Không thể tải thông tin khách hàng');
+        } finally {
+            setInitialLoading(false);
         }
-    }, [existing, form]);
+    };
+
+    React.useEffect(() => {
+        fetchExisting();
+    }, [id]);
 
     const handleGetGPS = () => {
         // Mock getting GPS
@@ -65,45 +76,34 @@ const CustomerCreate: React.FC = () => {
         const hide = message.loading(isEdit ? 'Đang cập nhật khách hàng...' : 'Đang thêm khách hàng mới...', 0);
         await new Promise(r => setTimeout(r, 600));
 
-        const customerData: Partial<Customer> = {
-            ...values,
-            gpsLat: gps?.lat,
-            gpsLng: gps?.lng,
+        const customerData: ICreateCustomerInput = {
+            full_name: values.fullName,
+            phone: values.phone,
+            email: values.email,
+            address: values.address,
+            district: values.district,
+            city: values.city,
+            notes: values.notes,
+            assigned_pm_id: values.assignedPmId,
+            // geo: gps ? { type: 'Point', coordinates: [gps.lng, gps.lat] } : undefined
         };
 
-        if (isEdit) {
-            const updated = mockCustomers.map(c =>
-                c.id === id ? { ...c, ...customerData } : c
-            );
-            setMockCustomers(updated);
-            hide();
-            message.success('Đã cập nhật khách hàng thành công');
-        } else {
-            const newCustomer: Customer = {
-                id: `cust-${Date.now()}`,
-                code: `KH-${Math.floor(1000 + Math.random() * 9000)}`,
-                fullName: values.fullName,
-                phone: values.phone,
-                email: values.email || '',
-                address: values.address,
-                district: values.district,
-                city: values.city || 'TP.HCM',
-                assignedPmId: values.assignedPmId || 'pm-01',
-                assignedPmName: 'Nguyễn Văn PM',
-                createdAt: new Date().toISOString(),
-                gpsLat: gps?.lat,
-                gpsLng: gps?.lng,
-                notes: values.notes || '',
-            };
-            setMockCustomers([newCustomer, ...mockCustomers]);
-            hide();
-            message.success('Đã thêm khách hàng mới thành công');
-        }
-
-        setLoading(false);
-        setTimeout(() => {
+        try {
+            if (isEdit && id) {
+                await customerService.updateCustomer(id, customerData);
+                message.success('Đã cập nhật khách hàng thành công');
+            } else {
+                await customerService.createCustomer(customerData);
+                message.success('Đã thêm khách hàng mới thành công');
+            }
             navigate('/ql/crm/customers');
-        }, 800);
+        } catch (error) {
+            console.error('Failed to save customer:', error);
+            message.error('Không thể lưu thông tin khách hàng');
+        } finally {
+            hide();
+            setLoading(false);
+        }
     };
 
     return (
@@ -117,7 +117,7 @@ const CustomerCreate: React.FC = () => {
                         {isEdit ? 'Chỉnh sửa Khách hàng' : 'Thêm Khách hàng mới'}
                     </Title>
                     <Text type="secondary">
-                        {isEdit ? `Đang sửa: ${existing?.fullName}` : 'Nhập thông tin khách hàng mới vào hệ thống'}
+                        {isEdit ? `Đang sửa: ${existing?.full_name}` : 'Nhập thông tin khách hàng mới vào hệ thống'}
                     </Text>
                 </div>
             </div>

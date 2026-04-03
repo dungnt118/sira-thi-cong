@@ -11,9 +11,10 @@ import {
     MoreOutlined, PlusCircleOutlined, DeleteOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
-import { demoDataService } from '../../../services/core-graphql/localstorage/demoDataService';
-import { mockCustomers as defaultCustomers, mockServiceRequests as defaultRequests } from '../../../data/mockData';
+import { message } from 'antd';
+import { customerService } from '../../../services/core-contracts/services/customer.service';
+import { mockServiceRequests as defaultRequests } from '../../../data/mockData';
+import type { ICustomer } from '../../../services/core-contracts/types/customer.types';
 import type { Customer } from '../../../types/v3';
 
 const { Text } = Typography;
@@ -25,25 +26,45 @@ const CustomerList: React.FC = () => {
     const screens = useBreakpoint();
     const isMobile = !screens.md;
 
-    const [mockCustomers] = useLocalStorageData<Customer[]>(demoDataService.KEYS.CUSTOMERS, defaultCustomers);
-    const [mockServiceRequests] = useLocalStorageData<any[]>(demoDataService.KEYS.SERVICE_REQUESTS, defaultRequests);
+    const [mockServiceRequests] = useState<any[]>(defaultRequests);
+    const [customers, setCustomers] = useState<ICustomer[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
 
-    const filtered = mockCustomers.filter(c => {
+    const fetchCustomers = async () => {
+        setIsLoading(true);
+        try {
+            const res = await customerService.queryCustomersDto({});
+            if (res.code === 0 && res.data) {
+                setCustomers(res.data);
+            }
+        } catch (error) {
+            console.error('Failed to fetch customers:', error);
+            message.error('Không thể tải danh sách khách hàng');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    React.useEffect(() => {
+        fetchCustomers();
+    }, []);
+
+    const filtered = customers.filter(c => {
         return !search ||
-            c.fullName.toLowerCase().includes(search.toLowerCase()) ||
-            c.phone.includes(search) ||
-            c.code.toLowerCase().includes(search.toLowerCase());
+            c.full_name?.toLowerCase().includes(search.toLowerCase()) ||
+            c.phone?.includes(search) ||
+            c.code?.toLowerCase().includes(search.toLowerCase());
     });
 
-    const getRowActions = (record: Customer): MenuProps['items'] => [
-        { key: 'view', icon: <EyeOutlined />, label: 'Xem chi tiết', onClick: () => navigate(`/ql/crm/customers/${record.id}`) },
-        { key: 'edit', icon: <EditOutlined />, label: 'Chỉnh sửa', onClick: () => navigate(`/ql/crm/customers/${record.id}/edit`) },
+    const getRowActions = (record: ICustomer): MenuProps['items'] => [
+        { key: 'view', icon: <EyeOutlined />, label: 'Xem chi tiết', onClick: () => navigate(`/ql/crm/customers/${record._id}`) },
+        { key: 'edit', icon: <EditOutlined />, label: 'Chỉnh sửa', onClick: () => navigate(`/ql/crm/customers/${record._id}/edit`) },
         { type: 'divider' },
-        { key: 'create-deal', icon: <PlusCircleOutlined />, label: 'Tạo Yêu cầu mới', onClick: () => navigate(`/ql/crm/service-requests/new?customerId=${record.id}`) },
+        { key: 'create-deal', icon: <PlusCircleOutlined />, label: 'Tạo Yêu cầu mới', onClick: () => navigate(`/ql/crm/service-requests/new?customerId=${record._id}`) },
         { key: 'delete', icon: <DeleteOutlined />, label: 'Xóa khách hàng', danger: true },
     ];
 
-    const columns: ColumnsType<Customer> = [
+    const columns: ColumnsType<ICustomer> = [
         {
             title: 'Khách hàng',
             key: 'customer',
@@ -54,8 +75,8 @@ const CustomerList: React.FC = () => {
                     <Avatar size={36} icon={<UserOutlined />} style={{ background: '#1976D2' }} />
                     <div>
                         <div style={{ fontWeight: 600, cursor: 'pointer', color: '#1976D2' }}
-                            onClick={() => navigate(`/ql/crm/customers/${r.id}`)}>
-                            {r.fullName}
+                            onClick={() => navigate(`/ql/crm/customers/${r._id}`)}>
+                            {r.full_name}
                         </div>
                         <Text type="secondary" style={{ fontSize: 12 }}>{r.code}</Text>
                     </div>
@@ -93,7 +114,7 @@ const CustomerList: React.FC = () => {
             align: 'center',
             width: 100,
             render: (_, r) => {
-                const count = mockServiceRequests.filter(req => req.customerId === r.id).length;
+                const count = mockServiceRequests.filter((req: any) => req.customerId === r._id).length;
                 return (
                     <div style={{ fontWeight: 500, color: count > 0 ? '#1976D2' : '#aaa' }}>
                         {count} YC
@@ -106,8 +127,8 @@ const CustomerList: React.FC = () => {
             dataIndex: 'createdAt',
             key: 'createdAt',
             responsive: ['lg'],
-            sorter: (a, b) => a.createdAt.localeCompare(b.createdAt),
-            render: (text) => text.split('T')[0]
+            sorter: (a, b) => String(a.createdAt).localeCompare(String(b.createdAt)),
+            render: (text) => text ? String(text).split('T')[0] : '—'
         },
         {
             title: '',
@@ -162,7 +183,8 @@ const CustomerList: React.FC = () => {
                 <Table
                     columns={columns}
                     dataSource={filtered}
-                    rowKey="id"
+                    rowKey="_id"
+                    loading={isLoading}
                     pagination={{
                         pageSize: 10,
                         showSizeChanger: !isMobile,

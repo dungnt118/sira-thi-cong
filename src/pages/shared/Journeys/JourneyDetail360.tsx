@@ -600,7 +600,7 @@ const JourneyDetail360: React.FC = () => {
                         <Button icon={<MessageOutlined />} onClick={() => setShowLogModal(true)}>{isMobile ? '' : 'Ghi Log'}</Button>
                         <Button icon={<ClockCircleOutlined />} onClick={() => setShowFollowUpModal(true)}>{isMobile ? '' : 'Follow-up'}</Button>
                         <Tooltip title="Lịch sử các bước">
-                            <Button icon={<HistoryOutlined />} onClick={() => { setShowHistoryModal(true); fetchJourneyStepLogs(); }} />
+                            <Button icon={<HistoryOutlined />} onClick={() => setShowHistoryModal(true)} />
                         </Tooltip>
                     </Space>
                 )}
