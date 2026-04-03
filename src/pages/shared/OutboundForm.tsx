@@ -151,7 +151,7 @@ const OutboundForm: React.FC = () => {
                 total_value: selectedItems.reduce((sum, item) => sum + (item.total || 0), 0),
                 status: 'requested',
                 notes: formValues.notes,
-                created_at: new Date().toISOString()
+                createdAt: new Date().toISOString()
             });
 
             message.success('Tạo phiếu xuất kho thành công. Chờ duyệt.');

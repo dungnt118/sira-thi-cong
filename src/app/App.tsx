@@ -102,6 +102,8 @@ import AllocationForm from '../pages/shared/AllocationForm';
 import AssetAllocationDetail from '../pages/accountant/Assets/AssetAllocationDetail';
 import StockOrderDetail from '@pages/accountant/Inventory/StockOrderDetail';
 import InventoryHistory from '../pages/accountant/Inventory/History';
+import MaintenanceHistory from '../pages/accountant/Assets/MaintenanceHistory';
+import AssetDetail from '../pages/accountant/Assets/AssetDetail';
 import PaymentRequestList from '../pages/accountant/Expenditures/PaymentRequestList';
 import CompanyBankAccountList from '../pages/accountant/Expenditures/CompanyBankAccountList';
 import BeneficiaryContactList from '../pages/accountant/Expenditures/BeneficiaryContactList';
@@ -310,14 +312,10 @@ function App() {
                                         <Route path="assets/allocation" element={<AllocationForm />} />
                                         <Route path="assets/allocation/:id" element={<AssetAllocationDetail />} />
                                         <Route path="assets/allocation-history" element={<AssetAllocationHistory />} />
+                                        <Route path="assets/:id" element={<AssetDetail />} />
                                         <Route
                                             path="assets/maintenance"
-                                            element={
-                                                <ComingSoon
-                                                    title="Bảo trì tài sản"
-                                                    description="Schema backend AssetMaintenanceTicket đã được tạo; tab Phiếu bảo trì trên chi tiết tài sản sẽ hiển thị khi cấu hình view. Giao diện danh sách riêng sẽ bổ sung sau."
-                                                />
-                                            }
+                                            element={<MaintenanceHistory />}
                                         />
                                         <Route path="finance">
                                             <Route index element={<Navigate to="/kt/finance/milestones" replace />} />

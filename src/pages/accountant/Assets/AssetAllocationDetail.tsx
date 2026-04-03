@@ -1,49 +1,67 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
     Card, Row, Col, Typography, Tag, Button,
     Space, Steps, message, Modal,
-    Alert, Descriptions, Result
+    Alert, Descriptions, Result, Spin, Tooltip
 } from 'antd';
 import {
     ArrowLeftOutlined, CheckCircleOutlined,
     ClockCircleOutlined, WarningOutlined, SignatureOutlined,
-    CarOutlined, HomeOutlined
+    CarOutlined, HomeOutlined, DownloadOutlined, FilePdfOutlined,
+    EditOutlined, EyeOutlined, ToolOutlined
 } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
-import useLocalStorageData from '../../../hooks/useLocalStorageData';
-import {
-    AssetAllocation, AssetAllocationStatus, AssetAllocationSignature
-} from '../../../types/v3';
+import { useAuth } from '../../../hooks/useAuth';
+import { assetAllocationService } from '../../../services/core-contracts/services/assetAllocation.service';
+import { assetService } from '../../../services/core-contracts/services/asset.service';
+import type { IAssetAllocation, AssetAllocationStatusEnum, ISignatureImageItem } from '../../../services/core-contracts/types/assetAllocation.types';
 import SiraSignaturePad from '../../../components/common/SignaturePad';
+import AssetAllocationPrintable from './components/AssetAllocationPrintable';
+import { get, ACCESS_TOKEN, UPLOAD_URL, getFileLink } from '../../../services/storeService';
+import html2pdf from 'html2pdf.js';
+import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
 
 const AssetAllocationDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
+    const { user } = useAuth();
 
-    // We initialize allocations
-    const [allocations, setAllocations] = useLocalStorageData<AssetAllocation[]>('ASSET_ALLOCATIONS', []);
-    const [cachedSignatures, setCachedSignatures] = useLocalStorageData<Record<string, string>>('CACHED_SIGNATURES', {});
-
-    const order = useMemo(() => allocations.find(o => o.id === id || o.code === id), [allocations, id]);
-
+    const [loading, setLoading] = useState(true);
+    const [order, setOrder] = useState<IAssetAllocation | null>(null);
     const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
-    const [signingRole, setSigningRole] = useState<'KT' | 'borrower' | null>(null);
+    const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
+    const [signingRole, setSigningRole] = useState<'accountant' | 'borrower' | null>(null);
 
-    if (!order) {
-        return <Result status="404" title="Không tìm thấy phiếu" subTitle="Phiếu cấp phát tài sản này không tồn tại hoặc đã bị xóa." />;
-    }
+    const fetchOrder = async () => {
+        if (!id) return;
+        setLoading(true);
+        try {
+            const res = await assetAllocationService.findAssetAllocationDto(id);
+            if (res) {
+                setOrder(res);
+            }
+        } catch (error) {
+            message.error('Không thể tải chi tiết phiếu');
+        } finally {
+            setLoading(false);
+        }
+    };
 
-    const getStatusInfo = (status: AssetAllocationStatus) => {
+    useEffect(() => {
+        fetchOrder();
+    }, [id]);
+
+    const getStatusInfo = (status: AssetAllocationStatusEnum) => {
         switch (status) {
-            case 'REQUESTED': return { color: 'processing', text: 'Chờ duyệt', icon: <ClockCircleOutlined /> };
-            case 'APPROVED': return { color: 'cyan', text: 'Đã duyệt', icon: <CheckCircleOutlined /> };
-            case 'RECEIVED': return { color: 'blue', text: 'Đang sử dụng', icon: <CarOutlined /> };
-            case 'RETURNED': return { color: 'success', text: 'Đã hoàn trả', icon: <HomeOutlined /> };
-            case 'COMPLETED': return { color: 'success', text: 'Hoàn thành', icon: <CheckCircleOutlined /> };
-            case 'REJECTED': return { color: 'error', text: 'Từ chối', icon: <WarningOutlined /> };
-            default: return { color: 'default', text: status, icon: null };
+            case 'requested': return { color: 'processing', text: 'Chờ duyệt', icon: <ClockCircleOutlined /> };
+            case 'approved': return { color: 'cyan', text: 'Đã duyệt', icon: <CheckCircleOutlined /> };
+            case 'received': return { color: 'blue', text: 'Đang mượn', icon: <CarOutlined /> };
+            case 'returned': return { color: 'success', text: 'Đã hoàn trả', icon: <HomeOutlined /> };
+            case 'completed': return { color: 'success', text: 'Hoàn thành', icon: <CheckCircleOutlined /> };
+            case 'rejected': return { color: 'error', text: 'Từ chối', icon: <WarningOutlined /> };
+            default: return { color: 'default', text: (status as string)?.toUpperCase(), icon: null };
         }
     };
 
@@ -54,197 +72,255 @@ const AssetAllocationDetail: React.FC = () => {
         { title: 'Đang sử dụng' },
     ];
 
-    const getCurrentStep = (status: AssetAllocationStatus) => {
-        if (status === 'REQUESTED') return 0;
-        if (status === 'APPROVED') return 1;
-        if (status === 'RECEIVED') return 2;
-        if (status === 'RETURNED' || status === 'COMPLETED') return 3;
+    const getCurrentStep = (status: AssetAllocationStatusEnum) => {
+        if (status === 'requested') return 0;
+        if (status === 'approved') return 1;
+        if (status === 'received') return 2;
+        if (status === 'returned' || status === 'completed') return 3;
         return 0;
     };
 
-    const handleSign = (dataUrl: string) => {
-        const roleToSign = signingRole;
-        if (!roleToSign) return;
+    const dataUrlToFile = (dataUrl: string, fileName: string) => {
+        const arr = dataUrl.split(',');
+        const mime = arr[0].match(/:(.*?);/)![1];
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) {
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new File([u8arr], fileName, { type: mime });
+    };
 
-        setCachedSignatures({
-            ...cachedSignatures,
-            [roleToSign]: dataUrl
+    const uploadSignatureFile = async (dataUrl: string, role: string): Promise<string> => {
+        const file = dataUrlToFile(dataUrl, `sig_${role}_${Date.now()}.png`);
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('folder', 'signatures/asset-allocations');
+
+        const uploadUrl = get(UPLOAD_URL) || '/api/file/upload';
+        const token = get(ACCESS_TOKEN);
+
+        const response = await fetch(uploadUrl, {
+            method: 'POST',
+            headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+            body: formData
         });
 
-        const signature: AssetAllocationSignature = {
-            role: roleToSign as any,
-            userName: roleToSign === 'KT' ? 'Kế toán' : order.requestedBy,
-            userId: `user-${roleToSign}`,
-            signedAt: new Date().toISOString(),
-            signatureDataUrl: dataUrl
-        };
+        if (!response.ok) throw new Error(`Upload lỗi: ${response.status}`);
+        const result = await response.json();
+        const data = result.result || result;
+        return data.file_path || data.file_id || data.url;
+    };
 
-        let nextStatus: AssetAllocationStatus = order.status;
-        if (order.status === 'REQUESTED' && roleToSign === 'KT') nextStatus = 'APPROVED';
-        if (order.status === 'APPROVED' && roleToSign === 'borrower') nextStatus = 'RECEIVED';
+    const handleSign = async (dataUrl: string) => {
+        if (!order || !signingRole) return;
+        setLoading(true);
 
-        const updatedOrder: AssetAllocation = {
-            ...order,
-            status: nextStatus as any,
-            signatures: [...(order.signatures || []), signature],
-            history: [
-                ...(order.history || []),
-                {
-                    status: nextStatus as any,
-                    updatedBy: signature.userName,
-                    updatedAt: signature.signedAt,
-                    comment: `Đã ký xác nhận vai trò ${roleToSign}`
-                }
-            ]
-        };
+        try {
+            // 1. Upload signature to server
+            const fileRef = await uploadSignatureFile(dataUrl, signingRole);
 
-        setAllocations(allocations.map(o => o.id === order.id ? updatedOrder : o));
+            // 2. Prepare signature item
+            const newSignature: ISignatureImageItem = {
+                role: signingRole,
+                user_name: signingRole === 'accountant' ? 'Kế toán' : (order.requested_by?.displayName || order.requested_by || 'Người mượn'),
+                user_id: user?._id || 'unknown',
+                signed_at: new Date().toISOString(),
+                signature_data_url: fileRef
+            };
 
-        if (nextStatus === 'RECEIVED') {
-            const currentAssetsStr = localStorage.getItem('ASSETS');
-            if (currentAssetsStr) {
-                try {
-                    const assets = JSON.parse(currentAssetsStr);
-                    const newAssets = assets.map((a: any) => a.id === order.assetId ? { ...a, status: 'IN_USE', assignedTo: order.requestedBy } : a);
-                    localStorage.setItem('ASSETS', JSON.stringify(newAssets));
-                } catch (e) { }
+            // 3. Determine next status
+            let nextStatus: AssetAllocationStatusEnum = order.status || 'requested';
+            if (order.status === 'requested' && signingRole === 'accountant') nextStatus = 'approved';
+            if (order.status === 'approved' && signingRole === 'borrower') nextStatus = 'received';
+
+            const updatedSignatures = [...(order.signature_image || []), newSignature];
+
+            // 4. Update Allocation Record
+            await assetAllocationService.updateAssetAllocation(order._id, {
+                status: nextStatus as any,
+                signature_image: updatedSignatures
+            });
+
+            // 5. Automation: Update Asset status if finalized
+            if (nextStatus === 'received' && order.asset_id) {
+                await assetService.updateAsset(order.asset_id, {
+                    status: 'in_use',
+                    assigned_to: order.requested_by?.displayName || order.requested_by,
+                    current_allocation_id: order._id
+                });
             }
-        }
 
-        setTimeout(() => {
+            message.success(`Đã ký xác nhận thành công`);
+            await fetchOrder();
+        } catch (e) {
+            message.error('Lỗi khi ký xác nhận');
+        } finally {
+            setLoading(false);
             setIsSignatureModalOpen(false);
-            setSigningRole(null);
-        }, 100);
-
-        message.success(`Đã ký xác nhận thành công`);
-    };
-
-    const handleUseCachedSignature = (role: string) => {
-        const cached = cachedSignatures[role];
-        if (cached) {
-            setSigningRole(role as any);
-            handleSign(cached);
         }
     };
+
+    const handleDownloadPDF = () => {
+        const element = document.getElementById('asset-allocation-printable');
+        if (!element) return;
+
+        const opt = {
+            margin: 10,
+            filename: `BienBan_${order?.code || 'ASSET'}.pdf`,
+            image: { type: 'jpeg' as const, quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
+        };
+
+        html2pdf().set(opt).from(element).save();
+    };
+
+    if (loading && !order) {
+        return <div style={{ padding: 100, textAlign: 'center' }}><Spin size="large" tip="Đang tải phiếu..." /></div>;
+    }
+
+    if (!order) {
+        return <Result status="404" title="Không tìm thấy phiếu" subTitle="Phiếu cấp phát tài sản này không tồn tại." />;
+    }
+
+    const currentStep = getCurrentStep(order.status || 'requested');
 
     return (
-        <div style={{ width: '100%', padding: '0 24px' }}>
-            <Card bordered={false} className="order-detail-card">
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24 }}>
-                    <Space>
+        <div style={{ width: '100%', padding: '0 24px 40px' }}>
+            <Card bordered={false} bodyStyle={{ padding: '24px 0' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 32, alignItems: 'center' }}>
+                    <Space size="middle">
                         <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/kt/assets/allocation-history')} />
                         <div>
-                            <Text type="secondary">Chi tiết Phiếu Yêu cầu mượn Tài sản</Text>
-                            <Title level={4} style={{ margin: 0 }}>{order.code}</Title>
+                            <Text type="secondary" style={{ fontSize: 12 }}>Phiếu Yêu cầu Cấp phát / Mượn Tài sản</Text>
+                            <Title level={4} style={{ margin: 0 }}>{order.code || 'ALLOC-ORD'}</Title>
                         </div>
+                    </Space>
+                    <Space>
+                        <Button icon={<FilePdfOutlined />} onClick={() => setIsPrintModalOpen(true)}>Xem Biên bản</Button>
+                        {order.status === 'received' && (
+                            <Button type="primary" icon={<DownloadOutlined />} onClick={handleDownloadPDF}>Tải PDF</Button>
+                        )}
                     </Space>
                 </div>
 
                 <Steps
-                    current={getCurrentStep(order.status)}
+                    current={currentStep}
                     items={steps}
-                    style={{ marginBottom: 40 }}
+                    style={{ marginBottom: 48, padding: '0 24px' }}
                 />
 
                 <Row gutter={24}>
-                    <Col span={16}>
-                        <Descriptions bordered size="small" column={2} style={{ marginBottom: 24 }}>
-                            <Descriptions.Item label="Ngày yêu cầu">{new Date(order.requestDate).toLocaleDateString('vi-VN')}</Descriptions.Item>
-                            <Descriptions.Item label="Trạng thái">
-                                <Tag color={getStatusInfo(order.status).color} icon={getStatusInfo(order.status).icon}>
-                                    {getStatusInfo(order.status).text}
-                                </Tag>
-                            </Descriptions.Item>
-                            <Descriptions.Item label="Người yêu cầu / mượn">{order.requestedBy}</Descriptions.Item>
-                            <Descriptions.Item label="Dự án sử dụng">{order.projectName || '—'}</Descriptions.Item>
-                            <Descriptions.Item label="Ngày trả dự kiến">{order.expectedReturnDate ? new Date(order.expectedReturnDate).toLocaleDateString('vi-VN') : '—'}</Descriptions.Item>
-                            <Descriptions.Item label="Ghi chú mượn">{order.notes || 'Không có ghi chú'}</Descriptions.Item>
-                        </Descriptions>
-
-                        <div style={{ padding: 16, border: '1px solid #d9d9d9', borderRadius: 8, background: '#fafafa' }}>
-                            <Text strong style={{ fontSize: 16, display: 'block', marginBottom: 8 }}>Thông tin tài sản</Text>
-                            <Descriptions column={1} size="small">
-                                <Descriptions.Item label="Tên tài sản"><Text strong>{order.assetName}</Text></Descriptions.Item>
-                                <Descriptions.Item label="Mã/Serial tài sản">{order.assetCode}</Descriptions.Item>
+                    <Col xs={24} lg={16}>
+                        <Card size="small" title="Thông tin chung" style={{ borderRadius: 12, marginBottom: 24 }}>
+                            <Descriptions bordered size="small" column={{ xs: 1, sm: 2 }}>
+                                <Descriptions.Item label="Ngày yêu cầu">{order.request_date ? dayjs(order.request_date).format('DD/MM/YYYY') : '—'}</Descriptions.Item>
+                                <Descriptions.Item label="Trạng thái">
+                                    <Tag color={getStatusInfo(order.status || 'requested').color} icon={getStatusInfo(order.status || 'requested').icon}>
+                                        {getStatusInfo(order.status || 'requested').text}
+                                    </Tag>
+                                </Descriptions.Item>
+                                <Descriptions.Item label="Người yêu cầu">{order.requested_by?.displayName || order.requested_by || '—'}</Descriptions.Item>
+                                <Descriptions.Item label="Hành trình sử dụng">{order.journey_name || '—'}</Descriptions.Item>
+                                <Descriptions.Item label="Ngày trả dự kiến">{order.expected_return_date ? dayjs(order.expected_return_date).format('DD/MM/YYYY') : '—'}</Descriptions.Item>
+                                <Descriptions.Item label="Mục đích">{order.notes || 'Sử dụng cho công việc chuyên môn'}</Descriptions.Item>
                             </Descriptions>
-                        </div>
+                        </Card>
+
+                        <Card size="small" title="Tài sản bàn giao" style={{ borderRadius: 12 }}>
+                            <div style={{ padding: 8 }}>
+                                <Row gutter={16} align="middle">
+                                    <Col span={4}>
+                                        <div style={{ width: 64, height: 64, background: '#f5f5f5', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                            <ToolOutlined style={{ fontSize: 24, color: '#bfbfbf' }} />
+                                        </div>
+                                    </Col>
+                                    <Col span={20}>
+                                        <Title level={5} style={{ margin: 0 }}>{order.asset_name}</Title>
+                                        <Text type="secondary">Mã hiệu: <Text strong>{order.asset_code}</Text></Text>
+                                    </Col>
+                                </Row>
+                            </div>
+                        </Card>
                     </Col>
 
-                    <Col span={8}>
-                        <Card title={<Space><SignatureOutlined /> Quy trình Ký nhận</Space>} size="small">
+                    <Col xs={24} lg={8}>
+                        <Card title={<Space><SignatureOutlined /> Xác nhận & Ký tên</Space>} style={{ borderRadius: 12, marginBottom: 24 }}>
                             {/* ACCOUNTANT */}
-                            <div style={{ marginBottom: 20 }}>
-                                <Text strong>1. Kế toán duyệt xuất</Text>
-                                {order.signatures?.find((s) => s.role === 'KT') ? (
-                                    <div style={{ marginTop: 8, textAlign: 'center' }}>
-                                        <img src={order.signatures.find((s) => s.role === 'KT')?.signatureDataUrl} style={{ height: 60 }} />
+                            <div style={{ marginBottom: 24, padding: '12px', border: '1px solid #f0f0f0', borderRadius: 8 }}>
+                                <Text strong style={{ display: 'block', marginBottom: 12 }}>1. Kế toán Duyệt xuất</Text>
+                                {order.signature_image?.find(s => s.role === 'accountant') ? (
+                                    <div style={{ textAlign: 'center' }}>
+                                        <img src={getFileLink(order.signature_image.find(s => s.role === 'accountant')!.signature_data_url!)} style={{ height: 60 }} alt="KT Ký" />
+                                        <div style={{ fontSize: 11, color: '#8c8c8c', marginTop: 4 }}>
+                                            Đã duyệt: {dayjs(order.signature_image.find(s => s.role === 'accountant')!.signed_at).format('DD/MM/YY HH:mm')}
+                                        </div>
                                     </div>
                                 ) : (
-                                    <>
-                                        <Button block type={order.status === 'REQUESTED' ? 'primary' : 'dashed'} disabled={order.status !== 'REQUESTED'} size="small" style={{ marginTop: 8 }} icon={<CheckCircleOutlined />} onClick={() => { setSigningRole('KT'); setIsSignatureModalOpen(true); }}>
-                                            Kế toán Ký Duyệt
-                                        </Button>
-                                        {cachedSignatures['KT'] && (
-                                            <div style={{ marginTop: 8, padding: 8, background: '#f5f5f5', borderRadius: 4, textAlign: 'center' }}>
-                                                <Text type="secondary" style={{ fontSize: 11 }}>Dùng nhanh chữ ký Kế toán:</Text><br />
-                                                <img src={cachedSignatures['KT']} style={{ height: 40, cursor: 'pointer' }} onClick={() => handleUseCachedSignature('KT')} />
-                                            </div>
-                                        )}
-                                    </>
+                                    <Button block type={order.status === 'requested' ? 'primary' : 'dashed'} disabled={order.status !== 'requested'} icon={<CheckCircleOutlined />} onClick={() => { setSigningRole('accountant'); setIsSignatureModalOpen(true); }}>
+                                        Duyệt & Ký tên
+                                    </Button>
                                 )}
                             </div>
 
                             {/* BORROWER */}
-                            <div style={{ marginBottom: 20 }}>
-                                <Text strong>2. Người mượn xác nhận nhận</Text>
-                                {order.signatures?.find((s) => s.role === 'borrower') ? (
-                                    <div style={{ marginTop: 8, textAlign: 'center' }}>
-                                        <img src={order.signatures.find((s) => s.role === 'borrower')?.signatureDataUrl} style={{ height: 60 }} />
+                            <div style={{ padding: '12px', border: '1px solid #f0f0f0', borderRadius: 8 }}>
+                                <Text strong style={{ display: 'block', marginBottom: 12 }}>2. Người mượn Ký nhận</Text>
+                                {order.signature_image?.find(s => s.role === 'borrower') ? (
+                                    <div style={{ textAlign: 'center' }}>
+                                        <img src={getFileLink(order.signature_image.find(s => s.role === 'borrower')!.signature_data_url!)} style={{ height: 60 }} alt="Borrower Ký" />
+                                        <div style={{ fontSize: 11, color: '#8c8c8c', marginTop: 4 }}>
+                                            Đã nhận: {dayjs(order.signature_image.find(s => s.role === 'borrower')!.signed_at).format('DD/MM/YY HH:mm')}
+                                        </div>
                                     </div>
                                 ) : (
-                                    <>
-                                        <Button block type={order.status === 'APPROVED' ? 'primary' : 'dashed'} disabled={order.status !== 'APPROVED'} size="small" style={{ marginTop: 8 }} icon={<CarOutlined />} onClick={() => { setSigningRole('borrower'); setIsSignatureModalOpen(true); }}>
-                                            Người mượn Ký nhận
-                                        </Button>
-                                    </>
+                                    <Button block type={order.status === 'approved' ? 'primary' : 'dashed'} disabled={order.status !== 'approved'} icon={<CarOutlined />} onClick={() => { setSigningRole('borrower'); setIsSignatureModalOpen(true); }}>
+                                        Xác nhận nhận TS
+                                    </Button>
                                 )}
                             </div>
 
-                            {order.status === 'RECEIVED' && (
-                                <Alert
-                                    message="Đang sử dụng"
-                                    type="success"
-                                    showIcon
-                                    style={{ marginTop: 12 }}
-                                />
+                            {order.status === 'received' && (
+                                <Alert message="Tài sản đã bàn giao thành công" type="success" showIcon style={{ marginTop: 24 }} />
                             )}
-                        </Card>
-
-                        <Card title="Lịch sử xử lý" size="small" style={{ marginTop: 16 }}>
-                            {order.history?.map((h: any, i: number) => (
-                                <div key={i} style={{ fontSize: 12, marginBottom: 10 }}>
-                                    <Text strong>{h.status}</Text> tác động bởi <Text>{h.updatedBy}</Text>
-                                    <div style={{ color: '#999' }}>{new Date(h.updatedAt).toLocaleString('vi-VN')}</div>
-                                    {h.comment && <div style={{ fontStyle: 'italic' }}>— {h.comment}</div>}
-                                </div>
-                            ))}
                         </Card>
                     </Col>
                 </Row>
             </Card>
 
+            {/* Signature Modal */}
             <Modal
-                title={`Ký tên xác nhận: ${signingRole === 'KT' ? 'KẾ TOÁN' : 'NGƯỜI MƯỢN'}`}
+                title={`KÝ XÁC NHẬN: ${signingRole === 'accountant' ? 'KẾ TOÁN' : 'NGƯỜI MƯỢN'}`}
                 open={isSignatureModalOpen}
                 onCancel={() => setIsSignatureModalOpen(false)}
                 footer={null}
                 width={450}
+                destroyOnClose
             >
                 <SiraSignaturePad
                     onSave={handleSign}
-                    title={signingRole === 'KT' ? 'Chữ ký của Kế toán' : 'Chữ ký của Người mượn'}
-                    description="Vui lòng ký vào khung bên dưới và bấm Xác nhận"
+                    title={signingRole === 'accountant' ? 'Chữ ký Kế toán' : 'Chữ ký Người nhận'}
+                    description="Vui lòng ký vào khung bên dưới để xác nhận bàn giao tài sản"
                 />
+            </Modal>
+
+            {/* Print Preview Modal */}
+            <Modal
+                title="Biên bản bàn giao tài sản"
+                open={isPrintModalOpen}
+                onCancel={() => setIsPrintModalOpen(false)}
+                footer={[
+                    <Button key="close" onClick={() => setIsPrintModalOpen(false)}>Đóng</Button>,
+                    <Button key="download" type="primary" icon={<DownloadOutlined />} onClick={handleDownloadPDF}>Tải xuống PDF</Button>
+                ]}
+                width={850}
+                style={{ top: 20 }}
+            >
+                <div style={{ padding: '20px 0', background: '#f5f5f5', display: 'flex', justifyContent: 'center', minHeight: 600 }}>
+                    <AssetAllocationPrintable order={order} />
+                </div>
             </Modal>
         </div>
     );

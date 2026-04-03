@@ -421,7 +421,7 @@ const StockOrderDetail: React.FC = () => {
                 <Row gutter={24}>
                     <Col span={16}>
                         <Descriptions bordered size="small" column={2} style={{ marginBottom: 24 }}>
-                            <Descriptions.Item label="Ngày tạo">{order.created_at ? new Date(order.created_at).toLocaleDateString() : '—'}</Descriptions.Item>
+                            <Descriptions.Item label="Ngày tạo">{order.createdAt ? new Date(order.createdAt).toLocaleDateString() : '—'}</Descriptions.Item>
                             <Descriptions.Item label="Trạng thái">
                                 <Tag color={getStatusInfo(order.status).color} icon={getStatusInfo(order.status).icon}>
                                     {getStatusInfo(order.status).text}

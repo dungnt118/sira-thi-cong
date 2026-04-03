@@ -152,7 +152,7 @@ const InventoryHistory: React.FC = () => {
                     ...prev, 
                     current: page, 
                     pageSize, 
-                    total: res.total || res.data.length 
+                    total: res.records || res.data?.length || 0 
                 }));
             }
         } catch (error) {
@@ -352,7 +352,7 @@ const InventoryHistory: React.FC = () => {
             width: 140, 
             render: (d: any) => d ? <div style={{ fontSize: 12, color: '#52c41a' }}><CalendarOutlined style={{ marginRight: 4 }} />{dayjs(d).format('DD/MM/YY HH:mm')}</div> : '—'
         },
-        { title: 'Ghi chú', dataIndex: 'notes', key: 'notes', width: 150, ellipsis: { tooltip: true }, render: (n: string) => n || '—' },
+        { title: 'Ghi chú', dataIndex: 'notes', key: 'notes', width: 150, ellipsis: true, render: (n: string) => n || '—' },
         {
             title: 'Bản in',
             key: 'docs',
@@ -503,7 +503,7 @@ const InventoryHistory: React.FC = () => {
                                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                                             <Text type="secondary" style={{ fontSize: 12 }}>Hành trình:</Text>
                                             <div style={{ textAlign: 'right' }}>
-                                                {item.journey_code && <Tag color="blue" size="small" style={{ margin: 0, fontSize: 10 }}>{item.journey_code}</Tag>}
+                                                {item.journey_code && <Tag color="blue" style={{ margin: 0, fontSize: 10 }}>{item.journey_code}</Tag>}
                                                 <br/><Text style={{ fontSize: 11 }}>{item.journey_name}</Text>
                                             </div>
                                         </div>
