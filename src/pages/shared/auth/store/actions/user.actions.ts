@@ -101,9 +101,9 @@ export const setUserDataAuth0 = (tokenData: Auth0TokenData): AppThunk =>
     shortcuts: tokenData.user_metadata?.shortcuts ?? [],
   } as UserSessionContext);
 
-export const loadUserData = (_forceReload = false): AppThunk<Promise<void>> => async (dispatch) => {
+export const loadUserData = (roleOverride?: string): AppThunk<Promise<void>> => async (dispatch) => {
   try {
-    const currentRole = getCurrentRole();
+    const currentRole = roleOverride !== undefined ? roleOverride : getCurrentRole();
     const response = await graphqlService.query<UserSessionContext>(
       gql(GET_USER_SESSION_INFO_QUERY()),
       { role: currentRole },

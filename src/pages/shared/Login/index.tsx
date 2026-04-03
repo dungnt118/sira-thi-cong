@@ -36,7 +36,7 @@ export const Login: React.FC = () => {
             if (session) {
                 message.success('Đăng nhập thành công, đang tải thông tin người dùng...');
                 // Gọi loadUserData để lấy thông tin profile qua GraphQL và điều hướng
-                await dispatch(loadUserData());
+                await dispatch(loadUserData(''));
             }
         } catch (error: any) {
             console.error('Lỗi đăng nhập:', error);

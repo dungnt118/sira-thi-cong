@@ -172,6 +172,7 @@ class elsagaService extends FuseUtils.EventEmitter {
         this.emit('onAutoLogin', true);
     };
     signInCloud = (userName: any, password: any, closeLoading?: any) => {
+        clearUserData();
         const tenantId = get(TENANT_KEY)
         console.log("signin cloud for tenant:", tenantId)
         return new Promise((resolve, reject) => {
@@ -224,6 +225,7 @@ class elsagaService extends FuseUtils.EventEmitter {
     }
     
     signInWithEmailAndPassword = (email: any, password: any, client: OAuthClientConfig, closeLoading?: any) => {
+        clearUserData();
         return new Promise((resolve, reject) => {
             const clientId = String(client?.client_id || '').trim();
             const clientSecret = String(client?.client_secret || '').trim();

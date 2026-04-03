@@ -1,17 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
     Card, Table, Tag, Badge, Select, Row, Col, Typography,
-    Space, Button, Statistic, Grid
+    Space, Button, Statistic, Grid, message, Empty
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
     ClockCircleOutlined, MessageOutlined,
-    SendOutlined, StopOutlined, EyeOutlined
+    SendOutlined, StopOutlined, EyeOutlined, ReloadOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
-import { demoDataService } from '../../../services/core-graphql/localstorage/demoDataService';
-import { mockActionItems as defaultActionItems } from '../../../data/journeyMockData';
+import { journeyService } from '../../../services/core-contracts/services/journey.service';
+import type { IJourney } from '../../../services/core-contracts/types/journey.types';
 import type { ActionItem, ActionType, PriorityLevel } from '../../../types/journey';
 
 const { Text } = Typography;
@@ -34,21 +33,120 @@ const PRIORITY_CONFIG: Record<PriorityLevel, { label: string; color: string }> =
 
 const ActionCenter: React.FC = () => {
     const navigate = useNavigate();
-    const [mockActionItems] = useLocalStorageData<ActionItem[]>(demoDataService.KEYS.ACTION_ITEMS, defaultActionItems);
-    const [filterType, setFilterType] = useState<string>('ALL');
     const screens = useBreakpoint();
     const isMobile = !screens.md;
 
+    const [journeys, setJourneys] = useState<IJourney[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [filterType, setFilterType] = useState<string>('ALL');
+
+    const fetchJourneys = async () => {
+        setIsLoading(true);
+        try {
+            const res = await journeyService.queryJourneysDto({});
+            if (res.code === 0 && res.data) {
+                setJourneys(res.data);
+            }
+        } catch (error) {
+            console.error('Failed to fetch journeys for Action Center:', error);
+            message.error('Không thể tải dữ liệu hành trình');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchJourneys();
+    }, []);
+
+    const actionItems = useMemo(() => {
+        const items: ActionItem[] = [];
+        journeys.forEach(j => {
+            // 1. Step Overdue
+            if (j.sla_status === 'overdue') {
+                items.push({
+                    id: `${j._id}_overdue`,
+                    action_type: 'step_overdue',
+                    journey_id: j._id,
+                    journey_code: j.journey_code || 'N/A',
+                    customer_name: j.idx_customer_id?.title || j.customer_full_name || 'N/A',
+                    current_step: j.current_step || 'N/A',
+                    priority: (j.priority as PriorityLevel) || 'low',
+                    due_at: j.next_milestone_due?.toString(),
+                    owner_user: j.supervisor_name || 'Chưa gán',
+                    source_tab: 'Yêu cầu'
+                });
+            }
+
+            // 2. Survey Waiting Review
+            if (j.current_step === 'survey_review') {
+                items.push({
+                    id: `${j._id}_survey`,
+                    action_type: 'survey_waiting',
+                    journey_id: j._id,
+                    journey_code: j.journey_code || 'N/A',
+                    customer_name: j.idx_customer_id?.title || j.customer_full_name || 'N/A',
+                    current_step: j.current_step || 'N/A',
+                    priority: (j.priority as PriorityLevel) || 'low',
+                    owner_user: j.supervisor_name || 'Chưa gán',
+                    source_tab: 'Khảo sát'
+                });
+            }
+
+            // 3. Portal Unread
+            if ((j.unread_thread_count || 0) > 0) {
+                items.push({
+                    id: `${j._id}_portal`,
+                    action_type: 'portal_unread',
+                    journey_id: j._id,
+                    journey_code: j.journey_code || 'N/A',
+                    customer_name: j.idx_customer_id?.title || j.customer_full_name || 'N/A',
+                    current_step: j.current_step || 'N/A',
+                    priority: (j.priority as PriorityLevel) || 'low',
+                    owner_user: j.supervisor_name || 'Chưa gán',
+                    source_tab: 'Portal/Chat'
+                });
+            }
+
+            // 4. Publish Pending
+            if (j.portal_publish_status !== 'published') {
+                items.push({
+                    id: `${j._id}_publish`,
+                    action_type: 'publish_pending',
+                    journey_id: j._id,
+                    journey_code: j.journey_code || 'N/A',
+                    customer_name: j.idx_customer_id?.title || j.customer_full_name || 'N/A',
+                    current_step: j.current_step || 'N/A',
+                    priority: (j.priority as PriorityLevel) || 'low',
+                    owner_user: j.supervisor_name || 'Chưa gán',
+                    source_tab: 'Portal/Chat'
+                });
+            }
+
+            // 5. Blocked
+            if ((j.blocked_task_count || 0) > 0) {
+                items.push({
+                    id: `${j._id}_blocked`,
+                    action_type: 'blocked',
+                    journey_id: j._id,
+                    journey_code: j.journey_code || 'N/A',
+                    customer_name: j.idx_customer_id?.title || j.customer_full_name || 'N/A',
+                    current_step: j.current_step || 'N/A',
+                    priority: (j.priority as PriorityLevel) || 'low',
+                    owner_user: j.supervisor_name || 'Chưa gán',
+                    source_tab: 'Hành trình'
+                });
+            }
+        });
+        return items;
+    }, [journeys]);
+
     const bucketCounts = (Object.keys(ACTION_BUCKET_CONFIG) as ActionType[]).map(type => ({
         type,
-        count: mockActionItems.filter(a => {
-            // For publish_pending mock logic
-            if (type === 'publish_pending') return a.action_type === 'publish_pending';
-            return a.action_type === type;
-        }).length,
+        count: actionItems.filter(a => a.action_type === type).length,
     }));
 
-    const filtered = mockActionItems.filter(a => filterType === 'ALL' || a.action_type === filterType);
+    const filtered = actionItems.filter(a => filterType === 'ALL' || a.action_type === filterType);
 
     const columns: ColumnsType<ActionItem> = [
         {
@@ -88,6 +186,7 @@ const ActionCenter: React.FC = () => {
             dataIndex: 'current_step',
             key: 'step',
             width: 150,
+            render: (v) => <Tag>{v}</Tag>
         },
         {
             title: 'Ưu tiên',
@@ -140,10 +239,15 @@ const ActionCenter: React.FC = () => {
 
     return (
         <div>
-            <div style={{ marginBottom: isMobile ? 16 : 24 }}>
-                <h2 style={{ margin: 0, fontSize: isMobile ? 22 : 28 }}>Action Center</h2>
-                <Text type="secondary">Tổng hợp các việc cần xử lý khẩn ngay hôm nay</Text>
-            </div>
+            <Row justify="space-between" align="middle" style={{ marginBottom: isMobile ? 16 : 24 }}>
+                <Col>
+                    <h2 style={{ margin: 0, fontSize: isMobile ? 22 : 28 }}>Action Center</h2>
+                    <Text type="secondary">Tổng hợp các việc cần xử lý khẩn ngay hôm nay</Text>
+                </Col>
+                <Col>
+                    <Button icon={<ReloadOutlined />} onClick={fetchJourneys} loading={isLoading}>Làm mới</Button>
+                </Col>
+            </Row>
 
             {/* Bucket Cards */}
             <Row gutter={[12, 12]} style={{ marginBottom: 24 }}>
@@ -167,6 +271,7 @@ const ActionCenter: React.FC = () => {
                                     title={<Text style={{ fontSize: 11 }}>{cfg.label}</Text>}
                                     value={count}
                                     valueStyle={{ color: cfg.color, fontSize: 22 }}
+                                    loading={isLoading}
                                 />
                                 <Text type="secondary" style={{ fontSize: 10 }}>{cfg.desc}</Text>
                             </Card>
@@ -202,11 +307,13 @@ const ActionCenter: React.FC = () => {
                     rowKey="id"
                     size={isMobile ? 'small' : 'middle'}
                     scroll={{ x: 'max-content' }}
+                    loading={isLoading}
                     pagination={{
                         pageSize: 10,
                         showTotal: (t) => isMobile ? `${t} việc` : `${t} việc cần xử lý`,
                         size: isMobile ? 'small' : 'default'
                     }}
+                    locale={{ emptyText: <Empty description="Chúc mừng! Bạn không còn việc nào tồn đọng." /> }}
                 />
             </Card>
         </div>
@@ -214,3 +321,4 @@ const ActionCenter: React.FC = () => {
 };
 
 export default ActionCenter;
+

@@ -27,7 +27,7 @@ export const submitLogin = ({
   try {
     await elsagaService.signInWithEmailAndPassword(email, password, client, closeLoading);
 
-    await dispatch(loadUserData());
+    await dispatch(loadUserData(''));
     dispatch(hideLoading());
     dispatch({
       type: LOGIN_SUCCESS,
