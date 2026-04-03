@@ -135,7 +135,6 @@ const StockOrderDetail: React.FC = () => {
 
     // Upload chữ ký lên server để lấy URL lưu trữ (thông tin file chuẩn từ Headless API)
     const uploadSignatureFile = async (dataUrl: string, role: string): Promise<string> => {
-        // Sử dụng tên file đơn giản, server có thể tự động sinh path/tên mới
         const file = dataUrlToFile(dataUrl, `signature_${role}.png`);
         const formData = new FormData();
         formData.append('file', file);
@@ -155,10 +154,8 @@ const StockOrderDetail: React.FC = () => {
         }
 
         const result = await response.json();
-        // Headless API chuẩn: trả về { success: true, result: { file_id, file_path, ... } }
         const data = result.result || result;
         
-        // Luôn trả về file_path hoặc file_id để lưu vào DB (như UploadImage.tsx)
         const fileRef = data.file_path || data.file_id || data.url;
         if (!fileRef) {
             throw new Error('Server không trả về mã định danh file hợp lệ');
@@ -166,12 +163,34 @@ const StockOrderDetail: React.FC = () => {
         return fileRef;
     };
 
+    // Upload file PDF minh chứng lên server
+    const uploadPdfFile = async (blob: Blob, fileName: string): Promise<any> => {
+        const formData = new FormData();
+        formData.append('file', blob, fileName);
+        formData.append('folder', 'signatures/stock-orders/pdf');
+
+        const uploadUrl = get(UPLOAD_URL) || '/api/file/upload';
+        const token = get(ACCESS_TOKEN);
+
+        const response = await fetch(uploadUrl, {
+            method: 'POST',
+            headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error(`Upload PDF lỗi: ${response.status}`);
+        }
+
+        const result = await response.json();
+        return result.result || result;
+    };
+
     const handleSign = async (dataUrl: string, strokeData: any) => {
         if (!signingRole || !id || !order) return;
 
         setLoading(true);
         try {
-            // 1. Upload ảnh chữ ký lên server trước để lấy tham chiếu hệ thống (file_path/file_id)
             const uploadedRef = await uploadSignatureFile(dataUrl, signingRole);
 
             let nextStatus: StockOrderStatusEnum = (order.status || 'requested') as any;
@@ -206,7 +225,6 @@ const StockOrderDetail: React.FC = () => {
                 signatures,
                 signed_at: nowIso,
                 signed_by: signerRef as any
-                // Field signature_image phẳng cũng sẽ được đồng bộ (nếu backend hỗ trợ tự động từ list signatures)
             });
 
             message.success(`Đã ký xác nhận thành công với vai trò ${signingRole.toUpperCase()}`);
@@ -221,13 +239,54 @@ const StockOrderDetail: React.FC = () => {
     };
 
     const handleFinalize = async () => {
-        if (!id) return;
+        console.log('Finalize button clicked');
+        if (!id || !order) return;
+        
+        const msgKey = 'finalizing_order';
+        message.loading({ content: 'Bắt đầu quá trình lưu trữ...', key: msgKey, duration: 0 });
+        setLoading(true);
+
+        const element = document.getElementById('stock-order-printable-hidden');
+        if (!element) {
+            message.error({ content: 'Lỗi: Không tìm thấy vùng dữ liệu in ấn', key: msgKey, duration: 3 });
+            setLoading(false);
+            return;
+        }
+
         try {
-            await stockOrderService.updateStockOrder(id, { status: 'completed' });
-            message.success('Đã hoàn tất phiếu và lưu trữ');
-            fetchOrder();
+            const opt = {
+                margin: 10,
+                image: { type: 'jpeg' as const, quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, logging: false },
+                jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
+            };
+
+            // Sử dụng worker API của html2pdf một cách tường minh
+            html2pdf().from(element).set(opt).toPdf().output('blob').then(async (pdfBlob: Blob) => {
+                const fileName = `SIRA-${order.code || id}-FINAL.pdf`;
+
+                // 2. Upload lên server
+                const fileData = await uploadPdfFile(pdfBlob, fileName);
+
+                // 3. Cập nhật record với status completed và pdf_files
+                const prevPdfs = order.pdf_files || [];
+                await stockOrderService.updateStockOrder(id, {
+                    status: 'completed',
+                    pdf_files: [...prevPdfs, fileData]
+                });
+
+                message.success({ content: 'Đã hoàn tất phiếu và lưu trữ minh chứng thành công!', key: msgKey, duration: 3 });
+                fetchOrder();
+            }).catch((err: any) => {
+                console.error('HTML2PDF Error:', err);
+                message.error({ content: 'Lỗi khi tạo file PDF minh chứng', key: msgKey, duration: 4 });
+            }).finally(() => {
+                setLoading(false);
+            });
         } catch (error) {
-            message.error('Lỗi khi hoàn tất phiếu');
+            console.error('Lỗi tổng quan:', error);
+            message.error({ content: 'Lỗi hệ thống khi xử lý hoàn tất', key: msgKey, duration: 4 });
+            setLoading(false);
         }
     };
 
@@ -291,6 +350,13 @@ const StockOrderDetail: React.FC = () => {
 
     return (
         <div style={{ width: '100%', padding: '0 24px' }}>
+            {/* Hidden component for PDF generation when Modal is closed */}
+            <div style={{ position: 'absolute', top: -9999, left: -9999, opacity: 0, pointerEvents: 'none' }}>
+                <div id="stock-order-printable-hidden">
+                    <StockOrderPrintable order={order} />
+                </div>
+            </div>
+
             <Card bordered={false} className="order-detail-card">
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24 }}>
                     <Space>
@@ -307,6 +373,11 @@ const StockOrderDetail: React.FC = () => {
                         {order.status === 'received' && (
                             <Button type="primary" icon={<CheckCircleOutlined />} onClick={handleFinalize}>
                                 Hoàn tất & Lưu trữ PDF
+                            </Button>
+                        )}
+                        {order.pdf_files && order.pdf_files.length > 0 && (
+                            <Button icon={<DownloadOutlined />} onClick={() => window.open(getFileLink(order.pdf_files![0].file_path || order.pdf_files![0].file_id), '_blank')}>
+                                Xem minh chứng PDF
                             </Button>
                         )}
                     </Space>

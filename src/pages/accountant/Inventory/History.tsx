@@ -3,12 +3,13 @@ import { Typography, Table, Button, Tag, Card, Row, Col, Statistic, Tabs, Input,
 import {
     FileTextOutlined, ClockCircleOutlined,
     ImportOutlined, ExportOutlined, SearchOutlined,
-    ArrowRightOutlined
+    ArrowRightOutlined, FilePdfOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
 import { stockOrderService } from '../../../services/core-contracts/services/stockOrder.service';
 import type { IStockOrder, StockOrderStatusEnum } from '../../../services/core-contracts/types/stockOrder.types';
+import { getFileLink } from '../../../services/storeService';
 
 const { Title, Text } = Typography;
 const { useBreakpoint } = Grid;
@@ -182,6 +183,27 @@ const InventoryHistory: React.FC = () => {
         },
         { title: 'Giá trị', dataIndex: 'total_value', key: 'val', width: 120, render: (v: number) => `${(v || 0).toLocaleString('vi-VN')}đ` },
         { title: 'Ngày tạo', dataIndex: 'created_at', key: 'date', width: 110, render: (d: any) => d ? new Date(d).toLocaleDateString('vi-VN') : '—' },
+        {
+            title: 'Minh chứng',
+            key: 'docs',
+            width: 100,
+            align: 'center' as const,
+            render: (_: any, record: IStockOrder) => {
+                const pdf = record.pdf_files?.[0];
+                if (!pdf) return null;
+                return (
+                    <Button 
+                        type="text" 
+                        size="small"
+                        icon={<FilePdfOutlined style={{ color: '#ff4d4f', fontSize: 18 }} />} 
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(getFileLink(pdf.file_path || pdf.file_id), '_blank');
+                        }}
+                    />
+                );
+            }
+        },
     ];
 
     const tabTypes = [
@@ -345,7 +367,18 @@ const InventoryHistory: React.FC = () => {
                                     >
                                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
                                             <Text strong>{item.code || 'ORD'}</Text>
-                                            {getStatusTag(item.status || 'draft')}
+                                            <Space>
+                                                {item.pdf_files && item.pdf_files.length > 0 && (
+                                                    <FilePdfOutlined 
+                                                        style={{ color: '#ff4d4f', cursor: 'pointer' }} 
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            window.open(getFileLink(item.pdf_files![0].file_path || item.pdf_files![0].file_id), '_blank');
+                                                        }} 
+                                                    />
+                                                )}
+                                                {getStatusTag(item.status || 'draft')}
+                                            </Space>
                                         </div>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                                             <Text type="secondary" style={{ fontSize: 12 }}>Nguồn:</Text>
@@ -374,4 +407,3 @@ const InventoryHistory: React.FC = () => {
 };
 
 export default InventoryHistory;
-
