@@ -1,6 +1,6 @@
 # THIẾT KẾ CHỨC NĂNG (FDD) - GIAO DIỆN THIẾT LẬP WORKFLOW JOURNEY MỞ RỘNG
 **Module:** PM (Project Manager)
-**Đường dẫn:** `/pm/journeys/templates` & `/pm/journeys/templates/:id`
+**Đường dẫn:** `/ql/journeys/templates` & `/ql/journeys/templates/:id`
 **Tác giả:** SIRA BA Team
 **Phiên bản:** v4.0
 
@@ -11,14 +11,14 @@ Tài liệu này mô tả chi tiết giao diện người dùng (UI) và tính n
 
 ## 2. DANH SÁCH TÍNH NĂNG (FEATURES LIST)
 
-### 2.1. Quản lý danh sách Template (`/pm/journeys/templates`)
+### 2.1. Quản lý danh sách Template (`/ql/journeys/templates`)
 - **Hiển thị danh sách:** Liệt kê các bộ khung Hành trình.
 - **Tính năng Hành trình Chuẩn (Set Active Standard):** 
   - Thêm một tuỳ chọn / Nút gạt (Toggle) đánh dấu 1 template là "Hành trình Chuẩn Đang Áp Dụng".
   - **Quy tắc:** Chỉ 1 Hành trình được Active tại 1 thời điểm. Tất cả ticket tạo mới sẽ áp dụng quy trình này (Ticket cũ giữ phiên bản hành trình lúc được tạo).
 - **Tạo mới / Sao chép Template:** Tái sử dụng form cũ để tăng tốc thiết lập.
 
-### 2.2. Màn hình Chi tiết Template (`/pm/journeys/templates/:id`)
+### 2.2. Màn hình Chi tiết Template (`/ql/journeys/templates/:id`)
 *Giao diện bên trái là Cây các Bước (Step List).*
 - **Actions cho từng Bước:**
   - Ở bản trước chưa có, nay bổ sung cặp nút Action (Hover): **Chỉnh sửa** (Edit Icon) và **Xóa** (Trash Icon).

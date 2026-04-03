@@ -170,8 +170,8 @@ function App() {
                                     </Route>
 
                                     {/* ===== PM ROUTES (V3) ===== */}
-                                    <Route path="/pm" element={<PMLayout />}>
-                                        <Route index element={<Navigate to="/pm/dashboard" replace />} />
+                                    <Route path="/ql" element={<PMLayout />}>
+                                        <Route index element={<Navigate to="/ql/dashboard" replace />} />
                                         <Route path="dashboard" element={<PMDashboard />} />
 
                                         {/* --- Journey Module (PM) --- */}
@@ -190,7 +190,7 @@ function App() {
 
                                         {/* --- CRM Module --- */}
                                         <Route path="crm">
-                                            <Route index element={<Navigate to="/pm/crm/service-requests" replace />} />
+                                            <Route index element={<Navigate to="/ql/crm/service-requests" replace />} />
                                             <Route path="customers" element={<CustomerList />} />
                                             <Route path="customers/new" element={<CustomerCreate />} />
                                             <Route path="customers/:id" element={<CustomerDetail />} />
@@ -207,7 +207,7 @@ function App() {
 
                                         {/* --- Construction Module (PM) --- */}
                                         <Route path="construction">
-                                            <Route index element={<Navigate to="/pm/construction/projects" replace />} />
+                                            <Route index element={<Navigate to="/ql/construction/projects" replace />} />
                                             <Route path="projects" element={<PMProjectList />} />
                                             <Route path="projects/create" element={<PMProjectCreate />} />
                                             <Route path="projects/:id/edit" element={<PMProjectCreate />} />

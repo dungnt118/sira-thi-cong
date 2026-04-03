@@ -28,14 +28,14 @@ const MapPickerMock: React.FC<{ value?: { lat: number, lng: number }, onChange: 
 const TeamManagement: React.FC = () => {
     const navigate = useNavigate();
     const [teams, setTeams] = useLocalStorageData<any[]>(demoDataService.KEYS.TEAMS_MASTER, []);
-    
+
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingTeam, setEditingTeam] = useState<any>(null);
     const [searchText, setSearchText] = useState('');
     const [form] = Form.useForm();
 
     const filteredTeams = useMemo(() => {
-        return teams.filter(t => 
+        return teams.filter(t =>
             (t.teamName || '').toLowerCase().includes(searchText.toLowerCase()) ||
             (t.contactName || '').toLowerCase().includes(searchText.toLowerCase())
         );
@@ -160,13 +160,13 @@ const TeamManagement: React.FC = () => {
                 />
             </Card>
 
-            <Table 
-                columns={teamColumns} 
-                dataSource={filteredTeams} 
-                rowKey="id" 
+            <Table
+                columns={teamColumns}
+                dataSource={filteredTeams}
+                rowKey="id"
                 pagination={{ pageSize: 10 }}
                 onRow={(record) => ({
-                    onClick: () => navigate(`/pm/teams/groups/${record.id}`),
+                    onClick: () => navigate(`/ql/teams/groups/${record.id}`),
                     style: { cursor: 'pointer' }
                 })}
             />
@@ -197,7 +197,7 @@ const TeamManagement: React.FC = () => {
                             </Form.Item>
                         </Col>
                     </Row>
-                    
+
                     <Row gutter={16}>
                         <Col span={12}>
                             <Form.Item name="specializations" label="Chuyên môn">

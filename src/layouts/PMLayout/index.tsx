@@ -35,58 +35,58 @@ type MenuItem = Required<MenuProps>['items'][number];
 
 const menuItems: MenuItem[] = [
     {
-        key: '/pm/dashboard',
+        key: '/ql/dashboard',
         icon: <DashboardOutlined />,
         label: 'Tổng Quan',
     },
     {
-        key: '/pm/journeys',
+        key: '/ql/journeys',
         icon: <NodeIndexOutlined />,
         label: 'Hành trình Khách hàng',
         children: [
-            { key: '/pm/journeys/action-center', label: 'Action Center', icon: <ThunderboltOutlined /> },
-            { key: '/pm/journeys', label: 'Danh sách yêu cầu', icon: <UnorderedListOutlined /> },
-            { key: '/pm/journeys/board', label: 'Board / Kanban', icon: <AppstoreOutlined /> },
-            { key: '/pm/crm/customers', label: 'Danh sách Khách hàng', icon: <TeamOutlined /> },
-            { key: '/pm/crm/customers/new', label: 'Thêm Khách hàng mới', icon: <UserAddOutlined /> },
-            { key: '/pm/settings/customer-journey', label: 'Cấu hình CustomerJourney', icon: <SettingOutlined /> },
+            { key: '/ql/journeys/action-center', label: 'Trung tâm xử lý', icon: <ThunderboltOutlined /> },
+            { key: '/ql/journeys', label: 'Danh sách yêu cầu', icon: <UnorderedListOutlined /> },
+            { key: '/ql/journeys/board', label: 'Board / Kanban', icon: <AppstoreOutlined /> },
+            { key: '/ql/crm/customers', label: 'Danh sách Khách hàng', icon: <TeamOutlined /> },
+            { key: '/ql/crm/customers/new', label: 'Thêm Khách hàng mới', icon: <UserAddOutlined /> },
+            { key: '/ql/settings/customer-journey', label: 'Cấu hình CustomerJourney', icon: <SettingOutlined /> },
         ],
     },
     // Nhóm tính năng Thi công (Projects/Checklist cũ) đã gộp vào Journey
     {
-        key: '/pm/inventory',
+        key: '/ql/inventory',
         icon: <InboxOutlined />,
         label: 'Kho Vật tư',
         children: [
-            { key: '/pm/inventory/catalog', label: 'Danh mục Vật tư', icon: <InboxOutlined /> },
-            { key: '/pm/settings/estimate-templates', label: 'Mẫu định mức Chuẩn', icon: <LayoutOutlined /> },
-            // { key: '/pm/inventory/plan', label: '📐 Định mức Dự án' },
-            { key: '/pm/inventory/stock-out', label: 'Tạo phiếu xuất', icon: <ExportOutlined /> },
-            { key: '/pm/assets/allocation', label: 'Tạo phiếu mượn', icon: <ExportOutlined /> },
-            { key: '/pm/inventory/history', label: 'Lịch sử xuất/nhập', icon: <HistoryOutlined /> },
+            { key: '/ql/inventory/catalog', label: 'Danh mục Vật tư', icon: <InboxOutlined /> },
+            { key: '/ql/settings/estimate-templates', label: 'Mẫu định mức Chuẩn', icon: <LayoutOutlined /> },
+            // { key: '/ql/inventory/plan', label: '📐 Định mức Dự án' },
+            { key: '/ql/inventory/stock-out', label: 'Tạo phiếu xuất', icon: <ExportOutlined /> },
+            { key: '/ql/assets/allocation', label: 'Tạo phiếu mượn', icon: <ExportOutlined /> },
+            { key: '/ql/inventory/history', label: 'Lịch sử xuất/nhập', icon: <HistoryOutlined /> },
         ],
     },
     {
-        key: '/pm/finance',
+        key: '/ql/finance',
         icon: <DollarOutlined />,
         label: 'Tài chính',
         children: [
-            { key: '/pm/finance/projects', label: 'Tài chính Dự án' },
-            { key: '/pm/financials/milestones', label: 'Mốc Thanh toán' },
+            { key: '/ql/finance/projects', label: 'Tài chính Dự án' },
+            { key: '/ql/financials/milestones', label: 'Mốc Thanh toán' },
         ],
     },
     {
-        key: '/pm/teams',
+        key: '/ql/teams',
         icon: <TeamOutlined />,
         label: 'Quản lý Đội/Thợ',
         children: [
-            { key: '/pm/teams/workers', label: 'Quản lý Thợ', icon: <TeamOutlined /> },
-            { key: '/pm/teams/groups', label: 'Quản lý Đội thợ', icon: <TeamOutlined /> },
-            { key: '/pm/teams/prices', label: 'Bảng giá thợ', icon: <DollarOutlined /> },
+            { key: '/ql/teams/workers', label: 'Quản lý Thợ', icon: <TeamOutlined /> },
+            { key: '/ql/teams/groups', label: 'Quản lý Đội thợ', icon: <TeamOutlined /> },
+            { key: '/ql/teams/prices', label: 'Bảng giá thợ', icon: <DollarOutlined /> },
         ],
     },
     {
-        key: '/pm/reports',
+        key: '/ql/reports',
         icon: <BarChartOutlined />,
         label: LABELS.PM.REPORTS,
     },
@@ -119,7 +119,7 @@ const PMSidebar: React.FC = () => {
                 theme="dark"
                 mode="inline"
                 selectedKeys={[location.pathname]}
-                defaultOpenKeys={['/pm/projects', '/pm/contracts', '/pm/teams', '/pm/financials']}
+                defaultOpenKeys={['/ql/projects', '/ql/contracts', '/ql/teams', '/ql/financials']}
                 items={menuItems}
                 onClick={handleMenuClick}
             />

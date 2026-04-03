@@ -82,7 +82,7 @@ const MaterialPlanList: React.FC = () => {
                 <Card
                     key={p.id}
                     hoverable
-                    onClick={() => navigate(`/pm/construction/projects/${p.id}/materials`)}
+                    onClick={() => navigate(`/ql/construction/projects/${p.id}/materials`)}
                     style={{
                         marginBottom: 12,
                         borderLeft: `4px solid ${p.hasShortage ? '#ff4d4f' : '#52c41a'}`,

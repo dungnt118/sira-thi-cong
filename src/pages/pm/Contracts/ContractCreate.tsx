@@ -53,7 +53,7 @@ const ContractCreate: React.FC = () => {
 
     const handleFinish = () => {
         message.success('Hợp đồng đã được tạo thành công!');
-        navigate('/pm/contracts/all');
+        navigate('/ql/contracts/all');
     };
 
     const handleSaveDraft = () => {

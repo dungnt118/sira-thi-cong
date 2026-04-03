@@ -46,7 +46,7 @@ const PMProjectList: React.FC = () => {
             okType: 'danger',
             cancelText: 'Quay lại',
             onOk: () => {
-                const updated = mockProjects.map(proj => 
+                const updated = mockProjects.map(proj =>
                     proj.id === p.id ? { ...proj, status: 'CANCELLED' as ProjectStatus } : proj
                 );
                 setMockProjects(updated);
@@ -106,8 +106,8 @@ const PMProjectList: React.FC = () => {
     };
 
     const handleMenuClick = (key: string, p: Project) => {
-        if (key === 'view') navigate(`/pm/construction/projects/${p.id}`);
-        else if (key === 'edit') navigate(`/pm/construction/projects/${p.id}/edit`);
+        if (key === 'view') navigate(`/ql/construction/projects/${p.id}`);
+        else if (key === 'edit') navigate(`/ql/construction/projects/${p.id}/edit`);
         else if (key === 'portal') handleOpenPortal(p);
         else if (key === 'cancel-delete') {
             if (p.status === 'SCHEDULED') handleDeleteProject(p);
@@ -116,26 +116,26 @@ const PMProjectList: React.FC = () => {
     };
 
     const getRowActions = (p: Project): MenuProps['items'] => [
-        { 
-            key: 'view', 
-            icon: <EyeOutlined />, 
-            label: 'Xem chi tiết', 
+        {
+            key: 'view',
+            icon: <EyeOutlined />,
+            label: 'Xem chi tiết',
         },
-        { 
-            key: 'edit', 
-            icon: <EditOutlined />, 
-            label: 'Chỉnh sửa', 
+        {
+            key: 'edit',
+            icon: <EditOutlined />,
+            label: 'Chỉnh sửa',
         },
-        { 
-            key: 'portal', 
-            icon: <LinkOutlined />, 
-            label: 'Portal KH', 
+        {
+            key: 'portal',
+            icon: <LinkOutlined />,
+            label: 'Portal KH',
         },
         { type: 'divider' },
-        { 
-            key: 'cancel-delete', 
-            icon: <StopOutlined />, 
-            label: p.status === 'SCHEDULED' ? 'Xóa dự án' : 'Hủy dự án', 
+        {
+            key: 'cancel-delete',
+            icon: <StopOutlined />,
+            label: p.status === 'SCHEDULED' ? 'Xóa dự án' : 'Hủy dự án',
             danger: true,
             disabled: p.status === 'CANCELLED' || p.status === 'COMPLETED',
         },
@@ -147,7 +147,7 @@ const PMProjectList: React.FC = () => {
             key: 'project',
             render: (_, p) => (
                 <div>
-                    <a onClick={() => navigate(`/pm/construction/projects/${p.id}`)} style={{ fontWeight: 600 }}>
+                    <a onClick={() => navigate(`/ql/construction/projects/${p.id}`)} style={{ fontWeight: 600 }}>
                         {p.code}
                     </a>
                     <div style={{ fontSize: 12, color: '#666' }}>{p.name}</div>
@@ -234,12 +234,12 @@ const PMProjectList: React.FC = () => {
             key: 'actions',
             width: 48,
             render: (_, p) => (
-                <Dropdown 
-                    menu={{ 
+                <Dropdown
+                    menu={{
                         items: getRowActions(p),
                         onClick: ({ key }) => handleMenuClick(key, p)
-                    }} 
-                    placement="bottomRight" 
+                    }}
+                    placement="bottomRight"
                     trigger={['click']}
                 >
                     <Button type="text" icon={<MoreOutlined />} />
@@ -255,7 +255,7 @@ const PMProjectList: React.FC = () => {
                     <Title level={4} style={{ margin: 0 }}>Danh sách Dự án Thi công</Title>
                     <Text type="secondary">PM: Nguyễn Văn PM – {mockProjects.length} dự án</Text>
                 </div>
-                <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/pm/construction/projects/create')}>
+                <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/ql/construction/projects/create')}>
                     Tạo Dự án
                 </Button>
             </div>

@@ -13,10 +13,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 import dayjs from 'dayjs';
 import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
 import { demoDataService } from '../../../services/core-graphql/localstorage/demoDataService';
-import { 
-    mockServiceRequests as defaultServiceRequests, 
-    mockCustomers as defaultCustomers, 
-    mockStandards as defaultStandards 
+import {
+    mockServiceRequests as defaultServiceRequests,
+    mockCustomers as defaultCustomers,
+    mockStandards as defaultStandards
 } from '../../../data/mockData';
 import type { QuotationItem, ServiceRequest, Customer, MaterialStandard } from '../../../types/v3';
 
@@ -42,7 +42,7 @@ interface TableRow extends QuotationItem { _isNew?: boolean; }
 const Quotation: React.FC = () => {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
-    
+
     const [mockCustomers] = useLocalStorageData<Customer[]>(demoDataService.KEYS.CUSTOMERS, defaultCustomers);
     const [mockStandards] = useLocalStorageData<MaterialStandard[]>(demoDataService.KEYS.STANDARDS, defaultStandards);
     const [mockServiceRequests, setMockServiceRequests] = useLocalStorageData<ServiceRequest[]>(demoDataService.KEYS.SERVICE_REQUESTS, defaultServiceRequests);
@@ -167,7 +167,7 @@ const Quotation: React.FC = () => {
     const handleSave = async (approve = false) => {
         if (!serviceRequest) return;
         setSaving(true);
-        
+
         const newQuotation = {
             id: existingQuote?.id || `q-${Date.now()}`,
             code: existingQuote?.code || `BG-${dayjs().format('YYYYMMDD')}-${Math.floor(100 + Math.random() * 899)}`,
@@ -188,23 +188,23 @@ const Quotation: React.FC = () => {
 
         const updatedRequests = mockServiceRequests.map(sr => {
             if (sr.id !== id) return sr;
-            
+
             // Replace or add quotation
             const existingQuotes = sr.quotations || [];
             const otherQuotes = existingQuotes.filter(q => q.id !== newQuotation.id);
-            
-            return { 
-                ...sr, 
+
+            return {
+                ...sr,
                 quotations: [...otherQuotes, newQuotation as any],
-                status: approve ? 'WON' : sr.status 
+                status: approve ? 'WON' : sr.status
             };
         });
 
         setMockServiceRequests(updatedRequests);
-        
+
         await new Promise(r => setTimeout(r, 600));
         setSaving(false);
-        
+
         if (approve) {
             setMilestoneModalOpen(true);
         } else {
@@ -217,7 +217,7 @@ const Quotation: React.FC = () => {
     return (
         <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
-                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(`/pm/crm/service-requests/${id}`)}>Quay lại</Button>
+                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(`/ql/crm/service-requests/${id}`)}>Quay lại</Button>
                 <div>
                     <Title level={4} style={{ margin: 0 }}><DollarCircleOutlined /> Lập Báo giá: {serviceRequest.name}</Title>
                     <Text type="secondary">KH: {customer.fullName} | Mã BG: BG-2026-{String(Date.now()).slice(-4)}</Text>
@@ -350,7 +350,7 @@ const Quotation: React.FC = () => {
                         onClick={() => {
                             setMilestoneModalOpen(false);
                             message.success('Đã tạo 3 đợt thanh toán tự động!');
-                            navigate(`/pm/crm/service-requests/${id}`);
+                            navigate(`/ql/crm/service-requests/${id}`);
                         }}
                     >
                         Xác nhận tạo Milestone

@@ -41,13 +41,13 @@ export const Breadcrumbs: React.FC = () => {
         '/gs/reports': LABELS.SUPERVISOR.REPORTS,
 
         // PM routes
-        '/pm': LABELS.PM.DASHBOARD,
-        '/pm/dashboard': LABELS.PM.DASHBOARD,
-        '/pm/projects': LABELS.PM.PROJECTS,
-        '/pm/teams': LABELS.PM.TEAMS,
-        '/pm/customers': LABELS.PM.CUSTOMERS,
-        '/pm/financials': LABELS.PM.FINANCIALS,
-        '/pm/reports': LABELS.PM.REPORTS,
+        '/ql': LABELS.PM.DASHBOARD,
+        '/ql/dashboard': LABELS.PM.DASHBOARD,
+        '/ql/projects': LABELS.PM.PROJECTS,
+        '/ql/teams': LABELS.PM.TEAMS,
+        '/ql/customers': LABELS.PM.CUSTOMERS,
+        '/ql/financials': LABELS.PM.FINANCIALS,
+        '/ql/reports': LABELS.PM.REPORTS,
 
         // Accountant routes
         '/kt': LABELS.ACCOUNTANT.DASHBOARD,

@@ -10,10 +10,10 @@ import {
 import { useNavigate, useParams } from 'react-router-dom';
 import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
 import { demoDataService } from '../../../services/core-graphql/localstorage/demoDataService';
-import { 
-    mockProjects as defaultProjects, 
-    mockMaterials as defaultMaterials, 
-    mockStandards as defaultStandards 
+import {
+    mockProjects as defaultProjects,
+    mockMaterials as defaultMaterials,
+    mockStandards as defaultStandards
 } from '../../../data/mockData';
 import type { Material, MaterialStandard } from '../../../types/v3';
 import type { Project } from '../../../types/legacy-project';
@@ -84,7 +84,7 @@ const ProjectFinance: React.FC = () => {
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
                 <Button icon={<ArrowLeftOutlined />}
-                    onClick={() => navigate(`/pm/construction/projects/${project.id}`)}>
+                    onClick={() => navigate(`/ql/construction/projects/${project.id}`)}>
                     Chi tiết dự án
                 </Button>
                 <div style={{ flex: 1 }}>

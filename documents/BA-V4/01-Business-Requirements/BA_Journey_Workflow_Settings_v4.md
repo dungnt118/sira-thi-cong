@@ -2,7 +2,7 @@
 **Phiên bản:** v4.0
 
 ## 1. TỔNG QUAN XÂY DỰNG WORKFLOW
-Trọng tâm của hệ thống SIRA là tính năng "Thiết lập Hành trình Khách hàng" (Customer Journey Templates) thuộc phân hệ Quản lý PM (`/pm/journeys/templates`).
+Trọng tâm của hệ thống SIRA là tính năng "Thiết lập Hành trình Khách hàng" (Customer Journey Templates) thuộc phân hệ Quản lý PM (`/ql/journeys/templates`).
 Mọi trạng thái, quy trình xuyên suốt của một yêu cầu dịch vụ (ticket) đều phải tham chiếu động vào dữ liệu đã được cấu hình từ phân hệ này. 
 
 **Nguyên lý cốt lõi:**
@@ -91,7 +91,7 @@ Bảng ma trận xác định trạng thái UI của Shared Components (theo 14 
 ---
 
 ## 5. IMPACTS TO PM JOURNEY TEMPLATE UI (Yêu cầu Cập nhật Giao diện)
-Dựa theo Business Rule mới, phân hệ `/pm/journeys/templates` cần cập nhật:
+Dựa theo Business Rule mới, phân hệ `/ql/journeys/templates` cần cập nhật:
 
 1. **Màn hình Danh sách Bước (Step List View):**
    - Bổ sung nút **[Chỉnh Sửa]**, **[Xóa]** cho mỗi bước đã tạo (Cần cảnh báo nếu đã có template đang active).

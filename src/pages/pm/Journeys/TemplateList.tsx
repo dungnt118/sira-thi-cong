@@ -46,7 +46,7 @@ const TemplateList: React.FC = () => {
                 <div>
                     <Space>
                         <Text strong style={{ color: '#1976D2', cursor: 'pointer' }}
-                            onClick={() => navigate(`/pm/journeys/templates/${t.id}`)}>
+                            onClick={() => navigate(`/ql/journeys/templates/${t.id}`)}>
                             {t.template_name}
                         </Text>
                         {t.is_default && <Tooltip title="Mặc định"><StarFilled style={{ color: '#fa8c16' }} /></Tooltip>}
@@ -95,7 +95,7 @@ const TemplateList: React.FC = () => {
             fixed: 'right',
             render: (_, t) => (
                 <Space size={4}>
-                    <Button size="small" icon={<EyeOutlined />} onClick={() => navigate(`/pm/journeys/templates/${t.id}`)} />
+                    <Button size="small" icon={<EyeOutlined />} onClick={() => navigate(`/ql/journeys/templates/${t.id}`)} />
                     <Button
                         size="small"
                         icon={<CopyOutlined />}
@@ -111,11 +111,11 @@ const TemplateList: React.FC = () => {
 
     return (
         <div>
-            <div style={{ 
-                display: 'flex', 
+            <div style={{
+                display: 'flex',
                 flexDirection: isMobile ? 'column' : 'row',
-                justifyContent: 'space-between', 
-                alignItems: isMobile ? 'flex-start' : 'center', 
+                justifyContent: 'space-between',
+                alignItems: isMobile ? 'flex-start' : 'center',
                 marginBottom: isMobile ? 16 : 24,
                 gap: 12
             }}>
@@ -123,9 +123,9 @@ const TemplateList: React.FC = () => {
                     <h2 style={{ margin: 0, fontSize: isMobile ? 20 : 24 }}>Template Hành trình</h2>
                     <Text type="secondary">Quản lý các template quy trình dịch vụ</Text>
                 </div>
-                <Button 
-                    type="primary" 
-                    icon={<PlusOutlined />} 
+                <Button
+                    type="primary"
+                    icon={<PlusOutlined />}
                     onClick={() => setShowCreateModal(true)}
                     block={isMobile}
                 >
@@ -173,24 +173,24 @@ const TemplateList: React.FC = () => {
                 cancelText="Hủy"
             >
                 <Form form={createForm} layout="vertical"
-                    onFinish={(values) => { 
-                    const newId = `TPL-NEW-${Date.now()}`;
-                    const newTpl: JourneyTemplate = {
-                        id: newId,
-                        ...values,
-                        status: 'active',
-                        updated_at: new Date().toISOString(),
-                        created_at: new Date().toISOString(),
-                        steps: [],
-                    };
-                    setMockJourneyTemplates([...mockJourneyTemplates, newTpl]);
-                    setShowCreateModal(false); 
-                    createForm.resetFields();
-                    message.success('Đã tạo template mới. Đang chuyển đến trang thiết kế bước...');
-                    setTimeout(() => {
-                        navigate(`/pm/journeys/templates/${newId}`);
-                    }, 800);
-                }}>
+                    onFinish={(values) => {
+                        const newId = `TPL-NEW-${Date.now()}`;
+                        const newTpl: JourneyTemplate = {
+                            id: newId,
+                            ...values,
+                            status: 'active',
+                            updated_at: new Date().toISOString(),
+                            created_at: new Date().toISOString(),
+                            steps: [],
+                        };
+                        setMockJourneyTemplates([...mockJourneyTemplates, newTpl]);
+                        setShowCreateModal(false);
+                        createForm.resetFields();
+                        message.success('Đã tạo template mới. Đang chuyển đến trang thiết kế bước...');
+                        setTimeout(() => {
+                            navigate(`/ql/journeys/templates/${newId}`);
+                        }, 800);
+                    }}>
                     <Form.Item label="Mã template" name="template_code" rules={[{ required: true }]}>
                         <Input placeholder="VD: TMPL-CT-004" />
                     </Form.Item>
@@ -232,27 +232,27 @@ const TemplateList: React.FC = () => {
                 cancelText="Hủy"
             >
                 <Form form={cloneForm} layout="vertical"
-                    onFinish={(values) => { 
-                    if (!_cloneTarget) return;
-                    const newId = `TPL-CLONE-${Date.now()}`;
-                    const newTpl: JourneyTemplate = {
-                        ..._cloneTarget,
-                        id: newId,
-                        template_code: values.new_template_code,
-                        template_name: values.new_template_name,
-                        status: 'draft',
-                        updated_at: new Date().toISOString(),
-                        created_at: new Date().toISOString(),
-                        is_default: false,
-                    };
-                    setMockJourneyTemplates([...mockJourneyTemplates, newTpl]);
-                    setShowCloneModal(false); 
-                    cloneForm.resetFields(); 
-                    message.success('Đã clone template thành công');
-                    setTimeout(() => {
-                        navigate(`/pm/journeys/templates/${newId}`);
-                    }, 800);
-                }}>
+                    onFinish={(values) => {
+                        if (!_cloneTarget) return;
+                        const newId = `TPL-CLONE-${Date.now()}`;
+                        const newTpl: JourneyTemplate = {
+                            ..._cloneTarget,
+                            id: newId,
+                            template_code: values.new_template_code,
+                            template_name: values.new_template_name,
+                            status: 'draft',
+                            updated_at: new Date().toISOString(),
+                            created_at: new Date().toISOString(),
+                            is_default: false,
+                        };
+                        setMockJourneyTemplates([...mockJourneyTemplates, newTpl]);
+                        setShowCloneModal(false);
+                        cloneForm.resetFields();
+                        message.success('Đã clone template thành công');
+                        setTimeout(() => {
+                            navigate(`/ql/journeys/templates/${newId}`);
+                        }, 800);
+                    }}>
                     <Form.Item label="Template nguồn" name="source_template">
                         <Input disabled />
                     </Form.Item>

@@ -100,7 +100,7 @@ const ProjectFinanceList: React.FC = () => {
                 <Card
                     key={p.id}
                     hoverable
-                    onClick={() => navigate(`/pm/construction/projects/${p.id}/finance`)}
+                    onClick={() => navigate(`/ql/construction/projects/${p.id}/finance`)}
                     style={{
                         marginBottom: 12,
                         borderLeft: `4px solid ${p.overdue > 0 ? '#ff4d4f' : p.pct === 100 ? '#52c41a' : '#1976D2'}`,

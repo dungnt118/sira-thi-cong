@@ -100,7 +100,7 @@ const ProjectCreate: React.FC = () => {
             const values = await form.validateFields();
             setSaving(true);
             const hide = message.loading('Đang khởi tạo dự án thi công...', 0);
-            
+
             // Artificial delay
             await new Promise(r => setTimeout(r, 800));
 
@@ -138,7 +138,7 @@ const ProjectCreate: React.FC = () => {
             } else {
                 const projectId = `DA-2026-${String(Date.now()).slice(-3)}`;
                 const journeyId = projectId; // Keep IDs synced for simplicity in mock
-                
+
                 const newProject: Project = {
                     id: projectId,
                     code: projectId,
@@ -234,10 +234,10 @@ const ProjectCreate: React.FC = () => {
 
             setSaving(false);
             hide();
-            
+
             // Navigate after 1s to allow user to see success message
             setTimeout(() => {
-                navigate('/pm/construction/projects');
+                navigate('/ql/construction/projects');
             }, 1000);
 
         } catch (err) {
@@ -253,8 +253,8 @@ const ProjectCreate: React.FC = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
                 <Button icon={<ArrowLeftOutlined />}
                     onClick={() => customer
-                        ? navigate(`/pm/crm/customers/${customer.id}`)
-                        : navigate('/pm/construction/projects')}>
+                        ? navigate(`/ql/crm/customers/${customer.id}`)
+                        : navigate('/ql/construction/projects')}>
                     Quay lại
                 </Button>
                 <div>
@@ -470,7 +470,7 @@ const ProjectCreate: React.FC = () => {
                 <Divider />
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
                     <Button size="large" onClick={() => navigate(-1)}>Hủy</Button>
-                     <Button
+                    <Button
                         type="primary"
                         size="large"
                         icon={isEdit ? <SaveOutlined /> : <CheckCircleOutlined />}

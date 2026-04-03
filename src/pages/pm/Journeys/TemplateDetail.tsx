@@ -33,7 +33,7 @@ const TemplateDetail: React.FC = () => {
     if (!template) {
         return (
             <div style={{ padding: 40 }}>
-                <Button onClick={() => navigate('/pm/journeys/templates')}>Quay lại</Button>
+                <Button onClick={() => navigate('/ql/journeys/templates')}>Quay lại</Button>
                 <div style={{ marginTop: 16 }}>Không tìm thấy template</div>
             </div>
         );
@@ -56,7 +56,7 @@ const TemplateDetail: React.FC = () => {
     };
     const handleSaveTemplate = () => {
         if (!template) return;
-        const updatedTemplates = mockJourneyTemplates.map(t => 
+        const updatedTemplates = mockJourneyTemplates.map(t =>
             t.id === templateId ? { ...t, steps, updated_at: new Date().toISOString() } : t
         );
         setMockJourneyTemplates(updatedTemplates);
@@ -75,7 +75,7 @@ const TemplateDetail: React.FC = () => {
     return (
         <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                <Button icon={<ArrowLeftOutlined />} type="text" onClick={() => navigate('/pm/journeys/templates')}>
+                <Button icon={<ArrowLeftOutlined />} type="text" onClick={() => navigate('/ql/journeys/templates')}>
                     Danh sách Template
                 </Button>
                 <Space>
@@ -137,8 +137,8 @@ const TemplateDetail: React.FC = () => {
                                     actions={[
                                         <Space key="actions" size={4}>
                                             <Button size="small" icon={<EditOutlined />} onClick={(e) => { e.stopPropagation(); openEditStep(step); }} />
-                                            <Button size="small" danger type="text" icon={<DeleteOutlined />} onClick={(e) => { 
-                                                e.stopPropagation(); 
+                                            <Button size="small" danger type="text" icon={<DeleteOutlined />} onClick={(e) => {
+                                                e.stopPropagation();
                                                 setSteps(prev => prev.filter(s => s.step_code !== step.step_code));
                                                 if (selectedStep?.step_code === step.step_code) setSelectedStep(null);
                                             }} />
@@ -278,12 +278,14 @@ const TemplateDetail: React.FC = () => {
                     <Form.Item
                         label="Gõ 'RESET' để xác nhận"
                         name="confirm_text"
-                        rules={[{ required: true, message: 'Vui lòng gõ RESET', validator: async (_, value) => {
-                            if (value !== 'RESET') {
-                                return Promise.reject(new Error('Vui lòng gõ đúng chữ RESET viết hoa'));
+                        rules={[{
+                            required: true, message: 'Vui lòng gõ RESET', validator: async (_, value) => {
+                                if (value !== 'RESET') {
+                                    return Promise.reject(new Error('Vui lòng gõ đúng chữ RESET viết hoa'));
+                                }
+                                return Promise.resolve();
                             }
-                            return Promise.resolve();
-                        }}]}
+                        }]}
                     >
                         <Input placeholder="RESET" />
                     </Form.Item>

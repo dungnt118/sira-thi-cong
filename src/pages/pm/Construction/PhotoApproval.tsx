@@ -70,20 +70,20 @@ const PhotoApproval: React.FC = () => {
         if (!project) return;
         const updatedSteps = project.steps.map(s => {
             if (s.id !== stepId) return s;
-            const updatedEvidences = s.evidences.map(ev => 
+            const updatedEvidences = s.evidences.map(ev =>
                 ev.id === evidenceId ? { ...ev, status: 'APPROVED' as const } : ev
             );
-            
+
             // Auto-approve step if all evidences are approved
             const allApproved = updatedEvidences.every(ev => ev.status === 'APPROVED');
-            return { 
-                ...s, 
-                evidences: updatedEvidences, 
-                status: allApproved ? 'APPROVED' as StepStatus : s.status 
+            return {
+                ...s,
+                evidences: updatedEvidences,
+                status: allApproved ? 'APPROVED' as StepStatus : s.status
             };
         });
 
-        const updatedProjects = mockProjects.map(p => 
+        const updatedProjects = mockProjects.map(p =>
             p.id === id ? { ...p, steps: updatedSteps } : p
         );
         setMockProjects(updatedProjects);
@@ -97,7 +97,7 @@ const PhotoApproval: React.FC = () => {
             return { ...s, evidences: updatedEvidences, status: 'APPROVED' as StepStatus };
         });
 
-        const updatedProjects = mockProjects.map(p => 
+        const updatedProjects = mockProjects.map(p =>
             p.id === id ? { ...p, steps: updatedSteps } : p
         );
         setMockProjects(updatedProjects);
@@ -113,7 +113,7 @@ const PhotoApproval: React.FC = () => {
     const confirmReject = () => {
         const reason = rejectReason === 'Khác' ? customReason : rejectReason;
         if (!rejectTarget || !reason || !project) return;
-        
+
         const updatedSteps = project.steps.map(s => {
             if (s.id !== rejectTarget.stepId) return s;
             const updatedEvidences = s.evidences.map(ev => {
@@ -125,7 +125,7 @@ const PhotoApproval: React.FC = () => {
             return { ...s, evidences: updatedEvidences, status: 'REJECTED' as StepStatus, pmFeedback: reason };
         });
 
-        const updatedProjects = mockProjects.map(p => 
+        const updatedProjects = mockProjects.map(p =>
             p.id === id ? { ...p, steps: updatedSteps } : p
         );
         setMockProjects(updatedProjects);
@@ -314,7 +314,7 @@ const PhotoApproval: React.FC = () => {
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
                 <Button icon={<ArrowLeftOutlined />}
-                    onClick={() => navigate(`/pm/construction/projects/${project.id}`)}>
+                    onClick={() => navigate(`/ql/construction/projects/${project.id}`)}>
                     Chi tiết dự án
                 </Button>
                 <div style={{ flex: 1 }}>
@@ -333,7 +333,7 @@ const PhotoApproval: React.FC = () => {
                                 status: 'APPROVED' as StepStatus,
                                 evidences: s.evidences.map(ev => ({ ...ev, status: 'APPROVED' as const }))
                             }));
-                            const updatedProjects = mockProjects.map(p => 
+                            const updatedProjects = mockProjects.map(p =>
                                 p.id === id ? { ...p, steps: updatedSteps } : p
                             );
                             setMockProjects(updatedProjects);

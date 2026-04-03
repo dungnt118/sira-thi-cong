@@ -34,7 +34,7 @@ const PMProjectDetail: React.FC = () => {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
     const [mockProjects, setMockProjects] = useLocalStorageData<Project[]>(demoDataService.KEYS.PROJECTS, defaultProjects);
-    
+
     const project = mockProjects.find(p => p.id === id);
 
     const [rejectModalOpen, setRejectModalOpen] = useState(false);
@@ -58,7 +58,7 @@ const PMProjectDetail: React.FC = () => {
             onOk: () => {
                 if (!project) return;
                 const nextStepIndex = project.steps.findIndex(s => s.id === stepId) + 1;
-                
+
                 const updatedSteps = project.steps.map((s, idx) => {
                     if (s.id === stepId) {
                         return { ...s, status: 'APPROVED' as StepStatus };
@@ -69,7 +69,7 @@ const PMProjectDetail: React.FC = () => {
                     return s;
                 });
 
-                const updatedProjects = mockProjects.map(p => 
+                const updatedProjects = mockProjects.map(p =>
                     p.id === project.id ? { ...p, steps: updatedSteps } : p
                 );
                 setMockProjects(updatedProjects);
@@ -85,15 +85,15 @@ const PMProjectDetail: React.FC = () => {
 
     const confirmReject = () => {
         if (!project || !rejectStepId) return;
-        
-        const updatedSteps = project.steps.map(s => 
+
+        const updatedSteps = project.steps.map(s =>
             s.id === rejectStepId ? { ...s, status: 'REJECTED' as StepStatus, pmFeedback: rejectReason } : s
         );
 
-        const updatedProjects = mockProjects.map(p => 
+        const updatedProjects = mockProjects.map(p =>
             p.id === project.id ? { ...p, steps: updatedSteps } : p
         );
-        
+
         setMockProjects(updatedProjects);
         setRejectModalOpen(false);
         setRejectStepId(null);
@@ -120,7 +120,7 @@ const PMProjectDetail: React.FC = () => {
                             style={{ marginBottom: 16 }}
                             action={
                                 <Button size="small" type="primary"
-                                    onClick={() => navigate(`/pm/construction/evidence/${project.id}`)}>
+                                    onClick={() => navigate(`/ql/construction/evidence/${project.id}`)}>
                                     Duyệt ngay
                                 </Button>
                             }
@@ -310,7 +310,7 @@ const PMProjectDetail: React.FC = () => {
         <div>
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
-                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/pm/construction/projects')}>Quay lại</Button>
+                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/ql/construction/projects')}>Quay lại</Button>
                 <div style={{ flex: 1 }}>
                     <Title level={4} style={{ margin: 0 }}>{project.code}</Title>
                     <Space>
@@ -319,11 +319,11 @@ const PMProjectDetail: React.FC = () => {
                     </Space>
                 </div>
                 <Space wrap>
-                    <Button icon={<EditOutlined />} onClick={() => navigate(`/pm/construction/projects/${project.id}/edit`)}>Chỉnh sửa</Button>
+                    <Button icon={<EditOutlined />} onClick={() => navigate(`/ql/construction/projects/${project.id}/edit`)}>Chỉnh sửa</Button>
                     <Button icon={<LinkOutlined />} onClick={() => setPortalDrawer(true)}>Portal KH</Button>
-                    <Button icon={<BoxPlotOutlined />} onClick={() => navigate(`/pm/construction/projects/${project.id}/materials`)}>Định mức</Button>
-                    <Button icon={<DollarOutlined />} onClick={() => navigate(`/pm/construction/projects/${project.id}/finance`)}>Tài chính</Button>
-                    <Button type="primary" icon={<EyeOutlined />} onClick={() => navigate(`/pm/construction/evidence/${project.id}`)}>
+                    <Button icon={<BoxPlotOutlined />} onClick={() => navigate(`/ql/construction/projects/${project.id}/materials`)}>Định mức</Button>
+                    <Button icon={<DollarOutlined />} onClick={() => navigate(`/ql/construction/projects/${project.id}/finance`)}>Tài chính</Button>
+                    <Button type="primary" icon={<EyeOutlined />} onClick={() => navigate(`/ql/construction/evidence/${project.id}`)}>
                         Duyệt ảnh
                     </Button>
                 </Space>

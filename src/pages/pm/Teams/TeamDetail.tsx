@@ -28,9 +28,9 @@ const TeamDetail: React.FC = () => {
     const [teams, setTeams] = useLocalStorageData<any[]>(demoDataService.KEYS.TEAMS_MASTER, []);
     const [workers, setWorkers] = useLocalStorageData<any[]>(demoDataService.KEYS.WORKERS_MASTER, []);
     const [priceConfigs] = useLocalStorageData<any[]>(demoDataService.KEYS.LABOR_PRICE_CONFIG, []);
-    
+
     const team = useMemo(() => teams.find(t => t.id === id), [teams, id]);
-    
+
     const [isEditing, setIsEditing] = useState(false);
     const [editForm] = Form.useForm();
     const [workerCreateModalOpen, setWorkerCreateModalOpen] = useState(false);
@@ -44,8 +44,8 @@ const TeamDetail: React.FC = () => {
 
     const handleSaveInfo = (values: any) => {
         const { mapLocation, ...rest } = values;
-        const updatedTeams = teams.map(t => t.id === id ? { 
-            ...t, 
+        const updatedTeams = teams.map(t => t.id === id ? {
+            ...t,
             ...rest,
             lat: mapLocation?.lat,
             lng: mapLocation?.lng
@@ -65,7 +65,7 @@ const TeamDetail: React.FC = () => {
             newMembers = [...currentMembers, workerId];
             message.success('Đã liên kết thợ mới');
         }
-        
+
         const updatedTeams = teams.map(t => t.id === id ? { ...t, memberIds: newMembers } : t);
         setTeams(updatedTeams);
     };
@@ -104,7 +104,7 @@ const TeamDetail: React.FC = () => {
     const handleDeleteTeam = () => {
         setTeams(teams.filter(t => t.id !== id));
         message.success('Đã xóa đội thợ');
-        navigate('/pm/teams/groups');
+        navigate('/ql/teams/groups');
     };
 
     const formatCurrency = (val: number) =>
@@ -123,12 +123,12 @@ const TeamDetail: React.FC = () => {
                         </Space>
                     ) : (
                         <Space>
-                            <Button icon={<EditOutlined />} onClick={() => { 
-                                setIsEditing(true); 
+                            <Button icon={<EditOutlined />} onClick={() => {
+                                setIsEditing(true);
                                 editForm.setFieldsValue({
                                     ...team,
                                     mapLocation: { lat: team.lat || 10.7769, lng: team.lng || 106.7009 }
-                                }); 
+                                });
                             }}>Chỉnh sửa</Button>
                             <Popconfirm title="Xóa đội thợ này?" onConfirm={handleDeleteTeam}>
                                 <Button danger icon={<DeleteOutlined />}>Xóa</Button>
@@ -234,10 +234,10 @@ const TeamDetail: React.FC = () => {
                                     />
                                     <Divider style={{ margin: '12px 0' }} />
                                     <div style={{ marginBottom: 12, fontWeight: 500 }}>Vị trí đội thợ:</div>
-                                    <MapPicker 
-                                        readOnly 
-                                        height={180} 
-                                        value={{ lat: team.lat || 10.7769, lng: team.lng || 106.7009 }} 
+                                    <MapPicker
+                                        readOnly
+                                        height={180}
+                                        value={{ lat: team.lat || 10.7769, lng: team.lng || 106.7009 }}
                                     />
                                 </Space>
                             </Card>
@@ -277,18 +277,18 @@ const TeamDetail: React.FC = () => {
                             title: 'Đánh giá', dataIndex: 'rating', key: 'rating',
                             render: (r: number) => <Rate disabled value={r} allowHalf style={{ fontSize: 12 }} />,
                         },
-                        { 
-                            title: 'Trình độ', 
-                            dataIndex: 'level', 
+                        {
+                            title: 'Trình độ',
+                            dataIndex: 'level',
                             key: 'level',
                             render: (l: string) => {
                                 const config = priceConfigs.find(c => c.level === l);
                                 return <Tag color="blue">{config?.name || l}</Tag>;
                             }
                         },
-                        { 
-                            title: 'Công (VND/h)', 
-                            dataIndex: 'costPerHour', 
+                        {
+                            title: 'Công (VND/h)',
+                            dataIndex: 'costPerHour',
                             key: 'costPerHour',
                             render: (c: number) => <Text strong color="red">{formatCurrency(c || 0)}/h</Text>
                         },
@@ -307,7 +307,7 @@ const TeamDetail: React.FC = () => {
                     ]}
                     pagination={false}
                     onRow={(record) => ({
-                        onClick: () => navigate(`/pm/teams/workers/${record.id}`),
+                        onClick: () => navigate(`/ql/teams/workers/${record.id}`),
                         style: { cursor: 'pointer' }
                     })}
                 />
@@ -320,7 +320,7 @@ const TeamDetail: React.FC = () => {
 
             <Row align="middle" justify="space-between" style={{ marginBottom: 24 }}>
                 <Space>
-                    <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/pm/teams/groups')}>
+                    <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/ql/teams/groups')}>
                         {!isMobile && 'Quay lại'}
                     </Button>
                     <Title level={2} style={{ margin: 0 }}>Hồ Sơ Đội Thợ</Title>
@@ -431,24 +431,24 @@ const TeamDetail: React.FC = () => {
                         </Col>
                     </Row>
                     <Form.Item name="address" label="Địa chỉ chi tiết"><Input prefix={<EnvironmentOutlined />} /></Form.Item>
-                    
+
                     <Divider orientation="left">Nghiệp vụ & Chi phí</Divider>
                     <Row gutter={16}>
                         <Col span={8}>
                             <Form.Item name="level" label="Cấp độ (Level)">
-                                <Select 
+                                <Select
                                     onChange={handleLevelChange}
-                                    options={priceConfigs.map(c => ({ label: c.name, value: c.level }))} 
+                                    options={priceConfigs.map(c => ({ label: c.name, value: c.level }))}
                                 />
                             </Form.Item>
                         </Col>
                         <Col span={8}>
                             <Form.Item name="costPerHour" label="Công theo giờ (VND/h)" rules={[{ required: true }]}>
-                                <InputNumber 
+                                <InputNumber
                                     style={{ width: '100%' }}
                                     formatter={(val: any) => `${val}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                                     parser={(val: any) => val!.replace(/\$\s?|(,*)/g, '') as any}
-                                    suffix="VND/h" 
+                                    suffix="VND/h"
                                 />
                             </Form.Item>
                         </Col>

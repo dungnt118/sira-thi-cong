@@ -75,7 +75,7 @@ const ActionCenter: React.FC = () => {
                 return (
                     <div>
                         <div style={{ fontWeight: 600, color: '#1976D2', cursor: 'pointer' }}
-                            onClick={() => navigate(`/pm/journeys/${a.journey_id}?tab=${tabKey}`)}>
+                            onClick={() => navigate(`/ql/journeys/${a.journey_id}?tab=${tabKey}`)}>
                             {a.journey_code}
                         </div>
                         <Text type="secondary" style={{ fontSize: 12 }}>{a.customer_name}</Text>
@@ -130,7 +130,7 @@ const ActionCenter: React.FC = () => {
             render: (_, a) => {
                 const tabKey = a.source_tab === 'Khảo sát' ? 'survey' : a.source_tab === 'Portal/Chat' ? 'portal' : 'request';
                 return (
-                    <Button size="small" type="primary" ghost onClick={() => navigate(`/pm/journeys/${a.journey_id}?tab=${tabKey}`)}>
+                    <Button size="small" type="primary" ghost onClick={() => navigate(`/ql/journeys/${a.journey_id}?tab=${tabKey}`)}>
                         Xử lý
                     </Button>
                 );
@@ -202,8 +202,8 @@ const ActionCenter: React.FC = () => {
                     rowKey="id"
                     size={isMobile ? 'small' : 'middle'}
                     scroll={{ x: 'max-content' }}
-                    pagination={{ 
-                        pageSize: 10, 
+                    pagination={{
+                        pageSize: 10,
                         showTotal: (t) => isMobile ? `${t} việc` : `${t} việc cần xử lý`,
                         size: isMobile ? 'small' : 'default'
                     }}

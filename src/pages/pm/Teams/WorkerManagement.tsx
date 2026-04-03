@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import {
     Table, Card, Button, Input, Space, Tag, Avatar, Modal, Form, Select,
-    DatePicker, InputNumber, Row, Col, Typography, message, 
+    DatePicker, InputNumber, Row, Col, Typography, message,
     Divider, Upload, Rate, Switch, Empty
 } from 'antd';
 import {
@@ -23,14 +23,14 @@ const WorkerManagement: React.FC = () => {
     const navigate = useNavigate();
     const [workers, setWorkers] = useLocalStorageData<any[]>(demoDataService.KEYS.WORKERS_MASTER, []);
     const [priceConfig] = useLocalStorageData<any[]>(demoDataService.KEYS.LABOR_PRICE_CONFIG, []);
-    
+
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingWorker, setEditingWorker] = useState<any>(null);
     const [searchText, setSearchText] = useState('');
     const [form] = Form.useForm();
 
     const filteredWorkers = useMemo(() => {
-        return workers.filter(w => 
+        return workers.filter(w =>
             w.name.toLowerCase().includes(searchText.toLowerCase()) ||
             w.position.toLowerCase().includes(searchText.toLowerCase())
         );
@@ -169,7 +169,7 @@ const WorkerManagement: React.FC = () => {
                     rowKey="id"
                     locale={{ emptyText: <Empty description="Chưa có dữ liệu thợ. Hãy thêm mới!" /> }}
                     onRow={(record) => ({
-                        onClick: () => navigate(`/pm/teams/workers/${record.id}`),
+                        onClick: () => navigate(`/ql/teams/workers/${record.id}`),
                         style: { cursor: 'pointer' }
                     })}
                 />

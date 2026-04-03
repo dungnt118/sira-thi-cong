@@ -27,7 +27,7 @@ interface MoistureRow {
 const SurveyUpload: React.FC = () => {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
-    
+
     const [mockCustomers] = useLocalStorageData<Customer[]>(demoDataService.KEYS.CUSTOMERS, defaultCustomers);
     const [mockServiceRequests, setMockServiceRequests] = useLocalStorageData<ServiceRequest[]>(demoDataService.KEYS.SERVICE_REQUESTS, defaultServiceRequests);
 
@@ -79,7 +79,7 @@ const SurveyUpload: React.FC = () => {
     const handleSave = async () => {
         if (!serviceRequest) return;
         setSaving(true);
-        
+
         const moistureReadings: MoistureReading[] = moisture.map(m => ({
             id: m.key,
             location: m.location,
@@ -88,14 +88,14 @@ const SurveyUpload: React.FC = () => {
             readBy: 'Nguyễn Văn PM'
         }));
 
-        const updatedRequests = mockServiceRequests.map(sr => 
-            sr.id === id 
-                ? { ...sr, surveyImages: images, moistureReadings: moistureReadings } 
+        const updatedRequests = mockServiceRequests.map(sr =>
+            sr.id === id
+                ? { ...sr, surveyImages: images, moistureReadings: moistureReadings }
                 : sr
         );
 
         setMockServiceRequests(updatedRequests);
-        
+
         await new Promise(r => setTimeout(r, 600));
         setSaving(false);
         message.success('Đã lưu dữ liệu khảo sát thành công');
@@ -106,7 +106,7 @@ const SurveyUpload: React.FC = () => {
     return (
         <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
-                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(`/pm/crm/service-requests/${id}`)}>
+                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(`/ql/crm/service-requests/${id}`)}>
                     Quay lại
                 </Button>
                 <div>
@@ -249,7 +249,7 @@ const SurveyUpload: React.FC = () => {
             </Row>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 16 }}>
-                <Button size="large" onClick={() => navigate(`/pm/crm/service-requests/${id}`)}>Hủy</Button>
+                <Button size="large" onClick={() => navigate(`/ql/crm/service-requests/${id}`)}>Hủy</Button>
                 <Button
                     type="primary"
                     size="large"
@@ -264,7 +264,7 @@ const SurveyUpload: React.FC = () => {
                     ghost
                     size="large"
                     icon={<ArrowRightOutlined />}
-                    onClick={() => navigate(`/pm/crm/service-requests/${id}/quotation`)}
+                    onClick={() => navigate(`/ql/crm/service-requests/${id}/quotation`)}
                 >
                     Tiếp: Lập báo giá
                 </Button>

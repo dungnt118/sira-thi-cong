@@ -12,11 +12,11 @@ import {
 import { useNavigate, useParams } from 'react-router-dom';
 import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
 import { demoDataService } from '../../../services/core-graphql/localstorage/demoDataService';
-import { 
-    mockProjects as defaultProjects, 
-    mockMaterials as defaultMaterials, 
-    mockStandards as defaultStandards, 
-    mockStockRequests as defaultStockRequests 
+import {
+    mockProjects as defaultProjects,
+    mockMaterials as defaultMaterials,
+    mockStandards as defaultStandards,
+    mockStockRequests as defaultStockRequests
 } from '../../../data/mockData';
 import type { Material, MaterialStandard, StockRequest, StockRequestItem } from '../../../types/v3';
 import type { Project } from '../../../types/legacy-project';
@@ -299,7 +299,7 @@ const MaterialPlan: React.FC = () => {
         <div>
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
-                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(`/pm/construction/projects/${project.id}`)}>
+                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(`/ql/construction/projects/${project.id}`)}>
                     Chi tiết dự án
                 </Button>
                 <div style={{ flex: 1 }}>

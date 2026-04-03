@@ -1,13 +1,13 @@
 import React, { useMemo } from 'react';
 import {
-    Card, Button, Tag, Avatar, Row, Col, Typography, 
+    Card, Button, Tag, Avatar, Row, Col, Typography,
     Divider, Rate, Grid, Space, Descriptions, Tabs, Statistic, Empty,
     Modal, Form, Input, Select, DatePicker, Switch, InputNumber, Upload, message, Popconfirm
 } from 'antd';
 import {
-    ArrowLeftOutlined, EditOutlined, PhoneOutlined, MailOutlined, 
-    EnvironmentOutlined, UserOutlined, CalendarOutlined, 
-    VerifiedOutlined, ToolOutlined, FileTextOutlined, 
+    ArrowLeftOutlined, EditOutlined, PhoneOutlined, MailOutlined,
+    EnvironmentOutlined, UserOutlined, CalendarOutlined,
+    VerifiedOutlined, ToolOutlined, FileTextOutlined,
     HistoryOutlined, DeleteOutlined, PlusOutlined, UploadOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -28,7 +28,7 @@ const WorkerDetail: React.FC = () => {
     const [workers, setWorkers] = useLocalStorageData<any[]>(demoDataService.KEYS.WORKERS_MASTER, []);
     const [priceConfigs] = useLocalStorageData<any[]>(demoDataService.KEYS.LABOR_PRICE_CONFIG, []);
     const [teams] = useLocalStorageData<any[]>(demoDataService.KEYS.TEAMS_MASTER, []);
-    
+
     const worker = useMemo(() => workers.find(w => w.id === id), [workers, id]);
     const priceConfig = useMemo(() => priceConfigs.find(c => c.level === worker?.level), [priceConfigs, worker]);
     const linkedTeam = useMemo(() => teams.find(t => (t.memberIds || []).includes(id)), [teams, id]);
@@ -74,14 +74,14 @@ const WorkerDetail: React.FC = () => {
     const handleDelete = () => {
         setWorkers(workers.filter(w => w.id !== id));
         message.success('Đã xóa thợ khỏi danh sách');
-        navigate('/pm/teams/workers');
+        navigate('/ql/teams/workers');
     };
 
     if (!worker) {
         return (
             <div style={{ padding: 40, textAlign: 'center' }}>
                 <Empty description="Không tìm thấy thông tin thợ" />
-                <Button onClick={() => navigate('/pm/teams/workers')}>Quay lại danh sách</Button>
+                <Button onClick={() => navigate('/ql/teams/workers')}>Quay lại danh sách</Button>
             </div>
         );
     }
@@ -124,7 +124,7 @@ const WorkerDetail: React.FC = () => {
                             <Tag key={s} color="processing" style={{ padding: '4px 12px', borderRadius: 12 }}>{s}</Tag>
                         ))}
                     </Space>
-                    
+
                     <Divider orientation="left" style={{ fontSize: 13, color: '#888' }}>
                         <FileTextOutlined /> Chứng chỉ & Hồ sơ
                     </Divider>
@@ -156,13 +156,13 @@ const WorkerDetail: React.FC = () => {
                     <Avatar size={100} src={worker.avatar} icon={<UserOutlined />} style={{ background: '#1890ff', marginBottom: 16 }} />
                     <Title level={3} style={{ margin: 0 }}>{worker.name}</Title>
                     <Text type="secondary">{worker.position}</Text>
-                    
+
                     <Divider style={{ margin: '16px 0' }} />
-                    
+
                     <Space direction="vertical" style={{ width: '100%' }}>
-                        <Statistic 
-                            title="Công theo giờ" 
-                            value={worker.costPerHour || 0} 
+                        <Statistic
+                            title="Công theo giờ"
+                            value={worker.costPerHour || 0}
                             suffix="đ/h"
                             valueStyle={{ color: '#cf1322' }}
                         />
@@ -184,7 +184,7 @@ const WorkerDetail: React.FC = () => {
                                     <div style={{ fontSize: 12, color: '#999' }}>{linkedTeam.contactName}</div>
                                 </div>
                             </Space>
-                            <Button type="link" onClick={() => navigate(`/pm/teams/groups/${linkedTeam.id}`)}>Chi tiết</Button>
+                            <Button type="link" onClick={() => navigate(`/ql/teams/groups/${linkedTeam.id}`)}>Chi tiết</Button>
                         </div>
                     ) : (
                         <Empty description="Chưa thuộc đội nhóm nào" image={Empty.PRESENTED_IMAGE_SIMPLE} />
@@ -192,10 +192,10 @@ const WorkerDetail: React.FC = () => {
                 </Card>
 
                 <Card title="Vị trí thường trú" style={{ marginTop: 24 }}>
-                    <MapPicker 
-                        readOnly 
-                        height={180} 
-                        value={{ lat: worker.lat || 10.7769, lng: worker.lng || 106.7009 }} 
+                    <MapPicker
+                        readOnly
+                        height={180}
+                        value={{ lat: worker.lat || 10.7769, lng: worker.lng || 106.7009 }}
                     />
                 </Card>
             </Col>

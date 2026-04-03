@@ -490,7 +490,7 @@ const Teams: React.FC = () => {
                                             onClick: (e) => {
                                                 // Don't navigate if clicking action buttons
                                                 if ((e.target as HTMLElement).closest('button, .ant-popconfirm')) return;
-                                                navigate(`/pm/teams/outsource/${record.id}`);
+                                                navigate(`/ql/teams/outsource/${record.id}`);
                                             },
                                             style: { cursor: 'pointer' },
                                         })}

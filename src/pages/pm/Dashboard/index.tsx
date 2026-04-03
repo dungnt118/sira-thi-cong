@@ -72,7 +72,7 @@ const PMDashboard: React.FC = () => {
     const projectColumns: ColumnsType<any> = [
         {
             title: 'Mã HT', dataIndex: 'journey_code', key: 'journey_code', width: 130,
-            render: (code, record) => <a onClick={() => navigate(`/pm/journeys/${record.id}`)}>{code}</a>,
+            render: (code, record) => <a onClick={() => navigate(`/ql/journeys/${record.id}`)}>{code}</a>,
         },
         { title: 'Tên Hành trình', dataIndex: 'request_title', key: 'request_title', ellipsis: true },
         { title: 'Khách hàng', dataIndex: 'customer_name', key: 'customer_name', width: 150 },
@@ -106,7 +106,7 @@ const PMDashboard: React.FC = () => {
             {/* Row 1: KPI Cards */}
             <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
                 <Col xs={24} sm={12} lg={6}>
-                    <Card hoverable onClick={() => navigate('/pm/journeys')} bodyStyle={{ padding: 16 }}>
+                    <Card hoverable onClick={() => navigate('/ql/journeys')} bodyStyle={{ padding: 16 }}>
                         <Statistic
                             title="Tổng Hành trình"
                             value={totalProjects}
@@ -119,7 +119,7 @@ const PMDashboard: React.FC = () => {
                     </Card>
                 </Col>
                 <Col xs={24} sm={12} lg={6}>
-                    <Card hoverable onClick={() => navigate('/pm/journeys')} bodyStyle={{ padding: 16 }}>
+                    <Card hoverable onClick={() => navigate('/ql/journeys')} bodyStyle={{ padding: 16 }}>
                         <Statistic
                             title="Đang Thực hiện"
                             value={activeProjectsCount}
@@ -132,7 +132,7 @@ const PMDashboard: React.FC = () => {
                     </Card>
                 </Col>
                 <Col xs={24} sm={12} lg={6}>
-                    <Card hoverable onClick={() => navigate('/pm/journeys/action-center')} bodyStyle={{ padding: 16 }}>
+                    <Card hoverable onClick={() => navigate('/ql/journeys/action-center')} bodyStyle={{ padding: 16 }}>
                         <Statistic
                             title="Chờ Duyệt Tư liệu"
                             value={pendingApprovalsCount}
@@ -238,14 +238,14 @@ const PMDashboard: React.FC = () => {
                 <Col xs={24} xl={14}>
                     <Card
                         title="Hành trình Gần đây"
-                        extra={<Button type="link" onClick={() => navigate('/pm/journeys')} style={{ paddingRight: 0 }}>Xem tất cả</Button>}
+                        extra={<Button type="link" onClick={() => navigate('/ql/journeys')} style={{ paddingRight: 0 }}>Xem tất cả</Button>}
                         bodyStyle={{ padding: 0 }}
                     >
-                        <Table 
-                            columns={projectColumns} 
-                            dataSource={recentProjectsData} 
-                            pagination={false} 
-                            size="small" 
+                        <Table
+                            columns={projectColumns}
+                            dataSource={recentProjectsData}
+                            pagination={false}
+                            size="small"
                             scroll={{ x: 'max-content' }}
                         />
                     </Card>
@@ -253,14 +253,14 @@ const PMDashboard: React.FC = () => {
                 <Col xs={24} xl={10}>
                     <Card
                         title="Thanh toán Gần đây"
-                        extra={<Button type="link" onClick={() => navigate('/pm/financials/milestones')} style={{ paddingRight: 0 }}>Xem tất cả</Button>}
+                        extra={<Button type="link" onClick={() => navigate('/ql/financials/milestones')} style={{ paddingRight: 0 }}>Xem tất cả</Button>}
                         bodyStyle={{ padding: 0 }}
                     >
-                        <Table 
-                            columns={paymentColumns} 
-                            dataSource={recentPaymentsData} 
-                            pagination={false} 
-                            size="small" 
+                        <Table
+                            columns={paymentColumns}
+                            dataSource={recentPaymentsData}
+                            pagination={false}
+                            size="small"
                             scroll={{ x: 'max-content' }}
                         />
                     </Card>
@@ -270,16 +270,16 @@ const PMDashboard: React.FC = () => {
             {/* Row 4: Quick Actions */}
             <Card title="Thao tác Nhanh" bodyStyle={{ padding: 16 }}>
                 <Space size={12} wrap style={{ width: '100%' }}>
-                    <Button type="primary" icon={<PlusOutlined />} size="middle" onClick={() => navigate('/pm/journeys')} block>
+                    <Button type="primary" icon={<PlusOutlined />} size="middle" onClick={() => navigate('/ql/journeys')} block>
                         Danh sách Hành trình
                     </Button>
-                    <Button icon={<TeamOutlined />} size="middle" onClick={() => navigate('/pm/teams/internal')} block>
+                    <Button icon={<TeamOutlined />} size="middle" onClick={() => navigate('/ql/teams/internal')} block>
                         Phân công Đội
                     </Button>
-                    <Button icon={<UserOutlined />} size="middle" onClick={() => navigate('/pm/customers')} block>
+                    <Button icon={<UserOutlined />} size="middle" onClick={() => navigate('/ql/customers')} block>
                         Tạo Cổng KH
                     </Button>
-                    <Button icon={<DollarOutlined />} size="middle" onClick={() => navigate('/pm/reports')} block>
+                    <Button icon={<DollarOutlined />} size="middle" onClick={() => navigate('/ql/reports')} block>
                         Xem Báo cáo
                     </Button>
                 </Space>

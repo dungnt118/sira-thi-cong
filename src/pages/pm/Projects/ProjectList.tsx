@@ -91,7 +91,7 @@ const ProjectList: React.FC = () => {
     const columns: ColumnsType<any> = [
         {
             title: 'Mã DA', dataIndex: 'code', key: 'code', width: 130, fixed: 'left' as const,
-            render: (code: string) => <a onClick={() => navigate(`/pm/projects/${code}`)} style={{ fontWeight: 600 }}>{code}</a>,
+            render: (code: string) => <a onClick={() => navigate(`/ql/projects/${code}`)} style={{ fontWeight: 600 }}>{code}</a>,
         },
         { title: 'Tên dự án', dataIndex: 'name', key: 'name', width: 250, ellipsis: true },
         {
@@ -127,14 +127,14 @@ const ProjectList: React.FC = () => {
             title: '', key: 'actions', width: 60, fixed: 'right' as const,
             render: (_: any, record: any) => {
                 const items: MenuProps['items'] = [
-                    { key: 'view', icon: <EyeOutlined />, label: 'Xem chi tiết', onClick: () => navigate(`/pm/projects/${record.code}`) },
-                    { key: 'edit', icon: <EditOutlined />, label: 'Chỉnh sửa', onClick: () => navigate(`/pm/projects/${record.id}/edit`) },
+                    { key: 'view', icon: <EyeOutlined />, label: 'Xem chi tiết', onClick: () => navigate(`/ql/projects/${record.code}`) },
+                    { key: 'edit', icon: <EditOutlined />, label: 'Chỉnh sửa', onClick: () => navigate(`/ql/projects/${record.id}/edit`) },
                     { type: 'divider' },
-                    { 
-                        key: 'cancel', 
-                        icon: <DeleteOutlined />, 
+                    {
+                        key: 'cancel',
+                        icon: <DeleteOutlined />,
                         label: record.status === 'SCHEDULED' ? 'Xóa dự án' : 'Hủy dự án',
-                        danger: true, 
+                        danger: true,
                         onClick: () => record.status === 'SCHEDULED' ? handleDeleteProject(record) : handleCancelProject(record)
                     },
                 ];
@@ -154,7 +154,7 @@ const ProjectList: React.FC = () => {
                 <h2 style={{ margin: 0 }}>Danh Sách Dự Án</h2>
                 <Space>
                     <Button icon={<ExportOutlined />}>Xuất Excel</Button>
-                    <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/pm/projects/create')}>
+                    <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/ql/projects/create')}>
                         Tạo Dự án
                     </Button>
                 </Space>

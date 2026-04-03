@@ -66,10 +66,10 @@ Liệt kê đầy đủ các màn hình PM cần có trong V4, đồng thời đ
 
 | ID | Tên màn | Mục tiêu | Route/prototype hiện có | Trạng thái |
 |---|---|---|---|---|
-| PM-27 | Internal Workforce List | Quản lý đội nội bộ, Giám sát, kỹ thuật profile | `src/pages/pm/Teams/index.tsx` qua route `/pm/teams/internal` | Có một phần |
+| PM-27 | Internal Workforce List | Quản lý đội nội bộ, Giám sát, kỹ thuật profile | `src/pages/pm/Teams/index.tsx` qua route `/ql/teams/internal` | Có một phần |
 | PM-28 | Capacity & Availability View | Xem tải phân bổ nguồn lực | Chưa thấy page riêng | Chưa có |
 | PM-29 | Kỹ thuật Profile Directory | Quản lý hồ sơ kỹ thuật profile | Chưa thấy page riêng | Chưa có |
-| PM-30 | Partner Company List | Quản lý nhà thầu/cộng tác viên liên kết | `src/pages/pm/Teams/index.tsx` qua route `/pm/teams/outsource` | Có một phần |
+| PM-30 | Partner Company List | Quản lý nhà thầu/cộng tác viên liên kết | `src/pages/pm/Teams/index.tsx` qua route `/ql/teams/outsource` | Có một phần |
 | PM-31 | Partner Company Detail | Xem chi tiết công ty, leader, compliance, performance | `src/pages/pm/Teams/CollaboratorDetail.tsx` | Có một phần |
 | PM-32 | Partner Assignment Wizard | Gán đối tác vào project/package | Chưa thấy page riêng | Chưa có |
 | PM-33 | Partner Performance Dashboard | Đánh giá đối tác theo lịch sử dự án | Chưa thấy page riêng | Chưa có |

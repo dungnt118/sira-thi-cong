@@ -14,13 +14,13 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
 import { demoDataService } from '../../../services/core-graphql/localstorage/demoDataService';
-import { 
-    mockServiceRequests as defaultServiceRequests, 
-    mockCustomers as defaultCustomers, 
-    mockPipelines as defaultPipelines 
+import {
+    mockServiceRequests as defaultServiceRequests,
+    mockCustomers as defaultCustomers,
+    mockPipelines as defaultPipelines
 } from '../../../data/mockData';
-import type { 
-    ServiceRequest, 
+import type {
+    ServiceRequest,
     PipelineSystemStage,
     Pipeline as PipelineType,
     Customer
@@ -40,11 +40,11 @@ const ServiceRequestList: React.FC = () => {
     const screens = Grid.useBreakpoint();
     const isMobile = !screens.md;
     const navigate = useNavigate();
-    
+
     const [mockPipelines] = useLocalStorageData<PipelineType[]>(demoDataService.KEYS.PIPELINES, defaultPipelines);
     const [mockCustomers] = useLocalStorageData<Customer[]>(demoDataService.KEYS.CUSTOMERS, defaultCustomers);
     const [mockServiceRequests, setMockServiceRequests] = useLocalStorageData<ServiceRequest[]>(demoDataService.KEYS.SERVICE_REQUESTS, defaultServiceRequests);
-    
+
     const [search, setSearch] = useState('');
     const [filterPipeline, setFilterPipeline] = useState<string>('ALL');
     const [filterStatus, setFilterStatus] = useState<PipelineSystemStage | 'ALL'>('ALL');
@@ -62,10 +62,10 @@ const ServiceRequestList: React.FC = () => {
     });
 
     const getRowActions = (record: ServiceRequest): MenuProps['items'] => [
-        { key: 'view', icon: <EyeOutlined />, label: 'Xem chi tiết', onClick: () => navigate(`/pm/crm/service-requests/${record.id}`) },
-        { key: 'edit', icon: <EditOutlined />, label: 'Chỉnh sửa Yêu cầu', onClick: () => navigate(`/pm/crm/service-requests/${record.id}/edit`) },
-        { key: 'survey', icon: <CameraOutlined />, label: 'Khảo sát & Đo ẩm', onClick: () => navigate(`/pm/crm/service-requests/${record.id}/survey`) },
-        { key: 'quote', icon: <DollarOutlined />, label: 'Lập báo giá', onClick: () => navigate(`/pm/crm/service-requests/${record.id}/quotation`) },
+        { key: 'view', icon: <EyeOutlined />, label: 'Xem chi tiết', onClick: () => navigate(`/ql/crm/service-requests/${record.id}`) },
+        { key: 'edit', icon: <EditOutlined />, label: 'Chỉnh sửa Yêu cầu', onClick: () => navigate(`/ql/crm/service-requests/${record.id}/edit`) },
+        { key: 'survey', icon: <CameraOutlined />, label: 'Khảo sát & Đo ẩm', onClick: () => navigate(`/ql/crm/service-requests/${record.id}/survey`) },
+        { key: 'quote', icon: <DollarOutlined />, label: 'Lập báo giá', onClick: () => navigate(`/ql/crm/service-requests/${record.id}/quotation`) },
         { type: 'divider' },
         { key: 'project', icon: <ProjectOutlined />, label: '🔨 Tạo dự án thi công', disabled: record.status !== 'WON' },
         { key: 'delete', icon: <DeleteOutlined />, label: 'Xóa yêu cầu', danger: true },
@@ -85,15 +85,15 @@ const ServiceRequestList: React.FC = () => {
             ellipsis: true,
             render: (_, r) => (
                 <div style={{ maxWidth: isMobile ? 200 : 'none' }}>
-                    <div style={{ 
-                        fontWeight: 600, 
-                        cursor: 'pointer', 
+                    <div style={{
+                        fontWeight: 600,
+                        cursor: 'pointer',
                         color: '#1976D2',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap'
                     }}
-                        onClick={() => navigate(`/pm/crm/service-requests/${r.id}`)}>
+                        onClick={() => navigate(`/ql/crm/service-requests/${r.id}`)}>
                         {r.name}
                     </div>
                     <Text type="secondary" style={{ fontSize: 12 }}>Ngày tạo: {r.createdAt.split('T')[0]}</Text>
@@ -137,8 +137,8 @@ const ServiceRequestList: React.FC = () => {
                 const stage = pipeline?.stages.find(s => s.id === r.stageId);
                 return (
                     <div style={{ overflow: 'hidden' }}>
-                        <div style={{ 
-                            fontSize: 12, 
+                        <div style={{
+                            fontSize: 12,
                             marginBottom: 4,
                             whiteSpace: 'nowrap',
                             overflow: 'hidden',
@@ -176,7 +176,7 @@ const ServiceRequestList: React.FC = () => {
 
     const handleCreateSubmit = (values: any) => {
         const customer = mockCustomers.find(c => c.id === values.customerId);
-        
+
         const newRequest: ServiceRequest = {
             id: `sr-${Date.now()}`,
             code: `SR-${Math.floor(1000 + Math.random() * 9000)}`,
@@ -193,7 +193,7 @@ const ServiceRequestList: React.FC = () => {
             moistureReadings: [],
             quotations: []
         };
-        
+
         setMockServiceRequests([newRequest, ...mockServiceRequests]);
         setIsCreateModalVisible(false);
         createForm.resetFields();
@@ -213,16 +213,16 @@ const ServiceRequestList: React.FC = () => {
                     </Col>
                     <Col xs={24} md={8} style={{ textAlign: isMobile ? 'left' : 'right' }}>
                         <Space size={isMobile ? 8 : 12} wrap={isMobile} style={{ width: isMobile ? '100%' : 'auto' }}>
-                            <Button 
-                                icon={<FunnelPlotOutlined />} 
-                                onClick={() => navigate('/pm/crm/pipeline')}
+                            <Button
+                                icon={<FunnelPlotOutlined />}
+                                onClick={() => navigate('/ql/crm/pipeline')}
                                 block={isMobile}
                             >
                                 {isMobile ? 'Kanban' : 'Xem bảng Kanban (Pipeline)'}
                             </Button>
-                            <Button 
-                                type="primary" 
-                                icon={<PlusOutlined />} 
+                            <Button
+                                type="primary"
+                                icon={<PlusOutlined />}
                                 onClick={() => setIsCreateModalVisible(true)}
                                 block={isMobile}
                             >

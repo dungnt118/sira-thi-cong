@@ -6,7 +6,7 @@ import {
 import {
     UnorderedListOutlined, FilterOutlined, UserOutlined,
     MessageOutlined, ExclamationCircleOutlined, SwapRightOutlined,
-    CheckCircleOutlined, InfoCircleFilled, WarningFilled, 
+    CheckCircleOutlined, InfoCircleFilled, WarningFilled,
     ExclamationCircleFilled, MinusCircleFilled
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
@@ -27,11 +27,11 @@ const STEP_COLORS: Record<string, string> = {
     CONTRACT: '#2f54eb', CONSTRUCTION: '#fa8c16', PAYMENT: '#52c41a',
 };
 const SLA_BADGE: Record<SlaStatus, string> = { ontime: '#52c41a', at_risk: '#fa8c16', overdue: '#ff4d4f' };
-const PRIORITY_ICON: Record<PriorityLevel, React.ReactNode> = { 
-    low: <MinusCircleFilled style={{ color: '#d9d9d9' }} />, 
-    medium: <InfoCircleFilled style={{ color: '#1890ff' }} />, 
-    high: <WarningFilled style={{ color: '#fa8c16' }} />, 
-    critical: <ExclamationCircleFilled style={{ color: '#ff4d4f' }} /> 
+const PRIORITY_ICON: Record<PriorityLevel, React.ReactNode> = {
+    low: <MinusCircleFilled style={{ color: '#d9d9d9' }} />,
+    medium: <InfoCircleFilled style={{ color: '#1890ff' }} />,
+    high: <WarningFilled style={{ color: '#fa8c16' }} />,
+    critical: <ExclamationCircleFilled style={{ color: '#ff4d4f' }} />
 };
 
 const JourneyKanbanCard: React.FC<{ journey: Journey; onClick: () => void }> = ({ journey: j, onClick }) => (
@@ -107,13 +107,13 @@ const JourneyBoard: React.FC = () => {
 
     const handleConfirmStepChange = () => {
         if (!changeStepModal.journey || !changeStepModal.newStep) return;
-        
-        const updatedJourneys = mockJourneys.map(j => 
-            j.id === changeStepModal.journey?.id 
-                ? { ...j, current_step_code: changeStepModal.newStep! } 
+
+        const updatedJourneys = mockJourneys.map(j =>
+            j.id === changeStepModal.journey?.id
+                ? { ...j, current_step_code: changeStepModal.newStep! }
                 : j
         );
-        
+
         setMockJourneys(updatedJourneys);
         setChangeStepModal({ visible: false });
         Modal.success({
@@ -131,7 +131,7 @@ const JourneyBoard: React.FC = () => {
                     <Text type="secondary">Kanban theo bước quy trình</Text>
                 </div>
                 <Space>
-                    <Button icon={<UnorderedListOutlined />} onClick={() => navigate('/pm/journeys')}>Danh sách</Button>
+                    <Button icon={<UnorderedListOutlined />} onClick={() => navigate('/ql/journeys')}>Danh sách</Button>
                 </Space>
             </div>
 
@@ -215,7 +215,7 @@ const JourneyBoard: React.FC = () => {
                                 <div key={j.id} style={{ position: 'relative' }}>
                                     <JourneyKanbanCard
                                         journey={j}
-                                        onClick={() => navigate(`/pm/journeys/${j.id}`)}
+                                        onClick={() => navigate(`/ql/journeys/${j.id}`)}
                                     />
                                     {/* Quick move action for demo purposes (simulating drag & drop) */}
                                     <div style={{ position: 'absolute', top: 4, right: 4 }}>

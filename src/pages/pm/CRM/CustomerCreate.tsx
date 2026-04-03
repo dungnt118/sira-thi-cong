@@ -64,7 +64,7 @@ const CustomerCreate: React.FC = () => {
         setLoading(true);
         const hide = message.loading(isEdit ? 'Đang cập nhật khách hàng...' : 'Đang thêm khách hàng mới...', 0);
         await new Promise(r => setTimeout(r, 600));
-        
+
         const customerData: Partial<Customer> = {
             ...values,
             gpsLat: gps?.lat,
@@ -72,7 +72,7 @@ const CustomerCreate: React.FC = () => {
         };
 
         if (isEdit) {
-            const updated = mockCustomers.map(c => 
+            const updated = mockCustomers.map(c =>
                 c.id === id ? { ...c, ...customerData } : c
             );
             setMockCustomers(updated);
@@ -99,17 +99,17 @@ const CustomerCreate: React.FC = () => {
             hide();
             message.success('Đã thêm khách hàng mới thành công');
         }
-        
+
         setLoading(false);
         setTimeout(() => {
-            navigate('/pm/crm/customers');
+            navigate('/ql/crm/customers');
         }, 800);
     };
 
     return (
         <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
-                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/pm/crm/customers')}>
+                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/ql/crm/customers')}>
                     Quay lại
                 </Button>
                 <div>
@@ -236,7 +236,7 @@ const CustomerCreate: React.FC = () => {
                 </Row>
 
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 16 }}>
-                    <Button size="large" onClick={() => navigate('/pm/crm/customers')}>Hủy</Button>
+                    <Button size="large" onClick={() => navigate('/ql/crm/customers')}>Hủy</Button>
                     <Button type="primary" htmlType="submit" size="large" icon={<SaveOutlined />} loading={loading}>
                         {isEdit ? 'Lưu thay đổi' : 'Thêm Khách hàng'}
                     </Button>

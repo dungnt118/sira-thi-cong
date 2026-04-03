@@ -772,7 +772,7 @@ const CollaboratorDetail: React.FC = () => {
         <div>
             <Row align="middle" justify="space-between" style={{ marginBottom: 24 }}>
                 <Space>
-                    <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/pm/teams/outsource')}>
+                    <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/ql/teams/outsource')}>
                         {!isMobile && 'Quay lại'}
                     </Button>
                     <h2 style={{ margin: 0 }}>Hồ Sơ Cộng Tác Viên</h2>

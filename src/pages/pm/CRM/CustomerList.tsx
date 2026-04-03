@@ -36,10 +36,10 @@ const CustomerList: React.FC = () => {
     });
 
     const getRowActions = (record: Customer): MenuProps['items'] => [
-        { key: 'view', icon: <EyeOutlined />, label: 'Xem chi tiết', onClick: () => navigate(`/pm/crm/customers/${record.id}`) },
-        { key: 'edit', icon: <EditOutlined />, label: 'Chỉnh sửa', onClick: () => navigate(`/pm/crm/customers/${record.id}/edit`) },
+        { key: 'view', icon: <EyeOutlined />, label: 'Xem chi tiết', onClick: () => navigate(`/ql/crm/customers/${record.id}`) },
+        { key: 'edit', icon: <EditOutlined />, label: 'Chỉnh sửa', onClick: () => navigate(`/ql/crm/customers/${record.id}/edit`) },
         { type: 'divider' },
-        { key: 'create-deal', icon: <PlusCircleOutlined />, label: 'Tạo Yêu cầu mới', onClick: () => navigate(`/pm/crm/service-requests/new?customerId=${record.id}`) },
+        { key: 'create-deal', icon: <PlusCircleOutlined />, label: 'Tạo Yêu cầu mới', onClick: () => navigate(`/ql/crm/service-requests/new?customerId=${record.id}`) },
         { key: 'delete', icon: <DeleteOutlined />, label: 'Xóa khách hàng', danger: true },
     ];
 
@@ -54,7 +54,7 @@ const CustomerList: React.FC = () => {
                     <Avatar size={36} icon={<UserOutlined />} style={{ background: '#1976D2' }} />
                     <div>
                         <div style={{ fontWeight: 600, cursor: 'pointer', color: '#1976D2' }}
-                            onClick={() => navigate(`/pm/crm/customers/${r.id}`)}>
+                            onClick={() => navigate(`/ql/crm/customers/${r.id}`)}>
                             {r.fullName}
                         </div>
                         <Text type="secondary" style={{ fontSize: 12 }}>{r.code}</Text>
@@ -124,11 +124,11 @@ const CustomerList: React.FC = () => {
 
     return (
         <div>
-            <div style={{ 
-                display: 'flex', 
+            <div style={{
+                display: 'flex',
                 flexDirection: isMobile ? 'column' : 'row',
-                justifyContent: 'space-between', 
-                alignItems: isMobile ? 'flex-start' : 'center', 
+                justifyContent: 'space-between',
+                alignItems: isMobile ? 'flex-start' : 'center',
                 marginBottom: isMobile ? 16 : 24,
                 gap: 12
             }}>
@@ -136,10 +136,10 @@ const CustomerList: React.FC = () => {
                     <h2 style={{ margin: 0, fontSize: isMobile ? 20 : 24 }}>Danh sách Khách hàng</h2>
                     <Text type="secondary">Quản lý cơ sở dữ liệu liên hệ khách hàng</Text>
                 </div>
-                <Button 
-                    type="primary" 
-                    icon={<PlusOutlined />} 
-                    onClick={() => navigate('/pm/crm/customers/new')}
+                <Button
+                    type="primary"
+                    icon={<PlusOutlined />}
+                    onClick={() => navigate('/ql/crm/customers/new')}
                     block={isMobile}
                 >
                     Thêm Khách hàng
@@ -163,9 +163,9 @@ const CustomerList: React.FC = () => {
                     columns={columns}
                     dataSource={filtered}
                     rowKey="id"
-                    pagination={{ 
-                        pageSize: 10, 
-                        showSizeChanger: !isMobile, 
+                    pagination={{
+                        pageSize: 10,
+                        showSizeChanger: !isMobile,
                         showTotal: isMobile ? undefined : (t) => `${t} khách hàng`,
                         size: isMobile ? 'small' : 'default'
                     }}

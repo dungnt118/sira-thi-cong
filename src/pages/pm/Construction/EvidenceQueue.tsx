@@ -42,7 +42,7 @@ const EvidenceQueue: React.FC = () => {
     const ProjectCard: React.FC<{ p: typeof projects[0] }> = ({ p }) => (
         <Card
             hoverable
-            onClick={() => navigate(`/pm/construction/evidence/${p.id}`)}
+            onClick={() => navigate(`/ql/construction/evidence/${p.id}`)}
             style={{
                 marginBottom: 12,
                 borderLeft: `4px solid ${p.pendingCount > 0 ? '#fa8c16' : '#52c41a'}`,

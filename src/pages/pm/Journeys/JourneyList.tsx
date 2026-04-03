@@ -63,7 +63,7 @@ const JourneyList: React.FC = () => {
     const [filterPriority, setFilterPriority] = useState<string>('ALL');
     const [filterStep, setFilterStep] = useState<string>('ALL');
     const [isFilterVisible, setIsFilterVisible] = useState(false);
-    
+
     // CRUD state
     const [isFormVisible, setIsFormVisible] = useState(false);
     const [editingJourney, setEditingJourney] = useState<IJourney | null>(null);
@@ -81,7 +81,7 @@ const JourneyList: React.FC = () => {
             if (filterStep !== 'ALL') filter.current_step = filterStep;
 
             const res = await journeyService.queryJourneysDto(filter);
-            
+
             if (res.code === 0 && res.data) {
                 setJourneys(res.data);
             }
@@ -184,7 +184,7 @@ const JourneyList: React.FC = () => {
                 <div>
                     <div
                         style={{ fontWeight: 600, color: '#1976D2', cursor: 'pointer', marginBottom: 2 }}
-                        onClick={() => navigate(`/pm/journeys/${j._id}`)}
+                        onClick={() => navigate(`/ql/journeys/${j._id}`)}
                     >
                         {j.journey_code || 'N/A'}
                     </div>
@@ -265,9 +265,9 @@ const JourneyList: React.FC = () => {
                 <Dropdown
                     overlay={
                         <Menu>
-                            <Menu.Item key="view" icon={<EyeOutlined />} onClick={(e) => { e.domEvent.stopPropagation(); navigate(`/pm/journeys/${j._id}`); }}>Chi tiết</Menu.Item>
+                            <Menu.Item key="view" icon={<EyeOutlined />} onClick={(e) => { e.domEvent.stopPropagation(); navigate(`/ql/journeys/${j._id}`); }}>Chi tiết</Menu.Item>
                             <Menu.Item key="edit" icon={<EditOutlined />} onClick={(e) => { e.domEvent.stopPropagation(); handleEdit(j); }}>Chỉnh sửa</Menu.Item>
-                            <Menu.Item key="board" icon={<LayoutOutlined />} onClick={(e) => { e.domEvent.stopPropagation(); navigate(`/pm/journeys/board?id=${j._id}`); }}>Kanban</Menu.Item>
+                            <Menu.Item key="board" icon={<LayoutOutlined />} onClick={(e) => { e.domEvent.stopPropagation(); navigate(`/ql/journeys/board?id=${j._id}`); }}>Kanban</Menu.Item>
                             <Menu.Divider />
                             <Menu.Item key="delete" icon={<DeleteOutlined />} danger>
                                 <Popconfirm
@@ -307,10 +307,10 @@ const JourneyList: React.FC = () => {
                             <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>Hành trình mới</Button>
                         </Tooltip>
                         <Tooltip title="Xem dạng Board">
-                            <Button icon={<LayoutOutlined />} onClick={() => navigate('/pm/journeys/board')}>{isMobile ? '' : 'Board'}</Button>
+                            <Button icon={<LayoutOutlined />} onClick={() => navigate('/ql/journeys/board')}>{isMobile ? '' : 'Board'}</Button>
                         </Tooltip>
                         <Tooltip title="Action Center">
-                            <Button icon={<AlertOutlined />} onClick={() => navigate('/pm/journeys/action-center')}>{isMobile ? '' : 'Action'}</Button>
+                            <Button icon={<AlertOutlined />} onClick={() => navigate('/ql/journeys/action-center')}>{isMobile ? '' : 'Action'}</Button>
                         </Tooltip>
                         <Button icon={<ReloadOutlined />} onClick={handleRefresh} loading={isLoading}>Làm mới</Button>
                     </Space>
@@ -402,9 +402,9 @@ const JourneyList: React.FC = () => {
                             onChange={setFilterPriority}
                             options={[
                                 { value: 'ALL', label: 'Tất cả ưu tiên' },
-                                ...Object.entries(PRIORITY_CONFIG).map(([val, cfg]) => ({ 
-                                    value: val, 
-                                    label: <span><Badge status={cfg.color as any} /> {cfg.label}</span> 
+                                ...Object.entries(PRIORITY_CONFIG).map(([val, cfg]) => ({
+                                    value: val,
+                                    label: <span><Badge status={cfg.color as any} /> {cfg.label}</span>
                                 }))
                             ]}
                         />
@@ -429,7 +429,7 @@ const JourneyList: React.FC = () => {
                                 key={j._id}
                                 size="small"
                                 style={{ marginBottom: 12, cursor: 'pointer', borderRadius: 8 }}
-                                onClick={() => navigate(`/pm/journeys/${j._id}`)}
+                                onClick={() => navigate(`/ql/journeys/${j._id}`)}
                             >
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                     <div>
@@ -459,9 +459,9 @@ const JourneyList: React.FC = () => {
                         locale={{ emptyText: <Empty description="Không có hành trình nào phù hợp bộ lọc" /> }}
                         size="small"
                         loading={isLoading}
-                        onRow={(j) => ({ 
-                            onClick: () => navigate(`/pm/journeys/${j._id}`), 
-                            style: { cursor: 'pointer' } 
+                        onRow={(j) => ({
+                            onClick: () => navigate(`/ql/journeys/${j._id}`),
+                            style: { cursor: 'pointer' }
                         })}
                         rowSelection={{
                             selectedRowKeys,

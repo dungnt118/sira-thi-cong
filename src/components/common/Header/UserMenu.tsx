@@ -32,7 +32,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
 
     const rolesList = [
         { key: 'ADMIN', title: 'Quản Trị Viên', icon: <UserOutlined />, path: '/admin/dashboard', color: '#1890ff' },
-        { key: 'QL', title: 'Quản Lý Dự Án', icon: <ProjectOutlined />, path: '/pm/dashboard', color: '#722ed1' },
+        { key: 'QL', title: 'Quản Lý Dự Án', icon: <ProjectOutlined />, path: '/ql/dashboard', color: '#722ed1' },
         { key: 'KD', title: 'Kinh Doanh (Sale)', icon: <CustomerServiceOutlined />, path: '/kd/dashboard', color: '#eb2f96' },
         { key: 'KYT', title: 'Kỹ Thuật', icon: <ProjectOutlined />, path: '/kyt/dashboard', color: '#13a8a8' },
         { key: 'GS', title: 'Giám Sát', icon: <SafetyOutlined />, path: '/gs/dashboard', color: '#52c41a' },

@@ -200,10 +200,10 @@ Phase 1 phải dùng được trên desktop + mobile trước khi chốt.
 
 | Menu cấp 1 | Menu cấp 2 | Route đề xuất | Ghi chú |
 |---|---|---|---|
-| Hành trình khách hàng | Danh sách hành trình | `/pm/journeys` | menu chính của phase 1 |
-| Hành trình khách hàng | Board hành trình | `/pm/journeys/board` | thay cho Kanban cũ |
-| Hành trình khách hàng | Action Center | `/pm/journeys/action-center` | gom blocker, overdue, unread thread |
-| Hành trình khách hàng | Templates | `/pm/journeys/templates` | quản lý template mặc định |
+| Hành trình khách hàng | Danh sách hành trình | `/ql/journeys` | menu chính của phase 1 |
+| Hành trình khách hàng | Board hành trình | `/ql/journeys/board` | thay cho Kanban cũ |
+| Hành trình khách hàng | Action Center | `/ql/journeys/action-center` | gom blocker, overdue, unread thread |
+| Hành trình khách hàng | Templates | `/ql/journeys/templates` | quản lý template mặc định |
 
 ## 4.2 Sale menu
 
@@ -237,12 +237,12 @@ Phase 1 phải dùng được trên desktop + mobile trước khi chốt.
 
 | Route | Page code | Mục đích |
 |---|---|---|
-| `/pm/journeys` | PM-P1-01 | Journey List |
-| `/pm/journeys/board` | PM-P1-02 | Journey Board |
-| `/pm/journeys/:journeyId` | PM-P1-03 | Journey Detail 360 |
-| `/pm/journeys/action-center` | PM-P1-04 | PM Action Center |
-| `/pm/journeys/templates` | PM-P1-05 | Template List |
-| `/pm/journeys/templates/:templateId` | PM-P1-06 | Template Detail & Step Config |
+| `/ql/journeys` | PM-P1-01 | Journey List |
+| `/ql/journeys/board` | PM-P1-02 | Journey Board |
+| `/ql/journeys/:journeyId` | PM-P1-03 | Journey Detail 360 |
+| `/ql/journeys/action-center` | PM-P1-04 | PM Action Center |
+| `/ql/journeys/templates` | PM-P1-05 | Template List |
+| `/ql/journeys/templates/:templateId` | PM-P1-06 | Template Detail & Step Config |
 
 ## 5.2 Sale route map
 
@@ -443,7 +443,7 @@ Phase 1 phải dùng được trên desktop + mobile trước khi chốt.
 ### Menu và route
 
 - Menu: `PM > Hành trình khách hàng > Danh sách hành trình`
-- Route: `/pm/journeys`
+- Route: `/ql/journeys`
 
 ### Section bắt buộc
 
@@ -484,7 +484,7 @@ Phải có tối thiểu 4 card:
 ### Menu và route
 
 - Menu: `PM > Hành trình khách hàng > Board hành trình`
-- Route: `/pm/journeys/board`
+- Route: `/ql/journeys/board`
 
 ### Section bắt buộc
 
@@ -522,7 +522,7 @@ Phải có tối thiểu 4 card:
 ### Menu và route
 
 - Menu: mở từ list/board
-- Route: `/pm/journeys/:journeyId`
+- Route: `/ql/journeys/:journeyId`
 
 ### Section bắt buộc
 
@@ -701,7 +701,7 @@ Phải có tối thiểu 4 card:
 
 ### Route
 
-- `/pm/journeys/action-center`
+- `/ql/journeys/action-center`
 
 ### Section bắt buộc
 
@@ -732,7 +732,7 @@ Phải có tối thiểu 4 card:
 
 ### Route
 
-- `/pm/journeys/templates`
+- `/ql/journeys/templates`
 
 ### Section bắt buộc
 
@@ -760,7 +760,7 @@ Phải có tối thiểu 4 card:
 
 ### Route
 
-- `/pm/journeys/templates/:templateId`
+- `/ql/journeys/templates/:templateId`
 
 ### Section bắt buộc
 

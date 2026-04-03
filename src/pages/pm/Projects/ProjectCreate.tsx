@@ -181,9 +181,9 @@ const ProjectCreate: React.FC = () => {
         hide();
 
         message.success('Dự án đã được tạo thành công!');
-        
+
         setTimeout(() => {
-            navigate('/pm/projects/all');
+            navigate('/ql/projects/all');
         }, 1000);
     };
 

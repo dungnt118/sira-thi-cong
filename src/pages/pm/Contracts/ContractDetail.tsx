@@ -345,7 +345,7 @@ const ContractDetail: React.FC = () => {
     // ─── Tab: Dự án liên kết ─────────────────────────────────────────
     const renderLinkedProjects = () => {
         const projectColumns = [
-            { title: 'Mã DA', dataIndex: 'code', key: 'code', render: (c: string, rec: typeof mockLinkedProjects[0]) => <a onClick={() => navigate(`/pm/projects/${rec.id}`)}>{c}</a> },
+            { title: 'Mã DA', dataIndex: 'code', key: 'code', render: (c: string, rec: typeof mockLinkedProjects[0]) => <a onClick={() => navigate(`/ql/projects/${rec.id}`)}>{c}</a> },
             { title: 'Tên DA', dataIndex: 'name', key: 'name' },
             {
                 title: 'Trạng thái', dataIndex: 'status', key: 'status',
@@ -449,7 +449,7 @@ const ContractDetail: React.FC = () => {
                         {
                             title: 'Mã', dataIndex: 'code', key: 'code', width: 80,
                             render: (c: string, rec: typeof mockMaintenanceRequests[0]) => (
-                                <a onClick={() => navigate(`/pm/contracts/${_id}/maintenance/${rec.key}`)} style={{ fontWeight: 600 }}>{c}</a>
+                                <a onClick={() => navigate(`/ql/contracts/${_id}/maintenance/${rec.key}`)} style={{ fontWeight: 600 }}>{c}</a>
                             ),
                         },
                         { title: 'Vấn đề', dataIndex: 'issue', key: 'issue' },
@@ -474,9 +474,9 @@ const ContractDetail: React.FC = () => {
                             render: (_: any, rec: typeof mockMaintenanceRequests[0]) => (
                                 <Space size="small">
                                     <Button size="small" icon={<DollarOutlined />}
-                                        onClick={() => navigate(`/pm/contracts/${_id}/maintenance/${rec.key}`)}>Thêm CP</Button>
+                                        onClick={() => navigate(`/ql/contracts/${_id}/maintenance/${rec.key}`)}>Thêm CP</Button>
                                     <Button size="small" type="link"
-                                        onClick={() => navigate(`/pm/contracts/${_id}/maintenance/${rec.key}`)}>Xem</Button>
+                                        onClick={() => navigate(`/ql/contracts/${_id}/maintenance/${rec.key}`)}>Xem</Button>
                                 </Space>
                             ),
                         },
@@ -532,7 +532,7 @@ const ContractDetail: React.FC = () => {
             {/* ─── Header ─── */}
             <Row align="middle" justify="space-between" style={{ marginBottom: 24 }}>
                 <Space wrap>
-                    <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/pm/contracts/all')}>
+                    <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/ql/contracts/all')}>
                         {!isMobile && 'Quay lại'}
                     </Button>
                     <Title level={4} style={{ margin: 0 }}>
@@ -562,7 +562,7 @@ const ContractDetail: React.FC = () => {
                     <Button icon={<PrinterOutlined />}>{!isMobile && 'In'}</Button>
                     {isDraft ? (
                         <Button type="primary" icon={<EditOutlined />}
-                            onClick={() => navigate(`/pm/contracts/edit/${_id}`)}>
+                            onClick={() => navigate(`/ql/contracts/edit/${_id}`)}>
                             {!isMobile && 'Chỉnh sửa'}
                         </Button>
                     ) : (
