@@ -13,6 +13,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { message } from 'antd';
 import { customerService } from '../../../services/core-contracts/services/customer.service';
+import { journeyService } from '../../../services/core-contracts/services/journey.service';
 import { mockServiceRequests as defaultRequests } from '../../../data/mockData';
 import type { ICustomer } from '../../../services/core-contracts/types/customer.types';
 import type { Customer } from '../../../types/v3';
@@ -28,6 +29,7 @@ const CustomerList: React.FC = () => {
 
     const [mockServiceRequests] = useState<any[]>(defaultRequests);
     const [customers, setCustomers] = useState<ICustomer[]>([]);
+    const [journeyCounts, setJourneyCounts] = useState<Record<string, number>>({});
     const [isLoading, setIsLoading] = useState(false);
 
     const fetchCustomers = async () => {
@@ -36,6 +38,19 @@ const CustomerList: React.FC = () => {
             const res = await customerService.queryCustomersDto({});
             if (res.code === 0 && res.data) {
                 setCustomers(res.data);
+                
+                // Fetch all journeys to map counts
+                const jRes = await journeyService.queryJourneysDto({});
+                if (jRes.code === 0 && jRes.data) {
+                    const counts: Record<string, number> = {};
+                    jRes.data.forEach(j => {
+                        const phone = j.customer_phone;
+                        if (phone) {
+                            counts[phone] = (counts[phone] || 0) + 1;
+                        }
+                    });
+                    setJourneyCounts(counts);
+                }
             }
         } catch (error) {
             console.error('Failed to fetch customers:', error);
@@ -109,15 +124,15 @@ const CustomerList: React.FC = () => {
             ),
         },
         {
-            title: 'Dịch vụ',
+            title: 'Hành trình',
             key: 'deals',
             align: 'center',
             width: 100,
             render: (_, r) => {
-                const count = mockServiceRequests.filter((req: any) => req.customerId === r._id).length;
+                const count = journeyCounts[r.phone || ''] || 0;
                 return (
                     <div style={{ fontWeight: 500, color: count > 0 ? '#1976D2' : '#aaa' }}>
-                        {count} YC
+                        {count} HT
                     </div>
                 )
             },
