@@ -4,7 +4,7 @@ import {
     Card, Tabs, Tag, Button, Space, Typography, Row, Col,
     Badge, Statistic, Timeline, Descriptions, Modal, Drawer,
     Form, Select, Alert, Checkbox, message, Steps, Empty,
-    DatePicker, Input, Grid, List
+    DatePicker, Input, Grid, List, Tooltip, Avatar, Divider
 } from 'antd';
 import {
     CalendarOutlined, FileSearchOutlined, CalculatorOutlined, FileTextOutlined,
@@ -14,7 +14,7 @@ import {
     ClockCircleOutlined, MessageOutlined, CloseCircleOutlined,
     TeamOutlined,
     FormOutlined, PaperClipOutlined, EditOutlined, RocketOutlined, PlusOutlined,
-    AuditOutlined, ProjectOutlined
+    AuditOutlined, ProjectOutlined, HistoryOutlined, ArrowRightOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
@@ -28,8 +28,10 @@ import { workTaskService } from '../../../services/core-contracts/services/workT
 import { siteReportService } from '../../../services/core-contracts/services/siteReport.service';
 import { customerJourneySettingService } from '../../../services/core-contracts/services/customerJourneySetting.service';
 import { employeeService } from '../../../services/core-contracts/services/employee.service';
+import { journeyStepLogService } from '../../../services/core-contracts/services/journeyStepLog.service';
 import { IJourney } from '../../../services/core-contracts/types/journey.types';
 import { IWorkTask } from '../../../services/core-contracts/types/workTask.types';
+import { IJourneyStepLog } from '../../../services/core-contracts/types/journeyStepLog.types';
 import { AuthorizedUserSelect } from '../../../components/authorizedusers/AuthorizedUser';
 import { mockJourneyTemplates } from '../../../data/journeyMockData';
 import type { GoNoGoStatus, SlaStatus, PortalPublishStatus } from '../../../types/journey';
@@ -40,6 +42,12 @@ import { JourneyDocumentsTab } from '../../../components/journey/JourneyDocument
 const { Text, Title } = Typography;
 const { TextArea } = Input;
 
+import {
+    JourneyHistoryModal,
+    SLA_CONFIG,
+    HEADER_STEP_CONFIG
+} from './components/JourneyHistoryModal';
+
 const GO_NO_GO_CONFIG: Record<GoNoGoStatus, { label: string; color: string }> = {
     draft: { label: 'Nháp', color: 'default' },
     go: { label: 'Tiếp tục ✓', color: 'success' },
@@ -47,32 +55,13 @@ const GO_NO_GO_CONFIG: Record<GoNoGoStatus, { label: string; color: string }> = 
     on_hold: { label: 'Tạm hoãn', color: 'warning' },
     pending: { label: 'Chờ duyệt', color: 'processing' },
 };
-const SLA_CONFIG: Record<SlaStatus, { label: string; color: string }> = {
-    ontime: { label: 'Đúng hạn', color: 'success' },
-    at_risk: { label: 'Có rủi ro', color: 'warning' },
-    overdue: { label: 'Quá hạn', color: 'error' },
-};
 const PORTAL_CONFIG: Record<PortalPublishStatus, { label: string; color: string }> = {
     hidden: { label: 'Ẩn', color: 'default' },
     partial: { label: 'Một phần', color: 'blue' },
     published: { label: 'Đã publish', color: 'success' },
 };
 
-const HEADER_STEP_CONFIG = [
-    { key: 'lead_intake', label: 'Tiếp nhận' },
-    { key: 'qualification', label: 'Thẩm định' },
-    { key: 'survey_planning', label: 'Lập lịch KS' },
-    { key: 'site_survey', label: 'Khảo sát' },
-    { key: 'survey_review', label: 'Duyệt KS' },
-    { key: 'estimate_preparation', label: 'Lập dự toán' },
-    { key: 'quotation_preparation', label: 'Lập báo giá' },
-    { key: 'quotation_sent', label: 'Gửi báo giá' },
-    { key: 'quotation_approved', label: 'Khách duyệt' },
-    { key: 'contract_signing', label: 'Ký hợp đồng' },
-    { key: 'project_execution', label: 'Thi công' },
-    { key: 'handover_acceptance', label: 'Nghiệm thu' },
-    { key: 'warranty_aftercare', label: 'Bảo hành' }
-] as const;
+// HEADER_STEP_CONFIG is imported from shared components
 
 const TASK_STATUS_CONFIG: Record<string, { label: string; color: string }> = {
     pending: { label: 'Chờ', color: 'orange' },
@@ -90,6 +79,8 @@ const toUserList = (value: unknown): string[] => {
         : [String(value)];
 };
 
+// formatDuration is imported from shared components
+
 const JourneyDetail360: React.FC = () => {
     // Support both :journeyId and :id param names for backward compat across all role routes
     const params = useParams<{ journeyId?: string; id?: string }>();
@@ -104,6 +95,8 @@ const JourneyDetail360: React.FC = () => {
     const [employees, setEmployees] = useState<{ label: string; value: string }[]>([]);
     const [workTasks, setWorkTasks] = useState<IWorkTask[]>([]);
     const [isLoadingTasks, setIsLoadingTasks] = useState(false);
+    const [currentStepLog, setCurrentStepLog] = useState<IJourneyStepLog | null>(null);
+    const [showHistoryModal, setShowHistoryModal] = useState(false);
 
     const [isDocModalOpen, setIsDocModalOpen] = useState(false);
     const [editingDoc, setEditingDoc] = useState<any>(null);
@@ -116,6 +109,9 @@ const JourneyDetail360: React.FC = () => {
         try {
             const data = await journeyService.findJourneyDto(journeyId);
             setJourney(data);
+            if (data?.current_step) {
+                fetchCurrentStepLog(journeyId, data.current_step);
+            }
         } catch (error) {
             console.error('Failed to fetch journey:', error);
             message.error('Không thể tải thông tin hành trình');
@@ -123,6 +119,30 @@ const JourneyDetail360: React.FC = () => {
             setIsLoading(false);
         }
     };
+
+    const fetchCurrentStepLog = async (jId: string, stepCode: string) => {
+        try {
+            const res = await journeyStepLogService.queryJourneyStepLogsDto({
+                group: {
+                    operation: 'and',
+                    children: [
+                        { id: 'journey_id', operation: 'eq', value: jId },
+                        { id: 'step_code', operation: 'eq', value: stepCode }
+                    ]
+                },
+                sorted: [{ id: 'createdAt', desc: true }],
+                limit: 1
+            } as any);
+            if (res.data?.[0]) {
+                setCurrentStepLog(res.data[0]);
+            } else {
+                setCurrentStepLog(null);
+            }
+        } catch (error) {
+            console.error('Failed to fetch current step log:', error);
+        }
+    };
+
 
     const fetchEmployees = async () => {
         try {
@@ -500,7 +520,7 @@ const JourneyDetail360: React.FC = () => {
         // 12. Tab Tài liệu (GRP_09_ACCEPTANCE or GRP_08_CONSTRUCT)
         {
             key: 'GRP_ACCEPTANCE',
-            label: <span><PaperClipOutlined /> Tài liệu</span>,
+            label: <span><PaperClipOutlined /> Bàn giao</span>,
             children: renderTabContent('GRP_09_ACCEPTANCE', 'S09_ACCEPTANCE'),
         },
         // 12b. Tab Tài liệu công trình - công khai, không giới hạn quyền
@@ -570,12 +590,18 @@ const JourneyDetail360: React.FC = () => {
                         <Button icon={<UserOutlined />} onClick={() => setShowAssignModal(true)}>{isMobile ? '' : 'Phân công'}</Button>
                         <Button icon={<FlagOutlined />} onClick={() => setShowPriorityModal(true)}>{isMobile ? '' : 'Ưu tiên'}</Button>
                         <Button type="primary" icon={<SendOutlined />} onClick={() => setShowPublishModal(true)}>Publish Portal</Button>
+                        <Tooltip title="Lịch sử các bước">
+                            <Button icon={<HistoryOutlined />} onClick={() => setShowHistoryModal(true)} />
+                        </Tooltip>
                     </Space>
                 )}
                 {role === 'KD' && (
                     <Space size={isMobile ? 4 : 8} wrap={isMobile}>
                         <Button icon={<MessageOutlined />} onClick={() => setShowLogModal(true)}>{isMobile ? '' : 'Ghi Log'}</Button>
                         <Button icon={<ClockCircleOutlined />} onClick={() => setShowFollowUpModal(true)}>{isMobile ? '' : 'Follow-up'}</Button>
+                        <Tooltip title="Lịch sử các bước">
+                            <Button icon={<HistoryOutlined />} onClick={() => { setShowHistoryModal(true); fetchJourneyStepLogs(); }} />
+                        </Tooltip>
                     </Space>
                 )}
             </div>
@@ -607,6 +633,30 @@ const JourneyDetail360: React.FC = () => {
                             </Space>
                         </div>
 
+                        {currentStepLog && (currentStepLog.sla_status === 'at_risk' || currentStepLog.sla_status === 'overdue') && (
+                            <div style={{ marginTop: 12 }}>
+                                <Alert
+                                    type={currentStepLog.sla_status === 'overdue' ? 'error' : 'warning'}
+                                    showIcon
+                                    message={
+                                        <Space split={<Text style={{ color: 'rgba(0,0,0,0.15)' }}>|</Text>}>
+                                            <Text strong>{currentStepLog.sla_status === 'overdue' ? 'QUÁ HẠN BƯỚC HIỆN TẠI' : 'RỦI RO CHẬM TIẾN ĐỘ'}</Text>
+                                            <Text>SLA: {currentStepLog.sla_hours_snapshot}h</Text>
+                                            {currentStepLog.metadata?.breach_reason && (
+                                                <Text>Lý do: {currentStepLog.metadata.breach_reason}</Text>
+                                            )}
+                                        </Space>
+                                    }
+                                    style={{
+                                        borderRadius: 8,
+                                        background: currentStepLog.sla_status === 'overdue' ? 'rgba(255, 77, 79, 0.1)' : 'rgba(250, 173, 20, 0.1)',
+                                        border: '1px solid rgba(255,255,255,0.2)',
+                                        color: '#fff'
+                                    }}
+                                />
+                            </div>
+                        )}
+
                         {isMobile && (
                             <div style={{ marginTop: 16 }}>
                                 <Button
@@ -628,8 +678,19 @@ const JourneyDetail360: React.FC = () => {
                     </Col>
                     <Col xs={24} md={8} style={{ textAlign: isMobile ? 'left' : 'right' }}>
                         <Space wrap>
+                            {currentStepLog && (
+                                <Tooltip title={`SLA Bước ${HEADER_STEP_CONFIG.find(s => s.key === currentStepLog.step_code)?.label || currentStepLog.step_code}`}>
+                                    <Tag
+                                        icon={<ClockCircleOutlined />}
+                                        color={SLA_CONFIG[currentStepLog.sla_status as string]?.color || 'default'}
+                                        style={{ border: 'none', fontWeight: 600 }}
+                                    >
+                                        Step: {SLA_CONFIG[currentStepLog.sla_status as string]?.label || currentStepLog.sla_status}
+                                    </Tag>
+                                </Tooltip>
+                            )}
                             <Tag color={SLA_CONFIG[journey.sla_status as SlaStatus]?.color || 'default'}>
-                                {SLA_CONFIG[journey.sla_status as SlaStatus]?.label || journey.sla_status}
+                                Toàn trình: {SLA_CONFIG[journey.sla_status as SlaStatus]?.label || journey.sla_status}
                             </Tag>
                             <Tag color={GO_NO_GO_CONFIG[journey.go_no_go_status as GoNoGoStatus]?.color || 'default'}>
                                 {GO_NO_GO_CONFIG[journey.go_no_go_status as GoNoGoStatus]?.label || journey.go_no_go_status}
@@ -1147,6 +1208,13 @@ const JourneyDetail360: React.FC = () => {
                 stepCode={selectedTaskForReport?.journey_step_code || selectedTaskStepCode || ''}
                 taskId={selectedTaskForReport?._id}
                 taskTitle={selectedTaskForReport?.title}
+            />
+
+            <JourneyHistoryModal
+                open={showHistoryModal}
+                onCancel={() => setShowHistoryModal(false)}
+                journeyId={journeyId}
+                journeyCode={journey?.journey_code}
             />
         </div>
     );
