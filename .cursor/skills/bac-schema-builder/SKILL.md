@@ -10,7 +10,7 @@ description: >-
 
 # BAC Schema Builder
 
-Đọc thêm nguồn chi tiết trong repo: [.github/agents/BAC-SchemaBuilderAgent.agent.md](.github/agents/BAC-SchemaBuilderAgent.agent.md).
+Đọc thêm nguồn chi tiết trong repo: [BAC-SchemaBuilderAgent.agent.md](../../../.github/agents/BAC-SchemaBuilderAgent.agent.md).
 
 ## Mục đích
 
