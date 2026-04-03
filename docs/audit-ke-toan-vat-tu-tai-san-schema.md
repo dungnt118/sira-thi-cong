@@ -1,7 +1,10 @@
 # Audit: Quản lý vật tư & Quản lý tài sản (Kế toán) — So khớp UI và schema backend
 
-**Phiên bản tài liệu:** 1.0  
+**Phiên bản tài liệu:** 1.1  
 **Ngày cập nhật:** 2026-04-03  
+
+> **Cập nhật sau remediation:** Xem chi tiết thay đổi BAC + frontend tại [`schema-gap-remediation-20260403.md`](./schema-gap-remediation-20260403.md). Tóm tắt: `StockOrder` đã gộp luồng yêu cầu (`requested_by`, `review_*`, `request_reason`), `request_id` deprecated; `JourneyStepLog.activity_event_id` deprecated; schema mới `AssetMaintenanceTicket`; `/kt/dashboard` tách khỏi danh mục vật tư.
+
 **Phạm vi:** Portal Kế toán (`/kt`), menu **QL Vật tư** và **QL Tài sản** trong `AccountantV3Layout`.  
 **Không nằm trong phạm vi:** Thanh toán, khoản chi, bảo hành (chỉ nhắc khi có liên quan chéo master data).
 

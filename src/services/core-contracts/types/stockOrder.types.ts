@@ -1,10 +1,8 @@
-import type { HeadlessReferenceContent, IndexedContentItem } from 'types/apis';
-import type { ApiListResponse, ApiResponse } from 'types/apis/ApiResponse';
-import type { HeadlessFileUpload } from 'types/apis/HeadlessFileUpload';
+import type { IndexedContentItem } from 'types/apis';
+import type { ApiListResponse } from 'types/apis/ApiResponse';
 
 /**
- * StockOrder interface
- * Auto-generated from Schema: StockOrder
+ * StockOrder interface — đồng bộ với schema BAC (`schema-get` StockOrder), 2026-04-03.
  */
 export interface IStockOrder {
   _id: string;
@@ -18,19 +16,29 @@ export interface IStockOrder {
   supplier?: string;
   total_value?: number;
   notes?: string;
-  project_id?: string;
-  idx_project_id?: IndexedContentItem;
   created_at?: string | Date;
   created_by?: any;
-  project_name?: string;
   journey_code?: string;
   source_id?: string;
   signed_by?: string;
   discrepancy_status?: StockOrderDiscrepancyStatusEnum;
   pdf_url?: string;
+  /** @deprecated Liên kết StockRequest — schema đang loại bỏ; không dùng cho bản ghi mới */
   request_id?: string;
+  /** @deprecated Đi kèm request_id */
   idx_request_id?: IndexedContentItem;
+  /** Người khởi tạo yêu cầu (PM), thay cho tách bảng StockRequest */
+  requested_by?: any;
+  /** Người duyệt (kế toán/thủ kho) */
+  reviewed_by?: any;
+  reviewed_at?: string | Date;
+  review_note?: string;
+  /** Lý do yêu cầu xuất/nhập (tương đương reason trên StockRequest cũ) */
+  request_reason?: string;
   signed_at?: string | Date;
+  /** Ảnh chữ ký (StockPhoto trên BAC — Text + editor StockPhoto) */
+  signature_image?: string;
+  /** @deprecated Nested cũ trên BAC; ưu tiên `signature_image` */
   signatures?: ISignaturesItem[];
   history?: IHistoryItem[];
   items?: IItemsItem[];
@@ -82,17 +90,23 @@ export interface ICreateStockOrderInput {
   supplier?: string;
   total_value?: number;
   notes?: string;
-  project_id?: string;
   created_at?: string | Date;
   created_by?: any;
-  project_name?: string;
   journey_code?: string;
   source_id?: string;
   signed_by?: string;
   discrepancy_status?: StockOrderDiscrepancyStatusEnum2;
   pdf_url?: string;
+  /** @deprecated */
   request_id?: string;
   signed_at?: string | Date;
+  requested_by?: any;
+  reviewed_by?: any;
+  reviewed_at?: string | Date;
+  review_note?: string;
+  request_reason?: string;
+  signature_image?: string;
+  /** @deprecated */
   signatures?: ISignaturesItem[];
   history?: IHistoryItem[];
   items?: IItemsItem[];

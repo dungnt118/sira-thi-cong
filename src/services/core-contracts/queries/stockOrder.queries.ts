@@ -24,11 +24,8 @@ export const FIND_STOCKORDER_DTO = gql`
         supplier
         total_value
         notes
-        project_id
-        idx_project_id
         created_at
         created_by
-        project_name
         journey_code
         source_id
         signed_by
@@ -36,7 +33,13 @@ export const FIND_STOCKORDER_DTO = gql`
         pdf_url
         request_id
         idx_request_id
+        requested_by
+        reviewed_by
+        reviewed_at
+        review_note
+        request_reason
         signed_at
+        signature_image
         signatures {
           role
           user_name
@@ -98,11 +101,8 @@ export const QUERY_STOCKORDERS_DTO = gql`
         supplier
         total_value
         notes
-        project_id
-        idx_project_id
         created_at
         created_by
-        project_name
         journey_code
         source_id
         signed_by
@@ -110,7 +110,13 @@ export const QUERY_STOCKORDERS_DTO = gql`
         pdf_url
         request_id
         idx_request_id
+        requested_by
+        reviewed_by
+        reviewed_at
+        review_note
+        request_reason
         signed_at
+        signature_image
         signatures {
           role
           user_name

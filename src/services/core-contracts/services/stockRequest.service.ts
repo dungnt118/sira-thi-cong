@@ -1,3 +1,7 @@
+/**
+ * @deprecated Nghiệp vụ yêu cầu kho đã gộp vào schema StockOrder (trạng thái + requested_by/review_*).
+ * Giữ service để tương thích mã cũ và seed; bản ghi mới nên dùng stockOrderService.
+ */
 import { query, queryList } from 'app/services/graphqlService'; // TODO: Check path
 import { GeneralCollectionFilter } from 'types/filters/GeneralCollectionFilter';
 import {

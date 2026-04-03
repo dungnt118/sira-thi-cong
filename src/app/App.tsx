@@ -91,6 +91,7 @@ const SupervisorJourneyList = lazy(() => import('../pages/giam-sat/SupervisorJou
 // V3 Accountant Pages
 import AccountantV3Layout from '../layouts/AccountantV3Layout';
 import InventoryDashboard from '../pages/accountant/Inventory/Dashboard';
+import AccountantOverviewDashboard from '../pages/accountant/AccountantOverviewDashboard';
 import PaymentDashboard from '../pages/accountant/Finance/PaymentDashboard';
 import InboundForm from '../pages/accountant/Inventory/InboundForm';
 import OutboundForm from '../pages/shared/OutboundForm';
@@ -127,11 +128,12 @@ import './App.css';
 import { BuildOutlined } from '@ant-design/icons';
 
 // Simple stub component for pages in progress
-const ComingSoon = ({ title }: { title: string }) => (
+const ComingSoon = ({ title, description }: { title: string; description?: string }) => (
     <div style={{ padding: 40, textAlign: 'center' }}>
         <div style={{ fontSize: 48, color: '#fa8c16' }}><BuildOutlined /></div>
         <h2>{title}</h2>
         <p style={{ color: '#999' }}>Tính năng đang được phát triển</p>
+        {description ? <p style={{ color: '#666', maxWidth: 520, margin: '16px auto 0' }}>{description}</p> : null}
     </div>
 );
 
@@ -293,7 +295,7 @@ function App() {
                                     {/* ===== KẾ TOÁN ROUTES (KT) ===== */}
                                     <Route path="/kt" element={<AccountantV3Layout />}>
                                         <Route index element={<Navigate to="/kt/dashboard" replace />} />
-                                        <Route path="dashboard" element={<InventoryDashboard />} />
+                                        <Route path="dashboard" element={<AccountantOverviewDashboard />} />
                                         <Route path="inventory" element={<Navigate to="/kt/inventory/materials" replace />} />
                                         <Route path="inventory/materials" element={<InventoryDashboard />} />
                                         <Route path="inventory/stock-out" element={<OutboundForm />} />
@@ -308,7 +310,15 @@ function App() {
                                         <Route path="assets/allocation" element={<AllocationForm />} />
                                         <Route path="assets/allocation/:id" element={<AssetAllocationDetail />} />
                                         <Route path="assets/allocation-history" element={<AssetAllocationHistory />} />
-                                        <Route path="assets/maintenance" element={<ComingSoon title="Bảo trì tài sản" />} />
+                                        <Route
+                                            path="assets/maintenance"
+                                            element={
+                                                <ComingSoon
+                                                    title="Bảo trì tài sản"
+                                                    description="Schema backend AssetMaintenanceTicket đã được tạo; tab Phiếu bảo trì trên chi tiết tài sản sẽ hiển thị khi cấu hình view. Giao diện danh sách riêng sẽ bổ sung sau."
+                                                />
+                                            }
+                                        />
                                         <Route path="finance">
                                             <Route index element={<Navigate to="/kt/finance/milestones" replace />} />
                                             <Route path="milestones" element={<PaymentDashboard />} />
