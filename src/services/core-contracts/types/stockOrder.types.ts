@@ -18,8 +18,6 @@ export interface IStockOrder {
   supplier?: string;
   total_value?: number;
   notes?: string;
-  created_at?: string | Date;
-  created_by?: any;
   journey_code?: string;
   signed_by?: any;
   discrepancy_status?: StockOrderDiscrepancyStatusEnum;
@@ -37,6 +35,8 @@ export interface IStockOrder {
   review_note?: string;
   request_reason?: string;
   signatures?: ISignaturesItem[];
+  createdAt?: string | Date;
+  createdBy?: any;
 }
 
 export interface IItemsItem {
@@ -75,8 +75,6 @@ export interface ICreateStockOrderInput {
   supplier?: string;
   total_value?: number;
   notes?: string;
-  created_at?: string | Date;
-  created_by?: any;
   journey_code?: string;
   signed_by?: any;
   discrepancy_status?: StockOrderDiscrepancyStatusEnum2;
@@ -92,6 +90,8 @@ export interface ICreateStockOrderInput {
   review_note?: string;
   request_reason?: string;
   signatures?: ISignaturesItem[];
+  createdAt?: string | Date;
+  createdBy?: any;
 }
 
 export type IStockOrderListResponse = ApiListResponse<IStockOrder>

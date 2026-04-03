@@ -1,16 +1,24 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { Typography, Table, Button, Tag, Card, Row, Col, Statistic, Tabs, Input, Steps, Space, Badge, Grid, List, message, Modal, Tooltip } from 'antd';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { 
+    Typography, Table, Button, Tag, Card, Row, Col, 
+    Statistic, Tabs, Input, Steps, Space, Badge, Grid, 
+    List, message, Modal, Tooltip, DatePicker 
+} from 'antd';
 import {
     FileTextOutlined, ClockCircleOutlined,
     ImportOutlined, ExportOutlined, SearchOutlined,
     ArrowRightOutlined, FilePdfOutlined, DownloadOutlined,
-    InfoCircleOutlined, UserOutlined, CalendarOutlined
+    InfoCircleOutlined, UserOutlined, CalendarOutlined,
+    FilterOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
 import { stockOrderService } from '../../../services/core-contracts/services/stockOrder.service';
-import type { IStockOrder, StockOrderStatusEnum } from '../../../services/core-contracts/types/stockOrder.types';
-import { getFileLink } from '../../../services/storeService';
+import { 
+    content_segment_count_by_status, 
+    content_numeric_aggregate 
+} from '../../../store/actions/data/data.action';
+import type { IStockOrder } from '../../../services/core-contracts/types/stockOrder.types';
 import {
     classifyJourneyFile,
     getJourneyFileDisplayName,
@@ -21,9 +29,12 @@ import {
 import { PdfViewer } from '../../../components/common/PdfViewer';
 import type { HeadlessFileUpload } from 'types/apis/HeadlessFileUpload';
 import dayjs from 'dayjs';
+import type { Dayjs } from 'dayjs';
+import _ from 'lodash';
 
 const { Title, Text } = Typography;
 const { useBreakpoint } = Grid;
+const { RangePicker } = DatePicker;
 
 const SOURCE_LABELS: Record<string, string> = {
     internal: 'Nội bộ',
@@ -35,29 +46,114 @@ const SOURCE_LABELS: Record<string, string> = {
     project: 'Công trình'
 };
 
+const STATUS_STEPS = [
+    { key: 'draft', title: 'Nháp' },
+    { key: 'requested', title: 'Cần duyệt' },
+    { key: 'approved', title: 'Đang xử lý' },
+    { key: 'completed', title: 'Hoàn thành' },
+    { key: 'cancelled', title: 'Đã hủy/Lỗi' }
+];
+
 const InventoryHistory: React.FC = () => {
     const navigate = useNavigate();
     const { role } = useAuth();
     const screens = useBreakpoint();
     const isMobile = !screens.md;
 
+    // ─── State Management ──────────────────────────────────────
     const [loading, setLoading] = useState(false);
     const [stockOrders, setStockOrders] = useState<IStockOrder[]>([]);
     const [activeTabType, setActiveTabType] = useState<'out' | 'in'>('out');
     const [activeStep, setActiveStep] = useState<string>('requested');
     const [searchText, setSearchText] = useState('');
+    
+    // Filtering states
+    const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null]>([
+        dayjs().startOf('month'),
+        dayjs().endOf('month')
+    ]);
+
+    // Pagination state
+    const [pagination, setPagination] = useState({
+        current: 1,
+        pageSize: 10,
+        total: 0
+    });
+
+    // Stats states
+    const [statAgg, setStatAgg] = useState({
+        totalInValue: 0,
+        totalOutValue: 0,
+        pendingCount: 0,
+        totalCount: 0
+    });
+    const [stepCounts, setStepCounts] = useState<Record<string, number>>({});
+
     const [filePreview, setFilePreview] = useState<{
         kind: JourneyFileKind;
         url: string;
         name: string;
     } | null>(null);
 
-    const fetchOrders = async () => {
+    // ─── Query Logic ──────────────────────────────────────────
+    
+    const buildFilter = useCallback((override?: any) => {
+        const currentType = override?.type || activeTabType;
+        const currentStep = override?.step !== undefined ? override.step : activeStep;
+        const currentSearch = override?.search !== undefined ? override.search : searchText;
+        const [start, end] = dateRange;
+
+        const children: any[] = [{ id: 'type', operation: 'eq', value: currentType }];
+
+        if (currentStep && currentStep !== 'ALL') {
+            if (currentStep === 'approved') {
+                children.push({ id: 'status', operation: 'in', value: ['approved', 'dispatched', 'received'] });
+            } else if (currentStep === 'cancelled') {
+                children.push({ id: 'status', operation: 'in', value: ['cancelled', 'discrepancy'] });
+            } else {
+                children.push({ id: 'status', operation: 'eq', value: currentStep });
+            }
+        }
+
+        if (start) {
+            children.push({ id: 'createdAt', operation: 'gte', value: { date: start.startOf('day').toISOString() } });
+        }
+        if (end) {
+            children.push({ id: 'createdAt', operation: 'lte', value: { date: end.endOf('day').toISOString() } });
+        }
+
+        if (currentSearch) {
+            children.push({ id: 'code', operation: 'contains', value: currentSearch });
+        }
+
+        // GraphQL Schema expects "group" to be an OBJECT with "children" and "op"
+        return {
+            op: 'AND',
+            children: children
+        };
+    }, [activeTabType, activeStep, searchText, dateRange]);
+
+    const fetchOrders = async (currentParams?: any) => {
         setLoading(true);
+        const { page = pagination.current, pageSize = pagination.pageSize, ...overrides } = currentParams || {};
+
         try {
-            const res = await stockOrderService.queryStockOrdersDto({});
+            const filterGroup = buildFilter(overrides);
+            const res = await stockOrderService.queryStockOrdersDto({
+                group: filterGroup,
+                limit: pageSize,
+                skip: (page - 1) * pageSize,
+                sorted: [{ id: 'createdAt', desc: true }]
+            } as any);
+
             if (res.data) {
                 setStockOrders(res.data);
+                setPagination(prev => ({ 
+                    ...prev, 
+                    current: page, 
+                    pageSize, 
+                    total: res.total || res.data.length 
+                }));
             }
         } catch (error) {
             message.error('Không thể tải lịch sử kho');
@@ -66,95 +162,94 @@ const InventoryHistory: React.FC = () => {
         }
     };
 
+    const fetchStats = async () => {
+        try {
+            const filterGroup = buildFilter({ step: 'ALL' });
+            
+            // 1. Get counts by status
+            const countsRes = await content_segment_count_by_status({ 
+                filter: { target_schema: 'StockOrder', group: filterGroup } 
+            } as any);
+            
+            if (countsRes.data) {
+                const counts: Record<string, number> = {};
+                let total = 0;
+                let pending = 0;
+                
+                countsRes.data.forEach(item => {
+                    const status = item.key;
+                    counts[status] = item.count;
+                    total += item.count;
+                    if (status === 'requested') pending += item.count;
+                });
+                
+                const mappedStepCounts: Record<string, number> = {
+                    draft: counts.draft || 0,
+                    requested: counts.requested || 0,
+                    approved: (counts.approved || 0) + (counts.dispatched || 0) + (counts.received || 0),
+                    completed: counts.completed || 0,
+                    cancelled: (counts.cancelled || 0) + (counts.discrepancy || 0)
+                };
+                
+                setStepCounts(mappedStepCounts);
+                setStatAgg(prev => ({ ...prev, totalCount: total, pendingCount: pending }));
+            }
+
+            // 2. Get financial sums
+            // Fix: Create modified children for the stats to correctly count across types when calculated individually
+            const baseChildren = filterGroup.children.filter(g => g.id !== 'type');
+            
+            const [inRes, outRes] = await Promise.all([
+                content_numeric_aggregate({ 
+                    field: 'total_value',
+                    filter: { 
+                        target_schema: 'StockOrder', 
+                        group: { op: 'AND', children: [{ id: 'type', operation: 'eq', value: 'in' }, ...baseChildren] } 
+                    } 
+                } as any),
+                content_numeric_aggregate({ 
+                    field: 'total_value',
+                    filter: { 
+                        target_schema: 'StockOrder', 
+                        group: { op: 'AND', children: [{ id: 'type', operation: 'eq', value: 'out' }, ...baseChildren] } 
+                    } 
+                } as any)
+            ]);
+            
+            setStatAgg(prev => ({
+                ...prev,
+                totalInValue: inRes.data?.sum || 0,
+                totalOutValue: outRes.data?.sum || 0
+            }));
+
+        } catch (error) {
+            console.error('Lỗi fetch stats:', error);
+        }
+    };
+
+    const debouncedFetch = useCallback(
+        _.debounce((search: string) => fetchOrders({ page: 1, search }), 500),
+        [dateRange, activeTabType, activeStep]
+    );
+
     useEffect(() => {
-        fetchOrders();
-    }, []);
+        fetchOrders({ page: 1 });
+        fetchStats();
+    }, [activeTabType, activeStep, dateRange]);
+
+    const handleSearchChange = (val: string) => {
+        setSearchText(val);
+        debouncedFetch(val);
+    };
 
     const handleCreateOrder = () => {
         const pathSuffix = activeTabType === 'out' ? 'stock-out' : 'stock-in';
         navigate(`/${role}/inventory/${pathSuffix}`);
     };
 
-    const stats = useMemo(() => {
-        let totalIn = 0;
-        let valIn = 0;
-        let totalOut = 0;
-        let valOut = 0;
-        let pending = 0;
-
-        stockOrders.forEach(o => {
-            if (o.type === 'in') {
-                totalIn++;
-                valIn += o.total_value || 0;
-            } else if (o.type === 'out') {
-                totalOut++;
-                valOut += o.total_value || 0;
-            }
-            if (o.status === 'requested') {
-                pending++;
-            }
-        });
-
-        return {
-            total: stockOrders.length,
-            totalIn,
-            valIn,
-            totalOut,
-            valOut,
-            pending
-        };
-    }, [stockOrders]);
-
-    const typeFilteredOrders = useMemo(() => {
-        return stockOrders.filter(o => o.type === activeTabType);
-    }, [stockOrders, activeTabType]);
-
-    const stepCounts = useMemo(() => {
-        const counts: Record<string, number> = {
-            draft: 0,
-            requested: 0,
-            approved: 0,
-            completed: 0,
-            cancelled: 0
-        };
-        typeFilteredOrders.forEach(o => {
-            const s = o.status || 'draft';
-            if (s === 'draft') counts.draft++;
-            else if (s === 'requested') counts.requested++;
-            else if (['approved', 'dispatched', 'received'].includes(s)) counts.approved++;
-            else if (s === 'completed') counts.completed++;
-            else if (['cancelled', 'discrepancy'].includes(s)) counts.cancelled++;
-        });
-        return counts;
-    }, [typeFilteredOrders]);
-
-    const finalList = useMemo(() => {
-        let list = stockOrders;
-        
-        if (searchText) {
-            const lower = searchText.toLowerCase();
-            return list.filter(o =>
-                (o.code && o.code.toLowerCase().includes(lower)) ||
-                (o.journey_code && o.journey_code.toLowerCase().includes(lower)) ||
-                (o.journey_name && o.journey_name.toLowerCase().includes(lower)) ||
-                (o.notes && o.notes.toLowerCase().includes(lower))
-            );
-        }
-
-        list = typeFilteredOrders;
-
-        if (activeStep !== 'ALL') {
-            if (activeStep === 'approved') {
-                list = list.filter(o => ['approved', 'dispatched', 'received'].includes(o.status || ''));
-            } else if (activeStep === 'cancelled') {
-                list = list.filter(o => ['cancelled', 'discrepancy'].includes(o.status || ''));
-            } else {
-                list = list.filter(o => o.status === activeStep);
-            }
-        }
-
-        return list;
-    }, [stockOrders, typeFilteredOrders, activeStep, searchText]);
+    const handleTableChange = (pagination: any) => {
+        fetchOrders({ page: pagination.current, pageSize: pagination.pageSize });
+    };
 
     const getStatusTag = (s: string) => {
         const colors: Record<string, string> = {
@@ -178,11 +273,7 @@ const InventoryHistory: React.FC = () => {
             message.warning('Không tìm thấy đường dẫn file hợp lệ');
             return;
         }
-        setFilePreview({
-            kind,
-            url,
-            name: getJourneyFileDisplayName(file)
-        });
+        setFilePreview({ kind, url, name: getJourneyFileDisplayName(file) });
     };
 
     const renderUser = (u: any) => {
@@ -205,19 +296,19 @@ const InventoryHistory: React.FC = () => {
             )
         },
         { 
-            title: 'Yêu cầu bởi', 
+            title: 'Người lập', 
             dataIndex: 'requested_by', 
             key: 'req_by', 
             width: 140, 
             render: (v: any) => (
                 <Space size={4}>
-                    <UserOutlined style={{ fontSize: 13, color: '#8c8c8c' }} />
+                    <UserOutlined style={{ fontSize: 12, color: '#8c8c8c' }} />
                     <Text ellipsis={{ tooltip: renderUser(v) }} style={{ fontSize: 13 }}>{renderUser(v)}</Text>
                 </Space>
             )
         },
         {
-            title: 'Đối tượng/Công trình',
+            title: 'Hành trình',
             key: 'journey',
             minWidth: 180,
             render: (_: any, record: IStockOrder) => {
@@ -225,7 +316,7 @@ const InventoryHistory: React.FC = () => {
                     return (
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
                             {record.journey_code && <Tag color="blue" style={{ width: 'fit-content', marginBottom: 2 }}>{record.journey_code}</Tag>}
-                            <Text strong style={{ fontSize: 12 }}>{record.journey_name || 'Hành trình không tên'}</Text>
+                            <Text strong style={{ fontSize: 12 }}>{record.journey_name || '—'}</Text>
                         </div>
                     );
                 }
@@ -248,39 +339,22 @@ const InventoryHistory: React.FC = () => {
         },
         { title: 'Giá trị', dataIndex: 'total_value', key: 'val', width: 110, align: 'right' as const, render: (v: number) => <Text strong>{(v || 0).toLocaleString('vi-VN')}đ</Text> },
         { 
-            title: 'Lập phiếu', 
-            dataIndex: 'created_at', 
+            title: 'Tạo lúc', 
+            dataIndex: 'createdAt', 
             key: 'date', 
             width: 140, 
-            render: (d: any) => d ? (
-                <div style={{ fontSize: 12 }}>
-                    <CalendarOutlined style={{ marginRight: 4, color: '#bfbfbf' }} />
-                    {dayjs(d).format('DD/MM/YY HH:mm')}
-                </div>
-            ) : '—' 
+            render: (d: any) => d ? <div style={{ fontSize: 12 }}><CalendarOutlined style={{ marginRight: 4, color: '#bfbfbf' }} />{dayjs(d).format('DD/MM/YY HH:mm')}</div> : '—' 
         },
         { 
-            title: 'Duyệt phiếu', 
+            title: 'Duyệt lúc', 
             dataIndex: 'reviewed_at', 
             key: 'rev_date', 
             width: 140, 
-            render: (d: any) => d ? (
-                <div style={{ fontSize: 12, color: '#52c41a' }}>
-                    <CalendarOutlined style={{ marginRight: 4 }} />
-                    {dayjs(d).format('DD/MM/YY HH:mm')}
-                </div>
-            ) : <Text type="secondary" italic style={{ fontSize: 11 }}>Chưa duyệt</Text>
+            render: (d: any) => d ? <div style={{ fontSize: 12, color: '#52c41a' }}><CalendarOutlined style={{ marginRight: 4 }} />{dayjs(d).format('DD/MM/YY HH:mm')}</div> : '—'
         },
+        { title: 'Ghi chú', dataIndex: 'notes', key: 'notes', width: 150, ellipsis: { tooltip: true }, render: (n: string) => n || '—' },
         {
-            title: 'Ghi chú',
-            dataIndex: 'notes',
-            key: 'notes',
-            width: 150,
-            ellipsis: { tooltip: true },
-            render: (n: string) => n || '—'
-        },
-        {
-            title: 'Minh chứng',
+            title: 'Bản in',
             key: 'docs',
             width: 80,
             fixed: 'right' as const,
@@ -289,98 +363,56 @@ const InventoryHistory: React.FC = () => {
                 const pdf = record.pdf_files?.[0];
                 if (!pdf) return null;
                 return (
-                    <Tooltip title="Xem minh chứng PDF">
-                        <Button 
-                            type="text" 
-                            size="small"
-                            icon={<FilePdfOutlined style={{ color: '#ff4d4f', fontSize: 18 }} />} 
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                openFilePreview(pdf);
-                            }}
-                        />
+                    <Tooltip title="Xem minh chứng">
+                        <Button type="text" size="small" icon={<FilePdfOutlined style={{ color: '#ff4d4f', fontSize: 18 }} />} onClick={(e) => { e.stopPropagation(); openFilePreview(pdf); }} />
                     </Tooltip>
                 );
             }
         },
     ];
 
-    const tabTypes = [
-        { key: 'out', label: `Phiếu xuất kho (${stats.totalOut})` },
-        { key: 'in', label: `Phiếu nhập kho (${stats.totalIn})` }
-    ];
-
-    const STATUS_STEPS = [
-        { key: 'draft', title: 'Nháp' },
-        { key: 'requested', title: 'Cần duyệt' },
-        { key: 'approved', title: 'Đang xử lý' },
-        { key: 'completed', title: 'Hoàn thành' },
-        { key: 'cancelled', title: 'Đã hủy/Lỗi' }
-    ];
-
-    const currentStepIndex = STATUS_STEPS.findIndex(s => s.key === activeStep);
-
     return (
         <div style={{ padding: isMobile ? '8px' : '0' }}>
-            <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: 24
-            }}>
-                <Title level={isMobile ? 5 : 4} style={{ margin: 0 }}>⏱️ Lịch sử xuất/nhập kho</Title>
-                <div style={{ display: 'flex', gap: 12 }}>
-                    <Button
-                        type="primary"
-                        icon={activeTabType === 'out' ? <ExportOutlined /> : <ImportOutlined />}
-                        onClick={handleCreateOrder}
-                    >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, gap: 12, flexWrap: 'wrap' }}>
+                <Title level={isMobile ? 5 : 4} style={{ margin: 0 }}>⏱️ Hồ sơ xuất/nhập kho</Title>
+                <Space wrap>
+                    <RangePicker 
+                        value={dateRange}
+                        onChange={(val) => setDateRange(val as any)}
+                        presets={[
+                            { label: 'Hôm nay', value: [dayjs().startOf('day'), dayjs().endOf('day')] },
+                            { label: 'Hôm qua', value: [dayjs().subtract(1, 'day').startOf('day'), dayjs().subtract(1, 'day').endOf('day')] },
+                            { label: 'Tuần này', value: [dayjs().startOf('week'), dayjs().endOf('week')] },
+                            { label: 'Tháng này', value: [dayjs().startOf('month'), dayjs().endOf('month')] },
+                            { label: 'Năm nay', value: [dayjs().startOf('year'), dayjs().endOf('year')] },
+                        ]}
+                        format="DD/MM/YYYY"
+                    />
+                    <Button type="primary" icon={activeTabType === 'out' ? <ExportOutlined /> : <ImportOutlined />} onClick={handleCreateOrder}>
                         {activeTabType === 'out' ? 'Tạo phiếu xuất' : 'Tạo phiếu nhập'}
                     </Button>
-                </div>
+                </Space>
             </div>
 
             <Row gutter={[12, 12]} style={{ marginBottom: 24 }}>
                 <Col xs={12} sm={6}>
                     <Card size="small" style={{ borderRadius: 8, height: '100%' }}>
-                        <Statistic
-                            title={<span style={{ fontSize: isMobile ? 12 : 14 }}>Tổng phiếu</span>}
-                            value={stats.total}
-                            prefix={<FileTextOutlined style={{ color: '#1890ff' }} />}
-                            valueStyle={{ fontSize: isMobile ? 18 : 24 }}
-                        />
+                        <Statistic title="Tổng phiếu" value={statAgg.totalCount} prefix={<FileTextOutlined style={{ color: '#1890ff' }} />} valueStyle={{ fontSize: isMobile ? 18 : 24 }} />
                     </Card>
                 </Col>
                 <Col xs={12} sm={6}>
                     <Card size="small" style={{ borderRadius: 8, height: '100%' }}>
-                        <Statistic
-                            title={<span style={{ fontSize: isMobile ? 12 : 14 }}>Nhập kho</span>}
-                            value={stats.valIn}
-                            valueStyle={{ color: '#52c41a', fontSize: isMobile ? 16 : 20 }}
-                            prefix={<ImportOutlined />}
-                            suffix="đ"
-                        />
+                        <Statistic title="GT Nhập kho" value={statAgg.totalInValue} valueStyle={{ color: '#52c41a', fontSize: isMobile ? 16 : 20 }} prefix={<ImportOutlined />} suffix="đ" />
                     </Card>
                 </Col>
                 <Col xs={12} sm={6}>
                     <Card size="small" style={{ borderRadius: 8, height: '100%' }}>
-                        <Statistic
-                            title={<span style={{ fontSize: isMobile ? 12 : 14 }}>Xuất kho</span>}
-                            value={stats.valOut}
-                            valueStyle={{ color: '#fa8c16', fontSize: isMobile ? 16 : 20 }}
-                            prefix={<ExportOutlined />}
-                            suffix="đ"
-                        />
+                        <Statistic title="GT Xuất kho" value={statAgg.totalOutValue} valueStyle={{ color: '#fa8c16', fontSize: isMobile ? 16 : 20 }} prefix={<ExportOutlined />} suffix="đ" />
                     </Card>
                 </Col>
                 <Col xs={12} sm={6}>
                     <Card size="small" style={{ borderRadius: 8, height: '100%' }}>
-                        <Statistic
-                            title={<span style={{ fontSize: isMobile ? 12 : 14 }}>Cần duyệt</span>}
-                            value={stats.pending}
-                            valueStyle={{ color: '#eb2f96', fontSize: isMobile ? 18 : 24 }}
-                            prefix={<ClockCircleOutlined />}
-                        />
+                        <Statistic title="Chờ duyệt" value={statAgg.pendingCount} valueStyle={{ color: '#eb2f96', fontSize: isMobile ? 18 : 24 }} prefix={<ClockCircleOutlined />} />
                     </Card>
                 </Col>
             </Row>
@@ -388,11 +420,8 @@ const InventoryHistory: React.FC = () => {
             <Card bodyStyle={{ padding: 0 }} style={{ borderRadius: 8, overflow: 'hidden' }}>
                 <Tabs
                     activeKey={activeTabType}
-                    onChange={(k: any) => {
-                        setActiveTabType(k);
-                        setActiveStep('ALL');
-                    }}
-                    items={tabTypes}
+                    onChange={(k: any) => setActiveTabType(k)}
+                    items={[ { key: 'out', label: `Phiếu xuất kho` }, { key: 'in', label: `Phiếu nhập kho` } ]}
                     style={{ padding: isMobile ? '0 12px' : '0 24px', backgroundColor: '#fff', borderBottom: '1px solid #f0f0f0' }}
                     size={isMobile ? 'small' : 'middle'}
                 />
@@ -403,39 +432,30 @@ const InventoryHistory: React.FC = () => {
                             <Steps
                                 type="navigation"
                                 size="small"
-                                current={currentStepIndex !== -1 ? currentStepIndex : 0}
+                                current={STATUS_STEPS.findIndex(s => s.key === activeStep)}
                                 onChange={idx => setActiveStep(STATUS_STEPS[idx].key)}
                                 style={{ minWidth: isMobile ? 600 : 'auto', borderBottom: 'none' }}
-                                items={STATUS_STEPS.map((s, index) => {
-                                    const count = stepCounts[s.key] || 0;
-                                    const isActive = currentStepIndex === index;
-                                    return {
-                                        title: (
-                                            <Space size="small">
-                                                {s.title}
-                                                <Badge
-                                                    count={count}
-                                                    showZero
-                                                    style={{
-                                                        backgroundColor: isActive ? '#1890ff' : '#f0f0f0',
-                                                        color: isActive ? '#fff' : '#8c8c8c',
-                                                        boxShadow: 'none',
-                                                        fontSize: 10
-                                                    }}
-                                                />
-                                            </Space>
-                                        ),
-                                        icon: <div style={{ width: 0, overflow: 'hidden' }} />
-                                    };
-                                })}
+                                items={STATUS_STEPS.map((s, index) => ({
+                                    title: (
+                                        <Space size="small">
+                                            {s.title}
+                                            <Badge count={stepCounts[s.key] || 0} showZero style={{ 
+                                                backgroundColor: activeStep === s.key ? '#1890ff' : '#f0f0f0', 
+                                                color: activeStep === s.key ? '#fff' : '#8c8c8c', 
+                                                boxShadow: 'none', fontSize: 10 
+                                            }} />
+                                        </Space>
+                                    ),
+                                    icon: <div style={{ width: 0, overflow: 'hidden' }} />
+                                }))}
                             />
                         </div>
 
                         <Input
-                            placeholder="Tìm mã phiếu, đối tượng, ghi chú..."
+                            placeholder="Tìm nhanh mã phiếu..."
                             prefix={<SearchOutlined />}
                             value={searchText}
-                            onChange={e => setSearchText(e.target.value)}
+                            onChange={e => handleSearchChange(e.target.value)}
                             style={{ width: isMobile ? '100%' : 300 }}
                             allowClear
                             size={isMobile ? 'large' : 'middle'}
@@ -445,37 +465,34 @@ const InventoryHistory: React.FC = () => {
                     {!isMobile ? (
                         <Table
                             rowKey="_id"
-                            dataSource={finalList}
+                            dataSource={stockOrders}
                             size="small"
                             loading={loading}
                             scroll={{ x: 'max-content' }}
                             columns={columns}
-                            pagination={{ pageSize: 15 }}
+                            pagination={{
+                                ...pagination,
+                                showSizeChanger: true,
+                                pageSizeOptions: ['10', '20', '50']
+                            }}
+                            onChange={handleTableChange}
                         />
                     ) : (
                         <List
-                            dataSource={finalList}
+                            dataSource={stockOrders}
                             loading={loading}
-                            pagination={{ pageSize: 10, size: 'small' }}
+                            pagination={{
+                                ...pagination,
+                                size: 'small',
+                                onChange: (page, pageSize) => fetchOrders({ page, pageSize })
+                            }}
                             renderItem={(item) => (
                                 <List.Item style={{ padding: '12px 0' }}>
-                                    <Card
-                                        size="small"
-                                        style={{ width: '100%', borderRadius: 12, border: '1px solid #f0f0f0' }}
-                                        onClick={() => navigate(`/kt/inventory/order/${item._id}`)}
-                                    >
+                                    <Card size="small" style={{ width: '100%', borderRadius: 12, border: '1px solid #f0f0f0' }} onClick={() => navigate(`/kt/inventory/order/${item._id}`)}>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
                                             <Text strong>{item.code || 'ORD'}</Text>
                                             <Space>
-                                                {item.pdf_files && item.pdf_files.length > 0 && (
-                                                    <FilePdfOutlined 
-                                                        style={{ color: '#ff4d4f', cursor: 'pointer' }} 
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            openFilePreview(item.pdf_files![0]);
-                                                        }} 
-                                                    />
-                                                )}
+                                                {item.pdf_files && item.pdf_files.length > 0 && <FilePdfOutlined style={{ color: '#ff4d4f' }} onClick={(e) => { e.stopPropagation(); openFilePreview(item.pdf_files![0]); }} />}
                                                 {getStatusTag(item.status || 'draft')}
                                             </Space>
                                         </div>
@@ -484,14 +501,11 @@ const InventoryHistory: React.FC = () => {
                                             <Text style={{ fontSize: 12 }}>{renderUser(item.requested_by)}</Text>
                                         </div>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                                            <Text type="secondary" style={{ fontSize: 12 }}>Dự án/Hành trình:</Text>
-                                            {item.journey_code || item.journey_name ? (
-                                                <div style={{ textAlign: 'right' }}>
-                                                    {item.journey_code && <Tag color="blue" size="small" style={{ margin: 0, fontSize: 10 }}>{item.journey_code}</Tag>}
-                                                    <br/>
-                                                    <Text style={{ fontSize: 11 }}>{item.journey_name}</Text>
-                                                </div>
-                                            ) : <Text style={{ fontSize: 12 }}>—</Text>}
+                                            <Text type="secondary" style={{ fontSize: 12 }}>Hành trình:</Text>
+                                            <div style={{ textAlign: 'right' }}>
+                                                {item.journey_code && <Tag color="blue" size="small" style={{ margin: 0, fontSize: 10 }}>{item.journey_code}</Tag>}
+                                                <br/><Text style={{ fontSize: 11 }}>{item.journey_name}</Text>
+                                            </div>
                                         </div>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                                             <Text type="secondary" style={{ fontSize: 12 }}>Nguồn:</Text>
@@ -505,7 +519,7 @@ const InventoryHistory: React.FC = () => {
                                         )}
                                         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, paddingTop: 8, borderTop: '1px dashed #f0f0f0' }}>
                                             <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                                <Text type="secondary" style={{ fontSize: 10 }}>Lập: {item.created_at ? dayjs(item.created_at).format('DD/MM/YY HH:mm') : '—'}</Text>
+                                                <Text type="secondary" style={{ fontSize: 10 }}>Lập: {item.createdAt ? dayjs(item.createdAt).format('DD/MM/YY HH:mm') : '—'}</Text>
                                                 {item.reviewed_at && <Text style={{ fontSize: 10, color: '#52c41a' }}>Duyệt: {dayjs(item.reviewed_at).format('DD/MM/YY HH:mm')}</Text>}
                                             </div>
                                             <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -521,72 +535,11 @@ const InventoryHistory: React.FC = () => {
                 </div>
             </Card>
 
-            {/* File preview modal reuse logic */}
-            <Modal
-                open={!!filePreview}
-                title={filePreview?.name}
-                onCancel={() => setFilePreview(null)}
-                width={filePreview?.kind === 'pdf' ? 'min(1200px, 96vw)' : 720}
-                style={{ top: 0, paddingBottom: 0, margin: '0 auto' }}
-                styles={{
-                    content:
-                        filePreview?.kind === 'pdf'
-                            ? {
-                                  height: '100dvh',
-                                  display: 'flex',
-                                  flexDirection: 'column',
-                                  padding: 0,
-                                  borderRadius: 0,
-                                  overflow: 'hidden',
-                              }
-                            : {},
-                    header:
-                        filePreview?.kind === 'pdf'
-                            ? {
-                                  padding: '12px 16px',
-                                  marginBottom: 0,
-                                  borderBottom: '1px solid #f0f0f0',
-                                  flexShrink: 0,
-                              }
-                            : {},
-                    body:
-                        filePreview?.kind === 'pdf'
-                            ? {
-                                  flex: 1,
-                                  padding: 0,
-                                  overflow: 'hidden',
-                                  display: 'flex',
-                                  flexDirection: 'column',
-                                  minHeight: 0,
-                              }
-                            : { padding: '16px 24px' },
-                }}
-                destroyOnHidden
-                footer={null}
-            >
-                {filePreview?.kind === 'pdf' && filePreview.url ? (
-                    <PdfViewer url={filePreview.url} title={filePreview.name} height="100%" />
-                ) : null}
-                {filePreview?.kind === 'image' && filePreview.url ? (
-                    <div style={{ textAlign: 'center' }}>
-                        <img
-                            src={filePreview.url}
-                            alt={filePreview.name}
-                            style={{ maxWidth: '100%', maxHeight: '72vh', objectFit: 'contain' }}
-                        />
-                    </div>
-                ) : null}
-                {filePreview?.kind === 'other' && filePreview.url ? (
-                    <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-                        <Text>
-                            Định dạng này không xem trực tiếp trên trình duyệt. Hãy tải file về và mở bằng ứng dụng
-                            phù hợp.
-                        </Text>
-                        <Button type="primary" href={filePreview.url} target="_blank" icon={<DownloadOutlined />}>
-                            Tải file về
-                        </Button>
-                    </Space>
-                ) : null}
+            {/* File preview modal */}
+            <Modal open={!!filePreview} title={filePreview?.name} onCancel={() => setFilePreview(null)} width={filePreview?.kind === 'pdf' ? 'min(1200px, 96vw)' : 720} style={{ top: 0, paddingBottom: 0, margin: '0 auto' }} styles={{ content: filePreview?.kind === 'pdf' ? { height: '100dvh', display: 'flex', flexDirection: 'column', padding: 0, borderRadius: 0, overflow: 'hidden' } : {}, header: filePreview?.kind === 'pdf' ? { padding: '12px 16px', marginBottom: 0, borderBottom: '1px solid #f0f0f0', flexShrink: 0 } : {}, body: filePreview?.kind === 'pdf' ? { flex: 1, padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column', minHeight: 0 } : { padding: '16px 24px' }, }} destroyOnHidden footer={null} >
+                {filePreview?.kind === 'pdf' && filePreview.url ? <PdfViewer url={filePreview.url} title={filePreview.name} height="100%" /> : null}
+                {filePreview?.kind === 'image' && filePreview.url ? <div style={{ textAlign: 'center' }}><img src={filePreview.url} alt={filePreview.name} style={{ maxWidth: '100%', maxHeight: '72vh', objectFit: 'contain' }} /></div> : null}
+                {filePreview?.kind === 'other' && filePreview.url ? <Space direction="vertical" size="middle" style={{ width: '100%' }}><Text>Định dạng này không xem trực tiếp trên trình duyệt. Hãy tải file về và mở bằng ứng dụng phù hợp.</Text><Button type="primary" href={filePreview.url} target="_blank" icon={<DownloadOutlined />}>Tải file về</Button></Space> : null}
             </Modal>
         </div>
     );

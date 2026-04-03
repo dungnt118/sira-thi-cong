@@ -24,8 +24,6 @@ export const FIND_STOCKORDER_DTO = gql`
         supplier
         total_value
         notes
-        created_at
-        created_by
         journey_code
         signed_by
         discrepancy_status
@@ -64,6 +62,8 @@ export const FIND_STOCKORDER_DTO = gql`
           signed_by
           note
         }
+        createdAt
+        createdBy
       }
     }
   }
@@ -93,8 +93,6 @@ export const QUERY_STOCKORDERS_DTO = gql`
         supplier
         total_value
         notes
-        created_at
-        created_by
         journey_code
         signed_by
         discrepancy_status
@@ -133,6 +131,8 @@ export const QUERY_STOCKORDERS_DTO = gql`
           signed_by
           note
         }
+        createdAt
+        createdBy
       }
     }
   }

@@ -98,7 +98,7 @@ const StockOrderPrintable: React.FC<StockOrderPrintableProps> = ({ order }) => {
                 </div>
                 <div style={{ textAlign: 'right' }}>
                     <div style={{ fontWeight: 'bold' }}>Mã phiếu: {order.code || order._id}</div>
-                    <div style={{ fontSize: 12 }}>Ngày lập: {dayjs(order.created_at).format('DD/MM/YYYY')}</div>
+                    <div style={{ fontSize: 12 }}>Ngày lập: {dayjs(order.createdAt).format('DD/MM/YYYY')}</div>
                 </div>
             </div>
 
