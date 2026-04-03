@@ -13,7 +13,6 @@ export interface ICompanyBankAccount {
   account_number?: string;
   bank_name?: string;
   branch_name?: string;
-  company_name?: string;
   currency?: CompanyBankAccountCurrencyEnum;
   is_default?: boolean;
   status?: CompanyBankAccountStatusEnum;
@@ -26,7 +25,6 @@ export interface ICreateCompanyBankAccountInput {
   account_number?: string;
   bank_name?: string;
   branch_name?: string;
-  company_name?: string;
   currency?: CompanyBankAccountCurrencyEnum2;
   is_default?: boolean;
   status?: CompanyBankAccountStatusEnum2;

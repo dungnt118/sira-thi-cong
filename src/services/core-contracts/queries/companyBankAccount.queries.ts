@@ -19,7 +19,6 @@ export const FIND_COMPANYBANKACCOUNT_DTO = gql`
         account_number
         bank_name
         branch_name
-        company_name
         currency
         is_default
         status
@@ -48,7 +47,6 @@ export const QUERY_COMPANYBANKACCOUNTS_DTO = gql`
         account_number
         bank_name
         branch_name
-        company_name
         currency
         is_default
         status
