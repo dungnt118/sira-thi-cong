@@ -14,10 +14,11 @@ import { useAuth } from '../../../hooks/useAuth';
 import { stockOrderService } from '../../../services/core-contracts/services/stockOrder.service';
 import type {
     IStockOrder,
-    IStockOrderSignatureItem,
-    StockOrderSignatureRole,
+    ISignaturesItem,
+    SignaturesRoleEnum,
     StockOrderStatusEnum
 } from '../../../services/core-contracts/types/stockOrder.types';
+import { get, ACCESS_TOKEN, UPLOAD_URL, getFileLink } from '../../../services/storeService';
 import SiraSignaturePad from '../../../components/common/SignaturePad';
 import StockOrderPrintable from './components/StockOrderPrintable';
 import html2pdf from 'html2pdf.js';
@@ -28,15 +29,17 @@ type SigningRoleUi = 'kt' | 'warehouse' | 'gs';
 
 const SIGN_STEP_ORDER: Record<SigningRoleUi, number> = { kt: 2, warehouse: 3, gs: 4 };
 
-function stockOrderSigByRole(order: IStockOrder | null, role: StockOrderSignatureRole) {
+function stockOrderSigByRole(order: IStockOrder | null, role: SignaturesRoleEnum) {
     return order?.signatures?.find((s) => s.role === role);
 }
 
 /** Bản ghi cũ chỉ có `signature_image` (ghi đè mỗi lần ký) — ánh xạ tạm sang cột KT khi đã duyệt và chưa có dòng kt trong `signatures`. */
 function legacyKtSignatureDataUrl(order: IStockOrder): string | undefined {
     if (order.signatures?.some((s) => s.role === 'kt')) return undefined;
+    // @ts-ignore
     if (!order.signature_image) return undefined;
     if (['approved', 'dispatched', 'received', 'completed', 'discrepancy'].includes(order.status || '')) {
+        // @ts-ignore
         return order.signature_image;
     }
     return undefined;
@@ -72,7 +75,7 @@ const StockOrderDetail: React.FC = () => {
         fetchOrder();
     }, [id]);
 
-    if (loading) {
+    if (loading && !order) {
         return (
             <div style={{ padding: 100, textAlign: 'center' }}>
                 <Spin size="large" tip="Đang tải thông tin phiếu..." />
@@ -117,10 +120,60 @@ const StockOrderDetail: React.FC = () => {
         return 0;
     };
 
-    const handleSign = async (dataUrl: string) => {
-        if (!signingRole || !id) return;
+    // Chuyển đổi DataURL sang File để upload
+    const dataUrlToFile = (dataUrl: string, fileName: string) => {
+        const arr = dataUrl.split(',');
+        const mime = arr[0].match(/:(.*?);/)![1];
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) {
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new File([u8arr], fileName, { type: mime });
+    };
 
+    // Upload chữ ký lên server để lấy URL lưu trữ (thông tin file chuẩn từ Headless API)
+    const uploadSignatureFile = async (dataUrl: string, role: string): Promise<string> => {
+        // Sử dụng tên file đơn giản, server có thể tự động sinh path/tên mới
+        const file = dataUrlToFile(dataUrl, `signature_${role}.png`);
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('folder', 'signatures/stock-orders');
+
+        const uploadUrl = get(UPLOAD_URL) || '/api/file/upload';
+        const token = get(ACCESS_TOKEN);
+
+        const response = await fetch(uploadUrl, {
+            method: 'POST',
+            headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error(`Upload lỗi: ${response.status}`);
+        }
+
+        const result = await response.json();
+        // Headless API chuẩn: trả về { success: true, result: { file_id, file_path, ... } }
+        const data = result.result || result;
+        
+        // Luôn trả về file_path hoặc file_id để lưu vào DB (như UploadImage.tsx)
+        const fileRef = data.file_path || data.file_id || data.url;
+        if (!fileRef) {
+            throw new Error('Server không trả về mã định danh file hợp lệ');
+        }
+        return fileRef;
+    };
+
+    const handleSign = async (dataUrl: string, strokeData: any) => {
+        if (!signingRole || !id || !order) return;
+
+        setLoading(true);
         try {
+            // 1. Upload ảnh chữ ký lên server trước để lấy tham chiếu hệ thống (file_path/file_id)
+            const uploadedRef = await uploadSignatureFile(dataUrl, signingRole);
+
             let nextStatus: StockOrderStatusEnum = (order.status || 'requested') as any;
             if (order.status === 'requested' && signingRole === 'kt') nextStatus = 'approved';
             if (order.status === 'approved' && signingRole === 'warehouse') nextStatus = 'dispatched';
@@ -134,15 +187,16 @@ const StockOrderDetail: React.FC = () => {
                 (user as any)?._id ||
                 undefined;
 
-            const newEntry: IStockOrderSignatureItem = {
-                role: roleKey as StockOrderSignatureRole,
+            const newEntry: ISignaturesItem = {
+                role: roleKey as SignaturesRoleEnum,
                 step_order: SIGN_STEP_ORDER[roleKey],
-                signature_data_url: dataUrl,
+                signature_image: uploadedRef,
+                signature_stroke_data: strokeData,
                 signed_at: nowIso,
                 signed_by: signerRef
             };
             const prevSigs = order.signatures || [];
-            const signatures: IStockOrderSignatureItem[] = [
+            const signatures: ISignaturesItem[] = [
                 ...prevSigs.filter((s) => s.role !== roleKey),
                 newEntry
             ];
@@ -150,16 +204,19 @@ const StockOrderDetail: React.FC = () => {
             await stockOrderService.updateStockOrder(id, {
                 status: nextStatus,
                 signatures,
-                signature_image: dataUrl,
                 signed_at: nowIso,
                 signed_by: signerRef as any
+                // Field signature_image phẳng cũng sẽ được đồng bộ (nếu backend hỗ trợ tự động từ list signatures)
             });
 
             message.success(`Đã ký xác nhận thành công với vai trò ${signingRole.toUpperCase()}`);
             setIsSignatureModalOpen(false);
             fetchOrder();
         } catch (error) {
-            message.error('Lỗi khi ký xác nhận');
+            console.error('Lỗi khi ký:', error);
+            message.error('Không thể hoàn tất quá trình ký duyệt');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -293,9 +350,9 @@ const StockOrderDetail: React.FC = () => {
                                 <Text strong>1. Người lập (PM)</Text>
                                 <div style={{ marginTop: 8, padding: 8, background: '#f5f5f5', borderRadius: 4, textAlign: 'center' }}>
                                     <Text type="secondary" style={{ fontSize: 11 }}>Đã xác nhận hệ thống</Text>
-                                    {stockOrderSigByRole(order, 'pm')?.signature_data_url && (
+                                    {stockOrderSigByRole(order, 'pm')?.signature_image && (
                                         <div style={{ marginTop: 8 }}>
-                                            <img src={stockOrderSigByRole(order, 'pm')!.signature_data_url} style={{ height: 50 }} alt="PM ký" />
+                                            <img src={getFileLink(stockOrderSigByRole(order, 'pm')!.signature_image)} style={{ height: 50 }} alt="PM ký" />
                                         </div>
                                     )}
                                 </div>
@@ -307,10 +364,10 @@ const StockOrderDetail: React.FC = () => {
                                 {order.status !== 'requested' ? (
                                     <div style={{ marginTop: 8, textAlign: 'center', background: '#f6ffed', padding: 8, borderRadius: 4 }}>
                                         <Tag color="success">ĐÃ DUYỆT</Tag>
-                                        {(stockOrderSigByRole(order, 'kt')?.signature_data_url || legacyKtSignatureDataUrl(order)) && (
+                                        {(stockOrderSigByRole(order, 'kt')?.signature_image || legacyKtSignatureDataUrl(order)) && (
                                             <div style={{ marginTop: 8 }}>
                                                 <img
-                                                    src={stockOrderSigByRole(order, 'kt')?.signature_data_url || legacyKtSignatureDataUrl(order)}
+                                                    src={getFileLink(stockOrderSigByRole(order, 'kt')?.signature_image || legacyKtSignatureDataUrl(order))}
                                                     style={{ height: 50 }}
                                                     alt="Kế toán ký"
                                                 />
@@ -330,10 +387,10 @@ const StockOrderDetail: React.FC = () => {
                                 {['dispatched', 'received', 'completed'].includes(order.status || '') ? (
                                     <div style={{ marginTop: 8, textAlign: 'center', background: '#f6ffed', padding: 8, borderRadius: 4 }}>
                                         <Tag color="success">ĐÃ XUẤT KHO</Tag>
-                                        {stockOrderSigByRole(order, 'warehouse')?.signature_data_url && (
+                                        {stockOrderSigByRole(order, 'warehouse')?.signature_image && (
                                             <div style={{ marginTop: 8 }}>
                                                 <img
-                                                    src={stockOrderSigByRole(order, 'warehouse')!.signature_data_url}
+                                                    src={getFileLink(stockOrderSigByRole(order, 'warehouse')!.signature_image)}
                                                     style={{ height: 50 }}
                                                     alt="Thủ kho ký"
                                                 />
@@ -353,10 +410,10 @@ const StockOrderDetail: React.FC = () => {
                                 {['received', 'completed'].includes(order.status || '') ? (
                                     <div style={{ marginTop: 8, textAlign: 'center', background: '#f6ffed', padding: 8, borderRadius: 4 }}>
                                         <Tag color="success">ĐÃ NHẬN HÀNG</Tag>
-                                        {stockOrderSigByRole(order, 'gs')?.signature_data_url && (
+                                        {stockOrderSigByRole(order, 'gs')?.signature_image && (
                                             <div style={{ marginTop: 8 }}>
                                                 <img
-                                                    src={stockOrderSigByRole(order, 'gs')!.signature_data_url}
+                                                    src={getFileLink(stockOrderSigByRole(order, 'gs')!.signature_image)}
                                                     style={{ height: 50 }}
                                                     alt="Giám sát ký"
                                                 />
@@ -397,7 +454,7 @@ const StockOrderDetail: React.FC = () => {
                 width={450}
             >
                 <SiraSignaturePad
-                    onSave={handleSign}
+                    onSave={(dataUrl, strokeData) => handleSign(dataUrl, strokeData)}
                     title={`Chữ ký của ${signingRole === 'kt' ? 'Kế toán' : signingRole === 'warehouse' ? 'Thủ kho' : 'Giám sát'}`}
                     description="Vui lòng ký vào khung bên dưới và bấm Xác nhận"
                 />

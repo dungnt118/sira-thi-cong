@@ -29,7 +29,7 @@ export const FIND_STOCKORDER_DTO = gql`
         journey_code
         signed_by
         discrepancy_status
-        pdf_url
+        pdf_files
         signed_at
         items {
           material_id
@@ -98,7 +98,7 @@ export const QUERY_STOCKORDERS_DTO = gql`
         journey_code
         signed_by
         discrepancy_status
-        pdf_url
+        pdf_files
         signed_at
         items {
           material_id

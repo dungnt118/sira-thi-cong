@@ -23,7 +23,7 @@ export interface IStockOrder {
   journey_code?: string;
   signed_by?: any;
   discrepancy_status?: StockOrderDiscrepancyStatusEnum;
-  pdf_url?: string;
+  pdf_files?: HeadlessFileUpload[];
   signed_at?: string | Date;
   items?: IItemsItem[];
   journey_source_id?: string;
@@ -80,7 +80,7 @@ export interface ICreateStockOrderInput {
   journey_code?: string;
   signed_by?: any;
   discrepancy_status?: StockOrderDiscrepancyStatusEnum2;
-  pdf_url?: string;
+  pdf_files?: HeadlessFileUpload[];
   signed_at?: string | Date;
   items?: IItemsItem[];
   journey_source_id?: string;

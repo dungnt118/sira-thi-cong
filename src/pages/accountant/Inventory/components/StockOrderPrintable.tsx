@@ -1,6 +1,7 @@
 import React from 'react';
 import { Typography, Table } from 'antd';
 import type { IStockOrder, IItemsItem } from '../../../../services/core-contracts/types/stockOrder.types';
+import { getFileLink } from '../../../../services/storeService';
 import dayjs from 'dayjs';
 
 const { Text, Title } = Typography;
@@ -10,13 +11,16 @@ interface StockOrderPrintableProps {
 }
 
 function signatureUrlByRole(order: IStockOrder, role: 'pm' | 'kt' | 'warehouse' | 'gs') {
-    return order.signatures?.find((s) => s.role === role)?.signature_data_url;
+    const sig = order.signatures?.find((s) => s.role === role);
+    return sig?.signature_image;
 }
 
 function legacyKtSignatureDataUrl(order: IStockOrder): string | undefined {
     if (order.signatures?.some((s) => s.role === 'kt')) return undefined;
+    // @ts-ignore
     if (!order.signature_image) return undefined;
     if (['approved', 'dispatched', 'received', 'completed', 'discrepancy'].includes(order.status || '')) {
+        // @ts-ignore
         return order.signature_image;
     }
     return undefined;
@@ -151,7 +155,7 @@ const StockOrderPrintable: React.FC<StockOrderPrintableProps> = ({ order }) => {
                     <Text strong>NGƯỜI LẬP (PM)</Text>
                     <div style={{ height: 80, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 10 }}>
                         {signatureUrlByRole(order, 'pm') && (
-                            <img src={signatureUrlByRole(order, 'pm')} alt="PM" style={{ maxHeight: '100%', maxWidth: '100%' }} />
+                            <img src={getFileLink(signatureUrlByRole(order, 'pm') as string)} alt="PM" style={{ maxHeight: '100%', maxWidth: '100%' }} />
                         )}
                     </div>
                     <div style={{ fontSize: 12 }}>(Ký, họ tên)</div>
@@ -161,7 +165,7 @@ const StockOrderPrintable: React.FC<StockOrderPrintableProps> = ({ order }) => {
                     <div style={{ height: 80, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 10 }}>
                         {(signatureUrlByRole(order, 'kt') || legacyKtSignatureDataUrl(order)) && (
                             <img
-                                src={signatureUrlByRole(order, 'kt') || legacyKtSignatureDataUrl(order)}
+                                src={getFileLink((signatureUrlByRole(order, 'kt') || legacyKtSignatureDataUrl(order)) as string)}
                                 alt="Kế toán"
                                 style={{ maxHeight: '100%', maxWidth: '100%' }}
                             />
@@ -173,7 +177,7 @@ const StockOrderPrintable: React.FC<StockOrderPrintableProps> = ({ order }) => {
                     <Text strong>THỦ KHO</Text>
                     <div style={{ height: 80, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 10 }}>
                         {signatureUrlByRole(order, 'warehouse') && (
-                            <img src={signatureUrlByRole(order, 'warehouse')} alt="Thủ kho" style={{ maxHeight: '100%', maxWidth: '100%' }} />
+                            <img src={getFileLink(signatureUrlByRole(order, 'warehouse') as string)} alt="Thủ kho" style={{ maxHeight: '100%', maxWidth: '100%' }} />
                         )}
                     </div>
                     <div style={{ fontSize: 12 }}>(Ký, họ tên)</div>
@@ -182,7 +186,7 @@ const StockOrderPrintable: React.FC<StockOrderPrintableProps> = ({ order }) => {
                     <Text strong>NGƯỜI NHẬN</Text>
                     <div style={{ height: 80, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 10 }}>
                         {signatureUrlByRole(order, 'gs') && (
-                            <img src={signatureUrlByRole(order, 'gs')} alt="Giám sát" style={{ maxHeight: '100%', maxWidth: '100%' }} />
+                            <img src={getFileLink(signatureUrlByRole(order, 'gs') as string)} alt="Giám sát" style={{ maxHeight: '100%', maxWidth: '100%' }} />
                         )}
                     </div>
                     <div style={{ fontSize: 12 }}>(Ký, họ tên)</div>

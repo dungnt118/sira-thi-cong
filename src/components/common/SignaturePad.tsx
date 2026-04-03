@@ -6,7 +6,7 @@ import { ClearOutlined, CheckOutlined } from '@ant-design/icons';
 const { Text } = Typography;
 
 interface SiraSignaturePadProps {
-    onSave: (dataUrl: string) => void;
+    onSave: (dataUrl: string, strokeData: any) => void;
     title?: string;
     description?: string;
 }
@@ -36,9 +36,10 @@ const SiraSignaturePad: React.FC<SiraSignaturePadProps> = ({ onSave, title, desc
             }
 
             const dataUrl = canvas.toDataURL('image/png');
+            const strokeData = sigCanvas.current.toData(); // Lấy dữ liệu tọa độ nét vẽ
 
             if (dataUrl && dataUrl.length > 500) { 
-                onSave(dataUrl);
+                onSave(dataUrl, strokeData);
             } else {
                 message.warning("Vui lòng ký tên lại");
             }
