@@ -1,15 +1,24 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Typography, Table, Button, Tag, Card, Row, Col, Statistic, Tabs, Input, Steps, Space, Badge, Grid, List, message } from 'antd';
+import { Typography, Table, Button, Tag, Card, Row, Col, Statistic, Tabs, Input, Steps, Space, Badge, Grid, List, message, Modal } from 'antd';
 import {
     FileTextOutlined, ClockCircleOutlined,
     ImportOutlined, ExportOutlined, SearchOutlined,
-    ArrowRightOutlined, FilePdfOutlined
+    ArrowRightOutlined, FilePdfOutlined, DownloadOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
 import { stockOrderService } from '../../../services/core-contracts/services/stockOrder.service';
 import type { IStockOrder, StockOrderStatusEnum } from '../../../services/core-contracts/types/stockOrder.types';
 import { getFileLink } from '../../../services/storeService';
+import {
+    classifyJourneyFile,
+    getJourneyFileDisplayName,
+    resolveJourneyFileHref,
+    resolvePdfPreviewHref,
+    type JourneyFileKind,
+} from '../../../utils/journeyDocumentFileDisplay';
+import { PdfViewer } from '../../../components/common/PdfViewer';
+import type { HeadlessFileUpload } from 'types/apis/HeadlessFileUpload';
 
 const { Title, Text } = Typography;
 const { useBreakpoint } = Grid;
@@ -25,6 +34,11 @@ const InventoryHistory: React.FC = () => {
     const [activeTabType, setActiveTabType] = useState<'out' | 'in'>('out');
     const [activeStep, setActiveStep] = useState<string>('requested');
     const [searchText, setSearchText] = useState('');
+    const [filePreview, setFilePreview] = useState<{
+        kind: JourneyFileKind;
+        url: string;
+        name: string;
+    } | null>(null);
 
     const fetchOrders = async () => {
         setLoading(true);
@@ -143,6 +157,21 @@ const InventoryHistory: React.FC = () => {
         return <Tag color={colors[s] || 'default'} style={{ margin: 0 }}>{s.toUpperCase()}</Tag>;
     };
 
+    const openFilePreview = (file: HeadlessFileUpload) => {
+        const kind = classifyJourneyFile(file);
+        const url = kind === 'pdf' ? resolvePdfPreviewHref(file) : resolveJourneyFileHref(file);
+
+        if (!url) {
+            message.warning('Không tìm thấy đường dẫn file hợp lệ');
+            return;
+        }
+        setFilePreview({
+            kind,
+            url,
+            name: getJourneyFileDisplayName(file)
+        });
+    };
+
     const columns = [
         {
             title: 'Mã phiếu',
@@ -198,7 +227,7 @@ const InventoryHistory: React.FC = () => {
                         icon={<FilePdfOutlined style={{ color: '#ff4d4f', fontSize: 18 }} />} 
                         onClick={(e) => {
                             e.stopPropagation();
-                            window.open(getFileLink(pdf.file_path || pdf.file_id), '_blank');
+                            openFilePreview(pdf);
                         }}
                     />
                 );
@@ -373,7 +402,7 @@ const InventoryHistory: React.FC = () => {
                                                         style={{ color: '#ff4d4f', cursor: 'pointer' }} 
                                                         onClick={(e) => {
                                                             e.stopPropagation();
-                                                            window.open(getFileLink(item.pdf_files![0].file_path || item.pdf_files![0].file_id), '_blank');
+                                                            openFilePreview(item.pdf_files![0]);
                                                         }} 
                                                     />
                                                 )}
@@ -402,6 +431,74 @@ const InventoryHistory: React.FC = () => {
                     )}
                 </div>
             </Card>
+
+            {/* File preview modal reuse logic */}
+            <Modal
+                open={!!filePreview}
+                title={filePreview?.name}
+                onCancel={() => setFilePreview(null)}
+                width={filePreview?.kind === 'pdf' ? 'min(1200px, 96vw)' : 720}
+                style={{ top: 0, paddingBottom: 0, margin: '0 auto' }}
+                styles={{
+                    content:
+                        filePreview?.kind === 'pdf'
+                            ? {
+                                  height: '100dvh',
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                  padding: 0,
+                                  borderRadius: 0,
+                                  overflow: 'hidden',
+                              }
+                            : {},
+                    header:
+                        filePreview?.kind === 'pdf'
+                            ? {
+                                  padding: '12px 16px',
+                                  marginBottom: 0,
+                                  borderBottom: '1px solid #f0f0f0',
+                                  flexShrink: 0,
+                              }
+                            : {},
+                    body:
+                        filePreview?.kind === 'pdf'
+                            ? {
+                                  flex: 1,
+                                  padding: 0,
+                                  overflow: 'hidden',
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                  minHeight: 0,
+                              }
+                            : { padding: '16px 24px' },
+                }}
+                destroyOnHidden
+                footer={null}
+            >
+                {filePreview?.kind === 'pdf' && filePreview.url ? (
+                    <PdfViewer url={filePreview.url} title={filePreview.name} height="100%" />
+                ) : null}
+                {filePreview?.kind === 'image' && filePreview.url ? (
+                    <div style={{ textAlign: 'center' }}>
+                        <img
+                            src={filePreview.url}
+                            alt={filePreview.name}
+                            style={{ maxWidth: '100%', maxHeight: '72vh', objectFit: 'contain' }}
+                        />
+                    </div>
+                ) : null}
+                {filePreview?.kind === 'other' && filePreview.url ? (
+                    <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                        <Text>
+                            Định dạng này không xem trực tiếp trên trình duyệt. Hãy tải file về và mở bằng ứng dụng
+                            phù hợp.
+                        </Text>
+                        <Button type="primary" href={filePreview.url} target="_blank" icon={<DownloadOutlined />}>
+                            Tải file về
+                        </Button>
+                    </Space>
+                ) : null}
+            </Modal>
         </div>
     );
 };

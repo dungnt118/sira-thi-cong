@@ -22,6 +22,15 @@ import { get, ACCESS_TOKEN, UPLOAD_URL, getFileLink } from '../../../services/st
 import SiraSignaturePad from '../../../components/common/SignaturePad';
 import StockOrderPrintable from './components/StockOrderPrintable';
 import html2pdf from 'html2pdf.js';
+import {
+    classifyJourneyFile,
+    getJourneyFileDisplayName,
+    resolveJourneyFileHref,
+    resolvePdfPreviewHref,
+    type JourneyFileKind,
+} from '../../../utils/journeyDocumentFileDisplay';
+import { PdfViewer } from '../../../components/common/PdfViewer';
+import type { HeadlessFileUpload } from 'types/apis/HeadlessFileUpload';
 
 const { Title, Text } = Typography;
 
@@ -55,6 +64,11 @@ const StockOrderDetail: React.FC = () => {
     const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
     const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
     const [signingRole, setSigningRole] = useState<string | null>(null);
+    const [filePreview, setFilePreview] = useState<{
+        kind: JourneyFileKind;
+        url: string;
+        name: string;
+    } | null>(null);
 
     const fetchOrder = async () => {
         if (!id) return;
@@ -331,6 +345,21 @@ const StockOrderDetail: React.FC = () => {
         }
     };
 
+    const openFilePreview = (file: HeadlessFileUpload) => {
+        const kind = classifyJourneyFile(file);
+        const url = kind === 'pdf' ? resolvePdfPreviewHref(file) : resolveJourneyFileHref(file);
+
+        if (!url) {
+            message.warning('Không tìm thấy đường dẫn file hợp lệ');
+            return;
+        }
+        setFilePreview({
+            kind,
+            url,
+            name: getJourneyFileDisplayName(file)
+        });
+    };
+
     const itemColumns = [
         { title: 'Vật tư', dataIndex: 'material_name', key: 'name' },
         { title: 'ĐVT', dataIndex: 'unit', key: 'unit', render: (u: string) => u?.toUpperCase() },
@@ -376,7 +405,7 @@ const StockOrderDetail: React.FC = () => {
                             </Button>
                         )}
                         {order.pdf_files && order.pdf_files.length > 0 && (
-                            <Button icon={<DownloadOutlined />} onClick={() => window.open(getFileLink(order.pdf_files![0].file_path || order.pdf_files![0].file_id), '_blank')}>
+                            <Button icon={<DownloadOutlined />} onClick={() => openFilePreview(order.pdf_files![0])}>
                                 Xem minh chứng PDF
                             </Button>
                         )}
@@ -547,6 +576,74 @@ const StockOrderDetail: React.FC = () => {
                 <div style={{ padding: '20px 0', background: '#f0f2f5', display: 'flex', justifyContent: 'center' }}>
                     <StockOrderPrintable order={order} />
                 </div>
+            </Modal>
+
+            {/* File preview modal reuse from JourneyDocumentsTab */}
+            <Modal
+                open={!!filePreview}
+                title={filePreview?.name}
+                onCancel={() => setFilePreview(null)}
+                width={filePreview?.kind === 'pdf' ? 'min(1200px, 96vw)' : 720}
+                style={{ top: 0, paddingBottom: 0, margin: '0 auto' }}
+                styles={{
+                    content:
+                        filePreview?.kind === 'pdf'
+                            ? {
+                                  height: '100dvh',
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                  padding: 0,
+                                  borderRadius: 0,
+                                  overflow: 'hidden',
+                              }
+                            : {},
+                    header:
+                        filePreview?.kind === 'pdf'
+                            ? {
+                                  padding: '12px 16px',
+                                  marginBottom: 0,
+                                  borderBottom: '1px solid #f0f0f0',
+                                  flexShrink: 0,
+                              }
+                            : {},
+                    body:
+                        filePreview?.kind === 'pdf'
+                            ? {
+                                  flex: 1,
+                                  padding: 0,
+                                  overflow: 'hidden',
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                  minHeight: 0,
+                              }
+                            : { padding: '16px 24px' },
+                }}
+                destroyOnHidden
+                footer={null}
+            >
+                {filePreview?.kind === 'pdf' && filePreview.url ? (
+                    <PdfViewer url={filePreview.url} title={filePreview.name} height="100%" />
+                ) : null}
+                {filePreview?.kind === 'image' && filePreview.url ? (
+                    <div style={{ textAlign: 'center' }}>
+                        <img
+                            src={filePreview.url}
+                            alt={filePreview.name}
+                            style={{ maxWidth: '100%', maxHeight: '72vh', objectFit: 'contain' }}
+                        />
+                    </div>
+                ) : null}
+                {filePreview?.kind === 'other' && filePreview.url ? (
+                    <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                        <Text>
+                            Định dạng này không xem trực tiếp trên trình duyệt. Hãy tải file về và mở bằng ứng dụng
+                            phù hợp.
+                        </Text>
+                        <Button type="primary" href={filePreview.url} target="_blank" icon={<DownloadOutlined />}>
+                            Tải file về
+                        </Button>
+                    </Space>
+                ) : null}
             </Modal>
         </div>
     );
