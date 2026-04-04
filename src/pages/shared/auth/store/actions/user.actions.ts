@@ -118,8 +118,8 @@ export const loadUserData = (roleOverride?: string): AppThunk<Promise<void>> => 
 
       const pathname = history.location.pathname;
       if (pathname.startsWith('/login')) {
-        const match = /redirect=(.+)/.exec(history.location.search);
-        const redirectTarget = match && match[1];
+        const searchParams = new URLSearchParams(history.location.search);
+        const redirectTarget = searchParams.get('redirect');
         if (redirectTarget && !redirectTarget.startsWith('/login')) {
           window.location.href = redirectTarget;
         } else {
