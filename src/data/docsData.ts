@@ -223,5 +223,45 @@ export const docsData: UserGuide[] = [
                 image: '/assets/docs/sale/sl_profile_mobile.png'
             }
         ]
+    },
+    {
+        id: 'pm',
+        title: 'Hướng Dẫn Sử Dụng Quản Lý Dự Án (PM)',
+        description: 'Tài liệu quản trị hành trình khách hàng, giám sát tiến độ thi công và phê duyệt khảo sát kỹ thuật trên di động.',
+        sections: [
+            {
+                title: '1. Bàn làm việc Quản lý (Dashboard)',
+                content: 'Màn hình Dashboard tập trung các chỉ số vận hành quan trọng: tổng số hành trình, các tác vụ quá hạn cần ưu tiên xử lý và các hồ sơ khảo sát đang chờ phê duyệt.',
+                image: '/assets/docs/pm/pm-dashboard.png',
+                alert: {
+                    type: 'important',
+                    text: 'Các con số màu đỏ biểu thị tác vụ đang bị nghẽn (Blocked) hoặc quá hạn (SLA), PM cần can thiệp ngay.'
+                }
+            },
+            {
+                title: '2. Trung tâm xử lý Hành trình',
+                content: 'Đây là Action Center giúp PM bám sát các yêu cầu đang thực thi. Hệ thống tự động phân loại các hành trình "Chưa hoàn thành" để PM dễ dàng quản trị theo thời gian thực.',
+                image: '/assets/docs/pm/pm-action-center.png'
+            },
+            {
+                title: '3. Tra cứu & Quản lý Hồ sơ',
+                content: 'Tính năng cho phép tìm kiếm nhanh hồ sơ khách hàng và lọc các dự án theo khu vực hoặc trạng thái thi công cụ thể.',
+                image: '/assets/docs/pm/pm-journey-list.png'
+            },
+            {
+                title: '4. Theo dõi chi tiết & Nhật ký',
+                content: 'PM có thể truy cập sâu vào từng dự án để xem nhật ký thi công của giám sát, danh sách vật tư đã xuất và lịch sử ký duyệt hồ sơ điện tử.',
+                image: '/assets/docs/pm/pm-journey-detail.png',
+                alert: {
+                    type: 'tip',
+                    text: 'Sử dụng thanh timeline để đối soát các mốc bàn giao thực tế so với cam kết ban đầu với khách hàng.'
+                }
+            },
+            {
+                title: '5. Cá nhân & Chuyển quyền',
+                content: 'Nơi quản lý thông tin tài khoản và sử dụng menu "Chuyển quyền nhanh" để hỗ trợ các bộ phận khác (Sale, Kỹ thuật) khi cần thiết.',
+                image: '/assets/docs/pm/pm-role-switch.png'
+            }
+        ]
     }
 ];

@@ -116,6 +116,9 @@ export const globalUserService = {
      */
     async deleteUser(userId: string): Promise<boolean> {
         const response = await mutate<unknown>(DELETE_GLOBAL_USER, { userId });
+        if (response.code !== ApiResponseCode.SUCCESS) {
+            throw new Error(response.message || 'Không thể xóa GlobalUser.');
+        }
         return response.code === ApiResponseCode.SUCCESS;
     },
 
@@ -124,6 +127,9 @@ export const globalUserService = {
      */
     async resetPassword(userId: string, newPassword: string): Promise<boolean> {
         const response = await mutate<unknown>(RESET_GLOBAL_USER_PASSWORD, { userId, newPassword });
+        if (response.code !== ApiResponseCode.SUCCESS) {
+            throw new Error(response.message || 'Không thể đổi mật khẩu tài khoản.');
+        }
         return response.code === ApiResponseCode.SUCCESS;
     },
 

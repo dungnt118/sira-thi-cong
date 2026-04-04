@@ -1,74 +1,79 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-    Card,
-    Table,
     Button,
-    Input,
-    Space,
-    Tag,
-    Modal,
-    Form,
-    Select,
-    Row,
+    Card,
     Col,
-    Statistic,
+    Form,
+    Input,
+    Modal,
     Popconfirm,
-    message,
+    Row,
+    Select,
+    Space,
+    Statistic,
+    Table,
+    Tag,
     Tooltip,
+    message,
 } from 'antd';
 import {
-    UserOutlined,
-    PlusOutlined,
-    EditOutlined,
-    DeleteOutlined,
-    SearchOutlined,
     CheckCircleOutlined,
     CloseCircleOutlined,
+    DeleteOutlined,
+    EditOutlined,
+    LockOutlined,
+    PlusOutlined,
+    SearchOutlined,
     SyncOutlined,
+    UserOutlined,
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
-import { useOutletContext } from 'react-router-dom';
 
-// Services & Constants
-import { globalUserService } from 'services/users/global-users/global-user.service';
 import { authorizedUserService } from 'services/users/authorized-users/authorized-user.service';
+import type { AuthorizedUser } from 'services/users/authorized-users/authorizedusers.types';
+import { globalUserService } from 'services/users/global-users/global-user.service';
 import { BAC_USER_CLIENT_ID, ROLE_COLOR_MAP, ROLE_LABEL_MAP, USER_ROLES } from 'services/users/user.constants';
-import type { AuthorizedUser, IdentityContext } from 'services/users/authorized-users/authorizedusers.types';
-import type { IGlobalUser } from 'services/users/global-users/global-user.types';
 
 const { Search } = Input;
 const { Option } = Select;
 
-/**
- * User Management Page - Refactored for BAC User Client
- * Managed Roles: QL, GS, KYT, KT, KD, ADMIN
- */
+type UserFormValues = {
+    fullName: string;
+    username: string;
+    email: string;
+    phoneNumber?: string;
+    password?: string;
+    roles: string[];
+    defaultRole: string;
+    isActive?: 'Active' | 'Inactive';
+};
+
+type PasswordResetFormValues = {
+    newPassword: string;
+    confirmPassword: string;
+};
+
 const UserManagement: React.FC = () => {
-    const { isMobile } = useOutletContext<{ isMobile: boolean }>();
-    
-    // State
     const [users, setUsers] = useState<AuthorizedUser[]>([]);
     const [loading, setLoading] = useState(false);
     const [total, setTotal] = useState(0);
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
-    
-    // Filters
     const [searchText, setSearchText] = useState('');
     const [filterRole, setFilterRole] = useState<string>('');
     const [filterStatus, setFilterStatus] = useState<string>('');
-
-    // Modal state
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingUser, setEditingUser] = useState<AuthorizedUser | null>(null);
     const [submitting, setSubmitting] = useState(false);
-    const [form] = Form.useForm();
+    const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+    const [passwordSubmitting, setPasswordSubmitting] = useState(false);
+    const [passwordTargetUser, setPasswordTargetUser] = useState<AuthorizedUser | null>(null);
+    const [form] = Form.useForm<UserFormValues>();
+    const [passwordForm] = Form.useForm<PasswordResetFormValues>();
 
-    /**
-     * Fetch users from backend
-     */
     const fetchUsers = useCallback(async () => {
         setLoading(true);
+
         try {
             const response = await authorizedUserService.searchUsers({
                 keyword: searchText,
@@ -79,49 +84,205 @@ const UserManagement: React.FC = () => {
             });
 
             if (response.success) {
-                // Further filter by role if needed (client-side if server doesn't support direct role filter in search)
                 let data = response.data;
+
                 if (filterRole) {
-                    data = data.filter(u => {
-                        const context = u.identity_contexts?.find(ctx => ctx.clientId === BAC_USER_CLIENT_ID);
+                    data = data.filter((user) => {
+                        const context = user.identity_contexts?.find((item) => item.clientId === BAC_USER_CLIENT_ID);
                         return context?.roles.includes(filterRole);
                     });
                 }
+
                 setUsers(data);
                 setTotal(response.total);
             }
         } catch (error) {
             console.error('Fetch users error:', error);
-            message.error('Không thể tải danh sách người dùng');
+            message.error('Không thể tải danh sách người dùng.');
         } finally {
             setLoading(false);
         }
-    }, [searchText, filterStatus, filterRole, page, pageSize]);
+    }, [filterRole, filterStatus, page, pageSize, searchText]);
 
     useEffect(() => {
-        fetchUsers();
+        void fetchUsers();
     }, [fetchUsers]);
 
-    /**
-     * Delete/Deactivate User
-     */
-    const handleDelete = async (userId: string) => {
+    const closeUserModal = () => {
+        setIsModalOpen(false);
+        setEditingUser(null);
+        form.resetFields();
+    };
+
+    const handleOpenPasswordModal = (user: AuthorizedUser) => {
+        if (!user.globalUserId) {
+            message.error('Không tìm thấy GlobalUser liên kết để đổi mật khẩu.');
+            return;
+        }
+
+        setPasswordTargetUser(user);
+        passwordForm.resetFields();
+        setIsPasswordModalOpen(true);
+    };
+
+    const closePasswordModal = () => {
+        setIsPasswordModalOpen(false);
+        setPasswordTargetUser(null);
+        passwordForm.resetFields();
+    };
+
+    const handlePasswordModalOk = async () => {
+        const targetGlobalUserId = passwordTargetUser?.globalUserId;
+
+        if (!targetGlobalUserId) {
+            message.error('Không tìm thấy GlobalUser liên kết để đổi mật khẩu.');
+            return;
+        }
+
         try {
-            const success = await authorizedUserService.deactivateUser(userId);
-            if (success) {
-                message.success('Đã vô hiệu hóa người dùng');
-                fetchUsers();
-            } else {
-                message.error('Vô hiệu hóa thất bại');
-            }
-        } catch (error) {
-            message.error('Lỗi khi vô hiệu hóa người dùng');
+            const values = await passwordForm.validateFields();
+            setPasswordSubmitting(true);
+
+            await globalUserService.resetPassword(targetGlobalUserId, values.newPassword);
+
+            const userLabel = passwordTargetUser?.username || passwordTargetUser?.email || 'tài khoản';
+            message.success(`Đã đổi mật khẩu cho ${userLabel}.`);
+            closePasswordModal();
+        } catch (error: any) {
+            console.error('Change password error:', error);
+            message.error(error?.message || 'Không thể đổi mật khẩu tài khoản.');
+        } finally {
+            setPasswordSubmitting(false);
         }
     };
 
-    /**
-     * Table columns
-     */
+    const handleDelete = async (user: AuthorizedUser) => {
+        if (!user.globalUserId) {
+            message.error('Không tìm thấy GlobalUser liên kết nên chưa thể xóa tài khoản.');
+            return;
+        }
+
+        let authorizedUserDeleted = false;
+
+        try {
+            await authorizedUserService.deleteUser(user._id);
+            authorizedUserDeleted = true;
+
+            await globalUserService.deleteUser(user.globalUserId);
+
+            message.success('Đã xóa tài khoản, bao gồm AuthorizedUser và GlobalUser.');
+            await fetchUsers();
+        } catch (error: any) {
+            console.error('Delete user error:', error);
+
+            if (authorizedUserDeleted) {
+                message.error(error?.message || 'Đã xóa AuthorizedUser nhưng chưa xóa được GlobalUser. Vui lòng kiểm tra lại.');
+                await fetchUsers();
+                return;
+            }
+
+            message.error(error?.message || 'Không thể xóa tài khoản.');
+        }
+    };
+
+    const handleEdit = (user: AuthorizedUser) => {
+        setEditingUser(user);
+
+        const context = user.identity_contexts?.find((item) => item.clientId === BAC_USER_CLIENT_ID);
+
+        form.setFieldsValue({
+            fullName: user.fullName || '',
+            email: user.email || '',
+            phoneNumber: user.phoneNumber || '',
+            username: user.username || '',
+            roles: context?.roles || [],
+            defaultRole: context?.defaultRole || '',
+            isActive: user.isActive ? 'Active' : 'Inactive',
+        });
+
+        setIsModalOpen(true);
+    };
+
+    const handleCreate = () => {
+        setEditingUser(null);
+        form.resetFields();
+        form.setFieldsValue({
+            isActive: 'Active',
+            roles: [],
+        });
+        setIsModalOpen(true);
+    };
+
+    const handleModalOk = async () => {
+        try {
+            const values = await form.validateFields();
+            setSubmitting(true);
+
+            if (editingUser) {
+                if (editingUser.globalUserId) {
+                    const isGlobalUpdated = await globalUserService.updateUser({
+                        userId: editingUser.globalUserId,
+                        fullName: values.fullName,
+                        email: values.email,
+                        phoneNumber: values.phoneNumber,
+                    });
+
+                    if (!isGlobalUpdated) {
+                        throw new Error('Không thể cập nhật GlobalUser.');
+                    }
+                }
+
+                const isContextUpdated = await authorizedUserService.updateIdentityContext({
+                    userId: editingUser._id,
+                    clientId: BAC_USER_CLIENT_ID,
+                    roles: values.roles,
+                    defaultRole: values.defaultRole,
+                });
+
+                if (!isContextUpdated) {
+                    throw new Error('Không thể cập nhật quyền của AuthorizedUser.');
+                }
+
+                message.success('Cập nhật người dùng thành công.');
+            } else {
+                const newGlobalUser = await globalUserService.createUser({
+                    login: values.username,
+                    password: values.password || '',
+                    profile: {
+                        displayName: values.fullName,
+                        email: values.email,
+                        phone: values.phoneNumber,
+                    },
+                });
+
+                if (!newGlobalUser?.id) {
+                    throw new Error('Không thể tạo GlobalUser.');
+                }
+
+                const newAuthorizedUser = await authorizedUserService.createAuthorizedUser({
+                    globalUserId: newGlobalUser.id,
+                    clientId: BAC_USER_CLIENT_ID,
+                    roles: values.roles,
+                    role: values.defaultRole,
+                });
+
+                if (!newAuthorizedUser?._id) {
+                    throw new Error('Không thể tạo AuthorizedUser.');
+                }
+
+                message.success('Tạo người dùng mới thành công.');
+            }
+
+            closeUserModal();
+            await fetchUsers();
+        } catch (error: any) {
+            console.error('Save user error:', error);
+            message.error(error?.message || 'Thao tác thất bại.');
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
     const columns: ColumnsType<AuthorizedUser> = [
         {
             title: 'Họ và tên',
@@ -151,12 +312,15 @@ const UserManagement: React.FC = () => {
             key: 'roles',
             width: 250,
             render: (_, record) => {
-                const context = record.identity_contexts?.find(ctx => ctx.clientId === BAC_USER_CLIENT_ID);
-                if (!context || !context.roles.length) return <Tag>Chưa gán quyền</Tag>;
-                
+                const context = record.identity_contexts?.find((item) => item.clientId === BAC_USER_CLIENT_ID);
+
+                if (!context || !context.roles.length) {
+                    return <Tag>Chưa gán quyền</Tag>;
+                }
+
                 return (
                     <Space size={[0, 4]} wrap>
-                        {context.roles.map(role => (
+                        {context.roles.map((role) => (
                             <Tag key={role} color={ROLE_COLOR_MAP[role] || 'blue'}>
                                 {ROLE_LABEL_MAP[role] || role}
                             </Tag>
@@ -170,10 +334,13 @@ const UserManagement: React.FC = () => {
             key: 'defaultRole',
             width: 150,
             render: (_, record) => {
-                const context = record.identity_contexts?.find(ctx => ctx.clientId === BAC_USER_CLIENT_ID);
+                const context = record.identity_contexts?.find((item) => item.clientId === BAC_USER_CLIENT_ID);
                 const defaultRole = context?.defaultRole;
-                if (!defaultRole) return '-';
-                
+
+                if (!defaultRole) {
+                    return '-';
+                }
+
                 return (
                     <Tag color="gold" style={{ fontWeight: 'bold' }}>
                         {ROLE_LABEL_MAP[defaultRole] || defaultRole}
@@ -187,10 +354,7 @@ const UserManagement: React.FC = () => {
             key: 'isActive',
             width: 120,
             render: (isActive: boolean) => (
-                <Tag 
-                    color={isActive ? 'success' : 'default'} 
-                    icon={isActive ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
-                >
+                <Tag color={isActive ? 'success' : 'default'} icon={isActive ? <CheckCircleOutlined /> : <CloseCircleOutlined />}>
                     {isActive ? 'Hoạt động' : 'Ngừng'}
                 </Tag>
             ),
@@ -198,154 +362,53 @@ const UserManagement: React.FC = () => {
         {
             title: 'Thao tác',
             key: 'actions',
-            width: 150,
+            width: 190,
             fixed: 'right',
             render: (_, record) => (
                 <Space size="small">
                     <Tooltip title="Chỉnh sửa">
-                        <Button 
-                            type="text" 
-                            icon={<EditOutlined />} 
-                            onClick={() => handleEdit(record)} 
-                        />
+                        <Button type="text" icon={<EditOutlined />} onClick={() => handleEdit(record)} />
+                    </Tooltip>
+                    <Tooltip title="Đổi mật khẩu">
+                        <Button type="text" icon={<LockOutlined />} onClick={() => handleOpenPasswordModal(record)} />
                     </Tooltip>
                     <Popconfirm
-                        title="Vô hiệu hóa người dùng?"
-                        onConfirm={() => handleDelete(record._id)}
-                        okText="Có"
-                        cancelText="Không"
+                        title="Xóa tài khoản này?"
+                        description="Thao tác sẽ xóa cả AuthorizedUser và GlobalUser."
+                        onConfirm={() => handleDelete(record)}
+                        okText="Xóa"
+                        cancelText="Hủy"
                     >
-                        <Button 
-                            type="text" 
-                            danger 
-                            icon={<DeleteOutlined />} 
-                        />
+                        <Button type="text" danger icon={<DeleteOutlined />} />
                     </Popconfirm>
                 </Space>
             ),
         },
     ];
 
-    /**
-     * Edit User
-     */
-    const handleEdit = (user: AuthorizedUser) => {
-        setEditingUser(user);
-        const context = user.identity_contexts?.find(ctx => ctx.clientId === BAC_USER_CLIENT_ID);
-        
-        form.setFieldsValue({
-            fullName: user.fullName,
-            email: user.email,
-            phoneNumber: user.phoneNumber,
-            username: user.username,
-            roles: context?.roles || [],
-            defaultRole: context?.defaultRole || '',
-            isActive: user.isActive ? 'Active' : 'Inactive',
-        });
-        setIsModalOpen(true);
-    };
-
-    /**
-     * Create User
-     */
-    const handleCreate = () => {
-        setEditingUser(null);
-        form.resetFields();
-        form.setFieldsValue({ isActive: 'Active', roles: [] });
-        setIsModalOpen(true);
-    };
-
-    /**
-     * Save User (Create or Update)
-     */
-    const handleModalOk = async () => {
-        try {
-            const values = await form.validateFields();
-            setSubmitting(true);
-
-            if (editingUser) {
-                // 1. Update Global User
-                if (editingUser.globalUserId) {
-                    await globalUserService.updateUser({
-                        userId: editingUser.globalUserId,
-                        fullName: values.fullName,
-                        email: values.email,
-                        phoneNumber: values.phoneNumber,
-                    });
-                }
-
-                // 2. Update Identity Context (Roles & Default Role)
-                await authorizedUserService.updateIdentityContext({
-                    userId: editingUser._id,
-                    clientId: BAC_USER_CLIENT_ID,
-                    roles: values.roles,
-                    defaultRole: values.defaultRole,
-                });
-
-                message.success('Cập nhật người dùng thành công');
-            } else {
-                // NEW USER FLOW
-                // 1. Create Global User
-                const newGlobalUser = await globalUserService.createUser({
-                    login: values.username,
-                    password: values.password,
-                    profile: {
-                        displayName: values.fullName,
-                        email: values.email,
-                        phone: values.phoneNumber,
-                    }
-                });
-
-                if (newGlobalUser && newGlobalUser.id) {
-                    // 2. Create Authorized User with roles & default role
-                    await authorizedUserService.createAuthorizedUser({
-                        globalUserId: newGlobalUser.id,
-                        clientId: BAC_USER_CLIENT_ID,
-                        roles: values.roles,
-                        role: values.defaultRole,
-                    });
-                    message.success('Tạo người dùng mới thành công');
-                }
-            }
-
-            setIsModalOpen(false);
-            fetchUsers();
-        } catch (error: any) {
-            console.error('Save user error:', error);
-            message.error(error.message || 'Thao tác thất bại');
-        } finally {
-            setSubmitting(false);
-        }
-    };
-
     return (
         <div style={{ padding: 0 }}>
-            {/* Statistics */}
             <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
                 <Col xs={24} sm={8}>
                     <Card size="small">
-                        <Statistic 
-                            title="Tổng số tài khoản" 
-                            value={total} 
-                            prefix={<UserOutlined />} 
-                        />
+                        <Statistic title="Tổng số tài khoản" value={total} prefix={<UserOutlined />} />
                     </Card>
                 </Col>
                 <Col xs={24} sm={8}>
                     <Card size="small">
-                        <Statistic 
-                            title="Đang hoạt động" 
-                            value={users.filter(u => u.isActive).length} 
+                        <Statistic
+                            title="Đang hoạt động"
+                            value={users.filter((user) => user.isActive).length}
                             valueStyle={{ color: '#52c41a' }}
-                            prefix={<CheckCircleOutlined />} 
+                            prefix={<CheckCircleOutlined />}
                         />
                     </Card>
                 </Col>
                 <Col xs={24} sm={8}>
-                    <Button 
-                        type="primary" 
+                    <Button
+                        type="primary"
                         size="large"
-                        icon={<PlusOutlined />} 
+                        icon={<PlusOutlined />}
                         onClick={handleCreate}
                         block
                         style={{ height: '100%' }}
@@ -355,42 +418,43 @@ const UserManagement: React.FC = () => {
                 </Col>
             </Row>
 
-            {/* Filters */}
             <Card style={{ marginBottom: 16 }}>
                 <Row gutter={[16, 16]} align="middle">
                     <Col xs={24} md={10}>
                         <Search
                             placeholder="Tìm theo tên, email, username..."
                             allowClear
-                            onSearch={val => {
-                                setSearchText(val);
+                            onSearch={(value) => {
+                                setSearchText(value);
                                 setPage(1);
                             }}
                             prefix={<SearchOutlined />}
                         />
                     </Col>
                     <Col xs={12} md={5}>
-                        <Select 
-                            placeholder="Vai trò" 
-                            allowClear 
-                            style={{ width: '100%' }} 
-                            onChange={val => {
-                                setFilterRole(val);
+                        <Select
+                            placeholder="Vai trò"
+                            allowClear
+                            style={{ width: '100%' }}
+                            onChange={(value) => {
+                                setFilterRole(value);
                                 setPage(1);
                             }}
                         >
-                            {USER_ROLES.map(role => (
-                                <Option key={role.Value} value={role.Value}>{role.Label}</Option>
+                            {USER_ROLES.map((role) => (
+                                <Option key={role.Value} value={role.Value}>
+                                    {role.Label}
+                                </Option>
                             ))}
                         </Select>
                     </Col>
                     <Col xs={12} md={5}>
-                        <Select 
-                            placeholder="Trạng thái" 
-                            allowClear 
-                            style={{ width: '100%' }} 
-                            onChange={val => {
-                                setFilterStatus(val);
+                        <Select
+                            placeholder="Trạng thái"
+                            allowClear
+                            style={{ width: '100%' }}
+                            onChange={(value) => {
+                                setFilterStatus(value);
                                 setPage(1);
                             }}
                         >
@@ -399,32 +463,27 @@ const UserManagement: React.FC = () => {
                         </Select>
                     </Col>
                     <Col xs={24} md={4}>
-                        <Button 
-                            icon={<SyncOutlined spin={loading} />} 
-                            onClick={fetchUsers}
-                            block
-                        >
+                        <Button icon={<SyncOutlined spin={loading} />} onClick={() => void fetchUsers()} block>
                             Làm mới
                         </Button>
                     </Col>
                 </Row>
             </Card>
 
-            {/* Table */}
             <Card>
-                <Table 
-                    columns={columns} 
-                    dataSource={users} 
-                    rowKey="_id" 
+                <Table
+                    columns={columns}
+                    dataSource={users}
+                    rowKey="_id"
                     loading={loading}
-                    scroll={{ x: 1000 }}
+                    scroll={{ x: 1100 }}
                     pagination={{
                         current: page,
-                        pageSize: pageSize,
-                        total: total,
-                        onChange: (p, s) => {
-                            setPage(p);
-                            setPageSize(s);
+                        pageSize,
+                        total,
+                        onChange: (nextPage, nextPageSize) => {
+                            setPage(nextPage);
+                            setPageSize(nextPageSize);
                         },
                         showSizeChanger: true,
                         pageSizeOptions: ['10', '20', '50'],
@@ -432,12 +491,55 @@ const UserManagement: React.FC = () => {
                 />
             </Card>
 
-            {/* Create/Edit Modal */}
+            <Modal
+                title={`Đổi mật khẩu${passwordTargetUser?.username ? ` - ${passwordTargetUser.username}` : ''}`}
+                open={isPasswordModalOpen}
+                onOk={handlePasswordModalOk}
+                onCancel={closePasswordModal}
+                confirmLoading={passwordSubmitting}
+                okText="Cập nhật mật khẩu"
+                cancelText="Hủy"
+                destroyOnClose
+            >
+                <Form form={passwordForm} layout="vertical">
+                    <Form.Item
+                        name="newPassword"
+                        label="Mật khẩu mới"
+                        rules={[
+                            { required: true, message: 'Vui lòng nhập mật khẩu mới.' },
+                            { min: 8, message: 'Mật khẩu mới phải có ít nhất 8 ký tự.' },
+                        ]}
+                    >
+                        <Input.Password placeholder="Nhập mật khẩu mới" />
+                    </Form.Item>
+
+                    <Form.Item
+                        name="confirmPassword"
+                        label="Nhập lại mật khẩu mới"
+                        dependencies={['newPassword']}
+                        rules={[
+                            { required: true, message: 'Vui lòng nhập lại mật khẩu mới.' },
+                            ({ getFieldValue }) => ({
+                                validator(_, value) {
+                                    if (!value || getFieldValue('newPassword') === value) {
+                                        return Promise.resolve();
+                                    }
+
+                                    return Promise.reject(new Error('Mật khẩu xác nhận chưa khớp.'));
+                                },
+                            }),
+                        ]}
+                    >
+                        <Input.Password placeholder="Nhập lại mật khẩu mới" />
+                    </Form.Item>
+                </Form>
+            </Modal>
+
             <Modal
                 title={editingUser ? 'Cập nhật tài khoản' : 'Tạo mới tài khoản'}
                 open={isModalOpen}
                 onOk={handleModalOk}
-                onCancel={() => setIsModalOpen(false)}
+                onCancel={closeUserModal}
                 confirmLoading={submitting}
                 width={700}
                 okText="Lưu thông tin"
@@ -447,19 +549,19 @@ const UserManagement: React.FC = () => {
                 <Form form={form} layout="vertical" initialValues={{ roles: [] }}>
                     <Row gutter={16}>
                         <Col span={12}>
-                            <Form.Item 
-                                name="fullName" 
-                                label="Họ và tên" 
-                                rules={[{ required: true, message: 'Vui lòng nhập họ tên' }]}
+                            <Form.Item
+                                name="fullName"
+                                label="Họ và tên"
+                                rules={[{ required: true, message: 'Vui lòng nhập họ tên.' }]}
                             >
                                 <Input placeholder="Nguyễn Văn A" />
                             </Form.Item>
                         </Col>
                         <Col span={12}>
-                            <Form.Item 
-                                name="username" 
-                                label="Tên đăng nhập" 
-                                rules={[{ required: true, message: 'Vui lòng nhập username' }]}
+                            <Form.Item
+                                name="username"
+                                label="Tên đăng nhập"
+                                rules={[{ required: true, message: 'Vui lòng nhập username.' }]}
                             >
                                 <Input placeholder="username" disabled={!!editingUser} />
                             </Form.Item>
@@ -468,12 +570,12 @@ const UserManagement: React.FC = () => {
 
                     <Row gutter={16}>
                         <Col span={12}>
-                            <Form.Item 
-                                name="email" 
-                                label="Email" 
+                            <Form.Item
+                                name="email"
+                                label="Email"
                                 rules={[
-                                    { required: true, message: 'Vui lòng nhập email' },
-                                    { type: 'email', message: 'Email không hợp lệ' },
+                                    { required: true, message: 'Vui lòng nhập email.' },
+                                    { type: 'email', message: 'Email không hợp lệ.' },
                                 ]}
                             >
                                 <Input placeholder="email@domain.com" />
@@ -487,39 +589,41 @@ const UserManagement: React.FC = () => {
                     </Row>
 
                     {!editingUser && (
-                        <Form.Item 
-                            name="password" 
-                            label="Mật khẩu khởi tạo" 
-                            rules={[{ required: true, message: 'Vui lòng nhập mật khẩu' }]}
+                        <Form.Item
+                            name="password"
+                            label="Mật khẩu khởi tạo"
+                            rules={[
+                                { required: true, message: 'Vui lòng nhập mật khẩu.' },
+                                { min: 8, message: 'Mật khẩu phải có ít nhất 8 ký tự.' },
+                            ]}
                         >
                             <Input.Password placeholder="Nhập mật khẩu" />
                         </Form.Item>
                     )}
 
-                    <Form.Item 
-                        name="roles" 
-                        label="Các vai trò khả dụng (BAC User)" 
-                        rules={[{ required: true, message: 'Chọn ít nhất 1 vai trò' }]}
+                    <Form.Item
+                        name="roles"
+                        label="Các vai trò khả dụng (BAC User)"
+                        rules={[{ required: true, message: 'Chọn ít nhất 1 vai trò.' }]}
                     >
-                        <Select 
-                            mode="multiple" 
-                            placeholder="Chọn các vai trò"
-                            style={{ width: '100%' }}
-                        >
-                            {USER_ROLES.map(role => (
-                                <Option key={role.Value} value={role.Value}>{role.Label}</Option>
+                        <Select mode="multiple" placeholder="Chọn các vai trò" style={{ width: '100%' }}>
+                            {USER_ROLES.map((role) => (
+                                <Option key={role.Value} value={role.Value}>
+                                    {role.Label}
+                                </Option>
                             ))}
                         </Select>
                     </Form.Item>
 
-                    <Form.Item noStyle shouldUpdate={(prev, curr) => prev.roles !== curr.roles}>
+                    <Form.Item noStyle shouldUpdate={(prev, current) => prev.roles !== current.roles}>
                         {({ getFieldValue }) => {
                             const selectedRoles = getFieldValue('roles') || [];
+
                             return (
-                                <Form.Item 
-                                    name="defaultRole" 
-                                    label="Vai trò mặc định" 
-                                    rules={[{ required: true, message: 'Vui lòng chọn vai trò mặc định' }]}
+                                <Form.Item
+                                    name="defaultRole"
+                                    label="Vai trò mặc định"
+                                    rules={[{ required: true, message: 'Vui lòng chọn vai trò mặc định.' }]}
                                 >
                                     <Select placeholder="Chọn vai trò mặc định">
                                         {selectedRoles.map((role: string) => (

@@ -363,5 +363,81 @@ export const documentationContent: GuideCategory[] = [
                 ]
             }
         ]
+    },
+    {
+        id: 'pm',
+        title: 'Hướng dẫn sử dụng Quản lý dự án (PM)',
+        description: 'Tài liệu quản trị hành trình khách hàng, giám sát thi công và phê duyệt hồ sơ trên di động.',
+        documents: [
+            {
+                id: 'tong-quan-dashboard',
+                title: 'Bàn làm việc Quản lý (Dashboard)',
+                description: 'Theo dõi chỉ số sức khỏe dự án và các tác vụ trễ hạn.',
+                sections: [
+                    {
+                        title: '1. Giao diện báo cáo quản trị',
+                        content: 'Dashboard giúp PM nắm bắt nhanh các đầu việc "nghẽn mạch" (Blocked) hoặc "quá hạn" (Overdue) để can thiệp kịp thời.',
+                        image: '/assets/docs/pm/pm-dashboard.png'
+                    }
+                ]
+            },
+            {
+                id: 'trung-tam-xu-ly',
+                title: 'Trung tâm xử lý Action Center',
+                description: 'Lọc và điều hướng nhanh các hành trình đang thực thi.',
+                sections: [
+                    {
+                        title: '1. Quản lý tác vụ chờ đóng',
+                        content: 'PM sử dụng màn hình danh sách hành trình để theo dõi các điểm chạm của khách hàng, đảm bảo các yêu cầu được đóng đúng thời hạn.',
+                        image: '/assets/docs/pm/pm-action-center.png'
+                    }
+                ]
+            },
+            {
+                id: 'tra-cuu-ho-so',
+                title: 'Tra cứu hồ sơ dự án',
+                description: 'Tìm kiếm hồ sơ khách hàng và lọc danh sách hành trình.',
+                sections: [
+                    {
+                        title: '1. Danh sách hành trình công trình',
+                        content: 'Tra cứu tập trung mọi dự án, từ khảo sát đến bảo hành. PM có thể lọc danh sách theo khu vực giám sát của từng cá nhân.',
+                        image: '/assets/docs/pm/pm-journey-list.png'
+                    }
+                ]
+            },
+            {
+                id: 'theo-doi-chi-tiet',
+                title: 'Theo dõi chi tiết & Nhật ký',
+                description: 'Xem nhật ký thi công, sơ đồ ký duyệt và bóc tách vật tư.',
+                sections: [
+                    {
+                        title: '1. Chi tiết tiến độ thực tế',
+                        content: 'Hệ thống lưu lại dòng thời gian (Timeline) các mốc quan trọng, hồ sơ khảo sát đã duyệt và chi phí vật tư dự kiến.',
+                        image: '/assets/docs/pm/pm-journey-detail.png',
+                        alert: {
+                            type: 'info',
+                            text: 'PM có thể kiểm duyệt các biên bản khảo sát của kỹ thuật ngay tại màn hình này.'
+                        }
+                    }
+                ]
+            },
+            {
+                id: 'thong-tin-ca-nhan',
+                title: 'Hồ sơ Cá nhân & Chuyển quyền',
+                description: 'Quản lý thông tin tài khoản và đổi vai trò tác nghiệp.',
+                sections: [
+                    {
+                        title: '1. Trang Cá nhân PM',
+                        content: 'Xem cấu hình thông báo và chuyển đổi quyền nhanh giữa các vai trò trong hệ thống.',
+                        image: '/assets/docs/pm/pm-profile.png'
+                    },
+                    {
+                        title: '2. Chuyển quyền nhanh',
+                        content: 'Cho phép PM đổi sang vai trò Giám sát hoặc Sale để hỗ trợ nghiệp vụ cho nhân viên hiện trường.',
+                        image: '/assets/docs/pm/pm-role-switch.png'
+                    }
+                ]
+            }
+        ]
     }
 ];

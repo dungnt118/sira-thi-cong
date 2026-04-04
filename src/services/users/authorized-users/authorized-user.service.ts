@@ -110,6 +110,9 @@ export const authorizedUserService = {
      */
     async deleteUser(userId: string): Promise<boolean> {
         const response = await mutate<unknown>(DELETE_AUTHORIZED_USER, { userId });
+        if (response.code !== ApiResponseCode.SUCCESS) {
+            throw new Error(response.message || 'Không thể xóa AuthorizedUser.');
+        }
         return response.code === ApiResponseCode.SUCCESS;
     },
 };
