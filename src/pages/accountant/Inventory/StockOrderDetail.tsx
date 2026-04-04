@@ -163,7 +163,7 @@ const StockOrderDetail: React.FC = () => {
                     let bgColor = '#fff';
                     let borderColor = 'rgba(0, 0, 0, 0.25)';
                     let textColor = 'rgba(0, 0, 0, 0.45)';
-                    let icon = index + 1;
+                    let iconNode: React.ReactNode = index + 1;
 
                     if (isActive) {
                         borderColor = '#1890ff';
@@ -172,7 +172,7 @@ const StockOrderDetail: React.FC = () => {
                     } else if (isDone) {
                         borderColor = '#1890ff';
                         textColor = 'rgba(0, 0, 0, 0.85)';
-                        icon = <CheckCircleOutlined style={{ color: '#1890ff' }} />;
+                        iconNode = <CheckCircleOutlined style={{ color: '#1890ff' }} />;
                     }
 
                     return (
@@ -197,7 +197,7 @@ const StockOrderDetail: React.FC = () => {
                                 color: isActive ? '#1890ff' : 'inherit',
                                 flexShrink: 0
                             }}>
-                                {icon}
+                                {iconNode}
                             </div>
                             <div style={{ fontSize: 12, fontWeight: isActive ? 600 : 400, color: textColor, whiteSpace: 'nowrap' }}>
                                 {step.title}
@@ -275,12 +275,57 @@ const StockOrderDetail: React.FC = () => {
         return result.result || result;
     };
 
+    const MaterialListMobile = () => {
+        return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
+                {(order.items || []).map((item, index) => (
+                    <Card 
+                        key={index} 
+                        size="small" 
+                        styles={{ body: { padding: '8px 12px' } }}
+                        style={{ borderRadius: 6, border: '1px solid #f0f0f0' }}
+                    >
+                        <div style={{ fontWeight: 600, marginBottom: 8, fontSize: 13, color: '#262626' }}>
+                            {item.material_name}
+                        </div>
+                        <Row gutter={[8, 8]}>
+                            <Col span={12}>
+                                <Text type="secondary" style={{ fontSize: 11 }}>ĐVT:</Text>
+                                <div style={{ fontSize: 12 }}>{item.unit?.toUpperCase()}</div>
+                            </Col>
+                            <Col span={12}>
+                                <Text type="secondary" style={{ fontSize: 11 }}>Đơn giá:</Text>
+                                <div style={{ fontSize: 12 }}>{(item.unit_cost || 0).toLocaleString()}đ</div>
+                            </Col>
+                            <Col span={8}>
+                                <Text type="secondary" style={{ fontSize: 11 }}>Yêu cầu:</Text>
+                                <div style={{ fontSize: 13, fontWeight: 500 }}>{item.requested_quantity || 0}</div>
+                            </Col>
+                            <Col span={8}>
+                                <Text type="secondary" style={{ fontSize: 11 }}>Thực xuất:</Text>
+                                <div style={{ fontSize: 13, fontWeight: 500, color: '#1890ff' }}>{item.issued_quantity || 0}</div>
+                            </Col>
+                            <Col span={8}>
+                                <Text type="secondary" style={{ fontSize: 11 }}>Thực nhận:</Text>
+                                <div style={{ 
+                                    fontSize: 13, 
+                                    fontWeight: 600,
+                                    color: (item.received_quantity !== undefined && item.received_quantity < (item.issued_quantity || 0)) ? '#ff4d4f' : '#52c41a'
+                                }}>
+                                    {item.received_quantity !== undefined ? item.received_quantity : '—'}
+                                </div>
+                            </Col>
+                        </Row>
+                    </Card>
+                ))}
+            </div>
+        );
+    };
     const handleSign = async (dataUrl: string, strokeData: any) => {
-        if (!signingRole || !id || !order) return;
 
         setLoading(true);
         try {
-            const uploadedRef = await uploadSignatureFile(dataUrl, signingRole);
+            const uploadedRef = await uploadSignatureFile(dataUrl, signingRole!);
 
             let nextStatus: StockOrderStatusEnum = (order.status || 'requested') as any;
             if (order.status === 'requested' && signingRole === 'kt') nextStatus = 'approved';
@@ -309,14 +354,14 @@ const StockOrderDetail: React.FC = () => {
                 newEntry
             ];
 
-            await stockOrderService.updateStockOrder(id, {
+            await stockOrderService.updateStockOrder(id!, {
                 status: nextStatus,
                 signatures,
                 signed_at: nowIso,
                 signed_by: signerRef as any
             });
 
-            message.success(`Đã ký xác nhận thành công với vai trò ${signingRole.toUpperCase()}`);
+            message.success(`Đã ký xác nhận thành công với vai trò ${signingRole!.toUpperCase()}`);
             setIsSignatureModalOpen(false);
             fetchOrder();
         } catch (error) {
@@ -522,14 +567,18 @@ const StockOrderDetail: React.FC = () => {
                         </Descriptions>
 
                         <Text strong style={{ display: 'block', marginBottom: 12 }}>Danh sách vật tư</Text>
-                        <Table
-                            dataSource={order.items || []}
-                            columns={itemColumns}
-                            pagination={false}
-                            size="small"
-                            rowKey={(r: any, i) => `${r.material_id || i}-${i}`}
-                            scroll={{ x: 700 }}
-                        />
+                        {window.innerWidth < 768 ? (
+                            <MaterialListMobile />
+                        ) : (
+                            <Table
+                                dataSource={order.items || []}
+                                columns={itemColumns}
+                                pagination={false}
+                                size="small"
+                                rowKey={(r: any, i) => `${r.material_id || i}-${i}`}
+                                scroll={{ x: 700 }}
+                            />
+                        )}
                     </Col>
 
                     <Col xs={24} sm={24} md={8}>

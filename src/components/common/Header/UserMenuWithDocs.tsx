@@ -108,11 +108,19 @@ export const UserMenu: React.FC<UserMenuProps> = ({
         }
     ];
 
+    const userLabelStyles: React.CSSProperties = {
+        fontWeight: 500,
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+        minWidth: 0,
+    };
+
     return (
         <Dropdown menu={{ items: menuItems }} placement="bottomRight" trigger={['click']}>
-            <Space style={{ cursor: 'pointer' }}>
-                <Avatar icon={<UserOutlined />} style={{ backgroundColor: avatarColor }} />
-                {showName && <span style={{ fontWeight: 500 }}>{user?.username || 'User'}</span>}
+            <Space style={{ cursor: 'pointer', minWidth: 0, maxWidth: '100%' }} size="small">
+                <Avatar icon={<UserOutlined />} style={{ backgroundColor: avatarColor, flexShrink: 0 }} />
+                {showName && <span style={userLabelStyles}>{user?.username || 'User'}</span>}
             </Space>
         </Dropdown>
     );

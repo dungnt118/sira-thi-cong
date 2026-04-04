@@ -112,21 +112,60 @@ const AccountantTopBar: React.FC = () => {
     // User menu logic moved to shared UserMenu component
 
     return (
-        <div style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            width: '100%', padding: '0 24px', height: '100%', gap: 12,
-        }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div style={{
-                    width: 40, height: 40, background: 'linear-gradient(135deg, #52c41a, #73d13d)',
-                    borderRadius: 8, display: 'flex', alignItems: 'center',
-                    justifyContent: 'center', color: '#fff', fontSize: 20, fontWeight: 'bold',
-                }}>
+        <div
+            style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                width: '100%',
+                minWidth: 0,
+                padding: '0 24px',
+                height: '100%',
+                gap: 12,
+            }}
+        >
+            <div
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                    minWidth: 0,
+                    flex: '1 1 auto',
+                    overflow: 'hidden',
+                }}
+            >
+                <div
+                    style={{
+                        width: 40,
+                        height: 40,
+                        flexShrink: 0,
+                        background: 'linear-gradient(135deg, #52c41a, #73d13d)',
+                        borderRadius: 8,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#fff',
+                        fontSize: 20,
+                        fontWeight: 'bold',
+                    }}
+                >
                     K
                 </div>
-                <span style={{ fontSize: 16, fontWeight: 600, color: '#52c41a' }}>Lam Bac – Kế toán</span>
+                <span
+                    style={{
+                        fontSize: 16,
+                        fontWeight: 600,
+                        color: '#52c41a',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        minWidth: 0,
+                    }}
+                >
+                    Lam Bac – Kế toán
+                </span>
             </div>
-            <Space size={24}>
+            <Space size={24} style={{ minWidth: 0, flex: '0 1 auto' }}>
                 <Badge count={3} offset={[-5, 5]}>
                     <BellOutlined style={{ fontSize: 20, cursor: 'pointer' }} />
                 </Badge>

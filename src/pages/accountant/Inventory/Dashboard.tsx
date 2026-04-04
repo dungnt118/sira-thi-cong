@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import {
     Card, Row, Col, Table, Tag, Button, Statistic,
     Typography, Space, Modal, Form, Input, InputNumber, Select,
-    message, Popconfirm, Alert
+    message, Popconfirm, Alert, Grid
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
@@ -19,8 +19,11 @@ import { MATERIAL_GROUP_CATEGORY_LABELS, type MaterialGroupCategory } from '../.
 
 const { Title, Text } = Typography;
 const { Option } = Select;
+const { useBreakpoint } = Grid;
 
 const InventoryDashboard: React.FC = () => {
+    const screens = useBreakpoint();
+    const isNarrow = !screens.md;
     const navigate = useNavigate();
     const [form] = Form.useForm();
     const [skuForm] = Form.useForm();
@@ -288,46 +291,93 @@ const InventoryDashboard: React.FC = () => {
     };
 
     return (
-        <div>
-            <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: 24
-            }}>
-                <Title level={4} style={{ margin: 0 }}><InboxOutlined style={{ marginRight: 8 }} /> Quản lý Vật tư tiêu hao</Title>
-                <Space>
-                    <Button icon={<BankOutlined />} onClick={() => navigate('/kt/inventory/distributors')}>Nhà phân phối</Button>
-                    <Button icon={<PlusOutlined />} type="primary" onClick={() => {
-                        setEditingGroup(null);
-                        form.resetFields();
-                        setIsGroupModalOpen(true);
-                    }}>Khai báo Nhóm</Button>
-                    <Button icon={<HistoryOutlined />} onClick={() => navigate('/kt/inventory/history')}>Lịch sử</Button>
-                    <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/kt/inventory/stock-in')}>Nhập kho</Button>
-                    <Button danger icon={<MinusOutlined />} onClick={() => navigate('/kt/inventory/stock-out')}>Xuất kho</Button>
+        <div style={{ minWidth: 0 }}>
+            <div
+                style={{
+                    display: 'flex',
+                    flexDirection: isNarrow ? 'column' : 'row',
+                    alignItems: isNarrow ? 'stretch' : 'center',
+                    justifyContent: 'space-between',
+                    gap: isNarrow ? 12 : 16,
+                    marginBottom: isNarrow ? 16 : 24,
+                }}
+            >
+                <Title
+                    level={4}
+                    style={{
+                        margin: 0,
+                        width: isNarrow ? '100%' : undefined,
+                        minWidth: 0,
+                        lineHeight: 1.35,
+                    }}
+                >
+                    <InboxOutlined style={{ marginRight: 8 }} />
+                    Quản lý Vật tư tiêu hao
+                </Title>
+                <Space wrap size={isNarrow ? 'small' : 'middle'} style={isNarrow ? { width: '100%' } : undefined}>
+                    <Button icon={<BankOutlined />} onClick={() => navigate('/kt/inventory/distributors')}>
+                        Nhà phân phối
+                    </Button>
+                    <Button
+                        icon={<PlusOutlined />}
+                        type="primary"
+                        onClick={() => {
+                            setEditingGroup(null);
+                            form.resetFields();
+                            setIsGroupModalOpen(true);
+                        }}
+                    >
+                        Khai báo Nhóm
+                    </Button>
+                    <Button icon={<HistoryOutlined />} onClick={() => navigate('/kt/inventory/history')}>
+                        Lịch sử
+                    </Button>
+                    <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/kt/inventory/stock-in')}>
+                        Nhập kho
+                    </Button>
+                    <Button danger icon={<MinusOutlined />} onClick={() => navigate('/kt/inventory/stock-out')}>
+                        Xuất kho
+                    </Button>
                 </Space>
             </div>
 
-            <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-                <Col span={6}>
-                    <Card size="small" bordered={false} className="dashboard-stat-card">
-                        <Statistic title="Tổng giá trị kho" value={totalInventoryValue} suffix="đ" prefix={<AppstoreOutlined />} />
+            <Row gutter={[12, 12]} style={{ marginBottom: isNarrow ? 16 : 24 }}>
+                <Col xs={24} sm={12} lg={6}>
+                    <Card size="small" bordered={false} className="dashboard-stat-card" styles={{ body: { padding: isNarrow ? 12 : undefined } }}>
+                        <Statistic
+                            title={<span style={{ whiteSpace: 'normal' }}>Tổng giá trị kho</span>}
+                            value={totalInventoryValue}
+                            prefix={<AppstoreOutlined />}
+                            formatter={(val) => (
+                                <span style={{ whiteSpace: 'nowrap' }}>
+                                    {typeof val === 'number' ? val.toLocaleString('vi-VN') : val} đ
+                                </span>
+                            )}
+                        />
                     </Card>
                 </Col>
-                <Col span={6}>
-                    <Card size="small" bordered={false} className="dashboard-stat-card">
+                <Col xs={24} sm={12} lg={6}>
+                    <Card size="small" bordered={false} className="dashboard-stat-card" styles={{ body: { padding: isNarrow ? 12 : undefined } }}>
                         <Statistic title="Số Nhóm hàng" value={groups.length} prefix={<InboxOutlined />} />
                     </Card>
                 </Col>
-                <Col span={6}>
-                    <Card size="small" bordered={false} className="dashboard-stat-card">
-                        <Statistic title="Cần nhập thêm (SKU)" value={lowStockSkus.length} valueStyle={{ color: '#cf1322' }} prefix={<AlertOutlined />} />
+                <Col xs={24} sm={12} lg={6}>
+                    <Card size="small" bordered={false} className="dashboard-stat-card" styles={{ body: { padding: isNarrow ? 12 : undefined } }}>
+                        <Statistic
+                            title={<span style={{ whiteSpace: 'normal' }}>Cần nhập thêm (SKU)</span>}
+                            value={lowStockSkus.length}
+                            valueStyle={{ color: '#cf1322' }}
+                            prefix={<AlertOutlined />}
+                        />
                     </Card>
                 </Col>
-                <Col span={6}>
-                    <Card size="small" bordered={false} className="dashboard-stat-card">
-                        <Statistic title="Vòng quay kho (Tháng)" value={1.2} prefix={<HistoryOutlined />} />
+                <Col xs={24} sm={12} lg={6}>
+                    <Card size="small" bordered={false} className="dashboard-stat-card" styles={{ body: { padding: isNarrow ? 12 : undefined } }}>
+                        <Statistic
+                            title={<span style={{ whiteSpace: 'normal' }}>Vòng quay kho (Tháng)</span>}
+                            value={1.2}
+                            prefix={<HistoryOutlined />}
+                        />
                     </Card>
                 </Col>
             </Row>
@@ -336,7 +386,7 @@ const InventoryDashboard: React.FC = () => {
                 columns={groupColumns}
                 dataSource={groupStats}
                 rowKey="_id"
-                size="middle"
+                size={isNarrow ? 'small' : 'middle'}
                 loading={loading}
                 expandable={{ expandedRowRender, defaultExpandAllRows: false }}
                 pagination={false}
@@ -355,7 +405,7 @@ const InventoryDashboard: React.FC = () => {
                         <Input placeholder="VD: Sơn PU (Lót)" />
                     </Form.Item>
                     <Row gutter={16}>
-                        <Col span={8}>
+                        <Col xs={24} sm={8}>
                             <Form.Item name="base_unit" label="ĐVT cơ sở (L/Kg)" rules={[{ required: true }]}>
                                 <Select placeholder="Chọn ĐVT">
                                     <Option value="Kg">Kg</Option>
@@ -365,7 +415,7 @@ const InventoryDashboard: React.FC = () => {
                                 </Select>
                             </Form.Item>
                         </Col>
-                        <Col span={16}>
+                        <Col xs={24} sm={16}>
                             <Form.Item name="package_unit" label="ĐVT đóng gói" rules={[{ required: true }]}>
                                 <Select placeholder="Thùng/Lon...">
                                     <Option value="thùng">Thùng</Option>
@@ -406,12 +456,12 @@ const InventoryDashboard: React.FC = () => {
                 <Form form={skuForm} layout="vertical">
                     <Form.Item name="group_id" hidden><Input /></Form.Item>
                     <Row gutter={16}>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             <Form.Item name="code" label="Mã SKU" rules={[{ required: true }]}>
                                 <Input placeholder="VD: PU-15KG" />
                             </Form.Item>
                         </Col>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             <Form.Item
                                 name="capacity"
                                 label={`Số lượng quy cách (mỗi ${selectedGroup?.package_unit})`}
@@ -426,12 +476,12 @@ const InventoryDashboard: React.FC = () => {
                         </Col>
                     </Row>
                     <Row gutter={16}>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             <Form.Item name="unit_cost" label="Đơn giá tham chiếu" rules={[{ required: true }]}>
                                 <InputNumber style={{ width: '100%' }} formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} />
                             </Form.Item>
                         </Col>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             <Form.Item name="min_stock_alert" label="Cảnh báo tồn tối thiểu">
                                 <InputNumber style={{ width: '100%' }} />
                             </Form.Item>
