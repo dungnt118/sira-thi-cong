@@ -107,14 +107,23 @@ const Auth: React.FC<AuthProps> = ({ children, match }) => {
       
       const existingToken = elsagaService.getAccessToken();
       if (existingToken) {
+        console.log('Auth: existingToken found', existingToken);
         authenCheck();
       } else {
-        if (!history.location.pathname.startsWith('/login')) {
+        console.log('Auth: No token, checking path', history.location.pathname);
+        if (!history.location.pathname.startsWith('/login') && 
+            !history.location.pathname.startsWith('/documents') &&
+            !history.location.pathname.startsWith('/portal')) {
+          console.log('Auth: Redirecting to login from', history.location.pathname);
           history.push('/login');
         }
         setLoading(false);
       }
-    } else if (userData?.user || history.location.pathname.startsWith('/login') || query.layoutStyle) {
+    } else if (userData?.user || 
+               history.location.pathname.startsWith('/login') || 
+               history.location.pathname.startsWith('/documents') ||
+               history.location.pathname.startsWith('/portal') ||
+               query.layoutStyle) {
       setLoading(false);
     }
   }, [authenCheck, tenantReady, userData?.user, matchToken]);
@@ -142,7 +151,10 @@ const Auth: React.FC<AuthProps> = ({ children, match }) => {
     }
   }, [dispatch, schemas]);
 
-  if (loading && !history.location.pathname.startsWith('/login')) {
+  if (loading && 
+      !history.location.pathname.startsWith('/login') &&
+      !history.location.pathname.startsWith('/documents') &&
+      !history.location.pathname.startsWith('/portal')) {
     return (
       <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f0f2f5' }}>
         <div style={{ textAlign: 'center' }}>

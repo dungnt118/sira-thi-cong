@@ -13,7 +13,6 @@ import SystemSettings from '../pages/admin-v2/SystemSettings';
 import Reports from '../pages/admin-v2/Reports';
 
 // PM Pages (existing)
-// import PMDashboard from '../pages/pm/Dashboard'; // Legacy mock dashboard removed
 import Teams from '../pages/pm/Teams';
 import WorkerManagement from '../pages/pm/Teams/WorkerManagement';
 import WorkerDetail from '../pages/pm/Teams/WorkerDetail';
@@ -119,6 +118,7 @@ import {
 
 // V3 Public Pages
 import CustomerPortal from '../pages/public/CustomerPortal';
+const DocumentationPage = lazy(() => import('../pages/public/DocumentationPage'));
 
 // Layouts
 import { PMLayout } from '../layouts/PMLayout';
@@ -158,6 +158,7 @@ function App() {
 
                                     {/* ===== PUBLIC ROUTES ===== */}
 
+                                    <Route path="/documents" element={<DocumentationPage />} />
                                     <Route path="/login" element={<Login />} />
                                     <Route path="/portal/:token" element={<CustomerPortal />} />
                                     <Route path="/portal/:token/timeline" element={<PublishedTimeline />} />
