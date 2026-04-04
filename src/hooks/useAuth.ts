@@ -1,5 +1,6 @@
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { logoutUser } from '@/pages/shared/auth/store/actions/user.actions';
+import { getCurrentRole } from '@/utils/authUtils';
 
 export const useAuth = () => {
     const dispatch = useAppDispatch();
@@ -10,7 +11,13 @@ export const useAuth = () => {
     const sessionData = userState?.data || authState; // Fallback to authState itself if flattened
     
     // Resilient role extraction
-    const rawRole = authState?.activeRole || authState?.role || userState?.role || null;
+    const rawRole =
+        authState?.activeRole ||
+        authState?.role ||
+        userState?.role ||
+        sessionData?.activeRole ||
+        getCurrentRole() ||
+        null;
     const role = typeof rawRole === 'string' ? rawRole : (rawRole?._id || rawRole?.code || null);
     const roles = role ? [role] : [];
     

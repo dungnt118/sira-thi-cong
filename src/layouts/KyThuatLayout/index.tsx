@@ -64,7 +64,7 @@ export const KyThuatLayout: React.FC = () => {
             key: 'profile',
             icon: <UserOutlined />,
             label: 'Cá nhân',
-            onClick: () => navigate('/kyt/profile')
+            onClick: () => navigate('/personal/profile')
         }
     ];
 

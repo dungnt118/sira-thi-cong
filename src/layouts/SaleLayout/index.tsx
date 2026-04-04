@@ -99,7 +99,7 @@ export const SaleLayout: React.FC = () => {
             key: '/kd/profile',
             icon: <UserOutlined />,
             label: 'Cá nhân',
-            onClick: () => navigate('/kd/profile'),
+            onClick: () => navigate('/personal/profile'),
         },
     ];
 

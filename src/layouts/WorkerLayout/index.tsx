@@ -31,7 +31,7 @@ export const SupervisorLayout: React.FC = () => {
     )?.key || '/gs/home';
 
     const userMenuItems: MenuProps['items'] = [
-        { key: 'profile', icon: <UserOutlined />, label: 'Hồ sơ của tôi' },
+        { key: 'profile', icon: <UserOutlined />, label: 'Hồ sơ của tôi', onClick: () => navigate('/personal/profile') },
         { type: 'divider' },
         { key: 'logout', icon: <LogoutOutlined />, label: 'Đăng xuất', onClick: () => navigate('/login') },
     ];
@@ -118,7 +118,7 @@ export const SupervisorLayout: React.FC = () => {
                     return (
                         <div
                             key={tab.key}
-                            onClick={() => navigate(tab.key)}
+                            onClick={() => navigate(tab.key === '/gs/profile' ? '/personal/profile' : tab.key)}
                             style={{
                                 flex: 1,
                                 display: 'flex',

@@ -71,7 +71,7 @@ export const GiamSatLayout: React.FC = () => {
                         <div
                             key={tab.key}
                             className={`bottom-nav-tab ${isActive ? 'active' : ''}`}
-                            onClick={() => navigate(tab.key)}
+                            onClick={() => navigate(tab.key === '/gs/profile' ? '/personal/profile' : tab.key)}
                         >
                             <span className="tab-icon">{tab.icon}</span>
                             <span className="tab-label">{tab.label}</span>

@@ -143,6 +143,8 @@ import { Provider } from 'react-redux';
 import store from '@/store';
 import { useAuth } from '@/hooks/useAuth';
 import Auth from '@/pages/shared/auth/Auth';
+import elsagaService from '@/services/authenticationService';
+import { getCurrentRole } from '@/utils/authUtils';
 
 const RootRedirect = () => {
     const { isAuthenticated, session } = useAuth();
@@ -155,13 +157,26 @@ const RootRedirect = () => {
 };
 
 const PersonalProfileRedirect = () => {
-    const { isAuthenticated, role } = useAuth();
+    const { isAuthenticated, role, session } = useAuth();
+    const resolvedRole =
+        role ||
+        session?.activeRole ||
+        getCurrentRole() ||
+        null;
 
-    if (!isAuthenticated || !role) {
+    if (resolvedRole) {
+        return <Navigate to={`/${resolvedRole.toLowerCase()}/profile`} replace />;
+    }
+
+    if (isAuthenticated || elsagaService.getAccessToken()) {
+        return null;
+    }
+
+    if (!isAuthenticated) {
         return <Navigate to="/login" replace />;
     }
 
-    return <Navigate to={`/${role.toLowerCase()}/profile`} replace />;
+    return null;
 };
 
 function App() {

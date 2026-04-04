@@ -1,5 +1,4 @@
 import history from '@history';
-import { message } from 'antd';
 import elsagaService from '@/services/authenticationService';
 import {
   BASE_URL,
@@ -30,6 +29,23 @@ type AuthProps = PropsWithChildren<{
     };
   };
 }>;
+
+const isPublicPath = (pathname: string) =>
+  pathname.startsWith('/login') ||
+  pathname.startsWith('/documents') ||
+  pathname.startsWith('/portal');
+
+const getCurrentPathname = () => window.location.pathname;
+
+const getCurrentPath = () => `${window.location.pathname}${window.location.search}${window.location.hash}`;
+
+const buildLoginRedirectPath = (targetPath: string) => {
+  if (!targetPath || targetPath.startsWith('/login')) {
+    return '/login';
+  }
+
+  return `/login?redirect=${encodeURIComponent(targetPath)}`;
+};
 
 const Auth: React.FC<AuthProps> = ({ children, match }) => {
   const dispatch = useAppDispatch();
@@ -106,23 +122,22 @@ const Auth: React.FC<AuthProps> = ({ children, match }) => {
       }
       
       const existingToken = elsagaService.getAccessToken();
+      const currentPathname = getCurrentPathname();
+      const currentPath = getCurrentPath();
+
       if (existingToken) {
         console.log('Auth: existingToken found', existingToken);
         authenCheck();
       } else {
-        console.log('Auth: No token, checking path', history.location.pathname);
-        if (!history.location.pathname.startsWith('/login') && 
-            !history.location.pathname.startsWith('/documents') &&
-            !history.location.pathname.startsWith('/portal')) {
-          console.log('Auth: Redirecting to login from', history.location.pathname);
-          history.push('/login');
+        console.log('Auth: No token, checking path', currentPathname);
+        if (!isPublicPath(currentPathname)) {
+          console.log('Auth: Redirecting to login from', currentPathname);
+          history.replace(buildLoginRedirectPath(currentPath));
         }
         setLoading(false);
       }
     } else if (userData?.user || 
-               history.location.pathname.startsWith('/login') || 
-               history.location.pathname.startsWith('/documents') ||
-               history.location.pathname.startsWith('/portal') ||
+               isPublicPath(getCurrentPathname()) ||
                query.layoutStyle) {
       setLoading(false);
     }
@@ -151,10 +166,7 @@ const Auth: React.FC<AuthProps> = ({ children, match }) => {
     }
   }, [dispatch, schemas]);
 
-  if (loading && 
-      !history.location.pathname.startsWith('/login') &&
-      !history.location.pathname.startsWith('/documents') &&
-      !history.location.pathname.startsWith('/portal')) {
+  if (loading && !isPublicPath(getCurrentPathname())) {
     return (
       <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f0f2f5' }}>
         <div style={{ textAlign: 'center' }}>
