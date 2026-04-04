@@ -1,5 +1,19 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Alert, Anchor, Button, Card, Divider, Image, Layout, Menu, Typography, theme } from 'antd';
+import {
+    Alert,
+    Anchor,
+    Button,
+    Card,
+    Divider,
+    Drawer,
+    FloatButton,
+    Grid,
+    Image,
+    Layout,
+    Menu,
+    Typography,
+    theme
+} from 'antd';
 import {
     ArrowLeftOutlined,
     BookOutlined,
@@ -7,11 +21,12 @@ import {
     HomeOutlined,
     ReadOutlined,
     SafetyCertificateOutlined,
-    SolutionOutlined
+    SolutionOutlined,
+    UnorderedListOutlined
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { documentationContent, DocSection } from '../../data/documentationContent';
+import { documentationContent, type DocSection } from '../../data/documentationContent';
 
 const HEADER_HEIGHT = 88;
 const { Header, Content, Sider } = Layout;
@@ -19,7 +34,8 @@ const { Title, Paragraph, Text } = Typography;
 
 const categoryIcons: Record<string, React.ReactNode> = {
     accountant: <SolutionOutlined />,
-    supervisor: <SafetyCertificateOutlined />
+    supervisor: <SafetyCertificateOutlined />,
+    technical: <ReadOutlined />
 };
 
 const Badge = ({ text, style }: { text: string; style?: React.CSSProperties }) => (
@@ -47,7 +63,9 @@ const getSlug = (text: string) =>
         .replace(/-+/g, '-')
         .replace(/^-+|-+$/g, '');
 
-const renderAnchorItems = (sections: DocSection[]): NonNullable<React.ComponentProps<typeof Anchor>['items']> =>
+const renderAnchorItems = (
+    sections: DocSection[]
+): NonNullable<React.ComponentProps<typeof Anchor>['items']> =>
     sections.map(section => ({
         key: getSlug(section.title),
         href: `#${getSlug(section.title)}`,
@@ -84,8 +102,8 @@ const renderSection = (section: DocSection, level = 2) => {
                         section.alert.type === 'important'
                             ? 'error'
                             : section.alert.type === 'warning' || section.alert.type === 'caution'
-                                ? 'warning'
-                                : 'info'
+                              ? 'warning'
+                              : 'info'
                     }
                     showIcon
                     style={{ marginBottom: 16 }}
@@ -117,7 +135,17 @@ const DocumentationCenterPage: React.FC = () => {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const { token } = theme.useToken();
+    const screens = Grid.useBreakpoint();
+
     const [openKeys, setOpenKeys] = useState<string[]>([]);
+    const [isMenuDrawerOpen, setIsMenuDrawerOpen] = useState(false);
+    const [isTocDrawerOpen, setIsTocDrawerOpen] = useState(false);
+
+    const showDesktopMenu = Boolean(screens.lg);
+    const showMobileMenu = !showDesktopMenu;
+    const showDesktopToc = Boolean(screens.xl);
+    const showMobileToc = !showDesktopToc;
+    const contentPadding = screens.md ? 24 : 16;
 
     const activeCategory = useMemo(() => {
         const categoryId = searchParams.get('category');
@@ -129,14 +157,10 @@ const DocumentationCenterPage: React.FC = () => {
         return activeCategory.documents.find(document => document.id === documentId) ?? activeCategory.documents[0];
     }, [activeCategory, searchParams]);
 
-    useEffect(() => {
-        setOpenKeys(previousKeys => {
-            if (previousKeys.includes(activeCategory.id)) {
-                return previousKeys;
-            }
+    const anchorItems = useMemo(() => renderAnchorItems(activeDocument.sections), [activeDocument.sections]);
 
-            return [...previousKeys, activeCategory.id];
-        });
+    useEffect(() => {
+        setOpenKeys([activeCategory.id]);
     }, [activeCategory.id]);
 
     useEffect(() => {
@@ -191,6 +215,7 @@ const DocumentationCenterPage: React.FC = () => {
             search: `?${nextParams.toString()}`
         });
 
+        setIsMenuDrawerOpen(false);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
@@ -203,12 +228,95 @@ const DocumentationCenterPage: React.FC = () => {
         navigate('/login');
     };
 
+    const handleMenuOpenChange = (keys: string[]) => {
+        const latestOpenKey = keys.find(key => !openKeys.includes(key));
+
+        if (latestOpenKey) {
+            setOpenKeys([latestOpenKey]);
+            return;
+        }
+
+        setOpenKeys(keys.length > 0 ? [keys[0]] : []);
+    };
+
+    const menuContent = (
+        <>
+            <div style={{ padding: '24px 16px 8px' }}>
+                <Text strong type="secondary" style={{ fontSize: 12, textTransform: 'uppercase' }}>
+                    Danh mục tài liệu
+                </Text>
+                <Paragraph type="secondary" style={{ marginTop: 8, marginBottom: 0 }}>
+                    Chọn nhóm tài liệu ở cấp 1, sau đó mở tài liệu chi tiết ở cấp 2.
+                </Paragraph>
+            </div>
+
+            <Menu
+                mode="inline"
+                selectedKeys={[`${activeCategory.id}:${activeDocument.id}`]}
+                openKeys={openKeys}
+                onOpenChange={keys => handleMenuOpenChange(keys as string[])}
+                onClick={handleDocumentSelect}
+                items={menuItems}
+                style={{ borderRight: 0 }}
+            />
+
+            <Divider style={{ margin: '12px 0' }} />
+
+            <Menu
+                mode="inline"
+                selectable={false}
+                items={[
+                    {
+                        key: 'home',
+                        icon: <HomeOutlined />,
+                        label: 'Trang chủ BAC',
+                        onClick: () => window.open('/', '_blank')
+                    }
+                ]}
+            />
+        </>
+    );
+
+    const tocContent = (
+        <>
+            <div style={{ paddingLeft: 12, marginBottom: 16 }}>
+                <Text
+                    strong
+                    type="secondary"
+                    style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: 1 }}
+                >
+                    Mục lục
+                </Text>
+            </div>
+
+            <div
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    padding: '0 12px 16px',
+                    color: token.colorTextSecondary
+                }}
+            >
+                <ReadOutlined />
+                <Text type="secondary">{activeDocument.title}</Text>
+            </div>
+
+            <Anchor
+                offsetTop={HEADER_HEIGHT + 24}
+                items={anchorItems}
+                onClick={() => setIsTocDrawerOpen(false)}
+                style={{ background: 'transparent' }}
+            />
+        </>
+    );
+
     return (
         <Layout style={{ minHeight: '100vh', background: '#f5f7fa' }}>
             <Header
                 style={{
                     background: '#fff',
-                    padding: '16px 24px',
+                    padding: screens.md ? '16px 24px' : '16px',
                     minHeight: HEADER_HEIGHT,
                     height: 'auto',
                     lineHeight: 'normal',
@@ -256,54 +364,24 @@ const DocumentationCenterPage: React.FC = () => {
             </Header>
 
             <Layout>
-                <Sider
-                    width={320}
-                    breakpoint="lg"
-                    collapsedWidth="0"
-                    style={{
-                        background: '#fff',
-                        borderRight: '1px solid #e8e8e8'
-                    }}
-                >
-                    <div style={{ padding: '24px 16px 8px' }}>
-                        <Text strong type="secondary" style={{ fontSize: 12, textTransform: 'uppercase' }}>
-                            Danh mục tài liệu
-                        </Text>
-                        <Paragraph type="secondary" style={{ marginTop: 8, marginBottom: 0 }}>
-                            Chọn nhóm tài liệu ở cấp 1, sau đó mở tài liệu chi tiết ở cấp 2.
-                        </Paragraph>
-                    </div>
-
-                    <Menu
-                        mode="inline"
-                        selectedKeys={[`${activeCategory.id}:${activeDocument.id}`]}
-                        openKeys={openKeys}
-                        onOpenChange={keys => {
-                            const nextOpenKeys = Array.from(new Set([...(keys as string[]), activeCategory.id]));
-                            setOpenKeys(nextOpenKeys);
+                {showDesktopMenu && (
+                    <Sider
+                        trigger={null}
+                        width={320}
+                        style={{
+                            background: '#fff',
+                            borderRight: '1px solid #e8e8e8',
+                            height: `calc(100vh - ${HEADER_HEIGHT}px)`,
+                            position: 'sticky',
+                            top: HEADER_HEIGHT,
+                            overflowY: 'auto'
                         }}
-                        onClick={handleDocumentSelect}
-                        items={menuItems}
-                        style={{ borderRight: 0 }}
-                    />
+                    >
+                        {menuContent}
+                    </Sider>
+                )}
 
-                    <Divider style={{ margin: '12px 0' }} />
-
-                    <Menu
-                        mode="inline"
-                        selectable={false}
-                        items={[
-                            {
-                                key: 'home',
-                                icon: <HomeOutlined />,
-                                label: 'Trang chủ BAC',
-                                onClick: () => window.open('/', '_blank')
-                            }
-                        ]}
-                    />
-                </Sider>
-
-                <Content style={{ padding: '24px', overflowY: 'auto' }}>
+                <Content style={{ padding: contentPadding, overflowY: 'auto' }}>
                     <div style={{ maxWidth: 960, margin: '0 auto' }}>
                         <Card
                             style={{
@@ -339,49 +417,67 @@ const DocumentationCenterPage: React.FC = () => {
                     </div>
                 </Content>
 
-                <Sider
-                    width={260}
-                    breakpoint="xl"
-                    collapsedWidth="0"
-                    style={{
-                        background: 'transparent',
-                        padding: '24px 16px',
-                        height: `calc(100vh - ${HEADER_HEIGHT}px)`,
-                        position: 'sticky',
-                        top: HEADER_HEIGHT,
-                        overflowY: 'auto'
-                    }}
-                >
-                    <div style={{ paddingLeft: 12, marginBottom: 16 }}>
-                        <Text
-                            strong
-                            type="secondary"
-                            style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: 1 }}
-                        >
-                            Mục lục
-                        </Text>
-                    </div>
-
-                    <div
+                {showDesktopToc && (
+                    <Sider
+                        trigger={null}
+                        width={260}
                         style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 8,
-                            padding: '0 12px 16px',
-                            color: token.colorTextSecondary
+                            background: 'transparent',
+                            padding: '24px 16px',
+                            height: `calc(100vh - ${HEADER_HEIGHT}px)`,
+                            position: 'sticky',
+                            top: HEADER_HEIGHT,
+                            overflowY: 'auto'
                         }}
                     >
-                        <ReadOutlined />
-                        <Text type="secondary">{activeDocument.title}</Text>
-                    </div>
-
-                    <Anchor
-                        offsetTop={HEADER_HEIGHT + 24}
-                        items={renderAnchorItems(activeDocument.sections)}
-                        style={{ background: 'transparent' }}
-                    />
-                </Sider>
+                        {tocContent}
+                    </Sider>
+                )}
             </Layout>
+
+            {showMobileMenu && (
+                <>
+                    <FloatButton
+                        icon={<BookOutlined />}
+                        tooltip="Mở danh mục tài liệu"
+                        onClick={() => setIsMenuDrawerOpen(true)}
+                        style={{ insetInlineStart: 24, insetBlockEnd: 24 }}
+                    />
+
+                    <Drawer
+                        title="Danh mục tài liệu"
+                        placement="left"
+                        width="84vw"
+                        open={isMenuDrawerOpen}
+                        onClose={() => setIsMenuDrawerOpen(false)}
+                        styles={{ body: { padding: 0 } }}
+                    >
+                        {menuContent}
+                    </Drawer>
+                </>
+            )}
+
+            {showMobileToc && (
+                <>
+                    <FloatButton
+                        icon={<UnorderedListOutlined />}
+                        tooltip="Mở mục lục"
+                        onClick={() => setIsTocDrawerOpen(true)}
+                        style={{ insetBlockEnd: 24 }}
+                    />
+
+                    <Drawer
+                        title="Mục lục tài liệu"
+                        placement="bottom"
+                        height="70vh"
+                        open={isTocDrawerOpen}
+                        onClose={() => setIsTocDrawerOpen(false)}
+                        styles={{ body: { padding: '16px 8px 24px' } }}
+                    >
+                        {tocContent}
+                    </Drawer>
+                </>
+            )}
         </Layout>
     );
 };
