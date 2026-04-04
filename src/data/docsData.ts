@@ -20,65 +20,47 @@ export const docsData: UserGuide[] = [
     {
         id: 'accountant',
         title: 'Hướng Dẫn Sử Dụng Kế Toán',
-        description: 'Tài liệu hướng dẫn quy trình quản lý kho, chi tiêu và dòng tiền cho bộ phận kế toán.',
+        description: 'Tài liệu hướng dẫn quy trình quản lý kho, kiểm soát chi tiêu và dòng tiền trên thiết bị di động.',
         sections: [
             {
-                title: '1. Đăng nhập hệ thống',
-                content: [
-                    'Truy cập link: http://localhost:5173/kt/dashboard',
-                    'Sử dụng tài khoản: {user-email} / {mật-khẩu-đã-cấp}'
-                ]
-            },
-            {
-                title: '2. Tổng quan Dashboard',
-                content: 'Trang Dashboard cung cấp cái nhìn tổng thể về tình hình vật tư, tài sản và dòng tiền của doanh nghiệp thông qua các con số thống kê và sơ đồ quy trình trực quan.',
-                image: '/assets/docs/kt/kt_dashboard_1775272688097.png'
-            },
-            {
-                title: '3. Quản lý Kho (Inventory)',
-                content: 'Kế toán quản lý việc nhập và xuất vật tư để đảm bảo tính chính xác của tồn kho.',
-                subsections: [
-                    {
-                        title: '3.1. Phiếu nhập kho (Stock In)',
-                        content: 'Sử dụng khi có vật tư mới từ nhà cung cấp. Quy trình bao gồm chọn nhà phân phối, SKU và nhập đơn giá.',
-                        image: '/assets/docs/kt/kt_phieu_nhap_kho_1775272710364.png'
-                    },
-                    {
-                        title: '3.2. Phiếu xuất kho (Stock Out)',
-                        content: 'Xuất cấp vật tư cho các đội thi công dựa trên mã Hành trình (Journey) để đảm bảo đúng định mức.',
-                        image: '/assets/docs/kt/kt_phieu_xuat_kho_1775272720147.png'
-                    }
-                ]
-            },
-            {
-                title: '4. Quản lý Chi (Expenditures)',
-                content: 'Quy trình phê duyệt chi tiêu từ lúc yêu cầu đến khi xác nhận chuyển khoản thực tế.',
-                subsections: [
-                    {
-                        title: '4.1. Danh sách yêu cầu chi',
-                        content: 'Theo dõi trạng thái phiếu chi: Chờ duyệt, Đã duyệt, Đã chi hoặc Từ chối.',
-                        image: '/assets/docs/kt/danh_sach_yeu_cau_chi_1775273061866.png'
-                    },
-                    {
-                        title: '4.2. Biểu mẫu tạo yêu cầu',
-                        content: 'Nhập đầy đủ loại yêu cầu, nội dung, số tiền, tài khoản nguồn và đính kèm chứng từ.',
-                        image: '/assets/docs/kt/bieu_mau_tao_yeu_cau_chi_1775273070202.png'
-                    },
-                    {
-                        title: '4.3. Xác nhận đã chi',
-                        content: 'Sau khi chuyển tiền, kế toán nhập mã giao dịch và đính kèm biên lai để kết thúc quy trình.',
-                        image: '/assets/docs/kt/xac_nhan_chi_tra_yeu_cau_1775273198253.png'
-                    }
-                ]
-            },
-            {
-                title: '5. Theo dõi Thanh toán',
-                content: 'Kiểm soát các khoản phải thu từ khách hàng, số tiền đã thu và cảnh báo quá hạn.',
-                image: '/assets/docs/kt/kt_theo_doi_thanh_toan_1775272756897.png',
+                title: '1. Tổng quan Dashboard Kế toán',
+                content: 'Màn hình Dashboard cung cấp cái nhìn tổng thể về tình hình tài chính của toàn bộ hệ thống, bao gồm số lượng vật tư, tài sản và các phiếu kho đang chờ đóng.',
+                image: '/assets/docs/accountant/acc_dashboard_mobile.png',
                 alert: {
-                    type: 'tip',
-                    text: 'Luôn kiểm tra kỹ SKU và chứng từ đính kèm để quy trình phê duyệt diễn ra nhanh chóng.'
+                    type: 'info',
+                    text: 'Các chỉ số được cập nhật theo thời gian thực để kế toán có thể giám sát dòng tiền và hàng hóa chính xác.'
                 }
+            },
+            {
+                title: '2. Quản lý Yêu cầu Chi',
+                content: 'Hệ thống cho phép lọc và xử lý các yêu cầu chi từ các bộ phận khác một cách nhanh chóng.',
+                image: '/assets/docs/accountant/acc_expenditure_list_mobile.png',
+                subsections: [
+                    {
+                        title: '2.1. Lập phiếu chi mới',
+                        content: 'Để tạo một khoản chi mới, nhấn nút **Tạo yêu cầu chi**. Điền đầy đủ nội dung thanh toán, số tiền và chọn tài khoản nguồn (Ngân hàng) tương ứng.',
+                        image: '/assets/docs/accountant/acc_expenditure_form_mobile.png'
+                    },
+                    {
+                        title: '2.2. Hoàn kết & Ghi nhận',
+                        content: 'Sau khi lưu, hệ thống sẽ xác nhận bản ghi đã được ghi nhận thành công và nằm trong danh sách chờ phê duyệt.',
+                        image: '/assets/docs/accountant/acc_expenditure_success_mobile.png'
+                    }
+                ]
+            },
+            {
+                title: '3. Nhập/Xuất kho Vật tư',
+                content: 'Quản lý việc luân chuyển hàng hóa giữa kho trung tâm và các công trình. Tính năng này giúp kế toán bám sát tồn kho thực tế.',
+                image: '/assets/docs/accountant/acc_stock_in_mobile.png',
+                alert: {
+                    type: 'important',
+                    text: 'Luôn xác nhận trên hệ thống ngay sau khi hàng đã về kho hoặc xuất đi để tránh sai lệch số liệu tồn.'
+                }
+            },
+            {
+                title: '4. Hồ sơ Cá nhân',
+                content: 'Nơi quản lý thông tin đăng nhập, bảo mật tài khoản và xem các thông báo cá nhân dành riêng cho bộ phận kế toán.',
+                image: '/assets/docs/accountant/acc_profile_mobile.png'
             }
         ]
     },
@@ -188,6 +170,57 @@ export const docsData: UserGuide[] = [
                 title: '5. Cá nhân & Lịch công tác',
                 content: 'Truy cập tab Cá nhân để theo dõi hồ sơ cá nhân và các thông tin liên quan đến tài khoản kỹ thuật của bạn.',
                 image: '/assets/docs/ky-thuat/kt_profile_mobile.png'
+            }
+        ]
+    },
+    {
+        id: 'sale',
+        title: 'Hướng Dẫn Sử Dụng Kinh Doanh',
+        description: 'Tài liệu hướng dẫn quản lý khách hàng, theo dõi yêu cầu dịch vụ và lập báo giá chuyên nghiệp trên thiết bị di động.',
+        sections: [
+            {
+                title: '1. Tổng quan Giao diện Kinh doanh',
+                content: 'Màn hình "Yêu cầu" là trung tâm điều phối công việc của nhân viên kinh doanh. Tại đây, bạn có thể theo dõi tổng số hành trình đang phụ trách, các yêu cầu trễ hạn hoặc có rủi ro về tiến độ (SLA).',
+                image: '/assets/docs/sale/sl_dashboard_mobile.png',
+                alert: {
+                    type: 'info',
+                    text: 'Các con số thống kê ở đầu trang giúp bạn ưu tiên xử lý những khách hàng đang chờ phản hồi gấp.'
+                }
+            },
+            {
+                title: '2. Quản lý Khách hàng & CRM',
+                content: 'Hệ thống lưu trữ tập trung hồ sơ khách hàng, giúp Sale dễ dàng tra cứu lịch sử và thông tin liên hệ mọi lúc mọi nơi.',
+                image: '/assets/docs/sale/sl_customer_list_mobile.png',
+                subsections: [
+                    {
+                        title: '2.1. Thêm mới Khách hàng',
+                        content: 'Khi có khách hàng mới, nhấn nút **+ Tạo khách hàng** và điền các thông tin định danh cơ bản. Việc nhập liệu chính xác sẽ giúp bộ phận kỹ thuật liên hệ khảo sát thuận tiện hơn.',
+                        image: '/assets/docs/sale/sl_customer_form_mobile.png'
+                    }
+                ]
+            },
+            {
+                title: '3. Tiếp nhận & Theo dõi Hành trình',
+                content: 'Mỗi khách hàng sẽ gắn liền với một "Hành trình" (Journey) xuyên suốt từ khi tư vấn đến khi hoàn thành thi công. Sale cần theo dõi sát sao từng giai đoạn để kịp thời thông tin cho khách.',
+                image: '/assets/docs/sale/sl_journey_detail_mobile.png',
+                alert: {
+                    type: 'tip',
+                    text: 'Sử dụng các tab chi tiết trong Hành trình để xem tình trạng khảo sát của kỹ thuật hoặc lịch sử bàn giao vật tư.'
+                }
+            },
+            {
+                title: '4. Dự toán & Báo giá',
+                content: 'Dựa trên phương án kỹ thuật, Sale thực hiện lập dự toán chi tiết cho khách hàng. Hệ thống hỗ trợ tính toán tự động dựa trên khối lượng và đơn giá mẫu.',
+                image: '/assets/docs/sale/sl_quote_form_mobile.png',
+                alert: {
+                    type: 'important',
+                    text: 'Hãy kiểm tra kỹ các hạng mục và chiết khấu (nếu có) trước khi gửi bản báo giá cuối cùng cho khách hàng.'
+                }
+            },
+            {
+                title: '5. Thông tin Cá nhân',
+                content: 'Truy cập tab Cá nhân để xem hồ sơ riêng, lịch làm việc cá nhân và cài đặt các thông báo quan trọng từ hệ thống.',
+                image: '/assets/docs/sale/sl_profile_mobile.png'
             }
         ]
     }
