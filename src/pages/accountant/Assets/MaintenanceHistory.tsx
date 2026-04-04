@@ -99,7 +99,7 @@ const MaintenanceHistory: React.FC = () => {
 
             if (res.data) {
                 setTickets(res.data);
-                setPagination(prev => ({ ...prev, current: page, total: res.records || res.data.length }));
+                setPagination(prev => ({ ...prev, current: page, total: res.records || res.data?.length || 0 }));
             }
         } catch (error) {
             message.error('Không thể tải lịch sử bảo trì');

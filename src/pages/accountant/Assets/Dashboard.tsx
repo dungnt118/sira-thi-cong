@@ -105,8 +105,9 @@ const AssetsDashboard: React.FC = () => {
                 });
                 setStats(prev => ({ ...prev, total, available, inUse }));
             }
-            if (valueSum?.data) {
-                setStats(prev => ({ ...prev, totalValue: valueSum.data.sum || 0 }));
+            const valueAgg = valueSum?.data;
+            if (valueAgg) {
+                setStats(prev => ({ ...prev, totalValue: valueAgg.sum ?? 0 }));
             }
         } catch (e) {
             console.error('Failed to fetch asset stats', e);
