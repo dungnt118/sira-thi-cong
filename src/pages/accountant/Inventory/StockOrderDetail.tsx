@@ -134,6 +134,81 @@ const StockOrderDetail: React.FC = () => {
         return 0;
     };
 
+    const ResponsiveSteps = () => {
+        const current = getCurrentStep(order.status);
+        const isMobile = window.innerWidth < 768;
+
+        if (!isMobile) {
+            return (
+                <Steps
+                    current={current}
+                    items={steps}
+                    style={{ marginBottom: 40 }}
+                />
+            );
+        }
+
+        return (
+            <div style={{ 
+                display: 'flex', 
+                flexWrap: 'wrap', 
+                gap: '12px 8px', 
+                marginBottom: 32,
+                padding: '0 8px'
+            }}>
+                {steps.map((step, index) => {
+                    const isActive = index === current;
+                    const isDone = index < current;
+                    
+                    let bgColor = '#fff';
+                    let borderColor = 'rgba(0, 0, 0, 0.25)';
+                    let textColor = 'rgba(0, 0, 0, 0.45)';
+                    let icon = index + 1;
+
+                    if (isActive) {
+                        borderColor = '#1890ff';
+                        textColor = 'rgba(0, 0, 0, 0.85)';
+                        bgColor = '#e6f7ff';
+                    } else if (isDone) {
+                        borderColor = '#1890ff';
+                        textColor = 'rgba(0, 0, 0, 0.85)';
+                        icon = <CheckCircleOutlined style={{ color: '#1890ff' }} />;
+                    }
+
+                    return (
+                        <div key={index} style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            flex: '1 0 30%',
+                            minWidth: '100px',
+                            opacity: isDone || isActive ? 1 : 0.6
+                        }}>
+                            <div style={{
+                                width: 24,
+                                height: 24,
+                                borderRadius: '50%',
+                                border: `1px solid ${borderColor}`,
+                                backgroundColor: bgColor,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                marginRight: 8,
+                                fontSize: 12,
+                                color: isActive ? '#1890ff' : 'inherit',
+                                flexShrink: 0
+                            }}>
+                                {icon}
+                            </div>
+                            <div style={{ fontSize: 12, fontWeight: isActive ? 600 : 400, color: textColor, whiteSpace: 'nowrap' }}>
+                                {step.title}
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+        );
+    };
+
     // Chuyển đổi DataURL sang File để upload
     const dataUrlToFile = (dataUrl: string, fileName: string) => {
         const arr = dataUrl.split(',');
@@ -378,7 +453,7 @@ const StockOrderDetail: React.FC = () => {
     ];
 
     return (
-        <div style={{ width: '100%', padding: '0 24px' }}>
+        <div style={{ width: '100%', padding: '0 4px' }}>
             {/* Hidden component for PDF generation when Modal is closed */}
             <div style={{ position: 'absolute', top: -9999, left: -9999, opacity: 0, pointerEvents: 'none' }}>
                 <div id="stock-order-printable-hidden">
@@ -387,15 +462,27 @@ const StockOrderDetail: React.FC = () => {
             </div>
 
             <Card bordered={false} className="order-detail-card">
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24 }}>
-                    <Space>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: '16px' }}>
+                    <Space style={{ marginBottom: 8, maxWidth: '100%' }}>
                         <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/kt/inventory')} />
-                        <div>
-                            <Text type="secondary">{order.type === 'out' ? 'Phiếu Xuất Kho' : 'Phiếu Nhập Kho'}</Text>
-                            <Title level={4} style={{ margin: 0 }}>{order.code || order._id}</Title>
+                        <div style={{ minWidth: 0, flex: 1 }}>
+                            <Text type="secondary" style={{ display: 'block', fontSize: '12px' }}>{order.type === 'out' ? 'Phiếu Xuất Kho' : 'Phiếu Nhập Kho'}</Text>
+                            <Title 
+                                level={4} 
+                                style={{ 
+                                    margin: 0, 
+                                    fontSize: 'clamp(14px, 4.5vw, 18px)',
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    maxWidth: '200px' // Đảm bảo không đẩy các nút đi xa
+                                }}
+                            >
+                                {order.code || order._id}
+                            </Title>
                         </div>
                     </Space>
-                    <Space>
+                    <Space wrap>
                         <Button icon={<EyeOutlined />} onClick={() => setIsPrintModalOpen(true)}>
                             Xem bản ký
                         </Button>
@@ -412,15 +499,16 @@ const StockOrderDetail: React.FC = () => {
                     </Space>
                 </div>
 
-                <Steps
-                    current={getCurrentStep(order.status)}
-                    items={steps}
-                    style={{ marginBottom: 40 }}
-                />
+                <ResponsiveSteps />
 
-                <Row gutter={24}>
-                    <Col span={16}>
-                        <Descriptions bordered size="small" column={2} style={{ marginBottom: 24 }}>
+                <Row gutter={[24, 24]}>
+                    <Col xs={24} sm={24} md={16}>
+                        <Descriptions 
+                            bordered 
+                            size="small" 
+                            column={{ xs: 1, sm: 1, md: 2 }} 
+                            style={{ marginBottom: 24 }}
+                        >
                             <Descriptions.Item label="Ngày tạo">{order.createdAt ? new Date(order.createdAt).toLocaleDateString() : '—'}</Descriptions.Item>
                             <Descriptions.Item label="Trạng thái">
                                 <Tag color={getStatusInfo(order.status).color} icon={getStatusInfo(order.status).icon}>
@@ -440,11 +528,16 @@ const StockOrderDetail: React.FC = () => {
                             pagination={false}
                             size="small"
                             rowKey={(r: any, i) => `${r.material_id || i}-${i}`}
+                            scroll={{ x: 700 }}
                         />
                     </Col>
 
-                    <Col span={8}>
-                        <Card title={<Space><SignatureOutlined /> Quy trình Ký duyệt</Space>} size="small">
+                    <Col xs={24} sm={24} md={8}>
+                        <Card 
+                            title={<Space><SignatureOutlined /> Quy trình Ký duyệt</Space>} 
+                            size="small"
+                            className="signature-process-card"
+                        >
                             {/* PM / REQUESTER */}
                             <div style={{ marginBottom: 20 }}>
                                 <Text strong>1. Người lập (PM)</Text>

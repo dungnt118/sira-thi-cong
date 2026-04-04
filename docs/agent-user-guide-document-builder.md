@@ -60,11 +60,18 @@ Mỗi luồng nghiệp vụ độc lập → 1 tài liệu cấp 2 riêng. **Quy
 
 ### Bước 2.3 – Xác định màn hình cần chụp
 
-Với mỗi tài liệu cấp 2, lập danh sách ảnh cần thu thập:
+Với mỗi tài liệu cấp 2, lập danh sách ảnh cần thu thập theo **độ phủ nội dung**, không cố định theo số lượng 1 ảnh / 1 màn hình:
+
+- **Một ảnh chỉ đủ** khi trong khung chụp (viewport) người đọc thấy đồng thời: ngữ cảnh (tiêu đề/trạng thái), vùng thao tác chính và kết quả liên quan của bước đó.
+- **Phải tách nhiều ảnh** khi màn hình dài (scroll), có nhiều khối (section/card/panel/tab), hoặc một ảnh duy nhất làm chi tiết quá nhỏ / mất phần tính năng cần giới thiệu. Mỗi ảnh gắn với **một vùng hoặc một nhóm thao tác** cụ thể (xem mục 3.6).
+
+Trước khi chụp, lập **inventory section** của từng trang (tên tab, tiêu đề khối, bảng, biểu mẫu, thanh công cụ…) để không bỏ sót khối nào khi viết chỉ dẫn (xem mục 4.5).
+
 ```
 [Tài liệu] Ghi nhật ký thi công:
   - Ảnh 1: Danh sách hành trình (có dữ liệu, highlight dự án sẽ thao tác)
-  - Ảnh 2: Màn hình chi tiết Journey (trước khi ghi nhật ký)
+  - Ảnh 2a: Trang chi tiết Journey – phần đầu (header, thẻ tóm tắt, tab đang chọn)
+  - Ảnh 2b: Cùng trang – phần cuộn xuống (khối nhật ký / nút thao tác)  ← nếu 2a không chứa hết
   - Ảnh 3: Form nhập nhật ký (đã điền đầy đủ dữ liệu, trước khi submit)
   - Ảnh 4: Trạng thái sau khi lưu thành công (toast hoặc cập nhật UI)
 ```
@@ -143,6 +150,29 @@ Sau khi chụp, copy ảnh vào đúng thư mục:
 public/assets/docs/{role_code}/   ← thư mục lưu ảnh tài liệu
 ```
 
+### 3.6 Màn hình dài và chụp nhiều ảnh (bắt buộc khi một ảnh không đủ)
+
+**Nguyên tắc:** Tài liệu phải **phản ánh đủ** các phần giao diện và tính năng cần giới thiệu. Nếu một khung chụp không chứa hết (do chiều dọc trang, nhiều cột, drawer/modal che khuất, v.v.) thì **không được gom bằng một ảnh mờ hoặc ảnh quá nhỏ** — hãy chụp **chuỗi ảnh** theo vùng nhìn thấy được.
+
+**Khi nào bắt buộc chụp thêm ảnh:**
+
+| Tình huống | Cách xử lý |
+|---|---|
+| Trang phải cuộn mới thấy form, bảng phụ, nút dưới cùng | Chụp **ảnh trên** (above the fold) và **ảnh sau khi cuộn** tới đúng vùng cần hướng dẫn; lặp lại nếu còn khối quan trọng phía dưới. |
+| Cùng một trang có nhiều tab / step / accordion | Mỗi tab (hoặc trạng thái mở) cần giới thiệu → **ít nhất một ảnh** tương ứng trạng thái đó (hoặc ảnh ghép có chú thích rõ từng vùng — ưu tiên vẫn là ảnh riêng cho dễ đọc). |
+| Hai cột hoặc bảng rộng, chữ nhỏ khi thu vào một ảnh | Chụp **cận cảnh từng vùng** (ví dụ: cột bộ lọc + cột danh sách) hoặc tăng số ảnh theo **cụm chức năng**. |
+| Luồng có modal/drawer che màn hình chính | Ảnh màn nền (nếu cần ngữ cảnh) + **ảnh riêng** cho modal/drawer khi đó là nơi thao tác chính. |
+
+**Quy ước đặt tên khi một màn hình có nhiều ảnh:** thêm hậu tố vị trí hoặc thứ tự để agent và người đọc khớp ảnh với nội dung:
+
+```
+{role_code}_{feature_slug}_top_{timestamp}.png      ← phần đầu trang
+{role_code}_{feature_slug}_scroll1_{timestamp}.png  ← sau cuộn lần 1
+{role_code}_{feature_slug}_tab_nhat_ky_{timestamp}.png  ← đúng tab đang hướng dẫn
+```
+
+**Caption / section trong tài liệu:** mỗi ảnh trong chuỗi phải có chú thích nêu rõ *đang xem phần nào của trang* (ví dụ: "Phần đầu trang chi tiết — thông tin tóm tắt và tab đang chọn", "Sau khi cuộn xuống — khối ghi nhật ký và nút Lưu").
+
 ---
 
 ## 4. Tiêu chuẩn viết nội dung
@@ -159,6 +189,8 @@ Mỗi `section` trong tài liệu phải có cấu trúc:
 [ALERT] → Nếu có rủi ro, điều kiện đặc biệt hoặc mẹo quan trọng
 [SUBSECTIONS] → Nếu bước có nhiều nhánh con (tùy chọn)
 ```
+
+**Cấm chỉ dẫn hời hợt:** Không viết kiểu "Ở trang này có nhiều phần, người dùng thao tác theo nhu cầu" hoặc "Các mục bên dưới dùng để xem thông tin" mà không gắn với **tên hiển thị thực tế** trên giao diện và **hành động–kết quả** cụ thể. Mỗi khối UI đáng hướng dẫn phải có **mục con hoặc đoạn riêng** (xem 4.5).
 
 ### 4.2 Cách viết mô tả hành động (content)
 
@@ -236,6 +268,29 @@ Mỗi `section` trong tài liệu phải có cấu trúc:
 **✅ Đúng – Có ngữ cảnh nghiệp vụ:**
 > "Phiếu xuất kho được tạo khi đội thi công yêu cầu cấp vật tư. Kế toán cần đối chiếu đúng công trình và hành trình trước khi xác nhận để đảm bảo tồn kho chính xác."
 
+### 4.5 Màn hình nhiều section – chỉ dẫn theo từng khối (bắt buộc)
+
+Khi một trang/màn hình có **nhiều section** (ví dụ: banner tóm tắt, bảng, biểu đồ, form phụ, lịch sử, khối file đính kèm, thanh hành động cố định…), tài liệu phải **tách theo từng khối** mà người dùng có thể nhận diện trên UI, không gom chung một đoạn mơ hồ.
+
+**Quy trình lập nội dung:**
+
+1. **Liệt kê section** theo thứ tự từ trên xuống (hoặc theo luồng nghiệp vụ nếu thứ tự đọc khác thứ tự hiển thị). Với mỗi mục ghi: *tên hiển thị trên màn hình* (tiêu đề card, tab, heading) + *mục đích nghiệp vụ* của khối đó.
+2. **Với mỗi section**, viết một **khối chỉ dẫn riêng** gồm:
+   - **Tiêu đề con** trùng hoặc gần với nhãn trên UI (ví dụ: "Khối **Thông tin chung**", "Tab **Nhật ký thi công**").
+   - **Việc người dùng làm được** tại khối đó: nút/link/trường nào, điều kiện hiển thị (chỉ khi có quyền / chỉ khi trạng thái X).
+   - **Kết quả** sau thao tác (bảng cập nhật, toast, chuyển tab, mở form…).
+   - **Ảnh** bao phủ đúng vùng đó; nếu khối nằm ngoài màn hình đầu tiên → dùng ảnh cuộn hoặc ảnh tab tương ứng (thống nhất mục 3.6).
+
+**❌ Sai – chung chung cho cả trang:**
+> "Trang chi tiết hiển thị đầy đủ thông tin và các chức năng liên quan. Người dùng có thể xem và cập nhật tùy theo nhu cầu."
+
+**✅ Đúng – theo từng section (rút gọn minh họa):**
+> **Khối Thông tin hành trình** — Hiển thị mã, tên công trình, tiến độ tổng. Tại đây không chỉnh sửa trực tiếp; dùng để đối chiếu trước khi ghi nhật ký.  
+> **Tab Nhật ký thi công** — Nhấn tab này để xem danh sách nhật ký đã lưu. Nhấn **+ Ghi nhận nhật ký mới** để mở biểu mẫu phía dưới…  
+> **Khối Tài liệu đính kèm** — Nhấn **Tải lên** để thêm ảnh hiện trường; chỉ chấp nhận file ảnh dưới X MB…
+
+**Đồng bộ ảnh–chữ:** Thứ tự các ảnh trong tài liệu nên khớp thứ tự các section (hoặc có caption chỉ rõ "Cùng trang, phần cuộn xuống") để người đọc không lệch ngữ cảnh.
+
 ---
 
 ## 5. Trình bày nội dung hướng dẫn cho người dùng
@@ -271,6 +326,8 @@ Khi cần chỉ đến một phần tử trên màn hình, dùng **tên hiển t
 
 Mỗi screenshot đi kèm với một **caption mô tả ngữ cảnh** — không phải mô tả kỹ thuật. Caption phải trả lời câu hỏi: *"Người dùng đang ở bước nào? Họ vừa làm gì? Họ thấy gì?"*
 
+**Chuỗi nhiều ảnh cho cùng một trang:** Caption của ảnh thứ 2 trở đi phải nêu rõ **phần nào của màn hình** (ví dụ: "Sau khi cuộn xuống — khối …") để phân biệt với ảnh trước; tránh lặp lại một caption chung cho mọi ảnh.
+
 **Ví dụ caption tốt theo từng loại ảnh:**
 
 | Loại ảnh | Caption tốt |
@@ -280,6 +337,7 @@ Mỗi screenshot đi kèm với một **caption mô tả ngữ cảnh** — khô
 | Kết quả thành công | "Thông báo lưu thành công – nhật ký mới xuất hiện ngay đầu danh sách." |
 | Modal/hộp thoại | "Hộp thoại xác nhận xuất hiện – kiểm tra lại trước khi nhấn Đồng ý." |
 | Trạng thái sau thao tác | "Trạng thái phiếu đã chuyển sang Đã duyệt – không thể chỉnh sửa thêm." |
+| Cùng trang, ảnh bổ sung sau cuộn | "Cùng trang chi tiết — phần dưới: bảng nhật ký và nút Lưu nhật ký." |
 
 ### 5.4 Cấu trúc một tài liệu hướng dẫn hoàn chỉnh (mẫu)
 
@@ -348,14 +406,17 @@ Trước khi hoàn thành tài liệu cho một phân hệ, kiểm tra từng m�
 - [ ] Tài liệu mô tả **tại sao** cần làm bước này (ngữ cảnh nghiệp vụ), không chỉ **làm gì**.
 - [ ] Mỗi bước thao tác có ít nhất 3 câu mô tả cụ thể (trigger → hành động → kết quả).
 - [ ] Có section giải thích kết quả sau khi hoàn thành (màn hình thành công, trạng thái mới).
+- [ ] Với trang có **nhiều section**: đã có **inventory section** (khi lập kế hoạch) và trong bài viết có **chỉ dẫn riêng theo từng khối** (tên UI + việc làm + kết quả), không chỉ mô tả chung cả trang (mục 4.5).
 
 ### ✅ Về ảnh minh họa
 
 - [ ] Mỗi section có thao tác đều có ảnh minh họa (không section nào trống ảnh).
+- [ ] **Độ phủ màn hình:** Nếu một ảnh không thể hiện đủ vùng cần hướng dẫn (trang dài, nhiều khối, tab khác nhau) → đã chụp **đủ chuỗi ảnh** theo mục 3.6, không ghép một ảnh quá nhỏ.
 - [ ] Ảnh form nhập liệu: **đã điền đầy đủ dữ liệu demo**, không là form trống.
 - [ ] Ảnh danh sách: có ít nhất 3 dòng dữ liệu thực.
 - [ ] Ảnh kết quả sau submit: thể hiện trạng thái thành công (toast, dữ liệu đã lưu).
 - [ ] Kích thước ảnh đúng: mobile = dọc (portrait), desktop = ngang.
+- [ ] Ảnh trong chuỗi cùng trang có caption phân biệt **vị trí/phần** (đầu trang / sau cuộn / tab cụ thể).
 
 ### ✅ Về Alert
 
@@ -386,17 +447,19 @@ Khi nhận yêu cầu xây dựng tài liệu cho phân hệ X:
 BƯỚC 1 – PHÂN TÍCH (5-10 phút)
   1.1. Đọc code của phân hệ: routes, layouts, pages.
   1.2. Liệt kê tất cả luồng nghiệp vụ theo hướng dẫn mục 2.1.
-  1.3. Lập danh sách tài liệu cấp 2 + danh sách ảnh cần chụp.
+  1.3. Lập danh sách tài liệu cấp 2 + danh sách ảnh cần chụp (kèm độ phủ: màn dài/tab nhiều → nhiều ảnh theo 2.3, 3.6).
+  1.3b. Với mỗi trang phức tạp: lập inventory section (tab, khối, bảng…) để không bỏ sót khi viết (mục 4.5).
   1.4. Tạo implementation_plan.md và chờ duyệt nếu phức tạp.
 
 BƯỚC 2 – CHỤP MÀN HÌNH (browser subagent)
   2.1. Setup viewport đúng (mobile/desktop).
   2.2. Đăng nhập, chuyển vai trò, đảm bảo có dữ liệu demo.
   2.3. Với mỗi màn hình: điền form → chụp ảnh → submit → chụp ảnh kết quả.
+  2.3b. Nếu một khung không đủ: cuộn / đổi tab / mở khối → chụp thêm ảnh theo từng vùng; đặt tên phân biệt (mục 3.6).
   2.4. Save ảnh vào đúng thư mục public/assets/docs/{role_code}/.
 
 BƯỚC 3 – VIẾT NỘI DUNG
-  3.1. Viết từng tài liệu theo template mục 4.3 và mẫu mục 5.4.
+  3.1. Viết từng tài liệu theo template mục 4.3, mục 4.5 (trang nhiều section) và mẫu mục 5.4.
   3.2. Đảm bảo mỗi bước có: tiêu đề hành động + nội dung (3+ câu) + ảnh + lưu ý (nếu cần).
   3.3. Kiểm tra logic thứ tự: người dùng phải đọc từ đầu đến cuối là thực hiện được.
   3.4. Rà soát toàn bộ nội dung: xóa bỏ mọi từ ngữ kỹ thuật (xem mục 5.1).
