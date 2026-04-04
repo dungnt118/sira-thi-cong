@@ -84,8 +84,8 @@ const renderSection = (section: DocSection, level = 2) => {
                         section.alert.type === 'important'
                             ? 'error'
                             : section.alert.type === 'warning' || section.alert.type === 'caution'
-                              ? 'warning'
-                              : 'info'
+                                ? 'warning'
+                                : 'info'
                     }
                     showIcon
                     style={{ marginBottom: 16 }}
@@ -297,7 +297,7 @@ const DocumentationCenterPage: React.FC = () => {
                                 key: 'home',
                                 icon: <HomeOutlined />,
                                 label: 'Trang chủ BAC',
-                                onClick: () => window.open('https://dltech.vn', '_blank')
+                                onClick: () => window.open('/', '_blank')
                             }
                         ]}
                     />

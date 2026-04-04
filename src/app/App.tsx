@@ -141,7 +141,18 @@ const ComingSoon = ({ title, description }: { title: string; description?: strin
 
 import { Provider } from 'react-redux';
 import store from '@/store';
+import { useAuth } from '@/hooks/useAuth';
 import Auth from '@/pages/shared/auth/Auth';
+
+const RootRedirect = () => {
+    const { isAuthenticated, session } = useAuth();
+
+    if (isAuthenticated) {
+        return <Navigate to={session?.welcome_url ?? '/l/welcome'} replace />;
+    }
+
+    return <Navigate to="/login" replace />;
+};
 
 function App() {
     return (
@@ -361,7 +372,7 @@ function App() {
                                     </Route>
 
                                     {/* Default + 404 */}
-                                    <Route path="/" element={<Navigate to="/login" replace />} />
+                                    <Route path="/" element={<RootRedirect />} />
                                     <Route path="*" element={<NotFound />} />
                                 </Routes>
                             </Suspense>
