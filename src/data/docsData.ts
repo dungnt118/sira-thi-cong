@@ -26,7 +26,7 @@ export const docsData: UserGuide[] = [
                 title: '1. Đăng nhập hệ thống',
                 content: [
                     'Truy cập link: http://localhost:5173/kt/dashboard',
-                    'Sử dụng tài khoản: lamnd@gmail.com / Bac@2026'
+                    'Sử dụng tài khoản: {user-email} / {mật-khẩu-đã-cấp}'
                 ]
             },
             {
