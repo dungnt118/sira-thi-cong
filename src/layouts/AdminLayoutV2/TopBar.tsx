@@ -1,7 +1,7 @@
 import React from 'react';
 import { Layout, Input, Badge, Space } from 'antd';
 import { SearchOutlined, BellOutlined, MenuOutlined } from '@ant-design/icons';
-import { UserMenu } from '../../components/common/Header/UserMenu';
+import { UserMenu } from '../../components/common/Header/UserMenuWithDocs';
 import { Button } from 'antd';
 
 

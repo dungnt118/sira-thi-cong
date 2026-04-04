@@ -11,7 +11,7 @@ import {
     UserOutlined,
 } from '@ant-design/icons';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { UserMenu } from '../../components/common/Header/UserMenu';
+import { UserMenu } from '../../components/common/Header/UserMenuWithDocs';
 import { useAuth } from '../../hooks/useAuth';
 import './SaleLayout.css';
 

@@ -1,1 +1,1 @@
-export { UserMenu } from '../../components/common/Header/UserMenu';
+export { UserMenu } from '../../components/common/Header/UserMenuWithDocs';

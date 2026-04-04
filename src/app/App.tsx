@@ -118,12 +118,12 @@ import {
 
 // V3 Public Pages
 import CustomerPortal from '../pages/public/CustomerPortal';
-const DocumentationPage = lazy(() => import('../pages/public/DocumentationPage'));
+const DocumentationPage = lazy(() => import('../pages/public/DocumentationCenterPage'));
 
 // Layouts
 import { PMLayout } from '../layouts/PMLayout';
 import { PartnerLayout } from '../layouts/PartnerLayout';
-import { Login } from '../pages/shared/Login';
+import { Login } from '../pages/shared/Login/LoginEntry';
 import { NotFound } from '../pages/shared/NotFound';
 import './App.css';
 

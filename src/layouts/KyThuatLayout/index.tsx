@@ -11,7 +11,7 @@ import {
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { UserMenu } from '../../components/common/Header/UserMenu';
+import { UserMenu } from '../../components/common/Header/UserMenuWithDocs';
 import './KyThuatLayout.css';
 
 const { Header, Content } = Layout;

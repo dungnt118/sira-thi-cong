@@ -15,7 +15,7 @@ import {
     ContactsOutlined,
 } from '@ant-design/icons';
 import { BaseLayout } from '../shared/BaseLayout';
-import { UserMenu } from '../../components/common/Header/UserMenu';
+import { UserMenu } from '../../components/common/Header/UserMenuWithDocs';
 
 const menuItems: MenuProps['items'] = [
     {

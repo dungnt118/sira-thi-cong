@@ -11,7 +11,7 @@ import {
     FormOutlined,
     HistoryOutlined
 } from '@ant-design/icons';
-import { UserMenu } from '../../components/common/Header/UserMenu';
+import { UserMenu } from '../../components/common/Header/UserMenuWithDocs';
 import './GiamSatMobile.css';
 
 const { Header, Content } = Layout;

@@ -12,7 +12,7 @@ import {
 } from '@ant-design/icons';
 import { LABELS } from '@utils/constants';
 import { BaseLayout } from '../shared/BaseLayout';
-import { UserMenu } from '../../components/common/Header/UserMenu';
+import { UserMenu } from '../../components/common/Header/UserMenuWithDocs';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
