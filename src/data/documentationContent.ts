@@ -245,5 +245,93 @@ export const documentationContent: GuideCategory[] = [
                 ]
             }
         ]
+    },
+    {
+        id: 'technical',
+        title: 'Hướng dẫn sử dụng Kỹ thuật',
+        description: 'Tài liệu hướng dẫn quy trình khảo sát, lập giải pháp kỹ thuật, dự toán và quản lý hồ sơ công trình.',
+        documents: [
+            {
+                id: 'tong-quan-cong-viec',
+                title: 'Tổng quan Giao diện Công việc',
+                description: 'Giới thiệu màn hình Dashboard và cách theo dõi trạng thái dự án trên di động.',
+                sections: [
+                    {
+                        title: '1. Màn hình Dashboard',
+                        content: 'Dashboard giúp kỹ thuật viên nắm bắt nhanh số lượng công trình đang phụ trách, phân loại theo các giai đoạn: Khảo sát, Thi công và Bảo hành.',
+                        image: '/assets/docs/ky-thuat/kt_dashboard_mobile.png',
+                        alert: {
+                            type: 'info',
+                            text: 'Sử dụng các phím tắt nhanh ở cuối màn hình để chuyển đổi giữa các phân hệ nghiệp vụ.'
+                        }
+                    }
+                ]
+            },
+            {
+                id: 'khao-sat-hien-truong',
+                title: 'Khảo sát Hiện trường',
+                description: 'Quy trình lập biên bản khảo sát hiện trạng hư hỏng tại công trình.',
+                sections: [
+                    {
+                        title: '1. Lập phiếu khảo sát mới',
+                        content: 'Kỹ thuật viên chọn mẫu khảo sát phù hợp với tình hình thực tế (ví dụ: Chống thấm). Hệ thống sẽ cung cấp các trường dữ liệu cần thiết để ghi nhận lỗi.',
+                        image: '/assets/docs/ky-thuat/kt_survey_form_filled.png'
+                    },
+                    {
+                        title: '2. Kiểm tra và Nộp biên bản',
+                        content: 'Sau khi nhập liệu, bạn có thể xem lại toàn bộ nội dung biên bản khảo sát dưới dạng văn bản điện tử trước khi chính thức nộp lên hệ thống.',
+                        image: '/assets/docs/ky-thuat/kt_survey_report.png',
+                        alert: {
+                            type: 'important',
+                            text: 'Thông tin khảo sát là cơ sở để lập dự toán, hãy đảm bảo các vị trí nứt/thấm được mô tả chính xác.'
+                        }
+                    },
+                    {
+                        title: '3. Xác nhận nộp thành công',
+                        content: 'Hệ thống sẽ hiển thị thông báo xác nhận khi hồ sơ khảo sát đã được gửi đi thành công.',
+                        image: '/assets/docs/ky-thuat/kt_survey_success.png'
+                    }
+                ]
+            },
+            {
+                id: 'giai-phap-du-toan',
+                title: 'Giải pháp & Dự toán Kỹ thuật',
+                description: 'Hướng dẫn bóc tách khối lượng và lập bảng kê vật tư cần thiết.',
+                sections: [
+                    {
+                        title: '1. Lập dự toán vật tư',
+                        content: 'Dựa trên phương án kỹ thuật đã chọn, kỹ thuật viên tiến hành chọn các hạng mục vật tư và nhân công tương ứng để hệ thống tính toán chi phí sơ bộ.',
+                        alert: {
+                            type: 'tip',
+                            text: 'Bạn có thể chọn từ thư viện giải pháp có sẵn để đảm bảo đúng định mức kỹ thuật của công ty.'
+                        }
+                    }
+                ]
+            },
+            {
+                id: 'quan-ly-ho-so',
+                title: 'Quản lý Bản vẽ & Tài liệu',
+                description: 'Lưu trữ và tra cứu hồ sơ kỹ thuật tập trung theo từng công trình.',
+                sections: [
+                    {
+                        title: '1. Đính kèm hồ sơ kỹ thuật',
+                        content: 'Kỹ thuật viên có thể tải lên các bản vẽ mặt bằng, chi tiết cấu tạo hoặc ảnh chụp hiện trạng để lưu trữ tập trung.',
+                        image: '/assets/docs/ky-thuat/kt_project_docs_form.png'
+                    }
+                ]
+            },
+            {
+                id: 'ca-nhan-lich-cong-tac',
+                title: 'Cá nhân & Lịch công tác',
+                description: 'Quản lý thông tin cá nhân và theo dõi lịch hẹn khảo sát.',
+                sections: [
+                    {
+                        title: '1. Hồ sơ kỹ thuật viên',
+                        content: ' Xem và cập nhật các thông tin cá nhân, số điện thoại liên lạc và theo dõi lịch trình làm việc được giao.',
+                        image: '/assets/docs/ky-thuat/kt_profile_mobile.png'
+                    }
+                ]
+            }
+        ]
     }
 ];

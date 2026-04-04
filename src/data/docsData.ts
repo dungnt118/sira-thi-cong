@@ -131,5 +131,64 @@ export const docsData: UserGuide[] = [
                 image: '/assets/docs/gs/gs_ca_nhan_mobile.png'
             }
         ]
+    },
+    {
+        id: 'technical',
+        title: 'Hướng Dẫn Sử Dụng Kỹ Thuật',
+        description: 'Tài liệu hướng dẫn quy trình khảo sát hiện trường, lập giải pháp kỹ thuật, dự toán và quản lý hồ sơ công trình trên thiết bị di động.',
+        sections: [
+            {
+                title: '1. Tổng quan Giao diện Công việc',
+                content: 'Màn hình chính (Dashboard) giúp kỹ thuật viên theo dõi nhanh số lượng công trình theo trạng thái: Khảo sát, Đang thi công và Bảo hành. Các lối tắt nhanh bên dưới giúp truy cập tức thì vào các nhiệm vụ quan trọng.',
+                image: '/assets/docs/ky-thuat/kt_dashboard_mobile.png',
+                alert: {
+                    type: 'info',
+                    text: 'Giao diện được tối ưu cho điện thoại, thuận tiện cho việc thao tác trực tiếp tại công trường.'
+                }
+            },
+            {
+                title: '2. Khảo sát Hiện trường',
+                content: 'Đây là bước đầu tiên để ghi nhận hiện trạng hư hỏng của công trình. Kỹ thuật viên chọn mẫu khảo sát phù hợp (ví dụ: Chống thấm sân thượng) và điền chi tiết các phát hiện.',
+                image: '/assets/docs/ky-thuat/kt_survey_form_filled.png',
+                subsections: [
+                    {
+                        title: '2.1. Nhập liệu khảo sát',
+                        content: 'Ghi chú cụ thể vị trí thấm, các vết nứt và nhu cầu thực tế của khách hàng. Chọn các dấu hiệu nhận biết có sẵn để hệ thống phân loại chính xác.'
+                    },
+                    {
+                        title: '2.2. Kiểm tra Biên bản',
+                        content: 'Trước khi nộp, hệ thống cho phép xem trước Biên bản khảo sát điện tử để rà soát lại toàn bộ thông tin đã nhập.',
+                        image: '/assets/docs/ky-thuat/kt_survey_report.png'
+                    },
+                    {
+                        title: '2.3. Hoàn tất & Nộp hồ sơ',
+                        content: 'Sau khi kiểm tra, nhấn nút nộp để hệ thống lưu hồ sơ và chuyển sang giai đoạn lập giải pháp. Thông báo thành công sẽ hiển thị ngay khi dữ liệu được ghi nhận.',
+                        image: '/assets/docs/ky-thuat/kt_survey_success.png'
+                    }
+                ]
+            },
+            {
+                title: '3. Giải pháp & Dự toán Kỹ thuật',
+                content: 'Dựa trên kết quả khảo sát, kỹ thuật viên tiến hành bóc tách khối lượng và lập dự toán vật tư, nhân công cần thiết cho việc sửa chữa.',
+                alert: {
+                    type: 'tip',
+                    text: 'Sử dụng các "Hạng mục mẫu" có sẵn để tiết kiệm thời gian nhập liệu và đảm bảo định mức kỹ thuật.'
+                }
+            },
+            {
+                title: '4. Quản lý Bản vẽ & Tài liệu',
+                content: 'Tất cả bản vẽ mặt bằng, chi tiết kỹ thuật và ảnh hiện trường được quản lý tập trung theo từng hành trình công trình.',
+                image: '/assets/docs/ky-thuat/kt_project_docs_form.png',
+                alert: {
+                    type: 'important',
+                    text: 'Luôn đính kèm ảnh chụp hiện trạng trước khi thi công để làm cơ sở đối chiếu cho biên bản nghiệm thu sau này.'
+                }
+            },
+            {
+                title: '5. Cá nhân & Lịch công tác',
+                content: 'Truy cập tab Cá nhân để theo dõi hồ sơ cá nhân và các thông tin liên quan đến tài khoản kỹ thuật của bạn.',
+                image: '/assets/docs/ky-thuat/kt_profile_mobile.png'
+            }
+        ]
     }
 ];
