@@ -66,51 +66,66 @@ export const docsData: UserGuide[] = [
     },
     {
         id: 'supervisor',
-        title: 'Hướng Dẫn Sử Dụng Giám Sát',
-        description: 'Tài liệu hướng dẫn tác nghiệp tại công trình: ghi nhật ký, kiểm nhận vật tư và theo dõi lịch sử vận hành trên thiết bị di động.',
+        title: 'Hướng Dẫn Vận Hành Hiện Trường (Giám sát)',
+        description: 'Cẩm nang tác nghiệp chuyên sâu dành cho Giám sát: Quản lý tiến độ, nhật ký thi công, đối soát vật tư và ký duyệt bàn giao trên di động.',
         sections: [
             {
-                title: '1. Tổng quan Giao diện Mobile',
-                content: 'Giao diện Giám sát được tối ưu hóa cho thiết bị di động, giúp người dùng dễ dàng thao tác ngay tại hiện trường. Dashboard cung cấp các chỉ số nhanh về dự án và các phím tắt truy cập tính năng.',
-                image: '/assets/docs/gs/gs_dashboard_mobile.png',
-                alert: {
-                    type: 'info',
-                    text: 'Sử dụng menu "Chuyển quyền nhanh" để truy cập giao diện này từ tài khoản của bạn.'
-                }
-            },
-            {
-                title: '2. Nhật ký Thi công & Hành trình',
-                content: 'Đây là tính năng cốt lõi để ghi nhận tiến độ công việc hàng ngày. Giám sát có thể theo dõi danh sách các "Hành trình" đang diễn ra và cập nhật nhật ký cho từng công đoạn.',
-                image: '/assets/docs/gs/gs_nhat_ky_mobile.png',
-                subsections: [
-                    {
-                        title: '2.1. Danh sách Hành trình',
-                        content: 'Xem tất cả các dự án đang thi công, trạng thái hiện tại và thời hạn xử lý (SLA).',
-                    },
-                    {
-                        title: '2.2. Ghi nhật ký & Chụp ảnh',
-                        content: 'Nhập nội dung công việc đã hoàn thành, tỷ lệ % và chụp ảnh hiện trường để làm bằng chứng nghiệm thu.',
-                    }
-                ]
-            },
-            {
-                title: '3. Kiểm nhận Vật tư',
-                content: 'Khi vật tư được giao đến công trình, Giám sát thực hiện đối soát số lượng thực tế so với phiếu xuất kho từ trung tâm.',
-                image: '/assets/docs/gs/gs_vat_tu_mobile.png',
+                title: '1. Bàn làm việc & Cảnh báo SLA',
+                content: 'Giao diện Dashboard giúp Giám sát nắm bắt nhanh số lượng công trình đang thi công và các cảnh báo trễ hạn (SLA) để ưu tiên xử lý.',
+                image: '/assets/docs/gs/gs_pro_dashboard.png',
                 alert: {
                     type: 'important',
-                    text: 'Vui lòng kiểm tra kỹ số lượng và tình trạng bao bì trước khi xác nhận trên hệ thống.'
+                    text: 'Các chỉ số có màu đỏ hoặc cam yêu cầu Giám sát phải cập nhật tiến độ ngay lập tức để tránh vi phạm cam kết với khách hàng.'
                 }
             },
             {
-                title: '4. Tra cứu Lịch sử Hoạt động',
-                content: 'Theo dõi dòng sự kiện (timeline) của các tác vụ đã thực hiện. Tính năng này giúp kiểm soát các thay đổi và log vận hành gần đây một cách minh bạch.',
-                image: '/assets/docs/gs/gs_lich_su_mobile.png'
+                title: '2. Bộ lọc & Tìm kiếm Dự án',
+                content: 'Sử dụng bộ lọc "Đang thi công" để tập trung vào các hành trình đang thực thi. Bạn có thể tìm nhanh dự án theo mã JRN hoặc tên khách hàng.',
+                image: '/assets/docs/gs/gs_pro_journey_list.png'
             },
             {
-                title: '5. Quản lý Tài khoản',
-                content: 'Truy cập trang Cá nhân để xem hồ sơ, thay đổi cài đặt thông báo hoặc đăng xuất khỏi hệ thống.',
-                image: '/assets/docs/gs/gs_ca_nhan_mobile.png'
+                title: '3. Tổng quan Hành trình chi tiết',
+                content: 'Màn hình này cung cấp cái nhìn 360 độ về dự án: Địa chỉ thi công, số điện thoại khách hàng, nhân sự phối hợp (Sale/KT) và thanh tiến độ tổng thể.',
+                image: '/assets/docs/gs/gs_pro_journey_overview.png'
+            },
+            {
+                title: '4. Tra cứu Nhật ký & Ảnh hiện trường',
+                content: 'Tab "Nhật ký thi công" lưu trữ toàn bộ lịch sử các đợt cập nhật. Giám sát có thể xem lại các ghi chú kỹ thuật và hình ảnh đối chứng của những ngày trước đó.',
+                image: '/assets/docs/gs/gs_pro_journey_timeline.png'
+            },
+            {
+                title: '5. Cập nhật tiến độ: Thông tin chung',
+                content: 'Khi có khối lượng hoàn thành mới, Giám sát nhấn "Cập nhật tiến độ". Tại đây, bạn chọn hạng mục thi công và kéo thanh trượt để ghi nhận % hoàn thành thực tế.',
+                image: '/assets/docs/gs/gs_pro_log_form_1.png'
+            },
+            {
+                title: '6. Cập nhật tiến độ: Ghi chú & Hình ảnh',
+                content: 'Phần cuối biểu mẫu cho phép nhập chi tiết nội dung công việc (ví dụ: đã đi dây điện, láng nền...). QUAN TRỌNG: Phải chụp ảnh thực tế tại công trường để làm minh chứng hoàn thành.',
+                image: '/assets/docs/gs/gs_pro_log_form_2.png',
+                alert: {
+                    type: 'tip',
+                    text: 'Ghi chú càng chi tiết giúp bộ phận PM và Kế toán dễ dàng đối soát khối lượng để thực hiện thanh quyết toán sau này.'
+                }
+            },
+            {
+                title: '7. Quản lý Tài liệu & Bản vẽ',
+                content: 'Truy cập nhanh các bản vẽ thiết kế, biên bản khảo sát hiện trạng hoặc các chứng từ kỹ thuật liên quan ngay tại công trình mà không cần mang theo hồ sơ giấy.',
+                image: '/assets/docs/gs/gs_pro_documents.png'
+            },
+            {
+                title: '8. Đối soát & Kiểm nhận Vật tư',
+                content: 'Xem danh sách vật tư đã được phê duyệt và xuất từ kho. Giám sát thực hiện kiểm đếm số lượng thực tế nhận được tại hiện trường và xác nhận vào hệ thống.',
+                image: '/assets/docs/gs/gs_pro_materials.png'
+            },
+            {
+                title: '9. Quy trình Ký duyệt & Bàn giao',
+                content: 'Khi kết thúc giai đoạn thi công, Giám sát truy cập tab "Bàn giao" để xem luồng ký duyệt điện tử giữa Kỹ thuật, Giám sát và Khách hàng.',
+                image: '/assets/docs/gs/gs_pro_handover.png'
+            },
+            {
+                title: '10. Chuyển quyền & Thiết lập cá nhân',
+                content: 'Giám sát có thể sử dụng menu "Chuyển quyền nhanh" để đổi sang vai trò khác (nếu được cấp phép) hoặc cập nhật thông tin liên hệ trong trang cá nhân.',
+                image: '/assets/docs/gs/gs_pro_switching.png'
             }
         ]
     },
