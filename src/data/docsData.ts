@@ -85,42 +85,50 @@ export const docsData: UserGuide[] = [
     {
         id: 'supervisor',
         title: 'Hướng Dẫn Sử Dụng Giám Sát',
-        description: 'Tài liệu hướng dẫn tác nghiệp tại công trình: ghi nhật ký và kiểm nhận vật tư trên thiết bị di động.',
+        description: 'Tài liệu hướng dẫn tác nghiệp tại công trình: ghi nhật ký, kiểm nhận vật tư và theo dõi lịch sử vận hành trên thiết bị di động.',
         sections: [
             {
-                title: '1. Truy cập via Mobile',
-                content: 'Sau khi đăng nhập, sử dụng tính năng "Chuyển quyền nhanh" trong menu cá nhân để truy cập giao diện Giám sát.',
-                image: '/assets/docs/gs/gs_dashboard_1775274718818.png'
+                title: '1. Tổng quan Giao diện Mobile',
+                content: 'Giao diện Giám sát được tối ưu hóa cho thiết bị di động, giúp người dùng dễ dàng thao tác ngay tại hiện trường. Dashboard cung cấp các chỉ số nhanh về dự án và các phím tắt truy cập tính năng.',
+                image: '/assets/docs/gs/gs_dashboard_mobile.png',
+                alert: {
+                    type: 'info',
+                    text: 'Sử dụng menu "Chuyển quyền nhanh" để truy cập giao diện này từ tài khoản của bạn.'
+                }
             },
             {
-                title: '2. Nhật ký thi công',
-                content: 'Ghi nhận tiến độ công việc hàng ngày ngay tại hiện trường.',
+                title: '2. Nhật ký Thi công & Hành trình',
+                content: 'Đây là tính năng cốt lõi để ghi nhận tiến độ công việc hàng ngày. Giám sát có thể theo dõi danh sách các "Hành trình" đang diễn ra và cập nhật nhật ký cho từng công đoạn.',
+                image: '/assets/docs/gs/gs_nhat_ky_mobile.png',
                 subsections: [
                     {
-                        title: '2.1. Cập nhật tiến độ',
-                        content: 'Nhập tỷ lệ % hoàn thành và mô tả nội dung công việc đã thực hiện.',
-                        image: '/assets/docs/gs/gs_diary_form_1775274766098.png'
+                        title: '2.1. Danh sách Hành trình',
+                        content: 'Xem tất cả các dự án đang thi công, trạng thái hiện tại và thời hạn xử lý (SLA).',
                     },
                     {
-                        title: '2.2. Hình ảnh hiện trường',
-                        content: 'Chụp ảnh thực tế các hạng mục thi công để làm bằng chứng chất lượng.',
-                        image: '/assets/docs/gs/gs_project_overview_1775274739388.png'
+                        title: '2.2. Ghi nhật ký & Chụp ảnh',
+                        content: 'Nhập nội dung công việc đã hoàn thành, tỷ lệ % và chụp ảnh hiện trường để làm bằng chứng nghiệm thu.',
                     }
                 ]
             },
             {
-                title: '3. Kiểm nhận vật tư',
-                content: 'Đối soát vật tư khi xe từ kho giao đến công trình.',
-                image: '/assets/docs/gs/gs_material_receive_modal_1775274808082.png',
+                title: '3. Kiểm nhận Vật tư',
+                content: 'Khi vật tư được giao đến công trình, Giám sát thực hiện đối soát số lượng thực tế so với phiếu xuất kho từ trung tâm.',
+                image: '/assets/docs/gs/gs_vat_tu_mobile.png',
                 alert: {
                     type: 'important',
-                    text: 'Giám sát cần ký xác nhận điện tử và chụp ảnh bao bì/nhãn mác vật tư khi kiểm nhận.'
+                    text: 'Vui lòng kiểm tra kỹ số lượng và tình trạng bao bì trước khi xác nhận trên hệ thống.'
                 }
             },
             {
-                title: '4. Quản lý Cá nhân',
-                content: 'Quản lý hồ sơ cá nhân và thiết lập tài khoản trực tiếp trên ứng dụng.',
-                image: '/assets/docs/gs/gs_profile_page_1775274837349.png'
+                title: '4. Tra cứu Lịch sử Hoạt động',
+                content: 'Theo dõi dòng sự kiện (timeline) của các tác vụ đã thực hiện. Tính năng này giúp kiểm soát các thay đổi và log vận hành gần đây một cách minh bạch.',
+                image: '/assets/docs/gs/gs_lich_su_mobile.png'
+            },
+            {
+                title: '5. Quản lý Tài khoản',
+                content: 'Truy cập trang Cá nhân để xem hồ sơ, thay đổi cài đặt thông báo hoặc đăng xuất khỏi hệ thống.',
+                image: '/assets/docs/gs/gs_ca_nhan_mobile.png'
             }
         ]
     }

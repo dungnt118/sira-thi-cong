@@ -164,17 +164,21 @@ export const documentationContent: GuideCategory[] = [
     {
         id: 'supervisor',
         title: 'Hướng dẫn sử dụng Giám sát',
-        description: 'Tài liệu tác nghiệp tại công trình: ghi nhật ký, kiểm nhận vật tư và quản lý tài khoản cá nhân.',
+        description: 'Tài liệu tác nghiệp tại công trình: ghi nhật ký, kiểm nhận vật tư, theo dõi lịch sử và quản lý tài khoản.',
         documents: [
             {
-                id: 'truy-cap-mobile',
-                title: 'Truy cập qua Mobile',
-                description: 'Cách mở đúng giao diện giám sát trên thiết bị di động.',
+                id: 'tong-quan-dashboard',
+                title: 'Tổng quan Giao diện Mobile',
+                description: 'Giới thiệu giao diện chính và các thành phần nhanh trên Dashboard di động.',
                 sections: [
                     {
-                        title: '1. Chuyển đúng vai trò làm việc',
-                        content: 'Sau khi đăng nhập, sử dụng tính năng “Chuyển quyền nhanh” trong menu người dùng để chuyển sang vai trò Giám sát trước khi thao tác.',
-                        image: '/assets/docs/gs/gs_dashboard_1775274718818.png'
+                        title: '1. Giao diện tối ưu di động',
+                        content: 'Giao diện Giám sát được thiết kế tinh gọn, tập trung vào các thao tác chạm và vuốt, giúp người dùng dễ dàng sử dụng bằng một tay ngay tại công trường.',
+                        image: '/assets/docs/gs/gs_dashboard_mobile.png',
+                        alert: {
+                            type: 'info',
+                            text: 'Sử dụng menu "Chuyển quyền nhanh" để truy cập giao diện này từ tài khoản của bạn.'
+                        }
                     }
                 ]
             },
@@ -184,18 +188,19 @@ export const documentationContent: GuideCategory[] = [
                 description: 'Hướng dẫn cập nhật tiến độ và hình ảnh hiện trường ngay tại công trình.',
                 sections: [
                     {
-                        title: '1. Mục đích của nhật ký',
-                        content: 'Nhật ký thi công là nơi ghi nhận tiến độ, khối lượng đã làm và các phát sinh cần báo cáo hằng ngày.'
-                    },
-                    {
-                        title: '2. Cập nhật tiến độ',
-                        content: 'Nhập tỷ lệ hoàn thành, mô tả công việc và các ghi chú quan trọng để quản lý dự án nắm được tình hình thực tế.',
-                        image: '/assets/docs/gs/gs_diary_form_1775274766098.png'
-                    },
-                    {
-                        title: '3. Hình ảnh hiện trường',
-                        content: 'Chụp ảnh hiện trạng thi công để lưu bằng chứng chất lượng và hỗ trợ đối chiếu khi cần.',
-                        image: '/assets/docs/gs/gs_project_overview_1775274739388.png'
+                        title: '1. Quy trình ghi nhật ký',
+                        content: 'Mỗi ngày, Giám sát chọn hành trình tương ứng để cập nhật khối lượng công việc đã hoàn thành và mô tả chi tiết các phát sinh.',
+                        image: '/assets/docs/gs/gs_nhat_ky_mobile.png',
+                        subsections: [
+                            {
+                                title: '1.1. Cập nhật tiến độ %',
+                                content: 'Kéo thanh trượt hoặc nhập số % hoàn thành cho từng hạng mục công việc.'
+                            },
+                            {
+                                title: '1.2. Chụp ảnh minh chứng',
+                                content: 'Sử dụng camera điện thoại để chụp ảnh thực tế các hạng mục đã thi công xong hoặc các lỗi cần lưu ý.'
+                            }
+                        ]
                     }
                 ]
             },
@@ -205,13 +210,25 @@ export const documentationContent: GuideCategory[] = [
                 description: 'Đối soát vật tư giao đến công trình và xác nhận ngay trên hệ thống.',
                 sections: [
                     {
-                        title: '1. Kiểm tra khi nhận hàng',
-                        content: 'Đối chiếu số lượng, chủng loại và tình trạng bao bì của vật tư khi xe giao đến công trình.',
-                        image: '/assets/docs/gs/gs_material_receive_modal_1775274808082.png',
+                        title: '1. Xác nhận vật tư thực tế',
+                        content: 'Khi xe kho giao hàng đến, Giám sát thực hiện kiểm đếm và xác nhận vào phiếu kiểm nhận điện tử.',
+                        image: '/assets/docs/gs/gs_vat_tu_mobile.png',
                         alert: {
                             type: 'important',
-                            text: 'Giám sát cần ký xác nhận điện tử và chụp ảnh nhãn mác hoặc bao bì vật tư để lưu vết đầy đủ.'
+                            text: 'Vui lòng kiểm tra kỹ số lượng và tình trạng bao bì trước khi nhấn xác nhận.'
                         }
+                    }
+                ]
+            },
+            {
+                id: 'lich-su-hoat-dong',
+                title: 'Lịch sử hoạt động',
+                description: 'Theo dõi các hoạt động và log vận hành gần đây của cá nhân.',
+                sections: [
+                    {
+                        title: '1. Nhật ký vận hành',
+                        content: 'Màn hình lịch sử giúp bạn xem lại các thao tác đã thực hiện trong ngày, đảm bảo tính minh bạch và dễ dàng rà soát lỗi.',
+                        image: '/assets/docs/gs/gs_lich_su_mobile.png'
                     }
                 ]
             },
@@ -221,9 +238,9 @@ export const documentationContent: GuideCategory[] = [
                 description: 'Cập nhật hồ sơ cá nhân và các thông tin tài khoản ngay trên ứng dụng.',
                 sections: [
                     {
-                        title: '1. Hồ sơ cá nhân',
-                        content: 'Màn hình hồ sơ cho phép xem và cập nhật thông tin cá nhân, đồng thời hỗ trợ kiểm tra quyền hạn đang sử dụng.',
-                        image: '/assets/docs/gs/gs_profile_page_1775274837349.png'
+                        title: '1. Thông tin tài khoản',
+                        content: 'Quản lý thông tin liên hệ, đổi mật khẩu và thiết lập thông báo thông qua trang cá nhân.',
+                        image: '/assets/docs/gs/gs_ca_nhan_mobile.png'
                     }
                 ]
             }
