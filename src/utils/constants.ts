@@ -17,7 +17,7 @@ export const LABELS = {
     ADMIN: {
         DASHBOARD: 'Tổng Quan',
         USER_MANAGEMENT: 'Quản Lý Người Dùng',
-        ROLE_MANAGEMENT: 'Quản Lý Vai Trò',
+        // ROLE_MANAGEMENT: 'Quản Lý Vai Trò',
         DEPARTMENT_HIERARCHY: 'Cấu Trúc Tổ Chức',
         SCHEMA_MANAGEMENT: 'Quản Lý Lược Đồ',
         WORKFLOW_DESIGNER: 'Thiết Kế Workflow',

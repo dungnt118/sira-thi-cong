@@ -61,7 +61,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
             key: 'profile',
             icon: <UserOutlined />,
             label: 'Hồ sơ cá nhân',
-            onClick: () => navigate(`/${role?.toLowerCase()}/profile`),
+            onClick: () => navigate('/personal/profile'),
         },
         {
             key: 'settings',

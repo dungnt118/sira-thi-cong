@@ -1,15 +1,14 @@
-import React from 'react';
-import { Layout, Menu } from 'antd';
-import { useNavigate, useLocation } from 'react-router-dom';
 import {
-    DashboardOutlined,
-    UserOutlined,
-    SafetyOutlined,
-    FileTextOutlined,
     BarChartOutlined,
+    DashboardOutlined,
+    FileTextOutlined,
     SettingOutlined,
+    UserOutlined
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
+import { Layout, Menu } from 'antd';
+import React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const { Sider } = Layout;
 
@@ -40,11 +39,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ collapsed, onCollapse, isDr
             icon: <UserOutlined />,
             label: 'Quản lý người dùng',
         },
-        {
-            key: '/admin/roles',
-            icon: <SafetyOutlined />,
-            label: 'Quản lý vai trò',
-        },
+        
         {
             key: '/admin/audit',
             icon: <FileTextOutlined />,

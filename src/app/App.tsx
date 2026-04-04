@@ -83,7 +83,7 @@ import SupervisorEvidenceUpload from '../pages/worker/EvidenceUpload';
 const SupervisorIncidentReport = lazy(() => import('../pages/worker/IncidentReport'));
 const ProjectDiary = lazy(() => import('../pages/giam-sat/ProjectDiary'));
 const MaterialReceipt = lazy(() => import('../pages/giam-sat/MaterialReceipt'));
-const GiamSatProfile = lazy(() => import('../pages/giam-sat/GiamSatProfile'));
+const SharedProfilePage = lazy(() => import('../pages/shared/ProfilePage'));
 const SupervisorDashboard = lazy(() => import('../pages/giam-sat/SupervisorDashboard'));
 const SupervisorJourneyList = lazy(() => import('../pages/giam-sat/SupervisorJourneyList'));
 
@@ -154,6 +154,16 @@ const RootRedirect = () => {
     return <Navigate to="/login" replace />;
 };
 
+const PersonalProfileRedirect = () => {
+    const { isAuthenticated, role } = useAuth();
+
+    if (!isAuthenticated || !role) {
+        return <Navigate to="/login" replace />;
+    }
+
+    return <Navigate to={`/${role.toLowerCase()}/profile`} replace />;
+};
+
 function App() {
     return (
         <ConfigProvider locale={viVN}>
@@ -165,7 +175,7 @@ function App() {
                                 <Routes>
 
                                     {/* ===== AUTO REDIRECTS ===== */}
-                                    <Route path="/personal/profile" element={<Navigate to="/kd/dashboard" replace />} />
+                                    <Route path="/personal/profile" element={<PersonalProfileRedirect />} />
 
                                     {/* ===== PUBLIC ROUTES ===== */}
 
@@ -186,6 +196,7 @@ function App() {
                                         <Route path="audit" element={<AuditLog />} />
                                         <Route path="reports" element={<Reports />} />
                                         <Route path="settings" element={<SystemSettings />} />
+                                        <Route path="profile" element={<SharedProfilePage />} />
                                     </Route>
 
                                     {/* ===== PM ROUTES (V3) ===== */}
@@ -267,6 +278,7 @@ function App() {
 
                                         <Route path="financials/milestones" element={<Financials />} />
                                         <Route path="reports" element={<PMReports />} />
+                                        <Route path="profile" element={<SharedProfilePage />} />
                                     </Route>
 
                                     {/* ===== SALE ROUTES (KD) ===== */}
@@ -285,6 +297,7 @@ function App() {
                                         <Route path="inventory/stock-out" element={<OutboundForm />} />
                                         <Route path="inventory/history" element={<InventoryHistory />} />
                                         <Route path="assets/allocation" element={<AllocationForm />} />
+                                        <Route path="profile" element={<SharedProfilePage />} />
                                     </Route>
 
                                     {/* ===== GIÁM SÁT ROUTES (GS) ===== */}
@@ -296,7 +309,7 @@ function App() {
                                         <Route path="evidence/:projectId/:stepId" element={<SupervisorEvidenceUpload />} />
                                         <Route path="incident" element={<SupervisorIncidentReport />} />
                                         <Route path="materials" element={<MaterialReceipt />} />
-                                        <Route path="profile" element={<GiamSatProfile />} />
+                                        <Route path="profile" element={<SharedProfilePage />} />
                                         {/* Unified journey detail for Supervisor */}
                                         <Route path="journeys/:journeyId" element={<JourneyDetail360 />} />
                                         <Route path="diary/:projectId" element={<ProjectDiary />} />
@@ -349,6 +362,7 @@ function App() {
 
                                         {/* Unified journey detail for Accountant */}
                                         <Route path="journeys/:journeyId" element={<JourneyDetail360 />} />
+                                        <Route path="profile" element={<SharedProfilePage />} />
                                     </Route>
 
                                     {/* ===== KỸ THUẬT ROUTES (KYT) ===== */}
@@ -360,7 +374,7 @@ function App() {
                                         <Route path="execution" element={<KTExecution />} />
                                         {/* Unified journey detail for Kỹ thuật */}
                                         <Route path="journeys/:journeyId" element={<JourneyDetail360 />} />
-                                        <Route path="profile" element={<ComingSoon title="Hồ sơ Kỹ thuật" />} />
+                                        <Route path="profile" element={<SharedProfilePage />} />
                                         <Route path="inventory/stock-out" element={<OutboundForm />} />
                                         <Route path="inventory/history" element={<InventoryHistory />} />
                                         <Route path="assets/allocation" element={<AllocationForm />} />
@@ -369,6 +383,7 @@ function App() {
                                     {/* ===== PARTNER ROUTES ===== */}
                                     <Route path="/partner/*" element={<PartnerLayout />}>
                                         <Route index element={<Navigate to="/partner/dashboard" replace />} />
+                                        <Route path="profile" element={<SharedProfilePage />} />
                                     </Route>
 
                                     {/* Default + 404 */}
