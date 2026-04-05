@@ -27,69 +27,170 @@ export const documentationContent: GuideCategory[] = [
     {
         id: 'accountant',
         title: 'Hướng dẫn sử dụng Kế toán',
-        description: 'Tài liệu nghiệp vụ kho, kiểm soát chi tiêu và dòng tiền trên thiết bị di động.',
+        description: 'Tài liệu nghiệp vụ kho, tài sản và kiểm soát chi tiêu trên giao diện Desktop.',
         documents: [
             {
-                id: 'tong-quan-dashboard',
-                title: 'Tổng quan Dashboard Kế toán',
-                description: 'Giới thiệu màn hình theo dõi số liệu tài chính và kho vận tổng hợp.',
+                id: 'dashboard-ke-toan',
+                title: '1. Dashboard & Chỉ số tài chính',
+                description: 'Tổng quan tình hình sức khỏe tài chính và kho vận.',
                 sections: [
                     {
-                        title: '1. Giao diện báo cáo nhanh',
-                        content: 'Màn hình Dashboard giúp kế toán nắm bắt nhanh tình hình vật tư và tài sản hiện có. Các thẻ số liệu hiển thị tổng số SKU, nhóm vật tư và cảnh báo tồn kho thấp.',
-                        image: '/assets/docs/accountant/acc_dashboard_mobile.png',
+                        title: 'Theo dõi số liệu tổng hợp',
+                        content: 'Màn hình Dashboard cung cấp cái nhìn 360 độ về các chỉ số quan trọng: Tổng số SKU vật tư, giá trị kho hiện tại, các khoản chi chờ duyệt và cảnh báo tồn kho thấp dưới ngưỡng an toàn.',
+                        image: '/assets/docs/kt/kt_dashboard.png',
                         alert: {
                             type: 'info',
-                            text: 'Nhấn vào các thẻ số liệu để đi đến danh sách chi tiết của từng hạng mục.'
+                            text: 'Các biểu đồ xu hướng giúp kế toán dự báo nhu cầu vốn cho các đợt nhập hàng tiếp theo.'
                         }
-                    }
-                ]
-            },
-            {
-                id: 'quan-ly-yeu-cau-chi',
-                title: 'Quản lý Yêu cầu Chi',
-                description: 'Quy trình tạo mới và theo dõi các khoản chi tiêu trong hệ thống.',
-                sections: [
-                    {
-                        title: '1. Danh sách yêu cầu chi',
-                        content: 'Màn hình quản lý tập trung toàn bộ các đề nghị thanh toán, giúp kế toán dễ dàng lọc theo trạng thái (Chờ duyệt, Đã chi...).',
-                        image: '/assets/docs/accountant/acc_expenditure_list_mobile.png'
-                    },
-                    {
-                        title: '2. Lập phiếu chi thực tế',
-                        content: 'Khi cần thực hiện một khoản chi (ví dụ: Tạm ứng vật tư), kế toán nhập nội dung, số tiền và chọn MBBank làm tài khoản nguồn.',
-                        image: '/assets/docs/accountant/acc_expenditure_form_mobile.png'
-                    },
-                    {
-                        title: '3. Xác nhận hoàn tất',
-                        content: 'Sau khi lưu, hệ thống sẽ thông báo giao dịch đã được ghi nhận. Bạn có thể kiểm tra lại phiếu vừa tạo trong danh sách "Chờ duyệt".',
-                        image: '/assets/docs/accountant/acc_expenditure_success_mobile.png'
                     }
                 ]
             },
             {
                 id: 'quan-ly-kho-vat-tu',
-                title: 'Nhập/Xuất kho Vật tư',
-                description: 'Hướng dẫn đối soát và quản lý biến động hàng hóa tại kho.',
+                title: '2. Nghiệp vụ Kho Vật tư',
+                description: 'Quy trình nhập, xuất và quản lý danh mục vật tư thi công.',
                 sections: [
                     {
-                        title: '1. Quản lý phiếu kho',
-                        content: 'Theo dõi toàn bộ lịch sử nhập và xuất vật tư. Kế toán sử dụng màn hình này để đối chiếu số lượng thực tế với các chứng từ mua hàng.',
-                        image: '/assets/docs/accountant/acc_stock_in_mobile.png',
-                        alert: {
-                            type: 'important',
-                            text: 'Mọi biến động kho cần được cập nhật ngay để bộ phận Kinh doanh và Kỹ thuật có số liệu chính xác khi làm dự toán.'
-                        }
+                        title: 'Danh mục vật tư thi công',
+                        content: 'Tra cứu toàn bộ danh sách vật tư hiện có trong hệ thống bao gồm: Mã vật tư, tên gọi, đơn vị tính và số lượng tồn kho thực tế tại các kho.',
+                        image: '/assets/docs/kt/kt_materials_list.png'
+                    },
+                    {
+                        title: 'Quy trình Nhập kho',
+                        content: 'Khi vật tư được giao đến, kế toán thực hiện lập phiếu nhập kho. Quy trình bao gồm: Chọn nhà cung cấp, nhập số lượng, đơn giá và đính kèm hóa đơn/chứng từ liên quan.',
+                        image: '/assets/docs/kt/kt_stock_in_form_empty.png',
+                        subsections: [
+                            {
+                                title: 'Điền thông tin phiếu nhập',
+                                content: 'Chọn đúng danh mục vật tư cần nhập. Hệ thống sẽ tự động tính toán tổng giá trị phiếu dựa trên đơn giá và số lượng.',
+                                image: '/assets/docs/kt/kt_stock_in_form_filled.png'
+                            },
+                            {
+                                title: 'Xác nhận hoàn tất nhập kho',
+                                content: 'Sau khi kiểm tra thông tin, nhấn "Hoàn tất". Hệ thống sẽ cập nhật số lượng tồn kho ngay lập tức và tạo bút toán công nợ tương ứng.',
+                                image: '/assets/docs/kt/kt_stock_in_success.png'
+                            }
+                        ]
+                    },
+                    {
+                        title: 'Quy trình Xuất kho',
+                        content: 'Vật tư được xuất cho các đội thi công dựa trên yêu cầu từ Giám sát. Kế toán cần chọn đúng mã hành trình (Journey) để ghi nhận chi phí vật tư cho từng công trình.',
+                        image: '/assets/docs/kt/kt_stock_out_form_empty.png',
+                        subsections: [
+                            {
+                                title: 'Bốc tách vật tư xuất kho',
+                                content: 'Đảm bảo chọn đúng SKU và số lượng cần xuất. Hệ thống sẽ cảnh báo nếu số lượng xuất vượt quá tồn kho khả dụng.',
+                                image: '/assets/docs/kt/kt_stock_out_form_filled.png'
+                            },
+                            {
+                                title: 'In phiếu xuất & Giao hàng',
+                                content: 'Hoàn tất quy trình xuất kho để hệ thống trừ tồn và ghi nhận chi phí vào bảng giá trị hành trình.',
+                                image: '/assets/docs/kt/kt_stock_out_success.png'
+                            }
+                        ]
+                    },
+                    {
+                        title: 'Tra cứu lịch sử biến động',
+                        content: 'Hệ thống lưu trữ chi tiết mọi giao dịch nhập/xuất để phục vụ công tác kiểm kê và đối soát định kỳ.',
+                        image: '/assets/docs/kt/kt_inventory_history.png'
+                    },
+                    {
+                        title: 'Quản lý Nhà cung cấp',
+                        content: 'Danh sách các đối tác cung cấp vật tư với đầy đủ thông tin liên hệ và lịch sử giao dịch.',
+                        image: '/assets/docs/kt/kt_distributors.png'
+                    }
+                ]
+            },
+            {
+                id: 'quan-ly-tai-san',
+                title: '3. Tài sản & Công cụ dụng cụ',
+                description: 'Theo dõi vòng đời máy móc và trang thiết bị thi công.',
+                sections: [
+                    {
+                        title: 'Danh sách tài sản cố định',
+                        content: 'Quản lý tập trung các tài sản có giá trị lớn như máy khoan, máy cắt, xe vận tải... bao gồm thông số kỹ thuật và tình trạng sử dụng.',
+                        image: '/assets/docs/kt/kt_assets_list.png'
+                    },
+                    {
+                        title: 'Cấp phát tài sản cho Giám sát',
+                        content: 'Quy trình bàn giao công cụ dụng cụ cho nhân viên hiện trường. Hệ thống ghi nhận người chịu trách nhiệm và vị trí hiện tại của tài sản.',
+                        image: '/assets/docs/kt/kt_asset_allocation_empty.png',
+                        subsections: [
+                            {
+                                title: 'Thiết lập phiếu cấp phát',
+                                content: 'Chọn tài sản và nhân viên tiếp nhận. Có thể ghi chú tình trạng máy móc tại thời điểm bàn giao.',
+                                image: '/assets/docs/kt/kt_asset_allocation_filled.png'
+                            },
+                            {
+                                title: 'Xác nhận bàn giao',
+                                content: 'Sau khi xác nhận, trạng thái tài sản sẽ chuyển sang "Đang sử dụng".',
+                                image: '/assets/docs/kt/kt_asset_allocation_success.png'
+                            }
+                        ]
+                    },
+                    {
+                        title: 'Lịch sử di chuyển tài sản',
+                        content: 'Theo dõi quá trình luân chuyển tài sản giữa các công trình hoặc các nhân sự khác nhau.',
+                        image: '/assets/docs/kt/kt_asset_allocation_history.png'
+                    },
+                    {
+                        title: 'Bảo trì & Bảo dưỡng',
+                        content: 'Lên kế hoạch và theo dõi chi phí bảo trì định kỳ cho trang thiết bị để đảm bảo an toàn thi công.',
+                        image: '/assets/docs/kt/kt_asset_maintenance.png'
+                    }
+                ]
+            },
+            {
+                id: 'quan-ly-tai-chinh',
+                title: '4. Tài chính & Thanh toán',
+                description: 'Kiểm soát dòng tiền, thanh toán nhà cung cấp và lương nhân công.',
+                sections: [
+                    {
+                        title: 'Kế hoạch thu hồi công nợ',
+                        content: 'Theo dõi các đợt thanh toán (Milestones) của khách hàng dựa trên tiến độ thi công thực tế.',
+                        image: '/assets/docs/kt/kt_payment_milestones.png'
+                    },
+                    {
+                        title: 'Danh sách Yêu cầu thanh toán',
+                        content: 'Nơi tập trung các đề xuất chi từ các bộ phận. Kế toán thực hiện kiểm tra hồ sơ và phê duyệt chi.',
+                        image: '/assets/docs/kt/kt_payment_requests_list.png'
+                    },
+                    {
+                        title: 'Lập lệnh chi tiền',
+                        content: 'Quy trình thực hiện chi trả tiền mặt hoặc chuyển khoản cho nhà cung cấp/nhân công.',
+                        image: '/assets/docs/kt/kt_payment_request_empty.png',
+                        subsections: [
+                            {
+                                title: 'Chi tiết nội dung thanh toán',
+                                content: 'Nhập số tiền thực chi, chọn phương thức thanh toán và tài khoản nguồn.',
+                                image: '/assets/docs/kt/kt_payment_request_filled.png'
+                            },
+                            {
+                                title: 'Xác nhận giao dịch thành công',
+                                content: 'Ghi nhận bút toán giảm tiền và cập nhật trạng thái "Đã thanh toán" cho yêu cầu.',
+                                image: '/assets/docs/kt/kt_payment_request_success.png'
+                            }
+                        ]
+                    },
+                    {
+                        title: 'Quản lý Tài khoản ngân hàng',
+                        content: 'Cấu hình các tài khoản ngân hàng của công ty để thực hiện kết nối và đối soát tự động.',
+                        image: '/assets/docs/kt/kt_company_banks.png'
+                    },
+                    {
+                        title: 'Danh mục Người thụ hưởng',
+                        content: 'Lưu trữ thông tin tài khoản của nhà cung cấp và đội nhóm thi công để thực hiện thanh toán nhanh.',
+                        image: '/assets/docs/kt/kt_beneficiaries.png'
                     }
                 ]
             },
             {
                 id: 'quan-ly-ca-nhan',
-                title: 'Quản lý Cá nhân',
+                title: '5. Quản lý Cá nhân',
                 description: 'Cập nhật thông tin và cài đặt bảo mật tài khoản kế toán.',
                 sections: [
                     {
-                        title: '1. Hồ sơ người dùng',
+                        title: 'Hồ sơ người dùng',
                         content: 'Xem thông tin cá nhân và thiết lập mật khẩu truy cập để bảo vệ dữ liệu tài chính của công ty.',
                         image: '/assets/docs/accountant/acc_profile_mobile.png'
                     }
