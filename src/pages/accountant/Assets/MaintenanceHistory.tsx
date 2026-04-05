@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
     Typography, Table, Tag, Card, Row, Col,
     Statistic, Input, Steps, Space, Badge, DatePicker, message, Button,
-    Tooltip
+    Tooltip, Grid
 } from 'antd';
 import {
     ClockCircleOutlined, CheckCircleOutlined,
@@ -20,6 +20,7 @@ import _ from 'lodash';
 
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
+const { useBreakpoint } = Grid;
 
 const STATUS_STEPS = [
     { key: 'ALL', title: 'Tất cả' },
@@ -30,6 +31,8 @@ const STATUS_STEPS = [
 ];
 
 const MaintenanceHistory: React.FC = () => {
+    const screens = useBreakpoint();
+    const isMobile = !screens.md;
     // ─── State Management ──────────────────────────────────────
     const [loading, setLoading] = useState(false);
     const [tickets, setTickets] = useState<IAssetMaintenanceTicket[]>([]);
@@ -187,22 +190,23 @@ const MaintenanceHistory: React.FC = () => {
     ];
 
     return (
-        <div>
+        <div style={{ paddingBottom: isMobile ? 16 : 0 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
                 <div>
                     <Title level={4} style={{ margin: 0 }}>🛠️ Nhật ký Bảo trì & Sửa chữa</Title>
                     <Text type="secondary">Quản lý các đợt kiểm tra, bảo dưỡng định kỳ và khắc phục hư hỏng</Text>
                 </div>
-                <Space wrap>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, width: isMobile ? '100%' : 'auto' }}>
                     <RangePicker 
                         value={dateRange}
                         onChange={val => setDateRange(val as any)}
+                        style={{ width: isMobile ? '100%' : undefined }}
                         presets={[
                             { label: 'Tháng này', value: [dayjs().startOf('month'), dayjs().endOf('month')] },
                         ]}
                     />
                     <Button icon={<ReloadOutlined />} onClick={() => { fetchStats(); fetchTickets(); }}>Làm mới</Button>
-                </Space>
+                </div>
             </div>
 
             <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
@@ -229,7 +233,7 @@ const MaintenanceHistory: React.FC = () => {
             </Row>
 
             <Card bodyStyle={{ padding: 0 }} style={{ borderRadius: 8, overflow: 'hidden' }}>
-                <div style={{ padding: '0 24px', borderBottom: '1px solid #f0f0f0' }}>
+                <div style={{ padding: isMobile ? '0 12px' : '0 24px', borderBottom: '1px solid #f0f0f0', overflowX: 'auto' }}>
                     <Steps
                         type="navigation"
                         size="small"
@@ -251,13 +255,13 @@ const MaintenanceHistory: React.FC = () => {
                     />
                 </div>
 
-                <div style={{ padding: '20px 24px' }}>
+                <div style={{ padding: isMobile ? '16px 12px' : '20px 24px' }}>
                     <div style={{ marginBottom: 20 }}>
                         <Input
                             placeholder="Tìm mã phiếu hoặc mã tài sản..."
                             prefix={<SearchOutlined />}
                             onChange={e => { setSearchText(e.target.value); debouncedSearch(e.target.value); }}
-                            style={{ width: 350 }}
+                            style={{ width: isMobile ? '100%' : 350 }}
                             allowClear
                         />
                     </div>
@@ -267,6 +271,8 @@ const MaintenanceHistory: React.FC = () => {
                         dataSource={tickets}
                         loading={loading}
                         columns={columns}
+                        size={isMobile ? 'small' : 'middle'}
+                        scroll={{ x: 'max-content' }}
                         pagination={{
                             ...pagination,
                             showSizeChanger: true,

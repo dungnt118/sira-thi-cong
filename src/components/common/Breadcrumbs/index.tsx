@@ -1,11 +1,13 @@
 import React from 'react';
-import { Breadcrumb } from 'antd';
+import { Breadcrumb, Grid } from 'antd';
 import { useLocation, Link } from 'react-router-dom';
 import { HomeOutlined } from '@ant-design/icons';
 import { LABELS } from '@utils/constants';
 
 export const Breadcrumbs: React.FC = () => {
     const location = useLocation();
+    const screens = Grid.useBreakpoint();
+    const isMobile = !screens.md;
     const pathSnippets = location.pathname.split('/').filter((i) => i);
 
     const breadcrumbNameMap: Record<string, string> = {
@@ -85,5 +87,23 @@ export const Breadcrumbs: React.FC = () => {
         }),
     ];
 
-    return <Breadcrumb items={breadcrumbItems} style={{ margin: '4px 0 12px' }} />;
+    return (
+        <div
+            style={{
+                margin: '4px 0 12px',
+                maxWidth: '100%',
+                overflowX: 'auto',
+                whiteSpace: 'nowrap',
+                WebkitOverflowScrolling: 'touch',
+            }}
+        >
+            <Breadcrumb
+                items={breadcrumbItems}
+                style={{
+                    minWidth: 'max-content',
+                    fontSize: isMobile ? 12 : undefined,
+                }}
+            />
+        </div>
+    );
 };

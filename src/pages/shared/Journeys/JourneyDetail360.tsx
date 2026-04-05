@@ -429,6 +429,41 @@ const JourneyDetail360: React.FC = () => {
         );
     };
 
+    const renderAssignmentPanel = (label: string, content: React.ReactNode, isNote: boolean = false) => (
+        <div
+            style={{
+                height: '100%',
+                padding: isMobile ? '12px 14px' : 0,
+                borderRadius: isMobile ? 12 : 0,
+                background: isMobile ? 'rgba(255,255,255,0.08)' : 'transparent',
+                border: isMobile ? '1px solid rgba(255,255,255,0.14)' : 'none'
+            }}
+        >
+            <Text style={{ color: 'rgba(255,255,255,0.68)', display: 'block', marginBottom: 6 }}>{label}</Text>
+            {isNote ? (
+                <Text
+                    style={{
+                        color: '#fff',
+                        display: 'block',
+                        lineHeight: 1.6,
+                        ...(isMobile
+                            ? {
+                                  display: '-webkit-box',
+                                  WebkitLineClamp: 3,
+                                  WebkitBoxOrient: 'vertical',
+                                  overflow: 'hidden',
+                              }
+                            : {})
+                    }}
+                >
+                    {content}
+                </Text>
+            ) : (
+                content
+            )}
+        </div>
+    );
+
     if (!journey) {
         return (
             <div style={{ padding: 40, textAlign: 'center' }}>
@@ -570,12 +605,13 @@ const JourneyDetail360: React.FC = () => {
         <div style={{ padding: isMobile ? '8px' : '24px', background: '#f5f7fa', minHeight: '100vh' }}>
             {modalContextHolder}
             {/* Back + Primary Actions */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isMobile ? 8 : 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: isMobile ? 'flex-start' : 'center', marginBottom: isMobile ? 8 : 16, gap: 8, flexWrap: 'wrap' }}>
                 <Button icon={<ArrowLeftOutlined />} type="text" onClick={() => navigate(-1)} style={{ padding: isMobile ? '4px 8px' : undefined }}>
                     {!isMobile && 'Quay lại'}
                 </Button>
                 {(role === 'QL' || isAdmin) && (
-                    <Space size={isMobile ? 4 : 8} wrap={isMobile}>
+                    <div style={isMobile ? { maxWidth: '100%', overflowX: 'auto', paddingBottom: 4 } : undefined}>
+                    <Space size={isMobile ? 4 : 8} wrap={!isMobile}>
                         {(currentHeaderStepIndex < 0 || currentHeaderStepIndex < 5) && (
                             <Button
                                 icon={<RocketOutlined />}
@@ -589,20 +625,23 @@ const JourneyDetail360: React.FC = () => {
                         <Button icon={<EditOutlined />} onClick={() => setIsEditDrawerVisible(true)}>{isMobile ? '' : 'Sửa hành trình'}</Button>
                         <Button icon={<UserOutlined />} onClick={() => setShowAssignModal(true)}>{isMobile ? '' : 'Phân công'}</Button>
                         <Button icon={<FlagOutlined />} onClick={() => setShowPriorityModal(true)}>{isMobile ? '' : 'Ưu tiên'}</Button>
-                        <Button type="primary" icon={<SendOutlined />} onClick={() => setShowPublishModal(true)}>Publish Portal</Button>
+                        <Button type="primary" icon={<SendOutlined />} onClick={() => setShowPublishModal(true)}>{isMobile ? 'Portal' : 'Publish Portal'}</Button>
                         <Tooltip title="Lịch sử các bước">
                             <Button icon={<HistoryOutlined />} onClick={() => setShowHistoryModal(true)} />
                         </Tooltip>
                     </Space>
+                    </div>
                 )}
                 {role === 'KD' && (
-                    <Space size={isMobile ? 4 : 8} wrap={isMobile}>
+                    <div style={isMobile ? { maxWidth: '100%', overflowX: 'auto', paddingBottom: 4 } : undefined}>
+                    <Space size={isMobile ? 4 : 8} wrap={!isMobile}>
                         <Button icon={<MessageOutlined />} onClick={() => setShowLogModal(true)}>{isMobile ? '' : 'Ghi Log'}</Button>
                         <Button icon={<ClockCircleOutlined />} onClick={() => setShowFollowUpModal(true)}>{isMobile ? '' : 'Follow-up'}</Button>
                         <Tooltip title="Lịch sử các bước">
                             <Button icon={<HistoryOutlined />} onClick={() => setShowHistoryModal(true)} />
                         </Tooltip>
                     </Space>
+                    </div>
                 )}
             </div>
 
@@ -713,24 +752,22 @@ const JourneyDetail360: React.FC = () => {
                         <Text strong style={{ color: '#fff' }}>Điều phối nhân sự</Text>
                     </Space>
 
-                    <Row gutter={[16, 12]}>
-                        <Col xs={24} sm={12} lg={6}>
-                            <Text style={{ color: 'rgba(255,255,255,0.68)', display: 'block', marginBottom: 6 }}>PM</Text>
-                            {renderAssignmentTags(toUserList(journey.pm_user))}
-                        </Col>
-                        <Col xs={24} sm={12} lg={6}>
-                            <Text style={{ color: 'rgba(255,255,255,0.68)', display: 'block', marginBottom: 6 }}>Giám sát</Text>
-                            {renderAssignmentTags(toUserList(journey.supervisor_users))}
-                        </Col>
-                        <Col xs={24} sm={12} lg={6}>
-                            <Text style={{ color: 'rgba(255,255,255,0.68)', display: 'block', marginBottom: 6 }}>Kỹ thuật</Text>
-                            {renderAssignmentTags(toUserList(journey.technical_users))}
-                        </Col>
-                        <Col xs={24} sm={12} lg={6}>
-                            <Text style={{ color: 'rgba(255,255,255,0.68)', display: 'block', marginBottom: 6 }}>Ghi chú bàn giao</Text>
-                            <Text style={{ color: '#fff' }}>{journey.delivery_note || 'Chưa có ghi chú'}</Text>
-                        </Col>
-                    </Row>
+                    <div style={isMobile ? { overflowX: 'auto', paddingBottom: 4 } : undefined}>
+                        <Row gutter={[16, 12]} wrap={!isMobile}>
+                            <Col xs={24} sm={12} lg={6} style={isMobile ? { flex: '0 0 min(260px, 78vw)', maxWidth: 'min(260px, 78vw)' } : undefined}>
+                                {renderAssignmentPanel('PM', renderAssignmentTags(toUserList(journey.pm_user)))}
+                            </Col>
+                            <Col xs={24} sm={12} lg={6} style={isMobile ? { flex: '0 0 min(260px, 78vw)', maxWidth: 'min(260px, 78vw)' } : undefined}>
+                                {renderAssignmentPanel('Giám sát', renderAssignmentTags(toUserList(journey.supervisor_users)))}
+                            </Col>
+                            <Col xs={24} sm={12} lg={6} style={isMobile ? { flex: '0 0 min(260px, 78vw)', maxWidth: 'min(260px, 78vw)' } : undefined}>
+                                {renderAssignmentPanel('Kỹ thuật', renderAssignmentTags(toUserList(journey.technical_users)))}
+                            </Col>
+                            <Col xs={24} sm={12} lg={6} style={isMobile ? { flex: '0 0 min(260px, 78vw)', maxWidth: 'min(260px, 78vw)' } : undefined}>
+                                {renderAssignmentPanel('Ghi chú bàn giao', journey.delivery_note || 'Chưa có ghi chú', true)}
+                            </Col>
+                        </Row>
+                    </div>
                 </div>
 
                 {HEADER_STEP_CONFIG.length > 0 && !isMobile && (

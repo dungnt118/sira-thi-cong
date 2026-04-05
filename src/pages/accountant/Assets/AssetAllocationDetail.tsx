@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import {
     Card, Row, Col, Typography, Tag, Button,
     Space, Steps, message, Modal,
-    Alert, Descriptions, Result, Spin, Tooltip
+    Alert, Descriptions, Result, Spin, Tooltip, Grid
 } from 'antd';
 import {
     ArrowLeftOutlined, CheckCircleOutlined,
@@ -22,11 +22,14 @@ import html2pdf from 'html2pdf.js';
 import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
+const { useBreakpoint } = Grid;
 
 const AssetAllocationDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const { user } = useAuth();
+    const screens = useBreakpoint();
+    const isMobile = !screens.md;
 
     const [loading, setLoading] = useState(true);
     const [order, setOrder] = useState<IAssetAllocation | null>(null);
@@ -188,17 +191,17 @@ const AssetAllocationDetail: React.FC = () => {
     const currentStep = getCurrentStep(order.status || 'requested');
 
     return (
-        <div style={{ width: '100%', padding: '0 24px 40px' }}>
-            <Card bordered={false} bodyStyle={{ padding: '24px 0' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 32, alignItems: 'center' }}>
-                    <Space size="middle">
+        <div style={{ width: '100%', padding: isMobile ? '0 0 24px' : '0 24px 40px' }}>
+            <Card bordered={false} bodyStyle={{ padding: isMobile ? '16px 0' : '24px 0' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: isMobile ? 24 : 32, alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+                    <Space size="middle" style={{ minWidth: 0 }}>
                         <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/kt/assets/allocation-history')} />
                         <div>
                             <Text type="secondary" style={{ fontSize: 12 }}>Phiếu Yêu cầu Cấp phát / Mượn Tài sản</Text>
                             <Title level={4} style={{ margin: 0 }}>{order.code || 'ALLOC-ORD'}</Title>
                         </div>
                     </Space>
-                    <Space>
+                    <Space wrap style={isMobile ? { width: '100%' } : undefined}>
                         <Button icon={<FilePdfOutlined />} onClick={() => setIsPrintModalOpen(true)}>Xem Biên bản</Button>
                         {order.status === 'received' && (
                             <Button type="primary" icon={<DownloadOutlined />} onClick={handleDownloadPDF}>Tải PDF</Button>
@@ -206,13 +209,17 @@ const AssetAllocationDetail: React.FC = () => {
                     </Space>
                 </div>
 
-                <Steps
-                    current={currentStep}
-                    items={steps}
-                    style={{ marginBottom: 48, padding: '0 24px' }}
-                />
+                <div style={{ overflowX: isMobile ? 'auto' : 'visible', paddingBottom: isMobile ? 8 : 0 }}>
+                    <Steps
+                        current={currentStep}
+                        items={steps}
+                        size={isMobile ? 'small' : 'default'}
+                        responsive={false}
+                        style={{ marginBottom: isMobile ? 24 : 48, padding: isMobile ? 0 : '0 24px', minWidth: isMobile ? 480 : undefined }}
+                    />
+                </div>
 
-                <Row gutter={24}>
+                <Row gutter={[16, 16]}>
                     <Col xs={24} lg={16}>
                         <Card size="small" title="Thông tin chung" style={{ borderRadius: 12, marginBottom: 24 }}>
                             <Descriptions bordered size="small" column={{ xs: 1, sm: 2 }}>
@@ -231,13 +238,13 @@ const AssetAllocationDetail: React.FC = () => {
 
                         <Card size="small" title="Tài sản bàn giao" style={{ borderRadius: 12 }}>
                             <div style={{ padding: 8 }}>
-                                <Row gutter={16} align="middle">
-                                    <Col span={4}>
+                                <Row gutter={[12, 12]} align="middle">
+                                    <Col xs={24} sm={6} style={{ textAlign: isMobile ? 'center' : 'left' }}>
                                         <div style={{ width: 64, height: 64, background: '#f5f5f5', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                             <ToolOutlined style={{ fontSize: 24, color: '#bfbfbf' }} />
                                         </div>
                                     </Col>
-                                    <Col span={20}>
+                                    <Col xs={24} sm={18}>
                                         <Title level={5} style={{ margin: 0 }}>{order.asset_name}</Title>
                                         <Text type="secondary">Mã hiệu: <Text strong>{order.asset_code}</Text></Text>
                                     </Col>
@@ -296,7 +303,7 @@ const AssetAllocationDetail: React.FC = () => {
                 open={isSignatureModalOpen}
                 onCancel={() => setIsSignatureModalOpen(false)}
                 footer={null}
-                width={450}
+                width={isMobile ? 'calc(100vw - 24px)' : 450}
                 destroyOnClose
             >
                 <SiraSignaturePad
@@ -315,7 +322,7 @@ const AssetAllocationDetail: React.FC = () => {
                     <Button key="close" onClick={() => setIsPrintModalOpen(false)}>Đóng</Button>,
                     <Button key="download" type="primary" icon={<DownloadOutlined />} onClick={handleDownloadPDF}>Tải xuống PDF</Button>
                 ]}
-                width={850}
+                width={isMobile ? 'calc(100vw - 24px)' : 850}
                 style={{ top: 20 }}
             >
                 <div style={{ padding: '20px 0', background: '#f5f5f5', display: 'flex', justifyContent: 'center', minHeight: 600 }}>

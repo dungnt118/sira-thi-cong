@@ -37,6 +37,7 @@ const AssetDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const screens = useBreakpoint();
+    const isMobile = !screens.md;
 
     const [loading, setLoading] = useState(true);
     const [asset, setAsset] = useState<IAsset | null>(null);
@@ -114,16 +115,16 @@ const AssetDetail: React.FC = () => {
     ];
 
     return (
-        <div style={{ width: '100%', padding: '0 24px 40px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24, alignItems: 'center' }}>
-                <Space>
+        <div style={{ width: '100%', padding: isMobile ? '0 0 24px' : '0 24px 40px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24, alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+                <Space style={{ minWidth: 0 }}>
                     <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/kt/assets/list')} />
-                    <div>
+                    <div style={{ minWidth: 0 }}>
                         <Text type="secondary" style={{ fontSize: 12 }}>Chi tiết Hồ sơ Tài sản 360°</Text>
-                        <Title level={4} style={{ margin: 0 }}>{asset.name} <Tag color="blue" style={{ marginLeft: 8 }}>{asset.code}</Tag></Title>
+                        <Title level={isMobile ? 5 : 4} style={{ margin: 0, lineHeight: 1.35 }}>{asset.name} <Tag color="blue" style={{ marginLeft: 8 }}>{asset.code}</Tag></Title>
                     </div>
                 </Space>
-                <Space>
+                <Space wrap style={isMobile ? { width: '100%' } : undefined}>
                     <Button icon={<ToolOutlined />} onClick={() => setIsMaintenanceModalOpen(true)}>Tạo Phiếu Bảo trì</Button>
                     <Button type="primary" icon={<EditOutlined />}>Chỉnh sửa</Button>
                 </Space>
@@ -134,8 +135,8 @@ const AssetDetail: React.FC = () => {
                 <Col xs={24} lg={8}>
                     <Card bordered={false} style={{ borderRadius: 12, marginBottom: 16 }}>
                         <div style={{ textAlign: 'center', marginBottom: 24 }}>
-                            <div style={{ width: 120, height: 120, background: '#f5f5f5', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-                                <ToolOutlined style={{ fontSize: 48, color: '#bfbfbf' }} />
+                            <div style={{ width: isMobile ? 96 : 120, height: isMobile ? 96 : 120, background: '#f5f5f5', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                                <ToolOutlined style={{ fontSize: isMobile ? 40 : 48, color: '#bfbfbf' }} />
                             </div>
                             <Tag color={statusInfo.color} icon={statusInfo.icon} style={{ padding: '4px 12px', fontSize: 14 }}>
                                 {statusInfo.label.toUpperCase()}
@@ -152,11 +153,11 @@ const AssetDetail: React.FC = () => {
                     </Card>
 
                     <Card size="small" title="Thống kê tóm tắt" style={{ borderRadius: 12 }}>
-                        <Row gutter={16}>
-                            <Col span={12}>
+                        <Row gutter={[12, 12]}>
+                            <Col xs={24} sm={12}>
                                 <Statistic title="Lượt mượn" value={allocations.length} prefix={<SyncOutlined />} />
                             </Col>
-                            <Col span={12}>
+                            <Col xs={24} sm={12}>
                                 <Statistic title="Lượt bảo trì" value={tickets.length} prefix={<HistoryOutlined />} />
                             </Col>
                         </Row>
@@ -171,19 +172,20 @@ const AssetDetail: React.FC = () => {
                     <Card bodyStyle={{ padding: 0 }} style={{ borderRadius: 12, overflow: 'hidden' }}>
                         <Tabs
                             defaultActiveKey="alloc"
-                            style={{ padding: '0 24px', background: '#fff' }}
+                            style={{ padding: isMobile ? '0 12px' : '0 24px', background: '#fff' }}
                             items={[
                                 {
                                     key: 'alloc',
                                     label: <Space><AuditOutlined />Lịch sử Cấp phát</Space>,
                                     children: (
-                                        <div style={{ padding: '20px 0' }}>
+                                        <div style={{ padding: isMobile ? '16px 0' : '20px 0' }}>
                                             <Table 
                                                 dataSource={allocations} 
                                                 columns={allocColumns} 
                                                 rowKey="_id" 
                                                 pagination={false}
                                                 size="small"
+                                                scroll={{ x: 'max-content' }}
                                             />
                                             {allocations.length === 0 && <Result status="info" title="Chưa có lượt mượn nào" />}
                                         </div>
@@ -193,8 +195,8 @@ const AssetDetail: React.FC = () => {
                                     key: 'maint',
                                     label: <Space><HistoryOutlined />Lịch sử Bảo trì</Space>,
                                     children: (
-                                        <div style={{ padding: '20px 0' }}>
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+                                        <div style={{ padding: isMobile ? '16px 0' : '20px 0' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 12 }}>
                                                 <Title level={5}>Lịch sử bảo dưỡng & Sửa chữa</Title>
                                                 <Button size="small" icon={<PlusOutlined />} onClick={() => setIsMaintenanceModalOpen(true)}>Tạo mới</Button>
                                             </div>
@@ -204,6 +206,7 @@ const AssetDetail: React.FC = () => {
                                                 rowKey="_id" 
                                                 pagination={false}
                                                 size="small"
+                                                scroll={{ x: 'max-content' }}
                                             />
                                         </div>
                                     )

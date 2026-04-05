@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import {
     Card, Row, Col, Typography, Table, Tag, Button,
     Space, Steps, message, Modal,
-    Alert, Descriptions, Result, Spin
+    Alert, Descriptions, Result, Spin, Grid
 } from 'antd';
 import {
     ArrowLeftOutlined, FilePdfOutlined, CheckCircleOutlined,
@@ -33,6 +33,7 @@ import { PdfViewer } from '../../../components/common/PdfViewer';
 import type { HeadlessFileUpload } from 'types/apis/HeadlessFileUpload';
 
 const { Title, Text } = Typography;
+const { useBreakpoint } = Grid;
 
 type SigningRoleUi = 'kt' | 'warehouse' | 'gs';
 
@@ -58,6 +59,8 @@ const StockOrderDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const { user } = useAuth();
+    const screens = useBreakpoint();
+    const isMobile = !screens.md;
 
     const [loading, setLoading] = useState(true);
     const [order, setOrder] = useState<IStockOrder | null>(null);
@@ -136,7 +139,6 @@ const StockOrderDetail: React.FC = () => {
 
     const ResponsiveSteps = () => {
         const current = getCurrentStep(order.status);
-        const isMobile = window.innerWidth < 768;
 
         if (!isMobile) {
             return (
@@ -498,7 +500,7 @@ const StockOrderDetail: React.FC = () => {
     ];
 
     return (
-        <div style={{ width: '100%', padding: '0 4px' }}>
+        <div style={{ width: '100%', padding: isMobile ? '0 0 16px' : '0 4px' }}>
             {/* Hidden component for PDF generation when Modal is closed */}
             <div style={{ position: 'absolute', top: -9999, left: -9999, opacity: 0, pointerEvents: 'none' }}>
                 <div id="stock-order-printable-hidden">
@@ -520,7 +522,7 @@ const StockOrderDetail: React.FC = () => {
                                     whiteSpace: 'nowrap',
                                     overflow: 'hidden',
                                     textOverflow: 'ellipsis',
-                                    maxWidth: '200px' // Đảm bảo không đẩy các nút đi xa
+                                    maxWidth: isMobile ? 'calc(100vw - 172px)' : '200px'
                                 }}
                             >
                                 {order.code || order._id}
@@ -567,7 +569,7 @@ const StockOrderDetail: React.FC = () => {
                         </Descriptions>
 
                         <Text strong style={{ display: 'block', marginBottom: 12 }}>Danh sách vật tư</Text>
-                        {window.innerWidth < 768 ? (
+                        {isMobile ? (
                             <MaterialListMobile />
                         ) : (
                             <Table
@@ -576,7 +578,7 @@ const StockOrderDetail: React.FC = () => {
                                 pagination={false}
                                 size="small"
                                 rowKey={(r: any, i) => `${r.material_id || i}-${i}`}
-                                scroll={{ x: 700 }}
+                                scroll={{ x: 'max-content' }}
                             />
                         )}
                     </Col>
@@ -693,7 +695,7 @@ const StockOrderDetail: React.FC = () => {
                 open={isSignatureModalOpen}
                 onCancel={() => setIsSignatureModalOpen(false)}
                 footer={null}
-                width={450}
+                width={isMobile ? 'calc(100vw - 24px)' : 450}
             >
                 <SiraSignaturePad
                     onSave={(dataUrl, strokeData) => handleSign(dataUrl, strokeData)}
@@ -711,7 +713,7 @@ const StockOrderDetail: React.FC = () => {
                     <Button key="print" icon={<FilePdfOutlined />} onClick={() => window.print()}>In ấn</Button>,
                     <Button key="download" type="primary" icon={<DownloadOutlined />} onClick={handleDownloadPDF}>Tải PDF</Button>
                 ]}
-                width={850}
+                width={isMobile ? 'calc(100vw - 24px)' : 850}
                 style={{ top: 20 }}
                 centered={false}
             >
@@ -725,7 +727,7 @@ const StockOrderDetail: React.FC = () => {
                 open={!!filePreview}
                 title={filePreview?.name}
                 onCancel={() => setFilePreview(null)}
-                width={filePreview?.kind === 'pdf' ? 'min(1200px, 96vw)' : 720}
+                width={filePreview?.kind === 'pdf' ? 'min(1200px, 96vw)' : isMobile ? 'calc(100vw - 24px)' : 720}
                 style={{ top: 0, paddingBottom: 0, margin: '0 auto' }}
                 styles={{
                     content:

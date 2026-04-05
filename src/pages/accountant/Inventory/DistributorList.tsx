@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
-    Table, Button, Space, Modal, Form, Input, Select, Tag, 
-    Typography, Card, message 
+    Table, Button, Space, Modal, Form, Input, Select, Tag,
+    Typography, Card, message, Grid
 } from 'antd';
 import { 
     PlusOutlined, EditOutlined, DeleteOutlined, 
@@ -11,8 +11,11 @@ import { distributorService } from '../../../services/core-contracts/services/di
 import type { IDistributor } from '../../../services/core-contracts/types/distributor.types';
 
 const { Title } = Typography;
+const { useBreakpoint } = Grid;
 
 const DistributorList: React.FC = () => {
+    const screens = useBreakpoint();
+    const isMobile = !screens.md;
     const [loading, setLoading] = useState(false);
     const [distributors, setDistributors] = useState<IDistributor[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -145,8 +148,8 @@ const DistributorList: React.FC = () => {
     const { Text } = Typography;
 
     return (
-        <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px' }}>
+        <div style={{ paddingBottom: isMobile ? 12 : 0 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
                 <Title level={4} style={{ margin: 0 }}><BankOutlined /> Quản lý Nhà phân phối</Title>
                 <Button type="primary" icon={<PlusOutlined />} onClick={() => showModal()}>
                     Thêm mới
@@ -159,8 +162,9 @@ const DistributorList: React.FC = () => {
                     dataSource={distributors} 
                     columns={columns} 
                     rowKey="_id"
-                    pagination={{ pageSize: 15 }}
-                    scroll={{ x: 800 }}
+                    pagination={{ pageSize: 15, size: 'small' }}
+                    scroll={{ x: 'max-content' }}
+                    size={isMobile ? 'small' : 'middle'}
                 />
             </Card>
 
@@ -169,6 +173,7 @@ const DistributorList: React.FC = () => {
                 open={isModalOpen}
                 onOk={handleSave}
                 onCancel={() => setIsModalOpen(false)}
+                width={isMobile ? 'calc(100vw - 24px)' : 520}
                 okText="Lưu"
                 cancelText="Hủy"
             >

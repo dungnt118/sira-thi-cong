@@ -27,9 +27,13 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({ sidebar, topBar }) => {
 
     const siderWidth = 240;
     const collapsedWidth = 80;
+    const mobileDrawerWidth =
+        typeof window !== 'undefined'
+            ? Math.min(280, Math.max(window.innerWidth - 24, 240))
+            : siderWidth;
 
     return (
-        <Layout style={{ minHeight: '100vh' }}>
+        <Layout style={{ minHeight: '100vh', minWidth: 0 }}>
             {/* Desktop Sidebar */}
             {!isMobile && (
                 <Sider
@@ -57,7 +61,7 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({ sidebar, topBar }) => {
                     placement="left"
                     open={mobileOpen}
                     onClose={() => setMobileOpen(false)}
-                    width={siderWidth}
+                    width={mobileDrawerWidth}
                     styles={{
                         body: { padding: 0, background: '#001529' },
                         header: { display: 'none' }
@@ -71,6 +75,7 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({ sidebar, topBar }) => {
 
             <Layout
                 style={{
+                    minWidth: 0,
                     marginLeft: isMobile ? 0 : (collapsed ? collapsedWidth : siderWidth),
                     transition: 'margin-left 0.2s',
                 }}
@@ -83,9 +88,11 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({ sidebar, topBar }) => {
                         top: 0,
                         zIndex: 1,
                         width: '100%',
+                        minWidth: 0,
                         boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                         display: 'flex',
                         alignItems: 'center',
+                        paddingRight: isMobile ? 8 : 0,
                     }}
                 >
                     {isMobile && (
@@ -101,11 +108,19 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({ sidebar, topBar }) => {
                             }}
                         />
                     )}
-                    <div style={{ flex: 1, overflow: 'hidden' }}>
+                    <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
                         {topBar}
                     </div>
                 </Header>
-                <Content style={{ margin: isMobile ? '0 2px 8px' : '0 16px 24px', padding: isMobile ? 12 : 24, background: '#f0f2f5' }}>
+                <Content
+                    style={{
+                        minWidth: 0,
+                        width: '100%',
+                        margin: isMobile ? '0 0 12px' : '0 16px 24px',
+                        padding: isMobile ? '12px 12px 16px' : 24,
+                        background: '#f0f2f5',
+                    }}
+                >
                     <Breadcrumbs />
                     <Outlet />
                 </Content>

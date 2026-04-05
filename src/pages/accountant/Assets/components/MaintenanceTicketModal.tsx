@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
-import { Modal, Form, Input, InputNumber, Select, DatePicker, message, Row, Col } from 'antd';
+import { Modal, Form, Input, InputNumber, Select, DatePicker, message, Row, Col, Grid } from 'antd';
 import { assetMaintenanceTicketService } from '../../../../services/core-contracts/services/assetMaintenanceTicket.service';
 import type { ICreateAssetMaintenanceTicketInput, AssetMaintenanceTicketStatusEnum } from '../../../../services/core-contracts/types/assetMaintenanceTicket.types';
 import dayjs from 'dayjs';
 
 const { Option } = Select;
+const { useBreakpoint } = Grid;
 
 interface MaintenanceTicketModalProps {
     open: boolean;
@@ -25,6 +26,8 @@ const MaintenanceTicketModal: React.FC<MaintenanceTicketModalProps> = ({
     open, onCancel, onSuccess, initialValues, assetId 
 }) => {
     const [form] = Form.useForm();
+    const screens = useBreakpoint();
+    const isMobile = !screens.md;
 
     useEffect(() => {
         if (open) {
@@ -70,7 +73,7 @@ const MaintenanceTicketModal: React.FC<MaintenanceTicketModalProps> = ({
             open={open}
             onOk={handleOk}
             onCancel={onCancel}
-            width={600}
+            width={isMobile ? 'calc(100vw - 24px)' : 600}
             destroyOnClose
         >
             <Form form={form} layout="vertical">
@@ -79,12 +82,12 @@ const MaintenanceTicketModal: React.FC<MaintenanceTicketModalProps> = ({
                 </Form.Item>
                 
                 <Row gutter={16}>
-                    <Col span={12}>
+                    <Col xs={24} sm={12}>
                         <Form.Item name="code" label="Mã phiếu bảo trì">
                             <Input placeholder="Tự động nếu để trống" />
                         </Form.Item>
                     </Col>
-                    <Col span={12}>
+                    <Col xs={24} sm={12}>
                         <Form.Item name="status" label="Trạng thái" rules={[{ required: true }]}>
                             <Select>
                                 {STATUS_OPTIONS.map(opt => (
@@ -96,12 +99,12 @@ const MaintenanceTicketModal: React.FC<MaintenanceTicketModalProps> = ({
                 </Row>
 
                 <Row gutter={16}>
-                    <Col span={12}>
+                    <Col xs={24} sm={12}>
                         <Form.Item name="maintenance_date" label="Ngày bảo trì" rules={[{ required: true }]}>
                             <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" />
                         </Form.Item>
                     </Col>
-                    <Col span={12}>
+                    <Col xs={24} sm={12}>
                         <Form.Item name="cost_amount" label="Chi phí dự kiến/thực tế (đ)">
                             <InputNumber 
                                 style={{ width: '100%' }} 

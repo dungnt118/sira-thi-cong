@@ -367,13 +367,13 @@ const AssetsDashboard: React.FC = () => {
                 <Tabs
                     activeKey={activeTab}
                     onChange={setActiveTab}
-                    style={{ padding: '0 24px', background: '#fff', borderBottom: '1px solid #f0f0f0' }}
+                    style={{ padding: isMobile ? '0 12px' : '0 24px', background: '#fff', borderBottom: '1px solid #f0f0f0' }}
                     items={[
                         {
                             key: 'groups',
                             label: `Nhóm tài sản (${groupPagination.total})`,
                             children: (
-                                <div style={{ padding: '20px 24px' }}>
+                                <div style={{ padding: isMobile ? '16px 12px' : '20px 24px' }}>
                                     <Table 
                                         columns={groupColumns} 
                                         dataSource={groups} 
@@ -384,6 +384,7 @@ const AssetsDashboard: React.FC = () => {
                                             onChange: (p, s) => fetchGroups(p, s)
                                         }}
                                         size="small"
+                                        scroll={{ x: 'max-content' }}
                                     />
                                 </div>
                             )
@@ -392,8 +393,8 @@ const AssetsDashboard: React.FC = () => {
                             key: 'all',
                             label: `Tất cả tài sản (${assetPagination.total})`,
                             children: (
-                                <div style={{ padding: '20px 24px' }}>
-                                    <div style={{ marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div style={{ padding: isMobile ? '16px 12px' : '20px 24px' }}>
+                                    <div style={{ marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
                                         <Input 
                                             placeholder="Tìm theo Serial, mã hoặc tên tài sản..." 
                                             prefix={<SearchOutlined />} 
@@ -471,12 +472,12 @@ const AssetsDashboard: React.FC = () => {
                 open={isAssetModalOpen}
                 onOk={handleSaveAsset}
                 onCancel={() => setIsAssetModalOpen(false)}
-                width={700}
+                width={isMobile ? 'calc(100vw - 24px)' : 700}
                 destroyOnClose
             >
                 <Form form={assetForm} layout="vertical">
                     <Row gutter={16}>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             <Form.Item name="group_id" label="Nhóm tài sản" rules={[{ required: true }]}>
                                 <Select placeholder="Chọn nhóm">
                                     {groups.map(g => (
@@ -485,26 +486,26 @@ const AssetsDashboard: React.FC = () => {
                                 </Select>
                             </Form.Item>
                         </Col>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             <Form.Item name="code" label="Mã tài sản / Số hiệu" rules={[{ required: true }]}>
                                 <Input placeholder="VD: Bosch-001" />
                             </Form.Item>
                         </Col>
                     </Row>
                     <Row gutter={16}>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             <Form.Item name="name" label="Tên chi tiết tài sản" rules={[{ required: true }]}>
                                 <Input placeholder="VD: Máy khoan Bosch GBH 2-24 DRE" />
                             </Form.Item>
                         </Col>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             <Form.Item name="serial_number" label="Số Serial">
                                 <Input placeholder="VD: SN123456" />
                             </Form.Item>
                         </Col>
                     </Row>
                     <Row gutter={16}>
-                        <Col span={8}>
+                        <Col xs={24} sm={8}>
                             <Form.Item name="status" label="Trạng thái">
                                 <Select>
                                     {Object.entries(STATUS_CONFIG).map(([k, v]) => (
@@ -513,24 +514,24 @@ const AssetsDashboard: React.FC = () => {
                                 </Select>
                             </Form.Item>
                         </Col>
-                        <Col span={8}>
+                        <Col xs={24} sm={8}>
                             <Form.Item name="cost" label="Nguyên giá (VNĐ)" rules={[{ required: true }]}>
                                 <InputNumber style={{ width: '100%' }} formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} parser={v => v!.replace(/\$\s?|(,*)/g, '')} />
                             </Form.Item>
                         </Col>
-                        <Col span={8}>
+                        <Col xs={24} sm={8}>
                             <Form.Item name="purchase_date" label="Ngày nhập">
                                 <Input type="date" style={{ width: '100%' }} />
                             </Form.Item>
                         </Col>
                     </Row>
                     <Row gutter={16}>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             <Form.Item name="assigned_to" label="Người giữ / Địa điểm">
                                 <Input placeholder="VD: Nguyễn Văn A - Công trình A" />
                             </Form.Item>
                         </Col>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             <Form.Item name="condition" label="Tình trạng hiện tại">
                                 <Input placeholder="VD: Mới 100%, Đã qua sử dụng..." />
                             </Form.Item>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Card, Row, Col, Statistic, Typography, Space, Button, Alert, Spin } from 'antd';
+import { Card, Row, Col, Statistic, Typography, Space, Button, Alert, Spin, Grid } from 'antd';
 import {
     InboxOutlined,
     ToolOutlined,
@@ -26,6 +26,7 @@ import { stockOrderService } from '../../services/core-contracts/services/stockO
 import type { StockOrderStatusEnum } from '../../services/core-contracts/types/stockOrder.types';
 
 const { Title, Paragraph, Text } = Typography;
+const { useBreakpoint } = Grid;
 
 const STOCK_ORDER_CLOSED: StockOrderStatusEnum[] = ['completed', 'cancelled'];
 
@@ -37,6 +38,8 @@ const DASHBOARD_QUERY_LIMIT = 10000;
  */
 const AccountantOverviewDashboard: React.FC = () => {
     const navigate = useNavigate();
+    const screens = useBreakpoint();
+    const isMobile = !screens.md;
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -108,7 +111,8 @@ const AccountantOverviewDashboard: React.FC = () => {
             hoverable
             size="small"
             style={{
-                width: 140,
+                width: isMobile ? 'calc(50% - 4px)' : 140,
+                minWidth: isMobile ? 140 : undefined,
                 textAlign: 'center',
                 border: `1px solid ${color}20`,
                 borderRadius: 8,
@@ -143,7 +147,7 @@ const AccountantOverviewDashboard: React.FC = () => {
                             <Text strong>QL Vật tư → Danh mục vật tư</Text>.
                         </Paragraph>
                     </div>
-                    <Button icon={<ReloadOutlined />} onClick={loadOverview} loading={loading}>
+                    <Button icon={<ReloadOutlined />} onClick={loadOverview} loading={loading} block={isMobile}>
                         Làm mới
                     </Button>
                 </div>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
     Table, Card, Tag, Button, Space, Typography,
     Row, Col, Statistic, Tooltip, Badge, Empty,
-    Popconfirm, message, Modal, Form, Input, Select, Switch
+    Popconfirm, message, Modal, Form, Input, Select, Switch, Grid
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
@@ -15,8 +15,11 @@ import type { ICompanyBankAccount, ICreateCompanyBankAccountInput } from '../../
 
 const { Title, Text } = Typography;
 const { Option } = Select;
+const { useBreakpoint } = Grid;
 
 const CompanyBankAccountList: React.FC = () => {
+    const screens = useBreakpoint();
+    const isMobile = !screens.md;
     const [form] = Form.useForm();
     const [data, setData] = useState<ICompanyBankAccount[]>([]);
     const [loading, setLoading] = useState(false);
@@ -164,8 +167,8 @@ const CompanyBankAccountList: React.FC = () => {
     ];
 
     return (
-        <div style={{ padding: '0 0' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+        <div style={{ padding: '0 0 12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
                 <Title level={4} style={{ margin: 0 }}>🏦 Tài khoản Ngân hàng Công ty</Title>
                 <Button type="primary" icon={<PlusOutlined />} onClick={() => handleOpenModal()}>Thêm tài khoản mới</Button>
             </div>
@@ -207,8 +210,9 @@ const CompanyBankAccountList: React.FC = () => {
                 dataSource={data}
                 loading={loading}
                 rowKey="_id"
-                size="middle"
+                size={isMobile ? 'small' : 'middle'}
                 pagination={false}
+                scroll={{ x: 'max-content' }}
                 locale={{ emptyText: <Empty description="Chưa có thông tin tài khoản ngân hàng" /> }}
             />
 
@@ -220,16 +224,16 @@ const CompanyBankAccountList: React.FC = () => {
                     <Button key="cancel" onClick={() => setIsModalOpen(false)}>Hủy</Button>,
                     <Button key="submit" type="primary" icon={<SaveOutlined />} loading={saving} onClick={handleSave}>Lưu thông tin</Button>
                 ]}
-                width={600}
+                width={isMobile ? 'calc(100vw - 24px)' : 600}
             >
                 <Form form={form} layout="vertical">
                     <Row gutter={16}>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             <Form.Item name="bank_name" label="Tên ngân hàng" rules={[{ required: true }]}>
                                 <Input placeholder="VD: Vietcombank, Techcombank..." />
                             </Form.Item>
                         </Col>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             <Form.Item name="code" label="Mã định danh">
                                 <Input placeholder="VD: VCB-MAIN" />
                             </Form.Item>
@@ -239,12 +243,12 @@ const CompanyBankAccountList: React.FC = () => {
                         <Input placeholder="VD: CONG TY TNHH LAM BAC" />
                     </Form.Item>
                     <Row gutter={16}>
-                        <Col span={16}>
+                        <Col xs={24} sm={16}>
                             <Form.Item name="account_number" label="Số tài khoản" rules={[{ required: true }]}>
                                 <Input placeholder="Nhập số tài khoản ngân hàng" />
                             </Form.Item>
                         </Col>
-                        <Col span={8}>
+                        <Col xs={24} sm={8}>
                             <Form.Item name="currency" label="Tiền tệ" rules={[{ required: true }]}>
                                 <Select>
                                     <Option value="vnd">VND</Option>
@@ -258,7 +262,7 @@ const CompanyBankAccountList: React.FC = () => {
                         <Input placeholder="VD: CN Hoàn Kiếm, Hà Nội" />
                     </Form.Item>
                     <Row gutter={16}>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             <Form.Item name="status" label="Trạng thái" rules={[{ required: true }]}>
                                 <Select>
                                     <Option value="active">Đang hoạt động</Option>
@@ -266,7 +270,7 @@ const CompanyBankAccountList: React.FC = () => {
                                 </Select>
                             </Form.Item>
                         </Col>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             <Form.Item name="is_default" label="Tài khoản mặc định" valuePropName="checked">
                                 <Switch />
                             </Form.Item>

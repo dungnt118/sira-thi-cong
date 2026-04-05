@@ -1,5 +1,5 @@
 import React from 'react';
-import { Menu, Badge, Space } from 'antd';
+import { Menu, Badge, Space, Grid } from 'antd';
 import type { MenuProps } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
@@ -109,6 +109,8 @@ const AccountantSidebar: React.FC = () => {
 };
 
 const AccountantTopBar: React.FC = () => {
+    const screens = Grid.useBreakpoint();
+    const isMobile = !screens.md;
     // User menu logic moved to shared UserMenu component
 
     return (
@@ -119,9 +121,9 @@ const AccountantTopBar: React.FC = () => {
                 justifyContent: 'space-between',
                 width: '100%',
                 minWidth: 0,
-                padding: '0 24px',
+                padding: isMobile ? '0 8px 0 4px' : '0 24px',
                 height: '100%',
-                gap: 12,
+                gap: isMobile ? 8 : 12,
             }}
         >
             <div
@@ -145,7 +147,7 @@ const AccountantTopBar: React.FC = () => {
                         alignItems: 'center',
                         justifyContent: 'center',
                         color: '#fff',
-                        fontSize: 20,
+                        fontSize: isMobile ? 18 : 20,
                         fontWeight: 'bold',
                     }}
                 >
@@ -153,7 +155,7 @@ const AccountantTopBar: React.FC = () => {
                 </div>
                 <span
                     style={{
-                        fontSize: 16,
+                        fontSize: isMobile ? 14 : 16,
                         fontWeight: 600,
                         color: '#52c41a',
                         overflow: 'hidden',
@@ -165,9 +167,9 @@ const AccountantTopBar: React.FC = () => {
                     Lam Bac – Kế toán
                 </span>
             </div>
-            <Space size={24} style={{ minWidth: 0, flex: '0 1 auto' }}>
+            <Space size={isMobile ? 12 : 24} style={{ minWidth: 0, flex: '0 1 auto' }}>
                 <Badge count={3} offset={[-5, 5]}>
-                    <BellOutlined style={{ fontSize: 20, cursor: 'pointer' }} />
+                    <BellOutlined style={{ fontSize: isMobile ? 18 : 20, cursor: 'pointer' }} />
                 </Badge>
                 <UserMenu avatarColor="#52c41a" />
             </Space>

@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import {
     Form, Input, Select, InputNumber, Button, Card,
     Typography, Space, Row, Col, message,
-    Radio, Table, Divider, Tag
+    Radio, Table, Divider, Tag, Grid
 } from 'antd';
 import {
     PlusOutlined, SaveOutlined, ArrowLeftOutlined,
@@ -21,11 +21,14 @@ import type { IStockOrder, IItemsItem } from '../../../services/core-contracts/t
 import { useAuth } from '../../../hooks/useAuth';
 
 const { Title, Text } = Typography;
+const { useBreakpoint } = Grid;
 
 const InboundForm: React.FC = () => {
     const navigate = useNavigate();
     const [form] = Form.useForm();
     const { user } = useAuth();
+    const screens = useBreakpoint();
+    const isMobile = !screens.md;
     const [sourceType, setSourceType] = useState<'distributor' | 'journey'>('distributor');
 
     const [loading, setLoading] = useState(false);
@@ -184,18 +187,18 @@ const InboundForm: React.FC = () => {
     ];
 
     return (
-        <div>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
-                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/kt/inventory')} style={{ marginRight: '16px' }} />
+        <div style={{ padding: isMobile ? '0 0 12px' : 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
+                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/kt/inventory')} style={{ marginRight: isMobile ? 0 : 16 }} />
                 <Title level={4} style={{ margin: 0 }}>📋 Phiếu Nhập Kho</Title>
             </div>
 
-            <Row gutter={24}>
-                <Col span={18}>
+            <Row gutter={[16, 16]}>
+                <Col xs={24} lg={17}>
                     <Card title="Thông tin mặt hàng" style={{ marginBottom: '24px' }}>
                         <Form form={form} layout="vertical">
-                            <Row gutter={12}>
-                                <Col span={8}>
+                            <Row gutter={[12, 12]}>
+                                <Col xs={24} lg={10}>
                                     <Form.Item name="material_id" label="Chọn vật tư">
                                         <Select
                                             showSearch
@@ -223,10 +226,10 @@ const InboundForm: React.FC = () => {
                                         </Select>
                                     </Form.Item>
                                 </Col>
-                                <Col span={16}>
-                                    <Row gutter={8} align="bottom">
+                                <Col xs={24} lg={14}>
+                                    <Row gutter={[8, 8]} align="bottom">
                                         {sourceType === 'journey' && (
-                                            <Col span={6}>
+                                            <Col xs={24} sm={8} md={6}>
                                                 <Form.Item name="is_partial" valuePropName="checked" label=" ">
                                                     <Button
                                                         type={Form.useWatch('is_partial', form) ? 'primary' : 'default'}
@@ -238,7 +241,7 @@ const InboundForm: React.FC = () => {
                                                 </Form.Item>
                                             </Col>
                                         )}
-                                        <Col span={Form.useWatch('is_partial', form) ? 5 : 6}>
+                                        <Col xs={12} sm={8} md={sourceType === 'journey' && Form.useWatch('is_partial', form) ? 5 : 6}>
                                             {Form.useWatch('is_partial', form) ? (
                                                 <Form.Item name="remaining_quantity" label="Lượng lẻ" rules={[{ required: true }]}>
                                                     <InputNumber min={0.1} style={{ width: '100%' }} placeholder="Kg/Lit" />
@@ -249,7 +252,7 @@ const InboundForm: React.FC = () => {
                                                 </Form.Item>
                                             )}
                                         </Col>
-                                        <Col span={6}>
+                                        <Col xs={12} sm={8} md={6}>
                                             <Form.Item name="unit_cost" label="Đơn giá nhập">
                                                 <InputNumber
                                                     min={0}
@@ -259,7 +262,7 @@ const InboundForm: React.FC = () => {
                                                 />
                                             </Form.Item>
                                         </Col>
-                                        <Col span={6}>
+                                        <Col xs={24} sm={8} md={6}>
                                             <Form.Item label="Thành tiền VNĐ">
                                                 <InputNumber
                                                     disabled
@@ -289,15 +292,16 @@ const InboundForm: React.FC = () => {
                             columns={itemColumns}
                             pagination={false}
                             size="small"
+                            scroll={{ x: 'max-content' }}
                         />
                     </Card>
                 </Col>
 
-                <Col span={6}>
+                <Col xs={24} lg={7}>
                     <Card title="Nguồn nhập" size="small">
                         <Form form={form} layout="vertical">
                             <Form.Item label="Hình thức">
-                                <Radio.Group value={sourceType} onChange={e => setSourceType(e.target.value)} size="small" style={{ width: '100%', textAlign: 'center' }}>
+                                <Radio.Group value={sourceType} onChange={e => setSourceType(e.target.value)} size={isMobile ? 'middle' : 'small'} style={{ width: '100%', textAlign: 'center' }}>
                                     <Radio.Button value="distributor" style={{ width: '50%' }}>Từ NPP</Radio.Button>
                                     <Radio.Button value="journey" style={{ width: '50%' }}>Hành trình</Radio.Button>
                                 </Radio.Group>
@@ -335,14 +339,14 @@ const InboundForm: React.FC = () => {
                                 <Input.TextArea rows={2} placeholder="Ghi chú..." />
                             </Form.Item>
 
-                            <div style={{ marginTop: '16px', borderTop: '1px solid #eee', paddingTop: '16px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                            <div style={{ marginTop: 16, borderTop: '1px solid #eee', paddingTop: 16 }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, gap: 12, flexWrap: 'wrap' }}>
                                     <Text type="secondary">Tổng tiền:</Text>
                                     <Text strong style={{ fontSize: '16px', color: '#f5222d' }}>
                                         {selectedItems.reduce((sum, item) => sum + (item.total || 0), 0).toLocaleString('vi-VN')}đ
                                     </Text>
                                 </div>
-                                <Button type="primary" block size="large" icon={<SaveOutlined />} onClick={handleSubmit}>
+                                <Button type="primary" block size="large" icon={<SaveOutlined />} onClick={handleSubmit} style={{ minHeight: isMobile ? 48 : undefined }}>
                                     Hoàn tất
                                 </Button>
                             </div>

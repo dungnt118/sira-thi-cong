@@ -445,7 +445,7 @@ const InventoryDashboard: React.FC = () => {
                 open={isSkuModalOpen}
                 onOk={handleSaveSku}
                 onCancel={() => setIsSkuModalOpen(false)}
-                width={500}
+                width={isNarrow ? 'calc(100vw - 24px)' : 500}
             >
                 <Alert
                     message={`SKU này sẽ kế thừa ĐVT cơ sở (${selectedGroup?.base_unit}) và ĐVT đóng gói (${selectedGroup?.package_unit}) từ Nhóm.`}

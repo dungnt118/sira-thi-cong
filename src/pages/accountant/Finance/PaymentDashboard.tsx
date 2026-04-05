@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
     Card, Row, Col, Table, Tag, Button, Statistic, Alert, Typography,
-    Modal, Progress, Divider
+    Modal, Progress, Divider, Grid
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
@@ -11,6 +11,7 @@ import { mockMilestones } from '../../../data/mockData';
 import type { PaymentMilestone, MilestoneStatus } from '../../../types/v3';
 
 const { Title, Text } = Typography;
+const { useBreakpoint } = Grid;
 
 const STATUS_CONFIG: Record<MilestoneStatus, { label: string; color: string }> = {
     PENDING: { label: '⏳ Chờ thu', color: 'warning' },
@@ -19,6 +20,8 @@ const STATUS_CONFIG: Record<MilestoneStatus, { label: string; color: string }> =
 };
 
 const PaymentDashboard: React.FC = () => {
+    const screens = useBreakpoint();
+    const isMobile = !screens.md;
     const [confirmModal, setConfirmModal] = useState(false);
     const [selectedMilestone, setSelectedMilestone] = useState<PaymentMilestone | null>(null);
 
@@ -101,8 +104,8 @@ const PaymentDashboard: React.FC = () => {
     ];
 
     return (
-        <div style={{ padding: '0 4px' }}>
-            <Title level={4} style={{ marginBottom: 24 }}>💰 Theo dõi Thanh toán</Title>
+        <div style={{ padding: isMobile ? '0 0 16px' : '0 4px' }}>
+            <Title level={isMobile ? 5 : 4} style={{ marginBottom: 24 }}>💰 Theo dõi Thanh toán</Title>
 
             {/* KPI */}
             <Row gutter={[12, 12]} style={{ marginBottom: 24 }}>
@@ -196,8 +199,8 @@ const PaymentDashboard: React.FC = () => {
             <Modal
                 title={<><CheckCircleOutlined style={{ color: '#52c41a' }} /> Xác nhận thu tiền</>}
                 open={confirmModal}
-                width={window.innerWidth < 640 ? '95%' : 520}
-                centered={window.innerWidth < 640}
+                width={isMobile ? 'calc(100vw - 24px)' : 520}
+                centered={isMobile}
                 onCancel={() => setConfirmModal(false)}
                 onOk={() => {
                     setConfirmModal(false);

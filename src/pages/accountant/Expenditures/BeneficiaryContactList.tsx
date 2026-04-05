@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
     Table, Card, Tag, Button, Space, Typography,
     Avatar, Input, Row, Col, Badge, Empty,
-    Tooltip, Popconfirm, message, Modal, Form, Select, Switch
+    Tooltip, Popconfirm, message, Modal, Form, Select, Switch, Grid
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
@@ -17,8 +17,11 @@ import type { IBeneficiaryBankContact, ICreateBeneficiaryBankContactInput } from
 
 const { Title, Text } = Typography;
 const { Option } = Select;
+const { useBreakpoint } = Grid;
 
 const BeneficiaryContactList: React.FC = () => {
+    const screens = useBreakpoint();
+    const isMobile = !screens.md;
     const [form] = Form.useForm();
     const [data, setData] = useState<IBeneficiaryBankContact[]>([]);
     const [loading, setLoading] = useState(false);
@@ -195,8 +198,8 @@ const BeneficiaryContactList: React.FC = () => {
     ];
 
     return (
-        <div style={{ padding: '0 0' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+        <div style={{ padding: '0 0 12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
                 <Title level={4} style={{ margin: 0 }}>👥 Danh bạ Tài khoản thụ hưởng</Title>
                 <Button type="primary" icon={<TeamOutlined />} onClick={() => handleOpenModal()}>Thêm thụ hưởng mới</Button>
             </div>
@@ -212,7 +215,7 @@ const BeneficiaryContactList: React.FC = () => {
                         />
                     </Col>
                     <Col xs={24} md={12} style={{ textAlign: 'right' }}>
-                        <Space>
+                        <Space wrap>
                             <Badge count={data.filter(i => i.is_frequent).length} offset={[-2, 2]}>
                                 <Tag color="gold" icon={<StarFilled />} style={{ cursor: 'pointer' }}>Thường xuyên</Tag>
                             </Badge>
@@ -227,8 +230,9 @@ const BeneficiaryContactList: React.FC = () => {
                 dataSource={filteredData}
                 loading={loading}
                 rowKey="_id"
-                size="middle"
+                size={isMobile ? 'small' : 'middle'}
                 pagination={{ pageSize: 10 }}
+                scroll={{ x: 'max-content' }}
                 locale={{ emptyText: <Empty description="Chưa có danh bạ người thụ hưởng" /> }}
             />
 
@@ -240,16 +244,16 @@ const BeneficiaryContactList: React.FC = () => {
                     <Button key="cancel" onClick={() => setIsModalOpen(false)}>Hủy</Button>,
                     <Button key="submit" type="primary" icon={<SaveOutlined />} loading={saving} onClick={handleSave}>Lưu danh bạ</Button>
                 ]}
-                width={700}
+                width={isMobile ? 'calc(100vw - 24px)' : 700}
             >
                 <Form form={form} layout="vertical">
                     <Row gutter={16}>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             <Form.Item name="contact_name" label="Họ tên / Đơn vị thụ hưởng" rules={[{ required: true }]}>
                                 <Input placeholder="VD: Nguyễn Văn A, Công ty X..." />
                             </Form.Item>
                         </Col>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             <Form.Item name="contact_type" label="Phân loại" rules={[{ required: true }]}>
                                 <Select>
                                     <Option value="supplier">Nhà cung cấp</Option>
@@ -262,12 +266,12 @@ const BeneficiaryContactList: React.FC = () => {
                         </Col>
                     </Row>
                     <Row gutter={16}>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             <Form.Item name="phone" label="Số điện thoại">
                                 <Input placeholder="0901234xxx" />
                             </Form.Item>
                         </Col>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             <Form.Item name="email" label="Email" rules={[{ type: 'email', message: 'Email không hợp lệ' }]}>
                                 <Input placeholder="example@gmail.com" />
                             </Form.Item>
@@ -277,24 +281,24 @@ const BeneficiaryContactList: React.FC = () => {
                     <Title level={5} style={{ marginTop: 8, borderBottom: '1px solid #f0f0f0', paddingBottom: 8 }}>Thông tin Ngân hàng</Title>
                     
                     <Row gutter={16}>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             <Form.Item name="bank_name" label="Tên ngân hàng" rules={[{ required: true }]}>
                                 <Input placeholder="VD: Vietcombank, MB Bank..." />
                             </Form.Item>
                         </Col>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             <Form.Item name="branch_name" label="Chi nhánh">
                                 <Input placeholder="VD: CN Gia Định" />
                             </Form.Item>
                         </Col>
                     </Row>
                     <Row gutter={16}>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             <Form.Item name="bank_account_number" label="Số tài khoản" rules={[{ required: true }]}>
                                 <Input placeholder="Nhập số tài khoản thụ hưởng" />
                             </Form.Item>
                         </Col>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             <Form.Item name="bank_account_name" label="Tên chủ tài khoản" rules={[{ required: true }]}>
                                 <Input placeholder="VD: NGUYEN VAN A" />
                             </Form.Item>
@@ -302,12 +306,12 @@ const BeneficiaryContactList: React.FC = () => {
                     </Row>
 
                     <Row gutter={16}>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             <Form.Item name="identity_no" label="Số CMND/CCCD/Hộ chiếu">
                                 <Input placeholder="Nhập số định danh" />
                             </Form.Item>
                         </Col>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             <Form.Item name="tax_code" label="Mã số thuế">
                                 <Input placeholder="Nhập MST (nếu có)" />
                             </Form.Item>
