@@ -45,7 +45,6 @@ const menuItems: MenuItem[] = [
         label: 'Hành trình Khách hàng',
         children: [
             { key: '/ql/journeys', label: 'Danh sách yêu cầu', icon: <UnorderedListOutlined /> },
-            { key: '/ql/journeys', label: 'Danh sách yêu cầu', icon: <UnorderedListOutlined /> },
             { key: '/ql/crm/customers', label: 'Danh sách Khách hàng', icon: <TeamOutlined /> },
             { key: '/ql/crm/customers/new', label: 'Thêm Khách hàng mới', icon: <UserAddOutlined /> },
             { key: '/ql/settings/customer-journey', label: 'Cấu hình CustomerJourney', icon: <SettingOutlined /> },

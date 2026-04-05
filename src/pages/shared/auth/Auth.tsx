@@ -33,7 +33,8 @@ type AuthProps = PropsWithChildren<{
 const isPublicPath = (pathname: string) =>
   pathname.startsWith('/login') ||
   pathname.startsWith('/documents') ||
-  pathname.startsWith('/portal');
+  pathname.startsWith('/portal') ||
+  pathname === '/portal';
 
 const getCurrentPathname = () => window.location.pathname;
 

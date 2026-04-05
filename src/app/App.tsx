@@ -147,9 +147,19 @@ import elsagaService from '@/services/authenticationService';
 import { getCurrentRole } from '@/utils/authUtils';
 
 const RootRedirect = () => {
-    const { isAuthenticated, session } = useAuth();
+    const { isAuthenticated, session, role } = useAuth();
 
     if (isAuthenticated) {
+        // If user has a specific welcome_url, use it. 
+        // Otherwise, if role is guest or unknown, default to /portal
+        if (session?.welcome_url && session.welcome_url !== '/l/welcome') {
+            return <Navigate to={session.welcome_url} replace />;
+        }
+        
+        if (!role || role.toLowerCase() === 'guest') {
+            return <Navigate to="/portal" replace />;
+        }
+
         return <Navigate to={session?.welcome_url ?? '/l/welcome'} replace />;
     }
 
@@ -196,6 +206,7 @@ function App() {
 
                                     <Route path="/documents" element={<DocumentationPage />} />
                                     <Route path="/login" element={<Login />} />
+                                    <Route path="/portal" element={<CustomerPortal />} />
                                     <Route path="/portal/:token" element={<CustomerPortal />} />
                                     <Route path="/portal/:token/timeline" element={<PublishedTimeline />} />
                                     <Route path="/portal/:token/documents" element={<PortalDocuments />} />
