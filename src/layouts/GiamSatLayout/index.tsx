@@ -20,10 +20,12 @@ export const GiamSatLayout: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const { role } = useAuth();
+    const { role, availableRoles } = useAuth();
+    const hasGSRole = availableRoles?.includes('GS') || role === 'GS';
 
     React.useEffect(() => {
-        if (role && role !== 'GS') {
+        // If user doesn't have GS role, redirect them to their primary dashboard
+        if (!hasGSRole && role) {
             navigate(`/${role.toLowerCase()}/dashboard`);
             return;
         }
@@ -31,7 +33,7 @@ export const GiamSatLayout: React.FC = () => {
         if (!role) {
             navigate('/login');
         }
-    }, [navigate, role]);
+    }, [navigate, role, hasGSRole]);
 
     const navTabs = [
         { key: '/gs/dashboard', icon: <HomeOutlined />, label: 'Trang chủ' },
@@ -71,7 +73,13 @@ export const GiamSatLayout: React.FC = () => {
                         <div
                             key={tab.key}
                             className={`bottom-nav-tab ${isActive ? 'active' : ''}`}
-                            onClick={() => navigate(tab.key === '/gs/profile' ? '/personal/profile' : tab.key)}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                const targetPath = tab.key === '/gs/profile' ? '/personal/profile' : tab.key;
+                                console.log('Bottom Nav navigating to:', targetPath);
+                                navigate(targetPath);
+                            }}
                         >
                             <span className="tab-icon">{tab.icon}</span>
                             <span className="tab-label">{tab.label}</span>

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { 
     Card, Form, Input, Button, Result, Space, Divider, 
     Typography, Progress, Timeline, Image, Row, Col, 
-    Alert, InputNumber, message, Spin, Empty, Avatar, Tag 
+    Alert, InputNumber, App, Spin, Empty, Avatar, Tag 
 } from 'antd';
 import { 
     SaveOutlined, EditOutlined, EyeOutlined, RocketOutlined, 
@@ -33,6 +33,7 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
     onEditStateChange 
 }) => {
     const { isAdmin } = useAuth();
+    const { message, notification } = App.useApp();
     const [form] = Form.useForm();
     const [isEditing, setIsEditing] = useState(false);
     const [reports, setReports] = useState<ISiteReport[]>([]);
@@ -80,25 +81,32 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
         if (!journeyId) return;
         setIsSubmitting(true);
         try {
-            await siteReportService.createSiteReport({
+            const response = await siteReportService.createSiteReport({
                 journey_id: journeyId,
                 journey_step_code: 'project_execution',
                 content: values.notes,
-                progress_pct: values.progress,
+                progress_pct: Number(values.progress),
                 title: `Nhật ký ngày ${new Date().toLocaleDateString('vi-VN')}`,
                 medias: values.medias || []
             });
             
-            message.success('Đã lưu nhật ký mới');
-            setIsEditing(false);
-            if (onEditStateChange) onEditStateChange(false);
-            form.resetFields();
-            
-            await fetchReports();
-            if (onSave) onSave(values);
-        } catch (error) {
+            if (response) {
+                message.success('Đã lưu nhật ký mới thành công');
+                setIsEditing(false);
+                if (onEditStateChange) onEditStateChange(false);
+                form.resetFields();
+                await fetchReports();
+                if (onSave) onSave(values);
+            } else {
+                throw new Error('Không nhận được phản hồi từ hệ thống');
+            }
+        } catch (error: any) {
             console.error('Failed to save site report:', error);
-            message.error('Lỗi khi lưu nhật ký thi công');
+            notification.error({
+                message: 'Lỗi lưu nhật ký',
+                description: error?.message || 'Không thể kết nối đến máy chủ hoặc dữ liệu không hợp lệ.',
+                placement: 'top'
+            });
         } finally {
             setIsSubmitting(false);
         }
@@ -292,9 +300,11 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
                             <InputNumber 
                                 min={lastProgress} 
                                 max={100} 
+                                step={1}
+                                precision={0}
                                 style={{ width: '100%' }} 
                                 addonAfter="%"
-                                placeholder={`Từ ${lastProgress}%...`}
+                                placeholder={`Tiến độ hiện tại: ${lastProgress}%`}
                             />
                         </Form.Item>
                     </Col>
@@ -312,8 +322,12 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
                     <TextArea rows={5} placeholder="Ví dụ: Đã hoàn thành lắp đặt hệ khung xương, đi dây điện âm trần..." />
                 </Form.Item>
                 
-                <Form.Item label="Hình ảnh hiện trường" name="medias">
-                    <UploadFiles />
+                <Form.Item 
+                    label="Hình ảnh & Video hiện trường (Tối đa 100MB/file)" 
+                    name="medias"
+                    extra="Hỗ trợ tải lên nhiều ảnh và video (.mp4, .mov, .png, .jpg)"
+                >
+                    <UploadFiles fileSizeLimit={100} />
                 </Form.Item>
                 
                 <Divider />

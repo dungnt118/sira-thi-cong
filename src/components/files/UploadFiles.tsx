@@ -139,7 +139,7 @@ export const UploadFilesEdit = forwardRef(function UploadFilesEdit(
         onChange,
         property,
         schemaName,
-        fileSizeLimit = 10,
+        fileSizeLimit = 50, // Improved default to 50MB since videos are common now
 
         disabled = false,
     }: UploadFilesEditProps,
@@ -463,18 +463,23 @@ export const UploadFilesEdit = forwardRef(function UploadFilesEdit(
                                             headers={uploadConfig.headers}
                                             onChange={handleUpload}
                                             multiple
-                                            showUploadList={false}
+                                            accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.mov,.mp4"
                                             beforeUpload={(file) => {
                                                 // Kiểm tra kích thước file
-                                                const isLt10M = file.size / 1024 / 1024 < fileSizeLimit;
-                                                if (!isLt10M) {
-                                                    message.error(`File phải nhỏ hơn ${fileSizeLimit}MB!`);
-                                                    return false;
+                                                const isLtLimit = file.size / 1024 / 1024 < fileSizeLimit;
+                                                if (!isLtLimit) {
+                                                    message.error(`File "${file.name}" quá lớn (${(file.size / 1024 / 1024).toFixed(1)}MB). Tối đa là ${fileSizeLimit}MB!`);
+                                                    return Upload.LIST_IGNORE; // Better than returning false for multiple uploads
                                                 }
                                                 return true;
                                             }}
                                         >
-                                            <Button icon={<UploadOutlined />}>Chọn file</Button>
+                                            <Button icon={<UploadOutlined />} style={{ height: 100, width: '100%', border: '2px dashed #d9d9d9' }}>
+                                                <div>
+                                                    <PlusOutlined style={{ fontSize: 24 }} />
+                                                    <div style={{ marginTop: 8 }}>Click hoặc kéo thả để tải lên (Tối đa {fileSizeLimit}MB)</div>
+                                                </div>
+                                            </Button>
                                         </Upload>
                                     </div>
                                 )
@@ -895,6 +900,15 @@ export function UploadFilesView({ value, property }: { value: any, property: Pro
                                 style={{ maxWidth: '100%', maxHeight: '500px' }}
                                 fallback={IMAGE_FALLBACK_SVG}
                             />
+                        ) : getFileType(previewFile.name) === 'video' ? (
+                            <video 
+                                controls 
+                                autoPlay 
+                                style={{ maxWidth: '100%', maxHeight: '500px', backgroundColor: '#000' }}
+                                src={previewFile.url || getFileLink(previewFile.file_id)}
+                            >
+                                Your browser does not support the video tag.
+                            </video>
                         ) : (
                             <div className="p-8">
                                 <div className="text-6xl mb-4">
