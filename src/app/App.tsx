@@ -150,17 +150,20 @@ const RootRedirect = () => {
     const { isAuthenticated, session, role } = useAuth();
 
     if (isAuthenticated) {
-        // If user has a specific welcome_url, use it. 
-        // Otherwise, if role is guest or unknown, default to /portal
-        if (session?.welcome_url && session.welcome_url !== '/l/welcome') {
-            return <Navigate to={session.welcome_url} replace />;
-        }
+        // Evaluate the real redirect URL from session vs role
+        let targetUrl = session?.welcome_url;
         
+        // If guest or no role, force portal (ignoring /guest/dashboard if returned by backend)
         if (!role || role.toLowerCase() === 'guest') {
             return <Navigate to="/portal" replace />;
         }
 
-        return <Navigate to={session?.welcome_url ?? '/l/welcome'} replace />;
+        // If we have a valid role, and targetUrl is a guest URL or undefined, correct it
+        if (!targetUrl || targetUrl === '/l/welcome' || targetUrl.includes('/guest/')) {
+            targetUrl = `/${role.toLowerCase()}/dashboard`;
+        }
+
+        return <Navigate to={targetUrl} replace />;
     }
 
     return <Navigate to="/login" replace />;

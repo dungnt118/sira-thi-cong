@@ -117,16 +117,34 @@ export const loadUserData = (roleOverride?: string): AppThunk<Promise<void>> => 
       dispatch(setUserData(session));
 
       const pathname = history.location.pathname;
+      
+      let targetUrl = session.welcome_url ?? '/l/welcome';
+      const context = (session.user as any)?.identity_contexts?.find((ctx: any) => ctx.clientId === BAC_USER_CLIENT_ID);
+      const roles = context?.roles || (session.user as any)?.roles || [];
+      const derivedRole = session.activeRole && session.activeRole.toLowerCase() !== 'guest' 
+                          ? session.activeRole 
+                          : (context?.defaultRole || roles[0] || 'guest');
+                          
+      if (!derivedRole || derivedRole.toLowerCase() === 'guest') {
+          if (targetUrl === '/l/welcome' || targetUrl.includes('/guest/')) {
+              targetUrl = '/portal';
+          }
+      } else {
+          if (targetUrl === '/l/welcome' || targetUrl.includes('/guest/')) {
+              targetUrl = `/${derivedRole.toLowerCase()}/dashboard`;
+          }
+      }
+
       if (pathname.startsWith('/login')) {
         const searchParams = new URLSearchParams(history.location.search);
         const redirectTarget = searchParams.get('redirect');
         if (redirectTarget && !redirectTarget.startsWith('/login')) {
           window.location.href = redirectTarget;
         } else {
-          window.location.href = session.welcome_url ?? '/l/welcome';
+          window.location.href = targetUrl;
         }
-      } else if (pathname === '/l/welcome' && session.welcome_url && session.welcome_url !== '/l/welcome') {
-        window.location.href = session.welcome_url;
+      } else if (pathname === '/l/welcome' && targetUrl !== '/l/welcome') {
+        window.location.href = targetUrl;
       }
     } else {
       // TẠM THỜI DISABLE ĐỂ NGĂN CHẶN LOGOUT KHI CHUYỂN QUYỀN NHANH
