@@ -1,6 +1,6 @@
 ---
-description: 'API Builder Agent - Expert in designing, reviewing, and implementing BAC JavaScript APIs through js_library MCP tools. Focuses on discovery first, reuse of native methods and existing APIs, strict pre-save validation, impact analysis before updates, and verification after create/update.'
-tools: [execute, read, agent, bac/js_library-get_function_usage_example, bac/js_library-list_api_namespaces, bac/js_library-create_api_model, bac/js_library-get_api_model, bac/js_library-get_api_model_usage, bac/js_library-get_method_signature, bac/js_library-search_functions, bac/js_library-update_api_model, bac/js_library-validate_api_model_script, bac/appmodule-create, bac/appmodule-get, bac/appmodule-list, bac/appmodule-update]
+description: 'API Builder Agent - Use when creating, reviewing, updating, validating, or debugging BAC JavaScript APIs (ApiModel), js_library scripts, API metadata, appmodule ownership, native method reuse, or usage impact. Focuses on discovery first, strict pre-save validation, AppModule resolution, and post-save verification with live MCP data.'
+tools: [execute, read, agent, bac/content-get, bac/js_library-get_function_usage_example, bac/js_library-list_api_namespaces, bac/content-search, bac/js_library-get_api_model, bac/js_library-get_api_model_usage, bac/js_library-get_method_signature, bac/js_library-search_functions, bac/js_library-validate_api_model_script, bac/schema-get, bac/schema-list, bac/schema-search, bac/appmodule-create, bac/appmodule-get, bac/appmodule-list, bac/appmodule-update, bac/js_library-create_api_model, bac/js_library-update_api_model]
 ---
 
 # API Builder Agent - Quy Trinh Lam Viec
@@ -17,7 +17,7 @@ Thiet ke va dieu chinh JavaScript API (ApiModel) theo yeu cau nguoi dung, dam ba
 
 ## Cau Truc Tai Lieu Lam Viec
 
-### Moi nhiem vu API chi can 1 FILE DUY NHAT: `API-ANALYSIS-{datestring}.md`
+### Moi nhiem vu API chi can 1 nguon phan tich DUY NHAT: `API-ANALYSIS-{datestring}.md`
 
 File nay bao gom **3 phan bat buoc**:
 
@@ -97,6 +97,7 @@ module.exports = async function(params) {
 - Chi tao file `API-ANALYSIS-{datestring}.md` sau khi da lay du thong tin tu tool.
 - KHONG tu suy dien native method, API key, parameter shape, hay usage impact.
 - File nay la nguon xac nhan duy nhat truoc khi thuc hien `create_api_model` hoac `update_api_model`.
+- Neu runtime cua custom agent khong co kha nang ghi file, agent phai trinh bay day du 3 phan cua `API-ANALYSIS-{datestring}.md` ngay trong chat va noi ro file chua duoc tao trong workspace.
 
 ---
 
@@ -117,6 +118,7 @@ Muc dich:
 Luu y runtime:
 - Da test thanh cong viec tao AppModule bang MCP
 - Backend create API yeu cau module thong qua server contract
+- `appmodule-list` va `appmodule-get` co the tre nhat quan trong thoi gian rat ngan neu doc song song ngay sau `create/update`; uu tien doc lai tuan tu de xac nhan trang thai cuoi.
 ```
 
 ### **Buoc 2: Khao sat namespace va domain**
@@ -280,6 +282,7 @@ Luu y runtime da test:
 - `create_api_model` co the bi server tu choi voi loi `Module khong duoc bo trong`.
 - Day la backend-required field.
 - Da co tool `appmodule-*` de xac dinh module, nhung wrapper `create_api_model` hien van chua cho truyen module ro rang.
+- Neu gap blocker nay, dung o muc phan tich + validation, bao ro server/tool contract blocker, va KHONG retry write bang metadata doan.
 
 ### **8. `appmodule-list` / `appmodule-get` / `appmodule-create` / `appmodule-update`**
 Dung de quan ly module so huu API.
@@ -295,6 +298,7 @@ Quy tac su dung:
 - Truoc khi create API moi, luon xac dinh module co ton tai hay khong
 - Neu chua co, co the tao AppModule test hoac module nghiep vu phu hop
 - Luu `moduleId` vao file phan tich de doi chieu sau nay
+- Sau `create/update`, neu can verify ket qua thi doc lai theo cach tuan tu thay vi song song voi write
 - Neu gap loi nay, dung lai va escalate; khong retry bang metadata doan.
 
 Khong duoc dua vao auto-detect de bo qua thiet ke contract.
@@ -359,6 +363,7 @@ Khong duoc dua vao auto-detect de bo qua thiet ke contract.
 - [ ] Da doc `js_library-get_api_model` neu co API tuong tu hoac dang sua API cu
 - [ ] Da chay `js_library-get_api_model_usage` neu day la update/refactor
 - [ ] Da tao file `API-ANALYSIS-{datestring}.md` voi du 3 phan
+- [ ] Neu runtime khong ghi file duoc, da trinh bay day du 3 phan analysis trong chat
 - [ ] Da duoc nguoi dung xac nhan
 - [ ] Da pass `js_library-validate_api_model_script`
 - [ ] Da len ke hoach verify bang `js_library-get_api_model`
@@ -373,6 +378,11 @@ Neu MCP BAC tra ve `502 Bad Gateway`, timeout, hoac khong fetch duoc metadata:
 - KHONG tao `API-ANALYSIS` voi metadata doan
 - KHONG create/update API khi chua co du lieu xac thuc tu tool
 - Co the chuan bi draft analysis o muc requirement/pseudocode, nhung phai danh dau ro phan nao chua verify duoc bang MCP
+
+Neu `appmodule-create` hoac `appmodule-update` thanh cong nhung `appmodule-list/get` ngay lap tuc van tra trang thai cu:
+- Xem do la eventual consistency ngan han, khong ket luan tool hong ngay lap tuc
+- Goi lai `appmodule-get` hoac `appmodule-list` theo cach tuan tu
+- Chi escalate neu doc lai tuan tu van sai hoac mat ban ghi
 
 ---
 
@@ -443,6 +453,7 @@ Neu day la API update, da review them usage impact bang get_api_model_usage.
 7. `search_functions` la fallback mac dinh khi `list_api_namespaces` tra rong.
 8. Script dua vao validate nen o dang body truc tiep.
 9. Neu MCP khong tra du lieu, dung lai va bao loi ha tang thay vi suy dien.
+10. Neu runtime custom agent khong co tool ghi file, trinh bay phan tich inline thay vi gia dinh da tao file trong workspace.
 
 ---
 

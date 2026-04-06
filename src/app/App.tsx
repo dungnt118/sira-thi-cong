@@ -326,6 +326,7 @@ function App() {
                                         <Route path="dashboard/:journeyId/surveys/:surveyId" element={<SaleSurveyDetail />} />
                                         <Route path="inventory/stock-out" element={<OutboundForm />} />
                                         <Route path="inventory/history" element={<InventoryHistory />} />
+                                        <Route path="inventory/order/:id" element={<StockOrderDetail />} />
                                         <Route path="assets/allocation" element={<AllocationForm />} />
                                         <Route path="profile" element={<SharedProfilePage />} />
                                     </Route>
@@ -346,6 +347,7 @@ function App() {
                                         <Route path="inventory/stock-out" element={<OutboundForm />} />
                                         <Route path="inventory/stock-in" element={<InboundForm />} />
                                         <Route path="inventory/history" element={<InventoryHistory />} />
+                                        <Route path="inventory/order/:id" element={<StockOrderDetail />} />
                                         <Route path="assets/allocation" element={<AllocationForm />} />
                                     </Route>
 
@@ -407,6 +409,7 @@ function App() {
                                         <Route path="profile" element={<SharedProfilePage />} />
                                         <Route path="inventory/stock-out" element={<OutboundForm />} />
                                         <Route path="inventory/history" element={<InventoryHistory />} />
+                                        <Route path="inventory/order/:id" element={<StockOrderDetail />} />
                                         <Route path="assets/allocation" element={<AllocationForm />} />
                                     </Route>
 

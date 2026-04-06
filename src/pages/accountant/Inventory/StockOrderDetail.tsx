@@ -550,23 +550,78 @@ const StockOrderDetail: React.FC = () => {
 
                 <Row gutter={[24, 24]}>
                     <Col xs={24} sm={24} md={16}>
-                        <Descriptions 
-                            bordered 
-                            size="small" 
-                            column={{ xs: 1, sm: 1, md: 2 }} 
-                            style={{ marginBottom: 24 }}
+                        <div 
+                            style={{ 
+                                background: '#f8f9fa', 
+                                border: '1px solid #e9ecef', 
+                                borderRadius: 12, 
+                                padding: 20, 
+                                marginBottom: 24 
+                            }}
                         >
-                            <Descriptions.Item label="Ngày tạo">{order.createdAt ? new Date(order.createdAt).toLocaleDateString() : '—'}</Descriptions.Item>
-                            <Descriptions.Item label="Trạng thái">
-                                <Tag color={getStatusInfo(order.status).color} icon={getStatusInfo(order.status).icon}>
-                                    {getStatusInfo(order.status).text}
-                                </Tag>
-                            </Descriptions.Item>
-                            <Descriptions.Item label="Dự án/Hành trình" span={2}>
-                                {order.journey_code ? `[${order.journey_code}] ${order.journey_name}` : (order.source === 'distributor' ? 'Nhà phân phối' : 'Khác')}
-                            </Descriptions.Item>
-                            <Descriptions.Item label="Ghi chú" span={2}>{order.notes || 'Không có ghi chú'}</Descriptions.Item>
-                        </Descriptions>
+                            <Row gutter={[32, 20]}>
+                                <Col xs={24} sm={12}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                        <Text type="secondary" style={{ fontSize: 13 }}>Mã phiếu</Text>
+                                        <Text strong style={{ fontSize: 15 }}>{order.code || '—'}</Text>
+                                    </div>
+                                </Col>
+                                <Col xs={24} sm={12}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                        <Text type="secondary" style={{ fontSize: 13 }}>Trạng thái</Text>
+                                        <Tag 
+                                            color={getStatusInfo(order.status).color} 
+                                            icon={getStatusInfo(order.status).icon}
+                                            style={{ alignSelf: 'flex-start', margin: 0, borderRadius: 10, padding: '0 12px' }}
+                                        >
+                                            {getStatusInfo(order.status).text}
+                                        </Tag>
+                                    </div>
+                                </Col>
+                                <Col xs={24} sm={12}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                        <Text type="secondary" style={{ fontSize: 13 }}>Dự án / Hành trình</Text>
+                                        <Text strong style={{ color: '#1890ff' }}>
+                                            {order.journey_code ? `[${order.journey_code}] ${order.journey_name}` : (order.source === 'distributor' ? 'Nhà phân phối' : 'Khác')}
+                                        </Text>
+                                    </div>
+                                </Col>
+                                <Col xs={24} sm={12}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                        <Text type="secondary" style={{ fontSize: 13 }}>Loại phiếu</Text>
+                                        <Text strong>{order.type === 'out' ? 'Xuất kho' : 'Nhập kho'}</Text>
+                                    </div>
+                                </Col>
+                                <Col xs={24} sm={12}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                        <Text type="secondary" style={{ fontSize: 13 }}>Người tạo</Text>
+                                        <Text strong>{(order as any).createdBy?.full_name || (order as any).requested_by?.full_name || (order as any).createdBy || 'Hệ thống'}</Text>
+                                    </div>
+                                </Col>
+                                <Col xs={24} sm={12}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                        <Text type="secondary" style={{ fontSize: 13 }}>Thời gian tạo</Text>
+                                        <Text strong>
+                                            {order.createdAt ? new Date(order.createdAt).toLocaleString('vi-VN') : '—'}
+                                        </Text>
+                                    </div>
+                                </Col>
+                                <Col xs={24} sm={12}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                        <Text type="secondary" style={{ fontSize: 13 }}>Ngày cập nhật</Text>
+                                        <Text strong>
+                                            {(order as any).updatedAt ? new Date((order as any).updatedAt).toLocaleString('vi-VN') : (order.createdAt ? new Date(order.createdAt).toLocaleDateString() : '—')}
+                                        </Text>
+                                    </div>
+                                </Col>
+                                <Col xs={24} sm={24}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                        <Text type="secondary" style={{ fontSize: 13 }}>Ghi chú</Text>
+                                        <Text>{order.notes || 'Không có ghi chú'}</Text>
+                                    </div>
+                                </Col>
+                            </Row>
+                        </div>
 
                         <Text strong style={{ display: 'block', marginBottom: 12 }}>Danh sách vật tư</Text>
                         {isMobile ? (
@@ -619,7 +674,15 @@ const StockOrderDetail: React.FC = () => {
                                         )}
                                     </div>
                                 ) : (
-                                    <Button block type="primary" size="small" style={{ marginTop: 8 }} icon={<CheckCircleOutlined />} onClick={() => { setSigningRole('kt'); setIsSignatureModalOpen(true); }}>
+                                    <Button 
+                                        block 
+                                        type="primary" 
+                                        size="small" 
+                                        style={{ marginTop: 8 }} 
+                                        icon={<CheckCircleOutlined />} 
+                                        onClick={() => { setSigningRole('kt'); setIsSignatureModalOpen(true); }}
+                                        disabled={role?.toUpperCase() !== 'KT'}
+                                    >
                                         Kế toán Duyệt & Ký
                                     </Button>
                                 )}
@@ -642,7 +705,15 @@ const StockOrderDetail: React.FC = () => {
                                         )}
                                     </div>
                                 ) : (
-                                    <Button block type={order.status === 'approved' ? 'primary' : 'default'} disabled={order.status !== 'approved'} size="small" style={{ marginTop: 8 }} icon={<CarOutlined />} onClick={() => { setSigningRole('warehouse'); setIsSignatureModalOpen(true); }}>
+                                    <Button 
+                                        block 
+                                        type={order.status === 'approved' ? 'primary' : 'default'} 
+                                        disabled={order.status !== 'approved' || role?.toUpperCase() !== 'KT'} 
+                                        size="small" 
+                                        style={{ marginTop: 8 }} 
+                                        icon={<CarOutlined />} 
+                                        onClick={() => { setSigningRole('warehouse'); setIsSignatureModalOpen(true); }}
+                                    >
                                         Kho Xuất & Ký
                                     </Button>
                                 )}
@@ -665,7 +736,15 @@ const StockOrderDetail: React.FC = () => {
                                         )}
                                     </div>
                                 ) : (
-                                    <Button block type={order.status === 'dispatched' ? 'primary' : 'default'} disabled={order.status !== 'dispatched'} size="small" style={{ marginTop: 8 }} icon={<HomeOutlined />} onClick={() => { setSigningRole('gs'); setIsSignatureModalOpen(true); }}>
+                                    <Button 
+                                        block 
+                                        type={order.status === 'dispatched' ? 'primary' : 'default'} 
+                                        disabled={order.status !== 'dispatched' || role?.toUpperCase() !== 'GS'} 
+                                        size="small" 
+                                        style={{ marginTop: 8 }} 
+                                        icon={<HomeOutlined />} 
+                                        onClick={() => { setSigningRole('gs'); setIsSignatureModalOpen(true); }}
+                                    >
                                         GS Nhận & Ký
                                     </Button>
                                 )}

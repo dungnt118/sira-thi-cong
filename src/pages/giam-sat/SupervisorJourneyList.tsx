@@ -1,39 +1,121 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
-    Card, Input, Tag, Typography, List, Row, Col, Select, Space, Button,
-    Progress, Spin, Empty, message, Badge
+    Card, Input, Tag, Typography, Row, Col, Space, Button,
+    Progress, Spin, Empty, message, Badge, Divider
 } from 'antd';
 import {
-    SearchOutlined, FilterOutlined, EnvironmentOutlined,
-    RightOutlined, BuildOutlined, BookOutlined,
+    SearchOutlined, EnvironmentOutlined,
+    BuildOutlined, BookOutlined,
     ClockCircleOutlined, UserOutlined, DeploymentUnitOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { journeyService } from '@/services/core-contracts/services/journey.service';
 import { IJourney } from '@/services/core-contracts/types/journey.types';
+import { FilterOperation, AND_OR } from '@/types/filters/GroupQueryFilter';
 
 const { Title, Text } = Typography;
 const { Search } = Input;
+
+type FilterType = 'ACTIVE' | 'SURVEY' | 'EXECUTING' | 'COMPLETED' | 'ALL';
+
+const TAB_CONFIG: { key: FilterType; label: string; filter: any }[] = [
+    { 
+        key: 'ACTIVE', 
+        label: 'Có hiệu lực', 
+        filter: { 
+            group: { 
+                id: 'project_status', 
+                operation: FilterOperation.NOT_IN, 
+                value: ['completed', 'cancelled'], 
+                children: [] 
+            } 
+        } 
+    },
+    { 
+        key: 'SURVEY', 
+        label: 'Đang khảo sát', 
+        filter: { 
+            group: { 
+                id: 'current_step', 
+                operation: FilterOperation.IN, 
+                value: ['site_survey', 'survey_review'], 
+                children: [] 
+            } 
+        } 
+    },
+    { 
+        key: 'EXECUTING', 
+        label: 'Đang thi công', 
+        filter: { 
+            group: { 
+                id: 'project_status', 
+                operation: FilterOperation.EQUAL, 
+                value: 'active', 
+                children: [] 
+            } 
+        } 
+    },
+    { 
+        key: 'COMPLETED', 
+        label: 'Đã hoàn thành', 
+        filter: { 
+            group: { 
+                id: 'project_status', 
+                operation: FilterOperation.EQUAL, 
+                value: 'completed', 
+                children: [] 
+            } 
+        } 
+    },
+    { 
+        key: 'ALL', 
+        label: 'Tất cả', 
+        filter: { group: { children: [] } } 
+    }
+];
 
 export const SupervisorJourneyList: React.FC = () => {
     const navigate = useNavigate();
     const { user } = useAuth();
     const [searchTerm, setSearchTerm] = useState('');
-    const [statusFilter, setStatusFilter] = useState('ALL');
+    const [statusFilter, setStatusFilter] = useState<FilterType>('ACTIVE');
     const [journeys, setJourneys] = useState<IJourney[]>([]);
+    const [counts, setCounts] = useState<Record<string, number>>({});
     const [isLoading, setIsLoading] = useState(true);
 
-    const fetchJourneys = async () => {
+    const fetchCounts = useCallback(async () => {
+        try {
+            const countPromises = TAB_CONFIG.map(async (tab) => {
+                const count = await journeyService.countContent(tab.filter);
+                return { key: tab.key, count };
+            });
+            const results = await Promise.all(countPromises);
+            const countsMap = results.reduce((acc, curr) => ({ ...acc, [curr.key]: curr.count }), {});
+            setCounts(countsMap);
+        } catch (error) {
+            console.error('Failed to fetch counts:', error);
+        }
+    }, []);
+
+    const fetchJourneys = async (search?: string, tabKey?: FilterType) => {
         setIsLoading(true);
         try {
-            // Fetch all journeys to allow supervisor to see broader context if needed, 
-            // but we'll focus on their supervised ones in the UI
-            const response = await journeyService.queryJourneysDto({});
+            const currentTab = TAB_CONFIG.find(t => t.key === (tabKey || statusFilter));
+            const filter: any = { ...currentTab?.filter };
+            
+            if (search) {
+                filter.text = search;
+            }
+
+            const response = await journeyService.queryJourneysDto(filter);
             setJourneys(response.data || []);
+            
+            // Also refresh counts to keep badges updated
+            fetchCounts();
         } catch (error) {
             console.error('Failed to fetch journeys:', error);
-            message.error('Không thể tải danh sách hành trình');
+            message.error('Không thể tải danh sách công trình');
         } finally {
             setIsLoading(false);
         }
@@ -41,39 +123,15 @@ export const SupervisorJourneyList: React.FC = () => {
 
     useEffect(() => {
         fetchJourneys();
-    }, []);
+    }, [statusFilter]);
 
-    const filteredJourneys = useMemo(() => {
-        return journeys.filter(j => {
-            const matchesSearch =
-                (j.journey_code?.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                (j.customer_full_name?.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                (j.site_address?.toLowerCase().includes(searchTerm.toLowerCase()));
+    const handleSearch = (value: string) => {
+        setSearchTerm(value);
+        fetchJourneys(value);
+    };
 
-            const matchesStatus = statusFilter === 'ALL' ||
-                (statusFilter === 'IN_PROGRESS' && j.project_status === 'active') ||
-                (statusFilter === 'COMPLETED' && j.project_status === 'completed') ||
-                (statusFilter === 'SURVEY' && ['site_survey', 'survey_review'].includes(j.current_step || ''));
-
-            return matchesSearch && matchesStatus;
-        });
-    }, [journeys, searchTerm, statusFilter]);
-
-    const myJourneys = useMemo(() => {
-        if (!user?._id) return [];
-        return filteredJourneys.filter(j =>
-            j.supervisor_users === user._id || j.owner_user === user._id
-        );
-    }, [filteredJourneys, user?._id]);
-
-    const otherJourneys = useMemo(() => {
-        if (!user?._id) return filteredJourneys;
-        return filteredJourneys.filter(j =>
-            j.supervisor_users !== user._id && j.owner_user !== user._id
-        );
-    }, [filteredJourneys, user?._id]);
-
-    const renderJourneyCard = (j: IJourney, isOwn: boolean) => {
+    const renderJourneyCard = (j: IJourney) => {
+        const isOwn = j.supervisor_users === user?._id || j.owner_user === user?._id;
         const progress = j.progress_pct || 0;
         const statusColor = j.project_status === 'completed' ? 'green' : (j.project_status === 'active' ? 'orange' : 'default');
 
@@ -90,7 +148,7 @@ export const SupervisorJourneyList: React.FC = () => {
                 }}
                 hoverable
                 onClick={() => navigate(`/gs/journeys/${j._id}`)}
-                bodyStyle={{ padding: '16px' }}
+                styles={{ body: { padding: '16px' } }}
             >
                 <Row gutter={16} align="middle">
                     <Col xs={18} sm={20}>
@@ -135,7 +193,7 @@ export const SupervisorJourneyList: React.FC = () => {
                         <Button
                             size="small"
                             icon={<BookOutlined />}
-                            onClick={(e) => { e.stopPropagation(); navigate(`/gs/journeys/${j._id}`); }}
+                            onClick={(e) => { e.stopPropagation(); navigate(`/gs/diary/${j._id}`); }}
                         >
                             Nhật ký
                         </Button>
@@ -154,119 +212,75 @@ export const SupervisorJourneyList: React.FC = () => {
         );
     };
 
-    if (isLoading) {
-        return (
-            <div style={{ textAlign: 'center', padding: '100px 0' }}>
-                <Spin indicator={<DeploymentUnitOutlined spin style={{ fontSize: 32, color: '#fa8c16' }} />} tip="Đang tải dữ liệu hành trình..." />
-            </div>
-        );
-    }
-
     return (
-        <div className="supervisor-journey-list" style={{ paddingBottom: 80 }}>
-            {/* Header Section */}
-            <div style={{ marginBottom: 24 }}>
-                <Title level={4}>Hành trình công việc</Title>
+        <div className="supervisor-journey-list" style={{ paddingBottom: 80, padding: '0 16px' }}>
+            <div style={{ marginBottom: 24, paddingTop: 16 }}>
+                <Title level={4}>Công trình</Title>
                 <Space direction="vertical" style={{ width: '100%' }} size={16}>
                     <Search
                         placeholder="Tìm theo mã, khách hàng hoặc địa chỉ..."
-                        onChange={e => setSearchTerm(e.target.value)}
+                        onSearch={handleSearch}
+                        onChange={e => !e.target.value && handleSearch('')}
                         allowClear
                         size="large"
                         enterButton={<SearchOutlined />}
                         style={{ borderRadius: 8, overflow: 'hidden' }}
                     />
 
-                    <Row gutter={8}>
-                        <Col span={24}>
-                            <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 8 }}>
+                    <div style={{ 
+                        display: 'flex', 
+                        gap: 12, 
+                        overflowX: 'auto', 
+                        padding: '20px 16px 12px 8px', // More top padding to ensure badges aren't clipped
+                        margin: '0 -16px', // Full-width feel
+                        msOverflowStyle: 'none',
+                        scrollbarWidth: 'none'
+                    }}>
+                        {TAB_CONFIG.map(tab => (
+                            <Badge key={tab.key} count={counts[tab.key]} size="small" offset={[0, 0]} color="#fa8c16">
                                 <Button
                                     shape="round"
-                                    type={statusFilter === 'ALL' ? 'primary' : 'default'}
-                                    onClick={() => setStatusFilter('ALL')}
-                                    style={statusFilter === 'ALL' ? { backgroundColor: '#fa8c16', borderColor: '#fa8c16' } : {}}
+                                    type={statusFilter === tab.key ? 'primary' : 'default'}
+                                    onClick={() => setStatusFilter(tab.key)}
+                                    style={statusFilter === tab.key ? { backgroundColor: '#fa8c16', borderColor: '#fa8c16' } : {}}
                                 >
-                                    Tất cả
+                                    {tab.label}
                                 </Button>
-                                <Button
-                                    shape="round"
-                                    type={statusFilter === 'IN_PROGRESS' ? 'primary' : 'default'}
-                                    onClick={() => setStatusFilter('IN_PROGRESS')}
-                                    style={statusFilter === 'IN_PROGRESS' ? { backgroundColor: '#fa8c16', borderColor: '#fa8c16' } : {}}
-                                >
-                                    Đang thi công
-                                </Button>
-                                <Button
-                                    shape="round"
-                                    type={statusFilter === 'SURVEY' ? 'primary' : 'default'}
-                                    onClick={() => setStatusFilter('SURVEY')}
-                                    style={statusFilter === 'SURVEY' ? { backgroundColor: '#fa8c16', borderColor: '#fa8c16' } : {}}
-                                >
-                                    Khảo sát
-                                </Button>
-                                <Button
-                                    shape="round"
-                                    type={statusFilter === 'COMPLETED' ? 'primary' : 'default'}
-                                    onClick={() => setStatusFilter('COMPLETED')}
-                                    style={statusFilter === 'COMPLETED' ? { backgroundColor: '#fa8c16', borderColor: '#fa8c16' } : {}}
-                                >
-                                    Đã hoàn thành
-                                </Button>
-                            </div>
-                        </Col>
-                    </Row>
+                            </Badge>
+                        ))}
+                    </div>
                 </Space>
             </div>
 
-            {/* List Section */}
-            {myJourneys.length > 0 && (
-                <div style={{ marginBottom: 24 }}>
-                    <Divider orientation="left" style={{ margin: '0 0 16px 0' }}>
-                        <Text strong style={{ color: '#fa8c16' }}>DỰ ÁN PHỤ TRÁCH ({myJourneys.length})</Text>
-                    </Divider>
-                    {myJourneys.map(j => renderJourneyCard(j, true))}
+            {isLoading ? (
+                <div style={{ textAlign: 'center', padding: '60px 0' }}>
+                    <Spin indicator={<DeploymentUnitOutlined spin style={{ fontSize: 32, color: '#fa8c16' }} />} tip="Đang tải dữ liệu..." />
                 </div>
-            )}
-
-            {otherJourneys.length > 0 && (
-                <div>
-                    <Divider orientation="left" style={{ margin: '0 0 16px 0' }}>
-                        <Text type="secondary" strong>CÁC DỰ ÁN KHÁC ({otherJourneys.length})</Text>
-                    </Divider>
-                    {otherJourneys.map(j => renderJourneyCard(j, false))}
+            ) : (
+                <div style={{ minHeight: '400px' }}>
+                    {journeys.length > 0 ? (
+                        <>
+                            <Divider orientation="left" style={{ margin: '0 0 16px 0' }}>
+                                <Text strong style={{ color: '#fa8c16' }}>DANH SÁCH ({journeys.length})</Text>
+                            </Divider>
+                            {journeys.map(j => renderJourneyCard(j))}
+                        </>
+                    ) : (
+                        <Empty
+                            image={Empty.PRESENTED_IMAGE_SIMPLE}
+                            description={
+                                <Space direction="vertical">
+                                    <Text type="secondary">Không tìm thấy công trình nào</Text>
+                                    <Button type="link" onClick={() => { setSearchTerm(''); setStatusFilter('ACTIVE'); }}>Xem tất cả đang mở</Button>
+                                </Space>
+                            }
+                        />
+                    )}
                 </div>
-            )}
-
-            {myJourneys.length === 0 && otherJourneys.length === 0 && (
-                <Empty
-                    image={Empty.PRESENTED_IMAGE_SIMPLE}
-                    description={
-                        <Space direction="vertical">
-                            <Text type="secondary">Không tìm thấy hành trình nào phù hợp</Text>
-                            <Button type="link" onClick={() => { setSearchTerm(''); setStatusFilter('ALL'); }}>Xóa bộ lọc</Button>
-                        </Space>
-                    }
-                />
             )}
         </div>
     );
 };
 
-const Divider = ({ orientation, style, children }: any) => (
-    <div style={{ display: 'flex', alignItems: 'center', margin: '24px 0', ...style }}>
-        {orientation === 'left' ? (
-            <>
-                <div style={{ paddingRight: 12 }}>{children}</div>
-                <div style={{ flex: 1, height: 1, backgroundColor: '#f0f0f0' }}></div>
-            </>
-        ) : (
-            <>
-                <div style={{ flex: 1, height: 1, backgroundColor: '#f0f0f0' }}></div>
-                <div style={{ padding: '0 12px' }}>{children}</div>
-                <div style={{ flex: 1, height: 1, backgroundColor: '#f0f0f0' }}></div>
-            </>
-        )}
-    </div>
-);
-
 export default SupervisorJourneyList;
+

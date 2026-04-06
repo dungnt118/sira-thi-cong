@@ -37,7 +37,7 @@ export const GiamSatLayout: React.FC = () => {
 
     const navTabs = [
         { key: '/gs/dashboard', icon: <HomeOutlined />, label: 'Trang chủ' },
-        { key: '/gs/projects', icon: <AppstoreOutlined />, label: 'Dự án' },
+        { key: '/gs/projects', icon: <AppstoreOutlined />, label: 'Công trình' },
         { key: '/gs/materials', icon: <InboxOutlined />, label: 'Vật tư' },
         { key: '/gs/inventory/history', icon: <HistoryOutlined />, label: 'Lịch sử' },
         { key: '/gs/profile', icon: <UserOutlined />, label: 'Cá nhân' },
