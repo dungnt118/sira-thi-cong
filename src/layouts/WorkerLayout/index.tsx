@@ -10,6 +10,7 @@ import {
     BellOutlined,
     LogoutOutlined,
 } from '@ant-design/icons';
+import { AppBrandLogo } from '../../components/common/AppBrandLogo';
 
 const { Header, Content, Footer } = Layout;
 
@@ -54,15 +55,7 @@ export const SupervisorLayout: React.FC = () => {
                 }}
             >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div
-                        style={{
-                            width: 32, height: 32, background: 'rgba(255,255,255,0.2)',
-                            borderRadius: 8, display: 'flex', alignItems: 'center',
-                            justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 16,
-                        }}
-                    >
-                        S
-                    </div>
+                    <AppBrandLogo size="sm" variant="onDark" />
                     <span style={{ color: '#fff', fontWeight: 600, fontSize: 16 }}>
                         SIRA Giám Sát
                     </span>

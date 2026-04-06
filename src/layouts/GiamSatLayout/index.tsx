@@ -12,6 +12,7 @@ import {
     HistoryOutlined
 } from '@ant-design/icons';
 import { UserMenu } from '../../components/common/Header/UserMenuWithDocs';
+import { AppBrandLogo } from '../../components/common/AppBrandLogo';
 import './GiamSatMobile.css';
 
 const { Header, Content } = Layout;
@@ -51,7 +52,7 @@ export const GiamSatLayout: React.FC = () => {
         <Layout className="giam-sat-layout">
             <Header className="giam-sat-header">
                 <div className="header-brand-mobile">
-                    <div className="brand-logo-small">G</div>
+                    <AppBrandLogo size="sm" variant="onDark" />
                     <span className="brand-text-mobile">SIRA Giám Sát</span>
                 </div>
                 <div className="header-actions-mobile">

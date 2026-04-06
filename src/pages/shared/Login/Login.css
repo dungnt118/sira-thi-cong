@@ -24,6 +24,12 @@
     margin-bottom: 32px;
 }
 
+.login-logo-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+
 .login-title {
     margin-bottom: 8px !important;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

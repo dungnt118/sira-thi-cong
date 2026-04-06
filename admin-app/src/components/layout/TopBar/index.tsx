@@ -76,6 +76,14 @@ const TopBar: React.FC = () => {
         <Header className="topbar">
             <div className="topbar-left">
                 <div className="topbar-logo">
+                    <img
+                        src="/logo.png"
+                        alt="Logo"
+                        width={40}
+                        height={40}
+                        decoding="async"
+                        className="topbar-logo-img"
+                    />
                     <span className="topbar-logo-text">SIRA Admin</span>
                 </div>
             </div>

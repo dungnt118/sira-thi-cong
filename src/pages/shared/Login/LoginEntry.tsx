@@ -8,6 +8,7 @@ import { useAppDispatch } from '@/store/hooks';
 import { loadUserData } from '@/pages/shared/auth/store/actions/user.actions';
 import { buildDocumentationPath } from '../../../utils/documentation';
 import './Login.css';
+import { AppBrandLogo } from '@/components/common/AppBrandLogo';
 
 const { Title, Text } = Typography;
 
@@ -57,6 +58,9 @@ export const Login: React.FC = () => {
             <div className="login-content">
                 <Card className="login-card" variant="borderless">
                     <div className="login-header">
+                        <div className="login-logo-wrap">
+                            <AppBrandLogo size="xl" />
+                        </div>
                         <Title level={1} className="login-title">
                             SIRA Thi Công
                         </Title>

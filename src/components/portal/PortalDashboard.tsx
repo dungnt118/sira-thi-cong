@@ -8,6 +8,7 @@ import {
     UserOutlined
 } from '@ant-design/icons';
 import { Journey } from '../../types/journey';
+import { AppBrandLogo } from '../common/AppBrandLogo';
 import { mockJourneyTemplates } from '../../data/journeyMockData';
 
 const { Title, Text } = Typography;
@@ -91,13 +92,7 @@ const PortalDashboard: React.FC<PortalDashboardProps> = ({ journey, token, onNav
             }}>
                 <div style={{ maxWidth: 800, margin: '0 auto', position: 'relative', zIndex: 1 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: isPreview ? 16 : 24 }}>
-                        <div style={{
-                            width: 32, height: 32, background: 'rgba(255,255,255,0.2)',
-                            borderRadius: 8, display: 'flex', alignItems: 'center',
-                            justifyContent: 'center', fontSize: 16, fontWeight: 700,
-                        }}>
-                            S
-                        </div>
+                        <AppBrandLogo size="sm" variant="onDark" />
                         <div style={{ fontSize: 10, opacity: 0.8, textTransform: 'uppercase', letterSpacing: 1 }}>
                             Cổng Thông Tin Dịch Vụ - SIRA
                         </div>

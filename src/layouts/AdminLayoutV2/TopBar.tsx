@@ -3,6 +3,7 @@ import { Layout, Input, Badge, Space } from 'antd';
 import { SearchOutlined, BellOutlined, MenuOutlined } from '@ant-design/icons';
 import { UserMenu } from '../../components/common/Header/UserMenuWithDocs';
 import { Button } from 'antd';
+import { AppBrandLogo } from '../../components/common/AppBrandLogo';
 
 
 interface AdminTopBarProps {
@@ -48,22 +49,7 @@ const AdminTopBar: React.FC<AdminTopBarProps> = ({ onMenuClick, isMobile }) => {
                         style={{ fontSize: 18 }}
                     />
                 )}
-                <div
-                    style={{
-                        width: isMobile ? 32 : 40,
-                        height: isMobile ? 32 : 40,
-                        background: 'linear-gradient(135deg, #1976D2, #42A5F5)',
-                        borderRadius: 8,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#fff',
-                        fontSize: isMobile ? 16 : 20,
-                        fontWeight: 'bold',
-                    }}
-                >
-                    S
-                </div>
+                <AppBrandLogo size={isMobile ? 'sm' : 'md'} />
                 {!isMobile && (
                     <span style={{ fontSize: 18, fontWeight: 600, color: '#1976D2' }}>
                         SIRA Admin

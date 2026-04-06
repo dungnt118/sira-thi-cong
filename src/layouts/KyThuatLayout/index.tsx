@@ -12,6 +12,7 @@ import {
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { UserMenu } from '../../components/common/Header/UserMenuWithDocs';
+import { AppBrandLogo } from '../../components/common/AppBrandLogo';
 import './KyThuatLayout.css';
 
 const { Header, Content } = Layout;
@@ -74,6 +75,7 @@ export const KyThuatLayout: React.FC = () => {
         <Layout className="ky-thuat-layout">
             <Header className="ky-thuat-header">
                 <div className="header-brand">
+                    <AppBrandLogo size="sm" />
                     <span className="brand-text">Kỹ Thuật</span>
                 </div>
                 <div className="header-actions">

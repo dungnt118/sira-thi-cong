@@ -25,19 +25,6 @@
     gap: 8px;
 }
 
-.brand-logo-small {
-    width: 32px;
-    height: 32px;
-    background: rgba(255,255,255,0.25);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-weight: 700;
-    font-size: 16px;
-}
-
 .brand-text-mobile {
     font-size: 16px;
     font-weight: 600;

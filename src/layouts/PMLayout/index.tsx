@@ -27,6 +27,7 @@ import {
 import { LABELS } from '@utils/constants';
 import { BaseLayout } from '../shared/BaseLayout';
 import { UserMenu } from '../../components/common/Header/UserMenuWithDocs';
+import { AppBrandLogo } from '../../components/common/AppBrandLogo';
 
 const { Search } = Input;
 const { useBreakpoint } = Grid;
@@ -106,12 +107,15 @@ const PMSidebar: React.FC = () => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
+                    gap: 10,
                     color: '#fff',
-                    fontSize: 18,
+                    fontSize: 16,
                     fontWeight: 'bold',
+                    padding: '0 8px',
                 }}
             >
-                SIRA PM
+                <AppBrandLogo size="sm" variant="onDark" />
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>SIRA PM</span>
             </div>
             <Menu
                 theme="dark"
@@ -150,22 +154,7 @@ const PMTopBar: React.FC = () => {
             {/* Logo & App Name - Hidden on mobile since hamburger takes its place */}
             {!isMobile && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
-                    <div
-                        style={{
-                            width: 40,
-                            height: 40,
-                            background: 'linear-gradient(135deg, #1976D2, #42A5F5)',
-                            borderRadius: 8,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: '#fff',
-                            fontSize: 20,
-                            fontWeight: 'bold',
-                        }}
-                    >
-                        S
-                    </div>
+                    <AppBrandLogo size="md" />
                     <span style={{ fontSize: 18, fontWeight: 600, color: '#1976D2' }}>
                         SIRA PM
                     </span>

@@ -16,6 +16,7 @@ import {
 } from '@ant-design/icons';
 import { BaseLayout } from '../shared/BaseLayout';
 import { UserMenu } from '../../components/common/Header/UserMenuWithDocs';
+import { AppBrandLogo } from '../../components/common/AppBrandLogo';
 
 const menuItems: MenuProps['items'] = [
     {
@@ -90,11 +91,13 @@ const AccountantSidebar: React.FC = () => {
             <div
                 style={{
                     height: 64, display: 'flex', alignItems: 'center',
-                    justifyContent: 'center', color: '#fff', fontSize: 16, fontWeight: 700,
+                    justifyContent: 'center', gap: 10, color: '#fff', fontSize: 15, fontWeight: 700,
                     borderBottom: '1px solid rgba(255,255,255,0.1)',
+                    padding: '0 8px',
                 }}
             >
-                💼 Kế toán
+                <AppBrandLogo size="sm" variant="onDark" />
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Kế toán</span>
             </div>
             <Menu
                 theme="dark"
@@ -136,23 +139,7 @@ const AccountantTopBar: React.FC = () => {
                     overflow: 'hidden',
                 }}
             >
-                <div
-                    style={{
-                        width: 40,
-                        height: 40,
-                        flexShrink: 0,
-                        background: 'linear-gradient(135deg, #52c41a, #73d13d)',
-                        borderRadius: 8,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#fff',
-                        fontSize: isMobile ? 18 : 20,
-                        fontWeight: 'bold',
-                    }}
-                >
-                    K
-                </div>
+                <AppBrandLogo size={isMobile ? 'sm' : 'md'} />
                 <span
                     style={{
                         fontSize: isMobile ? 14 : 16,

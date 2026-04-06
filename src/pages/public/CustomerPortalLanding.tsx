@@ -14,6 +14,7 @@ import { useLocalStorageData } from '../../hooks/useLocalStorageData';
 import { demoDataService } from '../../services/core-graphql/localstorage/demoDataService';
 import { mockServiceRequests as defaultServiceRequests } from '../../data/mockData';
 import type { ServiceRequest } from '../../types/v3';
+import { AppBrandLogo } from '@/components/common/AppBrandLogo';
 
 const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
@@ -74,6 +75,9 @@ const CustomerPortalLanding: React.FC = () => {
         }}>
             {/* Header / Brand */}
             <div style={{ textAlign: 'center', marginBottom: 48 }}>
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
+                    <AppBrandLogo size={64} variant="onDark" />
+                </div>
                 <div style={{
                     display: 'inline-block',
                     padding: '8px 16px',

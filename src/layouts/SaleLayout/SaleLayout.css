@@ -19,10 +19,20 @@
     line-height: 56px;
 }
 
+.header-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
 .header-brand .brand-text {
     font-size: 18px;
     font-weight: 600;
     color: #52c41a;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .header-icon {

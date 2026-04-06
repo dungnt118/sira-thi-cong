@@ -12,6 +12,7 @@ import {
 } from '@ant-design/icons';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { UserMenu } from '../../components/common/Header/UserMenuWithDocs';
+import { AppBrandLogo } from '../../components/common/AppBrandLogo';
 import { useAuth } from '../../hooks/useAuth';
 import './SaleLayout.css';
 
@@ -170,12 +171,15 @@ export const SaleLayout: React.FC = () => {
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
+                            gap: 10,
                             color: '#fff',
-                            fontSize: 18,
+                            fontSize: 16,
                             fontWeight: 700,
+                            padding: '0 8px',
                         }}
                     >
-                        SIRA Sale
+                        <AppBrandLogo size="sm" variant="onDark" />
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>SIRA Sale</span>
                     </div>
                     <Menu
                         theme="dark"
@@ -190,6 +194,7 @@ export const SaleLayout: React.FC = () => {
             <Layout style={{ marginLeft: isMobile ? 0 : 240, transition: 'margin-left 0.2s' }}>
                 <Header className="sale-header">
                     <div className="header-brand">
+                        <AppBrandLogo size="sm" />
                         <span className="brand-text">SIRA Sale</span>
                     </div>
 

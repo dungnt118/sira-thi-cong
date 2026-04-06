@@ -13,6 +13,7 @@ import {
 import { LABELS } from '@utils/constants';
 import { BaseLayout } from '../shared/BaseLayout';
 import { UserMenu } from '../../components/common/Header/UserMenuWithDocs';
+import { AppBrandLogo } from '../../components/common/AppBrandLogo';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -65,12 +66,15 @@ const PartnerSidebar: React.FC = () => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
+                    gap: 10,
                     color: '#fff',
-                    fontSize: 18,
+                    fontSize: 16,
                     fontWeight: 'bold',
+                    padding: '0 8px',
                 }}
             >
-                SIRA Partner
+                <AppBrandLogo size="sm" variant="onDark" />
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>SIRA Partner</span>
             </div>
             <Menu
                 theme="dark"
@@ -86,7 +90,9 @@ const PartnerSidebar: React.FC = () => {
 const PartnerTopBar: React.FC = () => {
     return (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '0 24px' }}>
-            <div>{/* Breadcrumbs */}</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <AppBrandLogo size="sm" />
+            </div>
             <div style={{ display: 'flex', gap: 16 }}>
                 <UserMenu avatarColor="#13c2c2" />
             </div>

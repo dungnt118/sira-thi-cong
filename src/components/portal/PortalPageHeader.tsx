@@ -1,4 +1,5 @@
 import React from 'react';
+import { AppBrandLogo } from '../common/AppBrandLogo';
 import { Card, Button, Typography, Row, Col, Space } from 'antd';
 import { ArrowLeftOutlined, HomeOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
@@ -39,13 +40,7 @@ const PortalPageHeader: React.FC<PortalPageHeaderProps> = ({ title, subtitle, on
                                 style={{ color: '#666' }}
                             />
                         ) : (
-                            <div style={{ 
-                                width: 32, height: 32, background: 'linear-gradient(135deg, #001529 0%, #0050b3 100%)',
-                                borderRadius: 8, display: 'flex', alignItems: 'center',
-                                justifyContent: 'center', fontSize: 14, fontWeight: 700, color: '#fff'
-                            }}>
-                                S
-                            </div>
+                            <AppBrandLogo size="sm" />
                         )}
                         <div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
