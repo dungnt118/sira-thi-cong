@@ -324,8 +324,8 @@ const InventoryHistory: React.FC = () => {
         },
         { 
             title: 'Người lập', 
-            dataIndex: 'requested_by', 
-            key: 'req_by', 
+            dataIndex: 'createdBy', 
+            key: 'created_by', 
             width: 140, 
             render: (v: any) => (
                 <Space size={4}>
@@ -524,8 +524,8 @@ const InventoryHistory: React.FC = () => {
                                             </Space>
                                         </div>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                                            <Text type="secondary" style={{ fontSize: 12 }}>Người yêu cầu:</Text>
-                                            <Text style={{ fontSize: 12 }}>{renderUser(item.requested_by)}</Text>
+                                             <Text type="secondary" style={{ fontSize: 12 }}>Người lập:</Text>
+                                             <Text style={{ fontSize: 12 }}>{renderUser(item.createdBy)}</Text>
                                         </div>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                                             <Text type="secondary" style={{ fontSize: 12 }}>Hành trình:</Text>
