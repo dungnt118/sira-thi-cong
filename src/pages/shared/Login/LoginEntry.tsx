@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button, Card, Form, Input, Typography, message } from 'antd';
-import { BookOutlined, LockOutlined, UserOutlined } from '@ant-design/icons';
+import { BookOutlined, LockOutlined, UserOutlined, GlobalOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { get, CLIENTS } from '../../../services/storeService';
 import elsagaService from '../../../services/authenticationService';
@@ -63,7 +63,7 @@ export const Login: React.FC = () => {
                         <Text className="login-subtitle">
                             Hệ thống quản lý thi công xây dựng
                         </Text>
-                        <div>
+                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
                             <Button
                                 type="link"
                                 icon={<BookOutlined />}
@@ -71,6 +71,14 @@ export const Login: React.FC = () => {
                                 onClick={() => navigate(buildDocumentationPath())}
                             >
                                 Xem BAC Document
+                            </Button>
+                            <Button
+                                type="link"
+                                icon={<GlobalOutlined />}
+                                className="login-portal-link"
+                                onClick={() => navigate('/portal')}
+                            >
+                                Dành cho Khách hàng
                             </Button>
                         </div>
                     </div>
