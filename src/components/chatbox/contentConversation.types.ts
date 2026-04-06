@@ -1,3 +1,5 @@
+import type { CSSProperties } from 'react';
+
 export enum ThreadType {
     Main = 'Main',
     Discussion = 'Discussion',
@@ -203,5 +205,5 @@ export interface IContentConversationPanelProps {
     title?: string;
     subtitle?: string;
     className?: string;
-    style?: React.CSSProperties;
+    style?: CSSProperties;
 }

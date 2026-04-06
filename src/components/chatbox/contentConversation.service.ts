@@ -191,25 +191,25 @@ const normalizeHierarchy = (value: unknown): IThreadHierarchyResponse => {
             : [],
         totalUnread: typeof source.totalUnread === 'number' ? source.totalUnread : 0,
         unreadByThread: Array.isArray(source.unreadByThread)
-            ? source.unreadByThread
-                .map((item) => {
-                    if (!item || typeof item !== 'object') {
-                        return null;
-                    }
+            ? source.unreadByThread.reduce<Array<{ threadId: string; threadCode?: string; count: number }>>((result, item) => {
+                if (!item || typeof item !== 'object') {
+                    return result;
+                }
 
-                    const entry = item as Record<string, unknown>;
-                    const threadId = typeof entry.threadId === 'string' ? entry.threadId : '';
-                    if (!threadId) {
-                        return null;
-                    }
+                const entry = item as Record<string, unknown>;
+                const threadId = typeof entry.threadId === 'string' ? entry.threadId : '';
+                if (!threadId) {
+                    return result;
+                }
 
-                    return {
-                        threadId,
-                        threadCode: typeof entry.threadCode === 'string' ? entry.threadCode : undefined,
-                        count: typeof entry.count === 'number' ? entry.count : 0,
-                    };
-                })
-                .filter((item): item is { threadId: string; threadCode?: string; count: number } => item !== null)
+                result.push({
+                    threadId,
+                    threadCode: typeof entry.threadCode === 'string' ? entry.threadCode : undefined,
+                    count: typeof entry.count === 'number' ? entry.count : 0,
+                });
+
+                return result;
+            }, [])
             : [],
     };
 };

@@ -22,6 +22,7 @@ import { JourneyStepRenderer, StepLabor, StepMaterials } from '../JourneySteps';
 import { ConsultationLogForm } from '../../../components/journey/SharedModals';
 import { CreateJourneyDocumentModal } from '../../../components/journey/CreateJourneyDocumentModal';
 import { CreateSiteReportModal } from '../../../components/journey/CreateSiteReportModal';
+import { ContentConversationPanel } from '../../../components/chatbox';
 import PortalDashboard from '../../../components/portal/PortalDashboard';
 import { journeyService } from '../../../services/core-contracts/services/journey.service';
 import { workTaskService } from '../../../services/core-contracts/services/workTask.service';
@@ -574,12 +575,25 @@ const JourneyDetail360: React.FC = () => {
             key: 'GRP_06_CONTRACT',
             label: <span><MessageOutlined /> Portal/Chat</span>,
             children: (
-                <div>
+                <div style={{ display: 'grid', gap: 16 }}>
                     <Row gutter={16} style={{ marginBottom: 16 }}>
                         <Col span={12}><Statistic title="Publish Status" value={journey.portal_publish_status || 'hidden'} /></Col>
                         <Col span={12}><Statistic title="Chưa đọc" value={journey.unread_thread_count ?? 0} valueStyle={{ color: journey.unread_thread_count ? '#ff4d4f' : '#52c41a' }} /></Col>
                     </Row>
-                    <Empty description="Tính năng Chat Portal đang được kết nối với backend..." />
+
+                    <Alert
+                        type="info"
+                        showIcon
+                        message="Khu vực này đang hiển thị đồng thời chỉ số Portal và khung trao đổi nhóm nội bộ."
+                        description="Nếu cần hợp nhất hoàn toàn chat Portal với chat nội bộ thành một luồng nghiệp vụ, vui lòng xem tài liệu GAP của đợt triển khai này."
+                    />
+
+                    <ContentConversationPanel
+                        schemaName="Journey"
+                        contentId={journey._id}
+                        title="Trao đổi nhóm Journey"
+                        subtitle="Theo dõi trao đổi nội bộ, sub-thread và lịch sử cập nhật quanh hành trình này"
+                    />
                 </div>
             ),
         }

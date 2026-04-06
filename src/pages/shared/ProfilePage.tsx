@@ -38,8 +38,8 @@ import type { AuthorizedUser } from '@/services/users/authorized-users/authorize
 const { Title, Text } = Typography;
 
 const CHANGE_PASSWORD = gql`
-    mutation ChangePassword($oldPass: String, $newPass: String) {
-        response: change_password(old_pw: $oldPass, new_pw: $newPass) {
+    mutation ChangePassword($oldpw: String, $newpw: String) {
+        response: change_password(oldpw: $oldpw, newpw: $newpw) {
             code
             message
             data
@@ -202,8 +202,8 @@ export const SharedProfilePage: React.FC = () => {
             setIsChangingPassword(true);
 
             const response = await mutate(CHANGE_PASSWORD, {
-                oldPass: values.currentPassword,
-                newPass: values.newPassword,
+                oldpw: values.currentPassword,
+                newpw: values.newPassword,
             });
 
             if (response.code !== 0) {
