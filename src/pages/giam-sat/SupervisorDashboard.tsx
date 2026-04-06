@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
     Card, Button, Progress, Typography, Avatar, Row, Col, Badge,
     List, Empty, Spin, message, Space, Statistic, Tag
@@ -12,7 +12,15 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { journeyService } from '@/services/core-contracts/services/journey.service';
+import { workTaskService } from '@/services/core-contracts/services/workTask.service';
+import { siteReportService } from '@/services/core-contracts/services/siteReport.service';
+import { customerJourneySettingService } from '@/services/core-contracts/services/customerJourneySetting.service';
 import { IJourney } from '@/services/core-contracts/types/journey.types';
+import { IWorkTask } from '@/services/core-contracts/types/workTask.types';
+import { ISiteReport } from '@/services/core-contracts/types/siteReport.types';
+import { ICustomerJourneySetting } from '@/services/core-contracts/types/customerJourneySetting.types';
+import { FilterOperation } from '@/types/filters/GroupQueryFilter';
+import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
 
@@ -20,49 +28,132 @@ const SupervisorDashboard: React.FC = () => {
     const navigate = useNavigate();
     const { user } = useAuth();
     const [journeys, setJourneys] = useState<IJourney[]>([]);
+    const [tasks, setTasks] = useState<IWorkTask[]>([]);
+    const [reports, setReports] = useState<ISiteReport[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    const fetchDashboardData = async () => {
+    const fetchDashboardData = useCallback(async () => {
+        if (!user?._id) return;
+        
         setIsLoading(true);
         try {
-            const response = await journeyService.queryJourneysDto({});
-            setJourneys(response.data || []);
+            // 1. Fetch Customer Journey Setting FIRST to find GS roles
+            const setting = await customerJourneySettingService.findSetting();
+            
+            // Determine steps where GS is involved
+            const gsSteps: string[] = [];
+            if (setting) {
+                const stepsCodes = [
+                    'lead_intake', 'qualification', 'survey_planning', 'site_survey', 
+                    'survey_review', 'estimate_preparation', 'quotation_preparation', 
+                    'quotation_sent', 'quotation_approved', 'contract_signing', 
+                    'project_execution', 'handover_acceptance', 'warranty_aftercare'
+                ];
+                
+                stepsCodes.forEach(code => {
+                    const step = (setting as any)[code];
+                    if (step?.is_enabled && step?.roles?.some((r: any) => r.role === 'GS')) {
+                        gsSteps.push(code);
+                    }
+                });
+            }
+
+            // 2. Fetch active journeys specifically for this supervisor
+            const journeyResponse = await journeyService.queryJourneysDto({
+                group: {
+                    op: 'AND',
+                    children: [
+                        {
+                            id: 'project_status',
+                            operation: FilterOperation.NOT_IN,
+                            value: ['completed', 'cancelled'],
+                            children: []
+                        },
+                        {
+                            op: 'OR',
+                            children: [
+                                { id: 'supervisor_users', operation: FilterOperation.EQUAL, value: user?._id, children: [] },
+                                { id: 'supervisor_users', operation: FilterOperation.EQUAL, value: user?.email, children: [] },
+                                { id: 'owner_user', operation: FilterOperation.EQUAL, value: user?._id, children: [] },
+                                { id: 'owner_user', operation: FilterOperation.EQUAL, value: user?.email, children: [] },
+                                { id: 'pm_user', operation: FilterOperation.EQUAL, value: user?._id, children: [] },
+                                { id: 'pm_user', operation: FilterOperation.EQUAL, value: user?.email, children: [] }
+                            ]
+                        }
+                    ]
+                },
+                limit: 100
+            });
+            const filteredJourneys = journeyResponse.data || [];
+            setJourneys(filteredJourneys);
+
+            // 3. Fetch pending tasks for relevant journeys
+            if (filteredJourneys.length > 0) {
+                const journeyIds = filteredJourneys.map(j => j._id);
+                const taskResponse = await workTaskService.queryWorkTasksDto({
+                    group: {
+                        op: 'AND',
+                        children: [
+                            {
+                                id: 'journey_id',
+                                operation: FilterOperation.IN,
+                                value: journeyIds,
+                                children: []
+                            },
+                            {
+                                id: 'status',
+                                operation: FilterOperation.EQUAL,
+                                value: 'pending',
+                                children: []
+                            }
+                        ]
+                    },
+                    limit: 50
+                });
+
+                const rawTasks = taskResponse.data || [];
+                const relevantTasks = rawTasks.filter(task => {
+                    const journey = filteredJourneys.find(j => j._id === task.journey_id);
+                    if (!journey) return false;
+                    return task.journey_step_code === journey.current_step && gsSteps.includes(task.journey_step_code || '');
+                });
+                setTasks(relevantTasks);
+
+                // 4. Fetch top 10 site reports for these journeys
+                const reportResponse = await siteReportService.querySiteReportsDto({
+                    group: {
+                        id: 'journey_id',
+                        operation: FilterOperation.IN,
+                        value: journeyIds,
+                        children: []
+                    },
+                    sorted: [{ id: 'createdAt', desc: true }],
+                    limit: 10
+                });
+                setReports(reportResponse.data || []);
+            }
         } catch (error) {
             console.error('Failed to fetch dashboard data:', error);
             message.error('Không thể tải dữ liệu dashboard');
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [user?._id, user?.email]);
 
     useEffect(() => {
         fetchDashboardData();
-    }, []);
+    }, [fetchDashboardData]);
 
-    // Filter journeys for this supervisor
-    const myJourneys = useMemo(() => {
-        if (!user?._id) return [];
-        return journeys.filter(j =>
-            j.supervisor_users === user._id || j.owner_user === user._id
-        );
-    }, [journeys, user?._id]);
+    // myJourneys is now retrieved directly from fetch
+    const myJourneys = journeys;
 
     const stats = useMemo(() => {
         return {
             inProgress: myJourneys.filter(j => j.project_status === 'active').length,
             surveys: myJourneys.filter(j => ['site_survey', 'survey_review'].includes(j.current_step || '')).length,
             urgent: myJourneys.filter(j => j.priority === 'critical' || j.priority === 'high').length,
-            pendingMaterials: 0, // In real app, fetch from materialService
+            pendingMaterials: 0, // Placeholder
         };
-    }, [myJourneys]);
-
-    const urgentJourneys = useMemo(() => {
-        return [...myJourneys]
-            .sort((a, b) => {
-                const priorityMap: any = { critical: 4, high: 3, medium: 2, low: 1 };
-                return (priorityMap[b.priority || 'low'] - priorityMap[a.priority || 'low']);
-            })
-            .slice(0, 3);
     }, [myJourneys]);
 
     if (isLoading) {
@@ -158,62 +249,59 @@ const SupervisorDashboard: React.FC = () => {
                 </Col>
             </Row>
 
-            {/* Urgent Task Queue */}
+             {/* Priority Tasks */}
             <div style={{ marginBottom: 24 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                     <Title level={5} style={{ margin: 0 }}><NotificationOutlined /> Việc cần ưu tiên</Title>
                     <Button type="link" size="small" onClick={() => navigate('/gs/projects')}>
-                        Xem tất cả hành trình <RightOutlined style={{ fontSize: 10 }} />
+                        Xem tất cả công trình <RightOutlined style={{ fontSize: 10 }} />
                     </Button>
                 </div>
 
-                {urgentJourneys.length === 0 ? (
-                    <Empty description="Tất cả đã hoàn tất!" style={{ padding: '20px 0' }} />
+                {tasks.length === 0 ? (
+                    <Empty 
+                        image={Empty.PRESENTED_IMAGE_SIMPLE}
+                        description="Tất cả đã hoàn tất!" 
+                        style={{ padding: '20px 0', background: '#fff', borderRadius: 12 }} 
+                    />
                 ) : (
-                    urgentJourneys.map(j => (
-                        <Card
-                            key={j._id}
-                            className="gs-premium-card"
-                            hoverable
-                            style={{ marginBottom: 12, borderRadius: 12 }}
-                            bodyStyle={{ padding: '16px' }}
-                            onClick={() => navigate(`/gs/journeys/${j._id}`)}
-                        >
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                <div style={{ flex: 1 }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                                        <Badge status={j.priority === 'critical' ? 'error' : (j.priority === 'high' ? 'warning' : 'processing')} />
-                                        <Text strong>{j.journey_code || j._id.slice(-8)}</Text>
-                                        <Tag color={j.priority === 'critical' ? 'red' : 'orange'} style={{ margin: 0, fontSize: 10 }}>
-                                            {j.priority?.toUpperCase() || 'MEDIUM'}
-                                        </Tag>
+                    tasks.map(t => {
+                        const journey = journeys.find(j => j._id === t.journey_id);
+                        return (
+                            <Card
+                                key={t._id}
+                                className="gs-premium-card"
+                                hoverable
+                                style={{ marginBottom: 12, borderRadius: 12 }}
+                                bodyStyle={{ padding: '16px' }}
+                                onClick={() => navigate(`/gs/journeys/${t.journey_id}`)}
+                            >
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                    <div style={{ flex: 1 }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                                            <Badge status={journey?.priority === 'critical' ? 'error' : 'processing'} />
+                                            <Text strong style={{ color: '#fa8c16' }}>{t.title}</Text>
+                                        </div>
+                                        <Text type="secondary" style={{ fontSize: 13, display: 'block', marginBottom: 8 }}>
+                                            Công trình: {journey?.journey_code || 'N/A'} - {journey?.customer_full_name}
+                                        </Text>
+                                        <Space direction="vertical" size={2}>
+                                            <Text type="secondary" style={{ fontSize: 12 }}>
+                                                <CalendarOutlined /> Hạn xử lý: {t.due_time ? dayjs(t.due_time).format('DD/MM/YYYY HH:mm') : 'N/A'}
+                                            </Text>
+                                        </Space>
                                     </div>
-                                    <Title level={5} style={{ margin: '4px 0 8px 0', fontSize: 15 }}>{j.customer_full_name || 'Khách hàng'}</Title>
-                                    <Space direction="vertical" size={2}>
-                                        <Text type="secondary" style={{ fontSize: 12 }}><CalendarOutlined /> Cập nhật: {j.last_activity_at ? new Date(j.last_activity_at).toLocaleDateString('vi-VN') : 'N/A'}</Text>
-                                        <Text type="secondary" style={{ fontSize: 12 }} ellipsis><ThunderboltOutlined /> Hiện tại: {j.current_step?.replace(/_/g, ' ')}</Text>
-                                    </Space>
-                                </div>
-                                <div style={{ textAlign: 'right' }}>
-                                    <div style={{ fontSize: 16, fontWeight: 'bold', color: '#fa8c16' }}>{j.progress_pct || 0}%</div>
-                                    <Progress
-                                        percent={j.progress_pct || 0}
-                                        showInfo={false}
-                                        strokeColor="#fa8c16"
-                                        size="small"
-                                        style={{ width: 60 }}
-                                    />
-                                    <div style={{ marginTop: 8 }}>
-                                        <Button size="small" type="primary" style={{ backgroundColor: '#fa8c16', borderColor: '#fa8c16' }}>Xử lý</Button>
+                                    <div style={{ textAlign: 'right' }}>
+                                        <Button size="small" type="primary" ghost style={{ borderRadius: 6 }}>Thực hiện</Button>
                                     </div>
                                 </div>
-                            </div>
-                        </Card>
-                    ))
+                            </Card>
+                        );
+                    })
                 )}
             </div>
 
-            {/* Quick Summary Card */}
+            {/* Recent Operations */}
             <Card
                 title={<span style={{ fontSize: 14 }}><ClockCircleOutlined /> Lịch sử vận hành gần đây</span>}
                 size="small"
@@ -221,19 +309,29 @@ const SupervisorDashboard: React.FC = () => {
             >
                 <List
                     size="small"
-                    dataSource={myJourneys.slice(0, 4)}
-                    renderItem={j => (
-                        <List.Item style={{ padding: '10px 0' }} onClick={() => navigate(`/gs/journeys/${j._id}`)}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%', cursor: 'pointer' }}>
-                                <Avatar size="small" src={null} icon={<BuildOutlined />} style={{ backgroundColor: '#fff7e6', color: '#fa8c16' }} />
-                                <div style={{ flex: 1 }}>
-                                    <Text style={{ fontSize: 13 }}>Cập nhật trạng thái: <Text strong>{j.journey_code}</Text></Text>
-                                    <div style={{ fontSize: 11, color: '#999' }}>{j.last_activity_at ? new Date(j.last_activity_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : 'N/A'} - {j.current_step}</div>
+                    dataSource={reports}
+                    renderItem={r => {
+                        const journey = journeys.find(j => j._id === r.journey_id);
+                        return (
+                            <List.Item style={{ padding: '10px 0' }} onClick={() => navigate(`/gs/journeys/${r.journey_id}`)}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%', cursor: 'pointer' }}>
+                                    <Avatar size="small" icon={<BuildOutlined />} style={{ backgroundColor: '#fff7e6', color: '#fa8c16' }} />
+                                    <div style={{ flex: 1 }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                            <Text strong style={{ fontSize: 13 }}>{r.title || 'Báo cáo hiện trường'}</Text>
+                                            <Text type="secondary" style={{ fontSize: 11 }}>
+                                                {dayjs(r.createdAt).format('DD/MM HH:mm')}
+                                            </Text>
+                                        </div>
+                                        <div style={{ fontSize: 11, color: '#999' }}>
+                                            CT: {journey?.journey_code} - {journey?.customer_full_name} | Bởi: {r.createdBy?.title || 'GS'}
+                                        </div>
+                                    </div>
+                                    <RightOutlined style={{ fontSize: 10, color: '#ccc' }} />
                                 </div>
-                                <RightOutlined style={{ fontSize: 10, color: '#ccc' }} />
-                            </div>
-                        </List.Item>
-                    )}
+                            </List.Item>
+                        );
+                    }}
                     locale={{ emptyText: <Text type="secondary" style={{ fontSize: 12 }}>Chưa có hoạt động mới</Text> }}
                 />
             </Card>

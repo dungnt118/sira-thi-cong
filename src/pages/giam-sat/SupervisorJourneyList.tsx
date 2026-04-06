@@ -36,58 +36,58 @@ const JOURNEY_STEPS_CONFIG = [
 type FilterType = 'ACTIVE' | 'SURVEY' | 'EXECUTING' | 'COMPLETED' | 'ALL';
 
 const TAB_CONFIG: { key: FilterType; label: string; filter: any }[] = [
-    { 
-        key: 'ACTIVE', 
-        label: 'Có hiệu lực', 
-        filter: { 
-            group: { 
-                id: 'project_status', 
-                operation: FilterOperation.NOT_IN, 
-                value: ['completed', 'cancelled'], 
-                children: [] 
-            } 
-        } 
+    {
+        key: 'ACTIVE',
+        label: 'Có hiệu lực',
+        filter: {
+            group: {
+                id: 'project_status',
+                operation: FilterOperation.NOT_IN,
+                value: ['completed', 'cancelled'],
+                children: []
+            }
+        }
     },
-    { 
-        key: 'SURVEY', 
-        label: 'Đang khảo sát', 
-        filter: { 
-            group: { 
-                id: 'current_step', 
-                operation: FilterOperation.IN, 
-                value: ['site_survey', 'survey_review'], 
-                children: [] 
-            } 
-        } 
+    {
+        key: 'SURVEY',
+        label: 'Đang khảo sát',
+        filter: {
+            group: {
+                id: 'current_step',
+                operation: FilterOperation.IN,
+                value: ['site_survey', 'survey_review'],
+                children: []
+            }
+        }
     },
-    { 
-        key: 'EXECUTING', 
-        label: 'Đang thi công', 
-        filter: { 
-            group: { 
-                id: 'project_status', 
-                operation: FilterOperation.EQUAL, 
-                value: 'active', 
-                children: [] 
-            } 
-        } 
+    {
+        key: 'EXECUTING',
+        label: 'Đang thi công',
+        filter: {
+            group: {
+                id: 'project_status',
+                operation: FilterOperation.EQUAL,
+                value: 'active',
+                children: []
+            }
+        }
     },
-    { 
-        key: 'COMPLETED', 
-        label: 'Đã hoàn thành', 
-        filter: { 
-            group: { 
-                id: 'project_status', 
-                operation: FilterOperation.EQUAL, 
-                value: 'completed', 
-                children: [] 
-            } 
-        } 
+    {
+        key: 'COMPLETED',
+        label: 'Đã hoàn thành',
+        filter: {
+            group: {
+                id: 'project_status',
+                operation: FilterOperation.EQUAL,
+                value: 'completed',
+                children: []
+            }
+        }
     },
-    { 
-        key: 'ALL', 
-        label: 'Tất cả', 
-        filter: { group: { children: [] } } 
+    {
+        key: 'ALL',
+        label: 'Tất cả',
+        filter: { group: { children: [] } }
     }
 ];
 
@@ -119,14 +119,14 @@ export const SupervisorJourneyList: React.FC = () => {
         try {
             const currentTab = TAB_CONFIG.find(t => t.key === (tabKey || statusFilter));
             const filter: any = { ...currentTab?.filter };
-            
+
             if (search) {
                 filter.text = search;
             }
 
             const response = await journeyService.queryJourneysDto(filter);
             setJourneys(response.data || []);
-            
+
             // Also refresh counts to keep badges updated
             fetchCounts();
         } catch (error) {
@@ -244,10 +244,10 @@ export const SupervisorJourneyList: React.FC = () => {
                         style={{ borderRadius: 8, overflow: 'hidden' }}
                     />
 
-                    <div style={{ 
-                        display: 'flex', 
-                        gap: 12, 
-                        overflowX: 'auto', 
+                    <div style={{
+                        display: 'flex',
+                        gap: 12,
+                        overflowX: 'auto',
                         padding: '20px 16px 12px 8px', // More top padding to ensure badges aren't clipped
                         margin: '0 -16px', // Full-width feel
                         msOverflowStyle: 'none',
