@@ -15,7 +15,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
 import { stockOrderService } from '../../../services/core-contracts/services/stockOrder.service';
 import { 
-    content_segment_count_by_status, 
+    content_segment_group_count, 
     content_numeric_aggregate 
 } from '../../../store/actions/data/data.action';
 import type { IStockOrder } from '../../../services/core-contracts/types/stockOrder.types';
@@ -175,7 +175,8 @@ const InventoryHistory: React.FC = () => {
             const filterGroup = buildFilter({ step: 'ALL' });
             
             // 1. Get counts by status
-            const countsRes = await content_segment_count_by_status({ 
+            const countsRes = await content_segment_group_count({ 
+                field: 'status',
                 filter: { target_schema: 'StockOrder', group: filterGroup } 
             } as any);
             

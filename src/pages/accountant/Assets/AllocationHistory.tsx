@@ -10,7 +10,7 @@ import {
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { assetAllocationService } from '../../../services/core-contracts/services/assetAllocation.service';
-import { content_segment_count_by_status } from '../../../store/actions/data/data.action';
+import { content_segment_group_count } from '../../../store/actions/data/data.action';
 import type { IAssetAllocation, AssetAllocationStatusEnum } from '../../../services/core-contracts/types/assetAllocation.types';
 import dayjs from 'dayjs';
 import type { Dayjs } from 'dayjs';
@@ -114,7 +114,8 @@ const AssetAllocationHistory: React.FC = () => {
     const fetchStats = async () => {
         try {
             const filterGroup = buildFilter({ status: 'ALL' });
-            const countsRes = await content_segment_count_by_status({ 
+            const countsRes = await content_segment_group_count({ 
+                field: 'status',
                 filter: { target_schema: 'AssetAllocation', group: filterGroup } 
             } as any);
             

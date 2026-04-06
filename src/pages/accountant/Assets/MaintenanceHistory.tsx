@@ -11,7 +11,7 @@ import {
     ReloadOutlined
 } from '@ant-design/icons';
 import { assetMaintenanceTicketService } from '../../../services/core-contracts/services/assetMaintenanceTicket.service';
-import { content_segment_count_by_status } from '../../../store/actions/data/data.action';
+import { content_segment_group_count } from '../../../store/actions/data/data.action';
 import type { IAssetMaintenanceTicket, AssetMaintenanceTicketStatusEnum } from '../../../services/core-contracts/types/assetMaintenanceTicket.types';
 import MaintenanceTicketModal from './components/MaintenanceTicketModal';
 import dayjs from 'dayjs';
@@ -54,7 +54,8 @@ const MaintenanceHistory: React.FC = () => {
     
     const fetchStats = async () => {
         try {
-            const res = await content_segment_count_by_status({ 
+            const res = await content_segment_group_count({ 
+                field: 'status',
                 filter: { target_schema: 'AssetMaintenanceTicket' } 
             } as any);
             if (res.data) {

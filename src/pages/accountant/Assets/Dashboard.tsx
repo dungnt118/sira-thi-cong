@@ -17,7 +17,7 @@ import { assetService } from '../../../services/core-contracts/services/asset.se
 import { assetGroupService } from '../../../services/core-contracts/services/assetGroup.service';
 import MaintenanceTicketModal from './components/MaintenanceTicketModal';
 import { 
-    content_segment_count_by_status, 
+    content_segment_group_count, 
     content_numeric_aggregate 
 } from '../../../store/actions/data/data.action';
 import type { IAsset, AssetStatusEnum } from '../../../services/core-contracts/types/asset.types';
@@ -90,7 +90,7 @@ const AssetsDashboard: React.FC = () => {
     const fetchStats = async () => {
         try {
             const [statusCounts, valueSum] = await Promise.all([
-                content_segment_count_by_status({ filter: { target_schema: 'Asset' } } as any),
+                content_segment_group_count({ field: 'status', filter: { target_schema: 'Asset' } } as any),
                 content_numeric_aggregate({ field: 'cost', filter: { target_schema: 'Asset' } } as any)
             ]);
 
