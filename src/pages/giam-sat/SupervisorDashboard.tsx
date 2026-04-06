@@ -41,7 +41,9 @@ const SupervisorDashboard: React.FC = () => {
             const setting = await customerJourneySettingService.findSetting();
             
             // Determine steps where GS is involved
-            const gsSteps: string[] = [];
+            const gsSteps = new Set<string>();
+            const pmSteps = new Set<string>();
+            
             if (setting) {
                 const stepsCodes = [
                     'lead_intake', 'qualification', 'survey_planning', 'site_survey', 
@@ -52,13 +54,15 @@ const SupervisorDashboard: React.FC = () => {
                 
                 stepsCodes.forEach(code => {
                     const step = (setting as any)[code];
-                    if (step?.is_enabled && step?.roles?.some((r: any) => r.role === 'GS')) {
-                        gsSteps.push(code);
+                    if (step?.is_enabled) {
+                        const roles = step.roles || [];
+                        if (roles.some((r: any) => r.role === 'GS')) gsSteps.add(code);
+                        if (roles.some((r: any) => r.role === 'PM' || r.role === 'QL')) pmSteps.add(code);
                     }
                 });
             }
 
-            // 2. Fetch active journeys specifically for this supervisor
+            // 2. Fetch active journeys specifically for this supervisor (Owner, GS, or PM)
             const journeyResponse = await journeyService.queryJourneysDto({
                 group: {
                     op: 'AND',
@@ -90,6 +94,11 @@ const SupervisorDashboard: React.FC = () => {
             // 3. Fetch pending tasks for relevant journeys
             if (filteredJourneys.length > 0) {
                 const journeyIds = filteredJourneys.map(j => j._id);
+                const activeStepCodes = [...new Set(filteredJourneys.map(j => j.current_step).filter(Boolean))];
+                
+                // Only fetch tasks for steps that are both ACTIVE in journeys AND relevant to the user's role
+                const relevantStepCodes = (activeStepCodes as string[]).filter(step => gsSteps.has(step) || pmSteps.has(step));
+
                 const taskResponse = await workTaskService.queryWorkTasksDto({
                     group: {
                         op: 'AND',
@@ -101,6 +110,12 @@ const SupervisorDashboard: React.FC = () => {
                                 children: []
                             },
                             {
+                                id: 'journey_step_code',
+                                operation: FilterOperation.IN,
+                                value: relevantStepCodes,
+                                children: []
+                            },
+                            {
                                 id: 'status',
                                 operation: FilterOperation.EQUAL,
                                 value: 'pending',
@@ -108,14 +123,29 @@ const SupervisorDashboard: React.FC = () => {
                             }
                         ]
                     },
-                    limit: 50
+                    limit: 100
                 });
 
                 const rawTasks = taskResponse.data || [];
                 const relevantTasks = rawTasks.filter(task => {
-                    const journey = filteredJourneys.find(j => j._id === task.journey_id);
+                    // Find the journey this task belongs to
+                    const journey = filteredJourneys.find(j => String(j._id) === String(task.journey_id));
                     if (!journey) return false;
-                    return task.journey_step_code === journey.current_step && gsSteps.includes(task.journey_step_code || '');
+
+                    // Task MUST belong to the current active step of the journey
+                    const isCurrentStep = task.journey_step_code === journey.current_step;
+                    if (!isCurrentStep) return false;
+
+                    // Check if the user should see this task based on their assignment and step configuration
+                    const isGSManaged = gsSteps.has(task.journey_step_code || '');
+                    const isPMManaged = pmSteps.has(task.journey_step_code || '');
+
+                    // Logic: 
+                    // 1. If it's a GS step, GS should see it.
+                    // 2. If the user is specifically the PM of this project, they should also see PM-relevant tasks.
+                    const userIsPM = String(journey.pm_user) === String(user?._id) || String(journey.pm_user) === String(user?.email);
+                    
+                    return isGSManaged || (userIsPM && isPMManaged);
                 });
                 setTasks(relevantTasks);
 
