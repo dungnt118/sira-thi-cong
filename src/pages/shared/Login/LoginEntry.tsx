@@ -63,7 +63,7 @@ export const Login: React.FC = () => {
                         <Text className="login-subtitle">
                             Hệ thống quản lý thi công xây dựng
                         </Text>
-                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', alignItems: 'center' }}>
                             <Button
                                 type="link"
                                 icon={<BookOutlined />}

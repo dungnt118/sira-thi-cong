@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { 
-    Form, Input, Button, Select, Card, Typography, 
+import {
+    Form, Input, Button, Select, Card, Typography,
     Row, Col, Space, Divider, message, Upload, App
 } from 'antd';
-import { 
-    UserOutlined, PhoneOutlined, 
-    EnvironmentOutlined, CarOutlined, 
+import {
+    UserOutlined, PhoneOutlined,
+    EnvironmentOutlined, CarOutlined,
     ToolOutlined, SafetyCertificateOutlined,
     ClockCircleOutlined, SmileOutlined,
     InboxOutlined, SendOutlined
@@ -23,7 +23,7 @@ const CustomerPortalLanding: React.FC = () => {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
     const [mockServiceRequests, setMockServiceRequests] = useLocalStorageData<ServiceRequest[]>(
-        demoDataService.KEYS.SERVICE_REQUESTS, 
+        demoDataService.KEYS.SERVICE_REQUESTS,
         defaultServiceRequests
     );
 
@@ -51,11 +51,11 @@ const CustomerPortalLanding: React.FC = () => {
             setMockServiceRequests([newReq, ...mockServiceRequests]);
             setLoading(false);
             form.resetFields();
-            
+
             message.success({
                 content: (
                     <span>
-                        Đã gửi yêu cầu thành công! Mã yêu cầu của bạn là <b>{newReq.code}</b>. 
+                        Đã gửi yêu cầu thành công! Mã yêu cầu của bạn là <b>{newReq.code}</b>.
                         Chúng tôi sẽ liên hệ lại trong vòng 2 giờ.
                     </span>
                 ),
@@ -65,8 +65,8 @@ const CustomerPortalLanding: React.FC = () => {
     };
 
     return (
-        <div className="portal-container" style={{ 
-            minHeight: '100vh', 
+        <div className="portal-container" style={{
+            minHeight: '100vh',
             background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
             padding: '40px 20px',
             color: '#fff',
@@ -74,23 +74,23 @@ const CustomerPortalLanding: React.FC = () => {
         }}>
             {/* Header / Brand */}
             <div style={{ textAlign: 'center', marginBottom: 48 }}>
-                <div style={{ 
-                    display: 'inline-block', 
-                    padding: '8px 16px', 
-                    background: 'rgba(56, 189, 248, 0.1)', 
+                <div style={{
+                    display: 'inline-block',
+                    padding: '8px 16px',
+                    background: 'rgba(56, 189, 248, 0.1)',
                     borderRadius: '20px',
                     border: '1px solid rgba(56, 189, 248, 0.2)',
                     marginBottom: 16
                 }}>
                     <Text style={{ color: '#38bdf8', fontWeight: 600, fontSize: 12, letterSpacing: 1 }}>
-                        SIRA CONSTRUCTION & TECHNOLOGY
+                        BAC CONSTRUCTION & TECHNOLOGY
                     </Text>
                 </div>
                 <Title level={1} style={{ color: '#fff', margin: 0, fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 800 }}>
-                    Đặt Dịch vụ <span style={{ 
-                        background: 'linear-gradient(90deg, #38bdf8, #818cf8)', 
-                        WebkitBackgroundClip: 'text', 
-                        WebkitTextFillColor: 'transparent' 
+                    Đặt Dịch vụ <span style={{
+                        background: 'linear-gradient(90deg, #38bdf8, #818cf8)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent'
                     }}>Nhanh chóng</span>
                 </Title>
                 <Paragraph style={{ color: '#94a3b8', fontSize: 18, marginTop: 12, maxWidth: 600, margin: '12px auto' }}>
@@ -104,10 +104,10 @@ const CustomerPortalLanding: React.FC = () => {
                     <Space direction="vertical" size={32} style={{ width: '100%' }}>
                         <div className="benefit-item">
                             <Space align="start" size={16}>
-                                <div style={{ 
-                                    width: 48, height: 48, 
-                                    background: 'rgba(56, 189, 248, 0.1)', 
-                                    borderRadius: 12, 
+                                <div style={{
+                                    width: 48, height: 48,
+                                    background: 'rgba(56, 189, 248, 0.1)',
+                                    borderRadius: 12,
                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                                     color: '#38bdf8', fontSize: 24
                                 }}>
@@ -122,10 +122,10 @@ const CustomerPortalLanding: React.FC = () => {
 
                         <div className="benefit-item">
                             <Space align="start" size={16}>
-                                <div style={{ 
-                                    width: 48, height: 48, 
-                                    background: 'rgba(129, 140, 248, 0.1)', 
-                                    borderRadius: 12, 
+                                <div style={{
+                                    width: 48, height: 48,
+                                    background: 'rgba(129, 140, 248, 0.1)',
+                                    borderRadius: 12,
                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                                     color: '#818cf8', fontSize: 24
                                 }}>
@@ -140,10 +140,10 @@ const CustomerPortalLanding: React.FC = () => {
 
                         <div className="benefit-item">
                             <Space align="start" size={16}>
-                                <div style={{ 
-                                    width: 48, height: 48, 
-                                    background: 'rgba(16, 185, 129, 0.1)', 
-                                    borderRadius: 12, 
+                                <div style={{
+                                    width: 48, height: 48,
+                                    background: 'rgba(16, 185, 129, 0.1)',
+                                    borderRadius: 12,
                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                                     color: '#10b981', fontSize: 24
                                 }}>
@@ -157,7 +157,7 @@ const CustomerPortalLanding: React.FC = () => {
                         </div>
 
                         <Divider style={{ borderColor: 'rgba(255,255,255,0.1)' }} />
-                        
+
                         <div style={{ background: 'rgba(255,255,255,0.03)', padding: 24, borderRadius: 20, border: '1px solid rgba(255,255,255,0.05)' }}>
                             <Title level={5} style={{ color: '#fff' }}>Hỗ trợ khách hàng</Title>
                             <Paragraph style={{ color: '#94a3b8', marginBottom: 8 }}>
@@ -172,56 +172,56 @@ const CustomerPortalLanding: React.FC = () => {
 
                 {/* Right Side: Booking Form */}
                 <Col xs={24} lg={12}>
-                    <Card style={{ 
-                        background: 'rgba(30, 41, 59, 0.7)', 
+                    <Card style={{
+                        background: 'rgba(30, 41, 59, 0.7)',
                         backdropFilter: 'blur(16px)',
                         borderRadius: '24px',
                         border: '1px solid rgba(255, 255, 255, 0.08)',
                         boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
                     }} bodyStyle={{ padding: '32px' }}>
                         <Title level={3} style={{ color: '#fff', marginBottom: 24 }}>Thông tin đặt lịch</Title>
-                        
-                        <Form 
-                            form={form} 
-                            layout="vertical" 
+
+                        <Form
+                            form={form}
+                            layout="vertical"
                             onFinish={onFinish}
                             requiredMark={false}
                         >
                             <Row gutter={16}>
                                 <Col xs={24} sm={12}>
-                                    <Form.Item 
-                                        label={<Text style={{ color: '#94a3b8' }}>Họ và tên</Text>} 
-                                        name="fullName" 
+                                    <Form.Item
+                                        label={<Text style={{ color: '#94a3b8' }}>Họ và tên</Text>}
+                                        name="fullName"
                                         rules={[{ required: true, message: 'Vui lòng nhập tên' }]}
                                     >
-                                        <Input 
-                                            prefix={<UserOutlined style={{ color: '#475569' }} />} 
-                                            placeholder="Nguyễn Văn A" 
+                                        <Input
+                                            prefix={<UserOutlined style={{ color: '#475569' }} />}
+                                            placeholder="Nguyễn Văn A"
                                             style={{ background: 'rgba(15, 23, 42, 0.5)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', height: 45 }}
                                         />
                                     </Form.Item>
                                 </Col>
                                 <Col xs={24} sm={12}>
-                                    <Form.Item 
-                                        label={<Text style={{ color: '#94a3b8' }}>Số điện thoại</Text>} 
-                                        name="phone" 
+                                    <Form.Item
+                                        label={<Text style={{ color: '#94a3b8' }}>Số điện thoại</Text>}
+                                        name="phone"
                                         rules={[{ required: true, message: 'Vui lòng nhập SĐT' }]}
                                     >
-                                        <Input 
-                                            prefix={<PhoneOutlined style={{ color: '#475569' }} />} 
-                                            placeholder="09xx xxx xxx" 
+                                        <Input
+                                            prefix={<PhoneOutlined style={{ color: '#475569' }} />}
+                                            placeholder="09xx xxx xxx"
                                             style={{ background: 'rgba(15, 23, 42, 0.5)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', height: 45 }}
                                         />
                                     </Form.Item>
                                 </Col>
                             </Row>
 
-                            <Form.Item 
-                                label={<Text style={{ color: '#94a3b8' }}>Dịch vụ quan tâm</Text>} 
+                            <Form.Item
+                                label={<Text style={{ color: '#94a3b8' }}>Dịch vụ quan tâm</Text>}
                                 name="serviceType"
                                 rules={[{ required: true, message: 'Vui lòng chọn loại dịch vụ' }]}
                             >
-                                <Select 
+                                <Select
                                     placeholder="Chọn loại dịch vụ"
                                     style={{ width: '100%' }}
                                     dropdownStyle={{ background: '#1e293b' }}
@@ -233,20 +233,20 @@ const CustomerPortalLanding: React.FC = () => {
                                 </Select>
                             </Form.Item>
 
-                            <Form.Item 
-                                label={<Text style={{ color: '#94a3b8' }}>Mô tả yêu cầu</Text>} 
+                            <Form.Item
+                                label={<Text style={{ color: '#94a3b8' }}>Mô tả yêu cầu</Text>}
                                 name="description"
                             >
-                                <Input.TextArea 
-                                    placeholder="VD: Nhà tôi bị thấm sàn mái, diện tích khoảng 50m2..." 
+                                <Input.TextArea
+                                    placeholder="VD: Nhà tôi bị thấm sàn mái, diện tích khoảng 50m2..."
                                     rows={4}
                                     style={{ background: 'rgba(15, 23, 42, 0.5)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff' }}
                                 />
                             </Form.Item>
 
                             <Form.Item label={<Text style={{ color: '#94a3b8' }}>Ảnh hiện trạng (tùy chọn)</Text>}>
-                                <Dragger 
-                                    multiple={true} 
+                                <Dragger
+                                    multiple={true}
                                     style={{ background: 'rgba(15, 23, 42, 0.3)', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: 12 }}
                                 >
                                     <p className="ant-upload-drag-icon">
@@ -256,17 +256,17 @@ const CustomerPortalLanding: React.FC = () => {
                                 </Dragger>
                             </Form.Item>
 
-                            <Button 
-                                type="primary" 
-                                htmlType="submit" 
-                                block 
-                                size="large" 
+                            <Button
+                                type="primary"
+                                htmlType="submit"
+                                block
+                                size="large"
                                 loading={loading}
                                 icon={<SendOutlined />}
-                                style={{ 
-                                    height: 54, 
-                                    borderRadius: 12, 
-                                    background: 'linear-gradient(90deg, #38bdf8, #818cf8)', 
+                                style={{
+                                    height: 54,
+                                    borderRadius: 12,
+                                    background: 'linear-gradient(90deg, #38bdf8, #818cf8)',
                                     border: 'none',
                                     fontWeight: 700,
                                     fontSize: 16,

@@ -40,7 +40,8 @@
     font-weight: 500;
 }
 
-.login-document-link {
+.login-document-link,
+.login-portal-link {
     margin-top: 8px;
     padding-inline: 0;
     font-weight: 600;
