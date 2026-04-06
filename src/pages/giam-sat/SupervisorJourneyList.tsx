@@ -17,6 +17,22 @@ import { FilterOperation, AND_OR } from '@/types/filters/GroupQueryFilter';
 const { Title, Text } = Typography;
 const { Search } = Input;
 
+const JOURNEY_STEPS_CONFIG = [
+    { key: 'lead_intake', label: 'Tiếp nhận', color: 'cyan' },
+    { key: 'qualification', label: 'Thẩm định', color: 'blue' },
+    { key: 'survey_planning', label: 'Lập lịch KS', color: 'geekblue' },
+    { key: 'site_survey', label: 'Khảo sát', color: 'purple' },
+    { key: 'survey_review', label: 'Duyệt KS', color: 'magenta' },
+    { key: 'estimate_preparation', label: 'Lập dự toán', color: 'gold' },
+    { key: 'quotation_preparation', label: 'Lập báo giá', color: 'orange' },
+    { key: 'quotation_sent', label: 'Gửi báo giá', color: 'volcano' },
+    { key: 'quotation_approved', label: 'Duyệt báo giá', color: 'green' },
+    { key: 'contract_signing', label: 'Ký kết', color: 'lime' },
+    { key: 'project_execution', label: 'Thi công', color: 'processing' },
+    { key: 'handover_acceptance', label: 'Nghiệm thu', color: 'success' },
+    { key: 'warranty_aftercare', label: 'Bảo hành', color: 'default' },
+];
+
 type FilterType = 'ACTIVE' | 'SURVEY' | 'EXECUTING' | 'COMPLETED' | 'ALL';
 
 const TAB_CONFIG: { key: FilterType; label: string; filter: any }[] = [
@@ -133,7 +149,8 @@ export const SupervisorJourneyList: React.FC = () => {
     const renderJourneyCard = (j: IJourney) => {
         const isOwn = j.supervisor_users === user?._id || j.owner_user === user?._id;
         const progress = j.progress_pct || 0;
-        const statusColor = j.project_status === 'completed' ? 'green' : (j.project_status === 'active' ? 'orange' : 'default');
+        const stepConfig = JOURNEY_STEPS_CONFIG.find(c => c.key === j.current_step);
+        const statusColor = j.project_status === 'completed' ? 'green' : (j.project_status === 'active' ? (stepConfig?.color || 'orange') : 'default');
 
         return (
             <Card
@@ -156,7 +173,7 @@ export const SupervisorJourneyList: React.FC = () => {
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                                 <Text strong style={{ fontSize: 13, color: '#8c8c8c' }}>{j.journey_code || j._id.slice(-8)}</Text>
                                 <Tag color={statusColor}>
-                                    {(j.current_step || 'Unknown').replace(/_/g, ' ').toUpperCase()}
+                                    {stepConfig?.label || (j.current_step || 'Chưa xác định').replace(/_/g, ' ').toUpperCase()}
                                 </Tag>
                                 {isOwn && <Tag color="gold" icon={<UserOutlined />}>Phụ trách</Tag>}
                             </div>
