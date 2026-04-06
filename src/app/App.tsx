@@ -11,6 +11,7 @@ import RoleManagement from '../pages/admin-v2/RoleManagement';
 import AuditLog from '../pages/admin-v2/AuditLog';
 import SystemSettings from '../pages/admin-v2/SystemSettings';
 import Reports from '../pages/admin-v2/Reports';
+import MasterDataManagement from '../pages/admin-v2/MasterDataManagement';
 
 // PM Pages (existing)
 import Teams from '../pages/pm/Teams';
@@ -225,6 +226,7 @@ function App() {
                                         <Route path="audit" element={<AuditLog />} />
                                         <Route path="reports" element={<Reports />} />
                                         <Route path="settings" element={<SystemSettings />} />
+                                        <Route path="master-data" element={<MasterDataManagement />} />
                                         <Route path="profile" element={<SharedProfilePage />} />
                                     </Route>
 
