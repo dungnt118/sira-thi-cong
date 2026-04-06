@@ -44,7 +44,8 @@ import type { ICustomer } from '../../../services/core-contracts/types/customer.
 import type { IJourney, ICreateJourneyInput } from '../../../services/core-contracts/types/journey.types';
 import type { IPipelineStage } from '../../../services/core-contracts/types/pipelineStage.types';
 import type { ISalesPipeline } from '../../../services/core-contracts/types/salesPipeline.types';
-import JourneyUpsertDrawer from './components/JourneyUpsertDrawer';
+import { useAuth } from '../../../hooks/useAuth';
+import JourneyUpsertDrawer from '../../../components/journey/JourneyUpsertDrawer';
 import {
     formatJourneyDate,
     getJourneyStepLabel,
@@ -64,6 +65,7 @@ const SaleJourneyContext: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const activeTab = searchParams.get('tab') || 'general';
     const navigate = useNavigate();
+    const { user } = useAuth();
 
     const [journey, setJourney] = useState<IJourney | null>(null);
     const [customers, setCustomers] = useState<ICustomer[]>([]);
@@ -327,12 +329,10 @@ const SaleJourneyContext: React.FC = () => {
 
             <JourneyUpsertDrawer
                 open={showEditDrawer}
-                mode="edit"
+                mode="sale"
                 journey={journey}
-                customers={customers}
-                pipelines={pipelines}
-                stages={stages}
                 saving={saving}
+                currentUsername={user?.username || undefined}
                 onCancel={() => setShowEditDrawer(false)}
                 onSubmit={handleUpdate}
             />

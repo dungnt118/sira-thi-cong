@@ -16,7 +16,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '@/store/hooks';
 import type { IJourney, ICreateJourneyInput } from '../../../services/core-contracts/types/journey.types';
 import { journeyService } from '../../../services/core-contracts/services/journey.service';
-import JourneyForm from './JourneyForm';
+import { useAuth } from '../../../hooks/useAuth';
+import JourneyUpsertDrawer from '../../../components/journey/JourneyUpsertDrawer';
 
 const { Text } = Typography;
 const { useBreakpoint } = Grid;
@@ -55,6 +56,7 @@ const JourneyList: React.FC = () => {
     const dispatch = useAppDispatch();
     const screens = useBreakpoint();
     const isMobile = !screens.md;
+    const { user } = useAuth();
 
     const [journeys, setJourneys] = useState<IJourney[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -304,7 +306,7 @@ const JourneyList: React.FC = () => {
                 <Col xs={24} sm={12} style={{ textAlign: isMobile ? 'left' : 'right' }}>
                     <Space wrap>
                         <Tooltip title="Thêm hành trình mới">
-                            <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>Hành trình mới</Button>
+                            <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>Tạo yêu cầu</Button>
                         </Tooltip>
                         <Tooltip title="Xem dạng Board">
                             <Button icon={<LayoutOutlined />} onClick={() => navigate('/ql/journeys/board')}>{isMobile ? '' : 'Board'}</Button>
@@ -472,21 +474,15 @@ const JourneyList: React.FC = () => {
             </Card>
 
             {/* Create/Edit Drawer */}
-            <Drawer
-                title={editingJourney ? "Chỉnh sửa hành trình" : "Tạo hành trình mới"}
-                width={720}
-                onClose={() => setIsFormVisible(false)}
+            <JourneyUpsertDrawer
                 open={isFormVisible}
-                maskClosable={false}
-                destroyOnClose
-            >
-                <JourneyForm
-                    initialValues={editingJourney || {}}
-                    onSubmit={handleFormSubmit}
-                    onCancel={() => setIsFormVisible(false)}
-                    isLoading={isSubmitting}
-                />
-            </Drawer>
+                mode="pm"
+                journey={editingJourney}
+                currentUsername={user?.username || undefined}
+                saving={isSubmitting}
+                onCancel={() => setIsFormVisible(false)}
+                onSubmit={handleFormSubmit}
+            />
 
             {/* DLG-01 Filter Drawer (Mobile) */}
             <Drawer

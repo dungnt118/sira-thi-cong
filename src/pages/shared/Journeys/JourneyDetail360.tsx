@@ -36,7 +36,7 @@ import { IJourneyStepLog } from '../../../services/core-contracts/types/journeyS
 import { AuthorizedUserSelect } from '../../../components/authorizedusers/AuthorizedUser';
 import { mockJourneyTemplates } from '../../../data/journeyMockData';
 import type { GoNoGoStatus, SlaStatus, PortalPublishStatus } from '../../../types/journey';
-import JourneyForm from '../../pm/Journeys/JourneyForm';
+import JourneyUpsertDrawer from '../../../components/journey/JourneyUpsertDrawer';
 import { StepWorkTaskList } from '../../../components/journey/StepWorkTaskList';
 import { JourneyDocumentsTab } from '../../../components/journey/JourneyDocumentsTab';
 
@@ -89,7 +89,7 @@ const JourneyDetail360: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const activeTab = searchParams.get('tab') || 'GRP_01_INFO';
     const navigate = useNavigate();
-    const { role, isAdmin } = useAuth();
+    const { role, isAdmin, user } = useAuth();
 
     const [journey, setJourney] = useState<IJourney | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -1191,34 +1191,27 @@ const JourneyDetail360: React.FC = () => {
                         />
                     </Modal>
 
-                    <Drawer
-                        title="Chỉnh sửa Hành trình"
-                        width={720}
-                        onClose={() => setIsEditDrawerVisible(false)}
+                    <JourneyUpsertDrawer
                         open={isEditDrawerVisible}
-                        destroyOnClose
-                    >
-                        {journey && (
-                            <JourneyForm
-                                initialValues={journey as any}
-                                onSubmit={async (values) => {
-                                    setIsSubmitting(true);
-                                    try {
-                                        await journeyService.updateJourney(journey._id, values);
-                                        message.success("Cập nhật hành trình thành công!");
-                                        setIsEditDrawerVisible(false);
-                                        fetchJourney();
-                                    } catch (error) {
-                                        message.error("Lỗi khi cập nhật");
-                                    } finally {
-                                        setIsSubmitting(false);
-                                    }
-                                }}
-                                onCancel={() => setIsEditDrawerVisible(false)}
-                                isLoading={isSubmitting}
-                            />
-                        )}
-                    </Drawer>
+                        mode={role === 'KD' ? 'sale' : 'pm'}
+                        journey={journey}
+                        saving={isSubmitting}
+                        currentUsername={user?.username || undefined}
+                        onCancel={() => setIsEditDrawerVisible(false)}
+                        onSubmit={async (values) => {
+                            setIsSubmitting(true);
+                            try {
+                                await journeyService.updateJourney(journey._id, values);
+                                message.success("Cập nhật hành trình thành công!");
+                                setIsEditDrawerVisible(false);
+                                fetchJourney();
+                            } catch (error) {
+                                message.error("Lỗi khi cập nhật");
+                            } finally {
+                                setIsSubmitting(false);
+                            }
+                        }}
+                    />
                 </>
             )}
 

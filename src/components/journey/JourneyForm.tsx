@@ -8,9 +8,11 @@ import {
     CalendarOutlined, InfoCircleOutlined, PhoneOutlined, MailOutlined
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import type { IJourney, ICreateJourneyInput } from '../../../services/core-contracts/types/journey.types';
-import { customerService } from '../../../services/core-contracts/services/customer.service';
-import { employeeService } from '../../../services/core-contracts/services/employee.service';
+import type { IJourney, ICreateJourneyInput } from '../../services/core-contracts/types/journey.types';
+import { customerService } from '../../services/core-contracts/services/customer.service';
+import { employeeService } from '../../services/core-contracts/services/employee.service';
+import { salesPipelineService } from '../../services/core-contracts/services/salesPipeline.service';
+import { pipelineStageService } from '../../services/core-contracts/services/pipelineStage.service';
 
 const { TextArea } = Input;
 const { Text } = Typography;
@@ -20,6 +22,8 @@ interface JourneyFormProps {
     onSubmit: (values: ICreateJourneyInput) => Promise<void>;
     onCancel: () => void;
     isLoading?: boolean;
+    mode?: 'pm' | 'sale';
+    currentUsername?: string;
 }
 
 const PRIORITY_OPTIONS = [
@@ -40,25 +44,51 @@ const JourneyForm: React.FC<JourneyFormProps> = ({
     initialValues,
     onSubmit,
     onCancel,
-    isLoading = false
+    isLoading = false,
+    mode = 'pm',
+    currentUsername
 }) => {
     const [form] = Form.useForm();
     const [employees, setEmployees] = useState<{ label: string; value: string }[]>([]);
+    const [pipelines, setPipelines] = useState<{ label: string; value: string }[]>([]);
+    const [stages, setStages] = useState<{ label: string; value: string; pipelineId: string }[]>([]);
     const [customerOptions, setCustomerOptions] = useState<{ value: string; label: string; customer: any }[]>([]);
     const [isFetchingMetadata, setIsFetchingMetadata] = useState(false);
     const [isSavingCustomer, setIsSavingCustomer] = useState(false);
     const [selectedCustomerId, setSelectedCustomerId] = useState<string | undefined>(initialValues?.customer_id);
+
+    const selectedPipelineId = Form.useWatch('sales_pipeline_id', form);
 
     useEffect(() => {
         const fetchMetadata = async () => {
             setIsFetchingMetadata(true);
             try {
                 // Pre-fetch employees as before
-                const empRes = await employeeService.queryContent({ limit: 100 });
+                const [empRes, pipelineRes, stageRes] = await Promise.all([
+                    employeeService.queryContent({ limit: 100 }),
+                    mode === 'sale' ? salesPipelineService.queryContent({ limit: 100 }) : Promise.resolve({ data: [] }),
+                    mode === 'sale' ? pipelineStageService.queryContent({ limit: 500 }) : Promise.resolve({ data: [] })
+                ]);
+
                 if (empRes.data) {
                     setEmployees(empRes.data.map(e => ({ 
                         label: e.name || 'N/A', 
                         value: e._id 
+                    })));
+                }
+
+                if (pipelineRes.data) {
+                    setPipelines(pipelineRes.data.map(p => ({
+                        label: p.name || 'N/A',
+                        value: p._id
+                    })));
+                }
+
+                if (stageRes.data) {
+                    setStages(stageRes.data.map(s => ({
+                        label: s.name || 'N/A',
+                        value: s._id,
+                        pipelineId: s.pipeline_id || ''
                     })));
                 }
             } catch (error) {
@@ -164,6 +194,8 @@ const JourneyForm: React.FC<JourneyFormProps> = ({
                 initialValues={{
                     priority: 'medium',
                     source_channel: 'direct',
+                    owner_user: currentUsername,
+                    sale_users: mode === 'sale' ? currentUsername : undefined
                 }}
             >
                 <Divider orientation="left" style={{ marginTop: 0 }}>
@@ -242,9 +274,8 @@ const JourneyForm: React.FC<JourneyFormProps> = ({
                         <Form.Item
                             label="Mã hành trình"
                             name="journey_code"
-                            rules={[{ required: true, message: 'Vui lòng nhập mã hành trình' }]}
                         >
-                            <Input placeholder="VD: HN-2024-001" />
+                            <Input placeholder="VD: HN-2024-001 (Để trống để tự động tạo)" />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
@@ -269,7 +300,7 @@ const JourneyForm: React.FC<JourneyFormProps> = ({
                     </Col>
                     <Col span={12}>
                         <Form.Item
-                            label="Người phụ trách (PM)"
+                            label={mode === 'sale' ? "Chủ sở hữu hành trình" : "Người phụ trách (PM)"}
                             name="owner_user"
                         >
                             <Select
@@ -284,6 +315,83 @@ const JourneyForm: React.FC<JourneyFormProps> = ({
                         </Form.Item>
                     </Col>
                 </Row>
+
+                {mode === 'sale' && (
+                    <>
+                        <Row gutter={16}>
+                            <Col span={12}>
+                                <Form.Item label="Quy trình bán hàng" name="sales_pipeline_id">
+                                    <Select
+                                        allowClear
+                                        showSearch
+                                        placeholder="Chọn quy trình bán hàng"
+                                        options={pipelines}
+                                    />
+                                </Form.Item>
+                            </Col>
+                            <Col span={12}>
+                                <Form.Item label="Giai đoạn bán hàng" name="sales_stage_id">
+                                    <Select
+                                        allowClear
+                                        showSearch
+                                        placeholder="Chọn giai đoạn bán hàng"
+                                        options={stages.filter(s => !selectedPipelineId || s.pipelineId === selectedPipelineId)}
+                                    />
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                        <Row gutter={16}>
+                            <Col span={12}>
+                                <Form.Item label="Khách hàng nghi trùng" name="duplicate_customer_id">
+                                    <Select
+                                        allowClear
+                                        showSearch
+                                        placeholder="Chọn khách hàng nghi trùng"
+                                        options={customerOptions.map(c => ({ label: c.label, value: c.customer._id }))}
+                                    />
+                                </Form.Item>
+                            </Col>
+                            <Col span={12}>
+                                <Form.Item label="Phụ trách kinh doanh" name="sale_users">
+                                    <Select
+                                        showSearch
+                                        placeholder="Chọn sale phụ trách"
+                                        options={employees}
+                                        filterOption={(input, option) =>
+                                            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                                        }
+                                    />
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                        <Row gutter={16}>
+                            <Col span={12}>
+                                <Form.Item label="PM triển khai" name="pm_user">
+                                    <Select
+                                        showSearch
+                                        placeholder="Chọn PM"
+                                        options={employees}
+                                        filterOption={(input, option) =>
+                                            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                                        }
+                                    />
+                                </Form.Item>
+                            </Col>
+                            <Col span={12}>
+                                <Form.Item label="Giám sát triển khai" name="supervisor_users">
+                                    <Select
+                                        showSearch
+                                        placeholder="Chọn giám sát"
+                                        options={employees}
+                                        filterOption={(input, option) =>
+                                            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                                        }
+                                    />
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                    </>
+                )}
 
                 <Divider orientation="left">
                     <Space><CustomerServiceOutlined /> <Text strong>Chi tiết dịch vụ</Text></Space>
@@ -341,6 +449,15 @@ const JourneyForm: React.FC<JourneyFormProps> = ({
                 >
                     <TextArea rows={3} placeholder="Nhập các ghi chú chi tiết từ khách hàng..." />
                 </Form.Item>
+
+                {mode === 'sale' && (
+                    <Form.Item
+                        label="Ghi chú triển khai"
+                        name="delivery_note"
+                    >
+                        <TextArea rows={3} placeholder="Ghi chú handoff, cam kết với khách hàng hoặc lưu ý cho delivery." />
+                    </Form.Item>
+                )}
 
                 <div style={{ textAlign: 'right', marginTop: 24 }}>
                     <Space>

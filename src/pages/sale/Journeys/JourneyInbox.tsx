@@ -37,7 +37,7 @@ import type { ICustomer } from '../../../services/core-contracts/types/customer.
 import type { IJourney, ICreateJourneyInput } from '../../../services/core-contracts/types/journey.types';
 import type { IPipelineStage } from '../../../services/core-contracts/types/pipelineStage.types';
 import type { ISalesPipeline } from '../../../services/core-contracts/types/salesPipeline.types';
-import JourneyUpsertDrawer from './components/JourneyUpsertDrawer';
+import JourneyUpsertDrawer from '../../../components/journey/JourneyUpsertDrawer';
 import {
     formatJourneyDate,
     getJourneyPriorityLabel,
@@ -578,12 +578,9 @@ const JourneyInbox: React.FC = () => {
 
             <JourneyUpsertDrawer
                 open={drawerOpen}
-                mode={drawerMode}
+                mode="sale"
                 journey={selectedJourney}
                 initialValues={prefillValues}
-                customers={customers}
-                pipelines={pipelines}
-                stages={stages}
                 saving={saving}
                 currentUsername={user?.username || undefined}
                 onCancel={closeDrawer}
