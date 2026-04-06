@@ -192,7 +192,7 @@ export const documentationContent: GuideCategory[] = [
                     {
                         title: 'Hồ sơ người dùng',
                         content: 'Xem thông tin cá nhân và thiết lập mật khẩu truy cập để bảo vệ dữ liệu tài chính của công ty.',
-                        image: '/assets/docs/accountant/acc_profile_mobile.png'
+                        image: '/assets/docs/kt/kt_dashboard.png'
                     }
                 ]
             }
