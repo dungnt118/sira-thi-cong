@@ -103,6 +103,10 @@ module.exports = async function(params) {
 ```text
 Tool: bac/js_library-list_api_namespaces
 Muc dich: Liet ke namespace hien co va API count de chon naming phu hop.
+
+Luu y runtime:
+- Tool nay co the tra rong neu moi truong hien tai chua co JS ApiModel, hoac dang thien ve native functions.
+- Neu tra rong, KHONG duoc dung lai; chuyen sang `js_library-search_functions` de tiep tuc discovery.
 ```
 
 ### **Buoc 2: Search native methods va existing APIs**
@@ -113,6 +117,7 @@ Muc dich: Tim ca native C# methods va JavaScript APIs lien quan.
 Goi y:
 - keyword rong/null -> thuong tra ve native functions
 - keyword co noi dung -> tim theo ten, label, description
+- Trong runtime da test, tool nay la nguon discovery on dinh nhat.
 ```
 
 ### **Buoc 3: Doc metadata chi tiet truoc khi viet script**
@@ -149,6 +154,11 @@ Muc dich: Xac dinh API dang duoc dung o dau truoc khi sua logic, contract, hoac 
 ```text
 Tool: bac/js_library-validate_api_model_script
 Muc dich: Bat syntax errors, warnings, va van de parameter mapping truoc khi create/update.
+
+Luu y runtime:
+- `script` duoc validate theo dang body truc tiep, vi du: `const result = db_query({}); return { success: true, result };`
+- Khong can boc san trong `async function ...` khi goi tool validate.
+- `parametersJson: "[]"` la input hop le neu API khong can parameters.
 ```
 
 ### **Buoc 8: Create/Update va verify**
@@ -183,6 +193,7 @@ Metadata huu ich thuong co:
 - `total`, `skip`, `limit`, `hasMore`
 
 Khi can tim ha tang truoc khi viet API, uu tien tool nay.
+Day la tool discovery da duoc test thanh cong trong runtime hien tai.
 
 ### **2. `js_library-get_method_signature`**
 Dung de doc chi tiet native method truoc khi goi trong script.
@@ -233,6 +244,7 @@ Metadata huu ich thuong co:
 - `warnings`
 
 Neu validation fail, khong duoc goi tool create/update.
+Script dau vao nen la body cua API, khong phai wrapper function day du.
 
 ### **7. `js_library-create_api_model` / `js_library-update_api_model`**
 Dung cho thao tac write.
@@ -242,6 +254,11 @@ Auto behavior can nho:
 - Co the auto-detect `relatedSchemas`, `nativeFunctions`, `jintFunctions`
 - Co the auto-generate `syntax`
 - Update se tang `version_sequence` va `updatedTime`
+
+Luu y runtime da test:
+- `create_api_model` co the bi server tu choi voi loi `Module khong duoc bo trong`.
+- Day la backend-required field khong hien dien trong wrapper MCP hien tai.
+- Neu gap loi nay, dung lai va escalate; khong retry bang metadata doan.
 
 Khong duoc dua vao auto-detect de bo qua thiet ke contract.
 
@@ -289,6 +306,7 @@ Khong duoc dua vao auto-detect de bo qua thiet ke contract.
 6. KHONG bat cache cho write API hoac API phu thuoc context thay doi nhanh neu chua phan tich.
 7. KHONG bo qua verify bang `get_api_model` sau khi write.
 8. KHONG tiep tuc toolcall write neu MCP endpoint loi `502`, timeout, hoac tra ve metadata khong day du.
+9. KHONG lap lai `create_api_model` neu backend tra loi thieu `module`; can xu ly o phia MCP/server contract.
 
 ---
 
@@ -376,9 +394,11 @@ Neu day la API update, da review them usage impact bang get_api_model_usage.
 3. Validation truoc write.
 4. Impact analysis truoc breaking change.
 5. Verification sau moi lan create/update.
-6. Neu MCP khong tra du lieu, dung lai va bao loi ha tang thay vi suy dien.
+6. `search_functions` la fallback mac dinh khi `list_api_namespaces` tra rong.
+7. Script dua vao validate nen o dang body truc tiep.
+8. Neu MCP khong tra du lieu, dung lai va bao loi ha tang thay vi suy dien.
 
 ---
 
 **Phien ban:** 1.0  
-**Cap nhat:** 2026-04-06
+**Cap nhat:** 2026-04-06 (validated against live MCP runtime)

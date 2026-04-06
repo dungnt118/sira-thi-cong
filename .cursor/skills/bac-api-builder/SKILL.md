@@ -34,7 +34,7 @@ Chi tao file sau khi da lay du thong tin tu MCP. File gom 3 phan bat buoc:
 
 | Buoc | Hanh dong | Cong cu MCP |
 |------|-----------|--------------|
-| 1 | Khao sat namespace | `js_library-list_api_namespaces` |
+| 1 | Khao sat namespace | `js_library-list_api_namespaces` (co the rong; fallback sang `search_functions`) |
 | 2 | Tim native methods va API tuong tu | `js_library-search_functions` |
 | 3 | Doc metadata chi tiet | `js_library-get_method_signature`, `js_library-get_function_usage_example`, `js_library-get_api_model` |
 | 4 | Kiem tra impact neu update | `js_library-get_api_model_usage` |
@@ -49,7 +49,8 @@ Chi tao file sau khi da lay du thong tin tu MCP. File gom 3 phan bat buoc:
 - `get_method_signature`: `parameters[]`, `returnType`, `isAsync`, `usageExample`.
 - `get_api_model`: `script`, `parameters`, `outputType`, `syntax`, `nativeFunctions`, `jintFunctions`.
 - `get_api_model_usage`: `results[]`, `totalUsages`.
-- `validate_api_model_script`: `isValid`, `messages`, `syntaxErrors`, `warnings`.
+- `validate_api_model_script`: `isValid`, `messages`, `syntaxErrors`, `warnings`. Script nen gui o dang body truc tiep; `parametersJson: "[]"` hop le.
+- `create_api_model`: co the fail voi thong bao backend `Module khong duoc bo trong`; day la field chua duoc expose qua wrapper hien tai.
 
 ## Quy tac bat buoc
 
@@ -58,6 +59,8 @@ Chi tao file sau khi da lay du thong tin tu MCP. File gom 3 phan bat buoc:
 - Khong update API cu neu chua doc `get_api_model` va `get_api_model_usage`.
 - Khong suy dien metadata khi MCP chua tra du lieu.
 - Luon verify bang `get_api_model` sau khi write.
+- Neu `list_api_namespaces` tra rong, tiep tuc discovery bang `search_functions` thay vi dung lai.
+- Neu `create_api_model` fail vi thieu `module`, dung lai va escalate backend/MCP contract.
 
 ## Xu ly loi ha tang
 

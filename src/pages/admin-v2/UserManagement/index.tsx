@@ -156,6 +156,35 @@ const UserManagement: React.FC = () => {
         }
     };
 
+    const handleToggleStatus = async (user: AuthorizedUser) => {
+        if (!user.globalUserId) {
+            message.error('Không tìm thấy GlobalUser liên kết để thay đổi trạng thái.');
+            return;
+        }
+
+        const newStatus = !user.isActive;
+        const actionLabel = newStatus ? 'kích hoạt' : 'tạm ngưng';
+
+        try {
+            setLoading(true);
+            const success = newStatus ? 
+                await globalUserService.activateUser(user.globalUserId) : 
+                await globalUserService.deactivateUser(user.globalUserId);
+
+            if (success) {
+                message.success(`Đã ${actionLabel} tài khoản ${user.username || user.fullName}.`);
+                await fetchUsers();
+            } else {
+                throw new Error(`Không thể ${actionLabel} tài khoản.`);
+            }
+        } catch (error: any) {
+            console.error(`Toggle status error (${actionLabel}):`, error);
+            message.error(error?.message || `Lỗi khi ${actionLabel} tài khoản.`);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleDelete = async (user: AuthorizedUser) => {
         if (!user.globalUserId) {
             message.error('Không tìm thấy GlobalUser liên kết nên chưa thể xóa tài khoản.');
@@ -371,6 +400,19 @@ const UserManagement: React.FC = () => {
                     </Tooltip>
                     <Tooltip title="Đổi mật khẩu">
                         <Button type="text" icon={<LockOutlined />} onClick={() => handleOpenPasswordModal(record)} />
+                    </Tooltip>
+                    <Tooltip title={record.isActive ? 'Tạm ngưng tài khoản' : 'Kích hoạt tài khoản'}>
+                        <Popconfirm
+                            title={`${record.isActive ? 'Tạm ngưng' : 'Kích hoạt'} tài khoản này?`}
+                            onConfirm={() => handleToggleStatus(record)}
+                            okText="Đồng ý"
+                            cancelText="Hủy"
+                        >
+                            <Button 
+                                type="text" 
+                                icon={record.isActive ? <CloseCircleOutlined style={{ color: '#faad14' }} /> : <CheckCircleOutlined style={{ color: '#52c41a' }} />} 
+                            />
+                        </Popconfirm>
                     </Tooltip>
                     <Popconfirm
                         title="Xóa tài khoản này?"
