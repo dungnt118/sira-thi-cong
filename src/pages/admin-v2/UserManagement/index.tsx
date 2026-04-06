@@ -507,7 +507,6 @@ const UserManagement: React.FC = () => {
                         label="Mật khẩu mới"
                         rules={[
                             { required: true, message: 'Vui lòng nhập mật khẩu mới.' },
-                            { min: 8, message: 'Mật khẩu mới phải có ít nhất 8 ký tự.' },
                         ]}
                     >
                         <Input.Password placeholder="Nhập mật khẩu mới" />
@@ -594,7 +593,6 @@ const UserManagement: React.FC = () => {
                             label="Mật khẩu khởi tạo"
                             rules={[
                                 { required: true, message: 'Vui lòng nhập mật khẩu.' },
-                                { min: 8, message: 'Mật khẩu phải có ít nhất 8 ký tự.' },
                             ]}
                         >
                             <Input.Password placeholder="Nhập mật khẩu" />

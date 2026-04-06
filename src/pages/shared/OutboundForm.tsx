@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { 
-    Form, Input, Select, InputNumber, Button, Card, 
+import {
+    Form, Input, Select, InputNumber, Button, Card,
     Typography, Space, Row, Col, message,
     Table, Empty, Radio, Tag, Grid, Spin
 } from 'antd';
-import { 
-    PlusOutlined, SaveOutlined, ArrowLeftOutlined, 
-    DeleteOutlined, WarningOutlined 
+import {
+    PlusOutlined, SaveOutlined, ArrowLeftOutlined,
+    DeleteOutlined, WarningOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { materialService } from '../../services/core-contracts/services/material.service';
@@ -27,13 +27,13 @@ const OutboundForm: React.FC = () => {
     const { user } = useAuth();
     const screens = useBreakpoint();
     const isMobile = !screens.md;
-    
+
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [materials, setMaterials] = useState<IMaterial[]>([]);
     const [groups, setGroups] = useState<IMaterialGroup[]>([]);
     const [journeys, setJourneys] = useState<IJourney[]>([]);
-    
+
     const [selectedItems, setSelectedItems] = useState<any[]>([]);
     const [outMode, setOutMode] = useState<'FULL' | 'PARTIAL'>('FULL');
 
@@ -48,7 +48,7 @@ const OutboundForm: React.FC = () => {
             setMaterials(mRes.data || []);
             setGroups(gRes.data || []);
             // Filter active/not_started journeys manually
-            const activeJourneys = (jRes.data || []).filter(j => 
+            const activeJourneys = (jRes.data || []).filter(j =>
                 ['active', 'not_started'].includes(j.project_status || '')
             );
             setJourneys(activeJourneys);
@@ -97,10 +97,10 @@ const OutboundForm: React.FC = () => {
             requested_quantity: values.quantity,
             issued_quantity: values.quantity,
             is_partial: isPartial,
-            base_quantity: requestedBase, 
+            base_quantity: requestedBase,
             unit_cost: material.unit_cost,
-            total: isPartial 
-                ? (values.quantity / capacity) * (material.unit_cost || 0) 
+            total: isPartial
+                ? (values.quantity / capacity) * (material.unit_cost || 0)
                 : values.quantity * (material.unit_cost || 0)
         };
 
@@ -128,10 +128,10 @@ const OutboundForm: React.FC = () => {
             message.error('Vui lòng chọn hành trình tiếp nhận');
             return;
         }
-        
+
         const journey = journeys.find(j => j._id === formValues.journey_id);
         setSubmitting(true);
-        
+
         try {
             await stockOrderService.createStockOrder({
                 type: 'out',
@@ -164,9 +164,9 @@ const OutboundForm: React.FC = () => {
     };
 
     const itemColumns = [
-        { 
-            title: 'Vật tư', 
-            dataIndex: 'material_name', 
+        {
+            title: 'Vật tư',
+            dataIndex: 'material_name',
             key: 'name',
             render: (text: string) => <div style={{ minWidth: 150 }}>{text}</div>
         },
@@ -198,8 +198,8 @@ const OutboundForm: React.FC = () => {
 
             <Row gutter={[24, 24]}>
                 <Col xs={24} md={16}>
-                    <Card 
-                        title="Chọn vật tư cấp phát" 
+                    <Card
+                        title="Chọn vật tư cấp phát"
                         style={{ marginBottom: '16px' }}
                     >
                         <Form form={form} layout="vertical">
@@ -214,7 +214,7 @@ const OutboundForm: React.FC = () => {
                             <Row gutter={16}>
                                 <Col xs={24} sm={14}>
                                     <Form.Item name="material_id" label="Chọn vật tư">
-                                        <Select 
+                                        <Select
                                             showSearch
                                             placeholder="Gõ mã hoặc tên"
                                             optionFilterProp="children"
@@ -239,17 +239,17 @@ const OutboundForm: React.FC = () => {
                                     </Form.Item>
                                 </Col>
                                 <Col xs={16} sm={6}>
-                                    <Form.Item 
-                                        name="quantity" 
-                                        label={outMode === 'FULL' ? "Số lượng (Thùng/Lon)" : "Số lượng lẻ (Kg/Lít)"}
+                                    <Form.Item
+                                        name="quantity"
+                                        label={outMode === 'FULL' ? "Số (Thùng/Lon)" : "Số lẻ (Kg/Lít)"}
                                     >
                                         <InputNumber min={0.01} style={{ width: '100%' }} size={isMobile ? 'large' : 'middle'} />
                                     </Form.Item>
                                 </Col>
                                 <Col xs={8} sm={4} style={{ display: 'flex', alignItems: 'flex-end', paddingBottom: '24px' }}>
-                                    <Button 
-                                        type="primary" 
-                                        icon={<PlusOutlined />} 
+                                    <Button
+                                        type="primary"
+                                        icon={<PlusOutlined />}
                                         onClick={handleAddItem}
                                         block={isMobile}
                                         size={isMobile ? 'large' : 'middle'}
@@ -260,10 +260,10 @@ const OutboundForm: React.FC = () => {
                             </Row>
                         </Form>
 
-                        <Table 
-                            dataSource={selectedItems} 
-                            columns={itemColumns} 
-                            pagination={false} 
+                        <Table
+                            dataSource={selectedItems}
+                            columns={itemColumns}
+                            pagination={false}
                             size="small"
                             scroll={{ x: 'max-content' }}
                             locale={{ emptyText: <Empty description="Chưa có vật tư nào được chọn" /> }}
@@ -272,26 +272,26 @@ const OutboundForm: React.FC = () => {
                 </Col>
 
                 <Col xs={24} md={8}>
-                    <Card 
+                    <Card
                         title="Thông tin tiếp nhận"
                         styles={{ body: { padding: isMobile ? '12px' : '24px' } }}
                     >
                         <Form form={form} layout="vertical">
-                            <Form.Item 
-                                name="journey_id" 
+                            <Form.Item
+                                name="journey_id"
                                 label="Hành trình / Công trình tiếp nhận"
                                 rules={[{ required: true, message: 'Vui lòng chọn hành trình' }]}
                             >
-                                <Select 
-                                    placeholder="Chọn hành trình" 
-                                    showSearch 
+                                <Select
+                                    placeholder="Chọn hành trình"
+                                    showSearch
                                     optionFilterProp="children"
                                     size={isMobile ? 'large' : 'middle'}
                                 >
                                     {journeys.map(j => (
                                         <Select.Option key={j._id} value={j._id}>
                                             <Space direction={isMobile ? 'vertical' : 'horizontal'} size={0}>
-                                                <Tag color="blue" style={{fontSize: 11}}>{j.journey_code}</Tag>
+                                                <Tag color="blue" style={{ fontSize: 11 }}>{j.journey_code}</Tag>
                                                 <Text style={{ fontSize: isMobile ? 12 : 14 }}>{j.customer_full_name} — {j.requested_service}</Text>
                                             </Space>
                                         </Select.Option>
@@ -309,12 +309,12 @@ const OutboundForm: React.FC = () => {
                                         Tổng giá trị: {selectedItems.reduce((sum, item) => sum + (item.total || 0), 0).toLocaleString('vi-VN')}đ
                                     </Text>
                                 </div>
-                                <Button 
-                                    type="primary" 
-                                    size="large" 
-                                    block 
+                                <Button
+                                    type="primary"
+                                    size="large"
+                                    block
                                     loading={submitting}
-                                    icon={<SaveOutlined />} 
+                                    icon={<SaveOutlined />}
                                     onClick={handleSubmit}
                                     style={{ height: isMobile ? '50px' : 'auto' }}
                                 >
@@ -328,7 +328,7 @@ const OutboundForm: React.FC = () => {
                         <Space align="start">
                             <WarningOutlined style={{ color: '#faad14', marginTop: '4px' }} />
                             <Text style={{ fontSize: '12px' }}>
-                                Phiếu xuất kho sau khi tạo sẽ ở trạng thái <strong>Chờ ký duyệt</strong>. 
+                                Phiếu xuất kho sau khi tạo sẽ ở trạng thái <strong>Chờ ký duyệt</strong>.
                                 Giám sát, PM hoặc Kế toán sẽ duyệt và nhận bàn giao vật tư trên ứng dụng.
                             </Text>
                         </Space>

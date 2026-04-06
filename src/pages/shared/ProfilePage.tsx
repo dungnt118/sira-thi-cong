@@ -479,7 +479,6 @@ export const SharedProfilePage: React.FC = () => {
                         label="Mật khẩu mới"
                         rules={[
                             { required: true, message: 'Vui lòng nhập mật khẩu mới.' },
-                            { min: 8, message: 'Mật khẩu mới phải có ít nhất 8 ký tự.' },
                         ]}
                     >
                         <Input.Password placeholder="Nhập mật khẩu mới" />
