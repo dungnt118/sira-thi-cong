@@ -27,11 +27,26 @@ export interface BaseUserInfo {
   tenantId?: string | null;
 }
 
+export interface GlobalUserBasicDto {
+  id?: string | null;
+  username?: string | null;
+  avatar?: string | null;
+  email?: string | null;
+  fullName?: string | null;
+  phoneNumber?: string | null;
+  role?: string | null;
+  emailConfirmed?: boolean;
+  isActive: boolean;
+  isLockedOut?: boolean;
+  createdAt?: string | Date | null;
+}
+
 export interface AuthorizedUser extends BaseUserInfo {
   _id: string;
   globalUserId?: string | null;
   username?: string | null;
   isActive: boolean;
+  globalUser?: GlobalUserBasicDto | null;
   permVer?: number;
   isRoot?: boolean;
   identity_contexts?: IdentityContext[] | null;

@@ -162,7 +162,8 @@ const UserManagement: React.FC = () => {
             return;
         }
 
-        const newStatus = !user.isActive;
+        const currentStatus = user.globalUser?.isActive ?? user.isActive;
+        const newStatus = !currentStatus;
         const actionLabel = newStatus ? 'kích hoạt' : 'tạm ngưng';
 
         try {
@@ -226,7 +227,7 @@ const UserManagement: React.FC = () => {
             username: user.username || '',
             roles: context?.roles || [],
             defaultRole: context?.defaultRole || '',
-            isActive: user.isActive ? 'Active' : 'Inactive',
+            isActive: (user.globalUser?.isActive ?? user.isActive) ? 'Active' : 'Inactive',
         });
 
         setIsModalOpen(true);
@@ -379,14 +380,16 @@ const UserManagement: React.FC = () => {
         },
         {
             title: 'Trạng thái',
-            dataIndex: 'isActive',
             key: 'isActive',
             width: 120,
-            render: (isActive: boolean) => (
-                <Tag color={isActive ? 'success' : 'default'} icon={isActive ? <CheckCircleOutlined /> : <CloseCircleOutlined />}>
-                    {isActive ? 'Hoạt động' : 'Ngừng'}
-                </Tag>
-            ),
+            render: (_, record) => {
+                const isActive = record.globalUser?.isActive ?? record.isActive;
+                return (
+                    <Tag color={isActive ? 'success' : 'default'} icon={isActive ? <CheckCircleOutlined /> : <CloseCircleOutlined />}>
+                        {isActive ? 'Hoạt động' : 'Ngừng'}
+                    </Tag>
+                );
+            },
         },
         {
             title: 'Thao tác',
@@ -401,16 +404,16 @@ const UserManagement: React.FC = () => {
                     <Tooltip title="Đổi mật khẩu">
                         <Button type="text" icon={<LockOutlined />} onClick={() => handleOpenPasswordModal(record)} />
                     </Tooltip>
-                    <Tooltip title={record.isActive ? 'Tạm ngưng tài khoản' : 'Kích hoạt tài khoản'}>
+                    <Tooltip title={(record.globalUser?.isActive ?? record.isActive) ? 'Tạm ngưng tài khoản' : 'Kích hoạt tài khoản'}>
                         <Popconfirm
-                            title={`${record.isActive ? 'Tạm ngưng' : 'Kích hoạt'} tài khoản này?`}
+                            title={`${(record.globalUser?.isActive ?? record.isActive) ? 'Tạm ngưng' : 'Kích hoạt'} tài khoản này?`}
                             onConfirm={() => handleToggleStatus(record)}
                             okText="Đồng ý"
                             cancelText="Hủy"
                         >
                             <Button 
                                 type="text" 
-                                icon={record.isActive ? <CloseCircleOutlined style={{ color: '#faad14' }} /> : <CheckCircleOutlined style={{ color: '#52c41a' }} />} 
+                                icon={(record.globalUser?.isActive ?? record.isActive) ? <CloseCircleOutlined style={{ color: '#faad14' }} /> : <CheckCircleOutlined style={{ color: '#52c41a' }} />} 
                             />
                         </Popconfirm>
                     </Tooltip>
@@ -440,7 +443,7 @@ const UserManagement: React.FC = () => {
                     <Card size="small">
                         <Statistic
                             title="Đang hoạt động"
-                            value={users.filter((user) => user.isActive).length}
+                            value={users.filter((user) => user.globalUser?.isActive ?? user.isActive).length}
                             valueStyle={{ color: '#52c41a' }}
                             prefix={<CheckCircleOutlined />}
                         />

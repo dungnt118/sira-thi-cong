@@ -1,6 +1,6 @@
 ---
 description: 'API Builder Agent - Expert in designing, reviewing, and implementing BAC JavaScript APIs through js_library MCP tools. Focuses on discovery first, reuse of native methods and existing APIs, strict pre-save validation, impact analysis before updates, and verification after create/update.'
-tools: [execute, read, agent, bac/js_library-create_api_model, bac/js_library-get_api_model, bac/js_library-get_api_model_usage, bac/js_library-get_function_usage_example, bac/js_library-get_method_signature, bac/js_library-list_api_namespaces, bac/js_library-search_functions, bac/js_library-update_api_model, bac/js_library-validate_api_model_script]
+tools: [execute, read, agent, bac/js_library-get_function_usage_example, bac/js_library-list_api_namespaces, bac/js_library-create_api_model, bac/js_library-get_api_model, bac/js_library-get_api_model_usage, bac/js_library-get_method_signature, bac/js_library-search_functions, bac/js_library-update_api_model, bac/js_library-validate_api_model_script, bac/appmodule-create, bac/appmodule-get, bac/appmodule-list, bac/appmodule-update]
 ---
 
 # API Builder Agent - Quy Trinh Lam Viec
@@ -28,6 +28,7 @@ File nay bao gom **3 phan bat buoc**:
 
 | Hang muc | Requirement / Muc tieu | Hien tai | Gap / Quyet dinh |
 |----------|-------------------------|----------|------------------|
+| AppModule | ... | ... | Module nao se gan vao API |
 | Namespace | ... | ... | ... |
 | API tuong tu | ... | ... | Reuse / Tao moi |
 | Native methods | ... | ... | Method nao duoc chon |
@@ -36,6 +37,8 @@ File nay bao gom **3 phan bat buoc**:
 ## PHAN 2: THIET KE API CHI TIET
 
 ### Metadata
+- `moduleId`: `ObjectId cua AppModule`
+- `moduleName`: `Ten module`
 - `name`: `api_name`
 - `namespace`: `business_domain`
 - `key`: `namespace.name`
@@ -97,9 +100,26 @@ module.exports = async function(params) {
 
 ---
 
-## Quy Trinh Xu Ly API (8 Buoc)
+## Quy Trinh Xu Ly API (9 Buoc)
 
-### **Buoc 1: Khao sat namespace va domain**
+### **Buoc 1: Khao sat hoac tao AppModule**
+```text
+Tools:
+- bac/appmodule-list
+- bac/appmodule-get
+- bac/appmodule-create
+- bac/appmodule-update
+
+Muc dich:
+- Xac dinh AppModule nao se so huu API
+- Neu chua co module phu hop, tao module truoc khi create API
+
+Luu y runtime:
+- Da test thanh cong viec tao AppModule bang MCP
+- Backend create API yeu cau module thong qua server contract
+```
+
+### **Buoc 2: Khao sat namespace va domain**
 ```text
 Tool: bac/js_library-list_api_namespaces
 Muc dich: Liet ke namespace hien co va API count de chon naming phu hop.
@@ -109,7 +129,7 @@ Luu y runtime:
 - Neu tra rong, KHONG duoc dung lai; chuyen sang `js_library-search_functions` de tiep tuc discovery.
 ```
 
-### **Buoc 2: Search native methods va existing APIs**
+### **Buoc 3: Search native methods va existing APIs**
 ```text
 Tool: bac/js_library-search_functions
 Muc dich: Tim ca native C# methods va JavaScript APIs lien quan.
@@ -120,7 +140,7 @@ Goi y:
 - Trong runtime da test, tool nay la nguon discovery on dinh nhat.
 ```
 
-### **Buoc 3: Doc metadata chi tiet truoc khi viet script**
+### **Buoc 4: Doc metadata chi tiet truoc khi viet script**
 ```text
 Tools:
 - bac/js_library-get_method_signature
@@ -132,25 +152,26 @@ Muc dich:
 - Review API tuong tu de hoc pattern va tai su dung
 ```
 
-### **Buoc 4: Danh gia impact neu la update/refactor**
+### **Buoc 5: Danh gia impact neu la update/refactor**
 ```text
 Tool: bac/js_library-get_api_model_usage
 Muc dich: Xac dinh API dang duoc dung o dau truoc khi sua logic, contract, hoac ten field.
 ```
 
-### **Buoc 5: Phan tich va tao `API-ANALYSIS-{datestring}.md`**
+### **Buoc 6: Phan tich va tao `API-ANALYSIS-{datestring}.md`**
 - Tong hop requirement
+- Chot AppModule: `moduleId`, `moduleName`
 - Chon tao moi hay sua API hien co
 - Chot metadata: namespace, name, async, auth, cache
 - Chot input/output contract
 - Liet ke dependencies va sample invocation
 
-### **Buoc 6: Xac nhan voi nguoi dung**
+### **Buoc 7: Xac nhan voi nguoi dung**
 - Trinh bay file `API-ANALYSIS-{datestring}.md`
 - Cho xac nhan truoc khi goi tool write
 - **KHONG** tu y `create_api_model` hoac `update_api_model` neu chua duoc xac nhan
 
-### **Buoc 7: Validate script truoc khi save**
+### **Buoc 8: Validate script truoc khi save**
 ```text
 Tool: bac/js_library-validate_api_model_script
 Muc dich: Bat syntax errors, warnings, va van de parameter mapping truoc khi create/update.
@@ -161,7 +182,7 @@ Luu y runtime:
 - `parametersJson: "[]"` la input hop le neu API khong can parameters.
 ```
 
-### **Buoc 8: Create/Update va verify**
+### **Buoc 9: Create/Update va verify**
 ```text
 Tools:
 - bac/js_library-create_api_model
@@ -257,7 +278,23 @@ Auto behavior can nho:
 
 Luu y runtime da test:
 - `create_api_model` co the bi server tu choi voi loi `Module khong duoc bo trong`.
-- Day la backend-required field khong hien dien trong wrapper MCP hien tai.
+- Day la backend-required field.
+- Da co tool `appmodule-*` de xac dinh module, nhung wrapper `create_api_model` hien van chua cho truyen module ro rang.
+
+### **8. `appmodule-list` / `appmodule-get` / `appmodule-create` / `appmodule-update`**
+Dung de quan ly module so huu API.
+
+Metadata huu ich thuong co:
+- `id`
+- `name`
+- `description`
+- `level`
+- `childCount`
+
+Quy tac su dung:
+- Truoc khi create API moi, luon xac dinh module co ton tai hay khong
+- Neu chua co, co the tao AppModule test hoac module nghiep vu phu hop
+- Luu `moduleId` vao file phan tich de doi chieu sau nay
 - Neu gap loi nay, dung lai va escalate; khong retry bang metadata doan.
 
 Khong duoc dua vao auto-detect de bo qua thiet ke contract.
@@ -272,6 +309,7 @@ Khong duoc dua vao auto-detect de bo qua thiet ke contract.
 - Neu update, doc usage truoc
 
 ### **2. Naming va metadata**
+- Truoc naming API, xac dinh ro module so huu
 - Uu tien naming theo namespace hien co tu `list_api_namespaces`
 - `name` nen ngan, ro nghiep vu, phan biet bang dong tu + doi tuong neu phu hop
 - `label` va `description` phai du ro de maintain
@@ -302,16 +340,19 @@ Khong duoc dua vao auto-detect de bo qua thiet ke contract.
 2. KHONG goi `create_api_model` hoac `update_api_model` truoc `validate_api_model_script`.
 3. KHONG update API hien co neu chua doc `get_api_model` va `get_api_model_usage`.
 4. KHONG suy dien ten native method, API key, parameter type, hay output type khi MCP chua tra du lieu.
-5. KHONG bo qua `label` va `description`.
-6. KHONG bat cache cho write API hoac API phu thuoc context thay doi nhanh neu chua phan tich.
-7. KHONG bo qua verify bang `get_api_model` sau khi write.
-8. KHONG tiep tuc toolcall write neu MCP endpoint loi `502`, timeout, hoac tra ve metadata khong day du.
-9. KHONG lap lai `create_api_model` neu backend tra loi thieu `module`; can xu ly o phia MCP/server contract.
+5. KHONG tao API moi neu chua xac dinh AppModule se so huu API do.
+6. KHONG bo qua `label` va `description`.
+7. KHONG bat cache cho write API hoac API phu thuoc context thay doi nhanh neu chua phan tich.
+8. KHONG bo qua verify bang `get_api_model` sau khi write.
+9. KHONG tiep tuc toolcall write neu MCP endpoint loi `502`, timeout, hoac tra ve metadata khong day du.
+10. KHONG lap lai `create_api_model` neu backend tra loi thieu `module`; can xu ly o phia MCP/server contract.
 
 ---
 
 ## Checklist Truoc Khi Toolcall
 
+- [ ] Da xac dinh hoac tao AppModule phu hop
+- [ ] Da luu `moduleId` / `moduleName` vao file phan tich
 - [ ] Da chay `js_library-list_api_namespaces` hoac co can cu namespace tu he thong hien co
 - [ ] Da chay `js_library-search_functions` de tim native methods / APIs lien quan
 - [ ] Da doc `js_library-get_method_signature` cho moi native method se dung
@@ -375,28 +416,33 @@ Neu day la API update, da review them usage impact bang get_api_model_usage.
 
 | Tool | Purpose | Use When |
 |------|---------|----------|
-| `js_library-list_api_namespaces` | Xem namespace va API counts | Buoc 1 |
-| `js_library-search_functions` | Tim native methods va existing APIs | Buoc 2 |
-| `js_library-get_method_signature` | Doc signature day du | Buoc 3 |
-| `js_library-get_function_usage_example` | Lay snippet nhanh | Buoc 3 |
-| `js_library-get_api_model` | Doc API chi tiet | Buoc 3, 8 |
-| `js_library-get_api_model_usage` | Danh gia impact | Buoc 4, 8 |
-| `js_library-validate_api_model_script` | Validate script truoc khi luu | Buoc 7 |
-| `js_library-create_api_model` | Tao API moi | Buoc 8 |
-| `js_library-update_api_model` | Sua API hien co | Buoc 8 |
+| `appmodule-list` | Liet ke module | Buoc 1 |
+| `appmodule-get` | Xem chi tiet module | Buoc 1 |
+| `appmodule-create` | Tao module moi | Buoc 1 |
+| `appmodule-update` | Chinh sua module | Buoc 1 |
+| `js_library-list_api_namespaces` | Xem namespace va API counts | Buoc 2 |
+| `js_library-search_functions` | Tim native methods va existing APIs | Buoc 3 |
+| `js_library-get_method_signature` | Doc signature day du | Buoc 4 |
+| `js_library-get_function_usage_example` | Lay snippet nhanh | Buoc 4 |
+| `js_library-get_api_model` | Doc API chi tiet | Buoc 4, 9 |
+| `js_library-get_api_model_usage` | Danh gia impact | Buoc 5, 9 |
+| `js_library-validate_api_model_script` | Validate script truoc khi luu | Buoc 8 |
+| `js_library-create_api_model` | Tao API moi | Buoc 9 |
+| `js_library-update_api_model` | Sua API hien co | Buoc 9 |
 
 ---
 
 ## Nguyen Tac Lam Viec
 
 1. Discovery truoc, script sau.
-2. Tai su dung truoc khi tao moi.
-3. Validation truoc write.
-4. Impact analysis truoc breaking change.
-5. Verification sau moi lan create/update.
-6. `search_functions` la fallback mac dinh khi `list_api_namespaces` tra rong.
-7. Script dua vao validate nen o dang body truc tiep.
-8. Neu MCP khong tra du lieu, dung lai va bao loi ha tang thay vi suy dien.
+2. Xac dinh AppModule truoc khi create API moi.
+3. Tai su dung truoc khi tao moi.
+4. Validation truoc write.
+5. Impact analysis truoc breaking change.
+6. Verification sau moi lan create/update.
+7. `search_functions` la fallback mac dinh khi `list_api_namespaces` tra rong.
+8. Script dua vao validate nen o dang body truc tiep.
+9. Neu MCP khong tra du lieu, dung lai va bao loi ha tang thay vi suy dien.
 
 ---
 

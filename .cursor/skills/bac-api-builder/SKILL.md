@@ -26,22 +26,23 @@ Doc chi tiet trong repo: [BAC-ApiBuilderAgent.agent.md](../../../.github/agents/
 
 Chi tao file sau khi da lay du thong tin tu MCP. File gom 3 phan bat buoc:
 
-1. **Discovery va gap** — namespace, API tuong tu, native methods, create hay update, usage impact.
+1. **Discovery va gap** — appmodule, namespace, API tuong tu, native methods, create hay update, usage impact.
 2. **Thiet ke API chi tiet** — metadata, input contract, output contract, dependencies, script design.
 3. **Validation va verify plan** — ket qua validate, tool write du kien, cach verify sau khi luu.
 
-## Quy trinh 8 buoc
+## Quy trinh 9 buoc
 
 | Buoc | Hanh dong | Cong cu MCP |
 |------|-----------|--------------|
-| 1 | Khao sat namespace | `js_library-list_api_namespaces` (co the rong; fallback sang `search_functions`) |
-| 2 | Tim native methods va API tuong tu | `js_library-search_functions` |
-| 3 | Doc metadata chi tiet | `js_library-get_method_signature`, `js_library-get_function_usage_example`, `js_library-get_api_model` |
-| 4 | Kiem tra impact neu update | `js_library-get_api_model_usage` |
-| 5 | Viet `API-ANALYSIS-{datestring}.md` | — |
-| 6 | Trinh bay va **cho user xac nhan** | — |
-| 7 | Validate script | `js_library-validate_api_model_script` |
-| 8 | Create/update va verify | `js_library-create_api_model`, `js_library-update_api_model`, `js_library-get_api_model` |
+| 1 | Khao sat hoac tao AppModule | `appmodule-list`, `appmodule-get`, `appmodule-create`, `appmodule-update` |
+| 2 | Khao sat namespace | `js_library-list_api_namespaces` (co the rong; fallback sang `search_functions`) |
+| 3 | Tim native methods va API tuong tu | `js_library-search_functions` |
+| 4 | Doc metadata chi tiet | `js_library-get_method_signature`, `js_library-get_function_usage_example`, `js_library-get_api_model` |
+| 5 | Kiem tra impact neu update | `js_library-get_api_model_usage` |
+| 6 | Viet `API-ANALYSIS-{datestring}.md` | — |
+| 7 | Trinh bay va **cho user xac nhan** | — |
+| 8 | Validate script | `js_library-validate_api_model_script` |
+| 9 | Create/update va verify | `js_library-create_api_model`, `js_library-update_api_model`, `js_library-get_api_model` |
 
 ## Metadata can doc tu tool
 
@@ -50,7 +51,8 @@ Chi tao file sau khi da lay du thong tin tu MCP. File gom 3 phan bat buoc:
 - `get_api_model`: `script`, `parameters`, `outputType`, `syntax`, `nativeFunctions`, `jintFunctions`.
 - `get_api_model_usage`: `results[]`, `totalUsages`.
 - `validate_api_model_script`: `isValid`, `messages`, `syntaxErrors`, `warnings`. Script nen gui o dang body truc tiep; `parametersJson: "[]"` hop le.
-- `create_api_model`: co the fail voi thong bao backend `Module khong duoc bo trong`; day la field chua duoc expose qua wrapper hien tai.
+- `appmodule-*`: xac dinh `moduleId`, `name`, `description` cua module so huu API.
+- `create_api_model`: co the fail voi thong bao backend `Module khong duoc bo trong`; can xac dinh module truoc, nhung wrapper hien tai van chua cho truyen module ro rang.
 
 ## Quy tac bat buoc
 
@@ -60,6 +62,7 @@ Chi tao file sau khi da lay du thong tin tu MCP. File gom 3 phan bat buoc:
 - Khong suy dien metadata khi MCP chua tra du lieu.
 - Luon verify bang `get_api_model` sau khi write.
 - Neu `list_api_namespaces` tra rong, tiep tuc discovery bang `search_functions` thay vi dung lai.
+- Khong create API moi neu chua xac dinh AppModule so huu.
 - Neu `create_api_model` fail vi thieu `module`, dung lai va escalate backend/MCP contract.
 
 ## Xu ly loi ha tang
@@ -73,6 +76,8 @@ Neu MCP BAC tra `502 Bad Gateway`, timeout, hoac du lieu thieu:
 
 ## Checklist truoc toolcall
 
+- [ ] Da xac dinh hoac tao AppModule phu hop
+- [ ] Da luu `moduleId` / `moduleName`
 - [ ] Da khao sat namespace
 - [ ] Da search native methods / APIs lien quan
 - [ ] Da doc method signature can dung
@@ -86,6 +91,10 @@ Neu MCP BAC tra `502 Bad Gateway`, timeout, hoac du lieu thieu:
 
 | Tool | Khi dung |
 |------|----------|
+| `appmodule-list` | Liet ke module |
+| `appmodule-get` | Xem chi tiet module |
+| `appmodule-create` | Tao module moi |
+| `appmodule-update` | Chinh sua module |
 | `js_library-list_api_namespaces` | Chon namespace |
 | `js_library-search_functions` | Discovery tong hop |
 | `js_library-get_method_signature` | Hieu native method |
