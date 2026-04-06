@@ -1,3 +1,4 @@
+import type { IChatboxSettings } from '../chatbox/ChatboxShared';
 import { PropDefinition } from "./PropDefinition";
 
 /**
@@ -20,6 +21,7 @@ export interface SchemaDefinition {
         enabled: boolean;
         [key: string]: any;
     };
+    chatboxSetting?: IChatboxSettings;
     graph_query_string?: string;
     graph_find_string?: string;
     graph_find_reference_string?: string;
