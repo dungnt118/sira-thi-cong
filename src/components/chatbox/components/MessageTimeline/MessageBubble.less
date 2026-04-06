@@ -1,0 +1,140 @@
+.message-bubble-container {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding: 0 12px;
+  animation: fadeIn 0.3s ease-in;
+
+  &.own-message {
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+  }
+
+  &.other-message {
+    flex-direction: row;
+    justify-content: flex-start;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.message-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.message-avatar-spacer {
+  width: 32px;
+  flex-shrink: 0;
+}
+
+.message-bubble-content {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  max-width: min(85%, 560px);
+}
+
+.message-bubble {
+  padding: 8px 12px;
+  border-radius: 8px;
+  background-color: #e3f2fd;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  min-width: 0;
+  max-width: 100%;
+
+  .own-message & {
+    background-color: #e1f5fe;
+    border-bottom-right-radius: 4px;
+  }
+
+  .other-message & {
+    background-color: #f5f5f5;
+    border-bottom-left-radius: 4px;
+  }
+}
+
+.message-reply-preview {
+  padding: 6px 8px;
+  margin-bottom: 8px;
+  border-left: 3px solid #1976d2;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.reply-preview-label {
+  display: block;
+  color: #595959;
+  margin-bottom: 2px;
+}
+
+.reply-preview-text {
+  color: #8c8c8c;
+  font-style: italic;
+}
+
+.message-text {
+  font-size: 13px;
+  color: #262626;
+  line-height: 1.5;
+  margin-bottom: 6px;
+
+  .message-mention {
+    display: inline-block;
+    background-color: #e6f7ff;
+    color: #1890ff;
+    font-weight: 500;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid #91d5ff;
+    margin: 0 1px;
+  }
+}
+
+.message-meta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 11px;
+  color: #8c8c8c;
+  margin-top: 4px;
+}
+
+.message-time {
+  font-weight: 500;
+}
+
+.message-actions-slot {
+  flex-shrink: 0;
+  width: 32px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.message-actions-button {
+  color: #8c8c8c !important;
+}

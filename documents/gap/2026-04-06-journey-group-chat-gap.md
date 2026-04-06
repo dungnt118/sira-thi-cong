@@ -1,59 +1,27 @@
-# GAP triển khai trao đổi nhóm cho Journey
+# Quyết định triển khai chat Journey ngày 06-04-2026
 
-## Bối cảnh
+Tài liệu này thay cho bản GAP cũ. Các điểm nghiệp vụ đã được chốt để frontend triển khai tiếp mà không cần giữ trạng thái chờ xác nhận.
 
-Đợt này đã triển khai component dùng chung cho trao đổi nhóm dựa trên API `cb_*` và gắn vào tab `Portal/Chat` của màn `JourneyDetail360`.
+## Quyết định 1: Dùng duy nhất cung `cb_*`
 
-## GAP 1: Ngữ nghĩa giữa chat nội bộ và chat Portal chưa được chốt
+- Frontend không tách riêng chat nội bộ và chat Portal.
+- Backend đã quản lý vai trò, quyền xem và phạm vi hiển thị theo từng thread.
+- Frontend chỉ cần hiển thị đúng hierarchy, participant, message và hành vi theo dữ liệu `cb_*` trả về.
 
-- Hiện tab `GRP_06_CONTRACT` đang đồng thời mang ý nghĩa KPI Portal (`portal_publish_status`, `unread_thread_count`) và nhu cầu trao đổi nhóm nội bộ.
-- Backend `cb_*` là chatbox generic theo `schemaName/contentId`, còn dữ liệu Portal hiện tại trong repo vẫn đang đi theo hướng `PortalThread` / `PortalMessage`.
-- Vì chưa có quyết định nghiệp vụ chính thức, đợt này chỉ đặt component trao đổi nhóm nội bộ cùng khu vực KPI Portal, chưa hợp nhất hai luồng thành một mô hình duy nhất.
+## Quyết định 2: Feature parity bám theo `chatboxv2`
 
-### Đánh giá
+- Phạm vi hành vi tham chiếu theo codebase `chatboxv2` mà user đã cung cấp.
+- Các chức năng nâng cao được bật/tắt theo `SchemaDefinition.chatboxSetting`.
+- Nếu schema chưa có field `chatboxSetting` ở frontend thì phải mở rộng type để đọc được cấu hình này.
 
-- Nếu gộp vội hai luồng ngay bây giờ, rất dễ làm sai vai trò người tham gia, sai chỉ số chưa đọc, hoặc lệch phạm vi hiển thị giữa nội bộ và khách hàng.
-- Giữ song song ở mức UI là an toàn hơn để user trải nghiệm sớm mà chưa khóa cứng mô hình dữ liệu.
+## Quyết định 3: Mời thành viên theo `username`
 
-### Phương án đề xuất
+- Chức năng mời user dùng `username`.
+- Không suy diễn hay auto-map participant theo vai trò của Journey.
+- Bài toán auto-invite theo role nằm ngoài scope đợt triển khai hiện tại.
 
-1. Chốt rõ `cb_*` sẽ là nguồn dữ liệu duy nhất cho cả nội bộ và khách hàng.
-2. Hoặc giữ tách biệt: `cb_*` cho nội bộ, `PortalThread/PortalMessage` cho khách hàng, sau đó tách tab/khối hiển thị rõ ràng.
-3. Hoặc dùng `cb_*` cho nội bộ trước, Portal vẫn giữ riêng, và đổi tên tab hiện tại để tránh hiểu nhầm nghiệp vụ.
+## Quyết định 4: UI tại màn Journey
 
-## GAP 2: Chưa chốt phạm vi feature parity với `chatboxv2`
-
-- Code tham chiếu `chatboxv2` có các khả năng nâng cao như `attachment workflow`, `schedule`, `linked content`, `filter bar`, `thread info drawer`, `xóa message`, `message render chuyên biệt`.
-- Đợt này chỉ triển khai các luồng chắc chắn và dùng được ngay:
-  - tải hierarchy
-  - chuyển thread
-  - xem timeline
-  - gửi `message` / `note`
-  - tạo sub-thread
-  - mời thêm thành viên
-
-### Đánh giá
-
-- Các phần nâng cao chưa có yêu cầu nghiệp vụ cụ thể trên Journey, nên nếu kéo sang toàn bộ sẽ làm tăng mạnh chi phí maintain và rủi ro lệch UX với repo hiện tại.
-- Riêng `attachment`, `schedule` và `linked content` có thể triển khai tiếp ở pha sau vì backend đã có nền tảng, nhưng cần user xác nhận ưu tiên.
-
-### Phương án đề xuất
-
-1. Pha 2 ưu tiên `attachment + preview file`.
-2. Pha 3 bổ sung `schedule / linked content / thread info`.
-3. Pha 4 chuẩn hóa renderer theo từng loại message để tiến gần `chatboxv2`.
-
-## GAP 3: Chưa có rule nghiệp vụ mời thành viên theo vai trò Journey
-
-- API hiện hỗ trợ mời người dùng theo `username`, nhưng chưa có rule chính thức rằng ai được auto-join theo `sale_users`, `supervisor_users`, `technical_users`, `pm_user`.
-- Đợt này chỉ hỗ trợ mời thủ công bằng picker `AuthorizedUserSelect`.
-
-### Đánh giá
-
-- Nếu tự động gán thành viên khi chưa chốt rule, rất dễ mời sai người hoặc lộ luồng thảo luận không đúng phạm vi.
-
-### Phương án đề xuất
-
-1. Xác nhận mapping vai trò Journey sang participant chatbox.
-2. Chốt thời điểm auto-invite: khi tạo Journey, khi chuyển step, hay khi tạo sub-thread.
-3. Sau đó mới bổ sung auto-sync participant theo role.
+- Bỏ tab `Portal/Chat` hiện hành khỏi `JourneyDetail360`.
+- Thay bằng nút toggle chat đặt cùng nhóm action button ở phần đầu màn hình.
+- Nội dung chat hiển thị trong drawer riêng để không làm nặng khu vực tab nghiệp vụ chính.

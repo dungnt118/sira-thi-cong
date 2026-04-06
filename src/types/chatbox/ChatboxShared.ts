@@ -299,3 +299,23 @@ export interface ILinkedContentSchemaOption {
     value: string;
     label: string;
 }
+
+export interface IMessageGroup {
+    createdBy: string;
+    displayName?: string;
+    avatar?: string;
+    messages: IContentChatboxMessage[];
+}
+
+export interface IUnreadBadge {
+    threadId: string;
+    count: number;
+    threadCode?: string;
+}
+
+export enum ComposerMode {
+    Message = 'message',
+    Note = 'note',
+    Schedule = 'schedule',
+    LinkedContent = 'linkedcontent',
+}

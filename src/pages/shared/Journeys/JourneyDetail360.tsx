@@ -220,6 +220,12 @@ const JourneyDetail360: React.FC = () => {
         };
     }, [journeyId]);
 
+    useEffect(() => {
+        if (activeTab === 'GRP_06_CONTRACT') {
+            setSearchParams({ tab: 'GRP_01_INFO' });
+        }
+    }, [activeTab, setSearchParams]);
+
     // Resolve template/steps
     const template = mockJourneyTemplates.find(t => t.id === 'default') || mockJourneyTemplates[0];
     const journeySteps = template?.steps || [];
@@ -234,6 +240,7 @@ const JourneyDetail360: React.FC = () => {
     const [showCreateDocModal, setShowCreateDocModal] = useState(false);
     const [isEditDrawerVisible, setIsEditDrawerVisible] = useState(false);
     const [isJourneyDrawerVisible, setIsJourneyDrawerVisible] = useState(false);
+    const [isChatDrawerVisible, setIsChatDrawerVisible] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [publishTab, setPublishTab] = useState('settings');
     const [assignForm] = Form.useForm();
@@ -400,6 +407,16 @@ const JourneyDetail360: React.FC = () => {
     const selectedStepTasks = useMemo(
         () => workTasks.filter((task) => task.journey_step_code === selectedTaskStepCode),
         [selectedTaskStepCode, workTasks]
+    );
+
+    const chatToggleButton = (
+        <Tooltip title="Trao đổi nhóm">
+            <Badge count={journey?.unread_thread_count ?? 0} size="small" offset={[-6, 6]}>
+                <Button icon={<MessageOutlined />} onClick={() => setIsChatDrawerVisible(true)}>
+                    {isMobile ? '' : 'Trao đổi nhóm'}
+                </Button>
+            </Badge>
+        </Tooltip>
     );
 
     const openTaskModal = (stepCode: string) => {
@@ -570,33 +587,6 @@ const JourneyDetail360: React.FC = () => {
                 />
             ),
         },
-        // 13. Tab Portal/Chat (GRP_06_CONTRACT)
-        {
-            key: 'GRP_06_CONTRACT',
-            label: <span><MessageOutlined /> Portal/Chat</span>,
-            children: (
-                <div style={{ display: 'grid', gap: 16 }}>
-                    <Row gutter={16} style={{ marginBottom: 16 }}>
-                        <Col span={12}><Statistic title="Publish Status" value={journey.portal_publish_status || 'hidden'} /></Col>
-                        <Col span={12}><Statistic title="Chưa đọc" value={journey.unread_thread_count ?? 0} valueStyle={{ color: journey.unread_thread_count ? '#ff4d4f' : '#52c41a' }} /></Col>
-                    </Row>
-
-                    <Alert
-                        type="info"
-                        showIcon
-                        message="Khu vực này đang hiển thị đồng thời chỉ số Portal và khung trao đổi nhóm nội bộ."
-                        description="Nếu cần hợp nhất hoàn toàn chat Portal với chat nội bộ thành một luồng nghiệp vụ, vui lòng xem tài liệu GAP của đợt triển khai này."
-                    />
-
-                    <ContentConversationPanel
-                        schemaName="Journey"
-                        contentId={journey._id}
-                        title="Trao đổi nhóm Journey"
-                        subtitle="Theo dõi trao đổi nội bộ, sub-thread và lịch sử cập nhật quanh hành trình này"
-                    />
-                </div>
-            ),
-        }
     ].filter(item => {
         // Tab Tổng quan (GRP_01_INFO) luôn hiển thị cho tất cả vai trò
         if (item.key === 'GRP_01_INFO') return true;
@@ -640,6 +630,7 @@ const JourneyDetail360: React.FC = () => {
                         <Button icon={<UserOutlined />} onClick={() => setShowAssignModal(true)}>{isMobile ? '' : 'Phân công'}</Button>
                         <Button icon={<FlagOutlined />} onClick={() => setShowPriorityModal(true)}>{isMobile ? '' : 'Ưu tiên'}</Button>
                         <Button type="primary" icon={<SendOutlined />} onClick={() => setShowPublishModal(true)}>{isMobile ? 'Portal' : 'Publish Portal'}</Button>
+                        {chatToggleButton}
                         <Tooltip title="Lịch sử các bước">
                             <Button icon={<HistoryOutlined />} onClick={() => setShowHistoryModal(true)} />
                         </Tooltip>
@@ -651,10 +642,18 @@ const JourneyDetail360: React.FC = () => {
                     <Space size={isMobile ? 4 : 8} wrap={!isMobile}>
                         <Button icon={<MessageOutlined />} onClick={() => setShowLogModal(true)}>{isMobile ? '' : 'Ghi Log'}</Button>
                         <Button icon={<ClockCircleOutlined />} onClick={() => setShowFollowUpModal(true)}>{isMobile ? '' : 'Follow-up'}</Button>
+                        {chatToggleButton}
                         <Tooltip title="Lịch sử các bước">
                             <Button icon={<HistoryOutlined />} onClick={() => setShowHistoryModal(true)} />
                         </Tooltip>
                     </Space>
+                    </div>
+                )}
+                {role !== 'QL' && !isAdmin && role !== 'KD' && (
+                    <div style={isMobile ? { maxWidth: '100%', overflowX: 'auto', paddingBottom: 4 } : undefined}>
+                        <Space size={isMobile ? 4 : 8} wrap={!isMobile}>
+                            {chatToggleButton}
+                        </Space>
                     </div>
                 )}
             </div>
@@ -933,6 +932,25 @@ const JourneyDetail360: React.FC = () => {
                             )
                         };
                     })}
+                />
+            </Drawer>
+
+            <Drawer
+                placement="right"
+                onClose={() => setIsChatDrawerVisible(false)}
+                open={isChatDrawerVisible}
+                closable={false}
+                width={isMobile ? '100%' : 720}
+                styles={{
+                    header: { display: 'none' },
+                    body: { padding: isMobile ? 0 : 16, background: '#f5f6f8' }
+                }}
+            >
+                <ContentConversationPanel
+                    schemaName="Journey"
+                    contentId={journey._id}
+                    onClose={() => setIsChatDrawerVisible(false)}
+                    style={{ minHeight: '100%' }}
                 />
             </Drawer>
 

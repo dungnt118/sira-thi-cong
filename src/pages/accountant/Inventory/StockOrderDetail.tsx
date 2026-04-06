@@ -511,7 +511,7 @@ const StockOrderDetail: React.FC = () => {
             <Card bordered={false} className="order-detail-card">
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: '16px' }}>
                     <Space style={{ marginBottom: 8, maxWidth: '100%' }}>
-                        <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/kt/inventory')} />
+                        <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/kt/inventory/history')} />
                         <div style={{ minWidth: 0, flex: 1 }}>
                             <Text type="secondary" style={{ display: 'block', fontSize: '12px' }}>{order.type === 'out' ? 'Phiếu Xuất Kho' : 'Phiếu Nhập Kho'}</Text>
                             <Title 

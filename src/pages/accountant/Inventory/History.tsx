@@ -11,7 +11,7 @@ import {
     InfoCircleOutlined, UserOutlined, CalendarOutlined,
     FilterOutlined
 } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
 import { stockOrderService } from '../../../services/core-contracts/services/stockOrder.service';
 import { 
@@ -56,6 +56,7 @@ const STATUS_STEPS = [
 
 const InventoryHistory: React.FC = () => {
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
     const { role } = useAuth();
     const screens = useBreakpoint();
     const isMobile = !screens.md;
@@ -63,8 +64,15 @@ const InventoryHistory: React.FC = () => {
     // ─── State Management ──────────────────────────────────────
     const [loading, setLoading] = useState(false);
     const [stockOrders, setStockOrders] = useState<IStockOrder[]>([]);
-    const [activeTabType, setActiveTabType] = useState<'out' | 'in'>('out');
-    const [activeStep, setActiveStep] = useState<string>('requested');
+    
+    // Initial states from URL params or defaults
+    const [activeTabType, setActiveTabType] = useState<'out' | 'in'>(
+        (searchParams.get('type') as 'out' | 'in') || 'out'
+    );
+    const [activeStep, setActiveStep] = useState<string>(
+        searchParams.get('step') || 'requested'
+    );
+    
     const [searchText, setSearchText] = useState('');
     
     // Filtering states
@@ -240,6 +248,24 @@ const InventoryHistory: React.FC = () => {
     const handleSearchChange = (val: string) => {
         setSearchText(val);
         debouncedFetch(val);
+    };
+
+    const onTabChange = (key: string) => {
+        const nextType = key as 'out' | 'in';
+        setActiveTabType(nextType);
+        setSearchParams(prev => {
+            prev.set('type', nextType);
+            return prev;
+        });
+    };
+
+    const onStepChange = (idx: number) => {
+        const nextStep = STATUS_STEPS[idx].key;
+        setActiveStep(nextStep);
+        setSearchParams(prev => {
+            prev.set('step', nextStep);
+            return prev;
+        });
     };
 
     const handleCreateOrder = () => {
@@ -420,7 +446,7 @@ const InventoryHistory: React.FC = () => {
             <Card bodyStyle={{ padding: 0 }} style={{ borderRadius: 8, overflow: 'hidden' }}>
                 <Tabs
                     activeKey={activeTabType}
-                    onChange={(k: any) => setActiveTabType(k)}
+                    onChange={onTabChange}
                     items={[ { key: 'out', label: `Phiếu xuất kho` }, { key: 'in', label: `Phiếu nhập kho` } ]}
                     style={{ padding: isMobile ? '0 12px' : '0 24px', backgroundColor: '#fff', borderBottom: '1px solid #f0f0f0' }}
                     size={isMobile ? 'small' : 'middle'}
@@ -433,7 +459,7 @@ const InventoryHistory: React.FC = () => {
                                 type="navigation"
                                 size="small"
                                 current={STATUS_STEPS.findIndex(s => s.key === activeStep)}
-                                onChange={idx => setActiveStep(STATUS_STEPS[idx].key)}
+                                onChange={onStepChange}
                                 style={{ minWidth: isMobile ? 600 : 'auto', borderBottom: 'none' }}
                                 items={STATUS_STEPS.map((s, index) => ({
                                     title: (

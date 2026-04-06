@@ -1,0 +1,35 @@
+.message-timeline {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 0;
+  min-width: 0;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #d9d9d9;
+    border-radius: 3px;
+  }
+}
+
+.message-timeline-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-height: 300px;
+}
+
+.message-date-group {
+  margin-top: 8px;
+}
+
+.message-item {
+  display: flex;
+  margin-bottom: 4px;
+}
