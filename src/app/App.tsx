@@ -284,6 +284,7 @@ function App() {
                                             <Route path="plan/:id" element={<MaterialPlan />} />
                                             <Route path="stock-out" element={<OutboundForm />} />
                                             <Route path="history" element={<InventoryHistory />} />
+                                            <Route path="order/:id" element={<StockOrderDetail />} />
                                         </Route>
                                         <Route path="assets">
                                             <Route path="allocation" element={<AllocationForm />} />

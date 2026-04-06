@@ -317,7 +317,7 @@ const InventoryHistory: React.FC = () => {
             fixed: 'left' as const,
             width: 130,
             render: (c: string, record: IStockOrder) => (
-                <Button type="link" onClick={() => navigate(`/kt/inventory/order/${record._id}`)} style={{ padding: 0 }}>
+                <Button type="link" onClick={() => navigate(`/${role?.toLowerCase()}/inventory/order/${record._id}`)} style={{ padding: 0 }}>
                     <Text strong>{c || 'STOCK-ORD'}</Text>
                 </Button>
             )
@@ -515,7 +515,7 @@ const InventoryHistory: React.FC = () => {
                             }}
                             renderItem={(item) => (
                                 <List.Item style={{ padding: '12px 0' }}>
-                                    <Card size="small" style={{ width: '100%', borderRadius: 12, border: '1px solid #f0f0f0' }} onClick={() => navigate(`/kt/inventory/order/${item._id}`)}>
+                                    <Card size="small" style={{ width: '100%', borderRadius: 12, border: '1px solid #f0f0f0' }} onClick={() => navigate(`/${role?.toLowerCase()}/inventory/order/${item._id}`)}>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
                                             <Text strong>{item.code || 'ORD'}</Text>
                                             <Space>
