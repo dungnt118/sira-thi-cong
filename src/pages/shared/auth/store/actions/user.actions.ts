@@ -126,11 +126,11 @@ export const loadUserData = (roleOverride?: string): AppThunk<Promise<void>> => 
                           : (context?.defaultRole || roles[0] || 'guest');
                           
       if (!derivedRole || derivedRole.toLowerCase() === 'guest') {
-          if (targetUrl === '/l/welcome' || targetUrl.includes('/guest/')) {
+          if (targetUrl === '/l/welcome' || targetUrl.toLowerCase().includes('guest')) {
               targetUrl = '/portal';
           }
       } else {
-          if (targetUrl === '/l/welcome' || targetUrl.includes('/guest/')) {
+          if (targetUrl === '/l/welcome' || targetUrl.toLowerCase().includes('guest')) {
               targetUrl = `/${derivedRole.toLowerCase()}/dashboard`;
           }
       }

@@ -160,7 +160,7 @@ const RootRedirect = () => {
         }
 
         // If we have a valid role, and targetUrl is a guest URL or undefined, correct it
-        if (!targetUrl || targetUrl === '/l/welcome' || targetUrl.includes('/guest/')) {
+        if (!targetUrl || targetUrl === '/l/welcome' || targetUrl.toLowerCase().includes('guest')) {
             targetUrl = `/${role.toLowerCase()}/dashboard`;
         }
 

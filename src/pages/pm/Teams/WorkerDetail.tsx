@@ -73,6 +73,7 @@ const WorkerDetail: React.FC = () => {
 
     const [isEditModalVisible, setIsEditModalVisible] = React.useState(false);
     const [form] = Form.useForm();
+    const watchedAddress = Form.useWatch('address', form);
 
     const fetchData = async () => {
         if (!id) return;
@@ -432,7 +433,7 @@ const WorkerDetail: React.FC = () => {
                         </Col>
                         <Col xs={24} md={8}>
                             <Form.Item name="mapLocation" label="Vị trí bản đồ">
-                                <MapPicker />
+                                <MapPicker address={watchedAddress} />
                             </Form.Item>
                         </Col>
                     </Row>
