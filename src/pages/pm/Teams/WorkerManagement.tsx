@@ -14,6 +14,8 @@ import { workerService } from '../../../services/core-contracts/services/worker.
 import { laborPriceConfigService } from '../../../services/core-contracts/services/laborPriceConfig.service';
 import { IWorker } from '../../../services/core-contracts/types/worker.types';
 import { ILaborPriceConfig } from '../../../services/core-contracts/types/laborPriceConfig.types';
+import { workerTeamService } from '../../../services/core-contracts/services/workerTeam.service';
+import { IWorkerTeam } from '../../../services/core-contracts/types/workerTeam.types';
 import { UploadImageEdit } from '../../../components/files/UploadImage';
 import { UploadFilesEdit } from '../../../components/files/UploadFiles';
 import MapPicker from '../../../components/common/MapPicker';
@@ -26,6 +28,7 @@ const WorkerManagement: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [workers, setWorkers] = useState<IWorker[]>([]);
     const [levels, setLevels] = useState<ILaborPriceConfig[]>([]);
+    const [teams, setTeams] = useState<IWorkerTeam[]>([]);
 
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingWorker, setEditingWorker] = useState<IWorker | null>(null);
@@ -53,9 +56,19 @@ const WorkerManagement: React.FC = () => {
         }
     };
 
+    const fetchTeams = async () => {
+        try {
+            const response = await workerTeamService.queryContent();
+            setTeams(response.data || []);
+        } catch (error: any) {
+            console.error('Lỗi khi tải danh sách nhóm:', error);
+        }
+    };
+
     useEffect(() => {
         fetchWorkers();
         fetchLevels();
+        fetchTeams();
     }, []);
 
     const filteredWorkers = useMemo(() => {
@@ -269,6 +282,18 @@ const WorkerManagement: React.FC = () => {
                             </Row>
 
                             <Row gutter={16}>
+                                <Col xs={24} sm={12}>
+                                    <Form.Item name="teamId" label="Đội nhóm (Team)">
+                                        <Select placeholder="Chọn đội nhóm" allowClear>
+                                            {teams.map(t => (
+                                                <Option key={t._id} value={t._id}>{t.teamName}</Option>
+                                            ))}
+                                        </Select>
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+
+                            <Row gutter={16}>
                                 <Col xs={12} sm={8}>
                                     <Form.Item name="gender" label="Giới tính">
                                         <Select placeholder="Chọn">
@@ -331,23 +356,6 @@ const WorkerManagement: React.FC = () => {
                     <Divider orientation="left">Thông tin liên hệ & Vị trí</Divider>
                     <Row gutter={16}>
                         <Col xs={24} md={16}>
-                            <Row gutter={16}>
-                                <Col xs={24} sm={8}>
-                                    <Form.Item name="city" label="Tỉnh / Thành phố">
-                                        <Input />
-                                    </Form.Item>
-                                </Col>
-                                <Col xs={24} sm={8}>
-                                    <Form.Item name="district" label="Quận / Huyện">
-                                        <Input />
-                                    </Form.Item>
-                                </Col>
-                                <Col xs={24} sm={8}>
-                                    <Form.Item name="ward" label="Phường / Xã">
-                                        <Input />
-                                    </Form.Item>
-                                </Col>
-                            </Row>
                             <Form.Item name="address" label="Địa chỉ cụ thể">
                                 <Input.TextArea rows={2} />
                             </Form.Item>

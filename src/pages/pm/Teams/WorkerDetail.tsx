@@ -54,6 +54,7 @@ import { workerTeamService } from '../../../services/core-contracts/services/wor
 import { IWorker } from '../../../services/core-contracts/types/worker.types';
 import { ILaborPriceConfig } from '../../../services/core-contracts/types/laborPriceConfig.types';
 import { IWorkerTeam } from '../../../services/core-contracts/types/workerTeam.types';
+import { getFileLink } from '@/services/storeService';
 
 const { Title, Text } = Typography;
 const { useBreakpoint } = Grid;
@@ -67,6 +68,7 @@ const WorkerDetail: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [worker, setWorker] = useState<IWorker | null>(null);
     const [priceConfigs, setPriceConfigs] = useState<ILaborPriceConfig[]>([]);
+    const [teams, setTeams] = useState<IWorkerTeam[]>([]);
     const [linkedTeam, setLinkedTeam] = useState<IWorkerTeam | null>(null);
 
     const [isEditModalVisible, setIsEditModalVisible] = React.useState(false);
@@ -76,12 +78,14 @@ const WorkerDetail: React.FC = () => {
         if (!id) return;
         setLoading(true);
         try {
-            const [workerData, configsRes] = await Promise.all([
+            const [workerData, configsRes, teamsRes] = await Promise.all([
                 workerService.findContent(id),
-                laborPriceConfigService.queryContent()
+                laborPriceConfigService.queryContent(),
+                workerTeamService.queryContent()
             ]);
             setWorker(workerData);
             setPriceConfigs(configsRes.data || []);
+            setTeams(teamsRes.data || []);
             
             if (workerData.teamId) {
                 try {
@@ -182,7 +186,6 @@ const WorkerDetail: React.FC = () => {
                         <Descriptions.Item label="Ngày sinh"><CalendarOutlined /> {worker.dob ? dayjs(worker.dob).format('DD/MM/YYYY') : 'N/A'}</Descriptions.Item>
                         <Descriptions.Item label="Số điện thoại"><PhoneOutlined /> {worker.phone || 'N/A'}</Descriptions.Item>
                         <Descriptions.Item label="Email"><MailOutlined /> {worker.email || 'N/A'}</Descriptions.Item>
-                        <Descriptions.Item label="Khu vực">{worker.city || 'N/A'}, {worker.ward || 'N/A'}</Descriptions.Item>
                         <Descriptions.Item label="Địa chỉ cụ thể" span={2}><EnvironmentOutlined /> {worker.address || 'N/A'}</Descriptions.Item>
                         <Descriptions.Item label="Loại nhân sự">
                             <Tag color={worker.workerType === 'internal' ? 'blue' : 'orange'}>
@@ -233,7 +236,12 @@ const WorkerDetail: React.FC = () => {
 
             <Col xs={24} lg={8}>
                 <Card style={{ background: '#f0f5ff', borderColor: '#adc6ff', textAlign: 'center' }}>
-                    <Avatar size={100} icon={<UserOutlined />} style={{ background: '#1890ff', marginBottom: 16 }} />
+                    <Avatar 
+                        size={100} 
+                        src={(worker as any).avatar ? ((worker as any).avatar.includes('http') || (worker as any).avatar.includes('data:image') ? (worker as any).avatar : getFileLink((worker as any).avatar)) : undefined} 
+                        icon={<UserOutlined />} 
+                        style={{ background: '#1890ff', marginBottom: 16 }} 
+                    />
                     <Title level={3} style={{ margin: 0 }}>{worker.name}</Title>
                     <Text type="secondary">{worker.position}</Text>
 
@@ -334,12 +342,23 @@ const WorkerDetail: React.FC = () => {
                                         <Input />
                                     </Form.Item>
                                 </Col>
-                                <Col xs={24} sm={8}>
+                            </Row>
+                            <Row gutter={16}>
+                                <Col xs={24} sm={12}>
                                     <Form.Item name="workerType" label="Phân loại">
                                         <Select>
                                             <Select.Option value="internal">Nội bộ</Select.Option>
                                             <Select.Option value="external">Thuê ngoài</Select.Option>
                                             <Select.Option value="collaborator">Cộng tác viên</Select.Option>
+                                        </Select>
+                                    </Form.Item>
+                                </Col>
+                                <Col xs={24} sm={12}>
+                                    <Form.Item name="teamId" label="Đội nhóm (Team)">
+                                        <Select placeholder="Chọn đội nhóm" allowClear>
+                                            {teams.map(t => (
+                                                <Select.Option key={t._id} value={t._id}>{t.teamName}</Select.Option>
+                                            ))}
                                         </Select>
                                     </Form.Item>
                                 </Col>
@@ -407,23 +426,6 @@ const WorkerDetail: React.FC = () => {
                     <Divider orientation="left">Thông tin liên hệ & Vị trí</Divider>
                     <Row gutter={16}>
                         <Col xs={24} md={16}>
-                            <Row gutter={16}>
-                                <Col xs={24} sm={8}>
-                                    <Form.Item name="city" label="Tỉnh / Thành phố">
-                                        <Input />
-                                    </Form.Item>
-                                </Col>
-                                <Col xs={24} sm={8}>
-                                    <Form.Item name="district" label="Quận / Huyện">
-                                        <Input />
-                                    </Form.Item>
-                                </Col>
-                                <Col xs={24} sm={8}>
-                                    <Form.Item name="ward" label="Phường / Xã">
-                                        <Input />
-                                    </Form.Item>
-                                </Col>
-                            </Row>
                             <Form.Item name="address" label="Địa chỉ cụ thể">
                                 <Input.TextArea rows={2} />
                             </Form.Item>
