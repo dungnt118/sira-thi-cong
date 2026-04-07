@@ -77,7 +77,7 @@ const WorkerChecklist: React.FC = () => {
                 <Button icon={<ArrowLeftOutlined />} size="small" onClick={() => navigate('/worker/home')} />
                 <div>
                     <Title level={5} style={{ margin: 0 }}>{journey.journey_code}</Title>
-                    <Text type="secondary" style={{ fontSize: 12 }}>{journey.requested_service}</Text>
+                    <Text type="secondary" style={{ fontSize: 12 }}>{journey.idx_serviceTypeId?.title}</Text>
                 </div>
                 {hasUnresolved > 0 && (
                     <Badge count={hasUnresolved} style={{ background: '#ff4d4f' }} title={`${hasUnresolved} sự cố chưa xử lý`} />

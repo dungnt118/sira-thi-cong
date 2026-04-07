@@ -205,7 +205,7 @@ const AllocationForm: React.FC = () => {
                                             <Select.Option key={j.id} value={j.id}>
                                                 <Space direction={isMobile ? 'vertical' : 'horizontal'} size={0}>
                                                     <Tag color="blue" style={{fontSize: 11}}>{j.journey_code}</Tag>
-                                                    <Text style={{ fontSize: isMobile ? 12 : 14 }}>{j.customer_name} — {j.requested_service}</Text>
+                                                    <Text style={{ fontSize: isMobile ? 12 : 14 }}>{j.customer_name} — {j.idx_serviceTypeId?.title}</Text>
                                                 </Space>
                                             </Select.Option>
                                         ))}

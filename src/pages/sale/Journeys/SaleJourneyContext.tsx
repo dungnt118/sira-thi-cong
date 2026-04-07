@@ -184,7 +184,7 @@ const SaleJourneyContext: React.FC = () => {
                                 <Descriptions.Item label="Số điện thoại">{customerPhone}</Descriptions.Item>
                                 <Descriptions.Item label="Email">{journey.customer_email || JOURNEY_EMPTY_VALUE}</Descriptions.Item>
                                 <Descriptions.Item label="Kênh tiếp nhận">{getOptionLabel(JOURNEY_SOURCE_CHANNEL_OPTIONS, journey.source_channel)}</Descriptions.Item>
-                                <Descriptions.Item label="Loại dịch vụ">{journey.requested_service || JOURNEY_EMPTY_VALUE}</Descriptions.Item>
+                                <Descriptions.Item label="Loại dịch vụ">{journey.idx_serviceTypeId?.title || JOURNEY_EMPTY_VALUE}</Descriptions.Item>
                                 <Descriptions.Item label="Địa chỉ công trình">{journey.site_address || JOURNEY_EMPTY_VALUE}</Descriptions.Item>
                                 <Descriptions.Item label="Mô tả yêu cầu">{journey.request_description || JOURNEY_EMPTY_VALUE}</Descriptions.Item>
                             </Descriptions>

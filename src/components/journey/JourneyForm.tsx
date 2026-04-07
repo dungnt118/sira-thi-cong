@@ -401,7 +401,7 @@ const JourneyForm: React.FC<JourneyFormProps> = ({
                     <Col span={12}>
                         <Form.Item
                             label="Dịch vụ yêu cầu"
-                            name="requested_service"
+                            name="serviceTypeId"
                         >
                             <Input placeholder="VD: Chống thấm, Cải tạo, ..." />
                         </Form.Item>

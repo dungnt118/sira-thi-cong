@@ -131,7 +131,7 @@ const JourneyInbox: React.FC = () => {
             journey.journey_code,
             journey.request_title,
             journey.request_description,
-            journey.requested_service,
+            journey.idx_serviceTypeId?.title,
             resolveCustomerName(journey),
             resolveCustomerPhone(journey),
             resolvePipelineName(journey),
@@ -467,7 +467,7 @@ const JourneyInbox: React.FC = () => {
                                                     {journey.request_title || JOURNEY_EMPTY_VALUE}
                                                 </Text>
                                                 <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
-                                                    {journey.request_description || journey.requested_service || 'Chưa có mô tả chi tiết.'}
+                                                    {journey.request_description || journey.idx_serviceTypeId?.title || 'Chưa có mô tả chi tiết.'}
                                                 </Text>
 
                                                 <Space size={[20, 10]} wrap>

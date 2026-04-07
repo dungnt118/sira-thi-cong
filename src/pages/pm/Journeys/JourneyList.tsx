@@ -200,7 +200,7 @@ const JourneyList: React.FC = () => {
             render: (_, j) => (
                 <div>
                     <div style={{ fontWeight: 500, fontSize: 13 }}>{j.request_title}</div>
-                    <Text type="secondary" style={{ fontSize: 11 }}>{j.requested_service}</Text>
+                    <Text type="secondary" style={{ fontSize: 11 }}>{j.idx_serviceTypeId?.title}</Text>
                 </div>
             ),
         },
@@ -438,6 +438,9 @@ const JourneyList: React.FC = () => {
                                         <Text strong style={{ color: '#1976D2' }}>{j.journey_code || 'N/A'}</Text>
                                         <div style={{ fontWeight: 500, marginTop: 2 }}>{j.idx_customer_id?.title || j.customer_full_name || 'N/A'}</div>
                                         <Text type="secondary" style={{ fontSize: 11 }}>{j.request_title}</Text>
+                                        <div style={{ marginTop: 4 }}>
+                                            <Tag color="cyan">{j.idx_serviceTypeId?.title || 'Dịch vụ lẻ'}</Tag>
+                                        </div>
                                     </div>
                                     <div style={{ textAlign: 'right' }}>
                                         <Tag color={JOURNEY_STEPS_CONFIG.find(c => c.key === j.current_step)?.color}>

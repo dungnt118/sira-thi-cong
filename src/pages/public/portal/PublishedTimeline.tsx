@@ -31,7 +31,7 @@ const PublishedTimeline: React.FC = () => {
         <div style={{ maxWidth: 1000, margin: '0 auto', padding: '24px 16px' }}>
             <PortalPageHeader 
                 title="Tiến độ hành trình" 
-                subtitle={`${journey.customer_name} · ${journey.requested_service}`}
+                subtitle={`${journey.customer_name} · ${journey.idx_serviceTypeId?.title || ''}`}
                 token={token || ''}
                 icon={<CalendarOutlined />}
             />

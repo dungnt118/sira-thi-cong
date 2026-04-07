@@ -9,7 +9,7 @@ type IndexedContentLike = Partial<IndexedContentItem> & {
 
 export interface JourneyServiceLike {
   idx_serviceTypeId?: IndexedContentLike | null;
-  requested_service?: string | null;
+  // requested_service removed
   service_type?: string | null;
 }
 
@@ -20,5 +20,5 @@ export const getIndexedContentLabel = (item?: IndexedContentLike | null): string
 
 export const getJourneyServiceLabel = (journey?: JourneyServiceLike | null, fallback: string = ''): string => {
   if (!journey) return fallback;
-  return getIndexedContentLabel(journey.idx_serviceTypeId) || journey.service_type || journey.requested_service || fallback;
+  return getIndexedContentLabel(journey.idx_serviceTypeId) || journey.service_type || fallback;
 };

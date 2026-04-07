@@ -292,7 +292,7 @@ const OutboundForm: React.FC = () => {
                                         <Select.Option key={j._id} value={j._id}>
                                             <Space direction={isMobile ? 'vertical' : 'horizontal'} size={0}>
                                                 <Tag color="blue" style={{ fontSize: 11 }}>{j.journey_code}</Tag>
-                                                <Text style={{ fontSize: isMobile ? 12 : 14 }}>{j.customer_full_name} — {j.requested_service}</Text>
+                                                <Text style={{ fontSize: isMobile ? 12 : 14 }}>{j.customer_full_name} — {j.idx_serviceTypeId?.title}</Text>
                                             </Space>
                                         </Select.Option>
                                     ))}

@@ -1,4 +1,4 @@
-﻿import type { IndexedContentItem } from 'types/apis';
+import type { IndexedContentItem } from 'types/apis';
 
 // ============================================================
 // Phase 1 â€“ Customer Journey Types
@@ -196,7 +196,7 @@ export interface Journey {
     serviceTypeId?: string;
     idx_serviceTypeId?: IndexedContentItem;
     service_type?: string;
-    requested_service?: string;
+    // requested_service: removed
     request_title: string;
     request_description?: string;
     owner_user: string;

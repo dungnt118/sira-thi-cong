@@ -193,7 +193,7 @@ const ProjectCreate: React.FC = () => {
                     customer_phone: customer?.phone || '',
                     site_address: values.address,
                     source_channel: 'hotline',
-                    requested_service: constructionType,
+                    service_type: constructionType,
                     request_title: values.projectName,
                     request_description: values.notes,
                     owner_user: 'u-pm-01',

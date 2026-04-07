@@ -17,12 +17,12 @@ import { mockJourneys } from './journeyMockData';
 const mapJourneyToProject = (j: Journey): Project => ({
     id: j.id,
     code: j.journey_code,
-    name: j.customer_name + ' - ' + (j.requested_service || 'Dự án'),
+    name: j.customer_name + ' - ' + (j.idx_serviceTypeId?.title || 'Dự án'),
     customerId: j.id, // Mock mapping
     customerName: j.customer_name,
     address: j.site_address || '',
     areaM2: 100, // Mock default
-    category: j.requested_service || 'Chống thấm',
+    category: j.idx_serviceTypeId?.title || 'Chống thấm',
     type: 'Nội bộ',
     templateId: j.template_id || 'TPL-001',
     status: (j.project_status === 'completed' ? 'COMPLETED' : 

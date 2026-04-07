@@ -103,7 +103,7 @@ const PortalDashboard: React.FC<PortalDashboardProps> = ({ journey, token, onNav
                     </Title>
                     <Space size="middle" style={{ opacity: 0.9 }}>
                         <Text style={{ color: '#fff', fontSize: 12 }}>Mã: {journey.journey_code}</Text>
-                        <Tag color="blue" style={{ border: 'none', fontSize: 10 }}>{journey.requested_service}</Tag>
+                        <Tag color="blue" style={{ border: 'none', fontSize: 10 }}>{journey.idx_serviceTypeId?.title}</Tag>
                     </Space>
                 </div>
             </div>

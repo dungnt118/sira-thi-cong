@@ -155,7 +155,7 @@ const SurveyCoordination: React.FC = () => {
                                                             <div>
                                                                 <Text strong style={{ color: '#fa8c16', fontSize: 12 }}>{j.journey_code}</Text>
                                                                 <Title level={5} style={{ margin: '2px 0' }}>{j.idx_customer_id?.primary_text || j.customer_name || 'Khách hàng ẩn'}</Title>
-                                                                <Text type="secondary" style={{ fontSize: 12 }}>{j.requested_service}</Text>
+                                                                <Text type="secondary" style={{ fontSize: 12 }}>{j.idx_serviceTypeId?.title}</Text>
                                                             </div>
                                                             <Button
                                                                 shape="round"

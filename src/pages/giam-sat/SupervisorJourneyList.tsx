@@ -203,7 +203,7 @@ export const SupervisorJourneyList: React.FC = () => {
                         </div>
                         <div>
                             <Text type="secondary" style={{ fontSize: 11, display: 'block' }}>Dịch vụ</Text>
-                            <Text strong style={{ fontSize: 12 }}>{j.requested_service || 'Dịch vụ lẻ'}</Text>
+                            <Text strong style={{ fontSize: 12 }}>{j.idx_serviceTypeId?.title || 'Dịch vụ lẻ'}</Text>
                         </div>
                     </Space>
                     <Space>

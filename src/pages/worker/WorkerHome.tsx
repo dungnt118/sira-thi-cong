@@ -81,7 +81,7 @@ const WorkerHome: React.FC = () => {
                                                 <Badge count={pendingIncidents} style={{ background: '#ff4d4f' }} />
                                             )}
                                         </div>
-                                        <Text type="secondary" style={{ fontSize: 12 }}>{p.request_title}</Text>
+                                        <Text type="secondary" style={{ fontSize: 12 }}>{p.idx_serviceTypeId?.title}</Text>
                                         <div style={{ fontSize: 12, color: '#666', marginTop: 4 }}>
                                             <EnvironmentOutlined /> {p.site_address?.split(',').slice(0, 2).join(', ')}
                                         </div>
@@ -145,7 +145,7 @@ const WorkerHome: React.FC = () => {
                                 <Col flex="auto">
                                     <Text strong style={{ fontSize: 13 }}>{p.journey_code}</Text>
                                     <Text type="secondary" style={{ fontSize: 12, display: 'block' }}>
-                                        {p.requested_service}
+                                        {p.idx_serviceTypeId?.title}
                                     </Text>
                                 </Col>
                                 <Col>

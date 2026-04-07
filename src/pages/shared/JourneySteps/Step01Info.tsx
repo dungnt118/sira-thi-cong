@@ -216,7 +216,7 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
         try {
             const journeyUpdate = {
                 request_title: values.request_title,
-                requested_service: values.requested_service,
+                serviceTypeId: values.serviceTypeId,
                 site_address: values.site_address,
                 source_channel: values.source_channel,
                 priority: values.priority,
@@ -304,8 +304,8 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                             </Form.Item>
                             <Row gutter={12}>
                                 <Col span={12}>
-                                    <Form.Item label="Dịch vụ" name="requested_service">
-                                        <Input />
+                                    <Form.Item label="Dịch vụ" name="serviceTypeId">
+                                        <Input placeholder="Service ID..." />
                                     </Form.Item>
                                 </Col>
                                 <Col span={12}>
@@ -444,7 +444,7 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                                 <Title level={5}><RocketOutlined style={{ color: '#1890ff', marginRight: 8 }} /> Yêu cầu & Dịch vụ</Title>
                                 <Descriptions bordered size="small" column={1}>
                                     <Descriptions.Item label="Tiêu đề">{journeyData.request_title || '—'}</Descriptions.Item>
-                                    <Descriptions.Item label="Dịch vụ"><Tag color="blue">{journeyData.requested_service || '—'}</Tag></Descriptions.Item>
+                                    <Descriptions.Item label="Dịch vụ"><Tag color="blue">{journeyData.idx_serviceTypeId?.title || '—'}</Tag></Descriptions.Item>
                                     <Descriptions.Item label="Thi công">{journeyData.site_address || '—'}</Descriptions.Item>
                                     <Descriptions.Item label="Kênh">{SOURCE_CHANNEL_CONFIG[journeyData.source_channel || ''] || journeyData.source_channel || '—'}</Descriptions.Item>
                                     <Descriptions.Item label="Ưu tiên"><Tag color={priorityCfg.color}>{priorityCfg.label}</Tag></Descriptions.Item>
