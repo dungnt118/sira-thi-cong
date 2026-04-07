@@ -1,5 +1,5 @@
 window.env = {
-    base_url: 'https://api.bac.demego.vn',
+    base_url: 'https://api.bacgroup.vn',
     //oauth login
     clients: [
         {
