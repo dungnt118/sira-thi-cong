@@ -37,8 +37,7 @@ on:
         default: true
   push:
     branches:
-      - main
-      - 'develop*'
+      - 'not-use-any-more'
 
 concurrency:
   group: docker-build-${{ github.ref }}

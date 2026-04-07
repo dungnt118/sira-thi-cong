@@ -3,7 +3,7 @@ name: Deployment — Dev (Branch dev)
 on:
   push:
     branches:
-      - dev
+      - develop
   workflow_dispatch:
 
 jobs:
@@ -11,7 +11,8 @@ jobs:
     uses: ./.github/workflows/reusable-docker-deploy.yml
     with:
       bootstrap_spec: 'deploy/portainer-container-bootstrap-dev.json'
-      container_name: 'bac-group-dev' # Thay đổi tùy theo dự án
+      container_name: 'bac-app-dev' # Thay đổi tùy theo dự án
+      env_file: 'deploy/env_dev.js'
       # endpoint_id: '1' # Ghi đè endpoint của dev nếu khác endpoint mặc định hoặc lấy từ vars.PORTAINER_ENDPOINT_ID
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}

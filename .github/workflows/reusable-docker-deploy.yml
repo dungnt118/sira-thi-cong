@@ -35,6 +35,10 @@ on:
         required: false
         type: string
         default: 'cms'
+      env_file:
+        description: 'Đường dẫn file env thay thế (vd: deploy/env_dev.js)'
+        required: false
+        type: string
     secrets:
       DOCKERHUB_USERNAME:
         required: true
@@ -54,6 +58,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Replace env.js (nếu có)
+        if: ${{ inputs.env_file != '' }}
+        shell: bash
+        run: |
+          if [ -f "${{ inputs.env_file }}" ]; then
+            echo "Thay thế public/env.js bằng ${{ inputs.env_file }}"
+            cp "${{ inputs.env_file }}" public/env.js
+          else
+            echo "::warning::Không tìm thấy file ${{ inputs.env_file }}, dùng env.js mặc định"
+          fi
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
