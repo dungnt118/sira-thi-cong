@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
     Table, Card, Button, Input, Space, Tag, Avatar, Modal, Form, Select,
     Row, Col, Typography, message, Divider, Rate
@@ -9,8 +9,8 @@ import {
     PhoneOutlined, MailOutlined, MessageOutlined, ArrowRightOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
-import { demoDataService } from '../../../services/core-graphql/localstorage/demoDataService';
+import { workerTeamService } from '../../../services/core-contracts/services/workerTeam.service';
+import { IWorkerTeam } from '../../../services/core-contracts/types/workerTeam.types';
 
 const { Title } = Typography;
 
@@ -27,12 +27,29 @@ const MapPickerMock: React.FC<{ value?: { lat: number, lng: number }, onChange: 
 
 const TeamManagement: React.FC = () => {
     const navigate = useNavigate();
-    const [teams, setTeams] = useLocalStorageData<any[]>(demoDataService.KEYS.TEAMS_MASTER, []);
+    const [loading, setLoading] = useState(false);
+    const [teams, setTeams] = useState<IWorkerTeam[]>([]);
 
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [editingTeam, setEditingTeam] = useState<any>(null);
+    const [editingTeam, setEditingTeam] = useState<IWorkerTeam | null>(null);
     const [searchText, setSearchText] = useState('');
     const [form] = Form.useForm();
+
+    const fetchTeams = async () => {
+        setLoading(true);
+        try {
+            const response = await workerTeamService.queryContent();
+            setTeams(response.data || []);
+        } catch (error: any) {
+            message.error('Lỗi khi tải danh sách đội thợ: ' + error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchTeams();
+    }, []);
 
     const filteredTeams = useMemo(() => {
         return teams.filter(t =>
@@ -41,8 +58,7 @@ const TeamManagement: React.FC = () => {
         );
     }, [teams, searchText]);
 
-    const showModal = (e: React.MouseEvent, team?: any) => {
-        e.stopPropagation();
+    const showModal = (team?: IWorkerTeam) => {
         if (team) {
             setEditingTeam(team);
             form.setFieldsValue({
@@ -58,26 +74,26 @@ const TeamManagement: React.FC = () => {
     };
 
     const handleSave = () => {
-        form.validateFields().then(values => {
+        form.validateFields().then(async values => {
             const formattedValues = {
                 ...values,
-                id: editingTeam?.id || `t-${Date.now()}`,
                 lat: values.mapLocation?.lat,
                 lng: values.mapLocation?.lng,
-                memberIds: editingTeam?.memberIds || [],
-                joinDate: editingTeam?.joinDate || new Date().toISOString().split('T')[0],
-                totalProjects: editingTeam?.totalProjects || 0,
-                completedProjects: editingTeam?.completedProjects || 0
             };
 
-            if (editingTeam) {
-                setTeams(teams.map(t => t.id === editingTeam.id ? { ...t, ...formattedValues } : t));
-                message.success('Cập nhật thông tin đội thợ thành công');
-            } else {
-                setTeams([...teams, formattedValues]);
-                message.success('Thêm đội thợ mới thành công');
+            try {
+                if (editingTeam) {
+                    await workerTeamService.updateWorkerTeam(editingTeam._id, formattedValues);
+                    message.success('Cập nhật thông tin đội thợ thành công');
+                } else {
+                    await workerTeamService.createWorkerTeam(formattedValues);
+                    message.success('Thêm đội thợ mới thành công');
+                }
+                setIsModalVisible(false);
+                fetchTeams();
+            } catch (error: any) {
+                message.error('Lỗi khi lưu đội thợ: ' + error.message);
             }
-            setIsModalVisible(false);
         });
     };
 
@@ -86,7 +102,7 @@ const TeamManagement: React.FC = () => {
             title: 'Tên Đội thợ',
             dataIndex: 'teamName',
             key: 'teamName',
-            render: (text: string, record: any) => (
+            render: (text: string, record: IWorkerTeam) => (
                 <Space>
                     <Avatar icon={<TeamOutlined />} style={{ backgroundColor: '#87d068' }} />
                     <div>
@@ -112,8 +128,8 @@ const TeamManagement: React.FC = () => {
             title: 'Khu vực',
             dataIndex: 'city',
             key: 'city',
-            render: (city: string, record: any) => (
-                <div>{city}{record.district ? `, ${record.district}` : ''}</div>
+            render: (city: string, record: IWorkerTeam) => (
+                <div>{city}{record.address ? `, ${record.address}` : ''}</div>
             )
         },
         {
@@ -141,10 +157,9 @@ const TeamManagement: React.FC = () => {
 
     return (
         <div>
-
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
                 <Title level={2}><TeamOutlined /> Quản lý Đội thợ</Title>
-                <Button type="primary" icon={<PlusOutlined />} onClick={(e) => showModal(e)}>
+                <Button type="primary" icon={<PlusOutlined />} onClick={() => showModal()}>
                     Thêm Đội mới
                 </Button>
             </div>
@@ -160,16 +175,18 @@ const TeamManagement: React.FC = () => {
                 />
             </Card>
 
-            <Table
-                columns={teamColumns}
-                dataSource={filteredTeams}
-                rowKey="id"
-                pagination={{ pageSize: 10 }}
-                onRow={(record) => ({
-                    onClick: () => navigate(`/ql/teams/groups/${record.id}`),
-                    style: { cursor: 'pointer' }
-                })}
-            />
+            <Card loading={loading}>
+                <Table
+                    columns={teamColumns}
+                    dataSource={filteredTeams}
+                    rowKey="_id"
+                    pagination={{ pageSize: 10 }}
+                    onRow={(record) => ({
+                        onClick: () => navigate(`/ql/teams/groups/${record._id}`),
+                        style: { cursor: 'pointer' }
+                    })}
+                />
+            </Card>
 
             {/* Modal: Create/Edit Team */}
             <Modal
@@ -183,12 +200,17 @@ const TeamManagement: React.FC = () => {
             >
                 <Form form={form} layout="vertical">
                     <Row gutter={16}>
-                        <Col span={12}>
+                        <Col span={8}>
+                            <Form.Item name="code" label="Mã Đội (Auto)">
+                                <Input placeholder="Tự sinh nếu trống" />
+                            </Form.Item>
+                        </Col>
+                        <Col span={8}>
                             <Form.Item name="teamName" label="Tên Đội thợ" rules={[{ required: true }]}>
                                 <Input placeholder="VD: Đội Thi Công Số 1" />
                             </Form.Item>
                         </Col>
-                        <Col span={12}>
+                        <Col span={8}>
                             <Form.Item name="status" label="Trạng thái" rules={[{ required: true }]}>
                                 <Select options={[
                                     { label: 'Hoạt động', value: 'active' },
@@ -241,9 +263,6 @@ const TeamManagement: React.FC = () => {
                     <Row gutter={16}>
                         <Col span={12}>
                             <Form.Item name="city" label="Thành phố">
-                                <Input />
-                            </Form.Item>
-                            <Form.Item name="district" label="Quận/Huyện">
                                 <Input />
                             </Form.Item>
                             <Form.Item name="address" label="Địa chỉ chi tiết">

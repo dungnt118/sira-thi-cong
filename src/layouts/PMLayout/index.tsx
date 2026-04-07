@@ -79,7 +79,7 @@ const menuItems: MenuItem[] = [
         children: [
             { key: '/ql/teams/workers', label: 'Quản lý Thợ', icon: <TeamOutlined /> },
             { key: '/ql/teams/groups', label: 'Quản lý Đội thợ', icon: <TeamOutlined /> },
-            { key: '/ql/teams/prices', label: 'Bảng giá thợ', icon: <DollarOutlined /> },
+            { key: '/ql/teams/prices', label: 'Trình độ thợ', icon: <DollarOutlined /> },
         ],
     },
     {

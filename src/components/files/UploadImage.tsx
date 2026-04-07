@@ -1,8 +1,7 @@
 import { LinkOutlined, SearchOutlined, UploadOutlined } from "@ant-design/icons";
-import { Button, Image, Input, message, Modal, Space, Spin, Tabs, Tooltip, Tag } from 'antd';
+import { Button, Image, Input, message, Modal, Space, Spin, Tabs, Tooltip } from 'antd';
 import Upload from 'antd/lib/upload';
 import { ACCESS_TOKEN, get, getFileLink, getFileUrl, UPLOAD_URL } from '@/services/storeService';
-import _ from '@/@lodash';
 
 import { forwardRef, CSSProperties, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import type { HeadlessFileUpload } from '@/types/apis';
@@ -145,7 +144,18 @@ export const UploadImageEdit = forwardRef<IUploadImageEditRef, UploadImageEditPr
     const prevModalState = useRef(isModalOpen);
 
     // Initialize useFileUpload hook
-    const { searchFiles } = useFileUpload();
+    const { searchFiles, getUploadConfig } = useFileUpload({ 
+        useCustomRequest: true,
+        onSuccess: (response) => {
+            // response is HeadlessFileUpload object
+            setPreviewImage(response.file_path);
+        },
+        onError: (err) => {
+            message.error('Upload file lỗi: ' + err.message);
+        }
+    });
+
+    const uploadConfig = getUploadConfig();
 
     // Lấy fileSizeLimit từ att.fileUploadOption.max_size (default 2MB)
     const getFileSizeLimit = () => {
@@ -248,62 +258,7 @@ export const UploadImageEdit = forwardRef<IUploadImageEditRef, UploadImageEditPr
                     className={`w-auto`}
                     showUploadList={false}
                     maxCount={1}
-                    customRequest={async (options) => {
-                        const { file, onSuccess, onError, onProgress } = options;
-
-                        const formData = new FormData();
-                        formData.append('file', file);
-
-                        // Thêm folder parameter nếu có
-                        if (uploadFolder) {
-                            formData.append('folder', uploadFolder);
-                        }
-
-                        try {
-                            const xhr = new XMLHttpRequest();
-
-                            xhr.upload.addEventListener('progress', (event) => {
-                                if (event.lengthComputable && onProgress) {
-                                    const percentComplete = (event.loaded / event.total) * 100;
-                                    onProgress({ percent: percentComplete });
-                                }
-                            });
-
-                            xhr.addEventListener('load', () => {
-                                if (xhr.status === 200) {
-                                    try {
-                                        const response = JSON.parse(xhr.responseText);
-                                        console.log('Upload response:', response);
-                                        console.log('Using file_path:', response.file_path);
-                                        // Xử lý response mới: {file_id, file_path, file_type}
-                                        // Sử dụng file_path thay vì file_id
-                                        onSuccess?.(response.file_path, xhr);
-                                    } catch (error) {
-                                        onError?.(error as Error);
-                                    }
-                                } else {
-                                    onError?.(new Error(`Upload failed with status: ${xhr.status}`));
-                                }
-                            });
-
-                            xhr.addEventListener('error', () => {
-                                onError?.(new Error('Upload failed'));
-                            });
-
-                            xhr.open('POST', get(UPLOAD_URL));
-
-                            // Thêm Authorization header sau khi mở connection (Bearer format)
-                            const token = get(ACCESS_TOKEN);
-                            if (token) {
-                                xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-                            }
-
-                            xhr.send(formData);
-
-                        } catch (error) {
-                            onError?.(error as Error);
-                        }
-                    }}
+                    {...uploadConfig}
                     beforeUpload={(file) => {
                         const isJpgOrPng =
                             file.type === "image/jpeg" ||
@@ -323,15 +278,6 @@ export const UploadImageEdit = forwardRef<IUploadImageEditRef, UploadImageEditPr
                         }
 
                         return true;
-                    }}
-                    onChange={(info) => {
-                        if (info.file.status === "done") {
-                            console.log('Upload done, setting previewImage to:', info.file.response);
-                            // Response giờ là file_path từ customRequest
-                            setPreviewImage(info.file.response);
-                        } else if (info.file.status === "error") {
-                            message.error('Upload file lỗi');
-                        }
                     }}
                 >
                     <Button disabled={disabled} icon={<UploadOutlined />}>Upload ảnh</Button>
@@ -741,14 +687,7 @@ export function UploadImageView({ value, property }: { value: any, property: Pro
     );
 }
 
-
-// Xuất component cũ để backward compatibility (deprecated)
-function UploadImageEdit_Legacy(props: any) {
-    console.warn('UploadImageEdit (default export) is deprecated. Use UploadImageEdit instead.');
-    return <UploadImageEdit {...props} />;
-}
-
 // Legacy exports (deprecated)
 export const UploadImageView_Legacy = UploadImageView;
 
-export default UploadImageEdit_Legacy;
+export default UploadImageEdit;

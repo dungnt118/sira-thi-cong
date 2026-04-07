@@ -1,159 +1,210 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
     Table, Card, Button, Input, Space, Tag, Avatar, Modal, Form, Select,
-    DatePicker, InputNumber, Row, Col, Typography, message,
-    Divider, Upload, Rate, Switch, Empty
+    Row, Col, Typography, message, Divider, Tooltip, InputNumber, DatePicker, Rate
 } from 'antd';
 import {
-    PlusOutlined, SearchOutlined,
-    UserOutlined, UploadOutlined
+    PlusOutlined, SearchOutlined, UserOutlined,
+    PhoneOutlined, SafetyCertificateOutlined,
+    EnvironmentOutlined, DollarOutlined,
+    IdcardOutlined, EditOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import dayjs from 'dayjs';
-import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
-import { demoDataService } from '../../../services/core-graphql/localstorage/demoDataService';
+import { workerService } from '../../../services/core-contracts/services/worker.service';
+import { laborPriceConfigService } from '../../../services/core-contracts/services/laborPriceConfig.service';
+import { IWorker } from '../../../services/core-contracts/types/worker.types';
+import { ILaborPriceConfig } from '../../../services/core-contracts/types/laborPriceConfig.types';
+import { UploadImageEdit } from '../../../components/files/UploadImage';
+import { UploadFilesEdit } from '../../../components/files/UploadFiles';
 import MapPicker from '../../../components/common/MapPicker';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
 
-// MapPicker component is now imported from common components
-
 const WorkerManagement: React.FC = () => {
     const navigate = useNavigate();
-    const [workers, setWorkers] = useLocalStorageData<any[]>(demoDataService.KEYS.WORKERS_MASTER, []);
-    const [priceConfig] = useLocalStorageData<any[]>(demoDataService.KEYS.LABOR_PRICE_CONFIG, []);
+    const [loading, setLoading] = useState(false);
+    const [workers, setWorkers] = useState<IWorker[]>([]);
+    const [levels, setLevels] = useState<ILaborPriceConfig[]>([]);
 
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [editingWorker, setEditingWorker] = useState<any>(null);
+    const [editingWorker, setEditingWorker] = useState<IWorker | null>(null);
     const [searchText, setSearchText] = useState('');
     const [form] = Form.useForm();
 
-    const filteredWorkers = useMemo(() => {
-        return workers.filter(w =>
-            w.name.toLowerCase().includes(searchText.toLowerCase()) ||
-            w.position.toLowerCase().includes(searchText.toLowerCase())
-        );
-    }, [workers, searchText]);
-
-    const handleLevelChange = (level: string) => {
-        const config = priceConfig.find(c => c.level === level);
-        if (config) {
-            form.setFieldsValue({ costPerHour: config.defaultPrice });
-            message.info(`Gợi ý đơn giá cho ${config.name}: ${config.defaultPrice.toLocaleString()} VNĐ/h`);
+    const fetchWorkers = async () => {
+        setLoading(true);
+        try {
+            const response = await workerService.queryContent();
+            setWorkers(response.data || []);
+        } catch (error: any) {
+            message.error('Lỗi khi tải danh sách thợ: ' + error.message);
+        } finally {
+            setLoading(false);
         }
     };
 
-    const showModal = (worker?: any) => {
+    const fetchLevels = async () => {
+        try {
+            const response = await laborPriceConfigService.queryContent();
+            setLevels(response.data || []);
+        } catch (error: any) {
+            console.error('Lỗi khi tải danh sách trình độ:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchWorkers();
+        fetchLevels();
+    }, []);
+
+    const filteredWorkers = useMemo(() => {
+        return workers.filter(w =>
+            (w.name || '').toLowerCase().includes(searchText.toLowerCase()) ||
+            (w.phone || '').toLowerCase().includes(searchText.toLowerCase()) ||
+            (w.skills || []).some(s => s.toLowerCase().includes(searchText.toLowerCase()))
+        );
+    }, [workers, searchText]);
+
+    const showModal = (worker?: IWorker) => {
         if (worker) {
             setEditingWorker(worker);
-            form.setFieldsValue({
-                ...worker,
-                dob: worker.dob ? dayjs(worker.dob) : null,
-                mapLocation: { lat: worker.lat || 0, lng: worker.lng || 0 }
-            });
+            form.setFieldsValue(worker);
         } else {
             setEditingWorker(null);
             form.resetFields();
-            form.setFieldsValue({ rating: 5, isInternal: true });
+            form.setFieldsValue({ status: 'active', rating: 5 });
         }
         setIsModalVisible(true);
     };
 
     const handleSave = () => {
-        form.validateFields().then(values => {
-            const formattedValues = {
-                ...values,
-                id: editingWorker?.id || `w-${Date.now()}`,
-                dob: values.dob ? values.dob.toISOString() : null,
-                lat: values.mapLocation?.lat,
-                lng: values.mapLocation?.lng,
-            };
-
-            if (editingWorker) {
-                setWorkers(workers.map(w => w.id === editingWorker.id ? formattedValues : w));
-                message.success('Cập nhật thông tin thợ thành công');
-            } else {
-                setWorkers([...workers, formattedValues]);
-                message.success('Thêm thợ mới thành công');
+        form.validateFields().then(async values => {
+            try {
+                if (editingWorker) {
+                    await workerService.updateWorker(editingWorker._id, values);
+                    message.success('Cập nhật thông tin thợ thành công');
+                } else {
+                    await workerService.createWorker(values);
+                    message.success('Thêm thợ mới thành công');
+                }
+                setIsModalVisible(false);
+                fetchWorkers();
+            } catch (error: any) {
+                message.error('Lỗi khi lưu thợ: ' + (error.message || error.response?.data?.message || 'Có lỗi hệ thống xảy ra'));
             }
-            setIsModalVisible(false);
         });
     };
 
+    const handleLevelChange = (levelId: string) => {
+        const level = levels.find(l => l._id === levelId);
+        if (level) {
+            form.setFieldsValue({
+                costPerDay: level.defaultPrice
+            });
+        }
+    };
 
-
-    const columns = [
+    const workerColumns = [
         {
             title: 'Họ và tên',
             dataIndex: 'name',
             key: 'name',
-            render: (text: string, record: any) => (
+            render: (text: string, record: IWorker) => (
                 <Space>
-                    <Avatar src={record.avatar} icon={<UserOutlined />} />
+                    <Avatar src={(record as any).avatar} icon={<UserOutlined />} />
                     <div>
                         <div style={{ fontWeight: 'bold' }}>{text}</div>
-                        <div style={{ fontSize: 12, color: '#888' }}>{record.position}</div>
+                        <div style={{ fontSize: 12, color: '#888' }}>
+                            {record.code} • {levels.find(l => l.levelCode === record.priceConfigId)?.name || 'Chưa xếp loại'}
+                        </div>
                     </div>
                 </Space>
             )
-        },
-        {
-            title: 'Loại',
-            dataIndex: 'isInternal',
-            key: 'isInternal',
-            render: (isInternal: boolean) => (
-                <Tag color={isInternal ? 'blue' : 'orange'}>
-                    {isInternal ? 'Nội bộ' : 'Ngoài'}
-                </Tag>
-            )
-        },
-        {
-            title: 'Trình độ',
-            dataIndex: 'level',
-            key: 'level',
-            render: (level: string) => {
-                const config = priceConfig.find(c => c.level === level);
-                return <Tag color="cyan">{config?.name || level}</Tag>;
-            }
-        },
-        {
-            title: 'Công theo giờ',
-            dataIndex: 'costPerHour',
-            key: 'costPerHour',
-            render: (val: number) => <Text strong color="red">{val?.toLocaleString()}đ/h</Text>
         },
         {
             title: 'Kỹ năng',
             dataIndex: 'skills',
             key: 'skills',
             render: (skills: string[]) => (
-                <div style={{ maxWidth: 200 }}>
-                    {skills?.map(s => <Tag key={s} style={{ marginBottom: 4 }}>{s}</Tag>)}
-                </div>
+                <Space wrap>
+                    {(skills || []).map(s => <Tag key={s} color="blue">{s}</Tag>)}
+                </Space>
             )
         },
         {
-            title: 'Đánh giá',
-            dataIndex: 'rating',
-            key: 'rating',
-            render: (val: number) => <Rate disabled value={val} style={{ fontSize: 12 }} />
+            title: 'Số điện thoại',
+            dataIndex: 'phone',
+            key: 'phone',
+            render: (phone: string) => (
+                <Space>
+                    <PhoneOutlined style={{ color: '#52c41a' }} />
+                    <Text>{phone}</Text>
+                </Space>
+            )
+        },
+        {
+            title: 'Giá công (/ngày)',
+            dataIndex: 'costPerDay',
+            key: 'costPerDay',
+            render: (price: number) => (
+                <Text strong style={{ color: '#f5222d' }}>
+                    {price ? `${price.toLocaleString()}đ` : '-'}
+                </Text>
+            )
+        },
+        {
+            title: 'Trạng thái',
+            dataIndex: 'status',
+            key: 'status',
+            render: (status: string) => (
+                <Tag color={status === 'active' ? 'green' : 'orange'}>
+                    {status === 'active' ? 'Sẵn sàng' : 'Đang bận'}
+                </Tag>
+            )
+        },
+        {
+            title: 'Thao tác',
+            key: 'action',
+            render: (_: any, record: IWorker) => (
+                <Space>
+                    <Tooltip title="Chi tiết">
+                        <Button
+                            type="text"
+                            icon={<SearchOutlined />}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/ql/teams/workers/${record._id}`);
+                            }}
+                        />
+                    </Tooltip>
+                    <Tooltip title="Chỉnh sửa">
+                        <Button
+                            type="text"
+                            icon={<EditOutlined />}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                showModal(record);
+                            }}
+                        />
+                    </Tooltip>
+                </Space>
+            )
         }
     ];
 
     return (
-        <div>
-
+        <div style={{ padding: '0 0px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-                <Title level={2}><UserOutlined /> Hồ sơ Danh sách Thợ</Title>
+                <Title level={2}><UserOutlined /> Quản lý Thợ</Title>
                 <Button type="primary" icon={<PlusOutlined />} onClick={() => showModal()}>
-                    Thêm thợ mới
+                    Thêm Thợ mới
                 </Button>
             </div>
 
-            <Card style={{ marginBottom: 24 }}>
+            <Card style={{ marginBottom: 24 }} bodyStyle={{ padding: '16px 24px' }}>
                 <Input
-                    placeholder="Tìm kiếm thợ theo tên, vị trí..."
+                    placeholder="Tìm kiếm theo tên, số điện thoại, kỹ năng..."
                     prefix={<SearchOutlined />}
                     value={searchText}
                     onChange={e => setSearchText(e.target.value)}
@@ -162,45 +213,63 @@ const WorkerManagement: React.FC = () => {
                 />
             </Card>
 
-            <Card>
-                <Table
-                    columns={columns}
-                    dataSource={filteredWorkers}
-                    rowKey="id"
-                    locale={{ emptyText: <Empty description="Chưa có dữ liệu thợ. Hãy thêm mới!" /> }}
-                    onRow={(record) => ({
-                        onClick: () => navigate(`/ql/teams/workers/${record.id}`),
-                        style: { cursor: 'pointer' }
-                    })}
-                />
-            </Card>
+            <Table
+                columns={workerColumns}
+                dataSource={filteredWorkers}
+                rowKey="_id"
+                loading={loading}
+                onRow={(record) => ({
+                    onClick: () => navigate(`/ql/teams/workers/${record._id}`),
+                    style: { cursor: 'pointer' }
+                })}
+            />
 
             <Modal
-                title={editingWorker ? 'Chỉnh sửa hồ sơ thợ' : 'Thêm hồ sơ thợ mới'}
+                title={editingWorker ? 'Chỉnh sửa thông tin thợ' : 'Thêm thợ mới'}
                 open={isModalVisible}
                 onOk={handleSave}
                 onCancel={() => setIsModalVisible(false)}
-                width={800}
+                width={900}
                 okText="Xác nhận"
                 cancelText="Hủy"
+                style={{ top: 20 }}
+                destroyOnClose
             >
                 <Form form={form} layout="vertical">
-                    <Row gutter={16}>
-                        <Col span={16}>
+                    <Row gutter={[24, 0]}>
+                        <Col xs={24} md={16}>
                             <Row gutter={16}>
-                                <Col span={12}>
-                                    <Form.Item name="name" label="Họ và tên thợ" rules={[{ required: true }]}>
-                                        <Input />
+                                <Col xs={24} sm={12}>
+                                    <Form.Item name="name" label="Họ và tên" rules={[{ required: true }]}>
+                                        <Input prefix={<UserOutlined />} />
                                     </Form.Item>
                                 </Col>
-                                <Col span={12}>
-                                    <Form.Item name="isInternal" label="Phân loại" valuePropName="checked">
-                                        <Switch checkedChildren="Nội bộ" unCheckedChildren="Thuê ngoài" />
+                                <Col xs={24} sm={12}>
+                                    <Form.Item name="phone" label="Số điện thoại" rules={[{ required: true }]}>
+                                        <Input prefix={<PhoneOutlined />} />
                                     </Form.Item>
                                 </Col>
                             </Row>
+
                             <Row gutter={16}>
-                                <Col span={8}>
+                                <Col xs={24} sm={12}>
+                                    <Form.Item name="idNumber" label="Số CCCD">
+                                        <Input prefix={<IdcardOutlined />} />
+                                    </Form.Item>
+                                </Col>
+                                <Col xs={24} sm={12}>
+                                    <Form.Item name="workerType" label="Loại thợ">
+                                        <Select placeholder="Chọn loại thợ">
+                                            <Option value="internal">Nội bộ</Option>
+                                            <Option value="external">Thuê ngoài</Option>
+                                            <Option value="collaborator">Cộng tác viên</Option>
+                                        </Select>
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+
+                            <Row gutter={16}>
+                                <Col xs={12} sm={8}>
                                     <Form.Item name="gender" label="Giới tính">
                                         <Select placeholder="Chọn">
                                             <Option value="male">Nam</Option>
@@ -209,51 +278,47 @@ const WorkerManagement: React.FC = () => {
                                         </Select>
                                     </Form.Item>
                                 </Col>
-                                <Col span={8}>
+                                <Col xs={12} sm={8}>
                                     <Form.Item name="dob" label="Ngày sinh">
                                         <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" />
                                     </Form.Item>
                                 </Col>
-                                <Col span={8}>
+                                <Col xs={24} sm={8}>
                                     <Form.Item name="rating" label="Đánh giá">
                                         <Rate style={{ fontSize: 16 }} />
                                     </Form.Item>
                                 </Col>
                             </Row>
                         </Col>
-                        <Col span={8} style={{ textAlign: 'center' }}>
+                        <Col xs={24} md={8} style={{ textAlign: 'center' }}>
                             <Form.Item name="avatar" label="Ảnh đại diện">
-                                <Upload listType="picture-card" showUploadList={false}>
-                                    <div>
-                                        <PlusOutlined />
-                                        <div style={{ marginTop: 8 }}>Tải lên</div>
-                                    </div>
-                                </Upload>
+                                <UploadImageEdit />
                             </Form.Item>
                         </Col>
                     </Row>
 
                     <Divider orientation="left">Thông tin Chuyên môn & Chi phí</Divider>
                     <Row gutter={16}>
-                        <Col span={8}>
-                            <Form.Item name="level" label="Trình độ" rules={[{ required: true }]}>
-                                <Select onChange={handleLevelChange}>
-                                    {priceConfig.map((c: any) => (
-                                        <Option key={c.level} value={c.level}>{c.name}</Option>
+                        <Col xs={24} sm={8}>
+                            <Form.Item name="priceConfigId" label="Trình độ" rules={[{ required: true }]}>
+                                <Select onChange={handleLevelChange} placeholder="Chọn trình độ">
+                                    {levels.map((c) => (
+                                        <Option key={c.levelCode} value={c.levelCode}>{c.name}</Option>
                                     ))}
                                 </Select>
                             </Form.Item>
                         </Col>
-                        <Col span={8}>
-                            <Form.Item name="costPerHour" label="Chi phí theo giờ (VNĐ)" rules={[{ required: true }]}>
+                        <Col xs={24} sm={8}>
+                            <Form.Item name="costPerDay" label="Giá công/ngày (VNĐ)" rules={[{ required: true }]}>
                                 <InputNumber
                                     style={{ width: '100%' }}
                                     formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                                     parser={v => v!.replace(/\$\s?|(,*)/g, '')}
+                                    step={50000}
                                 />
                             </Form.Item>
                         </Col>
-                        <Col span={8}>
+                        <Col xs={24} sm={8}>
                             <Form.Item name="position" label="Vị trí công tác">
                                 <Input placeholder="VD: Thợ chống thấm, Kỹ thuật..." />
                             </Form.Item>
@@ -265,34 +330,38 @@ const WorkerManagement: React.FC = () => {
 
                     <Divider orientation="left">Thông tin liên hệ & Vị trí</Divider>
                     <Row gutter={16}>
-                        <Col span={16}>
+                        <Col xs={24} md={16}>
                             <Row gutter={16}>
-                                <Col span={12}>
-                                    <Form.Item name="city" label="Thành phố">
+                                <Col xs={24} sm={8}>
+                                    <Form.Item name="city" label="Tỉnh / Thành phố">
                                         <Input />
                                     </Form.Item>
                                 </Col>
-                                <Col span={12}>
+                                <Col xs={24} sm={8}>
+                                    <Form.Item name="district" label="Quận / Huyện">
+                                        <Input />
+                                    </Form.Item>
+                                </Col>
+                                <Col xs={24} sm={8}>
                                     <Form.Item name="ward" label="Phường / Xã">
                                         <Input />
                                     </Form.Item>
                                 </Col>
                             </Row>
                             <Form.Item name="address" label="Địa chỉ cụ thể">
-                                <Input />
+                                <Input.TextArea rows={2} />
                             </Form.Item>
                         </Col>
-                        <Col span={8}>
+                        <Col xs={24} md={8}>
                             <Form.Item name="mapLocation" label="Vị trí bản đồ">
                                 <MapPicker />
                             </Form.Item>
                         </Col>
                     </Row>
 
-                    <Form.Item name="certificates" label="Chứng chỉ (Mock Upload)">
-                        <Upload>
-                            <Button icon={<UploadOutlined />}>Bấm để tải chứng chỉ lên</Button>
-                        </Upload>
+                    <Divider orientation="left">Chứng chỉ & Hồ sơ</Divider>
+                    <Form.Item name="attachments">
+                        <UploadFilesEdit />
                     </Form.Item>
                 </Form>
             </Modal>

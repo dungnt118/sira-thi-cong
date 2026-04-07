@@ -147,7 +147,25 @@ export const UploadFilesEdit = forwardRef(function UploadFilesEdit(
 ) {
 
     // Sử dụng upload hook để có Authorization và standardized logic
-    const { getUploadConfig, parseUploadResponse, searchFiles } = useFileUpload();
+    const { getUploadConfig, parseUploadResponse, searchFiles } = useFileUpload({
+        useCustomRequest: true,
+        onSuccess: (standardResponse, file) => {
+            const newFile: HeadlessFileUpload = {
+                name: file.name,
+                url: standardResponse.url,
+                file_id: standardResponse.file_id,
+                file_path: standardResponse.file_path,
+                file_type: standardResponse.file_type || getFileType(file.name),
+                size: file.size,
+            };
+            setFileList(prev => [...prev, newFile]);
+            message.success(`${file.name} đã được tải lên thành công.`);
+        },
+        onError: (error) => {
+            message.error('Tải lên thất bại: ' + (error.message || 'Lỗi không xác định'));
+        }
+    });
+
     const uploadConfig = getUploadConfig();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -202,29 +220,7 @@ export const UploadFilesEdit = forwardRef(function UploadFilesEdit(
 
     // Xử lý khi upload file
     const handleUpload = (info: any) => {
-        const { status, response, name } = info.file;
-
-        if (status === 'done') {
-            if (response) {
-                // Sử dụng parseUploadResponse để standardize format
-                const standardResponse = parseUploadResponse(response);
-
-                const newFile = {
-                    name: name,
-                    url: standardResponse.url,
-                    file_id: standardResponse.file_id,
-                    file_path: standardResponse.file_path,
-                    file_type: standardResponse.file_type || getFileType(name)
-                };
-
-                setFileList(prev => [...prev, newFile]);
-                message.success(`${name} đã được tải lên thành công.`);
-            } else {
-                message.error(`${name} tải lên thất bại - không có response.`);
-            }
-        } else if (status === 'error') {
-            message.error(`${name} tải lên thất bại.`);
-        }
+        // useFileUpload handle success/error via callbacks already
     };
 
     // Thêm trường URL mới
@@ -459,9 +455,8 @@ export const UploadFilesEdit = forwardRef(function UploadFilesEdit(
                                     <div className="pt-4">
                                         <Upload
                                             name="file"
-                                            action={uploadConfig.action}
-                                            headers={uploadConfig.headers}
-                                            onChange={handleUpload}
+                                            customRequest={uploadConfig.customRequest}
+                                            showUploadList={false}
                                             multiple
                                             accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.mov,.mp4"
                                             beforeUpload={(file) => {

@@ -1,9 +1,10 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
     Table, Card, Button, Input, Space, Tag, Avatar, Modal, Form, Select,
     Row, Col, Typography, message, Divider,
-    Popconfirm, Progress, Grid, Empty, Descriptions, Tabs, Statistic, Rate, InputNumber
+    Popconfirm, Progress, Grid, Empty, Descriptions, Tabs, Statistic, Rate, InputNumber, Spin, DatePicker
 } from 'antd';
+import dayjs from 'dayjs';
 import {
     ArrowLeftOutlined, EditOutlined, PlusOutlined, DeleteOutlined,
     PhoneOutlined, MailOutlined, EnvironmentOutlined, TeamOutlined,
@@ -12,9 +13,13 @@ import {
     BankOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
-import { demoDataService } from '../../../services/core-graphql/localstorage/demoDataService';
 import MapPicker from '../../../components/common/MapPicker';
+import { workerTeamService } from '../../../services/core-contracts/services/workerTeam.service';
+import { workerService } from '../../../services/core-contracts/services/worker.service';
+import { laborPriceConfigService } from '../../../services/core-contracts/services/laborPriceConfig.service';
+import { IWorkerTeam } from '../../../services/core-contracts/types/workerTeam.types';
+import { IWorker } from '../../../services/core-contracts/types/worker.types';
+import { ILaborPriceConfig } from '../../../services/core-contracts/types/laborPriceConfig.types';
 
 const { Title, Text } = Typography;
 const { useBreakpoint } = Grid;
@@ -25,90 +30,128 @@ const TeamDetail: React.FC = () => {
     const screens = useBreakpoint();
     const isMobile = !screens.md;
 
-    const [teams, setTeams] = useLocalStorageData<any[]>(demoDataService.KEYS.TEAMS_MASTER, []);
-    const [workers, setWorkers] = useLocalStorageData<any[]>(demoDataService.KEYS.WORKERS_MASTER, []);
-    const [priceConfigs] = useLocalStorageData<any[]>(demoDataService.KEYS.LABOR_PRICE_CONFIG, []);
-
-    const team = useMemo(() => teams.find(t => t.id === id), [teams, id]);
+    const [loading, setLoading] = useState(false);
+    const [team, setTeam] = useState<IWorkerTeam | null>(null);
+    const [teamMembers, setTeamMembers] = useState<IWorker[]>([]);
+    const [priceConfigs, setPriceConfigs] = useState<ILaborPriceConfig[]>([]);
 
     const [isEditing, setIsEditing] = useState(false);
     const [editForm] = Form.useForm();
     const [workerCreateModalOpen, setWorkerCreateModalOpen] = useState(false);
     const [workerForm] = Form.useForm();
 
-    if (!team) {
-        return <div style={{ padding: 40, textAlign: 'center' }}>Không tìm thấy thông tin đội thợ</div>;
-    }
+    const fetchData = async () => {
+        if (!id) return;
+        setLoading(true);
+        try {
+            const [teamData, configsRes] = await Promise.all([
+                workerTeamService.findContent(id),
+                laborPriceConfigService.queryContent()
+            ]);
+            setTeam(teamData);
+            setPriceConfigs(configsRes.data || []);
+            
+            // Fetch workers belonging to this team
+            const workersRes = await workerService.queryContent({
+                group: {
+                    op: 'AND',
+                    children: [
+                        { id: 'teamId', operation: '==', value: id } as any
+                    ]
+                }
+            });
+            setTeamMembers(workersRes.data || []);
+        } catch (error: any) {
+            message.error('Lỗi khi tải thông tin đội thợ: ' + error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-    const teamMembers = workers.filter(w => (team.memberIds || []).includes(w.id));
+    useEffect(() => {
+        fetchData();
+    }, [id]);
 
-    const handleSaveInfo = (values: any) => {
+    const handleSaveInfo = async (values: any) => {
+        if (!id) return;
         const { mapLocation, ...rest } = values;
-        const updatedTeams = teams.map(t => t.id === id ? {
-            ...t,
+        const payload = {
             ...rest,
             lat: mapLocation?.lat,
             lng: mapLocation?.lng
-        } : t);
-        setTeams(updatedTeams);
-        setIsEditing(false);
-        message.success('Cập nhật thông tin đội thợ thành công!');
-    };
-
-    const handleToggleWorkerLink = (workerId: string) => {
-        const currentMembers = team.memberIds || [];
-        let newMembers;
-        if (currentMembers.includes(workerId)) {
-            newMembers = currentMembers.filter((mid: string) => mid !== workerId);
-            message.info('Đã hủy liên kết thợ');
-        } else {
-            newMembers = [...currentMembers, workerId];
-            message.success('Đã liên kết thợ mới');
-        }
-
-        const updatedTeams = teams.map(t => t.id === id ? { ...t, memberIds: newMembers } : t);
-        setTeams(updatedTeams);
-    };
-
-    const handleCreateWorker = (values: any) => {
-        const newWorkerId = `w-${Date.now()}`;
-        const newWorker = {
-            ...values,
-            id: newWorkerId,
-            avatar: `https://i.pravatar.cc/150?u=${newWorkerId}`,
-            rating: 5,
-            status: 'active'
         };
-
-        // Update Workers Master
-        setWorkers([...workers, newWorker]);
-
-        // Automatically link to this team
-        const currentMembers = team.memberIds || [];
-        const newMembers = [...currentMembers, newWorkerId];
-        const updatedTeams = teams.map(t => t.id === id ? { ...t, memberIds: newMembers } : t);
-        setTeams(updatedTeams);
-
-        setWorkerCreateModalOpen(false);
-        workerForm.resetFields();
-        message.success('Đã tạo thợ mới và liên kết vào đội thành công!');
-    };
-
-    const handleLevelChange = (level: string) => {
-        const config = priceConfigs.find(c => c.level === level);
-        if (config) {
-            workerForm.setFieldsValue({ costPerHour: config.defaultPrice });
+        try {
+            await workerTeamService.updateWorkerTeam(id, payload);
+            setIsEditing(false);
+            message.success('Cập nhật thông tin đội thợ thành công!');
+            fetchData();
+        } catch (error: any) {
+            message.error('Lỗi khi cập nhật: ' + error.message);
         }
     };
 
-    const handleDeleteTeam = () => {
-        setTeams(teams.filter(t => t.id !== id));
-        message.success('Đã xóa đội thợ');
-        navigate('/ql/teams/groups');
+    const handleRemoveWorkerLink = async (workerId: string) => {
+        try {
+            // In the real service, we should update the worker's teamId to undefined
+            await workerService.updateWorker(workerId, { teamId: undefined });
+            message.success('Đã hủy liên kết thợ');
+            fetchData();
+        } catch (error: any) {
+            message.error('Lỗi khi hủy liên kết: ' + error.message);
+        }
+    };
+
+    const handleCreateWorker = async (values: any) => {
+        if (!id) return;
+        try {
+            const payload = {
+                ...values,
+                teamId: id,
+                status: 'active'
+            };
+            await workerService.createWorker(payload);
+            setWorkerCreateModalOpen(false);
+            workerForm.resetFields();
+            message.success('Đã tạo thợ mới và liên kết vào đội thành công!');
+            fetchData();
+        } catch (error: any) {
+            message.error('Lỗi khi tạo thợ: ' + error.message);
+        }
+    };
+
+    const handleLevelChange = (levelCode: string) => {
+        const config = priceConfigs.find(c => c.levelCode === levelCode);
+        if (config && config.defaultPrice !== undefined) {
+            workerForm.setFieldsValue({ costPerDay: config.defaultPrice });
+        }
+    };
+
+    const handleDeleteTeam = async () => {
+        if (!id) return;
+        try {
+            await workerTeamService.deleteWorkerTeam(id);
+            message.success('Đã xóa đội thợ');
+            navigate('/ql/teams/groups');
+        } catch (error: any) {
+            message.error('Lỗi khi xóa đội thợ: ' + error.message);
+        }
     };
 
     const formatCurrency = (val: number) =>
         new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val);
+
+    if (loading) {
+        return <div style={{ padding: 100, textAlign: 'center' }}><Spin size="large" /></div>;
+    }
+
+    if (!team) {
+        return (
+            <div style={{ padding: 40, textAlign: 'center' }}>
+                <Empty description="Không tìm thấy thông tin đội thợ" />
+                <Button onClick={() => navigate('/ql/teams/groups')}>Quay lại danh sách</Button>
+            </div>
+        );
+    }
 
     // ─── Render Tabs ──────────────────────────────────────────────────
     const renderInfoTab = () => (
@@ -140,10 +183,13 @@ const TeamDetail: React.FC = () => {
                 {isEditing ? (
                     <Form form={editForm} layout="vertical" onFinish={handleSaveInfo}>
                         <Row gutter={16}>
-                            <Col xs={24} md={12}>
+                            <Col xs={24} md={8}>
+                                <Form.Item name="code" label="Mã đội (Auto)"><Input placeholder="Hệ thống tự sinh" disabled /></Form.Item>
+                            </Col>
+                            <Col xs={24} md={8}>
                                 <Form.Item name="teamName" label="Tên đội thợ" rules={[{ required: true }]}><Input /></Form.Item>
                             </Col>
-                            <Col xs={24} md={12}>
+                            <Col xs={24} md={8}>
                                 <Form.Item name="contactName" label="Người đại diện" rules={[{ required: true }]}><Input /></Form.Item>
                             </Col>
                             <Col xs={24} md={12}>
@@ -186,11 +232,12 @@ const TeamDetail: React.FC = () => {
                     <Row gutter={[24, 16]}>
                         <Col xs={24} lg={16}>
                             <Descriptions bordered column={{ xs: 1, sm: 2 }} size="small">
-                                <Descriptions.Item label="Tên">{team.teamName}</Descriptions.Item>
+                                <Descriptions.Item label="Mã Đội"><Text code>{team.code || 'N/A'}</Text></Descriptions.Item>
+                                <Descriptions.Item label="Tên Đội">{team.teamName}</Descriptions.Item>
                                 <Descriptions.Item label="Người liên hệ">{team.contactName}</Descriptions.Item>
                                 <Descriptions.Item label="Số điện thoại"><PhoneOutlined /> {team.phone}</Descriptions.Item>
                                 <Descriptions.Item label="Email"><MailOutlined /> {team.email || 'N/A'}</Descriptions.Item>
-                                <Descriptions.Item label="Khu vực">{team.city}, {team.district}</Descriptions.Item>
+                                <Descriptions.Item label="Thành phố">{team.city || 'N/A'}</Descriptions.Item>
                                 <Descriptions.Item label="Phường/Xã">{team.ward || 'N/A'}</Descriptions.Item>
                                 <Descriptions.Item label="Địa chỉ" span={2}><EnvironmentOutlined /> {team.address}</Descriptions.Item>
                                 <Descriptions.Item label="Mã số thuế">{team.taxCode || 'N/A'}</Descriptions.Item>
@@ -198,7 +245,7 @@ const TeamDetail: React.FC = () => {
                                 <Descriptions.Item label="Chuyên môn" span={2}>
                                     {(team.specializations || []).map((s: string) => <Tag key={s} color="blue">{s}</Tag>)}
                                 </Descriptions.Item>
-                                <Descriptions.Item label="Ngày tham gia">{team.joinDate || 'N/A'}</Descriptions.Item>
+                                <Descriptions.Item label="Ngày tham gia">{team.joinDate ? dayjs(team.joinDate).format('DD/MM/YYYY') : 'N/A'}</Descriptions.Item>
                                 <Descriptions.Item label="Đánh giá">
                                     <Rate disabled value={team.rating} allowHalf style={{ fontSize: 14 }} />
                                     <span style={{ marginLeft: 8 }}>{team.rating}/5</span>
@@ -217,21 +264,11 @@ const TeamDetail: React.FC = () => {
                                     </div>
                                     <Divider style={{ margin: '12px 0' }} />
                                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <span>Tổng dự án</span><strong>{team.totalProjects || 0}</strong>
+                                        <span>Tổng thợ</span><strong>{teamMembers.length}</strong>
                                     </div>
                                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <span>Hoàn thành</span><strong style={{ color: '#52c41a' }}>{team.completedProjects || 0}</strong>
+                                        <span>Đánh giá TB</span><strong>{team.rating}/5</strong>
                                     </div>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <span>Tỷ lệ HT</span>
-                                        <strong>{team.totalProjects ? Math.round((team.completedProjects / team.totalProjects) * 100) : 0}%</strong>
-                                    </div>
-                                    <Progress
-                                        percent={team.totalProjects ? Math.round((team.completedProjects / team.totalProjects) * 100) : 0}
-                                        size="small"
-                                        status="active"
-                                        strokeColor="#52c41a"
-                                    />
                                     <Divider style={{ margin: '12px 0' }} />
                                     <div style={{ marginBottom: 12, fontWeight: 500 }}>Vị trí đội thợ:</div>
                                     <MapPicker
@@ -257,7 +294,7 @@ const TeamDetail: React.FC = () => {
             >
                 <Table
                     dataSource={teamMembers}
-                    rowKey="id"
+                    rowKey="_id"
                     columns={[
                         {
                             title: 'Thợ', dataIndex: 'name', key: 'name',
@@ -266,7 +303,7 @@ const TeamDetail: React.FC = () => {
                                     <Avatar src={record.avatar} icon={<UserOutlined />} style={{ background: '#1890ff' }} />
                                     <div>
                                         <div style={{ fontWeight: 500 }}>{name}</div>
-                                        <div style={{ fontSize: 12, color: '#888' }}>{record.specialization}</div>
+                                        <div style={{ fontSize: 12, color: '#888' }}>{record.position}</div>
                                     </div>
                                 </Space>
                             ),
@@ -279,18 +316,18 @@ const TeamDetail: React.FC = () => {
                         },
                         {
                             title: 'Trình độ',
-                            dataIndex: 'level',
-                            key: 'level',
+                            dataIndex: 'priceConfigId',
+                            key: 'priceConfigId',
                             render: (l: string) => {
-                                const config = priceConfigs.find(c => c.level === l);
+                                const config = priceConfigs.find(c => c.levelCode === l);
                                 return <Tag color="blue">{config?.name || l}</Tag>;
                             }
                         },
                         {
-                            title: 'Công (VND/h)',
-                            dataIndex: 'costPerHour',
-                            key: 'costPerHour',
-                            render: (c: number) => <Text strong color="red">{formatCurrency(c || 0)}/h</Text>
+                            title: 'Giá công (/ngày)',
+                            dataIndex: 'costPerDay',
+                            key: 'costPerDay',
+                            render: (c: number) => <Text strong type="danger">{formatCurrency(c || 0)}</Text>
                         },
                         {
                             title: 'Trạng thái', dataIndex: 'status', key: 'status',
@@ -299,7 +336,7 @@ const TeamDetail: React.FC = () => {
                         {
                             title: 'Thao tác', key: 'action',
                             render: (_: any, record: any) => (
-                                <Popconfirm title="Hủy liên kết thợ này?" onConfirm={() => handleToggleWorkerLink(record.id)}>
+                                <Popconfirm title="Hủy liên kết thợ này?" onConfirm={() => handleRemoveWorkerLink(record._id!)}>
                                     <Button size="small" danger icon={<DeleteOutlined />} />
                                 </Popconfirm>
                             ),
@@ -307,7 +344,7 @@ const TeamDetail: React.FC = () => {
                     ]}
                     pagination={false}
                     onRow={(record) => ({
-                        onClick: () => navigate(`/ql/teams/workers/${record.id}`),
+                        onClick: () => navigate(`/ql/teams/workers/${record._id}`),
                         style: { cursor: 'pointer' }
                     })}
                 />
@@ -317,7 +354,6 @@ const TeamDetail: React.FC = () => {
 
     return (
         <div>
-
             <Row align="middle" justify="space-between" style={{ marginBottom: 24 }}>
                 <Space>
                     <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/ql/teams/groups')}>
@@ -345,7 +381,7 @@ const TeamDetail: React.FC = () => {
                         icon: <ProjectOutlined />,
                         children: (
                             <Card>
-                                <Statistic title="Dự án thực hiện" value={team.totalProjects || 0} prefix={<ProjectOutlined />} />
+                                <Statistic title="Dự án thực hiện" value={0} prefix={<ProjectOutlined />} />
                                 <Divider />
                                 <Statistic title="Hợp đồng liên quan" value={3} prefix={<FileTextOutlined />} />
                                 <div style={{ marginTop: 20 }}>
@@ -396,19 +432,20 @@ const TeamDetail: React.FC = () => {
                 width={800}
                 okText="Xác nhận"
                 cancelText="Hủy"
+                destroyOnClose
             >
                 <Form
                     form={workerForm}
                     layout="vertical"
                     onFinish={handleCreateWorker}
-                    initialValues={{ gender: 'Nam', level: 'junior', isInternal: false }}
+                    initialValues={{ gender: 'male', priceConfigId: 'junior', workerType: 'external' }}
                 >
                     <Row gutter={16}>
                         <Col span={12}>
                             <Form.Item name="name" label="Họ tên" rules={[{ required: true }]}><Input /></Form.Item>
                         </Col>
                         <Col span={12}>
-                            <Form.Item name="gender" label="Giới tính"><Select options={[{ label: 'Nam', value: 'Nam' }, { label: 'Nữ', value: 'Nữ' }]} /></Form.Item>
+                            <Form.Item name="gender" label="Giới tính"><Select options={[{ label: 'Nam', value: 'male' }, { label: 'Nữ', value: 'female' }]} /></Form.Item>
                         </Col>
                     </Row>
                     <Row gutter={16}>
@@ -416,7 +453,7 @@ const TeamDetail: React.FC = () => {
                             <Form.Item name="phone" label="Số điện thoại" rules={[{ required: true }]}><Input /></Form.Item>
                         </Col>
                         <Col span={12}>
-                            <Form.Item name="dob" label="Ngày sinh"><Input type="date" /></Form.Item>
+                            <Form.Item name="dob" label="Ngày sinh"><DatePicker style={{ width: '100%' }} /></Form.Item>
                         </Col>
                     </Row>
                     <Row gutter={16}>
@@ -435,26 +472,27 @@ const TeamDetail: React.FC = () => {
                     <Divider orientation="left">Nghiệp vụ & Chi phí</Divider>
                     <Row gutter={16}>
                         <Col span={8}>
-                            <Form.Item name="level" label="Cấp độ (Level)">
+                            <Form.Item name="priceConfigId" label="Cấp độ (Level)">
                                 <Select
                                     onChange={handleLevelChange}
-                                    options={priceConfigs.map(c => ({ label: c.name, value: c.level }))}
+                                    options={priceConfigs.map(c => ({ label: c.name, value: c.levelCode }))}
                                 />
                             </Form.Item>
                         </Col>
                         <Col span={8}>
-                            <Form.Item name="costPerHour" label="Công theo giờ (VND/h)" rules={[{ required: true }]}>
+                            <Form.Item name="costPerDay" label="Giá công (/ngày)" rules={[{ required: true }]}>
                                 <InputNumber
                                     style={{ width: '100%' }}
                                     formatter={(val: any) => `${val}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                                     parser={(val: any) => val!.replace(/\$\s?|(,*)/g, '') as any}
-                                    suffix="VND/h"
+                                    suffix=" VNĐ"
+                                    step={50000}
                                 />
                             </Form.Item>
                         </Col>
                         <Col span={8}>
-                            <Form.Item name="isInternal" label="Nhân viên nội bộ" valuePropName="checked">
-                                <Select options={[{ label: 'Nội bộ', value: true }, { label: 'Cộng tác viên', value: false }]} />
+                            <Form.Item name="workerType" label="Phân loại">
+                                <Select options={[{ label: 'Nội bộ', value: 'internal' }, { label: 'Thuê ngoài', value: 'external' }, { label: 'Cộng tác viên', value: 'collaborator' }]} />
                             </Form.Item>
                         </Col>
                     </Row>
