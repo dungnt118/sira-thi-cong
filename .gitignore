@@ -34,3 +34,8 @@ documents/**/*.pdf
 documents/**/*.mp4
 documents/**/*.mov
 documents/**/*.avi
+
+# Scripts and backups
+scripts/exec_backup.bat
+scripts/exec_restore.bat
+scripts/BAC.gz
