@@ -1,27 +1,45 @@
-import React, { useState, useMemo, useEffect } from 'react';
 import {
-    Card, Row, Col, Typography, Table, Tag, Button,
-    Space, Steps, message, Modal,
-    Alert, Descriptions, Result, Spin, Grid
-} from 'antd';
-import {
-    ArrowLeftOutlined, FilePdfOutlined, CheckCircleOutlined,
-    ClockCircleOutlined, WarningOutlined, SignatureOutlined,
-    CarOutlined, HomeOutlined, DownloadOutlined, EyeOutlined
+    ArrowLeftOutlined,
+    CarOutlined,
+    CheckCircleOutlined,
+    ClockCircleOutlined,
+    DownloadOutlined, EyeOutlined,
+    FilePdfOutlined,
+    HomeOutlined,
+    SignatureOutlined,
+    WarningOutlined
 } from '@ant-design/icons';
-import { useParams, useNavigate } from 'react-router-dom';
+import {
+    Alert,
+    Button,
+    Card,
+    Col,
+    Grid,
+    Modal,
+    Result,
+    Row,
+    Space,
+    Spin,
+    Steps,
+    Table, Tag,
+    Typography,
+    message
+} from 'antd';
+import html2pdf from 'html2pdf.js';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import type { HeadlessFileUpload } from 'types/apis/HeadlessFileUpload';
+import { PdfViewer } from '../../../components/common/PdfViewer';
+import SignaturePad from '../../../components/common/SignaturePad';
 import { useAuth } from '../../../hooks/useAuth';
 import { stockOrderService } from '../../../services/core-contracts/services/stockOrder.service';
 import type {
-    IStockOrder,
     ISignaturesItem,
+    IStockOrder,
     SignaturesRoleEnum,
     StockOrderStatusEnum
 } from '../../../services/core-contracts/types/stockOrder.types';
-import { get, ACCESS_TOKEN, UPLOAD_URL, getFileLink } from '../../../services/storeService';
-import SiraSignaturePad from '../../../components/common/SignaturePad';
-import StockOrderPrintable from './components/StockOrderPrintable';
-import html2pdf from 'html2pdf.js';
+import { ACCESS_TOKEN, UPLOAD_URL, get, getFileLink } from '../../../services/storeService';
 import {
     classifyJourneyFile,
     getJourneyFileDisplayName,
@@ -29,8 +47,7 @@ import {
     resolvePdfPreviewHref,
     type JourneyFileKind,
 } from '../../../utils/journeyDocumentFileDisplay';
-import { PdfViewer } from '../../../components/common/PdfViewer';
-import type { HeadlessFileUpload } from 'types/apis/HeadlessFileUpload';
+import StockOrderPrintable from './components/StockOrderPrintable';
 
 const { Title, Text } = Typography;
 const { useBreakpoint } = Grid;
@@ -776,7 +793,7 @@ const StockOrderDetail: React.FC = () => {
                 footer={null}
                 width={isMobile ? 'calc(100vw - 24px)' : 450}
             >
-                <SiraSignaturePad
+                <SignaturePad
                     onSave={(dataUrl, strokeData) => handleSign(dataUrl, strokeData)}
                     title={`Chữ ký của ${signingRole === 'kt' ? 'Kế toán' : signingRole === 'warehouse' ? 'Thủ kho' : 'Giám sát'}`}
                     description="Vui lòng ký vào khung bên dưới và bấm Xác nhận"

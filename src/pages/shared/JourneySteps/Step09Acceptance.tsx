@@ -1,6 +1,6 @@
+import { AuditOutlined, CameraOutlined, EditOutlined, EyeOutlined, SafetyCertificateOutlined, SaveOutlined, SignatureOutlined } from '@ant-design/icons';
+import { Button, Card, Col, Descriptions, Divider, Form, Image, Input, Rate, Row, Space, Tag, Typography } from 'antd';
 import React, { useState } from 'react';
-import { Card, Form, Input, Button, Space, Divider, Typography, Tag, Descriptions, Rate, Row, Col, Image } from 'antd';
-import { SaveOutlined, EditOutlined, EyeOutlined, AuditOutlined, SafetyCertificateOutlined, CameraOutlined, SignatureOutlined } from '@ant-design/icons';
 
 const { TextArea } = Input;
 const { Text, Title } = Typography;
@@ -71,7 +71,7 @@ export const Step09Acceptance: React.FC<Step09AcceptanceProps> = ({ journeyId, i
                         <Text type="secondary">{acceptance.customer}</Text>
                     </Col>
                     <Col span={12} style={{ textAlign: 'center' }}>
-                        <Text strong>Đại diện SIRA ký tên</Text>
+                        <Text strong>Đại diện BAC ký tên</Text>
                         <div style={{ height: 100, border: '1px dashed #d9d9d9', marginTop: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fafafa' }}>
                             <Text type="secondary" italic>Đã ký xác nhận điện tử</Text>
                         </div>

@@ -1,18 +1,17 @@
-import React from 'react';
-import { Layout, Badge } from 'antd';
-import { useNavigate, useLocation, Outlet } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
 import {
-    HomeOutlined,
     AppstoreOutlined,
-    InboxOutlined,
-    UserOutlined,
     BellOutlined,
-    FormOutlined,
-    HistoryOutlined
+    HistoryOutlined,
+    HomeOutlined,
+    InboxOutlined,
+    UserOutlined
 } from '@ant-design/icons';
-import { UserMenu } from '../../components/common/Header/UserMenuWithDocs';
+import { Badge, Layout } from 'antd';
+import React from 'react';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { AppBrandLogo } from '../../components/common/AppBrandLogo';
+import { UserMenu } from '../../components/common/Header/UserMenuWithDocs';
+import { useAuth } from '../../hooks/useAuth';
 import './GiamSatMobile.css';
 
 const { Header, Content } = Layout;
@@ -53,7 +52,7 @@ export const GiamSatLayout: React.FC = () => {
             <Header className="giam-sat-header">
                 <div className="header-brand-mobile">
                     <AppBrandLogo size="sm" variant="onDark" />
-                    <span className="brand-text-mobile">SIRA Giám Sát</span>
+                    <span className="brand-text-mobile">BACGiám Sát</span>
                 </div>
                 <div className="header-actions-mobile">
                     <Badge count={2} size="small" offset={[-4, 4]}>

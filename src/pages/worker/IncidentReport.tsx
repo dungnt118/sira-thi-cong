@@ -1,14 +1,27 @@
 // @ts-nocheck
-import React, { useState } from 'react';
 import {
-    Card, Form, Input, Select, Button, Upload, Typography,
-    Alert, Modal
-} from 'antd';
-import {
-    ArrowLeftOutlined, CameraOutlined, SendOutlined, ExclamationCircleOutlined,
-    BoxPlotOutlined, ToolOutlined, CloudOutlined, WarningOutlined,
-    QuestionCircleOutlined, CheckCircleOutlined, MailOutlined
+    ArrowLeftOutlined,
+    BoxPlotOutlined,
+    CameraOutlined,
+    CheckCircleOutlined,
+    CloudOutlined,
+    ExclamationCircleOutlined,
+    MailOutlined,
+    QuestionCircleOutlined,
+    SendOutlined,
+    ToolOutlined,
+    WarningOutlined
 } from '@ant-design/icons';
+import {
+    Alert,
+    Button,
+    Card, Form, Input,
+    Modal,
+    Select,
+    Typography,
+    Upload
+} from 'antd';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { mockProjects } from '../../data/mockData';
 
@@ -90,7 +103,7 @@ const IncidentReport: React.FC = () => {
                         <TextArea
                             rows={4}
                             placeholder="Mô tả chi tiết sự cố đang gặp phải...
-VD: Hết SIRA PU lớp phủ, chỉ còn ~5kg không đủ cho lớp thứ 2 (cần ~20kg để hoàn thành tầng 3)"
+VD: Hết BACPU lớp phủ, chỉ còn ~5kg không đủ cho lớp thứ 2 (cần ~20kg để hoàn thành tầng 3)"
                             style={{ borderRadius: 8 }}
                         />
                     </Form.Item>

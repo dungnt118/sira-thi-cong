@@ -1,8 +1,8 @@
-import React from 'react';
-import { Typography, Table } from 'antd';
-import type { IAssetAllocation, ISignatureImageItem } from '../../../../services/core-contracts/types/assetAllocation.types';
-import { getFileLink } from '../../../../services/storeService';
+import { Typography } from 'antd';
 import dayjs from 'dayjs';
+import React from 'react';
+import type { IAssetAllocation } from '../../../../services/core-contracts/types/assetAllocation.types';
+import { getFileLink } from '../../../../services/storeService';
 
 const { Text, Title } = Typography;
 
@@ -120,7 +120,7 @@ const AssetAllocationPrintable: React.FC<AssetAllocationPrintableProps> = ({ ord
 
             {/* Footer */}
             <div style={{ position: 'absolute', bottom: '20mm', left: '20mm', right: '20mm', textAlign: 'center', fontSize: 10, color: '#888', borderTop: '1px solid #eee', paddingTop: 10 }}>
-                Biên bản được khởi tạo từ hệ thống Quản lý SIRA - {dayjs().format('DD/MM/YYYY HH:mm')}
+                Biên bản được khởi tạo từ hệ thống Quản lý BAC- {dayjs().format('DD/MM/YYYY HH:mm')}
             </div>
         </div>
     );

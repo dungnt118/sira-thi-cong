@@ -103,7 +103,7 @@ export interface MoistureReading {
 
 export interface QuotationItem {
     id: string;
-    name: string;       // e.g. "SIRA PU (lót)"
+    name: string;       // e.g. "BACPU (lót)"
     unit: string;       // m², kg, lít
     quantity: number;
     unitPrice: number;
@@ -569,7 +569,7 @@ export interface EstimateTemplateComponent {
     id: string;
     type: EstimateComponentType;
     itemId?: string;      // Material ID if type = 'material'
-    name: string;         // 'SIRA PU Lót' / 'Nhân công sơn'
+    name: string;         // 'BACPU Lót' / 'Nhân công sơn'
     unit: string;         // kg / m2 / công
     quantityPerUnit: number; // Định mức vật tư/nhân công trên 1 ĐVT hạng mục
     unitPrice: number;    // Đơn giá tiêu chuẩn

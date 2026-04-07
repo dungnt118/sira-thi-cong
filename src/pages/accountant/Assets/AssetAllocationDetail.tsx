@@ -1,25 +1,42 @@
-import React, { useState, useMemo, useEffect } from 'react';
 import {
-    Card, Row, Col, Typography, Tag, Button,
-    Space, Steps, message, Modal,
-    Alert, Descriptions, Result, Spin, Tooltip, Grid
-} from 'antd';
-import {
-    ArrowLeftOutlined, CheckCircleOutlined,
-    ClockCircleOutlined, WarningOutlined, SignatureOutlined,
-    CarOutlined, HomeOutlined, DownloadOutlined, FilePdfOutlined,
-    EditOutlined, EyeOutlined, ToolOutlined
+    ArrowLeftOutlined,
+    CarOutlined,
+    CheckCircleOutlined,
+    ClockCircleOutlined,
+    DownloadOutlined, FilePdfOutlined,
+    HomeOutlined,
+    SignatureOutlined,
+    ToolOutlined,
+    WarningOutlined
 } from '@ant-design/icons';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../../hooks/useAuth';
-import { assetAllocationService } from '../../../services/core-contracts/services/assetAllocation.service';
-import { assetService } from '../../../services/core-contracts/services/asset.service';
-import type { IAssetAllocation, AssetAllocationStatusEnum, ISignatureImageItem } from '../../../services/core-contracts/types/assetAllocation.types';
-import SiraSignaturePad from '../../../components/common/SignaturePad';
-import AssetAllocationPrintable from './components/AssetAllocationPrintable';
-import { get, ACCESS_TOKEN, UPLOAD_URL, getFileLink } from '../../../services/storeService';
-import html2pdf from 'html2pdf.js';
+import {
+    Alert,
+    Button,
+    Card,
+    Col,
+    Descriptions,
+    Grid,
+    Modal,
+    Result,
+    Row,
+    Space,
+    Spin,
+    Steps,
+    Tag,
+    Typography,
+    message
+} from 'antd';
 import dayjs from 'dayjs';
+import html2pdf from 'html2pdf.js';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import SignaturePad from '../../../components/common/SignaturePad';
+import { useAuth } from '../../../hooks/useAuth';
+import { assetService } from '../../../services/core-contracts/services/asset.service';
+import { assetAllocationService } from '../../../services/core-contracts/services/assetAllocation.service';
+import type { AssetAllocationStatusEnum, IAssetAllocation, ISignatureImageItem } from '../../../services/core-contracts/types/assetAllocation.types';
+import { ACCESS_TOKEN, UPLOAD_URL, get, getFileLink } from '../../../services/storeService';
+import AssetAllocationPrintable from './components/AssetAllocationPrintable';
 
 const { Title, Text } = Typography;
 const { useBreakpoint } = Grid;
@@ -306,7 +323,7 @@ const AssetAllocationDetail: React.FC = () => {
                 width={isMobile ? 'calc(100vw - 24px)' : 450}
                 destroyOnClose
             >
-                <SiraSignaturePad
+                <SignaturePad
                     onSave={handleSign}
                     title={signingRole === 'accountant' ? 'Chữ ký Kế toán' : 'Chữ ký Người nhận'}
                     description="Vui lòng ký vào khung bên dưới để xác nhận bàn giao tài sản"

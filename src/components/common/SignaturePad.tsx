@@ -1,17 +1,17 @@
+import { CheckOutlined, ClearOutlined } from '@ant-design/icons';
+import { Button, Card, message, Space, Typography } from 'antd';
 import React, { useRef } from 'react';
 import SignatureCanvas from 'react-signature-canvas';
-import { Button, Space, Typography, Card, message } from 'antd';
-import { ClearOutlined, CheckOutlined } from '@ant-design/icons';
 
 const { Text } = Typography;
 
-interface SiraSignaturePadProps {
+interface SignaturePadProps {
     onSave: (dataUrl: string, strokeData: any) => void;
     title?: string;
     description?: string;
 }
 
-const SiraSignaturePad: React.FC<SiraSignaturePadProps> = ({ onSave, title, description }) => {
+const SignaturePad: React.FC<SignaturePadProps> = ({ onSave, title, description }) => {
     const sigCanvas = useRef<SignatureCanvas>(null);
 
     const clear = () => {
@@ -80,4 +80,4 @@ const SiraSignaturePad: React.FC<SiraSignaturePadProps> = ({ onSave, title, desc
     );
 };
 
-export default SiraSignaturePad;
+export default SignaturePad;

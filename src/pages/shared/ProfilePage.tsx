@@ -1,4 +1,22 @@
-import React from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { loadUserData } from '@/pages/shared/auth/store/actions/user.actions';
+import { mutate } from '@/services/graphqlService';
+import { getFileLink } from '@/services/storeService';
+import type { AuthorizedUser } from '@/services/users/authorized-users/authorizedusers.types';
+import { globalUserService } from '@/services/users/global-users/global-user.service';
+import { ROLE_LABEL_MAP } from '@/services/users/user.constants';
+import { useAppDispatch } from '@/store/hooks';
+import {
+    BellOutlined,
+    CloseOutlined,
+    LockOutlined,
+    QuestionCircleOutlined,
+    RightOutlined,
+    SaveOutlined,
+    SettingOutlined,
+    UserOutlined,
+} from '@ant-design/icons';
+import { gql } from '@apollo/client';
 import {
     Alert,
     Avatar,
@@ -14,26 +32,8 @@ import {
     Typography,
     message,
 } from 'antd';
-import {
-    BellOutlined,
-    CloseOutlined,
-    LockOutlined,
-    QuestionCircleOutlined,
-    RightOutlined,
-    SaveOutlined,
-    SettingOutlined,
-    UserOutlined,
-} from '@ant-design/icons';
-import { gql } from '@apollo/client';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
-import { useAppDispatch } from '@/store/hooks';
-import { mutate } from '@/services/graphqlService';
-import { getFileLink } from '@/services/storeService';
-import { loadUserData } from '@/pages/shared/auth/store/actions/user.actions';
-import { globalUserService } from '@/services/users/global-users/global-user.service';
-import { ROLE_LABEL_MAP } from '@/services/users/user.constants';
-import type { AuthorizedUser } from '@/services/users/authorized-users/authorizedusers.types';
 
 const { Title, Text } = Typography;
 
@@ -449,7 +449,7 @@ export const SharedProfilePage: React.FC = () => {
                     type="secondary"
                     style={{ fontSize: 12, display: 'block', textAlign: 'center' }}
                 >
-                    SIRA Service Platform v4.0.0
+                    BACService Platform v4.0.0
                 </Text>
             </div>
 

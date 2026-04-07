@@ -1,19 +1,19 @@
-import React from 'react';
-import { Menu } from 'antd';
-import type { MenuProps } from 'antd';
-import { useNavigate, useLocation } from 'react-router-dom';
 import {
     DashboardOutlined,
+    DollarOutlined,
     ProjectOutlined,
-    UploadOutlined,
     ShoppingOutlined,
     TeamOutlined,
-    DollarOutlined,
+    UploadOutlined,
 } from '@ant-design/icons';
 import { LABELS } from '@utils/constants';
-import { BaseLayout } from '../shared/BaseLayout';
-import { UserMenu } from '../../components/common/Header/UserMenuWithDocs';
+import type { MenuProps } from 'antd';
+import { Menu } from 'antd';
+import React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { AppBrandLogo } from '../../components/common/AppBrandLogo';
+import { UserMenu } from '../../components/common/Header/UserMenuWithDocs';
+import { BaseLayout } from '../shared/BaseLayout';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -74,7 +74,7 @@ const PartnerSidebar: React.FC = () => {
                 }}
             >
                 <AppBrandLogo size="sm" variant="onDark" />
-                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>SIRA Partner</span>
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>BACPartner</span>
             </div>
             <Menu
                 theme="dark"

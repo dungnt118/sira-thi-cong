@@ -1,20 +1,52 @@
-import React, { useMemo } from 'react';
 import {
-    Card, Button, Tag, Avatar, Row, Col, Typography,
-    Divider, Rate, Grid, Space, Descriptions, Tabs, Statistic, Empty,
-    Modal, Form, Input, Select, DatePicker, Switch, InputNumber, Upload, message, Popconfirm
-} from 'antd';
-import {
-    ArrowLeftOutlined, EditOutlined, PhoneOutlined, MailOutlined,
-    EnvironmentOutlined, UserOutlined, CalendarOutlined,
-    VerifiedOutlined, ToolOutlined, FileTextOutlined,
-    HistoryOutlined, DeleteOutlined, PlusOutlined, UploadOutlined
+    ArrowLeftOutlined,
+    CalendarOutlined,
+    DeleteOutlined,
+    EditOutlined,
+    EnvironmentOutlined,
+    FileTextOutlined,
+    HistoryOutlined,
+    MailOutlined,
+    PhoneOutlined,
+    PlusOutlined,
+    ToolOutlined,
+    UploadOutlined,
+    UserOutlined,
+    VerifiedOutlined
 } from '@ant-design/icons';
-import { useNavigate, useParams } from 'react-router-dom';
+import {
+    Avatar,
+    Button,
+    Card,
+    Col,
+    DatePicker,
+    Descriptions,
+    Divider,
+    Empty,
+    Form,
+    Grid,
+    Input,
+    InputNumber,
+    message,
+    Modal,
+    Popconfirm,
+    Rate,
+    Row,
+    Select,
+    Space,
+    Statistic,
+    Switch,
+    Tabs,
+    Tag,
+    Typography,
+    Upload
+} from 'antd';
 import dayjs from 'dayjs';
+import React, { useMemo } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import MapPicker from '../../../components/common/MapPicker';
 import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
 import { demoDataService } from '../../../services/core-graphql/localstorage/demoDataService';
-import MapPicker from '../../../components/common/MapPicker';
 
 const { Title, Text } = Typography;
 const { useBreakpoint } = Grid;
@@ -133,7 +165,7 @@ const WorkerDetail: React.FC = () => {
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
                                 <Space>
                                     <VerifiedOutlined style={{ color: '#52c41a' }} />
-                                    <Text>Chứng chỉ tay nghề Chống thấm (SIRA Certified)</Text>
+                                    <Text>Chứng chỉ tay nghề Chống thấm (BACCertified)</Text>
                                 </Space>
                                 <Button type="link">Xem</Button>
                             </div>

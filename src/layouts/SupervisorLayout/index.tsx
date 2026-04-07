@@ -1,18 +1,18 @@
-import React from 'react';
-import { Menu } from 'antd';
-import type { MenuProps } from 'antd';
-import { useNavigate, useLocation } from 'react-router-dom';
 import {
-    DashboardOutlined,
-    ProjectOutlined,
-    FileImageOutlined,
-    WarningOutlined,
-    TeamOutlined,
     BarChartOutlined,
+    DashboardOutlined,
+    FileImageOutlined,
+    ProjectOutlined,
+    TeamOutlined,
+    WarningOutlined,
 } from '@ant-design/icons';
 import { LABELS } from '@utils/constants';
-import { BaseLayout } from '../shared/BaseLayout';
+import type { MenuProps } from 'antd';
+import { Menu } from 'antd';
+import React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { AppBrandLogo } from '../../components/common/AppBrandLogo';
+import { BaseLayout } from '../shared/BaseLayout';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -73,7 +73,7 @@ const SupervisorSidebar: React.FC = () => {
                 }}
             >
                 <AppBrandLogo size="sm" variant="onDark" />
-                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>SIRA Giám Sát</span>
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>BACGiám Sát</span>
             </div>
             <Menu
                 theme="dark"

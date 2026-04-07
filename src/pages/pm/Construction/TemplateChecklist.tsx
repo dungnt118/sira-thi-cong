@@ -1,16 +1,33 @@
-import React, { useState } from 'react';
 import {
-    Card, Button, Tag, Typography, Modal, Form, Input, InputNumber,
-    Switch, Table, Space, Popconfirm, Alert, Row, Col, Select, Tooltip,
+    CopyOutlined,
+    DeleteOutlined,
+    DragOutlined,
+    EditOutlined,
+    EyeOutlined,
+    PlusOutlined,
+    SaveOutlined,
+} from '@ant-design/icons';
+import {
+    Alert,
+    Button,
+    Card,
+    Col,
+    Form, Input, InputNumber,
+    Modal,
+    Popconfirm,
+    Row,
+    Select,
+    Space,
+    Switch, Table,
+    Tag,
+    Tooltip,
+    Typography,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import {
-    PlusOutlined, EditOutlined, DeleteOutlined, CopyOutlined,
-    EyeOutlined, DragOutlined, SaveOutlined,
-} from '@ant-design/icons';
+import React, { useState } from 'react';
+import { mockTemplates as defaultTemplates } from '../../../data/mockData';
 import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
 import { demoDataService } from '../../../services/core-graphql/localstorage/demoDataService';
-import { mockTemplates as defaultTemplates } from '../../../data/mockData';
 import type { ChecklistTemplate } from '../../../types/v3';
 
 const { Title, Text } = Typography;
@@ -205,7 +222,7 @@ const TemplateChecklist: React.FC = () => {
                 >
                     <Form form={stepForm} layout="vertical">
                         <Form.Item name="name" label="Tên bước *" rules={[{ required: true }]}>
-                            <Input placeholder="VD: Quét SIRA PU lớp lót lần 1" />
+                            <Input placeholder="VD: Quét BACPU lớp lót lần 1" />
                         </Form.Item>
                         <Form.Item name="description" label="Mô tả / Hướng dẫn cho thợ">
                             <Input.TextArea rows={3} placeholder="Quét đều tay, không để bọt khí..." />

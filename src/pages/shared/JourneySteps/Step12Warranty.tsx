@@ -1,9 +1,9 @@
+import { EditOutlined, EyeOutlined, SaveOutlined } from '@ant-design/icons';
+import { Alert, Button, Card, Divider, Form, Input, Result, Space, Tag, Timeline, Typography } from 'antd';
 import React, { useState } from 'react';
-import { Card, Form, Input, Button, Result, Space, Divider, Typography, Tag, Timeline, Alert } from 'antd';
-import { SaveOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 
-import { mockIncidents } from '../../../data/journeyMockData';
 import { SafetyOutlined, WarningOutlined } from '@ant-design/icons';
+import { mockIncidents } from '../../../data/journeyMockData';
 
 const { TextArea } = Input;
 const { Text, Title } = Typography;
@@ -34,7 +34,7 @@ export const Step12Warranty: React.FC<Step12WarrantyProps> = ({ journeyId, isEdi
                     status="info"
                     icon={<SafetyOutlined />}
                     title="Chưa ghi nhận yêu cầu bảo hành"
-                    subTitle="Vui lòng liên hệ hotline SIRA nếu có bất kỳ vấn đề gì sau khi bàn giao để được hỗ trợ bảo hành kịp thời."
+                    subTitle="Vui lòng liên hệ hotline BACnếu có bất kỳ vấn đề gì sau khi bàn giao để được hỗ trợ bảo hành kịp thời."
                 />
             );
         }

@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Card, Tabs, Form, Input, InputNumber, Select, Switch, Button, message, Space, Upload, Row, Col, Typography, Modal } from 'antd';
-import { SettingOutlined, SaveOutlined, UploadOutlined, ReloadOutlined, EyeOutlined } from '@ant-design/icons';
+import { EyeOutlined, ReloadOutlined, SaveOutlined, SettingOutlined, UploadOutlined } from '@ant-design/icons';
 import type { TabsProps } from 'antd';
+import { Button, Card, Col, Form, Input, InputNumber, message, Modal, Row, Select, Space, Switch, Tabs, Typography, Upload } from 'antd';
+import React, { useState } from 'react';
 
 const { Option } = Select;
 
@@ -34,7 +34,7 @@ const SystemSettings: React.FC = () => {
 
     // Mock initial values
     const initialGeneral = {
-        companyName: 'SIRA Construction',
+        companyName: 'BACConstruction',
         timezone: 'Asia/Ho_Chi_Minh',
         language: 'vi',
         evidenceRetentionYears: 5,
@@ -46,7 +46,7 @@ const SystemSettings: React.FC = () => {
         smtpUser: 'noreply@sira.vn',
         smtpPassword: '***',
         fromEmail: 'noreply@sira.vn',
-        fromName: 'SIRA System',
+        fromName: 'BACSystem',
     };
 
     const initialEvidence = {

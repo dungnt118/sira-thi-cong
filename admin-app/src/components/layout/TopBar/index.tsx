@@ -1,13 +1,13 @@
-import React from 'react';
-import { Layout, Input, Badge, Avatar, Dropdown, Space } from 'antd';
 import {
-    SearchOutlined,
     BellOutlined,
-    UserOutlined,
-    SettingOutlined,
     LogoutOutlined,
+    SearchOutlined,
+    SettingOutlined,
+    UserOutlined,
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
+import { Avatar, Badge, Dropdown, Input, Layout, Space } from 'antd';
+import React from 'react';
 import './TopBar.css';
 
 const { Header } = Layout;
@@ -84,7 +84,7 @@ const TopBar: React.FC = () => {
                         decoding="async"
                         className="topbar-logo-img"
                     />
-                    <span className="topbar-logo-text">SIRA Admin</span>
+                    <span className="topbar-logo-text">BACAdmin</span>
                 </div>
             </div>
 

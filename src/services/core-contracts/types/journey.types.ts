@@ -1,5 +1,6 @@
-﻿import type { IndexedContentItem } from 'types/apis';
-import type { ApiListResponse } from 'types/apis/ApiResponse';
+import type { HeadlessReferenceContent, IndexedContentItem } from 'types/apis';
+import type { ApiListResponse, ApiResponse } from 'types/apis/ApiResponse';
+import type { HeadlessFileUpload } from 'types/apis/HeadlessFileUpload';
 
 /**
  * Journey interface
@@ -15,8 +16,6 @@ export interface IJourney {
   site_address?: string;
   serviceTypeId?: string;
   idx_serviceTypeId?: IndexedContentItem;
-  /** @deprecated Use serviceTypeId + idx_serviceTypeId instead. */
-  requested_service?: string;
   priority?: JourneyPriorityEnum;
   go_no_go_status?: JourneyGoNoGoStatusEnum;
   sla_status?: JourneySlaStatusEnum;
@@ -84,8 +83,6 @@ export interface ICreateJourneyInput {
   owner_user?: any;
   site_address?: string;
   serviceTypeId?: string;
-  /** @deprecated Use serviceTypeId instead. */
-  requested_service?: string;
   priority?: JourneyPriorityEnum2;
   go_no_go_status?: JourneyGoNoGoStatusEnum2;
   sla_status?: JourneySlaStatusEnum2;
@@ -164,4 +161,3 @@ export type JourneyQuoteStatusEnum2 = 'not_started' | 'draft' | 'sent' | 'approv
 export type JourneyProjectStatusEnum2 = 'not_started' | 'active' | 'completed' | 'cancelled';
 export type JourneyCurrentStepEnum2 = 'lead_intake' | 'qualification' | 'survey_planning' | 'site_survey' | 'survey_review' | 'estimate_preparation' | 'quotation_preparation' | 'quotation_sent' | 'quotation_approved' | 'contract_signing' | 'project_execution' | 'handover_acceptance' | 'warranty_aftercare';
 export type JourneyMaterialNeedStatusEnum2 = 'enough' | 'partial' | 'waiting';
-

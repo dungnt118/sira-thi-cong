@@ -6,8 +6,8 @@
         "projectId": "DA-001",
         "projectName": "DA-2026-001",
         "items": [
-            { "materialId": "MAT-001", "materialName": "SIRA PU (lót)", "unit": "kg", "quantity": 150, "unitCost": 45000 },
-            { "materialId": "MAT-002", "materialName": "SIRA PU (phủ)", "unit": "kg", "quantity": 200, "unitCost": 48000 },
+            { "materialId": "MAT-001", "materialName": "BACPU (lót)", "unit": "kg", "quantity": 150, "unitCost": 45000 },
+            { "materialId": "MAT-002", "materialName": "BACPU (phủ)", "unit": "kg", "quantity": 200, "unitCost": 48000 },
             { "materialId": "MAT-003", "materialName": "Primer", "unit": "lít", "quantity": 50, "unitCost": 35000 }
         ],
         "totalValue": 18350000,
@@ -24,8 +24,8 @@
         "source": "DISTRIBUTOR",
         "sourceId": "DIST-001",
         "items": [
-            { "materialId": "MAT-001", "materialName": "SIRA PU (lót)", "unit": "kg", "quantity": 150, "unitCost": 45000 },
-            { "materialId": "MAT-002", "materialName": "SIRA PU (phủ)", "unit": "kg", "quantity": 200, "unitCost": 48000 }
+            { "materialId": "MAT-001", "materialName": "BACPU (lót)", "unit": "kg", "quantity": 150, "unitCost": 45000 },
+            { "materialId": "MAT-002", "materialName": "BACPU (phủ)", "unit": "kg", "quantity": 200, "unitCost": 48000 }
         ],
         "totalValue": 16350000,
         "status": "SIGNED",
@@ -42,7 +42,7 @@
         "projectId": "DA-005",
         "projectName": "Hoàn thiện Nhà phố Q1",
         "items": [
-            { "materialId": "MAT-001", "materialName": "SIRA PU (lót)", "unit": "kg", "quantity": 2.5, "unitCost": 45000 },
+            { "materialId": "MAT-001", "materialName": "BACPU (lót)", "unit": "kg", "quantity": 2.5, "unitCost": 45000 },
             { "materialId": "MAT-005", "materialName": "Băng chống thấm Sika", "unit": "cuộn", "quantity": 3, "unitCost": 120000 }
         ],
         "totalValue": 472500,

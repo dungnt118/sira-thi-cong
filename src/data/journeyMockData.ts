@@ -2,8 +2,12 @@
 // Phase 1 – Journey Mock Data
 // ============================================================
 import type {
-    Journey, JourneyTemplate, SurveyRecord, PortalThread,
-    ActionItem, JourneyActivity
+    ActionItem,
+    Journey,
+    JourneyActivity,
+    JourneyTemplate,
+    PortalThread,
+    SurveyRecord
 } from '../types/journey';
 
 // ---- MOCK ACTIVITIES ----
@@ -57,9 +61,9 @@ export const mockJourneys: Journey[] = [
         survey_media_count: 12,
         moisture_summary: 'Khu vực A: 78%, B: 65%, C: 52%',
         current_condition_summary: 'Nhiều vết thấm, bong tróc lớp sơn, nứt dọc',
-        proposed_solution_summary: 'Vá khe nứt + phủ SIRA PU 2 lớp + lớp chống nắng',
+        proposed_solution_summary: 'Vá khe nứt + phủ BACPU 2 lớp + lớp chống nắng',
         labor_need_note: '2 thợ, 3 ngày',
-        material_need_note: 'SIRA PU 40kg, SIRA TOP 10kg',
+        material_need_note: 'BACPU 40kg, BACTOP 10kg',
         field_risk_summary: 'Tiếp cận mái khó, cần giàn giáo',
         estimate_version_no: 1,
         estimated_cost_total: 85000000,
@@ -85,7 +89,7 @@ export const mockJourneys: Journey[] = [
         collected_amount: 0,
         outstanding_amount: 95000000,
         material_need_status: 'pending',
-        key_material_summary: 'SIRA PU, SIRA TOP, Chất liên kết',
+        key_material_summary: 'BACPU, BACTOP, Chất liên kết',
         procurement_alert_count: 0,
         document_count: 3,
         missing_document_count: 2,
@@ -108,7 +112,7 @@ export const mockJourneys: Journey[] = [
             },
             {
                 id: 'ws-02', templateStepId: 'ts-02', order: 2, name: 'Quét lót',
-                description: 'Quét 1 lớp lót SIRA PU', minPhotos: 2,
+                description: 'Quét 1 lớp lót BACPU', minPhotos: 2,
                 status: 'IN_PROGRESS', evidences: []
             },
             {
@@ -546,9 +550,9 @@ export const mockSurveys: SurveyRecord[] = [
             { area_name: 'Khu vực B - Sê nô', area_type: 'Sê nô', current_condition: 'Tắc nghẽn, nước đọng', measurement_notes: 'Dài 8m, rộng 0.3m', moisture_value: 65 },
             { area_name: 'Khu vực C - Tường biên', area_type: 'Tường', current_condition: 'Nứt dọc từ mái xuống thân', measurement_notes: 'Độ nứt ~2mm, dài 3m', moisture_value: 52 },
         ],
-        proposed_solution: 'Vá khe nứt bằng Sikaflex + phủ SIRA PU 2 lớp + lớp chống nắng cuối',
+        proposed_solution: 'Vá khe nứt bằng Sikaflex + phủ BACPU 2 lớp + lớp chống nắng cuối',
         labor_need_note: '2 thợ, 3 ngày, cần giàn giáo',
-        material_need_note: 'SIRA PU 40kg, SIRA TOP 10kg, Sikaflex 4 tuýp',
+        material_need_note: 'BACPU 40kg, BACTOP 10kg, Sikaflex 4 tuýp',
         risk_flags: {
             material_risk: ['lead time dài'],
             access_risk: ['giáo', 'khung giờ'],
@@ -595,7 +599,7 @@ export const mockPortalThreads: PortalThread[] = [
         unread_count: 1,
         messages: [
             { id: 'msg-001-1', thread_id: 'thread-001', sender: 'Nguyễn Thị Lan', sender_role: 'customer', message_body: 'Chào anh, tôi đã xem kết quả khảo sát. Giải pháp này có đảm bảo bền 5 năm không?', sent_at: '2026-02-16T08:30:00' },
-            { id: 'msg-001-2', thread_id: 'thread-001', sender: 'Nguyễn Văn PM', sender_role: 'QL', message_body: 'Chào chị Lan, với giải pháp SIRA PU 2 lớp + bảo vệ UV chúng tôi đảm bảo bền 7 năm có chứng nhận.', sent_at: '2026-02-16T09:15:00', official_response: true },
+            { id: 'msg-001-2', thread_id: 'thread-001', sender: 'Nguyễn Văn PM', sender_role: 'QL', message_body: 'Chào chị Lan, với giải pháp BACPU 2 lớp + bảo vệ UV chúng tôi đảm bảo bền 7 năm có chứng nhận.', sent_at: '2026-02-16T09:15:00', official_response: true },
             { id: 'msg-001-3', thread_id: 'thread-001', sender: 'Nguyễn Thị Lan', sender_role: 'customer', message_body: 'Vậy khi nào có báo giá chính thức ạ?', sent_at: '2026-02-16T10:00:00' },
         ],
     },
@@ -620,7 +624,7 @@ export const mockPortalThreads: PortalThread[] = [
         last_message_at: '2026-03-08T17:00:00',
         unread_count: 1,
         messages: [
-            { id: 'msg-003-1', thread_id: 'thread-003', sender: 'Nguyễn Văn PM', sender_role: 'QL', message_body: 'Kính gửi anh Tuấn, hôm nay đội đã hoàn thành lớp lót SIRA PU. Ngày mai thi công lớp phủ chính.', sent_at: '2026-03-08T17:00:00', official_response: true },
+            { id: 'msg-003-1', thread_id: 'thread-003', sender: 'Nguyễn Văn PM', sender_role: 'QL', message_body: 'Kính gửi anh Tuấn, hôm nay đội đã hoàn thành lớp lót BACPU. Ngày mai thi công lớp phủ chính.', sent_at: '2026-03-08T17:00:00', official_response: true },
             { id: 'msg-003-2', thread_id: 'thread-003', sender: 'Trần Minh Tuấn', sender_role: 'customer', message_body: 'OK anh, tôi thấy ảnh rồi. Cho hỏi thêm 1 tuần thì xong hoàn toàn không?', sent_at: '2026-03-09T08:00:00' },
         ],
     },
@@ -641,8 +645,8 @@ export const mockQuotations = [
         id: 'q-001',
         journey_id: 'j-001',
         items: [
-            { key: '1', name: 'Vật tư Chống thấm SIRA PU', unit: 'Thùng 20kg', qty: 3, price: 5500000, total: 16500000 },
-            { key: '2', name: 'Lớp phủ bảo vệ SIRA TOP', unit: 'Thùng 5kg', qty: 2, price: 1500000, total: 3000000 },
+            { key: '1', name: 'Vật tư Chống thấm BACPU', unit: 'Thùng 20kg', qty: 3, price: 5500000, total: 16500000 },
+            { key: '2', name: 'Lớp phủ bảo vệ BACTOP', unit: 'Thùng 5kg', qty: 2, price: 1500000, total: 3000000 },
             { key: '3', name: 'Nhân công vệ sinh & mài sàn', unit: 'm2', qty: 45, price: 80000, total: 3600000 },
             { key: '4', name: 'Nhân công thi công 2 lớp PU', unit: 'm2', qty: 45, price: 120000, total: 5400000 },
         ],
@@ -704,7 +708,7 @@ export const mockConstructReports = [
         journey_id: 'j-003',
         date: '2026-03-06',
         supervisor: 'Lê Văn Giám sát',
-        content: 'Hoàn thành mài sàn và vệ sinh công nghiệp. Đã lăn lớp lót SIRA PRIMER.',
+        content: 'Hoàn thành mài sàn và vệ sinh công nghiệp. Đã lăn lớp lót BACPRIMER.',
         progress_pct: 30,
         images: ['https://picsum.photos/200/150?random=1', 'https://picsum.photos/200/150?random=2'],
     },
@@ -713,7 +717,7 @@ export const mockConstructReports = [
         journey_id: 'j-003',
         date: '2026-03-07',
         supervisor: 'Lê Văn Giám sát',
-        content: 'Thi công lớp phủ SIRA PU lần 1. Thời tiết khô ráo, thuận lợi.',
+        content: 'Thi công lớp phủ BACPU lần 1. Thời tiết khô ráo, thuận lợi.',
         progress_pct: 60,
         images: ['https://picsum.photos/200/150?random=3'],
     }
@@ -750,12 +754,12 @@ export const mockEstimates = [
                 notes: 'Cần dọn dẹp kỹ rác thải xây dựng trước khi mài.'
             },
             {
-                name: 'Thi công chống thấm SIRA PU',
+                name: 'Thi công chống thấm BACPU',
                 quantity: 45,
                 unit: 'm2',
                 components: [
-                    { type: 'material', name: 'SIRA PRIMER (Lớp lót)', unit: 'Thùng 5kg', quantity: 2, unitPrice: 1200000 },
-                    { type: 'material', name: 'SIRA PU (Lớp phủ chính)', unit: 'Thùng 20kg', quantity: 3, unitPrice: 5500000 },
+                    { type: 'material', name: 'BACPRIMER (Lớp lót)', unit: 'Thùng 5kg', quantity: 2, unitPrice: 1200000 },
+                    { type: 'material', name: 'BACPU (Lớp phủ chính)', unit: 'Thùng 20kg', quantity: 3, unitPrice: 5500000 },
                     { type: 'labor', name: 'Thợ thi công chuyên dụng', unit: 'Công', quantity: 6, unitPrice: 600000 },
                 ],
                 notes: 'Thi công vào sáng sớm để tránh nhiệt độ cao làm nứt PU.'
@@ -789,10 +793,10 @@ export const mockMaterialDetails = [
         id: 'mat-001',
         journey_id: 'j-001',
         items: [
-            { name: 'SIRA PRIMER', unit: 'Thùng 5kg', total_need: 2, delivered: 2, remaining: 0, status: 'enough' },
-            { name: 'SIRA PU', unit: 'Thùng 20kg', total_need: 3, delivered: 3, remaining: 0, status: 'enough' },
+            { name: 'BACPRIMER', unit: 'Thùng 5kg', total_need: 2, delivered: 2, remaining: 0, status: 'enough' },
+            { name: 'BACPU', unit: 'Thùng 20kg', total_need: 3, delivered: 3, remaining: 0, status: 'enough' },
             { name: 'Lưới thủy tinh chống nứt', unit: 'Cuộn', total_need: 1, delivered: 1, remaining: 0, status: 'enough' },
-            { name: 'SIRA TOP', unit: 'Thùng 5kg', total_need: 2, delivered: 0, remaining: 2, status: 'waiting' },
+            { name: 'BACTOP', unit: 'Thùng 5kg', total_need: 2, delivered: 0, remaining: 2, status: 'waiting' },
         ],
         last_delivery: '2026-03-02',
         warehouse_lock_status: 'locked'

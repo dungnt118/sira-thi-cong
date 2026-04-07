@@ -1,32 +1,50 @@
-import React, { useState } from 'react';
 import {
-    Card, Form, Input, InputNumber, Button, Table, Select, Space, Divider,
-    Row, Col, Typography, Tag, Alert, Modal, Steps, message
+    ArrowLeftOutlined,
+    ArrowRightOutlined,
+    CalendarOutlined,
+    CheckCircleOutlined,
+    DeleteOutlined,
+    DollarCircleOutlined,
+    FilePdfOutlined,
+    PlusOutlined,
+    SaveOutlined, ThunderboltOutlined
+} from '@ant-design/icons';
+import {
+    Alert,
+    Button,
+    Card,
+    Col,
+    Divider,
+    Form, Input, InputNumber,
+    Modal,
+    Row,
+    Select, Space,
+    Steps,
+    Table,
+    Tag,
+    Typography,
+    message
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import {
-    PlusOutlined, DeleteOutlined, ArrowLeftOutlined, FilePdfOutlined,
-    CheckCircleOutlined, CalendarOutlined, SaveOutlined, ThunderboltOutlined,
-    DollarCircleOutlined, ArrowRightOutlined
-} from '@ant-design/icons';
-import { useNavigate, useParams } from 'react-router-dom';
 import dayjs from 'dayjs';
-import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
-import { demoDataService } from '../../../services/core-graphql/localstorage/demoDataService';
+import React, { useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
-    mockServiceRequests as defaultServiceRequests,
     mockCustomers as defaultCustomers,
+    mockServiceRequests as defaultServiceRequests,
     mockStandards as defaultStandards
 } from '../../../data/mockData';
-import type { QuotationItem, ServiceRequest, Customer, MaterialStandard } from '../../../types/v3';
+import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
+import { demoDataService } from '../../../services/core-graphql/localstorage/demoDataService';
+import type { Customer, MaterialStandard, QuotationItem, ServiceRequest } from '../../../types/v3';
 
 const { Title, Text } = Typography;
 
 const SERVICE_OPTIONS = [
     { value: 'mai_san', label: 'Mài sàn', unit: 'm²', defaultPrice: 30000 },
     { value: 've_sinh', label: 'Vệ sinh bề mặt', unit: 'm²', defaultPrice: 10000 },
-    { value: 'sira_pu_lot', label: 'SIRA PU (lót)', unit: 'kg', defaultPrice: 45000 },
-    { value: 'sira_pu_phu', label: 'SIRA PU (phủ)', unit: 'kg', defaultPrice: 48000 },
+    { value: 'sira_pu_lot', label: 'BACPU (lót)', unit: 'kg', defaultPrice: 45000 },
+    { value: 'sira_pu_phu', label: 'BACPU (phủ)', unit: 'kg', defaultPrice: 48000 },
     { value: 'primer', label: 'Primer (lót nền)', unit: 'lít', defaultPrice: 35000 },
     { value: 'bam_vat', label: 'Băng chống thấm Sika', unit: 'm', defaultPrice: 85000 },
 ];

@@ -2,7 +2,7 @@
 **Phiên bản:** v4.0
 
 ## 1. TỔNG QUAN XÂY DỰNG WORKFLOW
-Trọng tâm của hệ thống SIRA là tính năng "Thiết lập Hành trình Khách hàng" (Customer Journey Templates) thuộc phân hệ Quản lý PM (`/ql/journeys/templates`).
+Trọng tâm của hệ thống BAClà tính năng "Thiết lập Hành trình Khách hàng" (Customer Journey Templates) thuộc phân hệ Quản lý PM (`/ql/journeys/templates`).
 Mọi trạng thái, quy trình xuyên suốt của một yêu cầu dịch vụ (ticket) đều phải tham chiếu động vào dữ liệu đã được cấu hình từ phân hệ này. 
 
 **Nguyên lý cốt lõi:**

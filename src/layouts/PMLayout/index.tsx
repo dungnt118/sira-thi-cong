@@ -1,33 +1,31 @@
-import React from 'react';
-import { Menu, Input, Badge, Space, Grid } from 'antd';
-import type { MenuProps } from 'antd';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { find_setting } from '@/store/actions/data/data.action';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { SET_JOURNEY_SETTING } from '@/store/reducers/schemas/schemas.reducer';
 import {
+    BarChartOutlined,
+    BellOutlined,
     DashboardOutlined,
     DollarOutlined,
-    BarChartOutlined,
-    SearchOutlined,
-    BellOutlined,
-    InboxOutlined,
-    NodeIndexOutlined,
-    ThunderboltOutlined,
-    UnorderedListOutlined,
-    AppstoreOutlined,
-    TeamOutlined,
-    UserAddOutlined,
-    SettingOutlined,
-    LayoutOutlined,
     ExportOutlined,
     HistoryOutlined,
+    InboxOutlined,
+    LayoutOutlined,
+    NodeIndexOutlined,
+    SearchOutlined,
+    SettingOutlined,
+    TeamOutlined,
+    UnorderedListOutlined,
+    UserAddOutlined
 } from '@ant-design/icons';
 import { LABELS } from '@utils/constants';
-import { BaseLayout } from '../shared/BaseLayout';
-import { UserMenu } from '../../components/common/Header/UserMenuWithDocs';
+import type { MenuProps } from 'antd';
+import { Badge, Grid, Input, Menu, Space } from 'antd';
+import React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { AppBrandLogo } from '../../components/common/AppBrandLogo';
+import { UserMenu } from '../../components/common/Header/UserMenuWithDocs';
+import { useAuth } from '../../hooks/useAuth';
+import { BaseLayout } from '../shared/BaseLayout';
 
 const { Search } = Input;
 const { useBreakpoint } = Grid;
@@ -115,7 +113,7 @@ const PMSidebar: React.FC = () => {
                 }}
             >
                 <AppBrandLogo size="sm" variant="onDark" />
-                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>SIRA PM</span>
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Quản lý dự án</span>
             </div>
             <Menu
                 theme="dark"
@@ -156,7 +154,7 @@ const PMTopBar: React.FC = () => {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
                     <AppBrandLogo size="md" />
                     <span style={{ fontSize: 18, fontWeight: 600, color: '#1976D2' }}>
-                        SIRA PM
+                        Quản lý dự án
                     </span>
                 </div>
             )}

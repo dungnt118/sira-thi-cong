@@ -1,4 +1,4 @@
-﻿import { gql } from 'graphql-tag';
+import { gql } from 'graphql-tag';
 
 /**
  * Find Journey DTO with typed data
@@ -18,12 +18,10 @@ export const FIND_JOURNEY_DTO = gql`
         request_title
         customer_id
         idx_customer_id
-        customer_id
         owner_user
         site_address
         serviceTypeId
         idx_serviceTypeId
-
         priority
         go_no_go_status
         sla_status
@@ -61,26 +59,21 @@ export const FIND_JOURNEY_DTO = gql`
         document_count
         sales_pipeline_id
         idx_sales_pipeline_id
-        sales_pipeline_id
         sales_stage_id
         idx_sales_stage_id
-        sales_stage_id
         sale_users
         supervisor_users
         technical_users
         duplicate_customer_id
         idx_duplicate_customer_id
-        duplicate_customer_id
         pm_user
         planned_start_date
         planned_end_date
         delivery_note
         latest_project_settlement_id
         idx_latest_project_settlement_id
-        latest_project_settlement_id
         latest_closeout_package_id
         idx_latest_closeout_package_id
-        latest_closeout_package_id
         customer_full_name
         customer_phone
         customer_email
@@ -110,12 +103,10 @@ export const QUERY_JOURNEYS_DTO = gql`
         request_title
         customer_id
         idx_customer_id
-        customer_id
         owner_user
         site_address
         serviceTypeId
         idx_serviceTypeId
-        requested_service
         priority
         go_no_go_status
         sla_status
@@ -153,26 +144,21 @@ export const QUERY_JOURNEYS_DTO = gql`
         document_count
         sales_pipeline_id
         idx_sales_pipeline_id
-        sales_pipeline_id
         sales_stage_id
         idx_sales_stage_id
-        sales_stage_id
         sale_users
         supervisor_users
         technical_users
         duplicate_customer_id
         idx_duplicate_customer_id
-        duplicate_customer_id
         pm_user
         planned_start_date
         planned_end_date
         delivery_note
         latest_project_settlement_id
         idx_latest_project_settlement_id
-        latest_project_settlement_id
         latest_closeout_package_id
         idx_latest_closeout_package_id
-        latest_closeout_package_id
         customer_full_name
         customer_phone
         customer_email
@@ -183,4 +169,3 @@ export const QUERY_JOURNEYS_DTO = gql`
     }
   }
 `;
-

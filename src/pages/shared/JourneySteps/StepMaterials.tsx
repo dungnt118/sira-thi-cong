@@ -1,6 +1,6 @@
+import { BoxPlotOutlined, CheckCircleOutlined, EditOutlined, EyeOutlined, HistoryOutlined, SaveOutlined, WarningOutlined } from '@ant-design/icons';
+import { Alert, Button, Card, Col, Form, Input, InputNumber, Row, Select, Space, Statistic, Table, Tag, Typography } from 'antd';
 import React, { useState } from 'react';
-import { Card, Table, Tag, Typography, Button, Space, Row, Col, Statistic, Alert, Form, Input, InputNumber, Select } from 'antd';
-import { BoxPlotOutlined, WarningOutlined, CheckCircleOutlined, HistoryOutlined, EditOutlined, EyeOutlined, SaveOutlined } from '@ant-design/icons';
 import { mockMaterialDetails } from '../../../data/journeyMockData';
 
 const { Text, Title } = Typography;
@@ -63,7 +63,7 @@ const StepMaterials: React.FC<StepMaterialsProps> = ({ journeyId, isEditable = f
                     <Form layout="vertical">
                         <Title level={5}>Yêu cầu vật tư / Công cụ</Title>
                         <Row gutter={16}>
-                            <Col span={10}><Form.Item label="Loại vật tư" required><Select placeholder="Chọn từ kho..." options={[{label: 'SIRA TOP', value: 'sira-top'}]} /></Form.Item></Col>
+                            <Col span={10}><Form.Item label="Loại vật tư" required><Select placeholder="Chọn từ kho..." options={[{label: 'BACTOP', value: 'sira-top'}]} /></Form.Item></Col>
                             <Col span={6}><Form.Item label="Số lượng" required><InputNumber min={1} style={{ width: '100%' }} /></Form.Item></Col>
                             <Col span={8}><Form.Item label="Lý do"><Input placeholder="VD: Phát sinh diện tích" /></Form.Item></Col>
                         </Row>

@@ -1,11 +1,17 @@
-import type {
-    Customer, ChecklistTemplate,
-    Material, MaterialStandard, StockOrder,
-    PaymentMilestone, WarrantyCard, WarrantyReminder, User, StockRequest, Pipeline, ServiceRequest
-} from '../types/v3';
-import { Project, ProjectStatus } from '../types/legacy-project';
-import { mockJourneys } from './journeyMockData';
 import type { Journey } from '../types/journey';
+import { Project, ProjectStatus } from '../types/legacy-project';
+import type {
+    ChecklistTemplate,
+    Customer,
+    Material, MaterialStandard,
+    PaymentMilestone,
+    Pipeline, ServiceRequest,
+    StockOrder,
+    StockRequest,
+    User,
+    WarrantyCard, WarrantyReminder
+} from '../types/v3';
+import { mockJourneys } from './journeyMockData';
 
 // --- Bridge: Map Journey to Legacy Project ---
 const mapJourneyToProject = (j: Journey): Project => ({
@@ -74,7 +80,7 @@ export const mockUsers: User[] = [
 export const mockTemplates: ChecklistTemplate[] = [
     {
         id: 'TPL-001',
-        name: 'SIRA Standard v1.0',
+        name: 'BACStandard v1.0',
         description: 'Template chuẩn cho chống thấm sàn bê tông',
         category: 'Chống thấm sàn',
         isDefault: true,
@@ -88,13 +94,13 @@ export const mockTemplates: ChecklistTemplate[] = [
             { id: 's06', order: 6, name: 'Kiểm tra độ ẩm trước thi công', description: 'Đo độ ẩm, yêu cầu < 8%', minPhotos: 2, allowVideo: false },
             { id: 's07', order: 7, name: 'Quét Primer lần 1', description: 'Quét primer tăng độ bám dính', minPhotos: 2, allowVideo: false },
             { id: 's08', order: 8, name: 'Chờ Primer khô (chụp ảnh xác nhận)', description: 'Đợi 2-4 giờ, chụp ảnh bề mặt sau khô', minPhotos: 1, allowVideo: false },
-            { id: 's09', order: 9, name: 'Quét SIRA PU lớp lót lần 1', description: 'Quét đều tay, kiểm tra độ phủ đều', minPhotos: 3, allowVideo: true },
+            { id: 's09', order: 9, name: 'Quét BACPU lớp lót lần 1', description: 'Quét đều tay, kiểm tra độ phủ đều', minPhotos: 3, allowVideo: true },
             { id: 's10', order: 10, name: 'Chờ khô – Kiểm tra bề mặt', description: 'Đợi 4-6 giờ, kiểm tra không có bong bóng', minPhotos: 2, allowVideo: false },
-            { id: 's11', order: 11, name: 'Quét SIRA PU lớp lót lần 2', description: 'Quét lớp thứ 2 sau khi lớp 1 khô hoàn toàn', minPhotos: 2, allowVideo: false },
+            { id: 's11', order: 11, name: 'Quét BACPU lớp lót lần 2', description: 'Quét lớp thứ 2 sau khi lớp 1 khô hoàn toàn', minPhotos: 2, allowVideo: false },
             { id: 's12', order: 12, name: 'Chờ khô lần 2', description: 'Đợi 6-8 giờ', minPhotos: 1, allowVideo: false },
-            { id: 's13', order: 13, name: 'Quét SIRA PU lớp phủ lần 1', description: 'Lớp phủ màu cuối, quét đều', minPhotos: 3, allowVideo: true },
+            { id: 's13', order: 13, name: 'Quét BACPU lớp phủ lần 1', description: 'Lớp phủ màu cuối, quét đều', minPhotos: 3, allowVideo: true },
             { id: 's14', order: 14, name: 'Chờ khô – Kiểm tra bề mặt', description: 'Kiểm tra màu sắc, độ đều, bong bóng', minPhotos: 2, allowVideo: false },
-            { id: 's15', order: 15, name: 'Quét SIRA PU lớp phủ lần 2', description: 'Hoàn thiện lớp phủ cuối cùng', minPhotos: 2, allowVideo: false },
+            { id: 's15', order: 15, name: 'Quét BACPU lớp phủ lần 2', description: 'Hoàn thiện lớp phủ cuối cùng', minPhotos: 2, allowVideo: false },
             { id: 's16', order: 16, name: 'Kiểm tra tổng thể – Test nước', description: 'Đổ nước kiểm tra, chờ 24h', minPhotos: 3, allowVideo: true },
             { id: 's17', order: 17, name: 'Hoàn thiện & vệ sinh công trình', description: 'Vệ sinh toàn bộ khu vực thi công, thu dọn', minPhotos: 2, allowVideo: false },
             { id: 's18', order: 18, name: 'Nghiệm thu – Chụp ảnh AFTER', description: 'Chụp ảnh toàn cảnh sau thi công, mời KH nghiệm thu', minPhotos: 4, allowVideo: true },
@@ -102,7 +108,7 @@ export const mockTemplates: ChecklistTemplate[] = [
     },
     {
         id: 'TPL-002',
-        name: 'SIRA Tường v1.0',
+        name: 'BACTường v1.0',
         description: 'Chống thấm mặt tường ngoài và trong',
         category: 'Chống thấm tường',
         isDefault: false,
@@ -112,9 +118,9 @@ export const mockTemplates: ChecklistTemplate[] = [
             { id: 't02', order: 2, name: 'Đục tẩy vết nứt', description: 'Dùng máy đục làm sạch vết nứt', minPhotos: 2, allowVideo: false },
             { id: 't03', order: 3, name: 'Trám khe nứt bằng Sika', description: 'Dùng Sika Latex hoặc tương đương', minPhotos: 1, allowVideo: false },
             { id: 't04', order: 4, name: 'Chờ trám khô (min 24h)', description: 'Đợi trám đóng rắn hoàn toàn', minPhotos: 1, allowVideo: false },
-            { id: 't05', order: 5, name: 'Quét SIRA PU lớp lót tường', description: 'Quét từ trên xuống, đều tay', minPhotos: 2, allowVideo: false },
+            { id: 't05', order: 5, name: 'Quét BACPU lớp lót tường', description: 'Quét từ trên xuống, đều tay', minPhotos: 2, allowVideo: false },
             { id: 't06', order: 6, name: 'Chờ lót khô', description: 'Đợi 4-6 giờ', minPhotos: 1, allowVideo: false },
-            { id: 't07', order: 7, name: 'Quét SIRA PU lớp phủ tường', description: 'Lớp phủ hoàn thiện', minPhotos: 2, allowVideo: false },
+            { id: 't07', order: 7, name: 'Quét BACPU lớp phủ tường', description: 'Lớp phủ hoàn thiện', minPhotos: 2, allowVideo: false },
             { id: 't08', order: 8, name: 'Nghiệm thu', description: 'Kiểm tra và chụp ảnh after', minPhotos: 3, allowVideo: true },
         ],
     },
@@ -266,8 +272,8 @@ export const mockServiceRequests: ServiceRequest[] = [
                 items: [
                     { id: 'qi01', name: 'Mài sàn', unit: 'm²', quantity: 100, unitPrice: 30000, total: 3000000, isAuto: false },
                     { id: 'qi02', name: 'Vệ sinh bề mặt', unit: 'm²', quantity: 100, unitPrice: 10000, total: 1000000, isAuto: false },
-                    { id: 'qi03', name: 'SIRA PU (lót)', unit: 'kg', quantity: 150, unitPrice: 45000, total: 6750000, isAuto: true },
-                    { id: 'qi04', name: 'SIRA PU (phủ)', unit: 'kg', quantity: 200, unitPrice: 48000, total: 9600000, isAuto: true },
+                    { id: 'qi03', name: 'BACPU (lót)', unit: 'kg', quantity: 150, unitPrice: 45000, total: 6750000, isAuto: true },
+                    { id: 'qi04', name: 'BACPU (phủ)', unit: 'kg', quantity: 200, unitPrice: 48000, total: 9600000, isAuto: true },
                 ],
             },
         ],
@@ -297,8 +303,8 @@ export const mockServiceRequests: ServiceRequest[] = [
                 subtotal: 15000000,
                 total: 15000000,
                 items: [
-                    { id: 'qi05', name: 'SIRA PU (lót)', unit: 'kg', quantity: 120, unitPrice: 45000, total: 5400000, isAuto: true },
-                    { id: 'qi06', name: 'SIRA PU (phủ)', unit: 'kg', quantity: 160, unitPrice: 48000, total: 7680000, isAuto: true },
+                    { id: 'qi05', name: 'BACPU (lót)', unit: 'kg', quantity: 120, unitPrice: 45000, total: 5400000, isAuto: true },
+                    { id: 'qi06', name: 'BACPU (phủ)', unit: 'kg', quantity: 160, unitPrice: 48000, total: 7680000, isAuto: true },
                     { id: 'qi07', name: 'Mài sàn', unit: 'm²', quantity: 80, unitPrice: 30000, total: 2400000, isAuto: false },
                 ],
             },
@@ -365,19 +371,19 @@ export const mockServiceRequests: ServiceRequest[] = [
 // MATERIALS
 // ============================================================
 export const mockMaterials: Material[] = [
-    { id: 'MAT-001', code: 'VT-001', name: 'SIRA PU (lót)', unit: 'thung', currentStock: 162, minStockAlert: 20, unitCost: 45000, category: 'Sơn chống thấm' },
-    { id: 'MAT-002', code: 'VT-002', name: 'SIRA PU (phủ)', unit: 'thung', currentStock: 203, minStockAlert: 20, unitCost: 48000, category: 'Sơn chống thấm' },
+    { id: 'MAT-001', code: 'VT-001', name: 'BACPU (lót)', unit: 'thung', currentStock: 162, minStockAlert: 20, unitCost: 45000, category: 'Sơn chống thấm' },
+    { id: 'MAT-002', code: 'VT-002', name: 'BACPU (phủ)', unit: 'thung', currentStock: 203, minStockAlert: 20, unitCost: 48000, category: 'Sơn chống thấm' },
     { id: 'MAT-003', code: 'VT-003', name: 'Primer (lót nền)', unit: 'lon', currentStock: 8, minStockAlert: 10, unitCost: 35000, category: 'Sơn lót' },
     { id: 'MAT-004', code: 'VT-004', name: 'Sika Latex', unit: 'bao', currentStock: 45, minStockAlert: 5, unitCost: 55000, category: 'Vật liệu trám' },
     { id: 'MAT-005', code: 'VT-005', name: 'Băng chống thấm Sika', unit: 'cuon', currentStock: 12, minStockAlert: 3, unitCost: 120000, category: 'Vật liệu trám' },
 ];
 
 export const mockStandards: MaterialStandard[] = [
-    { id: 'STD-001', materialId: 'MAT-001', materialName: 'SIRA PU (lót)', constructionType: 'Chống thấm sàn', usagePerM2: 1.5 },
-    { id: 'STD-002', materialId: 'MAT-002', materialName: 'SIRA PU (phủ)', constructionType: 'Chống thấm sàn', usagePerM2: 2.0 },
+    { id: 'STD-001', materialId: 'MAT-001', materialName: 'BACPU (lót)', constructionType: 'Chống thấm sàn', usagePerM2: 1.5 },
+    { id: 'STD-002', materialId: 'MAT-002', materialName: 'BACPU (phủ)', constructionType: 'Chống thấm sàn', usagePerM2: 2.0 },
     { id: 'STD-003', materialId: 'MAT-003', materialName: 'Primer (lót nền)', constructionType: 'Chống thấm sàn', usagePerM2: 0.5 },
-    { id: 'STD-004', materialId: 'MAT-001', materialName: 'SIRA PU (lót)', constructionType: 'Chống thấm tường', usagePerM2: 1.2 },
-    { id: 'STD-005', materialId: 'MAT-002', materialName: 'SIRA PU (phủ)', constructionType: 'Chống thấm tường', usagePerM2: 1.5 },
+    { id: 'STD-004', materialId: 'MAT-001', materialName: 'BACPU (lót)', constructionType: 'Chống thấm tường', usagePerM2: 1.2 },
+    { id: 'STD-005', materialId: 'MAT-002', materialName: 'BACPU (phủ)', constructionType: 'Chống thấm tường', usagePerM2: 1.5 },
 ];
 
 // ============================================================
@@ -389,8 +395,8 @@ export const mockStockOrders: StockOrder[] = [
         journeyId: 'j-001', journeyCode: 'HT-2026-001',   // Phase 1: journey link
         projectId: 'DA-001', projectName: 'DA-2026-001',   // Phase 3: sẽ xóa
         items: [
-            { materialId: 'MAT-001', materialName: 'SIRA PU (lót)', unit: 'kg', quantity: 150, unitCost: 45000 },
-            { materialId: 'MAT-002', materialName: 'SIRA PU (phủ)', unit: 'kg', quantity: 200, unitCost: 48000 },
+            { materialId: 'MAT-001', materialName: 'BACPU (lót)', unit: 'kg', quantity: 150, unitCost: 45000 },
+            { materialId: 'MAT-002', materialName: 'BACPU (phủ)', unit: 'kg', quantity: 200, unitCost: 48000 },
             { materialId: 'MAT-003', materialName: 'Primer', unit: 'lít', quantity: 50, unitCost: 35000 },
         ],
         totalValue: 18350000, status: 'COMPLETED',
@@ -401,12 +407,12 @@ export const mockStockOrders: StockOrder[] = [
         id: 'PN-001', code: 'PN-2026-001', type: 'IN',
         // journeyId: undefined (nhập kho không gắn journey cụ thể)
         items: [
-            { materialId: 'MAT-001', materialName: 'SIRA PU (lót)', unit: 'kg', quantity: 150, unitCost: 45000 },
-            { materialId: 'MAT-002', materialName: 'SIRA PU (phủ)', unit: 'kg', quantity: 200, unitCost: 48000 },
+            { materialId: 'MAT-001', materialName: 'BACPU (lót)', unit: 'kg', quantity: 150, unitCost: 45000 },
+            { materialId: 'MAT-002', materialName: 'BACPU (phủ)', unit: 'kg', quantity: 200, unitCost: 48000 },
         ],
         totalValue: 16350000, status: 'COMPLETED',
         createdBy: 'Kế toán Phạm Thị A', createdAt: '2026-03-02',
-        supplier: 'Công ty SIRA Việt Nam',
+        supplier: 'Công ty BACViệt Nam',
         notes: 'Nhập định kỳ tháng 3',
     },
 ];
@@ -432,7 +438,7 @@ export const mockWarrantyCards: WarrantyCard[] = [
         constructionType: 'Chống thấm sàn',
         areaM2: 120, completedDate: '2026-01-20',
         warrantyMonths: 24, expiryDate: '2028-01-20',
-        materials: ['SIRA PU (lót)', 'SIRA PU (phủ)', 'Primer'],
+        materials: ['BACPU (lót)', 'BACPU (phủ)', 'Primer'],
         issuedAt: '2026-01-21',
         qrCode: 'https://dltech.vn/warranty/BH-2026-001',
     },
@@ -463,7 +469,7 @@ export const mockStockRequests: StockRequest[] = [
         projectId: 'DA001',
         projectName: 'Chống thấm sàn Biệt thự Nguyễn A',
         items: [
-            { materialId: 'VT001', materialName: 'SIRA PU (lót)', unit: 'kg', requested: 80, note: 'Thiếu theo định mức' },
+            { materialId: 'VT001', materialName: 'BACPU (lót)', unit: 'kg', requested: 80, note: 'Thiếu theo định mức' },
             { materialId: 'VT003', materialName: 'Primer (lót nền)', unit: 'lít', requested: 30 },
         ],
         reason: 'Chuẩn bị thi công DA-001 tuần tới, cần xuất vật tư theo định mức',
@@ -478,7 +484,7 @@ export const mockStockRequests: StockRequest[] = [
         projectId: 'DA002',
         projectName: 'Chống thấm mái Căn hộ Trần B',
         items: [
-            { materialId: 'VT002', materialName: 'SIRA PU (phủ)', unit: 'kg', requested: 50 },
+            { materialId: 'VT002', materialName: 'BACPU (phủ)', unit: 'kg', requested: 50 },
             { materialId: 'VT004', materialName: 'Sika Latex', unit: 'kg', requested: 20 },
         ],
         reason: 'DA-002 bước 7 – cần xuất VT cho thợ',
@@ -495,8 +501,8 @@ export const mockStockRequests: StockRequest[] = [
         type: 'REQUEST_IN',
         requestedBy: 'Nguyễn Văn PM',
         items: [
-            { materialId: 'VT001', materialName: 'SIRA PU (lót)', unit: 'kg', requested: 200, note: 'Tổng 2 DA còn thiếu 188kg' },
-            { materialId: 'VT002', materialName: 'SIRA PU (phủ)', unit: 'kg', requested: 150 },
+            { materialId: 'VT001', materialName: 'BACPU (lót)', unit: 'kg', requested: 200, note: 'Tổng 2 DA còn thiếu 188kg' },
+            { materialId: 'VT002', materialName: 'BACPU (phủ)', unit: 'kg', requested: 150 },
             { materialId: 'VT003', materialName: 'Primer (lót nền)', unit: 'lít', requested: 60 },
         ],
         reason: 'Cảnh báo tồn kho thấp – 3 dự án sắp triển khai trong tháng 3',
@@ -533,8 +539,8 @@ export const mockEstimateTemplates: EstimateTemplate[] = [
         unit: 'm²',
         components: [
             { id: 'C01', type: 'material', itemId: 'MAT-003', name: 'Primer (lót nền)', unit: 'lít', quantityPerUnit: 0.2, unitPrice: 35000 },
-            { id: 'C02', type: 'material', itemId: 'MAT-001', name: 'SIRA PU (lót)', unit: 'kg', quantityPerUnit: 1.5, unitPrice: 45000 },
-            { id: 'C03', type: 'material', itemId: 'MAT-002', name: 'SIRA PU (phủ)', unit: 'kg', quantityPerUnit: 2.0, unitPrice: 48000 },
+            { id: 'C02', type: 'material', itemId: 'MAT-001', name: 'BACPU (lót)', unit: 'kg', quantityPerUnit: 1.5, unitPrice: 45000 },
+            { id: 'C03', type: 'material', itemId: 'MAT-002', name: 'BACPU (phủ)', unit: 'kg', quantityPerUnit: 2.0, unitPrice: 48000 },
             { id: 'C04', type: 'labor', name: 'Nhân công thi công sàn', unit: 'm²', quantityPerUnit: 1, unitPrice: 35000 },
             { id: 'C05', type: 'other', name: 'Phí vận chuyển & hao hụt', unit: 'chuyến', quantityPerUnit: 0, unitPrice: 0 }
         ]
@@ -545,8 +551,8 @@ export const mockEstimateTemplates: EstimateTemplate[] = [
         name: 'Chống thấm tường ngoài (Sơn PU)',
         unit: 'm²',
         components: [
-            { id: 'C06', type: 'material', itemId: 'MAT-001', name: 'SIRA PU (lót tường)', unit: 'kg', quantityPerUnit: 1.2, unitPrice: 45000 },
-            { id: 'C07', type: 'material', itemId: 'MAT-002', name: 'SIRA PU (phủ bảo vệ)', unit: 'kg', quantityPerUnit: 1.5, unitPrice: 48000 },
+            { id: 'C06', type: 'material', itemId: 'MAT-001', name: 'BACPU (lót tường)', unit: 'kg', quantityPerUnit: 1.2, unitPrice: 45000 },
+            { id: 'C07', type: 'material', itemId: 'MAT-002', name: 'BACPU (phủ bảo vệ)', unit: 'kg', quantityPerUnit: 1.5, unitPrice: 48000 },
             { id: 'C08', type: 'labor', name: 'Nhân công thi công tường (Đu dây)', unit: 'm²', quantityPerUnit: 1, unitPrice: 50000 }
         ]
     },

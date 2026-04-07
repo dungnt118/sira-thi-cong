@@ -1,9 +1,9 @@
+import { EditOutlined, EyeOutlined, SaveOutlined } from '@ant-design/icons';
+import { Alert, Button, Card, Divider, Form, Input, Result, Space, Tag, Timeline, Typography } from 'antd';
 import React, { useState } from 'react';
-import { Card, Form, Input, Button, Result, Space, Divider, Typography, Tag, Timeline, Alert } from 'antd';
-import { SaveOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 
-import { mockIncidents } from '../../../data/journeyMockData';
 import { ToolOutlined } from '@ant-design/icons';
+import { mockIncidents } from '../../../data/journeyMockData';
 
 const { TextArea } = Input;
 const { Text, Title } = Typography;
@@ -66,7 +66,7 @@ export const Step11Maintain: React.FC<Step11MaintainProps> = ({ journeyId, isEdi
 
                 <Alert 
                     message="Chính sách bảo trì" 
-                    description="SIRA cam kết bảo trì định kỳ miễn phí 2 lần/năm trong 2 năm đầu tiên."
+                    description="BACcam kết bảo trì định kỳ miễn phí 2 lần/năm trong 2 năm đầu tiên."
                     type="info"
                     showIcon
                     style={{ marginTop: 24 }}

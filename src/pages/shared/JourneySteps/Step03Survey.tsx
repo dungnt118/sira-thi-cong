@@ -1,26 +1,35 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { 
-    Card, Steps, Button, Typography, Space, Row, Col, 
-    Result, Form, message, Modal, Divider, Empty, Spin 
-} from 'antd';
-import { 
-    CheckCircleOutlined, 
-    FormOutlined, 
-    FilePdfOutlined, 
-    EditOutlined, 
-    DownloadOutlined, 
-    HighlightOutlined,
-    EyeOutlined,
-    ClockCircleOutlined,
-    LoadingOutlined
-} from '@ant-design/icons';
 import { useAuth } from '@/hooks/useAuth';
 import { journeyService } from '@/services/core-contracts/services/journey.service';
 import { surveyRecordService } from '@/services/core-contracts/services/surveyRecord.service';
 import { IJourney } from '@/services/core-contracts/types/journey.types';
 import { ISurveyRecord } from '@/services/core-contracts/types/surveyRecord.types';
-import DynamicSurveyForm from '../../shared/Surveys/DynamicSurveyForm';
+import {
+    CheckCircleOutlined,
+    ClockCircleOutlined,
+    DownloadOutlined,
+    EditOutlined,
+    EyeOutlined,
+    FilePdfOutlined,
+    FormOutlined,
+    HighlightOutlined,
+    LoadingOutlined
+} from '@ant-design/icons';
+import {
+    Button,
+    Card,
+    Col,
+    Empty,
+    Form, message, Modal,
+    Result,
+    Row,
+    Space,
+    Spin,
+    Steps,
+    Typography
+} from 'antd';
 import html2pdf from 'html2pdf.js';
+import React, { useEffect, useRef, useState } from 'react';
+import DynamicSurveyForm from '../../shared/Surveys/DynamicSurveyForm';
 
 const { Text, Title } = Typography;
 
@@ -263,7 +272,7 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({
                         <div>- Điện thoại: {journey?.customer_phone || '---'}</div>
                     </div>
 
-                    <div style={{ fontWeight: 'bold', marginBottom: 5 }}>II. Đại diện Công ty SIRA (Đơn vị khảo sát):</div>
+                    <div style={{ fontWeight: 'bold', marginBottom: 5 }}>II. Đại diện Công ty BAC(Đơn vị khảo sát):</div>
                     <div style={{ marginLeft: 15, marginBottom: 15 }}>
                         <div>- Ông/Bà: {journey?.supervisor_name || 'Nhân viên kỹ thuật'}</div>
                         <div>- Chức vụ: Chuyên viên khảo sát hiện trường</div>
@@ -289,7 +298,7 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({
                     </div>
 
                     <div style={{ marginTop: 20 }}>
-                        <p>Hai bên cùng xác nhận các thông tin trên là đúng với thực tế quan sát tại hiện trường. Kết quả khảo sát này là cơ sở để SIRA lập biện pháp thi công và báo giá chính thức.</p>
+                        <p>Hai bên cùng xác nhận các thông tin trên là đúng với thực tế quan sát tại hiện trường. Kết quả khảo sát này là cơ sở để BAClập biện pháp thi công và báo giá chính thức.</p>
                     </div>
                     
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 40, textAlign: 'center' }}>

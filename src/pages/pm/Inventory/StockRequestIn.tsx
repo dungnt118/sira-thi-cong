@@ -1,13 +1,29 @@
 // @ts-nocheck
-import React, { useState } from 'react';
 import {
-    Card, Row, Col, Button, Typography, InputNumber, Select,
-    Table, Tag, Alert, Space, Modal, Input, Divider, Tabs,
-} from 'antd';
-import {
-    PlusOutlined, DeleteOutlined, BulbOutlined, SendOutlined,
+    BulbOutlined,
     CheckCircleOutlined, ClockCircleOutlined,
+    DeleteOutlined,
+    PlusOutlined,
+    SendOutlined,
 } from '@ant-design/icons';
+import {
+    Alert,
+    Button,
+    Card,
+    Col,
+    Divider,
+    Input,
+    InputNumber,
+    Modal,
+    Row,
+    Select,
+    Space,
+    Table,
+    Tabs,
+    Tag,
+    Typography,
+} from 'antd';
+import React, { useState } from 'react';
 import { mockMaterials, mockProjects, mockStandards, mockStockRequests } from '../../../data/mockData';
 import type { StockRequestItem } from '../../../types/v3';
 
@@ -227,7 +243,7 @@ const StockRequestIn: React.FC = () => {
                     rows={2}
                     value={reason}
                     onChange={e => setReason(e.target.value)}
-                    placeholder="VD: Tồn kho SIRA PU sắp hết, cần nhập cho 3 dự án triển khai tháng 3..."
+                    placeholder="VD: Tồn kho BACPU sắp hết, cần nhập cho 3 dự án triển khai tháng 3..."
                 />
             </Card>
 

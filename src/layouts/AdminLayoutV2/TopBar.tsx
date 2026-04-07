@@ -1,9 +1,8 @@
+import { BellOutlined, MenuOutlined, SearchOutlined } from '@ant-design/icons';
+import { Badge, Button, Input, Layout, Space } from 'antd';
 import React from 'react';
-import { Layout, Input, Badge, Space } from 'antd';
-import { SearchOutlined, BellOutlined, MenuOutlined } from '@ant-design/icons';
-import { UserMenu } from '../../components/common/Header/UserMenuWithDocs';
-import { Button } from 'antd';
 import { AppBrandLogo } from '../../components/common/AppBrandLogo';
+import { UserMenu } from '../../components/common/Header/UserMenuWithDocs';
 
 
 interface AdminTopBarProps {
@@ -52,7 +51,7 @@ const AdminTopBar: React.FC<AdminTopBarProps> = ({ onMenuClick, isMobile }) => {
                 <AppBrandLogo size={isMobile ? 'sm' : 'md'} />
                 {!isMobile && (
                     <span style={{ fontSize: 18, fontWeight: 600, color: '#1976D2' }}>
-                        SIRA Admin
+                        BACAdmin
                     </span>
                 )}
             </div>

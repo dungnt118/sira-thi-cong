@@ -1,15 +1,13 @@
-import React, { useState } from 'react';
-import { Layout, Menu, Typography, Card, Space, Alert, Image, Divider, theme, Button } from 'antd';
 import {
-    BookOutlined,
-    SolutionOutlined,
-    SafetyCertificateOutlined,
+    ArrowLeftOutlined,
     HomeOutlined,
-    ArrowLeftOutlined
+    SafetyCertificateOutlined,
+    SolutionOutlined
 } from '@ant-design/icons';
+import { Alert, Anchor, Button, Card, Divider, Image, Layout, Menu, theme, Typography } from 'antd';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Anchor } from 'antd';
-import { docsData, UserGuide, DocSection } from '../../data/docsData';
+import { docsData, DocSection } from '../../data/docsData';
 
 const { Header, Content, Sider } = Layout;
 const { Title, Paragraph, Text } = Typography;
@@ -130,7 +128,7 @@ const DocumentationPage: React.FC = () => {
                         S
                     </div>
                     <div>
-                        <Title level={4} style={{ margin: 0, lineHeight: '1.2' }}>SIRA Documents</Title>
+                        <Title level={4} style={{ margin: 0, lineHeight: '1.2' }}>BACDocuments</Title>
                         <Text type="secondary" style={{ fontSize: 12 }}>Hướng dẫn sử dụng hệ thống</Text>
                     </div>
                 </div>
@@ -178,7 +176,7 @@ const DocumentationPage: React.FC = () => {
                     <div style={{ maxWidth: 960, margin: '0 auto' }}>
                         <Card style={{ borderRadius: 12, border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
                             <div style={{ marginBottom: 40 }}>
-                                <Badge status="processing" text="Hệ thống SIRA v3.0" style={{ marginBottom: 8, display: 'block' }} />
+                                <Badge status="processing" text="Hệ thống BACv3.0" style={{ marginBottom: 8, display: 'block' }} />
                                 <Title level={1}>{activeGuide.title}</Title>
                                 <Paragraph style={{ fontSize: 16, color: '#666' }}>
                                     {activeGuide.description}
@@ -194,7 +192,7 @@ const DocumentationPage: React.FC = () => {
                             <Divider style={{ marginTop: 60 }} />
                             <div style={{ textAlign: 'center', padding: '24px 0' }}>
                                 <Paragraph type="secondary">
-                                    © 2026 SIRA Construction Management System. Tài liệu hướng dẫn nội bộ.
+                                    © 2026 BACConstruction Management System. Tài liệu hướng dẫn nội bộ.
                                 </Paragraph>
                             </div>
                         </Card>

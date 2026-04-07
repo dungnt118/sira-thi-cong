@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
-import { Layout, Badge, Avatar, Dropdown, Space, Drawer } from 'antd';
-import type { MenuProps } from 'antd';
-import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import {
-    HomeOutlined,
     AppstoreOutlined,
-    InboxOutlined,
-    UserOutlined,
     BellOutlined,
+    HomeOutlined,
+    InboxOutlined,
     LogoutOutlined,
+    UserOutlined,
 } from '@ant-design/icons';
+import type { MenuProps } from 'antd';
+import { Avatar, Badge, Drawer, Dropdown, Layout, Space } from 'antd';
+import React, { useState } from 'react';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { AppBrandLogo } from '../../components/common/AppBrandLogo';
 
 const { Header, Content, Footer } = Layout;
@@ -57,7 +57,7 @@ export const SupervisorLayout: React.FC = () => {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                     <AppBrandLogo size="sm" variant="onDark" />
                     <span style={{ color: '#fff', fontWeight: 600, fontSize: 16 }}>
-                        SIRA Giám Sát
+                        BACGiám Sát
                     </span>
                 </div>
                 <Space>

@@ -131,7 +131,7 @@ export const Login: React.FC = () => {
 
                     <div className="login-footer">
                         <Text type="secondary" style={{ fontSize: 12 }}>
-                            © 2026 SIRA Construction Management System
+                            © 2026 BACConstruction Management System
                         </Text>
                     </div>
                 </Card>

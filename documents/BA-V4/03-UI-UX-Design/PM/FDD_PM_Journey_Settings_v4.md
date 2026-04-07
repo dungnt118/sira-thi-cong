@@ -1,7 +1,7 @@
 # THIẾT KẾ CHỨC NĂNG (FDD) - GIAO DIỆN THIẾT LẬP WORKFLOW JOURNEY MỞ RỘNG
 **Module:** PM (Project Manager)
 **Đường dẫn:** `/ql/journeys/templates` & `/ql/journeys/templates/:id`
-**Tác giả:** SIRA BA Team
+**Tác giả:** BACBA Team
 **Phiên bản:** v4.0
 
 ## 1. MỤC ĐÍCH

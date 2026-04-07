@@ -1,20 +1,32 @@
-import React, { useState } from 'react';
+import { AppBrandLogo } from '@/components/common/AppBrandLogo';
 import {
-    Form, Input, Button, Select, Card, Typography,
-    Row, Col, Space, Divider, message, Upload, App
-} from 'antd';
-import {
-    UserOutlined, PhoneOutlined,
-    EnvironmentOutlined, CarOutlined,
-    ToolOutlined, SafetyCertificateOutlined,
-    ClockCircleOutlined, SmileOutlined,
-    InboxOutlined, SendOutlined
+    ClockCircleOutlined,
+    EnvironmentOutlined,
+    InboxOutlined,
+    PhoneOutlined,
+    SafetyCertificateOutlined,
+    SendOutlined,
+    ToolOutlined,
+    UserOutlined
 } from '@ant-design/icons';
+import {
+    Button,
+    Card,
+    Col,
+    Divider,
+    Form, Input,
+    message,
+    Row,
+    Select,
+    Space,
+    Typography,
+    Upload
+} from 'antd';
+import React, { useState } from 'react';
+import { mockServiceRequests as defaultServiceRequests } from '../../data/mockData';
 import { useLocalStorageData } from '../../hooks/useLocalStorageData';
 import { demoDataService } from '../../services/core-graphql/localstorage/demoDataService';
-import { mockServiceRequests as defaultServiceRequests } from '../../data/mockData';
 import type { ServiceRequest } from '../../types/v3';
-import { AppBrandLogo } from '@/components/common/AppBrandLogo';
 
 const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
@@ -98,7 +110,7 @@ const CustomerPortalLanding: React.FC = () => {
                     }}>Nhanh chóng</span>
                 </Title>
                 <Paragraph style={{ color: '#94a3b8', fontSize: 18, marginTop: 12, maxWidth: 600, margin: '12px auto' }}>
-                    SIRA cam kết mang đến giải pháp thi công chuyên nghiệp, bền vững và minh bạch cho công trình của bạn.
+                    BACcam kết mang đến giải pháp thi công chuyên nghiệp, bền vững và minh bạch cho công trình của bạn.
                 </Paragraph>
             </div>
 

@@ -1,5 +1,3 @@
-import React from 'react';
-import { Badge, Grid, Input, Layout, Menu } from 'antd';
 import {
     BellOutlined,
     ClockCircleOutlined,
@@ -10,9 +8,11 @@ import {
     TeamOutlined,
     UserOutlined,
 } from '@ant-design/icons';
+import { Badge, Grid, Input, Layout, Menu } from 'antd';
+import React from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { UserMenu } from '../../components/common/Header/UserMenuWithDocs';
 import { AppBrandLogo } from '../../components/common/AppBrandLogo';
+import { UserMenu } from '../../components/common/Header/UserMenuWithDocs';
 import { useAuth } from '../../hooks/useAuth';
 import './SaleLayout.css';
 
@@ -179,7 +179,7 @@ export const SaleLayout: React.FC = () => {
                         }}
                     >
                         <AppBrandLogo size="sm" variant="onDark" />
-                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>SIRA Sale</span>
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>BACSale</span>
                     </div>
                     <Menu
                         theme="dark"
@@ -195,7 +195,7 @@ export const SaleLayout: React.FC = () => {
                 <Header className="sale-header">
                     <div className="header-brand">
                         <AppBrandLogo size="sm" />
-                        <span className="brand-text">SIRA Sale</span>
+                        <span className="brand-text">BACSale</span>
                     </div>
 
                     {!isMobile && (
