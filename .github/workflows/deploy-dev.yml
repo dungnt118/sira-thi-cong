@@ -3,7 +3,7 @@ name: Deployment — Dev (Branch dev)
 on:
   push:
     branches:
-      - dev
+      - develop
   workflow_dispatch:
 
 jobs:
