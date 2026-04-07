@@ -116,7 +116,7 @@ const WorkerHome: React.FC = () => {
                                     <Button
                                         icon={<BookOutlined />}
                                         size="large"
-                                        onClick={(e) => { e.stopPropagation(); navigate(`/gs/diary/${p.id}`); }}
+                                        onClick={(e) => { e.stopPropagation(); navigate(`/gs/journeys/${p.id}?tab=GRP_08_CONSTRUCT`); }}
                                     >
                                         Nhật ký
                                     </Button>
