@@ -17,6 +17,7 @@ export interface StepWorkTaskListProps {
     onStatusUpdate?: (taskId: string, status: string) => void;
     onCreateReport?: (task: IWorkTask) => void;
     onViewReports?: (task: IWorkTask) => void;
+    readOnly?: boolean;
 }
 
 export const StepWorkTaskList: React.FC<StepWorkTaskListProps> = ({
@@ -25,7 +26,8 @@ export const StepWorkTaskList: React.FC<StepWorkTaskListProps> = ({
     reportCounts = {},
     onStatusUpdate,
     onCreateReport,
-    onViewReports
+    onViewReports,
+    readOnly = false
 }) => {
     return (
         <List
@@ -69,6 +71,7 @@ export const StepWorkTaskList: React.FC<StepWorkTaskListProps> = ({
                                         onChange={(val) => onStatusUpdate(task._id, val)}
                                         style={{ minWidth: 80 }}
                                         onClick={(e) => e.stopPropagation()}
+                                        disabled={readOnly}
                                         options={[
                                             { label: 'Chờ', value: 'pending' },
                                             { label: 'Xong', value: 'finished' },

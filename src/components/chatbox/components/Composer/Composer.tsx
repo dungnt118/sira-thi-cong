@@ -1,3 +1,6 @@
+import IndexedSelect from '@/components/common/Form/IndexedSelect';
+import { get_indexed_content } from '@/store/actions/schemas/schemas.action';
+import { useAppDispatch } from '@/store/hooks';
 import {
     BulbOutlined,
     CalendarOutlined,
@@ -19,9 +22,6 @@ import {
 import { Button, DatePicker, Dropdown, Input, InputNumber, Radio, Select, Space, Tooltip } from 'antd';
 import type { Dayjs } from 'dayjs';
 import React, { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
-import IndexedSelect from '@/components/common/Form/IndexedSelect';
-import { get_indexed_content } from '@/store/actions/schemas/schemas.action';
-import { useAppDispatch } from '@/store/hooks';
 import {
     ComposerMode,
     type IContentChatboxMessage,
@@ -667,10 +667,7 @@ const Composer = forwardRef<IComposerRef, IComposerProps>(({
                                         <span className="composer-schedule-label">Nhắc trước (phút)</span>
                                         <InputNumber value={schedulePayload.remind_before_minutes ?? undefined} onChange={(value) => setSchedulePayload((prev) => ({ ...prev, remind_before_minutes: typeof value === 'number' ? value : null }))} placeholder="Ví dụ: 15" min={0} style={{ width: '100%' }} />
                                     </div>
-                                    <div className="composer-schedule-field">
-                                        <span className="composer-schedule-label">Lịch lặp lại (cron/rrule)</span>
-                                        <Input value={schedulePayload.recurrence || ''} onChange={(event) => setSchedulePayload((prev) => ({ ...prev, recurrence: event.target.value || null }))} placeholder="Ví dụ: 0 9 * * MON (mỗi thứ 2 lúc 9h)" />
-                                    </div>
+                                    
                                 </Space>
                             </div>
                         </div>

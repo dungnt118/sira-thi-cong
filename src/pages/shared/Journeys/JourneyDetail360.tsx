@@ -1222,21 +1222,28 @@ const JourneyDetail360: React.FC = () => {
                 footer={null}
                 width={720}
             >
-                <StepWorkTaskList
-                    tasks={selectedStepTasks}
-                    loading={isLoadingTasks}
-                    reportCounts={reportCountByTask}
-                    onStatusUpdate={handleStatusUpdate}
-                    onCreateReport={(task) => {
-                        setSelectedTaskForReport(task);
-                        setIsReportModalOpen(true);
-                    }}
-                    onViewReports={() => {
-                        setSearchParams({ tab: 'GRP_08_CONSTRUCT' });
-                        setSelectedTaskStepCode(null);
-                        setIsJourneyDrawerVisible(false);
-                    }}
-                />
+                {(() => {
+                    const selectedTaskStepIndex = HEADER_STEP_CONFIG.findIndex((s) => s.key === selectedTaskStepCode);
+                    const isTaskReadOnly = selectedTaskStepIndex > currentHeaderStepIndex;
+                    return (
+                        <StepWorkTaskList
+                            tasks={selectedStepTasks}
+                            loading={isLoadingTasks}
+                            reportCounts={reportCountByTask}
+                            onStatusUpdate={handleStatusUpdate}
+                            onCreateReport={(task) => {
+                                setSelectedTaskForReport(task);
+                                setIsReportModalOpen(true);
+                            }}
+                            onViewReports={() => {
+                                setSearchParams({ tab: 'GRP_08_CONSTRUCT' });
+                                setSelectedTaskStepCode(null);
+                                setIsJourneyDrawerVisible(false);
+                            }}
+                            readOnly={isTaskReadOnly}
+                        />
+                    );
+                })()}
             </Modal>
 
             <CreateJourneyDocumentModal
