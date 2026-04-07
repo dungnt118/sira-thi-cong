@@ -1,3 +1,5 @@
+import history from '@history';
+
 export interface UserData {
     username: string;
     role: string;
@@ -57,7 +59,7 @@ export const forceSwitchRole = (newRole: string, path: string) => {
         const updatedRoles = data.roles?.includes?.(newRole) ? data.roles : [...(data.roles || []), newRole];
         setUserData({ ...data, role: newRole, roles: updatedRoles });
     }
-    window.location.href = path;
+    history.push(path);
     return true;
 };
 

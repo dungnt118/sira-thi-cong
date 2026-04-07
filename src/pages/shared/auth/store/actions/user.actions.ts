@@ -139,12 +139,12 @@ export const loadUserData = (roleOverride?: string): AppThunk<Promise<void>> => 
         const searchParams = new URLSearchParams(history.location.search);
         const redirectTarget = searchParams.get('redirect');
         if (redirectTarget && !redirectTarget.startsWith('/login')) {
-          window.location.href = redirectTarget;
+          history.push(redirectTarget);
         } else {
-          window.location.href = targetUrl;
+          history.push(targetUrl);
         }
       } else if (pathname === '/l/welcome' && targetUrl !== '/l/welcome') {
-        window.location.href = targetUrl;
+        history.push(targetUrl);
       }
     } else {
       // TẠM THỜI DISABLE ĐỂ NGĂN CHẶN LOGOUT KHI CHUYỂN QUYỀN NHANH
