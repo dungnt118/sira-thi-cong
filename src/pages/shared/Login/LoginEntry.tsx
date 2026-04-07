@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
-import { Button, Card, Form, Input, Typography, message } from 'antd';
-import { BookOutlined, LockOutlined, UserOutlined, GlobalOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
-import { get, CLIENTS } from '../../../services/storeService';
-import elsagaService from '../../../services/authenticationService';
-import { useAppDispatch } from '@/store/hooks';
+import { AppBrandLogo } from '@/components/common/AppBrandLogo';
 import { loadUserData } from '@/pages/shared/auth/store/actions/user.actions';
+import { useAppDispatch } from '@/store/hooks';
+import { BookOutlined, GlobalOutlined, LockOutlined, UserOutlined } from '@ant-design/icons';
+import { Button, Card, Form, Input, Typography, message } from 'antd';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import elsagaService from '../../../services/authenticationService';
+import { CLIENTS, get } from '../../../services/storeService';
 import { buildDocumentationPath } from '../../../utils/documentation';
 import './Login.css';
-import { AppBrandLogo } from '@/components/common/AppBrandLogo';
 
 const { Title, Text } = Typography;
 
@@ -62,7 +62,7 @@ export const Login: React.FC = () => {
                             <AppBrandLogo size="xl" />
                         </div>
                         <Title level={1} className="login-title">
-                            SIRA Thi Công
+                            BAC GROUP
                         </Title>
                         <Text className="login-subtitle">
                             Hệ thống quản lý thi công xây dựng

@@ -1,5 +1,7 @@
+﻿import type { IndexedContentItem } from 'types/apis';
+
 // ============================================================
-// Phase 1 – Customer Journey Types
+// Phase 1 â€“ Customer Journey Types
 // ============================================================
 
 // --- Status Types ---
@@ -60,8 +62,8 @@ export interface JourneyTemplate {
 }
 
 // --- Journey Activity (log entry) ---
-// Log UI/legacy trong app; nghiệp vụ audit chuẩn trên BAC dùng JourneyStepLog (và history trên chứng từ như StockOrder).
-// Không phụ thuộc schema ActivityEvent (đã loại bỏ / deprecated trên tenant hiện tại).
+// Log UI/legacy trong app; nghiá»‡p vá»¥ audit chuáº©n trÃªn BAC dÃ¹ng JourneyStepLog (vÃ  history trÃªn chá»©ng tá»« nhÆ° StockOrder).
+// KhÃ´ng phá»¥ thuá»™c schema ActivityEvent (Ä‘Ã£ loáº¡i bá» / deprecated trÃªn tenant hiá»‡n táº¡i).
 export interface JourneyActivity {
     id: string;
     journey_id: string;
@@ -191,7 +193,10 @@ export interface Journey {
     customer_email?: string;
     site_address?: string;
     source_channel: 'MKT' | 'hotline' | 'referral' | 'direct';
-    requested_service: string;
+    serviceTypeId?: string;
+    idx_serviceTypeId?: IndexedContentItem;
+    service_type?: string;
+    requested_service?: string;
     request_title: string;
     request_description?: string;
     owner_user: string;
@@ -327,3 +332,4 @@ export interface ActionItem {
     source_tab?: string;
     journey_id: string;
 }
+

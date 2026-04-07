@@ -1,4 +1,4 @@
-import type { IndexedContentItem } from 'types/apis';
+﻿import type { IndexedContentItem } from 'types/apis';
 import type { ApiListResponse } from 'types/apis/ApiResponse';
 
 /**
@@ -13,6 +13,9 @@ export interface IJourney {
   idx_customer_id?: IndexedContentItem;
   owner_user?: any;
   site_address?: string;
+  serviceTypeId?: string;
+  idx_serviceTypeId?: IndexedContentItem;
+  /** @deprecated Use serviceTypeId + idx_serviceTypeId instead. */
   requested_service?: string;
   priority?: JourneyPriorityEnum;
   go_no_go_status?: JourneyGoNoGoStatusEnum;
@@ -80,6 +83,8 @@ export interface ICreateJourneyInput {
   customer_id?: string;
   owner_user?: any;
   site_address?: string;
+  serviceTypeId?: string;
+  /** @deprecated Use serviceTypeId instead. */
   requested_service?: string;
   priority?: JourneyPriorityEnum2;
   go_no_go_status?: JourneyGoNoGoStatusEnum2;
@@ -159,3 +164,4 @@ export type JourneyQuoteStatusEnum2 = 'not_started' | 'draft' | 'sent' | 'approv
 export type JourneyProjectStatusEnum2 = 'not_started' | 'active' | 'completed' | 'cancelled';
 export type JourneyCurrentStepEnum2 = 'lead_intake' | 'qualification' | 'survey_planning' | 'site_survey' | 'survey_review' | 'estimate_preparation' | 'quotation_preparation' | 'quotation_sent' | 'quotation_approved' | 'contract_signing' | 'project_execution' | 'handover_acceptance' | 'warranty_aftercare';
 export type JourneyMaterialNeedStatusEnum2 = 'enough' | 'partial' | 'waiting';
+

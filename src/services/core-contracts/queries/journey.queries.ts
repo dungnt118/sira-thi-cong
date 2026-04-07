@@ -1,4 +1,4 @@
-import { gql } from 'graphql-tag';
+﻿import { gql } from 'graphql-tag';
 
 /**
  * Find Journey DTO with typed data
@@ -21,7 +21,9 @@ export const FIND_JOURNEY_DTO = gql`
         customer_id
         owner_user
         site_address
-        requested_service
+        serviceTypeId
+        idx_serviceTypeId
+
         priority
         go_no_go_status
         sla_status
@@ -111,6 +113,8 @@ export const QUERY_JOURNEYS_DTO = gql`
         customer_id
         owner_user
         site_address
+        serviceTypeId
+        idx_serviceTypeId
         requested_service
         priority
         go_no_go_status
@@ -179,3 +183,4 @@ export const QUERY_JOURNEYS_DTO = gql`
     }
   }
 `;
+

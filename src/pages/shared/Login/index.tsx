@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
-import { Card, Button, Typography, Form, Input, message } from 'antd';
 import {
-    UserOutlined,
-    LockOutlined
+    LockOutlined,
+    UserOutlined
 } from '@ant-design/icons';
-import { get, CLIENTS } from '../../../services/storeService';
+import { Button, Card, Form, Input, message, Typography } from 'antd';
+import React, { useState } from 'react';
 import elsagaService from '../../../services/authenticationService';
+import { CLIENTS, get } from '../../../services/storeService';
 import './Login.css';
 
 const { Title, Text } = Typography;
 
-import { useAppDispatch } from '@/store/hooks';
 import { loadUserData } from '@/pages/shared/auth/store/actions/user.actions';
+import { useAppDispatch } from '@/store/hooks';
 
 export const Login: React.FC = () => {
     const dispatch = useAppDispatch();
@@ -53,7 +53,7 @@ export const Login: React.FC = () => {
                 <Card className="login-card" variant={'borderless'}>
                     <div className="login-header">
                         <Title level={1} className="login-title">
-                            SIRA Thi Công
+                            BAC GROUP
                         </Title>
                         <Text className="login-subtitle">
                             Hệ Thống Quản Lý Thi Công Xây Dựng
