@@ -12,8 +12,10 @@ import {
     TeamOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import { useAppDispatch } from '@/store/hooks';
 import { useAuth } from '../../../hooks/useAuth';
-import { forceSwitchRole } from '../../../utils/authUtils';
+import { forceSwitchRole, MANUAL_ROLE_KEY } from '../../../utils/authUtils';
+import { loadUserData } from '@/pages/shared/auth/store/actions/user.actions';
 import type { MenuProps } from 'antd';
 
 const { Text } = Typography;
@@ -28,6 +30,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
     showName = true
 }) => {
     const navigate = useNavigate();
+    const dispatch = useAppDispatch();
     const { user, role, availableRoles, logout } = useAuth();
 
     const rolesList = [
@@ -41,7 +44,8 @@ export const UserMenu: React.FC<UserMenuProps> = ({
     ];
 
     const handleSwitch = (roleKey: string, path: string) => {
-        forceSwitchRole(roleKey, path);
+        localStorage.setItem(MANUAL_ROLE_KEY, roleKey);
+        dispatch(loadUserData(roleKey));
     };
 
     const menuItems: MenuProps['items'] = [

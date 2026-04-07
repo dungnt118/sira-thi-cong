@@ -1,0 +1,150 @@
+# CI/CD: build & push Docker images (Reusable Workflow)
+# Sử dụng bởi các workflow kích hoạt theo branch (vd: deploy-main.yml, deploy-dev.yml)
+#
+# Chi tiết Secrets/Variables/inputs: Docs/ci-cd/github-actions-docker-portainer.md
+
+name: Reusable Docker Build & Deploy
+
+on:
+  workflow_call:
+    inputs:
+      bootstrap_spec:
+        description: 'Đường dẫn JSON bootstrap (vd: deploy/portainer-container-bootstrap-dev.json)'
+        required: false
+        type: string
+        default: 'deploy/portainer-container-bootstrap.json'
+      container_name:
+        description: 'Tên container trên Portainer'
+        required: false
+        type: string
+      endpoint_id:
+        description: 'ID endpoint Docker (số)'
+        required: false
+        type: string
+      image_repo:
+        description: 'Docker Hub repo (mặc định vars.DOCKER_IMAGE_REPO)'
+        required: false
+        type: string
+      network_name:
+        description: 'Tên network (mặc định qltn-shared-net)'
+        required: false
+        type: string
+        default: 'qltn-shared-net'
+      network_aliases:
+        description: 'CSV DNS aliases (mặc định cms)'
+        required: false
+        type: string
+        default: 'cms'
+    secrets:
+      DOCKERHUB_USERNAME:
+        required: true
+      DOCKERHUB_TOKEN:
+        required: true
+      PORTAINER_API_TOKEN:
+        required: true
+      PORTAINER_URL:
+        required: false
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Cài dependencies
+        run: npm ci
+
+      - name: Build frontend (kiểm tra trước khi đóng gói)
+        run: npm run build
+        env:
+          NODE_OPTIONS: --max-old-space-size=6144
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Resolve version
+        id: ver
+        shell: bash
+        run: |
+          PKG=$(node -p "require('./package.json').version")
+          V="${PKG}-${GITHUB_SHA:0:7}"
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+          echo "Using VERSION=$V"
+
+      - name: Login Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build (và push) Docker image
+        id: docker_build
+        shell: bash
+        env:
+          VERSION: ${{ steps.ver.outputs.version }}
+          DOCKER_REPO: ${{ inputs.image_repo != '' && inputs.image_repo || vars.DOCKER_IMAGE_REPO || 'dungnt118/sira-thi-cong' }}
+        run: |
+          set -euo pipefail
+          DOCKERFILE="docker/Dockerfile"
+          if [ ! -f "$DOCKERFILE" ]; then
+            echo "::error::Không tìm thấy $DOCKERFILE"
+            exit 1
+          fi
+
+          PROJECT_NAME=$(node -p "require('./package.json').name")
+          TAG="${DOCKER_REPO}:${PROJECT_NAME}_v${VERSION}"
+          
+          echo "::group::Build $TAG ($DOCKERFILE)"
+          docker build -t "$TAG" -f "$DOCKERFILE" .
+          echo "::endgroup::"
+          
+          echo "::group::Push $TAG"
+          docker push "$TAG"
+          echo "::endgroup::"
+
+          echo "deploy_image=${TAG}" >> "$GITHUB_OUTPUT"
+
+      - name: Portainer — deploy (container)
+        shell: bash
+        env:
+          PORTAINER_URL: ${{ secrets.PORTAINER_URL != '' && secrets.PORTAINER_URL || vars.PORTAINER_URL }}
+          PORTAINER_API_TOKEN: ${{ secrets.PORTAINER_API_TOKEN }}
+          PORTAINER_ENDPOINT_ID: ${{ inputs.endpoint_id != '' && inputs.endpoint_id || vars.PORTAINER_ENDPOINT_ID }}
+          PORTAINER_CONTAINER_NAME: ${{ inputs.container_name != '' && inputs.container_name || vars.PORTAINER_CONTAINER_NAME }}
+          PORTAINER_CONTAINER_NETWORK: ${{ inputs.network_name }}
+          PORTAINER_NETWORK_ALIASES: ${{ inputs.network_aliases }}
+          PORTAINER_CONTAINER_BOOTSTRAP_SPEC: ${{ inputs.bootstrap_spec }}
+          DEPLOY_IMAGE: ${{ steps.docker_build.outputs.deploy_image }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${PORTAINER_URL:-}" ] || [ -z "${PORTAINER_API_TOKEN:-}" ] || [ -z "${PORTAINER_ENDPOINT_ID:-}" ]; then
+            echo "::notice::Bỏ qua Portainer: thiếu PORTAINER_URL / PORTAINER_API_TOKEN / PORTAINER_ENDPOINT_ID."
+            exit 0
+          fi
+
+          if [ -z "${PORTAINER_CONTAINER_NAME:-}" ]; then
+            echo "::notice::Bỏ qua Portainer: không có PORTAINER_CONTAINER_NAME."
+            exit 0
+          fi
+
+          export PORTAINER_URL PORTAINER_API_TOKEN PORTAINER_ENDPOINT_ID
+          export PORTAINER_NEW_IMAGE="${DEPLOY_IMAGE}"
+          export PORTAINER_CONTAINER_NAME
+          export PORTAINER_CONTAINER_NETWORK
+          export PORTAINER_NETWORK_ALIASES
+          export PORTAINER_CONTAINER_BOOTSTRAP_SPEC
+          
+          chmod +x scripts/portainer-recreate-container.sh
+          bash scripts/portainer-recreate-container.sh
