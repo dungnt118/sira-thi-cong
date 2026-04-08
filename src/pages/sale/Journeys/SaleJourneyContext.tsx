@@ -122,7 +122,7 @@ const SaleJourneyContext: React.FC = () => {
         return (
             <Card style={{ marginTop: 40, textAlign: 'center', borderRadius: 20 }}>
                 <Empty description="Không tìm thấy hồ sơ Journey." />
-                <Button onClick={() => navigate('/kd/dashboard')}>Quay lại danh sách</Button>
+                <Button onClick={() => navigate('/admin/kd/dashboard')}>Quay lại danh sách</Button>
             </Card>
         );
     }
@@ -162,7 +162,7 @@ const SaleJourneyContext: React.FC = () => {
         try {
             await journeyService.deleteJourney(journeyId);
             message.success('Đã xóa yêu cầu dịch vụ.');
-            navigate('/kd/dashboard');
+            navigate('/admin/kd/dashboard');
         } catch (error) {
             console.error('Không thể xóa Journey', error);
             message.error('Không thể xóa yêu cầu dịch vụ.');
@@ -281,7 +281,7 @@ const SaleJourneyContext: React.FC = () => {
     return (
         <div style={{ paddingBottom: 40 }}>
             <div style={{ marginBottom: 16 }}>
-                <Button type="link" icon={<ArrowLeftOutlined />} onClick={() => navigate('/kd/dashboard')} style={{ padding: 0 }}>
+                <Button type="link" icon={<ArrowLeftOutlined />} onClick={() => navigate('/admin/kd/dashboard')} style={{ padding: 0 }}>
                     Quay lại danh sách yêu cầu dịch vụ
                 </Button>
             </div>

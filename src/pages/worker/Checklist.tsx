@@ -74,7 +74,7 @@ const WorkerChecklist: React.FC = () => {
         <div>
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-                <Button icon={<ArrowLeftOutlined />} size="small" onClick={() => navigate('/worker/home')} />
+                <Button icon={<ArrowLeftOutlined />} size="small" onClick={() => navigate('/admin/gs/dashboard')} />
                 <div>
                     <Title level={5} style={{ margin: 0 }}>{journey.journey_code}</Title>
                     <Text type="secondary" style={{ fontSize: 12 }}>{journey.idx_serviceTypeId?.title}</Text>
@@ -113,7 +113,7 @@ const WorkerChecklist: React.FC = () => {
                         </div>
                     }
                     action={
-                        <Button size="small" onClick={() => navigate('/worker/materials')}>
+                        <Button size="small" onClick={() => navigate('/admin/gs/materials')}>
                             Xem phiếu VT
                         </Button>
                     }
@@ -245,7 +245,7 @@ const WorkerChecklist: React.FC = () => {
                             size="large"
                             icon={<CameraOutlined />}
                             onClick={() => {
-                                navigate(`/worker/evidence/${id}/${selectedStep.id}`);
+                                navigate(`/admin/gs/evidence/${id}/${selectedStep.id}`);
                                 setUploadModalOpen(false);
                             }}
                         >

@@ -1,10 +1,10 @@
 import {
-    BarChartOutlined,
     DashboardOutlined,
-    FileImageOutlined,
     ProjectOutlined,
+    CameraOutlined,
+    AlertOutlined,
     TeamOutlined,
-    WarningOutlined,
+    FileDoneOutlined,
 } from '@ant-design/icons';
 import { LABELS } from '@utils/constants';
 import type { MenuProps } from 'antd';
@@ -18,33 +18,33 @@ type MenuItem = Required<MenuProps>['items'][number];
 
 const menuItems: MenuItem[] = [
     {
-        key: '/gs/dashboard',
+        key: '/admin/gs/dashboard',
         icon: <DashboardOutlined />,
         label: LABELS.SUPERVISOR.DASHBOARD,
     },
     {
-        key: '/gs/projects',
+        key: '/admin/gs/projects',
         icon: <ProjectOutlined />,
         label: LABELS.SUPERVISOR.PROJECTS,
     },
     {
-        key: '/gs/evidence-queue',
-        icon: <FileImageOutlined />,
+        key: '/admin/gs/evidence-queue',
+        icon: <CameraOutlined />,
         label: LABELS.SUPERVISOR.EVIDENCE_QUEUE,
     },
     {
-        key: '/gs/quality-issues',
-        icon: <WarningOutlined />,
+        key: '/admin/gs/quality-issues',
+        icon: <AlertOutlined />,
         label: LABELS.SUPERVISOR.QUALITY_ISSUES,
     },
     {
-        key: '/gs/team-performance',
+        key: '/admin/gs/team-performance',
         icon: <TeamOutlined />,
         label: LABELS.SUPERVISOR.TEAM_PERFORMANCE,
     },
     {
-        key: '/gs/reports',
-        icon: <BarChartOutlined />,
+        key: '/admin/gs/reports',
+        icon: <FileDoneOutlined />,
         label: LABELS.SUPERVISOR.REPORTS,
     },
 ];
@@ -73,7 +73,7 @@ const SupervisorSidebar: React.FC = () => {
                 }}
             >
                 <AppBrandLogo size="sm" variant="onDark" />
-                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>BACGiám Sát</span>
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>BAC Giám Sát</span>
             </div>
             <Menu
                 theme="dark"

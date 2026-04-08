@@ -182,7 +182,7 @@ const TeamManagement: React.FC = () => {
                     rowKey="_id"
                     pagination={{ pageSize: 10 }}
                     onRow={(record) => ({
-                        onClick: () => navigate(`/ql/teams/groups/${record._id}`),
+                        onClick: () => navigate(`/admin/ql/teams/groups/${record._id}`),
                         style: { cursor: 'pointer' }
                     })}
                 />

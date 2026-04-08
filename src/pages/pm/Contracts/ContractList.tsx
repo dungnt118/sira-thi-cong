@@ -78,9 +78,9 @@ const ContractList: React.FC = () => {
     const totalProjects = contracts.reduce((sum, c) => sum + c.projectCount, 0);
 
     const getActionMenu = (record: Contract): MenuProps['items'] => [
-        { key: 'view', icon: <EyeOutlined />, label: 'Xem chi tiết', onClick: () => navigate(`/ql/contracts/${record.id}`) },
+        { key: 'view', icon: <EyeOutlined />, label: 'Xem chi tiết', onClick: () => navigate(`/admin/ql/contracts/${record.id}`) },
         { key: 'edit', icon: <EditOutlined />, label: 'Chỉnh sửa' },
-        { key: 'create-project', icon: <ProjectOutlined />, label: 'Tạo dự án', onClick: () => navigate('/ql/projects/create') },
+        { key: 'create-project', icon: <ProjectOutlined />, label: 'Tạo dự án', onClick: () => navigate('/admin/ql/projects/create') },
         { type: 'divider' },
         { key: 'delete', icon: <DeleteOutlined />, label: 'Xóa', danger: true },
     ];
@@ -89,7 +89,7 @@ const ContractList: React.FC = () => {
         {
             title: 'Mã HĐ', dataIndex: 'code', key: 'code', width: 130,
             render: (code: string, record: Contract) => (
-                <a onClick={() => navigate(`/ql/contracts/${record.id}`)} style={{ fontWeight: 500 }}>{code}</a>
+                <a onClick={() => navigate(`/admin/ql/contracts/${record.id}`)} style={{ fontWeight: 500 }}>{code}</a>
             ),
         },
         {
@@ -146,7 +146,7 @@ const ContractList: React.FC = () => {
                     <Button icon={<ExportOutlined />} disabled={isMobile}>
                         {!isMobile && 'Xuất báo cáo'}
                     </Button>
-                    <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/ql/contracts/create')}>
+                    <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/admin/ql/contracts/create')}>
                         {!isMobile && 'Tạo hợp đồng'}
                     </Button>
                 </Space>

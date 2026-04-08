@@ -187,7 +187,7 @@ const WorkerManagement: React.FC = () => {
                             icon={<SearchOutlined />}
                             onClick={(e) => {
                                 e.stopPropagation();
-                                navigate(`/ql/teams/workers/${record._id}`);
+                                navigate(`/admin/ql/teams/workers/${record._id}`);
                             }}
                         />
                     </Tooltip>
@@ -232,7 +232,7 @@ const WorkerManagement: React.FC = () => {
                 rowKey="_id"
                 loading={loading}
                 onRow={(record) => ({
-                    onClick: () => navigate(`/ql/teams/workers/${record._id}`),
+                    onClick: () => navigate(`/admin/ql/teams/workers/${record._id}`),
                     style: { cursor: 'pointer' }
                 })}
             />

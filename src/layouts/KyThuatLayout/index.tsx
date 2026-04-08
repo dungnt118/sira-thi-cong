@@ -24,7 +24,7 @@ export const KyThuatLayout: React.FC = () => {
 
     React.useEffect(() => {
         if (role && role !== 'KYT' && !isAdmin) {
-            navigate(`/${role.toLowerCase()}/dashboard`);
+            navigate(`/admin/${role.toLowerCase()}/dashboard`);
             return;
         }
 
@@ -36,9 +36,9 @@ export const KyThuatLayout: React.FC = () => {
     // Convert pathname to menu active key
     const getActiveKey = () => {
         const path = location.pathname;
-        if (path.includes('/kyt/schedule')) return 'schedule';
-        if (path.includes('/kyt/execution')) return 'execution';
-        if (path.includes('/kyt/profile')) return 'profile';
+        if (path.includes('/admin/kyt/schedule')) return 'schedule';
+        if (path.includes('/admin/kyt/execution')) return 'execution';
+        if (path.includes('/admin/kyt/profile')) return 'profile';
         return 'dashboard';
     };
 
@@ -47,25 +47,24 @@ export const KyThuatLayout: React.FC = () => {
             key: 'dashboard',
             icon: <HomeOutlined />,
             label: 'Tổng quan',
-            onClick: () => navigate('/kyt/dashboard')
+            onClick: () => navigate('/admin/kyt/dashboard')
         },
         {
             key: 'schedule',
             icon: <CalendarOutlined />,
             label: 'Lịch trình',
-            onClick: () => navigate('/kyt/schedule')
+            onClick: () => navigate('/admin/kyt/schedule')
         },
         {
             key: 'execution',
             icon: <ToolOutlined />,
             label: 'Thi công',
-            onClick: () => navigate('/kyt/execution')
+            onClick: () => navigate('/admin/kyt/execution')
         },
         {
             key: 'profile',
-            icon: <UserOutlined />,
-            label: 'Cá nhân',
-            onClick: () => navigate('/personal/profile')
+            icon: <UserOutlined />, label: 'Cá nhân',
+            onClick: () => navigate('/admin/kyt/profile')
         }
     ];
 

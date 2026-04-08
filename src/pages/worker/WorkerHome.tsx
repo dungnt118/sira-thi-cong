@@ -70,7 +70,7 @@ const WorkerHome: React.FC = () => {
                                 key={p.id}
                                 style={{ marginBottom: 12, borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
                                 hoverable
-                                onClick={() => navigate(`/gs/checklist/${p.id}`)}
+                                onClick={() => navigate(`/admin/gs/checklist/${p.id}`)}
                             >
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                     <div style={{ flex: 1 }}>
@@ -109,14 +109,14 @@ const WorkerHome: React.FC = () => {
                                         type="primary"
                                         block
                                         size="large"
-                                        onClick={(e) => { e.stopPropagation(); navigate(`/gs/checklist/${p.id}`); }}
+                                        onClick={(e) => { e.stopPropagation(); navigate(`/admin/gs/checklist/${p.id}`); }}
                                     >
                                         Tiếp tục thi công →
                                     </Button>
                                     <Button
                                         icon={<BookOutlined />}
                                         size="large"
-                                        onClick={(e) => { e.stopPropagation(); navigate(`/gs/diary/${p.id}`); }}
+                                        onClick={(e) => { e.stopPropagation(); navigate(`/admin/gs/diary/${p.id}`); }}
                                     >
                                         Nhật ký
                                     </Button>
@@ -139,7 +139,7 @@ const WorkerHome: React.FC = () => {
                             size="small"
                             style={{ marginBottom: 8, borderRadius: 10 }}
                             hoverable
-                            onClick={() => navigate(`/gs/checklist/${p.id}`)}
+                            onClick={() => navigate(`/admin/gs/checklist/${p.id}`)}
                         >
                             <Row justify="space-between" align="middle">
                                 <Col flex="auto">
@@ -171,7 +171,7 @@ const WorkerHome: React.FC = () => {
                     size="large"
                     icon={<ExclamationCircleOutlined />}
                     style={{ width: 52, height: 52, fontSize: 22, boxShadow: '0 4px 14px rgba(255,77,79,0.4)' }}
-                    onClick={() => navigate('/gs/incident')}
+                    onClick={() => navigate('/admin/gs/incident')}
                 />
             </div>
         </div>

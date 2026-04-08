@@ -72,10 +72,10 @@ const CustomerList: React.FC = () => {
     });
 
     const getRowActions = (record: ICustomer): MenuProps['items'] => [
-        { key: 'view', icon: <EyeOutlined />, label: 'Xem chi tiết', onClick: () => navigate(`/ql/crm/customers/${record._id}`) },
-        { key: 'edit', icon: <EditOutlined />, label: 'Chỉnh sửa', onClick: () => navigate(`/ql/crm/customers/${record._id}/edit`) },
+        { key: 'view', icon: <EyeOutlined />, label: 'Xem chi tiết', onClick: () => navigate(`/admin/ql/crm/customers/${record._id}`) },
+        { key: 'edit', icon: <EditOutlined />, label: 'Chỉnh sửa', onClick: () => navigate(`/admin/ql/crm/customers/${record._id}/edit`) },
         { type: 'divider' },
-        { key: 'create-deal', icon: <PlusCircleOutlined />, label: 'Tạo Yêu cầu mới', onClick: () => navigate(`/ql/crm/service-requests/new?customerId=${record._id}`) },
+        { key: 'create-deal', icon: <PlusCircleOutlined />, label: 'Tạo Yêu cầu mới', onClick: () => navigate(`/admin/ql/crm/service-requests/new?customerId=${record._id}`) },
         { key: 'delete', icon: <DeleteOutlined />, label: 'Xóa khách hàng', danger: true },
     ];
 
@@ -90,7 +90,7 @@ const CustomerList: React.FC = () => {
                     <Avatar size={36} icon={<UserOutlined />} style={{ background: '#1976D2' }} />
                     <div>
                         <div style={{ fontWeight: 600, cursor: 'pointer', color: '#1976D2' }}
-                            onClick={() => navigate(`/ql/crm/customers/${r._id}`)}>
+                            onClick={() => navigate(`/admin/ql/crm/customers/${r._id}`)}>
                             {r.full_name}
                         </div>
                         <Text type="secondary" style={{ fontSize: 12 }}>{r.code}</Text>
@@ -175,7 +175,7 @@ const CustomerList: React.FC = () => {
                 <Button
                     type="primary"
                     icon={<PlusOutlined />}
-                    onClick={() => navigate('/ql/crm/customers/new')}
+                    onClick={() => navigate('/admin/ql/crm/customers/new')}
                     block={isMobile}
                 >
                     Thêm Khách hàng

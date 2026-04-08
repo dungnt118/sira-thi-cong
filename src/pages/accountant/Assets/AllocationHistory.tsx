@@ -256,7 +256,7 @@ const AssetAllocationHistory: React.FC = () => {
                             { label: 'Năm nay', value: [dayjs().startOf('year'), dayjs().endOf('year')] },
                         ]}
                     />
-                    <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/kt/assets/allocation')}>
+                    <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/admin/kt/assets/allocation')}>
                         Tạo yêu cầu mượn
                     </Button>
                 </Space>

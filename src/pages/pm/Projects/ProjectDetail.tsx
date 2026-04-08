@@ -234,7 +234,7 @@ const ProjectDetail: React.FC = () => {
             {/* ─── Header ─── */}
             <Row justify="space-between" align="middle" style={{ marginBottom: 24 }}>
                 <Space wrap>
-                    <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/ql/projects/all')}>Quay lại</Button>
+                    <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/admin/ql/construction/projects')}>Quay lại</Button>
                     <Title level={4} style={{ margin: 0 }}>{projectData.code} — {projectData.name}</Title>
                     <Tag color={statusTagMap[projectStatus].color}>
                         {statusTagMap[projectStatus].label}
@@ -257,7 +257,7 @@ const ProjectDetail: React.FC = () => {
                     {/* Edit — only for draft */}
                     {isDraft && (
                         <Button type="primary" icon={<EditOutlined />}
-                            onClick={() => navigate(`/ql/projects/edit/${projectId}`)}>
+                            onClick={() => navigate(`/admin/ql/construction/projects/${projectId}/edit`)}>
                             Chỉnh sửa
                         </Button>
                     )}
@@ -332,7 +332,7 @@ const ProjectDetail: React.FC = () => {
                                             size="small"
                                             extra={
                                                 <Button type="link" size="small" icon={<LinkOutlined />}
-                                                    onClick={() => navigate(`/ql/contracts/${projectData.contract.id}`)}>
+                                                    onClick={() => navigate(`/admin/ql/contracts/${projectData.contract.id}`)}>
                                                     Xem HĐ
                                                 </Button>
                                             }
@@ -406,7 +406,7 @@ const ProjectDetail: React.FC = () => {
                                 <Row justify="end">
                                     {projectData.contract && (
                                         <Button type="link" icon={<LinkOutlined />}
-                                            onClick={() => navigate(`/ql/contracts/${projectData.contract.id}`)}>
+                                            onClick={() => navigate(`/admin/ql/contracts/${projectData.contract.id}`)}>
                                             Xem tài chính tại Hợp đồng {projectData.contract.code}
                                         </Button>
                                     )}

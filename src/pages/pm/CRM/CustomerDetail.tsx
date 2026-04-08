@@ -90,7 +90,7 @@ const CustomerDetail: React.FC = () => {
             title: '',
             key: 'action',
             render: (_: any, r: any) => (
-                <Button size="small" icon={<EyeOutlined />} onClick={() => navigate(`/ql/crm/service-requests/${r.id}`)}>
+                <Button size="small" icon={<EyeOutlined />} onClick={() => navigate(`/admin/ql/crm/service-requests/${r.id}`)}>
                     Xem
                 </Button>
             )
@@ -136,10 +136,10 @@ const CustomerDetail: React.FC = () => {
                     <Col xs={24} md={8}>
                         <Card size="small" title="Thao tác nhanh">
                             <Space direction="vertical" style={{ width: '100%' }}>
-                                <Button block type="primary" icon={<PlusCircleOutlined />} onClick={() => navigate(`/ql/crm/service-requests/new?customerId=${id}`)}>
+                                <Button block type="primary" icon={<PlusCircleOutlined />} onClick={() => navigate(`/admin/ql/crm/service-requests/new?customerId=${id}`)}>
                                     Tạo Yêu cầu (Deal) mới
                                 </Button>
-                                <Button block icon={<EditOutlined />} onClick={() => navigate(`/ql/crm/customers/${id}/edit`)}>
+                                <Button block icon={<EditOutlined />} onClick={() => navigate(`/admin/ql/crm/customers/${id}/edit`)}>
                                     Chỉnh sửa thông tin KH
                                 </Button>
                             </Space>
@@ -152,7 +152,7 @@ const CustomerDetail: React.FC = () => {
             key: 'deals',
             label: <span><SolutionOutlined /> Yêu cầu Dịch vụ ({serviceRequests.length})</span>,
             children: (
-                <Card size="small" extra={<Button type="primary" size="small" onClick={() => navigate(`/ql/crm/service-requests/new?customerId=${id}`)}>Tạo Deal</Button>}>
+                <Card size="small" extra={<Button type="primary" size="small" onClick={() => navigate(`/admin/ql/crm/service-requests/new?customerId=${id}`)}>Tạo Deal</Button>}>
                     <Table
                         columns={dealColumns}
                         dataSource={serviceRequests}
@@ -173,7 +173,7 @@ const CustomerDetail: React.FC = () => {
                             <Text type="secondary">Khách hàng này chưa có hành trình nào</Text>
                             <br />
                             <Button type="primary" style={{ marginTop: 12 }}
-                                onClick={() => navigate('/ql/journeys')}>
+                                onClick={() => navigate('/admin/ql/journeys')}>
                                 Đi tới danh sách Hành trình
                             </Button>
                         </div>
@@ -186,7 +186,7 @@ const CustomerDetail: React.FC = () => {
                                     size="small"
                                     style={{ marginBottom: 12 }}
                                     hoverable
-                                    onClick={() => navigate(`/ql/journeys/${j._id}`)}
+                                    onClick={() => navigate(`/admin/ql/journeys/${j._id}`)}
                                     extra={
                                         <Button type="link" icon={<ProjectOutlined />}>Chi tiết</Button>
                                     }
@@ -215,7 +215,7 @@ const CustomerDetail: React.FC = () => {
     return (
         <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
-                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/ql/crm/customers')}>Danh bạ</Button>
+                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/admin/ql/crm/customers')}>Danh bạ</Button>
                 <div>
                     <Title level={4} style={{ margin: 0 }}>{customer.full_name}</Title>
                     <Text type="secondary">Mã KH: {customer.code}</Text>

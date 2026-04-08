@@ -79,40 +79,12 @@ const CustomerPortalLanding: React.FC = () => {
 
     return (
         <div className="portal-container" style={{
-            minHeight: '100vh',
+            minHeight: 'calc(100vh - 64px)',
             background: '#f8fafc',
-            padding: '40px 20px',
+            padding: '60px 20px',
             color: '#1e293b',
             fontFamily: "'Inter', sans-serif"
         }}>
-            {/* Header / Brand */}
-            <div style={{ textAlign: 'center', marginBottom: 48 }}>
-                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
-                    <AppBrandLogo size={64} variant="default" />
-                </div>
-                <div style={{
-                    display: 'inline-block',
-                    padding: '8px 16px',
-                    background: 'rgba(56, 189, 248, 0.1)',
-                    borderRadius: '20px',
-                    border: '1px solid rgba(56, 189, 248, 0.2)',
-                    marginBottom: 16
-                }}>
-                    <Text style={{ color: '#38bdf8', fontWeight: 600, fontSize: 12, letterSpacing: 1 }}>
-                        BAC CONSTRUCTION & TECHNOLOGY
-                    </Text>
-                </div>
-                <Title level={1} style={{ color: '#0f172a', margin: 0, fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 800 }}>
-                    Đặt Dịch vụ <span style={{
-                        background: 'linear-gradient(90deg, #38bdf8, #818cf8)',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent'
-                    }}>Nhanh chóng</span>
-                </Title>
-                <Paragraph style={{ color: '#475569', fontSize: 18, marginTop: 12, maxWidth: 600, margin: '12px auto' }}>
-                    BAC cam kết mang đến giải pháp thi công chuyên nghiệp, bền vững và minh bạch cho công trình của bạn.
-                </Paragraph>
-            </div>
 
             <Row gutter={[40, 40]} justify="center" style={{ maxWidth: 1200, margin: '0 auto' }}>
                 {/* Left Side: Service Info */}

@@ -315,7 +315,7 @@ const InventoryDashboard: React.FC = () => {
                     Quản lý Vật tư tiêu hao
                 </Title>
                 <Space wrap size={isNarrow ? 'small' : 'middle'} style={isNarrow ? { width: '100%' } : undefined}>
-                    <Button icon={<BankOutlined />} onClick={() => navigate('/kt/inventory/distributors')}>
+                    <Button icon={<BankOutlined />} onClick={() => navigate('/admin/kt/inventory/distributors')}>
                         Nhà phân phối
                     </Button>
                     <Button
@@ -329,13 +329,13 @@ const InventoryDashboard: React.FC = () => {
                     >
                         Khai báo Nhóm
                     </Button>
-                    <Button icon={<HistoryOutlined />} onClick={() => navigate('/kt/inventory/history')}>
+                    <Button icon={<HistoryOutlined />} onClick={() => navigate('/admin/kt/inventory/history')}>
                         Lịch sử
                     </Button>
-                    <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/kt/inventory/stock-in')}>
+                    <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/admin/kt/inventory/stock-in')}>
                         Nhập kho
                     </Button>
-                    <Button danger icon={<MinusOutlined />} onClick={() => navigate('/kt/inventory/stock-out')}>
+                    <Button danger icon={<MinusOutlined />} onClick={() => navigate('/admin/kt/inventory/stock-out')}>
                         Xuất kho
                     </Button>
                 </Space>

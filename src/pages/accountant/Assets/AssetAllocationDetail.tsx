@@ -212,7 +212,7 @@ const AssetAllocationDetail: React.FC = () => {
             <Card bordered={false} bodyStyle={{ padding: isMobile ? '16px 0' : '24px 0' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: isMobile ? 24 : 32, alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
                     <Space size="middle" style={{ minWidth: 0 }}>
-                        <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/kt/assets/allocation-history')} />
+                        <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/admin/kt/assets/allocation-history')} />
                         <div>
                             <Text type="secondary" style={{ fontSize: 12 }}>Phiếu Yêu cầu Cấp phát / Mượn Tài sản</Text>
                             <Title level={4} style={{ margin: 0 }}>{order.code || 'ALLOC-ORD'}</Title>

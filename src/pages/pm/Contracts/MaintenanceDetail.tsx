@@ -132,7 +132,7 @@ const MaintenanceDetail: React.FC = () => {
             {/* Header */}
             <Row align="middle" justify="space-between" style={{ marginBottom: 24 }} wrap>
                 <Space wrap>
-                    <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(`/ql/contracts/${contractId}`)}>
+                    <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(`/admin/ql/contracts/${contractId}`)}>
                         {!isMobile && 'Quay lại HĐ'}
                     </Button>
                     <Title level={4} style={{ margin: 0 }}>
@@ -158,7 +158,7 @@ const MaintenanceDetail: React.FC = () => {
                         <Descriptions bordered column={{ xs: 1, sm: 2 }} size="small">
                             <Descriptions.Item label="Mã yêu cầu"><Text strong>{mockRequest.code}</Text></Descriptions.Item>
                             <Descriptions.Item label="Hợp đồng">
-                                <a onClick={() => navigate(`/ql/contracts/${contractId}`)}>{mockRequest.contractCode}</a>
+                                <a onClick={() => navigate(`/admin/ql/contracts/${contractId}`)}>{mockRequest.contractCode}</a>
                             </Descriptions.Item>
                             <Descriptions.Item label="Vấn đề" span={2}>{mockRequest.issue}</Descriptions.Item>
                             <Descriptions.Item label="Vị trí" span={2}><Text>{mockRequest.location}</Text></Descriptions.Item>

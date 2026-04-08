@@ -92,7 +92,7 @@ const SLAQueue: React.FC = () => {
                                 color: '#1677ff',
                                 fontSize: 14,
                             }}
-                            onClick={() => navigate(`/kd/dashboard/${journey._id}`)}
+                            onClick={() => navigate(`/admin/kd/dashboard/${journey._id}`)}
                         >
                             {resolveCustomerName(journey)}
                         </div>
@@ -188,7 +188,7 @@ const SLAQueue: React.FC = () => {
                     <Button
                         type="link"
                         icon={<ArrowRightOutlined />}
-                        onClick={() => navigate(`/kd/dashboard/${journey._id}`)}
+                        onClick={() => navigate(`/admin/kd/dashboard/${journey._id}`)}
                     />
                 </Space>
             ),

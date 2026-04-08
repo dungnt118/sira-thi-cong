@@ -37,12 +37,12 @@ export const UserMenu: React.FC<UserMenuProps> = ({
 
     const rolesList = [
         { key: 'ADMIN', title: 'Quản trị viên', icon: <UserOutlined />, path: '/admin/dashboard', color: '#1890ff' },
-        { key: 'QL', title: 'Quản lý dự án', icon: <ProjectOutlined />, path: '/ql/dashboard', color: '#722ed1' },
-        { key: 'KD', title: 'Kinh doanh (Sale)', icon: <CustomerServiceOutlined />, path: '/kd/dashboard', color: '#eb2f96' },
-        { key: 'KYT', title: 'Kỹ thuật', icon: <ProjectOutlined />, path: '/kyt/dashboard', color: '#13a8a8' },
-        { key: 'GS', title: 'Giám sát', icon: <SafetyOutlined />, path: '/gs/dashboard', color: '#52c41a' },
-        { key: 'KT', title: 'Kế toán', icon: <DollarOutlined />, path: '/kt/dashboard', color: '#fa8c16' },
-        { key: 'PARTNER', title: 'Đối tác', icon: <TeamOutlined />, path: '/partner/dashboard', color: '#13c2c2' }
+        { key: 'QL', title: 'Quản lý dự án', icon: <ProjectOutlined />, path: '/admin/ql/dashboard', color: '#722ed1' },
+        { key: 'KD', title: 'Kinh doanh (Sale)', icon: <CustomerServiceOutlined />, path: '/admin/kd/dashboard', color: '#eb2f96' },
+        { key: 'KYT', title: 'Kỹ thuật', icon: <ProjectOutlined />, path: '/admin/kyt/dashboard', color: '#13a8a8' },
+        { key: 'GS', title: 'Giám sát', icon: <SafetyOutlined />, path: '/admin/gs/dashboard', color: '#52c41a' },
+        { key: 'KT', title: 'Kế toán', icon: <DollarOutlined />, path: '/admin/kt/dashboard', color: '#fa8c16' },
+        { key: 'PARTNER', title: 'Đối tác', icon: <TeamOutlined />, path: '/admin/partner/dashboard', color: '#13c2c2' }
     ];
 
     const handleSwitch = (roleKey: string, path: string) => {

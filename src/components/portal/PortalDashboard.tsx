@@ -86,19 +86,12 @@ const PortalDashboard: React.FC<PortalDashboardProps> = ({ journey, token, onNav
             <div style={{
                 background: '#fff',
                 borderBottom: '1px solid #e2e8f0',
-                padding: isPreview ? '24px 16px 40px' : '40px 24px 60px',
+                padding: isPreview ? '12px 16px 32px' : '24px 24px 50px',
                 color: '#1e293b',
                 position: 'relative',
                 overflow: 'hidden'
             }}>
                 <div style={{ maxWidth: 800, margin: '0 auto', position: 'relative', zIndex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: isPreview ? 16 : 24 }}>
-                        <AppBrandLogo size="sm" variant="default" />
-                        <div style={{ fontSize: 10, color: '#475569', opacity: 0.8, textTransform: 'uppercase', letterSpacing: 1 }}>
-                            Cổng Thông Tin Dịch Vụ - SIRA
-                        </div>
-                    </div>
-                    
                     <Title level={isPreview ? 4 : 2} style={{ color: '#0f172a', margin: '0 0 12px' }}>
                         {journey.request_title}
                     </Title>
