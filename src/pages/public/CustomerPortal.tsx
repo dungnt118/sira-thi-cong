@@ -38,11 +38,11 @@ const CustomerPortal: React.FC = () => {
 
     if (!syncedJourney) {
         return (
-            <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', padding: 24 }}>
-                <Card style={{ textAlign: 'center', borderRadius: 24, maxWidth: 400, width: '100%', background: 'rgba(30, 41, 59, 0.7)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' }}>
+            <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', padding: 24 }}>
+                <Card style={{ textAlign: 'center', borderRadius: 24, maxWidth: 400, width: '100%', background: '#fff', border: '1px solid #e2e8f0', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.05)' }}>
                     <div style={{ fontSize: 64, color: '#38bdf8', marginBottom: 16 }}><SearchOutlined /></div>
-                    <Title level={3} style={{ color: '#fff', marginBottom: 12 }}>Không tìm thấy hành trình</Title>
-                    <Text style={{ color: '#94a3b8' }}>Link portal không hợp lệ hoặc đã hết hạn. Vui lòng liên hệ nhà thầu để được cấp link mới hoặc quay lại trang chủ.</Text>
+                    <Title level={3} style={{ color: '#0f172a', marginBottom: 12 }}>Không tìm thấy hành trình</Title>
+                    <Text style={{ color: '#475569' }}>Link portal không hợp lệ hoặc đã hết hạn. Vui lòng liên hệ nhà thầu để được cấp link mới hoặc quay lại trang chủ.</Text>
                     <div style={{ marginTop: 24 }}>
                         <Button type="primary" onClick={() => navigate('/portal')} style={{ borderRadius: 8, background: '#38bdf8' }}>Quay lại Portal</Button>
                     </div>
