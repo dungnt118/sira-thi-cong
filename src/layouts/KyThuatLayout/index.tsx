@@ -7,7 +7,8 @@ import {
     UserOutlined,
     BellOutlined,
     FormOutlined,
-    HistoryOutlined
+    HistoryOutlined,
+    DollarOutlined,
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
@@ -38,6 +39,7 @@ export const KyThuatLayout: React.FC = () => {
         const path = location.pathname;
         if (path.includes('/admin/kyt/schedule')) return 'schedule';
         if (path.includes('/admin/kyt/execution')) return 'execution';
+        if (path.includes('/admin/kyt/expenditures/payment-requests')) return 'payment-requests';
         if (path.includes('/admin/kyt/profile')) return 'profile';
         return 'dashboard';
     };
@@ -60,6 +62,12 @@ export const KyThuatLayout: React.FC = () => {
             icon: <ToolOutlined />,
             label: 'Thi công',
             onClick: () => navigate('/admin/kyt/execution')
+        },
+        {
+            key: 'payment-requests',
+            icon: <DollarOutlined />,
+            label: 'Yêu cầu chi',
+            onClick: () => navigate('/admin/kyt/expenditures/payment-requests')
         },
         {
             key: 'profile',

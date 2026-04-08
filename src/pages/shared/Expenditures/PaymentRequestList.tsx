@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
     Table, Card, Tag, Button, Space, Typography,
     Statistic, Row, Col, Input, Select, Badge, Empty,
-    Modal, Form, InputNumber, message, Popconfirm, Divider, Tooltip, Image
+    Modal, Form, InputNumber, message, Popconfirm, Divider, Tooltip, Image, Grid, Tabs
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
@@ -11,20 +11,19 @@ import {
     CloseCircleOutlined, ClockCircleOutlined,
     EditOutlined, DeleteOutlined, SaveOutlined,
     CreditCardOutlined, UserOutlined, BankOutlined,
-    WarningOutlined, CloudUploadOutlined, CloudDownloadOutlined,
-    FilePdfOutlined, PictureOutlined, StopOutlined
+    WarningOutlined, StopOutlined
 } from '@ant-design/icons';
-import { useAppSelector } from '@/store';
-import { UploadFilesEdit, UploadFilesView } from '@/components/files/UploadFiles';
-import { paymentRequestService } from '../../../services/core-contracts/services/paymentRequest.service';
-import { companyBankAccountService } from '../../../services/core-contracts/services/companyBankAccount.service';
-import { beneficiaryBankContactService } from '../../../services/core-contracts/services/beneficiaryBankContact.service';
+import { useAuth } from '@/hooks/useAuth';
+import { UploadFilesEdit } from '@/components/files/UploadFiles';
+import { paymentRequestService } from '@/services/core-contracts/services/paymentRequest.service';
+import { companyBankAccountService } from '@/services/core-contracts/services/companyBankAccount.service';
+import { beneficiaryBankContactService } from '@/services/core-contracts/services/beneficiaryBankContact.service';
 import { getFileLink } from '@/services/storeService';
-import type { IPaymentRequest, ICreatePaymentRequestInput } from '../../../services/core-contracts/types/paymentRequest.types';
-import type { ICompanyBankAccount } from '../../../services/core-contracts/types/companyBankAccount.types';
-import type { IBeneficiaryBankContact } from '../../../services/core-contracts/types/beneficiaryBankContact.types';
+import type { IPaymentRequest, ICreatePaymentRequestInput } from '@/services/core-contracts/types/paymentRequest.types';
+import type { ICompanyBankAccount } from '@/services/core-contracts/types/companyBankAccount.types';
+import type { IBeneficiaryBankContact } from '@/services/core-contracts/types/beneficiaryBankContact.types';
 
-const { Title, Text, Paragraph } = Typography;
+const { Title, Text } = Typography;
 const { Option } = Select;
 
 const PaymentRequestList: React.FC = () => {
@@ -40,17 +39,84 @@ const PaymentRequestList: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingRequest, setEditingRequest] = useState<IPaymentRequest | null>(null);
     const [saving, setSaving] = useState(false);
-    const user = useAppSelector(state => (state.auth as any)?.user?.data?.user);
+    const [counts, setCounts] = useState<Record<string, number>>({});
+    
+    const { user, role, isAdmin } = useAuth();
+    const isAccountant = role === 'KT' || isAdmin;
+    const screens = Grid.useBreakpoint();
+    const isMobile = !screens.md;
 
     const [isConfirmPayModalOpen, setIsConfirmPayModalOpen] = useState(false);
     const [confirmingRecord, setConfirmingRecord] = useState<IPaymentRequest | null>(null);
     const [confirmPayForm] = Form.useForm();
 
-    const fetchData = async () => {
+    const getBaseFilter = () => {
+        const filter: any = {};
+        if (!isAccountant && user?.username) {
+            filter.group = {
+                op: 'OR',
+                children: [
+                    { id: 'createdBy', operation: '==', value: user.username },
+                    { id: 'requested_by', operation: '==', value: user.username },
+                    { id: 'requested_by', operation: '==', value: user.display_name }
+                ]
+            };
+        }
+        return filter;
+    };
+
+    const fetchCounts = async () => {
+        try {
+            const baseFilter = getBaseFilter();
+            const statuses = ['pending_approval', 'draft', 'approved', 'paid', 'rejected'];
+            
+            const countPromises = statuses.map(status => {
+                const statusFilter = {
+                    ...baseFilter,
+                    group: {
+                        op: 'AND',
+                        children: [
+                            ...(baseFilter.group ? [baseFilter.group] : []),
+                            { id: 'status', operation: '==', value: status }
+                        ]
+                    }
+                };
+                return paymentRequestService.countContent(statusFilter);
+            });
+
+            const results = await Promise.all(countPromises);
+            const newCounts: Record<string, number> = {};
+            statuses.forEach((status, index) => {
+                newCounts[status] = results[index];
+            });
+            
+            // Total count (All)
+            newCounts['all'] = await paymentRequestService.countContent(baseFilter);
+            
+            setCounts(newCounts);
+        } catch (error) {
+            console.error('Failed to fetch counts:', error);
+        }
+    };
+
+    const fetchData = async (statusOverride?: string) => {
         setLoading(true);
         try {
+            const filter = getBaseFilter();
+            const currentStatus = statusOverride || statusFilter;
+
+            if (currentStatus !== 'all') {
+                filter.group = {
+                    op: 'AND',
+                    children: [
+                        ...(filter.group ? [filter.group] : []),
+                        { id: 'status', operation: '==', value: currentStatus }
+                    ]
+                };
+            }
+
             const [prRes, caRes, bcRes] = await Promise.all([
-                paymentRequestService.queryPaymentRequestsDto({}),
+                paymentRequestService.queryPaymentRequestsDto(filter),
                 companyBankAccountService.queryCompanyBankAccountsDto({}),
                 beneficiaryBankContactService.queryBeneficiaryBankContactsDto({})
             ]);
@@ -58,6 +124,8 @@ const PaymentRequestList: React.FC = () => {
             if (prRes.code === 0 && prRes.data) setData(prRes.data);
             if (caRes.code === 0 && caRes.data) setCompanyAccounts(caRes.data);
             if (bcRes.code === 0 && bcRes.data) setBeneficiaryContacts(bcRes.data);
+            
+            await fetchCounts();
         } catch (error) {
             console.error('Failed to fetch data:', error);
             message.error('Có lỗi khi tải dữ liệu');
@@ -78,15 +146,30 @@ const PaymentRequestList: React.FC = () => {
                 supporting_files: request.supporting_files || []
             });
         } else {
-            setEditingRequest(null);
-            form.resetFields();
-            form.setFieldsValue({
+            const defaultValues: any = {
                 status: 'pending_approval',
                 priority: 'normal',
                 currency: 'vnd',
                 request_date: new Date().toISOString(),
                 supporting_files: []
-            });
+            };
+
+            if (!isAccountant && user) {
+                const userDisplayName = user.display_name || user.username;
+                const contact = beneficiaryContacts.find(c => 
+                    c.contact_name?.toLowerCase().includes(user.username?.toLowerCase() || '') ||
+                    c.contact_name?.toLowerCase().includes(user.display_name?.toLowerCase() || '')
+                );
+                if (contact) {
+                    defaultValues.beneficiary_bank_contact_id = contact._id;
+                } else {
+                    // Fallback to username if no contact found yet
+                    // Note: System might require a contact ID, but we fill what we can
+                    defaultValues.beneficiary_name_snapshot = userDisplayName;
+                }
+            }
+
+            form.setFieldsValue(defaultValues);
         }
         setIsModalOpen(true);
     };
@@ -96,7 +179,6 @@ const PaymentRequestList: React.FC = () => {
             const values = await form.validateFields();
             setSaving(true);
 
-            // Auto-fill snapshots for history/tracking
             if (values.company_bank_account_id) {
                 const account = companyAccounts.find(a => a._id === values.company_bank_account_id);
                 if (account) {
@@ -120,7 +202,6 @@ const PaymentRequestList: React.FC = () => {
                 await paymentRequestService.updatePaymentRequest(editingRequest._id, values);
                 message.success('Cập nhật yêu cầu thành công');
             } else {
-                // Set creator info
                 values.requested_by = user?.display_name || user?.username || 'Current User';
                 values.submitted_at = new Date().toISOString();
                 
@@ -230,11 +311,10 @@ const PaymentRequestList: React.FC = () => {
     const filteredData = data.filter(item => {
         const matchesSearch = item.code?.toLowerCase().includes(searchText.toLowerCase()) ||
             item.payment_content?.toLowerCase().includes(searchText.toLowerCase());
-        const matchesStatus = statusFilter === 'all' || item.status === statusFilter;
-        return matchesSearch && matchesStatus;
+        return matchesSearch;
     });
 
-    const totalAmount = filteredData.reduce((sum, item) => sum + (item.amount || 0), 0);
+    const totalAmount = data.reduce((sum, item) => sum + (item.amount || 0), 0);
 
     const getStatusTag = (status: string | undefined) => {
         switch (status) {
@@ -316,8 +396,6 @@ const PaymentRequestList: React.FC = () => {
                         </Space>
                         <div style={{ fontSize: 11, color: '#8c8c8c' }}>
                             <div><Text type="secondary">Tạo bởi:</Text> {record.requested_by?.display_name || record.requested_by || '—'}</div>
-                            {record.approved_by && <div><Text type="secondary">Duyệt bởi:</Text> {record.approved_by} <Text type="secondary" style={{ fontSize: 10 }}>({record.approved_at ? new Date(record.approved_at).toLocaleDateString('vi-VN') : ''})</Text></div>}
-                            {record.paid_by && <div><Text type="secondary">Chi bởi:</Text> {record.paid_by} <Text type="secondary" style={{ fontSize: 10 }}>({record.paid_at ? new Date(record.paid_at).toLocaleDateString('vi-VN') : ''})</Text></div>}
                         </div>
                     </Space>
                 </div>
@@ -335,63 +413,16 @@ const PaymentRequestList: React.FC = () => {
                         {amount?.toLocaleString('vi-VN')}
                     </div>
                     <Text type="secondary" style={{ fontSize: 11 }}>{record.currency?.toUpperCase() || 'VND'}</Text>
-                    <div style={{ marginTop: 4 }}>
-                        <Text type="secondary" style={{ fontSize: 10 }}>Nguồn: {record.source_bank_name_snapshot}</Text>
-                    </div>
                 </div>
             )
         },
         {
-            title: 'Tài liệu & Minh chứng',
-            key: 'status',
-            width: 140,
-            render: (_, record) => {
-                const combinedFiles = [...(record.supporting_files || []), ...(record.payment_proof_files || [])];
-                const imageFiles = combinedFiles.filter(f => isImageFile(f));
-                const normalFiles = combinedFiles.filter(f => !isImageFile(f));
-
-                return (
-                    <Space direction="vertical" size={4} style={{ width: '100%', paddingLeft: 8 }}>
-                        {record.status === 'rejected' && record.rejection_reason && (
-                            <Tooltip title={`Lý do: ${record.rejection_reason}`}>
-                                <Text type="danger" style={{ fontSize: 10 }} ellipsis><WarningOutlined /> Lý do</Text>
-                            </Tooltip>
-                        )}
-                        <Image.PreviewGroup>
-                            <Space size={4} wrap>
-                                {imageFiles.map((file: any, idx: number) => (
-                                    <Image
-                                        key={idx}
-                                        src={file.url || getFileLink(file.file_id)}
-                                        width={32}
-                                        height={32}
-                                        style={{ borderRadius: 4, objectFit: 'cover', border: '1px solid #f0f0f0' }}
-                                    />
-                                ))}
-                            </Space>
-                        </Image.PreviewGroup>
-                        <Space size={2} wrap>
-                            {normalFiles.map((f: any, idx: number) => (
-                                <Tooltip key={idx} title={f.name}>
-                                    <a href={f.url || getFileLink(f.file_id)} target="_blank" rel="noreferrer">
-                                        <Badge count={normalFiles.length} size="small" dot>
-                                            <Tag style={{ fontSize: 9, margin: 0 }}>File</Tag>
-                                        </Badge>
-                                    </a>
-                                </Tooltip>
-                            ))}
-                        </Space>
-                    </Space>
-                );
-            }
-        },
-        {
-            title: 'Thao tác',
+            title: 'Hành động',
             key: 'action',
             width: 160,
             render: (_, record) => (
                 <Space size={4}>
-                    {record.status === 'pending_approval' && (
+                    {isAccountant && record.status === 'pending_approval' && (
                         <>
                             <Tooltip title="Phê duyệt">
                                 <Button type="primary" size="small" icon={<CheckCircleOutlined />} onClick={() => handleApprove(record)} ghost />
@@ -401,7 +432,7 @@ const PaymentRequestList: React.FC = () => {
                             </Tooltip>
                         </>
                     )}
-                    {record.status === 'approved' && (
+                    {isAccountant && record.status === 'approved' && (
                         <Button 
                             type="primary" 
                             size="small" 
@@ -415,29 +446,27 @@ const PaymentRequestList: React.FC = () => {
                         </Button>
                     )}
                     <Divider type="vertical" />
-                    <Tooltip title={record.status === 'paid' ? "Giao dịch đã hoàn thành, không thể sửa" : "Chỉnh sửa"}>
+                    <Tooltip title={(record.status === 'paid' || (!isAccountant && record.status !== 'pending_approval' && record.status !== 'draft')) ? "Không thể sửa" : "Chỉnh sửa"}>
                         <Button 
                             icon={<EditOutlined />} 
                             size="small" 
                             type="text" 
                             onClick={() => handleOpenModal(record)} 
-                            disabled={record.status === 'paid'}
+                            disabled={record.status === 'paid' || (!isAccountant && record.status !== 'pending_approval' && record.status !== 'draft')}
                         />
                     </Tooltip>
                     <Popconfirm 
                         title="Xóa yêu cầu này?" 
                         onConfirm={() => handleDelete(record._id)}
-                        disabled={record.status === 'paid'}
+                        disabled={record.status === 'paid' || (!isAccountant && record.status !== 'pending_approval' && record.status !== 'draft')}
                     >
-                        <Tooltip title={record.status === 'paid' ? "Giao dịch đã hoàn thành, không thể xóa" : "Xóa"}>
-                            <Button 
-                                icon={<DeleteOutlined />} 
-                                size="small" 
-                                type="text" 
-                                danger 
-                                disabled={record.status === 'paid'}
-                            />
-                        </Tooltip>
+                        <Button 
+                            icon={<DeleteOutlined />} 
+                            size="small" 
+                            type="text" 
+                            danger 
+                            disabled={record.status === 'paid' || (!isAccountant && record.status !== 'pending_approval' && record.status !== 'draft')}
+                        />
                     </Popconfirm>
                 </Space>
             ),
@@ -445,7 +474,7 @@ const PaymentRequestList: React.FC = () => {
     ];
 
     return (
-        <div style={{ padding: '0 0' }}>
+        <div style={{ padding: isMobile ? '8px' : '24px' }}>
             <div style={{ 
                 display: 'flex', 
                 flexDirection: 'row', 
@@ -457,7 +486,7 @@ const PaymentRequestList: React.FC = () => {
             }}>
                 <Title level={4} style={{ margin: 0 }}>
                     <CreditCardOutlined style={{ marginRight: 8, color: '#1890ff' }} />  
-                    Quản lý Yêu cầu chi
+                    {isAccountant ? 'Quản lý Yêu cầu chi' : 'Yêu cầu chi của tôi'}
                 </Title>
                 <Button 
                     type="primary" 
@@ -473,7 +502,7 @@ const PaymentRequestList: React.FC = () => {
                 <Col xs={24} sm={12} md={8}>
                     <Card size="small" className="stat-card">
                         <Statistic
-                            title="Số dư khả dụng (Ước tính)"
+                            title="Tổng số tiền yêu cầu"
                             value={totalAmount}
                             suffix="VND"
                             valueStyle={{ color: '#1890ff' }}
@@ -493,8 +522,8 @@ const PaymentRequestList: React.FC = () => {
                 <Col xs={24} sm={12} md={8}>
                     <Card size="small">
                         <Statistic
-                            title="Đã duyệt & Đang chi"
-                            value={data.filter(i => i.status === 'approved').length}
+                            title="Đã chi"
+                            value={data.filter(i => i.status === 'paid').length}
                             suffix="Yêu cầu"
                             valueStyle={{ color: '#52c41a' }}
                         />
@@ -502,36 +531,85 @@ const PaymentRequestList: React.FC = () => {
                 </Col>
             </Row>
 
-            <Card size="small" style={{ marginBottom: 16 }}>
-                <Row gutter={[12, 12]} align="middle">
-                    <Col xs={24} sm={12} md={8}>
-                        <Input
-                            placeholder="Mã/Nội dung chi..."
-                            prefix={<SearchOutlined />}
-                            style={{ width: '100%' }}
-                            allowClear
-                            onChange={e => setSearchText(e.target.value)}
-                        />
-                    </Col>
-                    <Col xs={24} sm={12} md={6}>
-                        <Select
-                            defaultValue="all"
-                            style={{ width: '100%' }}
-                            onChange={(val: string) => setStatusFilter(val)}
-                        >
-                            <Option value="all">Tất cả trạng thái</Option>
-                            <Option value="draft">Nháp</Option>
-                            <Option value="pending_approval">Chờ duyệt</Option>
-                            <Option value="approved">Đã duyệt</Option>
-                            <Option value="paid">Đã chi</Option>
-                            <Option value="rejected">Từ chối</Option>
-                        </Select>
-                    </Col>
-                    <Col xs={24} sm={24} md={10} style={{ textAlign: 'right' }}>
-                        <Button icon={<FilterOutlined />} block={false} style={{ width: '100%', maxWidth: '160px' }}>Bộ lọc nâng cao</Button>
-                    </Col>
-                </Row>
-            </Card>
+            <Tabs
+                activeKey={statusFilter}
+                onChange={(key) => {
+                    setStatusFilter(key);
+                    fetchData(key);
+                }}
+                items={[
+                    {
+                        key: 'pending_approval',
+                        label: (
+                            <Space>
+                                <ClockCircleOutlined />
+                                <span>Chờ duyệt</span>
+                                <Badge count={counts['pending_approval'] || 0} overflowCount={999} style={{ backgroundColor: '#faad14' }} />
+                            </Space>
+                        ),
+                    },
+                    {
+                        key: 'draft',
+                        label: (
+                            <Space>
+                                <FileTextOutlined />
+                                <span>Nháp</span>
+                                <Badge count={counts['draft'] || 0} overflowCount={999} />
+                            </Space>
+                        ),
+                    },
+                    {
+                        key: 'approved',
+                        label: (
+                            <Space>
+                                <CheckCircleOutlined />
+                                <span>Đã duyệt</span>
+                                <Badge count={counts['approved'] || 0} overflowCount={999} style={{ backgroundColor: '#1890ff' }} />
+                            </Space>
+                        ),
+                    },
+                    {
+                        key: 'paid',
+                        label: (
+                            <Space>
+                                <SendOutlined />
+                                <span>Đã chi</span>
+                                <Badge count={counts['paid'] || 0} overflowCount={999} style={{ backgroundColor: '#52c41a' }} />
+                            </Space>
+                        ),
+                    },
+                    {
+                        key: 'rejected',
+                        label: (
+                            <Space>
+                                <CloseCircleOutlined />
+                                <span>Từ chối</span>
+                                <Badge count={counts['rejected'] || 0} overflowCount={999} style={{ backgroundColor: '#ff4d4f' }} />
+                            </Space>
+                        ),
+                    },
+                    {
+                        key: 'all',
+                        label: (
+                            <Space>
+                                <FilterOutlined />
+                                <span>Tất cả</span>
+                                <Badge count={counts['all'] || 0} overflowCount={999} style={{ backgroundColor: '#8c8c8c' }} />
+                            </Space>
+                        ),
+                    },
+                ]}
+                tabBarExtraContent={
+                    <Input
+                        placeholder="Mã/Nội dung chi..."
+                        prefix={<SearchOutlined />}
+                        style={{ width: isMobile ? '100%' : 250 }}
+                        allowClear
+                        onChange={e => setSearchText(e.target.value)}
+                    />
+                }
+                style={{ marginBottom: 16 }}
+            />
 
             <Table
                 columns={columns}
@@ -540,7 +618,7 @@ const PaymentRequestList: React.FC = () => {
                 rowKey="_id"
                 size="middle"
                 pagination={{ pageSize: 10, size: 'small' }}
-                scroll={{ x: 1200 }}
+                scroll={{ x: 1000 }}
                 locale={{ emptyText: <Empty description="Không có dữ liệu yêu cầu chi" /> }}
             />
 
@@ -557,11 +635,13 @@ const PaymentRequestList: React.FC = () => {
             >
                 <Form form={form} layout="vertical">
                     <Row gutter={16}>
-                        <Col xs={24} sm={8}>
-                            <Form.Item name="code" label="Mã yêu cầu">
-                                <Input placeholder="VD: YCC-2026-001" />
-                            </Form.Item>
-                        </Col>
+                        {isAccountant && (
+                            <Col xs={24} sm={8}>
+                                <Form.Item name="code" label="Mã yêu cầu">
+                                    <Input placeholder="VD: YCC-2026-001" />
+                                </Form.Item>
+                            </Col>
+                        )}
                         <Col xs={24} sm={8}>
                             <Form.Item name="request_type" label="Loại yêu cầu" rules={[{ required: true }]}>
                                 <Select style={{ width: '100%' }}>
@@ -611,23 +691,25 @@ const PaymentRequestList: React.FC = () => {
                         </Col>
                     </Row>
 
-                    <Divider orientation="left">Thông tin thanh toán (Linking)</Divider>
+                    <Divider orientation="left">Thông tin thanh toán</Divider>
 
                     <Row gutter={16}>
-                        <Col xs={24} sm={12}>
-                            <Form.Item name="company_bank_account_id" label="Tài khoản nguồn (Công ty)" rules={[{ required: true }]}>
-                                <Select placeholder="Chọn tài khoản chi" showSearch optionFilterProp="children" style={{ width: '100%' }}>
-                                    {companyAccounts.map(a => (
-                                        <Option key={a._id} value={a._id}>
-                                            <Space>
-                                                <BankOutlined />
-                                                {a.bank_name} - {a.account_number} ({a.account_name})
-                                            </Space>
-                                        </Option>
-                                    ))}
-                                </Select>
-                            </Form.Item>
-                        </Col>
+                        {isAccountant && (
+                            <Col xs={24} sm={12}>
+                                <Form.Item name="company_bank_account_id" label="Tài khoản nguồn (Công ty)" rules={[{ required: isAccountant }]}>
+                                    <Select placeholder="Chọn tài khoản chi" showSearch optionFilterProp="children" style={{ width: '100%' }}>
+                                        {companyAccounts.map(a => (
+                                            <Option key={a._id} value={a._id}>
+                                                <Space>
+                                                    <BankOutlined />
+                                                    {a.bank_name} - {a.account_number} ({a.account_name})
+                                                </Space>
+                                            </Option>
+                                        ))}
+                                    </Select>
+                                </Form.Item>
+                            </Col>
+                        )}
                         <Col xs={24} sm={12}>
                             <Form.Item name="beneficiary_bank_contact_id" label="Người nhận (Thụ hưởng)" rules={[{ required: true }]}>
                                 <Select placeholder="Chọn người nhận" showSearch optionFilterProp="children" style={{ width: '100%' }}>

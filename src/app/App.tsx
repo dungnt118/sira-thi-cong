@@ -104,7 +104,7 @@ import StockOrderDetail from '@pages/accountant/Inventory/StockOrderDetail';
 import InventoryHistory from '../pages/accountant/Inventory/History';
 import MaintenanceHistory from '../pages/accountant/Assets/MaintenanceHistory';
 import AssetDetail from '../pages/accountant/Assets/AssetDetail';
-import PaymentRequestList from '../pages/accountant/Expenditures/PaymentRequestList';
+import PaymentRequestList from '../pages/shared/Expenditures/PaymentRequestList';
 import CompanyBankAccountList from '../pages/accountant/Expenditures/CompanyBankAccountList';
 import BeneficiaryContactList from '../pages/accountant/Expenditures/BeneficiaryContactList';
 
@@ -301,6 +301,7 @@ function App() {
                                             <Route path="finance">
                                                 <Route path="projects" element={<ProjectFinanceList />} />
                                                 <Route path="projects/:id" element={<ProjectFinance />} />
+                                                <Route path="payment-requests" element={<PaymentRequestList />} />
                                             </Route>
 
                                             {/* --- Teams/Labor Management --- */}
@@ -334,6 +335,7 @@ function App() {
                                             <Route path="inventory/history" element={<InventoryHistory />} />
                                             <Route path="inventory/order/:id" element={<StockOrderDetail />} />
                                             <Route path="assets/allocation" element={<AllocationForm />} />
+                                            <Route path="expenditures/payment-requests" element={<PaymentRequestList />} />
                                             <Route path="profile" element={<SharedProfilePage />} />
                                         </Route>
 
@@ -354,6 +356,7 @@ function App() {
                                             <Route path="inventory/history" element={<InventoryHistory />} />
                                             <Route path="inventory/order/:id" element={<StockOrderDetail />} />
                                             <Route path="assets/allocation" element={<AllocationForm />} />
+                                            <Route path="expenditures/payment-requests" element={<PaymentRequestList />} />
                                         </Route>
 
                                         {/* KẾ TOÁN ROUTES (KT) */}
@@ -408,6 +411,7 @@ function App() {
                                             <Route path="inventory/history" element={<InventoryHistory />} />
                                             <Route path="inventory/order/:id" element={<StockOrderDetail />} />
                                             <Route path="assets/allocation" element={<AllocationForm />} />
+                                            <Route path="expenditures/payment-requests" element={<PaymentRequestList />} />
                                         </Route>
 
                                         {/* PARTNER ROUTES */}

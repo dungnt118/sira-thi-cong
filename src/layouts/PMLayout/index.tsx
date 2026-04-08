@@ -69,6 +69,7 @@ const menuItems: MenuItem[] = [
         label: 'Tài chính',
         children: [
             { key: '/admin/ql/finance/projects', label: 'Tài chính Dự án' },
+            { key: '/admin/ql/finance/payment-requests', label: 'Phiếu Yêu cầu chi', icon: <DollarOutlined /> },
             { key: '/admin/ql/financials/milestones', label: 'Mốc Thanh toán' },
         ],
     },

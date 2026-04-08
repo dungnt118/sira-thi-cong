@@ -4,7 +4,8 @@ import {
     HistoryOutlined,
     HomeOutlined,
     InboxOutlined,
-    UserOutlined
+    UserOutlined,
+    DollarOutlined,
 } from '@ant-design/icons';
 import { Badge, Layout } from 'antd';
 import React from 'react';
@@ -40,6 +41,7 @@ export const GiamSatLayout: React.FC = () => {
         { key: '/admin/gs/projects', icon: <AppstoreOutlined />, label: 'Công trình' },
         { key: '/admin/gs/materials', icon: <InboxOutlined />, label: 'Vật tư' },
         { key: '/admin/gs/inventory/history', icon: <HistoryOutlined />, label: 'Lịch sử' },
+        { key: '/admin/gs/expenditures/payment-requests', icon: <DollarOutlined />, label: 'Yêu cầu chi' },
         { key: '/admin/gs/profile', icon: <UserOutlined />, label: 'Cá nhân' },
     ];
 

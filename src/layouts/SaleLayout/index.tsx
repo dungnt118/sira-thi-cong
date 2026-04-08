@@ -7,6 +7,7 @@ import {
     SearchOutlined,
     TeamOutlined,
     UserOutlined,
+    DollarOutlined,
 } from '@ant-design/icons';
 import { Badge, Grid, Input, Layout, Menu } from 'antd';
 import React from 'react';
@@ -58,6 +59,10 @@ export const SaleLayout: React.FC = () => {
             return '/admin/kd/communications';
         }
 
+        if (location.pathname.startsWith('/admin/kd/expenditures/payment-requests')) {
+            return '/admin/kd/expenditures/payment-requests';
+        }
+
         if (location.pathname.startsWith('/admin/kd/profile')) {
             return '/admin/kd/profile';
         }
@@ -97,6 +102,12 @@ export const SaleLayout: React.FC = () => {
             onClick: () => navigate('/admin/kd/communications'),
         },
         {
+            key: '/admin/kd/expenditures/payment-requests',
+            icon: <DollarOutlined />,
+            label: 'Yêu cầu chi',
+            onClick: () => navigate('/admin/kd/expenditures/payment-requests'),
+        },
+        {
             key: '/admin/kd/profile',
             icon: <UserOutlined />,
             label: 'Cá nhân',
@@ -134,6 +145,12 @@ export const SaleLayout: React.FC = () => {
                     key: '/admin/kd/communications',
                     label: 'Giao tiếp khách hàng',
                     onClick: () => navigate('/admin/kd/communications'),
+                },
+                {
+                    key: '/admin/kd/expenditures/payment-requests',
+                    label: 'Yêu cầu chi tiền',
+                    icon: <DollarOutlined />,
+                    onClick: () => navigate('/admin/kd/expenditures/payment-requests'),
                 },
             ],
         },
