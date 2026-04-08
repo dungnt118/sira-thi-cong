@@ -173,6 +173,13 @@ const UserManagement: React.FC = () => {
                 await globalUserService.deactivateUser(user.globalUserId);
 
             if (success) {
+                // ALSO toggle status on AuthorizedUser record directly
+                if (newStatus) {
+                    await authorizedUserService.activateUser(user._id);
+                } else {
+                    await authorizedUserService.deactivateUser(user._id);
+                }
+                
                 message.success(`Đã ${actionLabel} tài khoản ${user.username || user.fullName}.`);
                 await fetchUsers();
             } else {
@@ -262,15 +269,18 @@ const UserManagement: React.FC = () => {
                     }
                 }
 
-                const isContextUpdated = await authorizedUserService.updateIdentityContext({
-                    userId: editingUser._id,
+                // IMPORTANT: In many of these systems, 'create_authorized_user' acts as an upsert 
+                // for the link between GlobalUser and Client, including role assignment.
+                // We use this to ensure parity with the 'Create' flow and impact the root AuthorizedUser record.
+                const isAuthorizedUpdated = await authorizedUserService.createAuthorizedUser({
+                    globalUserId: editingUser.globalUserId!,
                     clientId: BAC_USER_CLIENT_ID,
                     roles: values.roles,
-                    defaultRole: values.defaultRole,
+                    role: values.defaultRole,
                 });
 
-                if (!isContextUpdated) {
-                    throw new Error('Không thể cập nhật quyền của AuthorizedUser.');
+                if (!isAuthorizedUpdated) {
+                    throw new Error('Không thể đồng bộ quyền của AuthorizedUser.');
                 }
 
                 message.success('Cập nhật người dùng thành công.');

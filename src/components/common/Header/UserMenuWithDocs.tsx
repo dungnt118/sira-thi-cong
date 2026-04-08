@@ -48,6 +48,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
     const handleSwitch = (roleKey: string, path: string) => {
         localStorage.setItem(MANUAL_ROLE_KEY, roleKey);
         dispatch(loadUserData(roleKey));
+        navigate(path);
     };
 
     const menuItems: MenuProps['items'] = [
