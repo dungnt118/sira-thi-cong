@@ -210,7 +210,7 @@ export const SupervisorJourneyList: React.FC = () => {
                         <Button
                             size="small"
                             icon={<BookOutlined />}
-                            onClick={(e) => { e.stopPropagation(); navigate(`/gs/diary/${j._id}`); }}
+                            onClick={(e) => { e.stopPropagation(); navigate(`/gs/journeys/${j._id}?tab=GRP_08_CONSTRUCT`); }}
                         >
                             Nhật ký
                         </Button>
