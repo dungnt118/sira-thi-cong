@@ -41,15 +41,15 @@ const KanbanCard: React.FC<KanbanCardProps> = ({ request, pipeline, onMove }) =>
                 boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
                 cursor: 'pointer',
             }}
-            onClick={() => navigate(`/ql/crm/service-requests/${request.id}`)}
+            onClick={() => navigate(`/admin/ql/crm/service-requests/${request.id}`)}
             actions={[
                 <Tooltip title="Khảo sát" key="survey">
-                    <span onClick={e => { e.stopPropagation(); navigate(`/ql/crm/service-requests/${request.id}/survey`); }}>
+                    <span onClick={e => { e.stopPropagation(); navigate(`/admin/ql/crm/service-requests/${request.id}/survey`); }}>
                         <CameraOutlined />
                     </span>
                 </Tooltip>,
                 <Tooltip title="Báo giá" key="quote">
-                    <span onClick={e => { e.stopPropagation(); navigate(`/ql/crm/service-requests/${request.id}/quotation`); }}>
+                    <span onClick={e => { e.stopPropagation(); navigate(`/admin/ql/crm/service-requests/${request.id}/quotation`); }}>
                         <DollarOutlined />
                     </span>
                 </Tooltip>,
@@ -147,10 +147,10 @@ const Pipeline: React.FC = () => {
                     </Col>
                     <Col xs={24} lg={8} style={{ textAlign: isMobile ? 'left' : 'right' }}>
                         <Space size={8} wrap={isMobile} style={{ width: isMobile ? '100%' : 'auto' }}>
-                            <Button onClick={() => navigate('/ql/crm/service-requests')} block={isMobile}>
+                            <Button onClick={() => navigate('/admin/ql/crm/service-requests')} block={isMobile}>
                                 {isMobile ? 'Dạng danh sách' : 'Xem dạng Danh sách'}
                             </Button>
-                            <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/ql/crm/service-requests/new')} block={isMobile}>
+                            <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/admin/ql/crm/service-requests/new')} block={isMobile}>
                                 {isMobile ? 'Tạo YC' : 'Tạo Yêu cầu mới'}
                             </Button>
                         </Space>
@@ -252,7 +252,7 @@ const Pipeline: React.FC = () => {
                                     icon={<PlusOutlined />}
                                     style={{ width: '100%', borderColor: col.color, color: col.color }}
                                     size="small"
-                                    onClick={() => navigate('/ql/crm/service-requests/new')}
+                                    onClick={() => navigate('/admin/ql/crm/service-requests/new')}
                                 >
                                     Thêm Yêu cầu
                                 </Button>

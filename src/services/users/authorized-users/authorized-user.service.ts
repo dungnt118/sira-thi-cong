@@ -12,7 +12,11 @@ import {
     DELETE_AUTHORIZED_USER,
     GET_AUTHORIZED_USER,
     SEARCH_AUTHORIZED_USERS,
-    UPDATE_IDENTITY_CONTEXT
+    UPDATE_IDENTITY_CONTEXT,
+    ASSIGN_ROLES,
+    SET_DEFAULT_ROLE,
+    ACTIVATE_AUTHORIZED_USER,
+    REMOVE_ROLES
 } from './authorizedusers.graphql';
 import type { AuthorizedUser, IdentityContext } from './authorizedusers.types';
 
@@ -97,13 +101,6 @@ export const authorizedUserService = {
         return response.code === ApiResponseCode.SUCCESS;
     },
 
-    /**
-     * Deactivate authorized user
-     */
-    async deactivateUser(userId: string): Promise<boolean> {
-        const response = await mutate<unknown>(DEACTIVATE_AUTHORIZED_USER, { userId });
-        return response.code === ApiResponseCode.SUCCESS;
-    },
 
     /**
      * Delete authorized user
@@ -113,6 +110,46 @@ export const authorizedUserService = {
         if (response.code !== ApiResponseCode.SUCCESS) {
             throw new Error(response.message || 'Không thể xóa AuthorizedUser.');
         }
+        return response.code === ApiResponseCode.SUCCESS;
+    },
+
+    /**
+     * Assign roles directly to AuthorizedUser (Top-level)
+     */
+    async assignRoles(userId: string, roles: string[]): Promise<boolean> {
+        const response = await mutate<unknown>(ASSIGN_ROLES, { userId, roles });
+        return response.code === ApiResponseCode.SUCCESS;
+    },
+
+    /**
+     * Set default role directly for AuthorizedUser (Top-level)
+     */
+    async setDefaultRole(userId: string, role: string): Promise<boolean> {
+        const response = await mutate<unknown>(SET_DEFAULT_ROLE, { userId, role });
+        return response.code === ApiResponseCode.SUCCESS;
+    },
+
+    /**
+     * Remove roles from AuthorizedUser
+     */
+    async removeRoles(userId: string, roles: string[]): Promise<boolean> {
+        const response = await mutate<unknown>(REMOVE_ROLES, { userId, roles });
+        return response.code === ApiResponseCode.SUCCESS;
+    },
+
+    /**
+     * Activate AuthorizedUser record directly
+     */
+    async activateUser(userId: string): Promise<boolean> {
+        const response = await mutate<unknown>(ACTIVATE_AUTHORIZED_USER, { userId });
+        return response.code === ApiResponseCode.SUCCESS;
+    },
+
+    /**
+     * Deactivate AuthorizedUser record directly
+     */
+    async deactivateUser(userId: string): Promise<boolean> {
+        const response = await mutate<unknown>(DEACTIVATE_AUTHORIZED_USER, { userId });
         return response.code === ApiResponseCode.SUCCESS;
     },
 };

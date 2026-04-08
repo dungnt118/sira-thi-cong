@@ -181,7 +181,7 @@ const CustomerList: React.FC = () => {
                     <div>
                         <div
                             style={{ fontWeight: 600, color: '#1677ff', cursor: 'pointer' }}
-                            onClick={() => navigate(`/kd/customers/${customer._id}`)}
+                            onClick={() => navigate(`/admin/kd/customers/${customer._id}`)}
                         >
                             {customer.full_name || 'Khách hàng chưa đặt tên'}
                         </div>
@@ -257,7 +257,7 @@ const CustomerList: React.FC = () => {
                     <Tooltip title="Mở hồ sơ khách hàng">
                         <Button
                             icon={<EyeOutlined />}
-                            onClick={() => navigate(`/kd/customers/${customer._id}`)}
+                            onClick={() => navigate(`/admin/kd/customers/${customer._id}`)}
                         />
                     </Tooltip>
                     <Tooltip title="Sửa khách hàng">
@@ -268,7 +268,7 @@ const CustomerList: React.FC = () => {
                             type="primary"
                             ghost
                             icon={<SolutionOutlined />}
-                            onClick={() => navigate(`/kd/dashboard?customerId=${customer._id}`)}
+                            onClick={() => navigate(`/admin/kd/dashboard?customerId=${customer._id}`)}
                         >
                             Tạo yêu cầu
                         </Button>

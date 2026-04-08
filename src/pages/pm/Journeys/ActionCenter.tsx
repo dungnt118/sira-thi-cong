@@ -577,7 +577,7 @@ const ActionCenter: React.FC = () => {
                             type="link" 
                             block 
                             style={{ marginTop: 8 }} 
-                            onClick={() => navigate('/ql/journeys')}
+                            onClick={() => navigate('/admin/ql/journeys')}
                             icon={<ArrowRightOutlined />}
                         >
                             Xem tất cả dự án

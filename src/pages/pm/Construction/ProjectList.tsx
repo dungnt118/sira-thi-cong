@@ -255,7 +255,7 @@ const PMProjectList: React.FC = () => {
                     <Title level={4} style={{ margin: 0 }}>Danh sách Dự án Thi công</Title>
                     <Text type="secondary">PM: Nguyễn Văn PM – {mockProjects.length} dự án</Text>
                 </div>
-                <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/ql/construction/projects/create')}>
+                <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/admin/ql/construction/projects/create')}>
                     Tạo Dự án
                 </Button>
             </div>

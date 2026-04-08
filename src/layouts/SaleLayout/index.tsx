@@ -7,6 +7,7 @@ import {
     SearchOutlined,
     TeamOutlined,
     UserOutlined,
+    DollarOutlined,
 } from '@ant-design/icons';
 import { Badge, Grid, Input, Layout, Menu } from 'antd';
 import React from 'react';
@@ -28,7 +29,7 @@ export const SaleLayout: React.FC = () => {
 
     React.useEffect(() => {
         if (role && role !== 'KD') {
-            navigate(`/${role.toLowerCase()}/dashboard`);
+            navigate(`/admin/${role.toLowerCase()}/dashboard`);
             return;
         }
 
@@ -38,69 +39,79 @@ export const SaleLayout: React.FC = () => {
     }, [navigate, role]);
 
     const getActiveKey = () => {
-        if (location.pathname.startsWith('/kd/customers')) {
-            return '/kd/customers';
+        if (location.pathname.startsWith('/admin/kd/customers')) {
+            return '/admin/kd/customers';
         }
 
-        if (location.pathname.startsWith('/kd/dashboard')) {
-            return '/kd/dashboard';
+        if (location.pathname.startsWith('/admin/kd/dashboard')) {
+            return '/admin/kd/dashboard';
         }
 
-        if (location.pathname.startsWith('/kd/sla')) {
-            return '/kd/sla';
+        if (location.pathname.startsWith('/admin/kd/sla')) {
+            return '/admin/kd/sla';
         }
 
-        if (location.pathname.startsWith('/kd/surveys')) {
-            return '/kd/surveys';
+        if (location.pathname.startsWith('/admin/kd/surveys')) {
+            return '/admin/kd/surveys';
         }
 
-        if (location.pathname.startsWith('/kd/communications')) {
-            return '/kd/communications';
+        if (location.pathname.startsWith('/admin/kd/communications')) {
+            return '/admin/kd/communications';
         }
 
-        if (location.pathname.startsWith('/kd/profile')) {
-            return '/kd/profile';
+        if (location.pathname.startsWith('/admin/kd/expenditures/payment-requests')) {
+            return '/admin/kd/expenditures/payment-requests';
         }
 
-        return '/kd/dashboard';
+        if (location.pathname.startsWith('/admin/kd/profile')) {
+            return '/admin/kd/profile';
+        }
+
+        return '/admin/kd/dashboard';
     };
 
     const mobileMenuItems = [
         {
-            key: '/kd/dashboard',
+            key: '/admin/kd/dashboard',
             icon: <InboxOutlined />,
             label: 'Yêu cầu',
-            onClick: () => navigate('/kd/dashboard'),
+            onClick: () => navigate('/admin/kd/dashboard'),
         },
         {
-            key: '/kd/customers',
+            key: '/admin/kd/customers',
             icon: <TeamOutlined />,
             label: 'Khách hàng',
-            onClick: () => navigate('/kd/customers'),
+            onClick: () => navigate('/admin/kd/customers'),
         },
         {
-            key: '/kd/sla',
+            key: '/admin/kd/sla',
             icon: <ClockCircleOutlined />,
             label: 'Cảnh báo tiến độ',
-            onClick: () => navigate('/kd/sla'),
+            onClick: () => navigate('/admin/kd/sla'),
         },
         {
-            key: '/kd/surveys',
+            key: '/admin/kd/surveys',
             icon: <FormOutlined />,
             label: 'Khảo sát',
-            onClick: () => navigate('/kd/surveys'),
+            onClick: () => navigate('/admin/kd/surveys'),
         },
         {
-            key: '/kd/communications',
+            key: '/admin/kd/communications',
             icon: <MessageOutlined />,
             label: 'Giao tiếp',
-            onClick: () => navigate('/kd/communications'),
+            onClick: () => navigate('/admin/kd/communications'),
         },
         {
-            key: '/kd/profile',
+            key: '/admin/kd/expenditures/payment-requests',
+            icon: <DollarOutlined />,
+            label: 'Yêu cầu chi',
+            onClick: () => navigate('/admin/kd/expenditures/payment-requests'),
+        },
+        {
+            key: '/admin/kd/profile',
             icon: <UserOutlined />,
             label: 'Cá nhân',
-            onClick: () => navigate('/personal/profile'),
+            onClick: () => navigate('/admin/kd/profile'),
         },
     ];
 
@@ -111,29 +122,35 @@ export const SaleLayout: React.FC = () => {
             label: 'Hành trình khách hàng',
             children: [
                 {
-                    key: '/kd/dashboard',
+                    key: '/admin/kd/dashboard',
                     label: 'Yêu cầu',
-                    onClick: () => navigate('/kd/dashboard'),
+                    onClick: () => navigate('/admin/kd/dashboard'),
                 },
                 {
-                    key: '/kd/customers',
+                    key: '/admin/kd/customers',
                     label: 'Khách hàng',
-                    onClick: () => navigate('/kd/customers'),
+                    onClick: () => navigate('/admin/kd/customers'),
                 },
                 {
-                    key: '/kd/sla',
+                    key: '/admin/kd/sla',
                     label: 'Cảnh báo tiến độ',
-                    onClick: () => navigate('/kd/sla'),
+                    onClick: () => navigate('/admin/kd/sla'),
                 },
                 {
-                    key: '/kd/surveys',
+                    key: '/admin/kd/surveys',
                     label: 'Khảo sát',
-                    onClick: () => navigate('/kd/surveys'),
+                    onClick: () => navigate('/admin/kd/surveys'),
                 },
                 {
-                    key: '/kd/communications',
+                    key: '/admin/kd/communications',
                     label: 'Giao tiếp khách hàng',
-                    onClick: () => navigate('/kd/communications'),
+                    onClick: () => navigate('/admin/kd/communications'),
+                },
+                {
+                    key: '/admin/kd/expenditures/payment-requests',
+                    label: 'Yêu cầu chi tiền',
+                    icon: <DollarOutlined />,
+                    onClick: () => navigate('/admin/kd/expenditures/payment-requests'),
                 },
             ],
         },

@@ -96,7 +96,7 @@ const CustomerCreate: React.FC = () => {
                 await customerService.createCustomer(customerData);
                 message.success('Đã thêm khách hàng mới thành công');
             }
-            navigate('/ql/crm/customers');
+            navigate('/admin/ql/crm/customers');
         } catch (error) {
             console.error('Failed to save customer:', error);
             message.error('Không thể lưu thông tin khách hàng');
@@ -109,7 +109,7 @@ const CustomerCreate: React.FC = () => {
     return (
         <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
-                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/ql/crm/customers')}>
+                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/admin/ql/crm/customers')}>
                     Quay lại
                 </Button>
                 <div>
@@ -236,7 +236,7 @@ const CustomerCreate: React.FC = () => {
                 </Row>
 
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 16 }}>
-                    <Button size="large" onClick={() => navigate('/ql/crm/customers')}>Hủy</Button>
+                    <Button size="large" onClick={() => navigate('/admin/ql/crm/customers')}>Hủy</Button>
                     <Button type="primary" htmlType="submit" size="large" icon={<SaveOutlined />} loading={loading}>
                         {isEdit ? 'Lưu thay đổi' : 'Thêm Khách hàng'}
                     </Button>

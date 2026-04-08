@@ -146,7 +146,7 @@ const InboundForm: React.FC = () => {
 
             await stockOrderService.createStockOrder(newStockOrder);
             message.success('Nhập kho thành công');
-            navigate('/kt/inventory');
+            navigate('/admin/kt/inventory');
         } catch (error) {
             message.error('Lỗi khi tạo phiếu nhập kho');
         }
@@ -189,7 +189,7 @@ const InboundForm: React.FC = () => {
     return (
         <div style={{ padding: isMobile ? '0 0 12px' : 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
-                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/kt/inventory')} style={{ marginRight: isMobile ? 0 : 16 }} />
+                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/admin/kt/inventory')} style={{ marginRight: isMobile ? 0 : 16 }} />
                 <Title level={4} style={{ margin: 0 }}>📋 Phiếu Nhập Kho</Title>
             </div>
 

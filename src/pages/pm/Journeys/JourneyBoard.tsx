@@ -131,7 +131,7 @@ const JourneyBoard: React.FC = () => {
                     <Text type="secondary">Kanban theo bước quy trình</Text>
                 </div>
                 <Space>
-                    <Button icon={<UnorderedListOutlined />} onClick={() => navigate('/ql/journeys')}>Danh sách</Button>
+                    <Button icon={<UnorderedListOutlined />} onClick={() => navigate('/admin/ql/journeys')}>Danh sách</Button>
                 </Space>
             </div>
 

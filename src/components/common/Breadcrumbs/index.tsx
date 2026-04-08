@@ -11,7 +11,7 @@ export const Breadcrumbs: React.FC = () => {
     const pathSnippets = location.pathname.split('/').filter((i) => i);
 
     const breadcrumbNameMap: Record<string, string> = {
-        // Admin routes
+        // Admin
         '/admin': LABELS.ADMIN.DASHBOARD,
         '/admin/dashboard': LABELS.ADMIN.DASHBOARD,
         '/admin/users': LABELS.ADMIN.USER_MANAGEMENT,
@@ -27,45 +27,40 @@ export const Breadcrumbs: React.FC = () => {
         '/admin/notification-rules': LABELS.ADMIN.NOTIFICATION_RULES,
         '/admin/audit-log': LABELS.ADMIN.AUDIT_LOG,
         '/admin/security-settings': LABELS.ADMIN.SECURITY_SETTINGS,
-        '/admin/access-control': LABELS.ADMIN.ACCESS_CONTROL,
-        '/admin/api-keys': LABELS.ADMIN.API_KEYS,
-        '/admin/performance': LABELS.ADMIN.PERFORMANCE_DASHBOARD,
-        '/admin/error-logs': LABELS.ADMIN.ERROR_LOGS,
-        '/admin/system-health': LABELS.ADMIN.SYSTEM_HEALTH,
 
-        // Supervisor routes
-        '/supervisor': LABELS.SUPERVISOR.DASHBOARD,
-        '/gs/dashboard': LABELS.SUPERVISOR.DASHBOARD,
-        '/gs/projects': LABELS.SUPERVISOR.PROJECTS,
-        '/gs/evidence-queue': LABELS.SUPERVISOR.EVIDENCE_QUEUE,
-        '/gs/quality-issues': LABELS.SUPERVISOR.QUALITY_ISSUES,
-        '/gs/team-performance': LABELS.SUPERVISOR.TEAM_PERFORMANCE,
-        '/gs/reports': LABELS.SUPERVISOR.REPORTS,
+        // Supervisor
+        '/admin/gs': LABELS.SUPERVISOR.DASHBOARD,
+        '/admin/gs/dashboard': LABELS.SUPERVISOR.DASHBOARD,
+        '/admin/gs/projects': LABELS.SUPERVISOR.PROJECTS,
+        '/admin/gs/evidence-queue': LABELS.SUPERVISOR.EVIDENCE_QUEUE,
+        '/admin/gs/quality-issues': LABELS.SUPERVISOR.QUALITY_ISSUES,
+        '/admin/gs/team-performance': LABELS.SUPERVISOR.TEAM_PERFORMANCE,
+        '/admin/gs/reports': LABELS.SUPERVISOR.REPORTS,
 
-        // PM routes
-        '/ql': LABELS.PM.DASHBOARD,
-        '/ql/dashboard': LABELS.PM.DASHBOARD,
-        '/ql/projects': LABELS.PM.PROJECTS,
-        '/ql/teams': LABELS.PM.TEAMS,
-        '/ql/customers': LABELS.PM.CUSTOMERS,
-        '/ql/financials': LABELS.PM.FINANCIALS,
-        '/ql/reports': LABELS.PM.REPORTS,
+        // PM
+        '/admin/ql': LABELS.PM.DASHBOARD,
+        '/admin/ql/dashboard': LABELS.PM.DASHBOARD,
+        '/admin/ql/projects': LABELS.PM.PROJECTS,
+        '/admin/ql/teams': LABELS.PM.TEAMS,
+        '/admin/ql/customers': LABELS.PM.CUSTOMERS,
+        '/admin/ql/financials': LABELS.PM.FINANCIALS,
+        '/admin/ql/reports': LABELS.PM.REPORTS,
 
-        // Accountant routes
-        '/kt': LABELS.ACCOUNTANT.DASHBOARD,
-        '/kt/dashboard': LABELS.ACCOUNTANT.DASHBOARD,
-        '/kt/financial-summary': LABELS.ACCOUNTANT.FINANCIAL_SUMMARY,
-        '/kt/payment-tracking': LABELS.ACCOUNTANT.PAYMENT_TRACKING,
-        '/kt/reports': LABELS.ACCOUNTANT.REPORTS,
+        // Accountant
+        '/admin/kt': LABELS.ACCOUNTANT.DASHBOARD,
+        '/admin/kt/dashboard': LABELS.ACCOUNTANT.DASHBOARD,
+        '/admin/kt/financial-summary': LABELS.ACCOUNTANT.FINANCIAL_SUMMARY,
+        '/admin/kt/payment-tracking': LABELS.ACCOUNTANT.PAYMENT_TRACKING,
+        '/admin/kt/reports': LABELS.ACCOUNTANT.REPORTS,
 
-        // Partner routes
-        '/partner': LABELS.PARTNER.DASHBOARD,
-        '/partner/dashboard': LABELS.PARTNER.DASHBOARD,
-        '/partner/my-projects': LABELS.PARTNER.MY_PROJECTS,
-        '/partner/upload-evidence': LABELS.PARTNER.UPLOAD_EVIDENCE,
-        '/partner/materials': LABELS.PARTNER.MATERIALS,
-        '/partner/labor': LABELS.PARTNER.LABOR,
-        '/partner/payments': LABELS.PARTNER.PAYMENTS,
+        // Partner
+        '/admin/partner': LABELS.PARTNER.DASHBOARD,
+        '/admin/partner/dashboard': LABELS.PARTNER.DASHBOARD,
+        '/admin/partner/my-projects': LABELS.PARTNER.MY_PROJECTS,
+        '/admin/partner/upload-evidence': LABELS.PARTNER.UPLOAD_EVIDENCE,
+        '/admin/partner/materials': LABELS.PARTNER.MATERIALS,
+        '/admin/partner/labor': LABELS.PARTNER.LABOR,
+        '/admin/partner/payments': LABELS.PARTNER.PAYMENTS,
     };
 
     const breadcrumbItems = [

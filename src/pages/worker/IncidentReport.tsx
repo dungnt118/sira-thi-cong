@@ -58,7 +58,7 @@ const IncidentReport: React.FC = () => {
     return (
         <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-                <Button icon={<ArrowLeftOutlined />} size="small" onClick={() => navigate('/worker/home')} />
+                <Button icon={<ArrowLeftOutlined />} size="small" onClick={() => navigate('/admin/gs/dashboard')} />
                 <div>
                     <Title level={5} style={{ margin: 0 }}><WarningOutlined style={{ color: '#ff4d4f' }} /> Báo cáo Sự cố</Title>
                     <Text type="secondary" style={{ fontSize: 12 }}>Thông báo ngay cho PM</Text>
@@ -155,9 +155,9 @@ VD: Hết BACPU lớp phủ, chỉ còn ~5kg không đủ cho lớp thứ 2 (c�
             <Modal
                 title={<span><CheckCircleOutlined style={{ color: '#52c41a' }} /> Đã gửi báo cáo sự cố</span>}
                 open={sentModal}
-                onCancel={() => { setSentModal(false); navigate('/worker/home'); }}
+                onCancel={() => { setSentModal(false); navigate('/admin/gs/dashboard'); }}
                 footer={[
-                    <Button key="ok" type="primary" onClick={() => { setSentModal(false); navigate('/worker/home'); }}>
+                    <Button key="ok" type="primary" onClick={() => { setSentModal(false); navigate('/admin/gs/dashboard'); }}>
                         Về trang chủ
                     </Button>,
                 ]}

@@ -35,17 +35,18 @@ export const UserMenu: React.FC<UserMenuProps> = ({
 
     const rolesList = [
         { key: 'ADMIN', title: 'Quản Trị Viên', icon: <UserOutlined />, path: '/admin/dashboard', color: '#1890ff' },
-        { key: 'QL', title: 'Quản Lý Dự Án', icon: <ProjectOutlined />, path: '/ql/dashboard', color: '#722ed1' },
-        { key: 'KD', title: 'Kinh Doanh (Sale)', icon: <CustomerServiceOutlined />, path: '/kd/dashboard', color: '#eb2f96' },
-        { key: 'KYT', title: 'Kỹ Thuật', icon: <ProjectOutlined />, path: '/kyt/dashboard', color: '#13a8a8' },
-        { key: 'GS', title: 'Giám Sát', icon: <SafetyOutlined />, path: '/gs/dashboard', color: '#52c41a' },
-        { key: 'KT', title: 'Kế Toán', icon: <DollarOutlined />, path: '/kt/dashboard', color: '#fa8c16' },
-        { key: 'PARTNER', title: 'Đối Tác', icon: <TeamOutlined />, path: '/partner/dashboard', color: '#13c2c2' },
+        { key: 'QL', title: 'Quản Lý Dự Án', icon: <ProjectOutlined />, path: '/admin/ql/dashboard', color: '#722ed1' },
+        { key: 'KD', title: 'Kinh Doanh (Sale)', icon: <CustomerServiceOutlined />, path: '/admin/kd/dashboard', color: '#eb2f96' },
+        { key: 'KYT', title: 'Kỹ Thuật', icon: <ProjectOutlined />, path: '/admin/kyt/dashboard', color: '#13a8a8' },
+        { key: 'GS', title: 'Giám Sát', icon: <SafetyOutlined />, path: '/admin/gs/dashboard', color: '#52c41a' },
+        { key: 'KT', title: 'Kế Toán', icon: <DollarOutlined />, path: '/admin/kt/dashboard', color: '#fa8c16' },
+        { key: 'PARTNER', title: 'Đối Tác', icon: <TeamOutlined />, path: '/admin/partner/dashboard', color: '#13c2c2' },
     ];
 
     const handleSwitch = (roleKey: string, path: string) => {
         localStorage.setItem(MANUAL_ROLE_KEY, roleKey);
-        dispatch(loadUserData(roleKey));
+        // Force refresh to ensure full context reload with the new role
+        window.location.assign(path);
     };
 
     const menuItems: MenuProps['items'] = [

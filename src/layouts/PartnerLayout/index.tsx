@@ -19,32 +19,32 @@ type MenuItem = Required<MenuProps>['items'][number];
 
 const menuItems: MenuItem[] = [
     {
-        key: '/partner/dashboard',
+        key: '/admin/partner/dashboard',
         icon: <DashboardOutlined />,
         label: LABELS.PARTNER.DASHBOARD,
     },
     {
-        key: '/partner/my-projects',
+        key: '/admin/partner/my-projects',
         icon: <ProjectOutlined />,
         label: LABELS.PARTNER.MY_PROJECTS,
     },
     {
-        key: '/partner/upload-evidence',
+        key: '/admin/partner/upload-evidence',
         icon: <UploadOutlined />,
         label: LABELS.PARTNER.UPLOAD_EVIDENCE,
     },
     {
-        key: '/partner/materials',
+        key: '/admin/partner/materials',
         icon: <ShoppingOutlined />,
         label: LABELS.PARTNER.MATERIALS,
     },
     {
-        key: '/partner/labor',
+        key: '/admin/partner/labor',
         icon: <TeamOutlined />,
         label: LABELS.PARTNER.LABOR,
     },
     {
-        key: '/partner/payments',
+        key: '/admin/partner/payments',
         icon: <DollarOutlined />,
         label: LABELS.PARTNER.PAYMENTS,
     },

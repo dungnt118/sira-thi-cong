@@ -62,7 +62,7 @@ const ServiceRequestDetail: React.FC = () => {
         <div style={{ padding: '0 0 24px' }}>
             {/* Header / Breadcrumb */}
             <div style={{ marginBottom: 16 }}>
-                <Button type="link" icon={<ArrowLeftOutlined />} onClick={() => navigate('/ql/crm/service-requests')} style={{ paddingLeft: 0 }}>
+                <Button type="link" icon={<ArrowLeftOutlined />} onClick={() => navigate('/admin/ql/crm/service-requests')} style={{ paddingLeft: 0 }}>
                     Quay lại danh sách Yêu cầu
                 </Button>
             </div>
@@ -153,7 +153,7 @@ const ServiceRequestDetail: React.FC = () => {
                                 <div>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
                                         <Title level={5}>Dữ liệu Khảo sát & Đo ẩm</Title>
-                                        <Button type="primary" icon={<CameraOutlined />} onClick={() => navigate(`/ql/crm/service-requests/${request.id}/survey`)}>
+                                        <Button type="primary" icon={<CameraOutlined />} onClick={() => navigate(`/admin/ql/crm/service-requests/${request.id}/survey`)}>
                                             Cập nhật Khảo sát
                                         </Button>
                                     </div>
@@ -180,7 +180,7 @@ const ServiceRequestDetail: React.FC = () => {
                                 <div>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
                                         <Title level={5}>Lịch sử Báo giá</Title>
-                                        <Button type="primary" icon={<FileTextOutlined />} onClick={() => navigate(`/ql/crm/service-requests/${request.id}/quotation`)}>
+                                        <Button type="primary" icon={<FileTextOutlined />} onClick={() => navigate(`/admin/ql/crm/service-requests/${request.id}/quotation`)}>
                                             Tạo Báo giá mới
                                         </Button>
                                     </div>

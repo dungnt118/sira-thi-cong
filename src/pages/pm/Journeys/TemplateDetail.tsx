@@ -33,7 +33,7 @@ const TemplateDetail: React.FC = () => {
     if (!template) {
         return (
             <div style={{ padding: 40 }}>
-                <Button onClick={() => navigate('/ql/journeys/templates')}>Quay lại</Button>
+                <Button onClick={() => navigate('/admin/ql/journeys/templates')}>Quay lại</Button>
                 <div style={{ marginTop: 16 }}>Không tìm thấy template</div>
             </div>
         );
@@ -75,7 +75,7 @@ const TemplateDetail: React.FC = () => {
     return (
         <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                <Button icon={<ArrowLeftOutlined />} type="text" onClick={() => navigate('/ql/journeys/templates')}>
+                <Button icon={<ArrowLeftOutlined />} type="text" onClick={() => navigate('/admin/ql/journeys/templates')}>
                     Danh sách Template
                 </Button>
                 <Space>

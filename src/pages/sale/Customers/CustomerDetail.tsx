@@ -120,7 +120,7 @@ const CustomerDetail: React.FC = () => {
         try {
             await customerService.deleteCustomer(customerId);
             message.success('Đã xóa khách hàng.');
-            navigate('/kd/customers');
+            navigate('/admin/kd/customers');
         } catch (error) {
             console.error('Không thể xóa khách hàng', error);
             message.error('Không thể xóa khách hàng.');
@@ -139,7 +139,7 @@ const CustomerDetail: React.FC = () => {
         return (
             <Card style={{ marginTop: 40, textAlign: 'center', borderRadius: 20 }}>
                 <Empty description="Không tìm thấy hồ sơ khách hàng." />
-                <Button onClick={() => navigate('/kd/customers')}>Quay lại danh sách khách hàng</Button>
+                <Button onClick={() => navigate('/admin/kd/customers')}>Quay lại danh sách khách hàng</Button>
             </Card>
         );
     }
@@ -150,7 +150,7 @@ const CustomerDetail: React.FC = () => {
             dataIndex: 'journey_code',
             key: 'journey_code',
             render: (value: string, journey) => (
-                <Button type="link" style={{ padding: 0 }} onClick={() => navigate(`/kd/dashboard/${journey._id}`)}>
+                <Button type="link" style={{ padding: 0 }} onClick={() => navigate(`/admin/kd/dashboard/${journey._id}`)}>
                     {value}
                 </Button>
             ),
@@ -219,7 +219,7 @@ const CustomerDetail: React.FC = () => {
                                 <Button
                                     type="primary"
                                     icon={<SolutionOutlined />}
-                                    onClick={() => navigate(`/kd/dashboard?customerId=${customerId}`)}
+                                    onClick={() => navigate(`/admin/kd/dashboard?customerId=${customerId}`)}
                                 >
                                     Tạo yêu cầu dịch vụ
                                 </Button>
@@ -262,7 +262,7 @@ const CustomerDetail: React.FC = () => {
                 <Button
                     type="link"
                     icon={<ArrowLeftOutlined />}
-                    onClick={() => navigate('/kd/customers')}
+                    onClick={() => navigate('/admin/kd/customers')}
                     style={{ padding: 0 }}
                 >
                     Quay lại danh sách khách hàng

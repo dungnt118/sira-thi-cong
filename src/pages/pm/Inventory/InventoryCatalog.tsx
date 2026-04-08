@@ -109,8 +109,8 @@ const InventoryCatalog: React.FC = () => {
                     <Text type="secondary">Tổng quan kho vật tư phục vụ các dự án đang thi công</Text>
                 </div>
                 <Space>
-                    <Button onClick={() => navigate('/ql/inventory/request-out')}>📤 Yêu cầu Xuất kho</Button>
-                    <Button type="primary" onClick={() => navigate('/ql/inventory/request-in')}>📥 Yêu cầu Nhập kho</Button>
+                    <Button onClick={() => navigate('/admin/ql/inventory/request-out')}>📤 Yêu cầu Xuất kho</Button>
+                    <Button type="primary" onClick={() => navigate('/admin/ql/inventory/request-in')}>📥 Yêu cầu Nhập kho</Button>
                 </Space>
             </div>
 
@@ -151,7 +151,7 @@ const InventoryCatalog: React.FC = () => {
                         <span>
                             <strong>{lowStock.length} vật tư</strong> dưới ngưỡng cảnh báo: {lowStock.map(m => m.name).join(', ')}.
                             {' '}<Button size="small" type="link" icon={<ArrowRightOutlined />}
-                                onClick={() => navigate('/ql/inventory/request-in')}>
+                                onClick={() => navigate('/admin/ql/inventory/request-in')}>
                                 Tạo yêu cầu nhập kho ngay
                             </Button>
                         </span>

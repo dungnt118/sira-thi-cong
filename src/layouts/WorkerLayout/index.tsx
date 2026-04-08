@@ -16,10 +16,10 @@ const { Header, Content, Footer } = Layout;
 
 // Bottom nav tabs for mobile supervisor
 const navTabs = [
-    { key: '/gs/home', icon: <HomeOutlined />, label: 'Trang chủ' },
-    { key: '/gs/projects', icon: <AppstoreOutlined />, label: 'Công trình' },
-    { key: '/gs/materials', icon: <InboxOutlined />, label: 'Vật tư' },
-    { key: '/gs/profile', icon: <UserOutlined />, label: 'Tôi' },
+    { key: '/admin/gs/home', icon: <HomeOutlined />, label: 'Trang chủ' },
+    { key: '/admin/gs/projects', icon: <AppstoreOutlined />, label: 'Công trình' },
+    { key: '/admin/gs/materials', icon: <InboxOutlined />, label: 'Vật tư' },
+    { key: '/admin/gs/profile', icon: <UserOutlined />, label: 'Tôi' },
 ];
 
 export const SupervisorLayout: React.FC = () => {
@@ -29,7 +29,7 @@ export const SupervisorLayout: React.FC = () => {
 
     const activeTab = navTabs.find(t =>
         location.pathname.startsWith(t.key)
-    )?.key || '/gs/home';
+    )?.key || '/admin/gs/home';
 
     const userMenuItems: MenuProps['items'] = [
         { key: 'profile', icon: <UserOutlined />, label: 'Hồ sơ của tôi', onClick: () => navigate('/personal/profile') },
@@ -111,7 +111,7 @@ export const SupervisorLayout: React.FC = () => {
                     return (
                         <div
                             key={tab.key}
-                            onClick={() => navigate(tab.key === '/gs/profile' ? '/personal/profile' : tab.key)}
+                            onClick={() => navigate(tab.key === '/admin/gs/profile' ? '/personal/profile' : tab.key)}
                             style={{
                                 flex: 1,
                                 display: 'flex',

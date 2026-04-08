@@ -4,7 +4,8 @@ import {
     HistoryOutlined,
     HomeOutlined,
     InboxOutlined,
-    UserOutlined
+    UserOutlined,
+    DollarOutlined,
 } from '@ant-design/icons';
 import { Badge, Layout } from 'antd';
 import React from 'react';
@@ -26,7 +27,7 @@ export const GiamSatLayout: React.FC = () => {
     React.useEffect(() => {
         // If user doesn't have GS role, redirect them to their primary dashboard
         if (!hasGSRole && role) {
-            navigate(`/${role.toLowerCase()}/dashboard`);
+            navigate(`/admin/${role.toLowerCase()}/dashboard`);
             return;
         }
 
@@ -36,16 +37,17 @@ export const GiamSatLayout: React.FC = () => {
     }, [navigate, role, hasGSRole]);
 
     const navTabs = [
-        { key: '/gs/dashboard', icon: <HomeOutlined />, label: 'Trang chủ' },
-        { key: '/gs/projects', icon: <AppstoreOutlined />, label: 'Công trình' },
-        { key: '/gs/materials', icon: <InboxOutlined />, label: 'Vật tư' },
-        { key: '/gs/inventory/history', icon: <HistoryOutlined />, label: 'Lịch sử' },
-        { key: '/gs/profile', icon: <UserOutlined />, label: 'Cá nhân' },
+        { key: '/admin/gs/dashboard', icon: <HomeOutlined />, label: 'Trang chủ' },
+        { key: '/admin/gs/projects', icon: <AppstoreOutlined />, label: 'Công trình' },
+        { key: '/admin/gs/materials', icon: <InboxOutlined />, label: 'Vật tư' },
+        { key: '/admin/gs/inventory/history', icon: <HistoryOutlined />, label: 'Lịch sử' },
+        { key: '/admin/gs/expenditures/payment-requests', icon: <DollarOutlined />, label: 'Yêu cầu chi' },
+        { key: '/admin/gs/profile', icon: <UserOutlined />, label: 'Cá nhân' },
     ];
 
     const activeTab = navTabs.find(t =>
         location.pathname.startsWith(t.key)
-    )?.key || '/gs/dashboard';
+    )?.key || '/admin/gs/dashboard';
 
     return (
         <Layout className="giam-sat-layout">
@@ -76,7 +78,7 @@ export const GiamSatLayout: React.FC = () => {
                             onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                const targetPath = tab.key === '/gs/profile' ? '/personal/profile' : tab.key;
+                                const targetPath = tab.key;
                                 console.log('Bottom Nav navigating to:', targetPath);
                                 navigate(targetPath);
                             }}

@@ -157,7 +157,7 @@ const WorkerDetail: React.FC = () => {
         try {
             await workerService.deleteWorker(id);
             message.success('Đã xóa thợ khỏi danh sách');
-            navigate('/ql/teams/workers');
+            navigate('/admin/ql/teams/workers');
         } catch (error: any) {
             message.error('Lỗi khi xóa: ' + error.message);
         }
@@ -171,7 +171,7 @@ const WorkerDetail: React.FC = () => {
         return (
             <div style={{ padding: 40, textAlign: 'center' }}>
                 <Empty description="Không tìm thấy thông tin thợ" />
-                <Button onClick={() => navigate('/ql/teams/workers')}>Quay lại danh sách</Button>
+                <Button onClick={() => navigate('/admin/ql/teams/workers')}>Quay lại danh sách</Button>
             </div>
         );
     }
@@ -273,7 +273,7 @@ const WorkerDetail: React.FC = () => {
                                     <div style={{ fontSize: 12, color: '#999' }}>{linkedTeam.contactName}</div>
                                 </div>
                             </Space>
-                            <Button type="link" onClick={() => navigate(`/ql/teams/groups/${linkedTeam._id}`)}>Chi tiết</Button>
+                            <Button type="link" onClick={() => navigate(`/admin/ql/teams/groups/${linkedTeam._id}`)}>Chi tiết</Button>
                         </div>
                     ) : (
                         <Empty description="Chưa thuộc đội nhóm nào" image={Empty.PRESENTED_IMAGE_SIMPLE} />

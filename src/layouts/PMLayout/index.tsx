@@ -34,56 +34,57 @@ type MenuItem = Required<MenuProps>['items'][number];
 
 const menuItems: MenuItem[] = [
     {
-        key: '/ql/dashboard',
+        key: '/admin/ql/dashboard',
         icon: <DashboardOutlined />,
         label: 'Dashboard',
     },
     {
-        key: '/ql/journeys',
+        key: '/admin/ql/journeys',
         icon: <NodeIndexOutlined />,
         label: 'Hành trình Khách hàng',
         children: [
-            { key: '/ql/journeys', label: 'Danh sách yêu cầu', icon: <UnorderedListOutlined /> },
-            { key: '/ql/crm/customers', label: 'Danh sách Khách hàng', icon: <TeamOutlined /> },
-            { key: '/ql/crm/customers/new', label: 'Thêm Khách hàng mới', icon: <UserAddOutlined /> },
-            { key: '/ql/settings/customer-journey', label: 'Cấu hình CustomerJourney', icon: <SettingOutlined /> },
+            { key: '/admin/ql/journeys', label: 'Danh sách yêu cầu', icon: <UnorderedListOutlined /> },
+            { key: '/admin/ql/crm/customers', label: 'Danh sách Khách hàng', icon: <TeamOutlined /> },
+            { key: '/admin/ql/crm/customers/new', label: 'Thêm Khách hàng mới', icon: <UserAddOutlined /> },
+            { key: '/admin/ql/settings/customer-journey', label: 'Cấu hình CustomerJourney', icon: <SettingOutlined /> },
         ],
     },
     // Nhóm tính năng Thi công (Projects/Checklist cũ) đã gộp vào Journey
     {
-        key: '/ql/inventory',
+        key: '/admin/ql/inventory',
         icon: <InboxOutlined />,
         label: 'Kho Vật tư',
         children: [
-            { key: '/ql/inventory/catalog', label: 'Danh mục Vật tư', icon: <InboxOutlined /> },
-            { key: '/ql/settings/estimate-templates', label: 'Mẫu định mức Chuẩn', icon: <LayoutOutlined /> },
-            // { key: '/ql/inventory/plan', label: '📐 Định mức Dự án' },
-            { key: '/ql/inventory/stock-out', label: 'Tạo phiếu xuất', icon: <ExportOutlined /> },
-            { key: '/ql/assets/allocation', label: 'Tạo phiếu mượn', icon: <ExportOutlined /> },
-            { key: '/ql/inventory/history', label: 'Lịch sử xuất/nhập', icon: <HistoryOutlined /> },
+            { key: '/admin/ql/inventory/catalog', label: 'Danh mục Vật tư', icon: <InboxOutlined /> },
+            { key: '/admin/ql/settings/estimate-templates', label: 'Mẫu định mức Chuẩn', icon: <LayoutOutlined /> },
+            // { key: '/admin/ql/inventory/plan', label: '📐 Định mức Dự án' },
+            { key: '/admin/ql/inventory/stock-out', label: 'Tạo phiếu xuất', icon: <ExportOutlined /> },
+            { key: '/admin/ql/assets/allocation', label: 'Tạo phiếu mượn', icon: <ExportOutlined /> },
+            { key: '/admin/ql/inventory/history', label: 'Lịch sử xuất/nhập', icon: <HistoryOutlined /> },
         ],
     },
     {
-        key: '/ql/finance',
+        key: '/admin/ql/finance',
         icon: <DollarOutlined />,
         label: 'Tài chính',
         children: [
-            { key: '/ql/finance/projects', label: 'Tài chính Dự án' },
-            { key: '/ql/financials/milestones', label: 'Mốc Thanh toán' },
+            { key: '/admin/ql/finance/projects', label: 'Tài chính Dự án' },
+            { key: '/admin/ql/finance/payment-requests', label: 'Phiếu Yêu cầu chi', icon: <DollarOutlined /> },
+            { key: '/admin/ql/financials/milestones', label: 'Mốc Thanh toán' },
         ],
     },
     {
-        key: '/ql/teams',
+        key: '/admin/ql/teams',
         icon: <TeamOutlined />,
         label: 'Quản lý Đội/Thợ',
         children: [
-            { key: '/ql/teams/workers', label: 'Quản lý Thợ', icon: <TeamOutlined /> },
-            { key: '/ql/teams/groups', label: 'Quản lý Đội thợ', icon: <TeamOutlined /> },
-            { key: '/ql/teams/prices', label: 'Trình độ thợ', icon: <DollarOutlined /> },
+            { key: '/admin/ql/teams/workers', label: 'Quản lý Thợ', icon: <TeamOutlined /> },
+            { key: '/admin/ql/teams/groups', label: 'Quản lý Đội thợ', icon: <TeamOutlined /> },
+            { key: '/admin/ql/teams/prices', label: 'Trình độ thợ', icon: <DollarOutlined /> },
         ],
     },
     {
-        key: '/ql/reports',
+        key: '/admin/ql/reports',
         icon: <BarChartOutlined />,
         label: LABELS.PM.REPORTS,
     },
@@ -119,7 +120,7 @@ const PMSidebar: React.FC = () => {
                 theme="dark"
                 mode="inline"
                 selectedKeys={[location.pathname]}
-                defaultOpenKeys={['/ql/projects', '/ql/contracts', '/ql/teams', '/ql/financials']}
+                defaultOpenKeys={['/admin/ql/journeys', '/admin/ql/inventory', '/admin/ql/finance', '/admin/ql/teams']}
                 items={menuItems}
                 onClick={handleMenuClick}
             />
@@ -201,7 +202,7 @@ export const PMLayout: React.FC = () => {
 
     React.useEffect(() => {
         if (role && role !== 'QL' && !isAdmin) {
-            navigate(`/${role}/dashboard`);
+            navigate(`/admin/${role.toLowerCase()}/dashboard`);
             return;
         }
 

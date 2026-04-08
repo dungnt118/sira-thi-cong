@@ -118,7 +118,7 @@ const AssetDetail: React.FC = () => {
         <div style={{ width: '100%', padding: isMobile ? '0 0 24px' : '0 24px 40px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24, alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
                 <Space style={{ minWidth: 0 }}>
-                    <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/kt/assets/list')} />
+                    <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/admin/kt/assets/list')} />
                     <div style={{ minWidth: 0 }}>
                         <Text type="secondary" style={{ fontSize: 12 }}>Chi tiết Hồ sơ Tài sản 360°</Text>
                         <Title level={isMobile ? 5 : 4} style={{ margin: 0, lineHeight: 1.35 }}>{asset.name} <Tag color="blue" style={{ marginLeft: 8 }}>{asset.code}</Tag></Title>

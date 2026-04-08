@@ -20,63 +20,63 @@ import { AppBrandLogo } from '../../components/common/AppBrandLogo';
 
 const menuItems: MenuProps['items'] = [
     {
-        key: '/kt/dashboard',
+        key: '/admin/kt/dashboard',
         icon: <DashboardOutlined />,
         label: 'Tổng quan',
     },
     {
-        key: '/kt/inventory',
+        key: '/admin/kt/inventory',
         icon: <InboxOutlined />,
         label: 'QL Vật tư',
         children: [
-            { key: '/kt/inventory/materials', label: 'Danh mục vật tư' },
-            { key: '/kt/inventory/distributors', label: 'Nhà phân phối' },
-            { key: '/kt/inventory/stock-out', label: 'Phiếu xuất kho' },
-            { key: '/kt/inventory/stock-in', label: 'Phiếu nhập kho' },
-            { key: '/kt/inventory/history', label: 'Lịch sử xuất/nhập' },
+            { key: '/admin/kt/inventory/materials', label: 'Danh mục vật tư' },
+            { key: '/admin/kt/inventory/distributors', label: 'Nhà phân phối' },
+            { key: '/admin/kt/inventory/stock-out', label: 'Phiếu xuất kho' },
+            { key: '/admin/kt/inventory/stock-in', label: 'Phiếu nhập kho' },
+            { key: '/admin/kt/inventory/history', label: 'Lịch sử xuất/nhập' },
         ],
     },
     {
-        key: '/kt/assets',
+        key: '/admin/kt/assets',
         icon: <ToolOutlined />,
         label: 'QL Tài sản',
         children: [
-            { key: '/kt/assets/list', label: 'Danh mục tài sản' },
-            { key: '/kt/assets/allocation', label: 'Yêu cầu Cấp phát' },
-            { key: '/kt/assets/allocation-history', label: 'Lịch sử cấp phát' },
-            { key: '/kt/assets/maintenance', label: 'Bảo trì & Sửa chữa' },
+            { key: '/admin/kt/assets/list', label: 'Danh mục tài sản' },
+            { key: '/admin/kt/assets/allocation', label: 'Yêu cầu Cấp phát' },
+            { key: '/admin/kt/assets/allocation-history', label: 'Lịch sử cấp phát' },
+            { key: '/admin/kt/assets/maintenance', label: 'Bảo trì & Sửa chữa' },
         ],
     },
     {
-        key: '/kt/finance',
+        key: '/admin/kt/finance',
         icon: <DollarOutlined />,
         label: 'Thanh toán',
         children: [
-            { key: '/kt/finance/milestones', label: 'Theo dõi đợt TT' },
-            { key: '/kt/finance/report', label: 'Báo cáo tài chính' },
+            { key: '/admin/kt/finance/milestones', label: 'Theo dõi đợt TT' },
+            { key: '/admin/kt/finance/report', label: 'Báo cáo tài chính' },
         ],
     },
     {
-        key: '/kt/expenditures',
+        key: '/admin/kt/expenditures',
         icon: <BankOutlined />,
         label: 'Khoản chi',
         children: [
-            { key: '/kt/expenditures/payment-requests', label: 'Yêu cầu chi' },
-            { key: '/kt/expenditures/company-bank-accounts', label: 'Tài khoản Công ty' },
-            { key: '/kt/expenditures/beneficiary-contacts', label: 'Tài khoản thụ hưởng' },
+            { key: '/admin/kt/expenditures/payment-requests', label: 'Yêu cầu chi' },
+            { key: '/admin/kt/expenditures/company-bank-accounts', label: 'Tài khoản Công ty' },
+            { key: '/admin/kt/expenditures/beneficiary-contacts', label: 'Tài khoản thụ hưởng' },
         ],
     },
     {
-        key: '/kt/warranty',
+        key: '/admin/kt/warranty',
         icon: <SafetyOutlined />,
         label: 'Bảo hành',
         children: [
-            { key: '/kt/warranty/cards', label: 'Phiếu bảo hành' },
-            { key: '/kt/warranty/schedule', label: 'Lịch nhắc bảo hành' },
+            { key: '/admin/kt/warranty/cards', label: 'Phiếu bảo hành' },
+            { key: '/admin/kt/warranty/schedule', label: 'Lịch nhắc bảo hành' },
         ],
     },
     {
-        key: '/kt/reports',
+        key: '/admin/kt/reports',
         icon: <BarChartOutlined />,
         label: 'Báo cáo',
     },
@@ -103,7 +103,7 @@ const AccountantSidebar: React.FC = () => {
                 theme="dark"
                 mode="inline"
                 selectedKeys={[location.pathname]}
-                defaultOpenKeys={['/kt/inventory', '/kt/assets', '/kt/finance', '/kt/warranty', '/kt/expenditures']}
+                defaultOpenKeys={['/admin/kt/inventory', '/admin/kt/assets', '/admin/kt/finance', '/admin/kt/warranty', '/admin/kt/expenditures']}
                 items={menuItems}
                 onClick={e => navigate(e.key)}
             />
@@ -170,7 +170,7 @@ export const AccountantV3Layout: React.FC = () => {
 
     React.useEffect(() => {
         if (role && role !== 'KT') {
-            navigate(`/${role.toLowerCase()}/dashboard`);
+            navigate(`/admin/${role.toLowerCase()}/dashboard`);
             return;
         }
 

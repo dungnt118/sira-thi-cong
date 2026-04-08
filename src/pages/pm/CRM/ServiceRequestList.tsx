@@ -62,10 +62,10 @@ const ServiceRequestList: React.FC = () => {
     });
 
     const getRowActions = (record: ServiceRequest): MenuProps['items'] => [
-        { key: 'view', icon: <EyeOutlined />, label: 'Xem chi tiết', onClick: () => navigate(`/ql/crm/service-requests/${record.id}`) },
-        { key: 'edit', icon: <EditOutlined />, label: 'Chỉnh sửa Yêu cầu', onClick: () => navigate(`/ql/crm/service-requests/${record.id}/edit`) },
-        { key: 'survey', icon: <CameraOutlined />, label: 'Khảo sát & Đo ẩm', onClick: () => navigate(`/ql/crm/service-requests/${record.id}/survey`) },
-        { key: 'quote', icon: <DollarOutlined />, label: 'Lập báo giá', onClick: () => navigate(`/ql/crm/service-requests/${record.id}/quotation`) },
+        { key: 'view', icon: <EyeOutlined />, label: 'Xem chi tiết', onClick: () => navigate(`/admin/ql/crm/service-requests/${record.id}`) },
+        { key: 'edit', icon: <EditOutlined />, label: 'Chỉnh sửa Yêu cầu', onClick: () => navigate(`/admin/ql/crm/service-requests/${record.id}/edit`) },
+        { key: 'survey', icon: <CameraOutlined />, label: 'Khảo sát & Đo ẩm', onClick: () => navigate(`/admin/ql/crm/service-requests/${record.id}/survey`) },
+        { key: 'quote', icon: <DollarOutlined />, label: 'Lập báo giá', onClick: () => navigate(`/admin/ql/crm/service-requests/${record.id}/quotation`) },
         { type: 'divider' },
         { key: 'project', icon: <ProjectOutlined />, label: '🔨 Tạo dự án thi công', disabled: record.status !== 'WON' },
         { key: 'delete', icon: <DeleteOutlined />, label: 'Xóa yêu cầu', danger: true },
@@ -93,7 +93,7 @@ const ServiceRequestList: React.FC = () => {
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap'
                     }}
-                        onClick={() => navigate(`/ql/crm/service-requests/${r.id}`)}>
+                        onClick={() => navigate(`/admin/ql/crm/service-requests/${r.id}`)}>
                         {r.name}
                     </div>
                     <Text type="secondary" style={{ fontSize: 12 }}>Ngày tạo: {r.createdAt.split('T')[0]}</Text>
@@ -215,7 +215,7 @@ const ServiceRequestList: React.FC = () => {
                         <Space size={isMobile ? 8 : 12} wrap={isMobile} style={{ width: isMobile ? '100%' : 'auto' }}>
                             <Button
                                 icon={<FunnelPlotOutlined />}
-                                onClick={() => navigate('/ql/crm/pipeline')}
+                                onClick={() => navigate('/admin/ql/crm/pipeline')}
                                 block={isMobile}
                             >
                                 {isMobile ? 'Kanban' : 'Xem bảng Kanban (Pipeline)'}

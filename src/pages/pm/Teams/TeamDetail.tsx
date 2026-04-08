@@ -131,7 +131,7 @@ const TeamDetail: React.FC = () => {
         try {
             await workerTeamService.deleteWorkerTeam(id);
             message.success('Đã xóa đội thợ');
-            navigate('/ql/teams/groups');
+            navigate('/admin/ql/teams/groups');
         } catch (error: any) {
             message.error('Lỗi khi xóa đội thợ: ' + error.message);
         }
@@ -148,7 +148,7 @@ const TeamDetail: React.FC = () => {
         return (
             <div style={{ padding: 40, textAlign: 'center' }}>
                 <Empty description="Không tìm thấy thông tin đội thợ" />
-                <Button onClick={() => navigate('/ql/teams/groups')}>Quay lại danh sách</Button>
+                <Button onClick={() => navigate('/admin/ql/teams/groups')}>Quay lại danh sách</Button>
             </div>
         );
     }
@@ -344,7 +344,7 @@ const TeamDetail: React.FC = () => {
                     ]}
                     pagination={false}
                     onRow={(record) => ({
-                        onClick: () => navigate(`/ql/teams/workers/${record._id}`),
+                        onClick: () => navigate(`/admin/ql/teams/workers/${record._id}`),
                         style: { cursor: 'pointer' }
                     })}
                 />
@@ -356,7 +356,7 @@ const TeamDetail: React.FC = () => {
         <div>
             <Row align="middle" justify="space-between" style={{ marginBottom: 24 }}>
                 <Space>
-                    <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/ql/teams/groups')}>
+                    <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/admin/ql/teams/groups')}>
                         {!isMobile && 'Quay lại'}
                     </Button>
                     <Title level={2} style={{ margin: 0 }}>Hồ Sơ Đội Thợ</Title>

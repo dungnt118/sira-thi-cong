@@ -42,6 +42,7 @@ export const FIND_PAYMENTREQUEST_DTO = gql`
         approved_by
         approved_at
         rejected_at
+        rejected_by
         rejection_reason
         paid_by
         paid_at

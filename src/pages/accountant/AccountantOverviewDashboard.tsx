@@ -205,15 +205,15 @@ const AccountantOverviewDashboard: React.FC = () => {
                                 <InboxOutlined /> Quản lý Kho & Vật tư
                             </Text>
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                                <FlowNode icon={<ApartmentOutlined />} label="Nhà phân phối" path="/kt/inventory/distributors" color="#52c41a" />
+                                <FlowNode icon={<ApartmentOutlined />} label="Nhà phân phối" path="/admin/kt/inventory/distributors" color="#52c41a" />
                                 <FlowArrow />
-                                <FlowNode icon={<ImportOutlined />} label="Nhập kho" path="/kt/inventory/stock-in" color="#52c41a" />
+                                <FlowNode icon={<ImportOutlined />} label="Nhập kho" path="/admin/kt/inventory/stock-in" color="#52c41a" />
                                 <FlowArrow />
-                                <FlowNode icon={<InboxOutlined />} label="DM Vật tư" path="/kt/inventory/materials" color="#52c41a" />
+                                <FlowNode icon={<InboxOutlined />} label="DM Vật tư" path="/admin/kt/inventory/materials" color="#52c41a" />
                                 <FlowArrow />
-                                <FlowNode icon={<ExportOutlined />} label="Xuất kho" path="/kt/inventory/stock-out" color="#52c41a" />
+                                <FlowNode icon={<ExportOutlined />} label="Xuất kho" path="/admin/kt/inventory/stock-out" color="#52c41a" />
                                 <FlowArrow />
-                                <FlowNode icon={<HistoryOutlined />} label="Lịch sử" path="/kt/inventory/history" color="#52c41a" />
+                                <FlowNode icon={<HistoryOutlined />} label="Lịch sử" path="/admin/kt/inventory/history" color="#52c41a" />
                             </div>
                         </div>
 
@@ -222,11 +222,11 @@ const AccountantOverviewDashboard: React.FC = () => {
                                 <DollarOutlined /> Quản lý Khoản chi & Ngân hàng
                             </Text>
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                                <FlowNode icon={<BankOutlined />} label="Yêu cầu chi" path="/kt/expenditures/payment-requests" color="#1890ff" />
+                                <FlowNode icon={<BankOutlined />} label="Yêu cầu chi" path="/admin/kt/expenditures/payment-requests" color="#1890ff" />
                                 <FlowArrow />
-                                <FlowNode icon={<SafetyCertificateOutlined />} label="Xác nhận" path="/kt/finance/milestones" color="#1890ff" />
+                                <FlowNode icon={<SafetyCertificateOutlined />} label="Xác nhận" path="/admin/kt/finance/milestones" color="#1890ff" />
                                 <FlowArrow />
-                                <FlowNode icon={<PieChartOutlined />} label="Báo cáo chi" path="/kt/finance/report" color="#1890ff" />
+                                <FlowNode icon={<PieChartOutlined />} label="Báo cáo chi" path="/admin/kt/finance/report" color="#1890ff" />
                             </div>
                         </div>
 
@@ -235,11 +235,11 @@ const AccountantOverviewDashboard: React.FC = () => {
                                 <ToolOutlined /> Quản lý Tài sản
                             </Text>
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                                <FlowNode icon={<ToolOutlined />} label="DM Tài sản" path="/kt/assets/list" color="#faad14" />
+                                <FlowNode icon={<ToolOutlined />} label="DM Tài sản" path="/admin/kt/assets/list" color="#faad14" />
                                 <FlowArrow />
-                                <FlowNode icon={<UsergroupAddOutlined />} label="Cấp phát" path="/kt/assets/allocation" color="#faad14" />
+                                <FlowNode icon={<UsergroupAddOutlined />} label="Cấp phát" path="/admin/kt/assets/allocation" color="#faad14" />
                                 <FlowArrow />
-                                <FlowNode icon={<HistoryOutlined />} label="Bảo trì" path="/kt/assets/allocation-history" color="#faad14" />
+                                <FlowNode icon={<HistoryOutlined />} label="Bảo trì" path="/admin/kt/assets/allocation-history" color="#faad14" />
                             </div>
                         </div>
                     </div>

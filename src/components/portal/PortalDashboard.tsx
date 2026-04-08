@@ -84,25 +84,19 @@ const PortalDashboard: React.FC<PortalDashboardProps> = ({ journey, token, onNav
         <div style={containerStyle}>
             {/* Header / Hero Section */}
             <div style={{
-                background: 'linear-gradient(135deg, #001529 0%, #0050b3 100%)',
-                padding: isPreview ? '24px 16px 40px' : '40px 24px 60px',
-                color: '#fff',
+                background: '#fff',
+                borderBottom: '1px solid #e2e8f0',
+                padding: isPreview ? '12px 16px 32px' : '24px 24px 50px',
+                color: '#1e293b',
                 position: 'relative',
                 overflow: 'hidden'
             }}>
                 <div style={{ maxWidth: 800, margin: '0 auto', position: 'relative', zIndex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: isPreview ? 16 : 24 }}>
-                        <AppBrandLogo size="sm" variant="onDark" />
-                        <div style={{ fontSize: 10, opacity: 0.8, textTransform: 'uppercase', letterSpacing: 1 }}>
-                            Cổng Thông Tin Dịch Vụ - SIRA
-                        </div>
-                    </div>
-                    
-                    <Title level={isPreview ? 4 : 2} style={{ color: '#fff', margin: '0 0 12px' }}>
+                    <Title level={isPreview ? 4 : 2} style={{ color: '#0f172a', margin: '0 0 12px' }}>
                         {journey.request_title}
                     </Title>
-                    <Space size="middle" style={{ opacity: 0.9 }}>
-                        <Text style={{ color: '#fff', fontSize: 12 }}>Mã: {journey.journey_code}</Text>
+                    <Space size="middle" style={{ color: '#475569' }}>
+                        <Text style={{ color: '#475569', fontSize: 12 }}>Mã: {journey.journey_code}</Text>
                         <Tag color="blue" style={{ border: 'none', fontSize: 10 }}>{journey.idx_serviceTypeId?.title}</Tag>
                     </Space>
                 </div>

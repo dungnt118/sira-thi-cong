@@ -81,7 +81,7 @@ const EvidenceUpload: React.FC = () => {
     return (
         <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-                <Button icon={<ArrowLeftOutlined />} size="small" onClick={() => navigate(`/worker/checklist/${projectId}`)} />
+                <Button icon={<ArrowLeftOutlined />} size="small" onClick={() => navigate(`/admin/gs/checklist/${projectId}`)} />
                 <div>
                     <Title level={5} style={{ margin: 0 }}><CameraOutlined /> Bước {step.order}: {step.name}</Title>
                     <Text type="secondary" style={{ fontSize: 12 }}>{journey.journey_code}</Text>
@@ -205,9 +205,9 @@ const EvidenceUpload: React.FC = () => {
             <Modal
                 title={<span><CheckCircleOutlined style={{ color: '#52c41a' }} /> Gửi ảnh thành công!</span>}
                 open={doneModal}
-                onCancel={() => { setDoneModal(false); navigate(`/worker/checklist/${projectId}`); }}
+                onCancel={() => { setDoneModal(false); navigate(`/admin/gs/checklist/${projectId}`); }}
                 footer={[
-                    <Button key="back" type="primary" onClick={() => { setDoneModal(false); navigate(`/worker/checklist/${projectId}`); }}>
+                    <Button key="back" type="primary" onClick={() => { setDoneModal(false); navigate(`/admin/gs/checklist/${projectId}`); }}>
                         Quay lại Checklist
                     </Button>,
                 ]}

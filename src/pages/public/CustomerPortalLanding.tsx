@@ -79,40 +79,12 @@ const CustomerPortalLanding: React.FC = () => {
 
     return (
         <div className="portal-container" style={{
-            minHeight: '100vh',
-            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-            padding: '40px 20px',
-            color: '#fff',
+            minHeight: 'calc(100vh - 64px)',
+            background: '#f8fafc',
+            padding: '60px 20px',
+            color: '#1e293b',
             fontFamily: "'Inter', sans-serif"
         }}>
-            {/* Header / Brand */}
-            <div style={{ textAlign: 'center', marginBottom: 48 }}>
-                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
-                    <AppBrandLogo size={64} variant="onDark" />
-                </div>
-                <div style={{
-                    display: 'inline-block',
-                    padding: '8px 16px',
-                    background: 'rgba(56, 189, 248, 0.1)',
-                    borderRadius: '20px',
-                    border: '1px solid rgba(56, 189, 248, 0.2)',
-                    marginBottom: 16
-                }}>
-                    <Text style={{ color: '#38bdf8', fontWeight: 600, fontSize: 12, letterSpacing: 1 }}>
-                        BAC CONSTRUCTION & TECHNOLOGY
-                    </Text>
-                </div>
-                <Title level={1} style={{ color: '#fff', margin: 0, fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 800 }}>
-                    Đặt Dịch vụ <span style={{
-                        background: 'linear-gradient(90deg, #38bdf8, #818cf8)',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent'
-                    }}>Nhanh chóng</span>
-                </Title>
-                <Paragraph style={{ color: '#94a3b8', fontSize: 18, marginTop: 12, maxWidth: 600, margin: '12px auto' }}>
-                    BACcam kết mang đến giải pháp thi công chuyên nghiệp, bền vững và minh bạch cho công trình của bạn.
-                </Paragraph>
-            </div>
 
             <Row gutter={[40, 40]} justify="center" style={{ maxWidth: 1200, margin: '0 auto' }}>
                 {/* Left Side: Service Info */}
@@ -130,8 +102,8 @@ const CustomerPortalLanding: React.FC = () => {
                                     <ClockCircleOutlined />
                                 </div>
                                 <div>
-                                    <Title level={4} style={{ color: '#fff', margin: 0 }}>Phản hồi trong 2h</Title>
-                                    <Text style={{ color: '#94a3b8' }}>Đội ngũ kỹ thuật sẽ liên hệ tư vấn sơ bộ ngay sau khi nhận yêu cầu.</Text>
+                                    <Title level={4} style={{ color: '#1e293b', margin: 0 }}>Phản hồi trong 2h</Title>
+                                    <Text style={{ color: '#475569' }}>Đội ngũ kỹ thuật sẽ liên hệ tư vấn sơ bộ ngay sau khi nhận yêu cầu.</Text>
                                 </div>
                             </Space>
                         </div>
@@ -148,8 +120,8 @@ const CustomerPortalLanding: React.FC = () => {
                                     <SafetyCertificateOutlined />
                                 </div>
                                 <div>
-                                    <Title level={4} style={{ color: '#fff', margin: 0 }}>Khảo sát miễn phí</Title>
-                                    <Text style={{ color: '#94a3b8' }}>Chúng tôi thực hiện đo đạc, kiểm tra hiện trạng hiện trường hoàn toàn miễn phí.</Text>
+                                    <Title level={4} style={{ color: '#1e293b', margin: 0 }}>Khảo sát miễn phí</Title>
+                                    <Text style={{ color: '#475569' }}>Chúng tôi thực hiện đo đạc, kiểm tra hiện trạng hiện trường hoàn toàn miễn phí.</Text>
                                 </div>
                             </Space>
                         </div>
@@ -166,20 +138,20 @@ const CustomerPortalLanding: React.FC = () => {
                                     <ToolOutlined />
                                 </div>
                                 <div>
-                                    <Title level={4} style={{ color: '#fff', margin: 0 }}>Bảo hành dài hạn</Title>
-                                    <Text style={{ color: '#94a3b8' }}>Cam kết chất lượng với chính sách bảo hành lên đến 10 năm tùy hạng mục.</Text>
+                                    <Title level={4} style={{ color: '#1e293b', margin: 0 }}>Bảo hành dài hạn</Title>
+                                    <Text style={{ color: '#475569' }}>Cam kết chất lượng với chính sách bảo hành lên đến 10 năm tùy hạng mục.</Text>
                                 </div>
                             </Space>
                         </div>
 
                         <Divider style={{ borderColor: 'rgba(255,255,255,0.1)' }} />
 
-                        <div style={{ background: 'rgba(255,255,255,0.03)', padding: 24, borderRadius: 20, border: '1px solid rgba(255,255,255,0.05)' }}>
-                            <Title level={5} style={{ color: '#fff' }}>Hỗ trợ khách hàng</Title>
-                            <Paragraph style={{ color: '#94a3b8', marginBottom: 8 }}>
+                        <div style={{ background: '#fff', padding: 24, borderRadius: 20, border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
+                            <Title level={5} style={{ color: '#1e293b' }}>Hỗ trợ khách hàng</Title>
+                            <Paragraph style={{ color: '#475569', marginBottom: 8 }}>
                                 <PhoneOutlined /> Hotline: 1900 xxxx (8:00 - 18:00)
                             </Paragraph>
-                            <Paragraph style={{ color: '#94a3b8', margin: 0 }}>
+                            <Paragraph style={{ color: '#475569', margin: 0 }}>
                                 <EnvironmentOutlined /> Địa chỉ: Tòa nhà SIRA, Quận Bình Thạnh, TP. HCM
                             </Paragraph>
                         </div>
@@ -189,13 +161,12 @@ const CustomerPortalLanding: React.FC = () => {
                 {/* Right Side: Booking Form */}
                 <Col xs={24} lg={12}>
                     <Card style={{
-                        background: 'rgba(30, 41, 59, 0.7)',
-                        backdropFilter: 'blur(16px)',
+                        background: '#fff',
                         borderRadius: '24px',
-                        border: '1px solid rgba(255, 255, 255, 0.08)',
-                        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
+                        border: '1px solid #e2e8f0',
+                        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.05)'
                     }} bodyStyle={{ padding: '32px' }}>
-                        <Title level={3} style={{ color: '#fff', marginBottom: 24 }}>Thông tin đặt lịch</Title>
+                        <Title level={3} style={{ color: '#1e293b', marginBottom: 24 }}>Thông tin đặt lịch</Title>
 
                         <Form
                             form={form}
@@ -211,9 +182,9 @@ const CustomerPortalLanding: React.FC = () => {
                                         rules={[{ required: true, message: 'Vui lòng nhập tên' }]}
                                     >
                                         <Input
-                                            prefix={<UserOutlined style={{ color: '#475569' }} />}
+                                            prefix={<UserOutlined style={{ color: '#94a3b8' }} />}
                                             placeholder="Nguyễn Văn A"
-                                            style={{ background: 'rgba(15, 23, 42, 0.5)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', height: 45 }}
+                                            style={{ background: '#fff', border: '1px solid #d1d5db', color: '#1e293b', height: 45 }}
                                         />
                                     </Form.Item>
                                 </Col>
@@ -224,9 +195,9 @@ const CustomerPortalLanding: React.FC = () => {
                                         rules={[{ required: true, message: 'Vui lòng nhập SĐT' }]}
                                     >
                                         <Input
-                                            prefix={<PhoneOutlined style={{ color: '#475569' }} />}
+                                            prefix={<PhoneOutlined style={{ color: '#94a3b8' }} />}
                                             placeholder="09xx xxx xxx"
-                                            style={{ background: 'rgba(15, 23, 42, 0.5)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', height: 45 }}
+                                            style={{ background: '#fff', border: '1px solid #d1d5db', color: '#1e293b', height: 45 }}
                                         />
                                     </Form.Item>
                                 </Col>
@@ -240,7 +211,7 @@ const CustomerPortalLanding: React.FC = () => {
                                 <Select
                                     placeholder="Chọn loại dịch vụ"
                                     style={{ width: '100%' }}
-                                    dropdownStyle={{ background: '#1e293b' }}
+                                    dropdownStyle={{ background: '#fff' }}
                                 >
                                     <Option value="chong-tham">Chống thấm chuyên sâu</Option>
                                     <Option value="son-nu">Sơn nước & Trang trí</Option>
@@ -256,19 +227,19 @@ const CustomerPortalLanding: React.FC = () => {
                                 <Input.TextArea
                                     placeholder="VD: Nhà tôi bị thấm sàn mái, diện tích khoảng 50m2..."
                                     rows={4}
-                                    style={{ background: 'rgba(15, 23, 42, 0.5)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff' }}
+                                    style={{ background: '#fff', border: '1px solid #d1d5db', color: '#1e293b' }}
                                 />
                             </Form.Item>
 
                             <Form.Item label={<Text style={{ color: '#94a3b8' }}>Ảnh hiện trạng (tùy chọn)</Text>}>
                                 <Dragger
                                     multiple={true}
-                                    style={{ background: 'rgba(15, 23, 42, 0.3)', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: 12 }}
+                                    style={{ background: '#f8fafc', border: '1px dashed #cbd5e1', borderRadius: 12 }}
                                 >
                                     <p className="ant-upload-drag-icon">
                                         <InboxOutlined style={{ color: '#38bdf8' }} />
                                     </p>
-                                    <p className="ant-upload-text" style={{ color: '#94a3b8' }}>Kéo thả hoặc nhấp để tải ảnh lên</p>
+                                    <p className="ant-upload-text" style={{ color: '#64748b' }}>Kéo thả hoặc nhấp để tải ảnh lên</p>
                                 </Dragger>
                             </Form.Item>
 
@@ -294,7 +265,7 @@ const CustomerPortalLanding: React.FC = () => {
                             </Button>
 
                             <div style={{ textAlign: 'center', marginTop: 24 }}>
-                                <Space style={{ color: '#475569', fontSize: 13 }}>
+                                <Space style={{ color: '#64748b', fontSize: 13 }}>
                                     <SafetyCertificateOutlined />
                                     Bảo mật thông tin khách hàng tuyệt đối
                                 </Space>
@@ -308,11 +279,11 @@ const CustomerPortalLanding: React.FC = () => {
             <style>{`
                 .portal-container .ant-input, .portal-container .ant-select-selector {
                     transition: all 0.3s ease !important;
+                    border-radius: 8px !important;
                 }
                 .portal-container .ant-input:focus, .portal-container .ant-select-focused .ant-select-selector {
                     border-color: #38bdf8 !important;
-                    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2) !important;
-                    background: rgba(15, 23, 42, 0.8) !important;
+                    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.1) !important;
                 }
                 .benefit-item {
                     transition: transform 0.3s ease;
@@ -322,20 +293,23 @@ const CustomerPortalLanding: React.FC = () => {
                 }
                 .ant-form-item-label label {
                     font-weight: 500;
+                    color: #475569 !important;
                 }
                 .ant-select-dropdown {
-                    background-color: #1e293b !important;
+                    background-color: #fff !important;
+                    border: 1px solid #e2e8f0;
+                    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
                 }
                 .ant-select-item {
-                    color: #94a3b8 !important;
+                    color: #475569 !important;
                 }
                 .ant-select-item-option-active {
-                    background-color: rgba(56, 189, 248, 0.1) !important;
-                    color: #fff !important;
+                    background-color: #f1f5f9 !important;
+                    color: #1e293b !important;
                 }
                 .ant-select-item-option-selected {
-                    background-color: rgba(56, 189, 248, 0.2) !important;
-                    color: #38bdf8 !important;
+                    background-color: #e0f2fe !important;
+                    color: #0369a1 !important;
                 }
             `}</style>
         </div>

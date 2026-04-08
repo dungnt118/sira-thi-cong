@@ -309,10 +309,10 @@ const JourneyList: React.FC = () => {
                             <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>Tạo yêu cầu</Button>
                         </Tooltip>
                         <Tooltip title="Xem dạng Board">
-                            <Button icon={<LayoutOutlined />} onClick={() => navigate('/ql/journeys/board')}>{isMobile ? '' : 'Board'}</Button>
+                            <Button icon={<LayoutOutlined />} onClick={() => navigate('/admin/ql/journeys/board')}>{isMobile ? '' : 'Board'}</Button>
                         </Tooltip>
                         <Tooltip title="Action Center">
-                            <Button icon={<AlertOutlined />} onClick={() => navigate('/ql/journeys/action-center')}>{isMobile ? '' : 'Action'}</Button>
+                            <Button icon={<AlertOutlined />} onClick={() => navigate('/admin/ql/journeys/action-center')}>{isMobile ? '' : 'Action'}</Button>
                         </Tooltip>
                         <Button icon={<ReloadOutlined />} onClick={handleRefresh} loading={isLoading}>Làm mới</Button>
                     </Space>

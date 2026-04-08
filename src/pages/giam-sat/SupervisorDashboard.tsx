@@ -246,7 +246,7 @@ const SupervisorDashboard: React.FC = () => {
                         hoverable
                         bodyStyle={{ padding: 16 }}
                         style={{ borderRadius: 12, height: '100%' }}
-                        onClick={() => navigate('/gs/materials')}
+                        onClick={() => navigate('/admin/gs/materials')}
                     >
                         <Space size={12}>
                             <div style={{ padding: 8, backgroundColor: '#fff7e6', borderRadius: 8 }}>
@@ -264,7 +264,7 @@ const SupervisorDashboard: React.FC = () => {
                         hoverable
                         bodyStyle={{ padding: 16 }}
                         style={{ borderRadius: 12, height: '100%' }}
-                        onClick={() => navigate('/gs/incident')}
+                        onClick={() => navigate('/admin/gs/incident')}
                     >
                         <Space size={12}>
                             <div style={{ padding: 8, backgroundColor: '#fff2f0', borderRadius: 8 }}>
@@ -283,7 +283,7 @@ const SupervisorDashboard: React.FC = () => {
             <div style={{ marginBottom: 24 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                     <Title level={5} style={{ margin: 0 }}><NotificationOutlined /> Việc cần ưu tiên</Title>
-                    <Button type="link" size="small" onClick={() => navigate('/gs/projects')}>
+                    <Button type="link" size="small" onClick={() => navigate('/admin/gs/projects')}>
                         Xem tất cả công trình <RightOutlined style={{ fontSize: 10 }} />
                     </Button>
                 </div>
@@ -304,7 +304,7 @@ const SupervisorDashboard: React.FC = () => {
                                 hoverable
                                 style={{ marginBottom: 12, borderRadius: 12 }}
                                 bodyStyle={{ padding: '16px' }}
-                                onClick={() => navigate(`/gs/journeys/${t.journey_id}`)}
+                                onClick={() => navigate(`/admin/gs/journeys/${t.journey_id}`)}
                             >
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                     <div style={{ flex: 1 }}>
@@ -343,7 +343,7 @@ const SupervisorDashboard: React.FC = () => {
                     renderItem={r => {
                         const journey = journeys.find(j => j._id === r.journey_id);
                         return (
-                            <List.Item style={{ padding: '10px 0' }} onClick={() => navigate(`/gs/journeys/${r.journey_id}`)}>
+                            <List.Item style={{ padding: '10px 0' }} onClick={() => navigate(`/admin/gs/journeys/${r.journey_id}`)}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%', cursor: 'pointer' }}>
                                     <Avatar size="small" icon={<BuildOutlined />} style={{ backgroundColor: '#fff7e6', color: '#fa8c16' }} />
                                     <div style={{ flex: 1 }}>

@@ -46,7 +46,7 @@ const TemplateList: React.FC = () => {
                 <div>
                     <Space>
                         <Text strong style={{ color: '#1976D2', cursor: 'pointer' }}
-                            onClick={() => navigate(`/ql/journeys/templates/${t.id}`)}>
+                            onClick={() => navigate(`/admin/ql/journeys/templates/${t.id}`)}>
                             {t.template_name}
                         </Text>
                         {t.is_default && <Tooltip title="Mặc định"><StarFilled style={{ color: '#fa8c16' }} /></Tooltip>}
@@ -95,7 +95,7 @@ const TemplateList: React.FC = () => {
             fixed: 'right',
             render: (_, t) => (
                 <Space size={4}>
-                    <Button size="small" icon={<EyeOutlined />} onClick={() => navigate(`/ql/journeys/templates/${t.id}`)} />
+                    <Button size="small" icon={<EyeOutlined />} onClick={() => navigate(`/admin/ql/journeys/templates/${t.id}`)} />
                     <Button
                         size="small"
                         icon={<CopyOutlined />}
@@ -188,7 +188,7 @@ const TemplateList: React.FC = () => {
                         createForm.resetFields();
                         message.success('Đã tạo template mới. Đang chuyển đến trang thiết kế bước...');
                         setTimeout(() => {
-                            navigate(`/ql/journeys/templates/${newId}`);
+                            navigate(`/admin/ql/journeys/templates/${newId}`);
                         }, 800);
                     }}>
                     <Form.Item label="Mã template" name="template_code" rules={[{ required: true }]}>
@@ -250,7 +250,7 @@ const TemplateList: React.FC = () => {
                         cloneForm.resetFields();
                         message.success('Đã clone template thành công');
                         setTimeout(() => {
-                            navigate(`/ql/journeys/templates/${newId}`);
+                            navigate(`/admin/ql/journeys/templates/${newId}`);
                         }, 800);
                     }}>
                     <Form.Item label="Template nguồn" name="source_template">

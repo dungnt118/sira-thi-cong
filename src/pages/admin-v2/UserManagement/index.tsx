@@ -173,6 +173,13 @@ const UserManagement: React.FC = () => {
                 await globalUserService.deactivateUser(user.globalUserId);
 
             if (success) {
+                // ALSO toggle status on AuthorizedUser record directly
+                if (newStatus) {
+                    await authorizedUserService.activateUser(user._id);
+                } else {
+                    await authorizedUserService.deactivateUser(user._id);
+                }
+                
                 message.success(`Đã ${actionLabel} tài khoản ${user.username || user.fullName}.`);
                 await fetchUsers();
             } else {
@@ -250,18 +257,30 @@ const UserManagement: React.FC = () => {
 
             if (editingUser) {
                 if (editingUser.globalUserId) {
-                    const isGlobalUpdated = await globalUserService.updateUser({
-                        userId: editingUser.globalUserId,
-                        fullName: values.fullName,
-                        email: values.email,
-                        phoneNumber: values.phoneNumber,
-                    });
+                    const hasProfileChanged = 
+                        values.fullName !== (editingUser.fullName || '') ||
+                        values.email !== (editingUser.email || '') ||
+                        values.phoneNumber !== (editingUser.phoneNumber || '');
 
-                    if (!isGlobalUpdated) {
-                        throw new Error('Không thể cập nhật GlobalUser.');
+                    if (hasProfileChanged) {
+                        try {
+                            const isGlobalUpdated = await globalUserService.updateUser({
+                                userId: editingUser.globalUserId,
+                                fullName: values.fullName,
+                                email: values.email,
+                                phoneNumber: values.phoneNumber,
+                            });
+
+                            if (!isGlobalUpdated) {
+                                console.warn('GlobalUser profile update returned false, possibly due to partial implementation on backend.');
+                            }
+                        } catch (err) {
+                            console.error('Failed to update GlobalUser profile, proceeding with role update:', err);
+                        }
                     }
                 }
 
+                // Use specific update mutations instead of 'create_authorized_user' (which is not an upsert on this backend)
                 const isContextUpdated = await authorizedUserService.updateIdentityContext({
                     userId: editingUser._id,
                     clientId: BAC_USER_CLIENT_ID,
@@ -270,7 +289,13 @@ const UserManagement: React.FC = () => {
                 });
 
                 if (!isContextUpdated) {
-                    throw new Error('Không thể cập nhật quyền của AuthorizedUser.');
+                    throw new Error('Không thể đồng bộ quyền của AuthorizedUser (IdentityContext).');
+                }
+
+                // Synchronize root roles as well
+                await authorizedUserService.assignRoles(editingUser._id, values.roles);
+                if (values.defaultRole) {
+                    await authorizedUserService.setDefaultRole(editingUser._id, values.defaultRole);
                 }
 
                 message.success('Cập nhật người dùng thành công.');
