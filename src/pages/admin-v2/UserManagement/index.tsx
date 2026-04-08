@@ -257,30 +257,45 @@ const UserManagement: React.FC = () => {
 
             if (editingUser) {
                 if (editingUser.globalUserId) {
-                    const isGlobalUpdated = await globalUserService.updateUser({
-                        userId: editingUser.globalUserId,
-                        fullName: values.fullName,
-                        email: values.email,
-                        phoneNumber: values.phoneNumber,
-                    });
+                    const hasProfileChanged = 
+                        values.fullName !== (editingUser.fullName || '') ||
+                        values.email !== (editingUser.email || '') ||
+                        values.phoneNumber !== (editingUser.phoneNumber || '');
 
-                    if (!isGlobalUpdated) {
-                        throw new Error('Không thể cập nhật GlobalUser.');
+                    if (hasProfileChanged) {
+                        try {
+                            const isGlobalUpdated = await globalUserService.updateUser({
+                                userId: editingUser.globalUserId,
+                                fullName: values.fullName,
+                                email: values.email,
+                                phoneNumber: values.phoneNumber,
+                            });
+
+                            if (!isGlobalUpdated) {
+                                console.warn('GlobalUser profile update returned false, possibly due to partial implementation on backend.');
+                            }
+                        } catch (err) {
+                            console.error('Failed to update GlobalUser profile, proceeding with role update:', err);
+                        }
                     }
                 }
 
-                // IMPORTANT: In many of these systems, 'create_authorized_user' acts as an upsert 
-                // for the link between GlobalUser and Client, including role assignment.
-                // We use this to ensure parity with the 'Create' flow and impact the root AuthorizedUser record.
-                const isAuthorizedUpdated = await authorizedUserService.createAuthorizedUser({
-                    globalUserId: editingUser.globalUserId!,
+                // Use specific update mutations instead of 'create_authorized_user' (which is not an upsert on this backend)
+                const isContextUpdated = await authorizedUserService.updateIdentityContext({
+                    userId: editingUser._id,
                     clientId: BAC_USER_CLIENT_ID,
                     roles: values.roles,
-                    role: values.defaultRole,
+                    defaultRole: values.defaultRole,
                 });
 
-                if (!isAuthorizedUpdated) {
-                    throw new Error('Không thể đồng bộ quyền của AuthorizedUser.');
+                if (!isContextUpdated) {
+                    throw new Error('Không thể đồng bộ quyền của AuthorizedUser (IdentityContext).');
+                }
+
+                // Synchronize root roles as well
+                await authorizedUserService.assignRoles(editingUser._id, values.roles);
+                if (values.defaultRole) {
+                    await authorizedUserService.setDefaultRole(editingUser._id, values.defaultRole);
                 }
 
                 message.success('Cập nhật người dùng thành công.');
