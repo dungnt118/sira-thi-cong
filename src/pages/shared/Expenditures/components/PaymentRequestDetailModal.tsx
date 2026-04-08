@@ -228,6 +228,7 @@ const PaymentRequestDetailModal: React.FC<PaymentRequestDetailModalProps> = ({
             console.error('Form validate error or save error', error);
         } finally {
             setIsRejecting(false);
+            rejectForm.resetFields();
         }
     };
 
@@ -360,6 +361,7 @@ const PaymentRequestDetailModal: React.FC<PaymentRequestDetailModalProps> = ({
             if (request.status === 'pending_approval' && isPM) {
                 actions.push(
                     <Button key="reject" danger icon={<CloseCircleOutlined />} onClick={() => {
+                        rejectForm.resetFields();
                         Modal.confirm({
                             title: 'Từ chối yêu cầu chi',
                             icon: <StopOutlined style={{ color: '#ff4d4f' }} />,
@@ -387,6 +389,7 @@ const PaymentRequestDetailModal: React.FC<PaymentRequestDetailModalProps> = ({
             if (request.status === 'approved' && isAccountant) {
                 actions.push(
                     <Button key="reject_acc" danger icon={<CloseCircleOutlined />} onClick={() => {
+                        rejectForm.resetFields();
                         Modal.confirm({
                             title: 'Từ chối yêu cầu chi',
                             icon: <StopOutlined style={{ color: '#ff4d4f' }} />,

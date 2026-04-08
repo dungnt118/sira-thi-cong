@@ -527,6 +527,13 @@ const PaymentRequestList: React.FC = () => {
                 pagination={{ pageSize: 10, size: 'small' }}
                 scroll={{ x: 1000 }}
                 locale={{ emptyText: <Empty description="Không có dữ liệu yêu cầu chi" /> }}
+                onRow={(record) => ({
+                    onClick: () => {
+                        setEditingRequest(record);
+                        setIsModalOpen(true);
+                    },
+                    style: { cursor: 'pointer' }
+                })}
             />
 
             <PaymentRequestDetailModal 
