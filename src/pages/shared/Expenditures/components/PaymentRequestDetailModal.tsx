@@ -219,6 +219,7 @@ const PaymentRequestDetailModal: React.FC<PaymentRequestDetailModalProps> = ({
             await paymentRequestService.updatePaymentRequest(request._id, {
                 status: 'rejected',
                 rejected_at: new Date().toISOString(),
+                rejected_by: user?.username || 'unknown',
                 rejection_reason: values.rejection_reason
             });
             message.success('Đã từ chối yêu cầu chi');
@@ -475,6 +476,8 @@ const PaymentRequestDetailModal: React.FC<PaymentRequestDetailModalProps> = ({
                                             </div>
                                         ) : request.status === 'rejected' ? (
                                             <div style={{ fontSize: 11, color: '#ff4d4f' }}>
+                                                <div>{request.rejected_by?.display_name || request.rejected_by}</div>
+                                                <div>{request.rejected_at ? moment(request.rejected_at).format('DD/MM/YYYY HH:mm') : ''}</div>
                                                 {request.rejection_reason && <Text type="danger" style={{ fontSize: 11 }}>Lý do: {request.rejection_reason}</Text>}
                                             </div>
                                         ) : 'Đang chờ...'

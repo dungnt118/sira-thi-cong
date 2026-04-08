@@ -36,7 +36,7 @@ export interface IPaymentRequest {
   approved_by?: any;
   approved_at?: string | Date;
   rejected_at?: string | Date;
-  rejected_by?: string;
+  rejected_by?: any;
   rejection_reason?: string;
   paid_by?: any;
   paid_at?: string | Date;
@@ -75,6 +75,7 @@ export interface ICreatePaymentRequestInput {
   approved_by?: any;
   approved_at?: string | Date;
   rejected_at?: string | Date;
+  rejected_by?: any;
   rejection_reason?: string;
   paid_by?: any;
   paid_at?: string | Date;
