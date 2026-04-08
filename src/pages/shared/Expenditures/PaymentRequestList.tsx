@@ -14,7 +14,8 @@ import {
     WarningOutlined, StopOutlined, ShopOutlined,
     AccountBookOutlined, TeamOutlined, PropertySafetyOutlined,
     SwapOutlined, InfoCircleOutlined, ThunderboltOutlined,
-    FieldTimeOutlined, DollarOutlined
+    FieldTimeOutlined, DollarOutlined, PaperClipOutlined,
+    FileImageOutlined, EyeOutlined
 } from '@ant-design/icons';
 import { useAuth } from '@/hooks/useAuth';
 import { UploadFilesEdit } from '@/components/files/UploadFiles';
@@ -141,6 +142,7 @@ const PaymentRequestList: React.FC = () => {
     }, []);
 
     const handleOpenModal = (request?: IPaymentRequest) => {
+        form.resetFields();
         if (request) {
             setEditingRequest(request);
             form.setFieldsValue({
@@ -148,6 +150,7 @@ const PaymentRequestList: React.FC = () => {
                 supporting_files: request.supporting_files || []
             });
         } else {
+            setEditingRequest(null);
             const defaultValues: any = {
                 status: 'pending_approval',
                 priority: 'normal',
@@ -159,14 +162,12 @@ const PaymentRequestList: React.FC = () => {
             if (!isAccountant && user) {
                 const userDisplayName = user.display_name || user.username;
                 const contact = beneficiaryContacts.find(c => 
-                    c.contact_name?.toLowerCase().includes(user.username?.toLowerCase() || '') ||
-                    c.contact_name?.toLowerCase().includes(user.display_name?.toLowerCase() || '')
+                    c.contact_name?.toLowerCase().includes(user?.username?.toLowerCase() || '') ||
+                    c.contact_name?.toLowerCase().includes(user?.display_name?.toLowerCase() || '')
                 );
                 if (contact) {
                     defaultValues.beneficiary_bank_contact_id = contact._id;
                 } else {
-                    // Fallback to username if no contact found yet
-                    // Note: System might require a contact ID, but we fill what we can
                     defaultValues.beneficiary_name_snapshot = userDisplayName;
                 }
             }
@@ -176,9 +177,12 @@ const PaymentRequestList: React.FC = () => {
         setIsModalOpen(true);
     };
 
-    const handleSave = async () => {
+    const handleSave = async (statusOverride?: string) => {
         try {
             const values = await form.validateFields();
+            if (statusOverride) {
+                values.status = statusOverride;
+            }
             setSaving(true);
 
             if (values.company_bank_account_id) {
@@ -330,11 +334,7 @@ const PaymentRequestList: React.FC = () => {
         }
     };
 
-    const isImageFile = (file: any) => {
-        if (!file?.name) return false;
-        const imgPattern = new RegExp(/(\.jpg|\.jpeg|\.png|\.gif|\.webp)$/i);
-        return imgPattern.test(file.name);
-    };
+
 
     const columns: ColumnsType<IPaymentRequest> = [
         {
@@ -411,69 +411,114 @@ const PaymentRequestList: React.FC = () => {
             width: 140,
             render: (amount, record) => (
                 <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontWeight: 'bold', color: '#1890ff', fontSize: 15 }}>
-                        {amount?.toLocaleString('vi-VN')}
-                    </div>
-                    <Text type="secondary" style={{ fontSize: 11 }}>{record.currency?.toUpperCase() || 'VND'}</Text>
+                    <Tooltip title="Số tiền">
+                        <div style={{ fontWeight: 'bold', color: '#1890ff', fontSize: 15 }}>
+                            {amount?.toLocaleString('vi-VN')}
+                        </div>
+                        <Text type="secondary" style={{ fontSize: 11 }}>{record.currency?.toUpperCase() || 'VND'}</Text>
+                    </Tooltip>
                 </div>
             )
+        },
+        {
+            title: 'Chứng từ/Minh chứng',
+            key: 'files',
+            width: 150,
+            render: (_, record) => {
+                const totalFiles = (record.supporting_files?.length || 0) + (record.payment_proof_files?.length || 0);
+                if (totalFiles === 0) return <Text type="secondary" style={{ fontSize: 11 }}>Không có file</Text>;
+
+                return (
+                    <Space size={4} wrap>
+                        {(record.supporting_files?.length ?? 0) > 0 && (
+                            <Tooltip title={`${record.supporting_files?.length} tài liệu đính kèm`}>
+                                <Tag color="blue" icon={<PaperClipOutlined />} style={{ cursor: 'default', margin: 0 }}>
+                                    {record.supporting_files?.length}
+                                </Tag>
+                            </Tooltip>
+                        )}
+                        {(record.payment_proof_files?.length ?? 0) > 0 && (
+                            <Tooltip title={`${record.payment_proof_files?.length} minh chứng chi tiền`}>
+                                <Tag color="green" icon={<FileImageOutlined />} style={{ cursor: 'default', margin: 0 }}>
+                                    {record.payment_proof_files?.length}
+                                </Tag>
+                            </Tooltip>
+                        )}
+                    </Space>
+                );
+            }
         },
         {
             title: 'Hành động',
             key: 'action',
             width: 160,
-            render: (_, record) => (
-                <Space size={4}>
-                    {isAccountant && record.status === 'pending_approval' && (
-                        <>
-                            <Tooltip title="Phê duyệt">
-                                <Button type="primary" size="small" icon={<CheckCircleOutlined />} onClick={() => handleApprove(record)} ghost />
-                            </Tooltip>
-                            <Tooltip title="Từ chối">
-                                <Button danger size="small" icon={<CloseCircleOutlined />} onClick={() => handleReject(record)} ghost />
-                            </Tooltip>
-                        </>
-                    )}
-                    {isAccountant && record.status === 'approved' && (
-                        <Button 
-                            type="primary" 
-                            size="small" 
-                            icon={<CheckCircleOutlined />} 
-                            onClick={() => {
-                                setConfirmingRecord(record);
-                                setIsConfirmPayModalOpen(true);
-                            }}
+            render: (_, record) => {
+                const isOwner = record.requested_by === user?.username || (record as any).createdBy === user?.username;
+                const canManage = isAccountant || (isOwner && record.status === 'draft');
+
+                return (
+                    <Space size={4}>
+                        <Tooltip title="Xem chi tiết">
+                            <Button 
+                                icon={<EyeOutlined />} 
+                                size="small" 
+                                type="text" 
+                                onClick={() => handleOpenModal(record)} 
+                            />
+                        </Tooltip>
+                        {isAccountant && record.status === 'pending_approval' && (
+                            <>
+                                <Tooltip title="Phê duyệt">
+                                    <Button type="primary" size="small" icon={<CheckCircleOutlined />} onClick={() => handleApprove(record)} ghost />
+                                </Tooltip>
+                                <Tooltip title="Từ chối">
+                                    <Button danger size="small" icon={<CloseCircleOutlined />} onClick={() => handleReject(record)} ghost />
+                                </Tooltip>
+                            </>
+                        )}
+                        {isAccountant && record.status === 'approved' && (
+                            <Button 
+                                type="primary" 
+                                size="small" 
+                                icon={<CheckCircleOutlined />} 
+                                onClick={() => {
+                                    setConfirmingRecord(record);
+                                    setIsConfirmPayModalOpen(true);
+                                }}
+                            >
+                                Chi trả
+                            </Button>
+                        )}
+                        <Divider type="vertical" />
+                        <Tooltip title={!canManage ? "Không thể sửa" : "Chỉnh sửa"}>
+                            <Button 
+                                icon={<EditOutlined />} 
+                                size="small" 
+                                type="text" 
+                                onClick={() => handleOpenModal(record)} 
+                                disabled={!canManage}
+                            />
+                        </Tooltip>
+                        <Popconfirm 
+                            title="Xóa yêu cầu này?" 
+                            onConfirm={() => handleDelete(record._id)}
+                            disabled={!canManage}
                         >
-                            Chi trả
-                        </Button>
-                    )}
-                    <Divider type="vertical" />
-                    <Tooltip title={(record.status === 'paid' || (!isAccountant && record.status !== 'pending_approval' && record.status !== 'draft')) ? "Không thể sửa" : "Chỉnh sửa"}>
-                        <Button 
-                            icon={<EditOutlined />} 
-                            size="small" 
-                            type="text" 
-                            onClick={() => handleOpenModal(record)} 
-                            disabled={record.status === 'paid' || (!isAccountant && record.status !== 'pending_approval' && record.status !== 'draft')}
-                        />
-                    </Tooltip>
-                    <Popconfirm 
-                        title="Xóa yêu cầu này?" 
-                        onConfirm={() => handleDelete(record._id)}
-                        disabled={record.status === 'paid' || (!isAccountant && record.status !== 'pending_approval' && record.status !== 'draft')}
-                    >
-                        <Button 
-                            icon={<DeleteOutlined />} 
-                            size="small" 
-                            type="text" 
-                            danger 
-                            disabled={record.status === 'paid' || (!isAccountant && record.status !== 'pending_approval' && record.status !== 'draft')}
-                        />
-                    </Popconfirm>
-                </Space>
-            ),
+                            <Button 
+                                icon={<DeleteOutlined />} 
+                                size="small" 
+                                type="text" 
+                                danger 
+                                disabled={!canManage}
+                            />
+                        </Popconfirm>
+                    </Space>
+                );
+            },
         },
     ];
+
+    const isReadOnly = !!(editingRequest && !(isAccountant || (editingRequest.status === 'draft' && (editingRequest.requested_by === user?.username || (editingRequest as any).createdBy === user?.username))));
 
     return (
         <div style={{ padding: isMobile ? '8px' : '24px' }}>
@@ -628,26 +673,52 @@ const PaymentRequestList: React.FC = () => {
             />
 
             <Modal
-                title={editingRequest ? "Cập nhật yêu cầu chi" : "Tạo yêu cầu chi mới"}
+                title={editingRequest ? (isReadOnly ? "Chi tiết yêu cầu chi" : "Cập nhật yêu cầu chi") : "Tạo yêu cầu chi mới"}
                 open={isModalOpen}
                 onCancel={() => setIsModalOpen(false)}
-                footer={[
+                footer={isReadOnly ? [
+                    <Button key="close" onClick={() => setIsModalOpen(false)}>Đóng</Button>
+                ] : [
                     <Button key="cancel" onClick={() => setIsModalOpen(false)}>Hủy</Button>,
-                    <Button key="submit" type="primary" icon={<SaveOutlined />} loading={saving} onClick={handleSave}>Lưu yêu cầu</Button>
+                    (!editingRequest || editingRequest.status === 'draft') && !isAccountant ? (
+                        <>
+                            <Button 
+                                key="draft" 
+                                icon={<SaveOutlined />} 
+                                loading={saving} 
+                                onClick={() => handleSave('draft')}
+                            >
+                                Lưu nháp
+                            </Button>
+                            <Button 
+                                key="submit" 
+                                type="primary" 
+                                icon={<SendOutlined />} 
+                                loading={saving} 
+                                onClick={() => handleSave('pending_approval')}
+                            >
+                                Gửi duyệt
+                            </Button>
+                        </>
+                    ) : (
+                        <Button key="submit" type="primary" icon={<SaveOutlined />} loading={saving} onClick={() => handleSave()}>
+                            {editingRequest ? 'Lưu thay đổi' : 'Lưu yêu cầu'}
+                        </Button>
+                    )
                 ]}
                 width="95%"
                 style={{ maxWidth: 850 }}
             >
-                <Form form={form} layout="vertical">
+                <Form form={form} layout="vertical" disabled={!!isReadOnly}>
                     <Row gutter={16}>
                         {isAccountant && (
-                            <Col xs={24} sm={8}>
+                            <Col xs={24} sm={24}>
                                 <Form.Item name="code" label="Mã yêu cầu">
                                     <Input placeholder="VD: YCC-2026-001" />
                                 </Form.Item>
                             </Col>
                         )}
-                        <Col xs={24} sm={8}>
+                        <Col xs={24} sm={12}>
                             <Form.Item name="request_type" label="Loại yêu cầu" rules={[{ required: true }]}>
                                 <Select style={{ width: '100%' }}>
                                     <Option value="supplier_payment">Thanh toán NCC</Option>
@@ -659,7 +730,7 @@ const PaymentRequestList: React.FC = () => {
                                 </Select>
                             </Form.Item>
                         </Col>
-                        <Col xs={24} sm={8}>
+                        <Col xs={24} sm={12}>
                             <Form.Item name="priority" label="Mức độ ưu tiên" rules={[{ required: true }]}>
                                 <Select style={{ width: '100%' }}>
                                     <Option value="normal">

@@ -425,7 +425,7 @@ export const UploadFilesEdit = forwardRef(function UploadFilesEdit(
                                             avatar={
                                                 isImageFile(file) ? (
                                                     <Image
-                                                        src={file.url || getFileLink(file.file_id)}
+                                                        src={getFileLink(file.file_id || file.url)}
                                                         width={40}
                                                         height={40}
                                                         style={{ objectFit: 'cover' }}
@@ -830,7 +830,7 @@ export function UploadFilesView({ value, property }: { value: any, property: Pro
                                     >
                                         <Image
                                             preview={false}
-                                            src={file.url || getFileLink(file.file_id)}
+                                            src={getFileLink(file.file_id || file.url)}
                                             width={80}
                                             height={80}
                                             style={{ objectFit: 'cover' }}
@@ -890,7 +890,7 @@ export function UploadFilesView({ value, property }: { value: any, property: Pro
                     <div className="text-center">
                         {isImageFile(previewFile) ? (
                             <Image
-                                src={previewFile.url || getFileLink(previewFile.file_id)}
+                                src={getFileLink(previewFile.file_id || previewFile.url)}
                                 alt={previewFile.name}
                                 style={{ maxWidth: '100%', maxHeight: '500px' }}
                                 fallback={IMAGE_FALLBACK_SVG}
@@ -900,7 +900,7 @@ export function UploadFilesView({ value, property }: { value: any, property: Pro
                                 controls 
                                 autoPlay 
                                 style={{ maxWidth: '100%', maxHeight: '500px', backgroundColor: '#000' }}
-                                src={previewFile.url || getFileLink(previewFile.file_id)}
+                                src={getFileLink(previewFile.file_id || previewFile.url)}
                             >
                                 Your browser does not support the video tag.
                             </video>
