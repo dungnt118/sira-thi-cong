@@ -11,7 +11,10 @@ import {
     CloseCircleOutlined, ClockCircleOutlined,
     EditOutlined, DeleteOutlined, SaveOutlined,
     CreditCardOutlined, UserOutlined, BankOutlined,
-    WarningOutlined, StopOutlined
+    WarningOutlined, StopOutlined, ShopOutlined,
+    AccountBookOutlined, TeamOutlined, PropertySafetyOutlined,
+    SwapOutlined, InfoCircleOutlined, ThunderboltOutlined,
+    FieldTimeOutlined, DollarOutlined
 } from '@ant-design/icons';
 import { useAuth } from '@/hooks/useAuth';
 import { UploadFilesEdit } from '@/components/files/UploadFiles';
@@ -51,14 +54,13 @@ const PaymentRequestList: React.FC = () => {
     const [confirmPayForm] = Form.useForm();
 
     const getBaseFilter = () => {
-        const filter: any = {};
+        const filter: any = { collection: 'paymentrequest' };
         if (!isAccountant && user?.username) {
             filter.group = {
                 op: 'OR',
                 children: [
-                    { id: 'createdBy', operation: '==', value: user.username },
-                    { id: 'requested_by', operation: '==', value: user.username },
-                    { id: 'requested_by', operation: '==', value: user.display_name }
+                    { id: 'createdBy', operation: '==', value: user.username, propType: 'TEXT' },
+                    { id: 'requested_by', operation: '==', value: user.username, propType: 'TEXT' }
                 ]
             };
         }
@@ -202,7 +204,7 @@ const PaymentRequestList: React.FC = () => {
                 await paymentRequestService.updatePaymentRequest(editingRequest._id, values);
                 message.success('Cập nhật yêu cầu thành công');
             } else {
-                values.requested_by = user?.display_name || user?.username || 'Current User';
+                values.requested_by = user?.username || 'unknown';
                 values.submitted_at = new Date().toISOString();
                 
                 await paymentRequestService.createPaymentRequest(values as ICreatePaymentRequestInput);
@@ -239,7 +241,7 @@ const PaymentRequestList: React.FC = () => {
             await paymentRequestService.updatePaymentRequest(confirmingRecord._id, {
                 status: 'paid',
                 paid_at: new Date().toISOString(),
-                paid_by: user?.display_name || user?.username || 'Accountant',
+                paid_by: user?.username || 'Accountant',
                 bank_transaction_ref: values.bank_transaction_ref,
                 payment_proof_note: values.payment_proof_note,
                 payment_proof_files: values.payment_proof_files
@@ -361,13 +363,13 @@ const PaymentRequestList: React.FC = () => {
             render: (_, record) => {
                 const getRequestTypeLabel = (type: string | undefined) => {
                     switch (type) {
-                        case 'supplier_payment': return 'Thanh toán NCC';
-                        case 'expense_reimbursement': return 'Hoàn ứng/Công tác phí';
-                        case 'salary_payment': return 'Chi lương/Thưởng';
-                        case 'tax_payment': return 'Nộp thuế/Lệ phí';
-                        case 'internal_transfer': return 'Chuyển khoản nội bộ';
-                        case 'other': return 'Chi khác';
-                        default: return type?.toUpperCase().replace('_', ' ');
+                        case 'supplier_payment': return <Space size={4}><ShopOutlined />Thanh toán NCC</Space>;
+                        case 'expense_reimbursement': return <Space size={4}><AccountBookOutlined />Hoàn ứng/Công tác phí</Space>;
+                        case 'salary_payment': return <Space size={4}><TeamOutlined />Chi lương/Thưởng</Space>;
+                        case 'tax_payment': return <Space size={4}><PropertySafetyOutlined />Nộp thuế/Lệ phí</Space>;
+                        case 'internal_transfer': return <Space size={4}><SwapOutlined />Chuyển khoản nội bộ</Space>;
+                        case 'other': return <Space size={4}><InfoCircleOutlined />Chi khác</Space>;
+                        default: return <Space size={4}><InfoCircleOutlined />{type?.toUpperCase().replace('_', ' ')}</Space>;
                     }
                 };
 
@@ -505,6 +507,7 @@ const PaymentRequestList: React.FC = () => {
                             title="Tổng số tiền yêu cầu"
                             value={totalAmount}
                             suffix="VND"
+                            prefix={<CreditCardOutlined />}
                             valueStyle={{ color: '#1890ff' }}
                         />
                     </Card>
@@ -513,8 +516,9 @@ const PaymentRequestList: React.FC = () => {
                     <Card size="small">
                         <Statistic
                             title="Chờ duyệt"
-                            value={data.filter(i => i.status === 'pending_approval').length}
+                            value={counts['pending_approval'] || 0}
                             suffix="Yêu cầu"
+                            prefix={<ClockCircleOutlined />}
                             valueStyle={{ color: '#faad14' }}
                         />
                     </Card>
@@ -523,8 +527,9 @@ const PaymentRequestList: React.FC = () => {
                     <Card size="small">
                         <Statistic
                             title="Đã chi"
-                            value={data.filter(i => i.status === 'paid').length}
+                            value={counts['paid'] || 0}
                             suffix="Yêu cầu"
+                            prefix={<CheckCircleOutlined />}
                             valueStyle={{ color: '#52c41a' }}
                         />
                     </Card>
@@ -542,7 +547,7 @@ const PaymentRequestList: React.FC = () => {
                         key: 'pending_approval',
                         label: (
                             <Space>
-                                <ClockCircleOutlined />
+                                <ClockCircleOutlined style={{ color: '#faad14' }} />
                                 <span>Chờ duyệt</span>
                                 <Badge count={counts['pending_approval'] || 0} overflowCount={999} style={{ backgroundColor: '#faad14' }} />
                             </Space>
@@ -552,7 +557,7 @@ const PaymentRequestList: React.FC = () => {
                         key: 'draft',
                         label: (
                             <Space>
-                                <FileTextOutlined />
+                                <FileTextOutlined style={{ color: '#8c8c8c' }} />
                                 <span>Nháp</span>
                                 <Badge count={counts['draft'] || 0} overflowCount={999} />
                             </Space>
@@ -562,7 +567,7 @@ const PaymentRequestList: React.FC = () => {
                         key: 'approved',
                         label: (
                             <Space>
-                                <CheckCircleOutlined />
+                                <CheckCircleOutlined style={{ color: '#1890ff' }} />
                                 <span>Đã duyệt</span>
                                 <Badge count={counts['approved'] || 0} overflowCount={999} style={{ backgroundColor: '#1890ff' }} />
                             </Space>
@@ -572,7 +577,7 @@ const PaymentRequestList: React.FC = () => {
                         key: 'paid',
                         label: (
                             <Space>
-                                <SendOutlined />
+                                <SendOutlined style={{ color: '#52c41a' }} />
                                 <span>Đã chi</span>
                                 <Badge count={counts['paid'] || 0} overflowCount={999} style={{ backgroundColor: '#52c41a' }} />
                             </Space>
@@ -582,7 +587,7 @@ const PaymentRequestList: React.FC = () => {
                         key: 'rejected',
                         label: (
                             <Space>
-                                <CloseCircleOutlined />
+                                <CloseCircleOutlined style={{ color: '#ff4d4f' }} />
                                 <span>Từ chối</span>
                                 <Badge count={counts['rejected'] || 0} overflowCount={999} style={{ backgroundColor: '#ff4d4f' }} />
                             </Space>
@@ -592,7 +597,7 @@ const PaymentRequestList: React.FC = () => {
                         key: 'all',
                         label: (
                             <Space>
-                                <FilterOutlined />
+                                <FilterOutlined style={{ color: '#1890ff' }} />
                                 <span>Tất cả</span>
                                 <Badge count={counts['all'] || 0} overflowCount={999} style={{ backgroundColor: '#8c8c8c' }} />
                             </Space>
@@ -657,9 +662,15 @@ const PaymentRequestList: React.FC = () => {
                         <Col xs={24} sm={8}>
                             <Form.Item name="priority" label="Mức độ ưu tiên" rules={[{ required: true }]}>
                                 <Select style={{ width: '100%' }}>
-                                    <Option value="normal">Bình thường</Option>
-                                    <Option value="urgent">Gấp</Option>
-                                    <Option value="critical">Khẩn cấp</Option>
+                                    <Option value="normal">
+                                        <Space><FieldTimeOutlined />Bình thường</Space>
+                                    </Option>
+                                    <Option value="urgent">
+                                        <Space><ThunderboltOutlined style={{ color: '#faad14' }} />Gấp</Space>
+                                    </Option>
+                                    <Option value="critical">
+                                        <Space><WarningOutlined style={{ color: '#ff4d4f' }} />Khẩn cấp</Space>
+                                    </Option>
                                 </Select>
                             </Form.Item>
                         </Col>
@@ -683,9 +694,9 @@ const PaymentRequestList: React.FC = () => {
                         <Col xs={24} sm={12}>
                             <Form.Item name="currency" label="Tiền tệ" rules={[{ required: true }]}>
                                 <Select style={{ width: '100%' }}>
-                                    <Option value="vnd">VND - Việt Nam Đồng</Option>
-                                    <Option value="usd">USD - Đô la Mỹ</Option>
-                                    <Option value="eur">EUR - Đồng Euro</Option>
+                                    <Option value="vnd"><Space><DollarOutlined />VND - Việt Nam Đồng</Space></Option>
+                                    <Option value="usd"><Space><DollarOutlined />USD - Đô la Mỹ</Space></Option>
+                                    <Option value="eur"><Space><DollarOutlined />EUR - Đồng Euro</Space></Option>
                                 </Select>
                             </Form.Item>
                         </Col>
