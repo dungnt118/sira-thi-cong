@@ -79,12 +79,17 @@ const PaymentRequestDetailModal: React.FC<PaymentRequestDetailModalProps> = ({
             form.resetFields();
             rejectForm.resetFields();
             confirmPayForm.resetFields();
+            setIsRejecting(false);
+            setIsConfirmingPay(false);
 
             if (request) {
-                form.setFieldsValue({
+                // Formatting for form
+                const formData = {
                     ...request,
+                    request_date: request.request_date ? moment(request.request_date) : moment(),
                     supporting_files: request.supporting_files || []
-                });
+                };
+                form.setFieldsValue(formData);
             } else {
                 const defaultValues: any = {
                     status: 'pending_approval',
@@ -215,7 +220,7 @@ const PaymentRequestDetailModal: React.FC<PaymentRequestDetailModalProps> = ({
         if (!request) return;
         try {
             const values = await rejectForm.validateFields();
-            setIsRejecting(true);
+            setSaving(true);
             await paymentRequestService.updatePaymentRequest(request._id, {
                 status: 'rejected',
                 rejected_at: new Date().toISOString(),
@@ -223,13 +228,15 @@ const PaymentRequestDetailModal: React.FC<PaymentRequestDetailModalProps> = ({
                 rejection_reason: values.rejection_reason
             });
             message.success('Đã từ chối yêu cầu chi');
+            setIsRejecting(false);
             onSuccess();
             onClose();
-        } catch (error) {
-            console.error('Form validate error or save error', error);
+        } catch (error: any) {
+            if (error.errorFields) return; // Form validation error
+            console.error('Save error', error);
+            message.error('Không thể thực hiện từ chối');
         } finally {
-            setIsRejecting(false);
-            rejectForm.resetFields();
+            setSaving(false);
         }
     };
 
@@ -237,22 +244,25 @@ const PaymentRequestDetailModal: React.FC<PaymentRequestDetailModalProps> = ({
         if (!request) return;
         try {
             const values = await confirmPayForm.validateFields();
-            setIsConfirmingPay(true);
+            setSaving(true);
             await paymentRequestService.updatePaymentRequest(request._id, {
                 status: 'paid',
                 paid_at: new Date().toISOString(),
-                paid_by: user?.username || 'Accountant',
+                paid_by: user?.display_name || user?.username || 'Accountant',
                 bank_transaction_ref: values.bank_transaction_ref,
                 payment_proof_note: values.payment_proof_note,
                 payment_proof_files: values.payment_proof_files
             });
             message.success(`Đã xác nhận chi tiền`);
+            setIsConfirmingPay(false);
             onSuccess();
             onClose();
-        } catch (error) {
+        } catch (error: any) {
+            if (error.errorFields) return;
             console.error('Failed to confirm paid', error);
+            message.error('Không thể xác nhận chi tiền');
         } finally {
-            setIsConfirmingPay(false);
+            setSaving(false);
         }
     };
 
@@ -356,27 +366,12 @@ const PaymentRequestDetailModal: React.FC<PaymentRequestDetailModalProps> = ({
             actions.push(<Button key="submit" type="primary" onClick={() => handleSave('pending_approval')} loading={saving}>Gửi duyệt</Button>);
         }
 
-        // Logic requiring request
         if (request) {
-            // PM logic
             if (request.status === 'pending_approval' && isPM) {
                 actions.push(
                     <Button key="reject" danger icon={<CloseCircleOutlined />} onClick={() => {
                         rejectForm.resetFields();
-                        Modal.confirm({
-                            title: 'Từ chối yêu cầu chi',
-                            icon: <StopOutlined style={{ color: '#ff4d4f' }} />,
-                            content: (
-                                <Form form={rejectForm} layout="vertical" style={{ marginTop: 16 }}>
-                                    <Form.Item name="rejection_reason" label="Lý do từ chối" rules={[{ required: true, message: 'Vui lòng nhập lý do' }]}>
-                                        <Input.TextArea rows={3} placeholder="Nhập lý do từ chối..." />
-                                    </Form.Item>
-                                </Form>
-                            ),
-                            okText: 'Xác nhận từ chối',
-                            okButtonProps: { danger: true },
-                            onOk: submitReject
-                        });
+                        setIsRejecting(true);
                     }}>Từ chối</Button>
                 );
                 actions.push(
@@ -386,59 +381,22 @@ const PaymentRequestDetailModal: React.FC<PaymentRequestDetailModalProps> = ({
                 );
             }
 
-            // Accountant pay logic
             if (request.status === 'approved' && isAccountant) {
                 actions.push(
                     <Button key="reject_acc" danger icon={<CloseCircleOutlined />} onClick={() => {
                         rejectForm.resetFields();
-                        Modal.confirm({
-                            title: 'Từ chối yêu cầu chi',
-                            icon: <StopOutlined style={{ color: '#ff4d4f' }} />,
-                            content: (
-                                <Form form={rejectForm} layout="vertical" style={{ marginTop: 16 }}>
-                                    <Form.Item name="rejection_reason" label="Lý do từ chối" rules={[{ required: true, message: 'Vui lòng nhập lý do' }]}>
-                                        <Input.TextArea rows={3} placeholder="Nhập lý do từ chối..." />
-                                    </Form.Item>
-                                </Form>
-                            ),
-                            okText: 'Xác nhận từ chối',
-                            okButtonProps: { danger: true },
-                            onOk: submitReject
-                        });
+                        setIsRejecting(true);
                     }}>Từ chối chi</Button>
                 );
                 actions.push(
                     <Button key="pay" type="primary" icon={<SendOutlined />} onClick={() => {
-                        Modal.confirm({
-                            title: 'Xác nhận đã chi tiền',
-                            icon: <DollarOutlined style={{ color: '#52c41a' }} />,
-                            width: 500,
-                            content: (
-                                <Form form={confirmPayForm} layout="vertical" style={{ marginTop: 16 }} initialValues={{ payment_proof_files: [] }}>
-                                    <Form.Item name="bank_transaction_ref" label="Mã giao dịch ngân hàng" rules={[{ required: true, message: 'Vui lòng nhập mã giao dịch' }]}>
-                                        <Input placeholder="VD: FT260403..." />
-                                    </Form.Item>
-                                    <Form.Item name="payment_proof_note" label="Ghi chú chi tiền">
-                                        <Input.TextArea rows={2} placeholder="Nhập ghi chú (nếu có)..." />
-                                    </Form.Item>
-                                    <Form.Item name="payment_proof_files" label="Minh chứng chi tiền" rules={[{ required: true, validator: (_, value) => (value && value.length > 0) ? Promise.resolve() : Promise.reject('Vui lòng đính kèm minh chứng') }]}>
-                                        <UploadFilesEdit value={confirmPayForm.getFieldValue('payment_proof_files')} onChange={(val) => {
-                                            confirmPayForm.setFieldsValue({ payment_proof_files: val });
-                                            confirmPayForm.validateFields(['payment_proof_files']);
-                                        }} />
-                                    </Form.Item>
-                                </Form>
-                            ),
-                            okText: 'Hoàn tất chi tiền',
-                            onOk: submitConfirmPay
-                        });
-                    }}>
-                        Xác nhận chi
-                    </Button>
+                        confirmPayForm.resetFields();
+                        confirmPayForm.setFieldsValue({ payment_proof_files: [] });
+                        setIsConfirmingPay(true);
+                    }}>Xác nhận Đã chi</Button>
                 );
             }
 
-            // Just accountant modifying a draft
             if (canEdit && request.status === 'draft' && isAccountant) {
                 actions.push(<Button key="save" type="primary" onClick={() => handleSave()} loading={saving}>Lưu yêu cầu</Button>);
             }
@@ -454,50 +412,6 @@ const PaymentRequestDetailModal: React.FC<PaymentRequestDetailModalProps> = ({
         return (
             <div className="payment-request-detail">
                 <Row gutter={[24, 24]}>
-                    <Col span={24}>
-                        <div style={{ marginBottom: 24, padding: '0 12px' }}>
-                            <Steps current={current} status={stepStatus} size="small">
-                                <Step 
-                                    title="Khởi tạo" 
-                                    description={
-                                        <div style={{ fontSize: 11 }}>
-                                            <div>{request.requested_by?.display_name || request.requested_by || 'Khách'}</div>
-                                            <div>{moment(request.request_date).format('DD/MM/YYYY')}</div>
-                                        </div>
-                                    } 
-                                />
-                                <Step 
-                                    title={request.status === 'rejected' ? 'Từ chối' : 'Phê duyệt'} 
-                                    description={
-                                        request.approved_at ? (
-                                            <div style={{ fontSize: 11 }}>
-                                                <div>{request.approved_by?.display_name || request.approved_by}</div>
-                                                <div>{moment(request.approved_at).format('DD/MM/YYYY HH:mm')}</div>
-                                            </div>
-                                        ) : request.status === 'rejected' ? (
-                                            <div style={{ fontSize: 11, color: '#ff4d4f' }}>
-                                                <div>{request.rejected_by?.display_name || request.rejected_by}</div>
-                                                <div>{request.rejected_at ? moment(request.rejected_at).format('DD/MM/YYYY HH:mm') : ''}</div>
-                                                {request.rejection_reason && <Text type="danger" style={{ fontSize: 11 }}>Lý do: {request.rejection_reason}</Text>}
-                                            </div>
-                                        ) : 'Đang chờ...'
-                                    } 
-                                />
-                                <Step 
-                                    title="Thanh toán" 
-                                    description={
-                                        request.paid_at ? (
-                                            <div style={{ fontSize: 11 }}>
-                                                <div>{request.paid_by?.display_name || request.paid_by}</div>
-                                                <div>{moment(request.paid_at).format('DD/MM/YYYY HH:mm')}</div>
-                                            </div>
-                                        ) : '—'
-                                    } 
-                                />
-                            </Steps>
-                        </div>
-                    </Col>
-
                     <Col span={24}>
                         <div style={{ padding: '16px 20px', background: '#fafafa', borderRadius: 8, border: '1px solid #f0f0f0', marginBottom: 16 }}>
                             <Row justify="space-between" align="middle">
@@ -568,7 +482,11 @@ const PaymentRequestDetailModal: React.FC<PaymentRequestDetailModalProps> = ({
                                 <div style={{ minHeight: 60 }}>
                                     {!request.supporting_files || request.supporting_files.length === 0 ? <Text type="secondary" italic>Không có tài liệu</Text> : (
                                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
-                                            {request.supporting_files.map((file, idx) => renderFileItem(file))}
+                                            {request.supporting_files.map((file, idx) => (
+                                                <React.Fragment key={`support-${idx}`}>
+                                                    {renderFileItem(file)}
+                                                </React.Fragment>
+                                            ))}
                                         </div>
                                     )}
                                 </div>
@@ -578,7 +496,11 @@ const PaymentRequestDetailModal: React.FC<PaymentRequestDetailModalProps> = ({
                                 <div style={{ minHeight: 60 }}>
                                     {!request.payment_proof_files || request.payment_proof_files.length === 0 ? <Text type="secondary" italic>Chưa có minh chứng</Text> : (
                                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
-                                            {request.payment_proof_files.map((file, idx) => renderFileItem(file))}
+                                            {request.payment_proof_files.map((file, idx) => (
+                                                <React.Fragment key={`proof-${idx}`}>
+                                                    {renderFileItem(file)}
+                                                </React.Fragment>
+                                            ))}
                                         </div>
                                     )}
                                 </div>
@@ -591,15 +513,65 @@ const PaymentRequestDetailModal: React.FC<PaymentRequestDetailModalProps> = ({
     };
 
     return (
+        <>
         <Modal
             title={!request ? "Tạo yêu cầu chi mới" : isDetailMode ? "Chi tiết phiếu đề nghị chi" : "Cập nhật yêu cầu chi"}
             open={isOpen}
-            onCancel={onClose}
+            onCancel={() => {
+                setIsRejecting(false);
+                setIsConfirmingPay(false);
+                onClose();
+            }}
             footer={renderFooter()}
             width="95%"
             style={{ maxWidth: 900 }}
+            maskClosable={false}
             destroyOnClose
         >
+            {request && (
+                <div style={{ marginBottom: 24, padding: '0 12px' }}>
+                    <Steps current={getStepConfig(request.status).current} status={getStepConfig(request.status).stepStatus} size="small">
+                        <Step 
+                            title="Khởi tạo" 
+                            description={
+                                <div style={{ fontSize: 11 }}>
+                                    <div>{request.requested_by?.display_name || request.requested_by || 'Khách'}</div>
+                                    <div>{moment(request.request_date).format('DD/MM/YYYY')}</div>
+                                </div>
+                            } 
+                        />
+                        <Step 
+                            title={request.status === 'rejected' ? 'Từ chối' : 'Phê duyệt'} 
+                            description={
+                                request.approved_at ? (
+                                    <div style={{ fontSize: 11 }}>
+                                        <div>{request.approved_by?.display_name || request.approved_by}</div>
+                                        <div>{moment(request.approved_at).format('DD/MM/YYYY HH:mm')}</div>
+                                    </div>
+                                ) : request.status === 'rejected' ? (
+                                    <div style={{ fontSize: 11, color: '#ff4d4f' }}>
+                                        <div>{request.rejected_by?.display_name || request.rejected_by}</div>
+                                        <div>{request.rejected_at ? moment(request.rejected_at).format('DD/MM/YYYY HH:mm') : ''}</div>
+                                        {request.rejection_reason && <Text type="danger" style={{ fontSize: 11 }}>Lý do: {request.rejection_reason}</Text>}
+                                    </div>
+                                ) : 'Đang chờ...'
+                            } 
+                        />
+                        <Step 
+                            title="Thanh toán" 
+                            description={
+                                request.paid_at ? (
+                                    <div style={{ fontSize: 11 }}>
+                                        <div>{request.paid_by?.display_name || request.paid_by}</div>
+                                        <div>{moment(request.paid_at).format('DD/MM/YYYY HH:mm')}</div>
+                                    </div>
+                                ) : '—'
+                            } 
+                        />
+                    </Steps>
+                </div>
+            )}
+
             {isDetailMode ? renderReadOnlyView() : (
                 <Form form={form} layout="vertical">
                     <Row gutter={16}>
@@ -756,46 +728,96 @@ const PaymentRequestDetailModal: React.FC<PaymentRequestDetailModalProps> = ({
                     <Form.Item name="request_date" hidden><Input /></Form.Item>
                 </Form>
             )}
-
-            {/* Preview Modal for non-image files */}
-            <Modal
-                title={'Xem tài liệu: ' + (previewFile?.name || '')}
-                open={isPreviewModalOpen}
-                onCancel={() => {
-                    setIsPreviewModalOpen(false);
-                    setPreviewFile(null);
-                }}
-                footer={[
-                    <Button key="close" onClick={() => {
-                        setIsPreviewModalOpen(false);
-                        setPreviewFile(null);
-                    }}>Đóng</Button>,
-                    <Button 
-                        key="download" 
-                        type="primary" 
-                        icon={<DownloadOutlined />} 
-                        onClick={() => {
-                            const url = getFileLink(previewFile?.file_id || previewFile?.url);
-                            window.open(url, '_blank', 'noopener,noreferrer');
-                        }}
-                    >
-                        Tải xuống
-                    </Button>,
-                ]}
-                width={1000}
-                styles={{ body: { height: '75vh', padding: 0 } }}
-            >
-                {previewFile && (
-                    <iframe 
-                        src={`https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(getFileLink(previewFile.file_id || previewFile.url) || '')}`} 
-                        title={previewFile.name} 
-                        width="100%" 
-                        height="100%" 
-                        style={{ border: 'none', background: '#f5f5f5' }} 
-                    />
-                )}
-            </Modal>
+            {isDetailMode && renderReadOnlyView()}
         </Modal>
+
+        {/* Modal nhập lý do từ chối */}
+        <Modal
+            title="Từ chối yêu cầu chi"
+            open={isRejecting}
+            onCancel={() => setIsRejecting(false)}
+            onOk={submitReject}
+            okText="Xác nhận từ chối"
+            cancelText="Hủy"
+            okButtonProps={{ danger: true, loading: saving }}
+            width={400}
+        >
+            <Form form={rejectForm} layout="vertical" style={{ marginTop: 16 }}>
+                <Form.Item 
+                    name="rejection_reason" 
+                    label="Lý do từ chối" 
+                    rules={[{ required: true, message: 'Vui lòng nhập lý do' }]}
+                >
+                    <Input.TextArea rows={4} placeholder="Nhập lý do chi tiết để người yêu cầu nắm được..." />
+                </Form.Item>
+            </Form>
+        </Modal>
+
+        {/* Modal xác nhận đã chi tiền */}
+        <Modal
+            title="Xác nhận đã chi tiền"
+            open={isConfirmingPay}
+            onCancel={() => setIsConfirmingPay(false)}
+            onOk={submitConfirmPay}
+            okText="Hoàn tất chi tiền"
+            cancelText="Hủy"
+            okButtonProps={{ loading: saving }}
+            width={600}
+        >
+            <Form form={confirmPayForm} layout="vertical" style={{ marginTop: 16 }}>
+                <Row gutter={16}>
+                    <Col span={24}>
+                        <Form.Item 
+                            name="bank_transaction_ref" 
+                            label="Mã giao dịch ngân hàng" 
+                            rules={[{ required: true, message: 'Vui lòng nhập mã giao dịch' }]}
+                        >
+                            <Input placeholder="VD: FT260403..." />
+                        </Form.Item>
+                    </Col>
+                    <Col span={24}>
+                        <Form.Item name="payment_proof_note" label="Ghi chú chi tiền">
+                            <Input.TextArea rows={2} placeholder="Nhập ghi chú (nếu có)..." />
+                        </Form.Item>
+                    </Col>
+                    <Col span={24}>
+                        <Form.Item 
+                            name="payment_proof_files" 
+                            label="Minh chứng chi tiền" 
+                            rules={[{ required: true, validator: (_, value) => (value && value.length > 0) ? Promise.resolve() : Promise.reject('Vui lòng đính kèm minh chứng') }]}
+                        >
+                            <UploadFilesEdit 
+                                value={confirmPayForm.getFieldValue('payment_proof_files')} 
+                                onChange={(val) => {
+                                    confirmPayForm.setFieldsValue({ payment_proof_files: val });
+                                    confirmPayForm.validateFields(['payment_proof_files']);
+                                }} 
+                            />
+                        </Form.Item>
+                    </Col>
+                </Row>
+            </Form>
+        </Modal>
+
+        <Modal
+            open={isPreviewModalOpen}
+            footer={null}
+            onCancel={() => setIsPreviewModalOpen(false)}
+            width={1000}
+            title={previewFile?.name}
+            destroyOnClose
+        >
+            {previewFile && (
+                <div style={{ height: '70vh' }}>
+                    <iframe 
+                        src={getFileLink(previewFile.file_id || previewFile.url)} 
+                        style={{ width: '100%', height: '100%', border: 'none' }}
+                        title="File Preview"
+                    />
+                </div>
+            )}
+        </Modal>
+        </>
     );
 };
 
