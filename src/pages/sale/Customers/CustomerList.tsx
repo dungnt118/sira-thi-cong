@@ -224,7 +224,7 @@ const CustomerList: React.FC = () => {
             render: (value?: string) => value || 'Chưa gán',
         },
         {
-            title: 'Hành trình',
+            title: 'Công trình',
             key: 'journeys',
             render: (_, customer) => {
                 const customerJourneys = journeyMap.get(customer._id) || [];

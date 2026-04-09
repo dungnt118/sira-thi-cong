@@ -279,7 +279,7 @@ const OutboundForm: React.FC = () => {
                         <Form form={form} layout="vertical">
                             <Form.Item
                                 name="journey_id"
-                                label="Hành trình / Công trình tiếp nhận"
+                                label="Công trình / Công trình tiếp nhận"
                                 rules={[{ required: true, message: 'Vui lòng chọn công trình' }]}
                             >
                                 <Select

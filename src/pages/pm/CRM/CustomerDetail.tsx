@@ -165,7 +165,7 @@ const CustomerDetail: React.FC = () => {
         },
         {
             key: 'journeys',
-            label: <span><BuildOutlined /> Hành trình KH ({customerJourneys.length})</span>,
+            label: <span><BuildOutlined /> Công trình KH ({customerJourneys.length})</span>,
             children: (
                 <div>
                     {customerJourneys.length === 0 ? (
@@ -174,7 +174,7 @@ const CustomerDetail: React.FC = () => {
                             <br />
                             <Button type="primary" style={{ marginTop: 12 }}
                                 onClick={() => navigate('/admin/ql/journeys')}>
-                                Đi tới danh sách Hành trình
+                                Đi tới danh sách Công trình
                             </Button>
                         </div>
                     ) : (

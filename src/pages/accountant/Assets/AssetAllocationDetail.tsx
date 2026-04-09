@@ -247,7 +247,7 @@ const AssetAllocationDetail: React.FC = () => {
                                     </Tag>
                                 </Descriptions.Item>
                                 <Descriptions.Item label="Người yêu cầu">{order.requested_by?.displayName || order.requested_by || '—'}</Descriptions.Item>
-                                <Descriptions.Item label="Hành trình sử dụng">{order.journey_name || '—'}</Descriptions.Item>
+                                <Descriptions.Item label="Công trình sử dụng">{order.journey_name || '—'}</Descriptions.Item>
                                 <Descriptions.Item label="Ngày trả dự kiến">{order.expected_return_date ? dayjs(order.expected_return_date).format('DD/MM/YYYY') : '—'}</Descriptions.Item>
                                 <Descriptions.Item label="Mục đích">{order.notes || 'Sử dụng cho công việc chuyên môn'}</Descriptions.Item>
                             </Descriptions>

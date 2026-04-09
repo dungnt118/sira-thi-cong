@@ -180,7 +180,7 @@ const JourneyList: React.FC = () => {
 
     const columns: ColumnsType<IJourney> = [
         {
-            title: 'Hành trình',
+            title: 'Công trình',
             key: 'journey',
             render: (_, j) => (
                 <div>

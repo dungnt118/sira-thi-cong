@@ -113,7 +113,7 @@ const StockOrderPrintable: React.FC<StockOrderPrintableProps> = ({ order }) => {
             {/* General Info */}
             <div style={{ marginBottom: 20 }}>
                 <div style={{ marginBottom: 5 }}>
-                    <Text strong>{isOutbound ? 'Dự án / Hành trình: ' : 'Nhà cung cấp / Nguồn: '}</Text>
+                    <Text strong>{isOutbound ? 'Dự án / Công trình: ' : 'Nhà cung cấp / Nguồn: '}</Text>
                     <Text>{isOutbound ? (order.journey_name || order.journey_code || '---') : (order.supplier || order.source || '---')}</Text>
                 </div>
                 {order.journey_code && (

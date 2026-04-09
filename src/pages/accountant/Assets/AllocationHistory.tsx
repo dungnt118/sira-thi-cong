@@ -5,7 +5,7 @@ import {
 } from 'antd';
 import {
     ClockCircleOutlined, CheckCircleOutlined,
-    CarryOutOutlined, SearchOutlined, PlusOutlined, EditOutlined, 
+    CarryOutOutlined, SearchOutlined, PlusOutlined, EditOutlined,
     EyeOutlined, UserOutlined, CalendarOutlined, ArrowRightOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
@@ -38,7 +38,7 @@ const AssetAllocationHistory: React.FC = () => {
     const [allocations, setAllocations] = useState<IAssetAllocation[]>([]);
     const [activeStatus, setActiveStatus] = useState('ALL');
     const [searchText, setSearchText] = useState('');
-    
+
     // Filtering states
     const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null]>([
         dayjs().startOf('month'),
@@ -56,7 +56,7 @@ const AssetAllocationHistory: React.FC = () => {
     const [stepCounts, setStepCounts] = useState<Record<string, number>>({});
 
     // ─── Query Logic ──────────────────────────────────────────
-    
+
     const buildFilter = useCallback((override?: any) => {
         const currentStatus = override?.status !== undefined ? override.status : activeStatus;
         const currentSearch = override?.search !== undefined ? override.search : searchText;
@@ -97,11 +97,11 @@ const AssetAllocationHistory: React.FC = () => {
 
             if (res.data) {
                 setAllocations(res.data);
-                setPagination(prev => ({ 
-                    ...prev, 
-                    current: page, 
-                    pageSize, 
-                    total: res.records || res.data?.length || 0 
+                setPagination(prev => ({
+                    ...prev,
+                    current: page,
+                    pageSize,
+                    total: res.records || res.data?.length || 0
                 }));
             }
         } catch (error) {
@@ -114,11 +114,11 @@ const AssetAllocationHistory: React.FC = () => {
     const fetchStats = async () => {
         try {
             const filterGroup = buildFilter({ status: 'ALL' });
-            const countsRes = await content_segment_group_count({ 
+            const countsRes = await content_segment_group_count({
                 field: 'status',
-                filter: { target_schema: 'AssetAllocation', group: filterGroup } 
+                filter: { target_schema: 'AssetAllocation', group: filterGroup }
             } as any);
-            
+
             if (countsRes.data) {
                 const counts: Record<string, number> = {};
                 let total = 0;
@@ -169,10 +169,10 @@ const AssetAllocationHistory: React.FC = () => {
     };
 
     const columns = [
-        { 
-            title: 'Mã phiếu', 
-            dataIndex: 'code', 
-            key: 'code', 
+        {
+            title: 'Mã phiếu',
+            dataIndex: 'code',
+            key: 'code',
             width: 140,
             render: (t: string, r: IAssetAllocation) => (
                 <Button type="link" onClick={() => navigate(`/kt/assets/allocation/${r._id}`)} style={{ padding: 0 }}>
@@ -180,20 +180,20 @@ const AssetAllocationHistory: React.FC = () => {
                 </Button>
             )
         },
-        { 
-            title: 'Tài sản', 
-            key: 'asset', 
+        {
+            title: 'Tài sản',
+            key: 'asset',
             minWidth: 200,
             render: (_: any, r: IAssetAllocation) => (
                 <Space direction="vertical" size={0}>
                     <Text strong>{r.asset_name || 'Tài sản lẻ'}</Text>
                     <Text type="secondary" style={{ fontSize: 11 }}>{r.asset_code}</Text>
                 </Space>
-            ) 
+            )
         },
-        { 
-            title: 'Người yêu cầu', 
-            dataIndex: 'requested_by', 
+        {
+            title: 'Người yêu cầu',
+            dataIndex: 'requested_by',
             key: 'reqBy',
             width: 150,
             render: (v: any) => (
@@ -203,11 +203,11 @@ const AssetAllocationHistory: React.FC = () => {
                 </Space>
             )
         },
-        { 
-            title: 'Hành trình', 
-            dataIndex: 'journey_name', 
-            key: 'proj', 
-            render: (v: string) => v || '—' 
+        {
+            title: 'Công trình',
+            dataIndex: 'journey_name',
+            key: 'proj',
+            render: (v: string) => v || '—'
         },
         {
             title: 'Trạng thái',
@@ -216,12 +216,12 @@ const AssetAllocationHistory: React.FC = () => {
             width: 130,
             render: (s: AssetAllocationStatusEnum) => getStatusTag(s)
         },
-        { 
-            title: 'Ngày mượn', 
-            dataIndex: 'request_date', 
-            key: 'date', 
+        {
+            title: 'Ngày mượn',
+            dataIndex: 'request_date',
+            key: 'date',
             width: 120,
-            render: (d: any) => d ? dayjs(d).format('DD/MM/YY') : '—' 
+            render: (d: any) => d ? dayjs(d).format('DD/MM/YY') : '—'
         },
         {
             title: 'Thao tác',
@@ -248,7 +248,7 @@ const AssetAllocationHistory: React.FC = () => {
                     <Text type="secondary">Theo dõi nhật ký giao nhận, thu hồi máy móc thiết bị</Text>
                 </div>
                 <Space wrap>
-                    <RangePicker 
+                    <RangePicker
                         value={dateRange}
                         onChange={(val) => setDateRange(val as any)}
                         presets={[
@@ -359,7 +359,7 @@ const AssetAllocationHistory: React.FC = () => {
                                             <Text style={{ fontSize: 13 }}>{item.requested_by?.displayName || item.requested_by || '—'}</Text>
                                         </div>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                                            <Text type="secondary" style={{ fontSize: 12 }}>Hành trình:</Text>
+                                            <Text type="secondary" style={{ fontSize: 12 }}>Công trình:</Text>
                                             <Text style={{ fontSize: 12 }}>{item.journey_name || '—'}</Text>
                                         </div>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px dashed #f0f0f0', paddingTop: 8 }}>

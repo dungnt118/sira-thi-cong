@@ -1,6 +1,6 @@
 import pandas as pd
 
-file_path = r"e:\SIRA-PROJECTS\BAC-GROUP\documents\Orignal-Requirements-Docs\2. QUY TRÌNH\QUY TRÌNH LÀM VIỆC VỚI KHÁCH HÀNG\Customer Junior - Hành trình trải nghiệm khách hàng.xlsx"
+file_path = r"e:\SIRA-PROJECTS\BAC-GROUP\documents\Orignal-Requirements-Docs\2. QUY TRÌNH\QUY TRÌNH LÀM VIỆC VỚI KHÁCH HÀNG\Customer Junior - Công trình trải nghiệm khách hàng.xlsx"
 
 try:
     xl = pd.ExcelFile(file_path)

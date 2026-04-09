@@ -41,7 +41,7 @@ const menuItems: MenuItem[] = [
     {
         key: '/admin/ql/journeys',
         icon: <NodeIndexOutlined />,
-        label: 'Hành trình Khách hàng',
+        label: 'Công trình Khách hàng',
         children: [
             { key: '/admin/ql/journeys', label: 'Danh sách yêu cầu', icon: <UnorderedListOutlined /> },
             { key: '/admin/ql/crm/customers', label: 'Danh sách Khách hàng', icon: <TeamOutlined /> },

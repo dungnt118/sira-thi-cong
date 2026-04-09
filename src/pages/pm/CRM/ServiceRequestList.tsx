@@ -309,7 +309,7 @@ const ServiceRequestList: React.FC = () => {
 
                     <Row gutter={[16, 0]}>
                         <Col xs={24} sm={12}>
-                            <Form.Item name="pipelineId" label="3. Hành trình (Pipeline)" rules={[{ required: true }]}>
+                            <Form.Item name="pipelineId" label="3. Công trình (Pipeline)" rules={[{ required: true }]}>
                                 <Select placeholder="Chọn quy trình mẫu" style={{ width: '100%' }}>
                                     {mockPipelines.map(p => (
                                         <Option key={p.id} value={p.id}>{p.name}</Option>

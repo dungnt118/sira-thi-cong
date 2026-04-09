@@ -119,7 +119,7 @@ export const SaleLayout: React.FC = () => {
         {
             key: 'journeys-group',
             icon: <InboxOutlined />,
-            label: 'Hành trình khách hàng',
+            label: 'Công trình khách hàng',
             children: [
                 {
                     key: '/admin/kd/dashboard',

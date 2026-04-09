@@ -25,8 +25,8 @@ const ACTION_BUCKET_CONFIG: Record<ActionType, { label: string; desc: string; co
     survey_waiting: { label: 'Khảo sát chờ duyệt', desc: 'Đã nộp khảo sát, chưa phê duyệt', color: '#fa8c16', icon: <EyeOutlined /> },
     portal_unread: { label: 'Tin nhắn Portal', desc: 'Các trao đổi cần phản hồi', color: '#1890ff', icon: <MessageOutlined /> },
     publish_pending: { label: 'Chờ công khai', desc: 'Sẵn sàng đẩy thông tin Portal', color: '#722ed1', icon: <SendOutlined /> },
-    blocked: { label: 'Hành trình bị lỗi', desc: 'Tồn đọng tác vụ chặn đứng', color: '#d4380d', icon: <StopOutlined /> },
-    active_all: { label: 'Đang thực hiện', desc: 'Hành trình chưa đóng', color: '#13c2c2', icon: <ProjectOutlined /> },
+    blocked: { label: 'Công trình bị lỗi', desc: 'Tồn đọng tác vụ chặn đứng', color: '#d4380d', icon: <StopOutlined /> },
+    active_all: { label: 'Đang thực hiện', desc: 'Công trình chưa đóng', color: '#13c2c2', icon: <ProjectOutlined /> },
 };
 
 const PRIORITY_CONFIG: Record<PriorityLevel, { label: string; color: string }> = {
@@ -198,7 +198,7 @@ const ActionCenter: React.FC = () => {
                     due_at: j.planned_end_date?.toString(),
                     start_at: j.planned_start_date?.toString(),
                     owner_user: j.supervisor_name || 'Chưa gán',
-                    source_tab: 'Hành trình'
+                    source_tab: 'Công trình'
                 });
             }
 
@@ -217,7 +217,7 @@ const ActionCenter: React.FC = () => {
                 start_at: j.planned_start_date?.toString(),
                 priority: (j.priority as PriorityLevel) || 'low',
                 owner_user: j.supervisor_name || 'Chưa gán',
-                source_tab: 'Hành trình'
+                source_tab: 'Công trình'
             });
         });
 
@@ -445,7 +445,7 @@ const ActionCenter: React.FC = () => {
                             prefix={<StopOutlined style={{ color: '#d4380d', marginRight: 8 }} />}
                             valueStyle={{ color: '#d4380d', fontSize: 28, fontWeight: 700 }}
                         />
-                        <Text type="secondary" style={{ fontSize: 12 }}>Hành trình đang bị tồn đọng</Text>
+                        <Text type="secondary" style={{ fontSize: 12 }}>Công trình đang bị tồn đọng</Text>
                     </Card>
                 </Col>
             </Row>

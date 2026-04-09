@@ -857,7 +857,7 @@ const JourneyDetail360: React.FC = () => {
             </Card>
 
             <Drawer
-                title="Lộ trình Hành trình"
+                title="Lộ trình Công trình"
                 placement="right"
                 onClose={() => setIsJourneyDrawerVisible(false)}
                 open={isJourneyDrawerVisible}

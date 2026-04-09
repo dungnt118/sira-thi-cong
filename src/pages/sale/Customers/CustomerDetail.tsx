@@ -208,7 +208,7 @@ const CustomerDetail: React.FC = () => {
                         <Card bordered={false} style={{ borderRadius: 18, marginBottom: 20 }}>
                             <Statistic title="Tổng yêu cầu dịch vụ" value={journeys.length} />
                             <div style={{ marginTop: 12 }}>
-                                <Text type="secondary">Hành trình gần nhất</Text>
+                                <Text type="secondary">Công trình gần nhất</Text>
                                 <div style={{ marginTop: 4 }}>
                                     <Text strong>{latestJourney?.journey_code || 'Chưa có công trình'}</Text>
                                 </div>

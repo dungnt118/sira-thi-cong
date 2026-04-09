@@ -215,7 +215,7 @@ const ServiceRequestDetail: React.FC = () => {
 
                 {/* Right Column: Timeline & Interactions */}
                 <Col xs={24} md={8}>
-                    <Card title="Hành trình cơ hội (Deal Lifecycle)" style={{ borderRadius: 12 }}>
+                    <Card title="Công trình cơ hội (Deal Lifecycle)" style={{ borderRadius: 12 }}>
                         <Timeline>
                             <Timeline.Item color="blue" dot={<CheckCircleOutlined />}>
                                 <Text strong>Tạo cơ hội mới</Text>

@@ -13,7 +13,7 @@ const SurveyForm: React.FC = () => {
     const handleBack = () => navigate('/admin/kyt/schedule');
 
     if (!journeyId) {
-        return <div>Hành trình không hợp lệ.</div>;
+        return <div>Công trình không hợp lệ.</div>;
     }
 
     return (

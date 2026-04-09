@@ -303,7 +303,7 @@ const InboundForm: React.FC = () => {
                             <Form.Item label="Hình thức">
                                 <Radio.Group value={sourceType} onChange={e => setSourceType(e.target.value)} size={isMobile ? 'middle' : 'small'} style={{ width: '100%', textAlign: 'center' }}>
                                     <Radio.Button value="distributor" style={{ width: '50%' }}>Từ NPP</Radio.Button>
-                                    <Radio.Button value="journey" style={{ width: '50%' }}>Hành trình</Radio.Button>
+                                    <Radio.Button value="journey" style={{ width: '50%' }}>Công trình</Radio.Button>
                                 </Radio.Group>
                             </Form.Item>
 
@@ -322,7 +322,7 @@ const InboundForm: React.FC = () => {
                             ) : (
                                 <Form.Item
                                     name="journey_id"
-                                    label="Hành trình / Công trình"
+                                    label="Công trình / Công trình"
                                     rules={[{ required: true, message: 'Chọn công trình' }]}
                                 >
                                     <Select placeholder="Chọn công trình" style={{ width: '100%' }} loading={loading} showSearch optionFilterProp="children">

@@ -202,7 +202,7 @@ const SaleSurveyDetail: React.FC = () => {
                                 icon={<CheckCircleOutlined />}
                                 style={{ background: '#52c41a', borderColor: '#52c41a' }}
                                 onClick={() => {
-                                    message.success('Hồ sơ khảo sát đã được chốt và lưu vào Hành trình!');
+                                    message.success('Hồ sơ khảo sát đã được chốt và lưu vào Công trình!');
                                     setOverallStatus('completed');
                                 }}
                             >
@@ -293,7 +293,7 @@ const SaleSurveyDetail: React.FC = () => {
     return (
         <div style={{ paddingBottom: 60 }}>
             <Button icon={<ArrowLeftOutlined />} type="text" onClick={handleBack} style={{ marginBottom: 12 }}>
-                Quay lại Hành trình
+                Quay lại Công trình
             </Button>
 
             <Card variant="borderless" style={{ marginBottom: 16, borderRadius: 8 }} styles={{ body: { padding: '16px 24px' } }}>
@@ -305,7 +305,7 @@ const SaleSurveyDetail: React.FC = () => {
                                 <div style={{ fontWeight: 600, fontSize: 16 }}>SUR-{surveyId?.substring(0, 6) || '2024'}</div>
                             </div>
                             <div>
-                                <Text type="secondary" style={{ fontSize: 12 }}>Hành trình</Text>
+                                <Text type="secondary" style={{ fontSize: 12 }}>Công trình</Text>
                                 <div style={{ fontWeight: 600 }}>{journey.journey_code}</div>
                             </div>
                             <div>
@@ -385,10 +385,10 @@ const SaleSurveyDetail: React.FC = () => {
                     <Result
                         status="success"
                         title="Khảo sát đã hoàn thành và Hồ sơ đã được chốt (Read-only)"
-                        subTitle="Hồ sơ khảo sát này đã được lưu vào Hành trình và không thể chỉnh sửa thêm."
+                        subTitle="Hồ sơ khảo sát này đã được lưu vào Công trình và không thể chỉnh sửa thêm."
                         extra={[
                             <Button type="primary" key="console" onClick={handleBack}>
-                                Quay lại Hành trình
+                                Quay lại Công trình
                             </Button>,
                             <Button key="buy" icon={<FilePdfOutlined />} onClick={handleDownloadPDF}>Xuất PDF Hồ sơ</Button>,
                         ]}

@@ -127,7 +127,7 @@ const JourneyBoard: React.FC = () => {
             {/* Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                 <div>
-                    <h2 style={{ margin: 0 }}>Board Hành trình</h2>
+                    <h2 style={{ margin: 0 }}>Board Công trình</h2>
                     <Text type="secondary">Kanban theo bước quy trình</Text>
                 </div>
                 <Space>
@@ -280,7 +280,7 @@ const JourneyBoard: React.FC = () => {
                             <Alert
                                 type="warning"
                                 showIcon
-                                message={`Hành trình này đang có ${changeStepModal.journey.blocker_count} blocker chưa xử lý. Hãy chắc chắn bạn muốn bỏ qua.`}
+                                message={`Công trình này đang có ${changeStepModal.journey.blocker_count} blocker chưa xử lý. Hãy chắc chắn bạn muốn bỏ qua.`}
                                 style={{ marginTop: 16 }}
                             />
                         )}

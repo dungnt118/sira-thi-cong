@@ -84,7 +84,7 @@ export const docsData: UserGuide[] = [
                 image: '/assets/docs/gs/gs_pro_journey_list.png'
             },
             {
-                title: '3. Tổng quan Hành trình chi tiết',
+                title: '3. Tổng quan Công trình chi tiết',
                 content: 'Màn hình này cung cấp cái nhìn 360 độ về dự án: Địa chỉ thi công, số điện thoại khách hàng, nhân sự phối hợp (Sale/KT) và thanh tiến độ tổng thể.',
                 image: '/assets/docs/gs/gs_pro_journey_overview.png'
             },
@@ -215,12 +215,12 @@ export const docsData: UserGuide[] = [
                 ]
             },
             {
-                title: '3. Tiếp nhận & Theo dõi Hành trình',
-                content: 'Mỗi khách hàng sẽ gắn liền với một "Hành trình" (Journey) xuyên suốt từ khi tư vấn đến khi hoàn thành thi công. Sale cần theo dõi sát sao từng giai đoạn để kịp thời thông tin cho khách.',
+                title: '3. Tiếp nhận & Theo dõi Công trình',
+                content: 'Mỗi khách hàng sẽ gắn liền với một "Công trình" (Journey) xuyên suốt từ khi tư vấn đến khi hoàn thành thi công. Sale cần theo dõi sát sao từng giai đoạn để kịp thời thông tin cho khách.',
                 image: '/assets/docs/sale/sl_journey_detail_mobile.png',
                 alert: {
                     type: 'tip',
-                    text: 'Sử dụng các tab chi tiết trong Hành trình để xem tình trạng khảo sát của kỹ thuật hoặc lịch sử bàn giao vật tư.'
+                    text: 'Sử dụng các tab chi tiết trong Công trình để xem tình trạng khảo sát của kỹ thuật hoặc lịch sử bàn giao vật tư.'
                 }
             },
             {
@@ -254,7 +254,7 @@ export const docsData: UserGuide[] = [
                 }
             },
             {
-                title: '2. Trung tâm xử lý Hành trình',
+                title: '2. Trung tâm xử lý Công trình',
                 content: 'Đây là Action Center giúp PM bám sát các yêu cầu đang thực thi. Hệ thống tự động phân loại các công trình "Chưa hoàn thành" để PM dễ dàng quản trị theo thời gian thực.',
                 image: '/assets/docs/pm/pm-action-center.png'
             },

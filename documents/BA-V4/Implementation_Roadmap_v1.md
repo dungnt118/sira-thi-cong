@@ -22,7 +22,7 @@ Mục tiêu:
 
 | Phase | Tên phase | Trọng tâm | Vai trò trung tâm | Đầu ra chiến lược |
 |---|---|---|---|---|
-| 1 | Customer Journey Foundation | Hành trình khách hàng 360 độ, responsive, configurable, liên kết Sale/Giám sát/Portal | PM, Sale, Giám sát, Customer Portal | Màn `CustomerJourney` trở thành trục điều hành prototype |
+| 1 | Customer Journey Foundation | Công trình khách hàng 360 độ, responsive, configurable, liên kết Sale/Giám sát/Portal | PM, Sale, Giám sát, Customer Portal | Màn `CustomerJourney` trở thành trục điều hành prototype |
 | 2 | Preconstruction & Commercial Control | Dự toán nội bộ, go/no-go, báo giá, hợp đồng, tài liệu số | PM, Sale, Hành Chính, Kế toán | Kiểm soát được bước trước dự án và chốt thương mại |
 | 3 | Internal Delivery, Inventory & Finance Control | Task orchestration, workforce, kho, tài sản, phần dư, thanh toán, cost ledger | PM, Giám sát, Kế toán | Điều hành nội bộ và tài chính bắt đầu chạy thật |
 | 4 | Aftersales, Governance & Reporting | Bảo hành/bảo trì, portal hoàn chỉnh, báo cáo, audit, governance | PM, Sale, Giám sát, Kế toán, Admin | Đóng vòng hậu mãi và quản trị dữ liệu |

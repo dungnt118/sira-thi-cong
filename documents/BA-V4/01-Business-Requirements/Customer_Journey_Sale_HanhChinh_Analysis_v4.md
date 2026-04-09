@@ -4,11 +4,11 @@
 
 Tài liệu này bóc tách trực tiếp từ workbook:
 
-- `documents/Orignal-Requirements-Docs/2. QUY TRÌNH/QUY TRÌNH LÀM VIỆC VỚI KHÁCH HÀNG/Customer Junior - Hành trình trải nghiệm khách hàng.xlsx`
+- `documents/Orignal-Requirements-Docs/2. QUY TRÌNH/QUY TRÌNH LÀM VIỆC VỚI KHÁCH HÀNG/Customer Junior - Công trình trải nghiệm khách hàng.xlsx`
 
 Workbook có 2 sheet chính:
 
-- `Hành trình trải nghiệm khách hà`: mô tả trách nhiệm theo từng bộ phận trên 13 bước trải nghiệm khách hàng.
+- `Công trình trải nghiệm khách hà`: mô tả trách nhiệm theo từng bộ phận trên 13 bước trải nghiệm khách hàng.
 - `Nội dung cần thực hiện`: liệt kê các biểu mẫu, kịch bản gọi điện, báo cáo và tài liệu chuẩn còn thiếu.
 
 ## 2. Kết luận trọng yếu rút ra từ workbook

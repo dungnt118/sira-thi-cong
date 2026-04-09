@@ -233,7 +233,7 @@ export const documentationContent: GuideCategory[] = [
             },
             {
                 id: '3-tong-quan-hanh-trinh',
-                title: '3. Tổng quan Hành trình chi tiết',
+                title: '3. Tổng quan Công trình chi tiết',
                 description: 'Xem thông tin 360 độ về một dự án cụ thể.',
                 sections: [
                     {
@@ -475,11 +475,11 @@ export const documentationContent: GuideCategory[] = [
             },
             {
                 id: 'theo-doi-hanh-trinh',
-                title: 'Tiếp nhận & Theo dõi Hành trình',
+                title: 'Tiếp nhận & Theo dõi Công trình',
                 description: 'Quy trình bám sát yêu cầu từ giai đoạn tư vấn đến khi hoàn thành.',
                 sections: [
                     {
-                        title: '1. Chi tiết Hành trình (Journey)',
+                        title: '1. Chi tiết Công trình (Journey)',
                         content: 'Mỗi yêu cầu dịch vụ được quản lý như một công trình xuyên suốt. Tại đây Sale có thể xem trạng thái khảo sát của kỹ thuật hoặc tiến độ thi công thực tế.',
                         image: '/assets/docs/sale/sl_journey_detail_mobile.png',
                         alert: {

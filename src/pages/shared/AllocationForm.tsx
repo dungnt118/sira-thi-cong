@@ -190,7 +190,7 @@ const AllocationForm: React.FC = () => {
 
                             <Form.Item
                                 name="journeyId"
-                                label="Hành trình sử dụng (Nếu có)"
+                                label="Công trình sử dụng (Nếu có)"
                             >
                                 <Select
                                     placeholder="Chọn công trình công trình"

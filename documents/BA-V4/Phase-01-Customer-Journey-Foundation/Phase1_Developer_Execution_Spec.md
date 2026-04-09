@@ -200,19 +200,19 @@ Phase 1 phải dùng được trên desktop + mobile trước khi chốt.
 
 | Menu cấp 1 | Menu cấp 2 | Route đề xuất | Ghi chú |
 |---|---|---|---|
-| Hành trình khách hàng | Danh sách công trình | `/ql/journeys` | menu chính của phase 1 |
-| Hành trình khách hàng | Board công trình | `/ql/journeys/board` | thay cho Kanban cũ |
-| Hành trình khách hàng | Action Center | `/ql/journeys/action-center` | gom blocker, overdue, unread thread |
-| Hành trình khách hàng | Templates | `/ql/journeys/templates` | quản lý template mặc định |
+| Công trình khách hàng | Danh sách công trình | `/ql/journeys` | menu chính của phase 1 |
+| Công trình khách hàng | Board công trình | `/ql/journeys/board` | thay cho Kanban cũ |
+| Công trình khách hàng | Action Center | `/ql/journeys/action-center` | gom blocker, overdue, unread thread |
+| Công trình khách hàng | Templates | `/ql/journeys/templates` | quản lý template mặc định |
 
 ## 4.2 Sale menu
 
 | Menu cấp 1 | Menu cấp 2 | Route đề xuất | Ghi chú |
 |---|---|---|---|
-| Hành trình khách hàng | Journey Inbox | `/kd/dashboard` | view theo role Sale |
-| Hành trình khách hàng | SLA Queue | `/kd/sla` | ưu tiên cuộc gọi |
-| Hành trình khách hàng | Khảo sát | `/kd/surveys` | điều phối khảo sát |
-| Hành trình khách hàng | Giao tiếp khách hàng | `/kd/communications` | thread và follow-up |
+| Công trình khách hàng | Journey Inbox | `/kd/dashboard` | view theo role Sale |
+| Công trình khách hàng | SLA Queue | `/kd/sla` | ưu tiên cuộc gọi |
+| Công trình khách hàng | Khảo sát | `/kd/surveys` | điều phối khảo sát |
+| Công trình khách hàng | Giao tiếp khách hàng | `/kd/communications` | thread và follow-up |
 
 ## 4.3 Giám sát menu
 
@@ -442,7 +442,7 @@ Phase 1 phải dùng được trên desktop + mobile trước khi chốt.
 
 ### Menu và route
 
-- Menu: `PM > Hành trình khách hàng > Danh sách công trình`
+- Menu: `PM > Công trình khách hàng > Danh sách công trình`
 - Route: `/ql/journeys`
 
 ### Section bắt buộc
@@ -483,7 +483,7 @@ Phải có tối thiểu 4 card:
 
 ### Menu và route
 
-- Menu: `PM > Hành trình khách hàng > Board công trình`
+- Menu: `PM > Công trình khách hàng > Board công trình`
 - Route: `/ql/journeys/board`
 
 ### Section bắt buộc

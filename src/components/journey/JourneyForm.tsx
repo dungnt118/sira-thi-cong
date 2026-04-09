@@ -266,7 +266,7 @@ const JourneyForm: React.FC<JourneyFormProps> = ({
                 </Row>
 
                 <Divider orientation="left">
-                    <Space><InfoCircleOutlined /> <Text strong>Thông tin Hành trình & Kỹ thuật</Text></Space>
+                    <Space><InfoCircleOutlined /> <Text strong>Thông tin Công trình & Kỹ thuật</Text></Space>
                 </Divider>
 
                 <Row gutter={16}>

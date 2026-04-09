@@ -38,7 +38,7 @@ const CustomerList: React.FC = () => {
             const res = await customerService.queryCustomersDto({});
             if (res.code === 0 && res.data) {
                 setCustomers(res.data);
-                
+
                 // Fetch all journeys to map counts
                 const jRes = await journeyService.queryJourneysDto({});
                 if (jRes.code === 0 && jRes.data) {
@@ -124,7 +124,7 @@ const CustomerList: React.FC = () => {
             ),
         },
         {
-            title: 'Hành trình',
+            title: 'Công trình',
             key: 'deals',
             align: 'center',
             width: 100,

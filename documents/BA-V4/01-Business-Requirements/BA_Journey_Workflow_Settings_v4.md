@@ -2,13 +2,13 @@
 **Phiên bản:** v4.0
 
 ## 1. TỔNG QUAN XÂY DỰNG WORKFLOW
-Trọng tâm của hệ thống BAClà tính năng "Thiết lập Hành trình Khách hàng" (Customer Journey Templates) thuộc phân hệ Quản lý PM (`/ql/journeys/templates`).
+Trọng tâm của hệ thống BAClà tính năng "Thiết lập Công trình Khách hàng" (Customer Journey Templates) thuộc phân hệ Quản lý PM (`/ql/journeys/templates`).
 Mọi trạng thái, quy trình xuyên suốt của một yêu cầu dịch vụ (ticket) đều phải tham chiếu động vào dữ liệu đã được cấu hình từ phân hệ này. 
 
 **Nguyên lý cốt lõi:**
-1. Hệ thống hỗ trợ tạo nhiều phiên bản Template, nhưng sẽ có quy định **chỉ thiết lập duy nhất 1 Hành trình làm chuẩn (Set as Default/Active Standard)** tại 1 thời điểm cho 1 loại dịch vụ.
+1. Hệ thống hỗ trợ tạo nhiều phiên bản Template, nhưng sẽ có quy định **chỉ thiết lập duy nhất 1 Công trình làm chuẩn (Set as Default/Active Standard)** tại 1 thời điểm cho 1 loại dịch vụ.
 2. Tại màn hình cấu hình chi tiết 1 bước (Step), cần hỗ trợ **Sửa / Xóa bước**.
-3. Từng Bước (Step) trong Hành trình phải được gắn với một **Nhóm quy trình chuẩn** (Standard Procedure Group) làm đại diện cho nghiệp vụ cốt lõi và giao diện Component sẽ được sử dụng.
+3. Từng Bước (Step) trong Công trình phải được gắn với một **Nhóm quy trình chuẩn** (Standard Procedure Group) làm đại diện cho nghiệp vụ cốt lõi và giao diện Component sẽ được sử dụng.
 4. Quản lý Vai trò (Roles) trong 1 Bước sẽ đóng vai trò như một **Sub-workflow**, với trình tự, mô tả, checklist và SLA được thiết lập riêng biệt cho từng vai trò thay vì chịu chung 1 SLA / Checklist của cả bước.
 
 ---
