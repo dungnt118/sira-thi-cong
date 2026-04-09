@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { journeyService } from '@/services/core-contracts/services/journey.service';
 import { IJourney } from '@/services/core-contracts/types/journey.types';
+import { buildJourneyDetailRoute } from '@/utils/adminRoutes';
 
 const { Title, Text } = Typography;
 
@@ -87,7 +88,7 @@ export const Schedule: React.FC = () => {
                         className="ky-card"
                         size="small"
                         style={{ marginBottom: 12 }}
-                        onClick={() => navigate(`/kyt/journeys/${item.id}`)}
+                        onClick={() => navigate(buildJourneyDetailRoute('kyt', item.id))}
                         hoverable
                     >
                         <div style={{ display: 'flex' }}>

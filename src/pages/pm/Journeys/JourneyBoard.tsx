@@ -14,6 +14,7 @@ import { useLocalStorageData } from '../../../hooks/useLocalStorageData';
 import { demoDataService } from '../../../services/core-graphql/localstorage/demoDataService';
 import { mockJourneys as defaultJourneys } from '../../../data/journeyMockData';
 import type { Journey, SlaStatus, PriorityLevel } from '../../../types/journey';
+import { buildJourneyDetailRoute } from '@/utils/adminRoutes';
 
 const { Text } = Typography;
 
@@ -215,7 +216,7 @@ const JourneyBoard: React.FC = () => {
                                 <div key={j.id} style={{ position: 'relative' }}>
                                     <JourneyKanbanCard
                                         journey={j}
-                                        onClick={() => navigate(`/ql/journeys/${j.id}`)}
+                                        onClick={() => navigate(buildJourneyDetailRoute('ql', j.id))}
                                     />
                                     {/* Quick move action for demo purposes (simulating drag & drop) */}
                                     <div style={{ position: 'absolute', top: 4, right: 4 }}>

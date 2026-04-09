@@ -2,7 +2,7 @@
  * @deprecated
  * Giao diện chi tiết Journey dành riêng cho Sale đã được hợp nhất vào
  * `src/pages/shared/Journeys/JourneyDetail360.tsx`.
- * Route mới cho Sale: `/kd/journeys/:journeyId`.
+ * Route mới cho Sale: `/admin/kd/journeys/:journeyId`.
  * File này giữ lại route cũ `/kd/dashboard/:journeyId` để backward-compatibility.
  */
 import React, { useEffect, useState } from 'react';

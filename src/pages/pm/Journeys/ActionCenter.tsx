@@ -16,6 +16,7 @@ import { journeyStepLogService } from '../../../services/core-contracts/services
 import type { IJourney } from '../../../services/core-contracts/types/journey.types';
 import type { ActionItem, ActionType, PriorityLevel } from '../../../types/journey';
 import { FilterOperation } from '../../../types/filters/GroupQueryFilter';
+import { buildJourneyDetailRoute } from '@/utils/adminRoutes';
 
 const { Text } = Typography;
 const { useBreakpoint } = Grid;
@@ -266,7 +267,7 @@ const ActionCenter: React.FC = () => {
                 return (
                     <div>
                         <div style={{ fontWeight: 600, color: '#1976D2', cursor: 'pointer' }}
-                            onClick={() => navigate(`/ql/journeys/${a.journey_id}`)}>
+                            onClick={() => navigate(buildJourneyDetailRoute('ql', a.journey_id))}>
                             {a.journey_code}
                         </div>
                         <Text type="secondary" style={{ fontSize: 12 }}>{a.customer_name}</Text>
@@ -374,7 +375,7 @@ const ActionCenter: React.FC = () => {
             width: 80,
             render: (_, a) => {
                 return (
-                    <Button size="small" type="primary" ghost onClick={() => navigate(`/ql/journeys/${a.journey_id}`)}>
+                    <Button size="small" type="primary" ghost onClick={() => navigate(buildJourneyDetailRoute('ql', a.journey_id))}>
                         Xử lý
                     </Button>
                 );
@@ -549,7 +550,7 @@ const ActionCenter: React.FC = () => {
                                         <div style={{ display: 'flex', flexDirection: 'column', marginBottom: 4 }}>
                                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                                 <Text strong style={{ fontSize: 13, color: '#1976D2', cursor: 'pointer', flex: 1 }}
-                                                    onClick={() => navigate(`/ql/journeys/${log.journey_id}`)}>
+                                                    onClick={() => navigate(buildJourneyDetailRoute('ql', log.journey_id))}>
                                                     [{journeyCode}] {customerName}
                                                 </Text>
                                                 <Text type="secondary" style={{ fontSize: 10, marginLeft: 8, flexShrink: 0 }}>
@@ -590,4 +591,3 @@ const ActionCenter: React.FC = () => {
 };
 
 export default ActionCenter;
-

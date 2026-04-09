@@ -18,6 +18,7 @@ import type { IJourney, ICreateJourneyInput } from '../../../services/core-contr
 import { journeyService } from '../../../services/core-contracts/services/journey.service';
 import { useAuth } from '../../../hooks/useAuth';
 import JourneyUpsertDrawer from '../../../components/journey/JourneyUpsertDrawer';
+import { buildJourneyBoardRoute, buildJourneyDetailRoute } from '@/utils/adminRoutes';
 
 const { Text } = Typography;
 const { useBreakpoint } = Grid;
@@ -186,7 +187,7 @@ const JourneyList: React.FC = () => {
                 <div>
                     <div
                         style={{ fontWeight: 600, color: '#1976D2', cursor: 'pointer', marginBottom: 2 }}
-                        onClick={() => navigate(`/ql/journeys/${j._id}`)}
+                        onClick={() => navigate(buildJourneyDetailRoute('ql', j._id))}
                     >
                         {j.journey_code || 'N/A'}
                     </div>
@@ -267,9 +268,9 @@ const JourneyList: React.FC = () => {
                 <Dropdown
                     overlay={
                         <Menu>
-                            <Menu.Item key="view" icon={<EyeOutlined />} onClick={(e) => { e.domEvent.stopPropagation(); navigate(`/ql/journeys/${j._id}`); }}>Chi tiết</Menu.Item>
+                            <Menu.Item key="view" icon={<EyeOutlined />} onClick={(e) => { e.domEvent.stopPropagation(); navigate(buildJourneyDetailRoute('ql', j._id)); }}>Chi tiết</Menu.Item>
                             <Menu.Item key="edit" icon={<EditOutlined />} onClick={(e) => { e.domEvent.stopPropagation(); handleEdit(j); }}>Chỉnh sửa</Menu.Item>
-                            <Menu.Item key="board" icon={<LayoutOutlined />} onClick={(e) => { e.domEvent.stopPropagation(); navigate(`/ql/journeys/board?id=${j._id}`); }}>Kanban</Menu.Item>
+                            <Menu.Item key="board" icon={<LayoutOutlined />} onClick={(e) => { e.domEvent.stopPropagation(); navigate(buildJourneyBoardRoute('ql', `id=${j._id}`)); }}>Kanban</Menu.Item>
                             <Menu.Divider />
                             <Menu.Item key="delete" icon={<DeleteOutlined />} danger>
                                 <Popconfirm
@@ -431,7 +432,7 @@ const JourneyList: React.FC = () => {
                                 key={j._id}
                                 size="small"
                                 style={{ marginBottom: 12, cursor: 'pointer', borderRadius: 8 }}
-                                onClick={() => navigate(`/ql/journeys/${j._id}`)}
+                                onClick={() => navigate(buildJourneyDetailRoute('ql', j._id))}
                             >
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                     <div>
@@ -465,7 +466,7 @@ const JourneyList: React.FC = () => {
                         size="small"
                         loading={isLoading}
                         onRow={(j) => ({
-                            onClick: () => navigate(`/ql/journeys/${j._id}`),
+                            onClick: () => navigate(buildJourneyDetailRoute('ql', j._id)),
                             style: { cursor: 'pointer' }
                         })}
                         rowSelection={{

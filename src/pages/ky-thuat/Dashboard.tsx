@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { journeyService } from '@/services/core-contracts/services/journey.service';
 import { IJourney } from '@/services/core-contracts/types/journey.types';
+import { buildJourneyDetailRoute } from '@/utils/adminRoutes';
 
 const { Title, Text } = Typography;
 
@@ -63,7 +64,7 @@ export const Dashboard: React.FC = () => {
             address: j.site_address || 'Địa chỉ công trình',
             time: dateObj.toLocaleDateString('vi-VN') + ' ' + dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
             status: j.project_status === 'active' ? 'in-progress' : 'pending',
-            route: `/kyt/journeys/${j._id}`
+            route: buildJourneyDetailRoute('kyt', j._id)
         };
     });
 

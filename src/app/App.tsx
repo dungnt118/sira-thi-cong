@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
 import { ConfigProvider, App as AntApp } from 'antd';
 import viVN from 'antd/locale/vi_VN';
@@ -146,6 +146,7 @@ import { useAuth } from '@/hooks/useAuth';
 import Auth from '@/pages/shared/auth/Auth';
 import elsagaService from '@/services/authenticationService';
 import { getCurrentRole } from '@/utils/authUtils';
+import { buildAdminRoleRoute, LEGACY_ADMIN_PREFIXES } from '@/utils/adminRoutes';
 
 const RootRedirect = () => {
     const { isAuthenticated, session, role } = useAuth();
@@ -196,6 +197,18 @@ const PersonalProfileRedirect = () => {
     return null;
 };
 
+const LegacyAdminPrefixRedirect = () => {
+    const location = useLocation();
+    const [legacyPrefix, ...remainingSegments] = location.pathname.split('/').filter(Boolean);
+
+    if (!legacyPrefix) {
+        return <Navigate to="/admin" replace />;
+    }
+
+    const targetPath = buildAdminRoleRoute(legacyPrefix, remainingSegments.join('/'));
+    return <Navigate to={`${targetPath}${location.search}${location.hash}`} replace />;
+};
+
 function App() {
     return (
         <ConfigProvider locale={viVN}>
@@ -207,6 +220,9 @@ function App() {
                                 <Routes>
                                     {/* ===== AUTO REDIRECTS ===== */}
                                     <Route path="/personal/profile" element={<PersonalProfileRedirect />} />
+                                    {LEGACY_ADMIN_PREFIXES.map((prefix) => (
+                                        <Route key={prefix} path={`/${prefix}/*`} element={<LegacyAdminPrefixRedirect />} />
+                                    ))}
 
                                     {/* ===== PUBLIC ROUTES ===== */}
 
