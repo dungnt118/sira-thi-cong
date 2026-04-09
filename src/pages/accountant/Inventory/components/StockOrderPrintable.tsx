@@ -92,7 +92,7 @@ const StockOrderPrintable: React.FC<StockOrderPrintableProps> = ({ order }) => {
             {/* Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
                 <div style={{ textAlign: 'left' }}>
-                    <div style={{ fontWeight: 'bold', fontSize: 14 }}>CÔNG TY CP ĐẦU TƯ & XÂY DỰNG SIRA</div>
+                    <div style={{ fontWeight: 'bold', fontSize: 14 }}>CÔNG TY CP ĐẦU TƯ & XÂY DỰNG BAC</div>
                     <div style={{ fontSize: 12 }}>Địa chỉ: Lô 2, KCN Hà Bình Phương, Thường Tín, Hà Nội</div>
                     <div style={{ fontSize: 12 }}>Điện thoại: 024.3333.6666</div>
                 </div>
@@ -195,7 +195,7 @@ const StockOrderPrintable: React.FC<StockOrderPrintableProps> = ({ order }) => {
 
             {/* Footer */}
             <div style={{ position: 'absolute', bottom: '20mm', left: '20mm', right: '20mm', textAlign: 'center', fontSize: 10, color: '#888', borderTop: '1px solid #eee', paddingTop: 10 }}>
-                Phiếu được khởi tạo tự động từ hệ thống Quản lý SIRA
+                Phiếu được khởi tạo tự động từ hệ thống Quản lý BAC
             </div>
         </div>
     );

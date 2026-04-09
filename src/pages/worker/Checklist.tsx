@@ -58,7 +58,7 @@ const WorkerChecklist: React.FC = () => {
                 content: (
                     <div>
                         <p>Bạn chưa ký nhận phiếu xuất kho cho dự án này.</p>
-                        <p>Theo quy trình SIRA, bạn cần ký nhận vật tư <strong>trước khi bắt đầu thi công</strong>.</p>
+                        <p>Theo quy trình BAC, bạn cần ký nhận vật tư <strong>trước khi bắt đầu thi công</strong>.</p>
                         <p>Vui lòng liên hệ PM/Kế toán để được cấp phiếu xuất kho.</p>
                     </div>
                 ),

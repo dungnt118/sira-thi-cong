@@ -416,7 +416,7 @@ const StockOrderDetail: React.FC = () => {
 
             // Sử dụng worker API của html2pdf một cách tường minh
             html2pdf().from(element).set(opt).toPdf().output('blob').then(async (pdfBlob: Blob) => {
-                const fileName = `SIRA-${order.code || id}-FINAL.pdf`;
+                const fileName = `BAC-${order.code || id}-FINAL.pdf`;
 
                 // 2. Upload lên server
                 const fileData = await uploadPdfFile(pdfBlob, fileName);
@@ -446,7 +446,7 @@ const StockOrderDetail: React.FC = () => {
     const handleDownloadPDF = () => {
         const element = document.getElementById('stock-order-printable');
         if (element && order) {
-            const fileName = `SIRA-${order.code || order._id}.pdf`;
+            const fileName = `BAC-${order.code || order._id}.pdf`;
             const opt = {
                 margin: 10,
                 filename: fileName,

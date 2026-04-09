@@ -338,7 +338,7 @@ const Quotation: React.FC = () => {
                 <Form.Item label="Ghi chú cho KH">
                     <Input.TextArea
                         rows={3}
-                        defaultValue="Bảo hành 24 tháng theo tiêu chuẩn SIRA. Cam kết thi công đúng quy trình."
+                        defaultValue="Bảo hành 24 tháng theo tiêu chuẩn BAC. Cam kết thi công đúng quy trình."
                     />
                 </Form.Item>
             </Card>

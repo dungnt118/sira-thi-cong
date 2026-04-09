@@ -1,7 +1,7 @@
 import zipfile
 import xml.etree.ElementTree as ET
 
-docx_path = r"e:\SIRA-PROJECTS\BAC-GROUP\documents\Orignal-Requirements-Docs\2. QUY TRÌNH\QUY TRÌNH LÀM VIỆC VỚI KHÁCH HÀNG\Quy-trinh-lam-viec-theo-tung-buoc-trong-CUSTOMOR JOURNEY.docx"
+docx_path = r"e:\BAC-PROJECTS\BAC-GROUP\documents\Orignal-Requirements-Docs\2. QUY TRÌNH\QUY TRÌNH LÀM VIỆC VỚI KHÁCH HÀNG\Quy-trinh-lam-viec-theo-tung-buoc-trong-CUSTOMOR JOURNEY.docx"
 
 try:
     with zipfile.ZipFile(docx_path) as docx:

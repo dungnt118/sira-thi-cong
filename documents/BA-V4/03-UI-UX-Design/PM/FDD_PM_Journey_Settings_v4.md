@@ -5,7 +5,7 @@
 **Phiên bản:** v4.0
 
 ## 1. MỤC ĐÍCH
-Tài liệu này mô tả chi tiết giao diện người dùng (UI) và tính năng (UX) cho phần thiết lập cấu trúc Lõi của một Công trình Khách hàng. Đây là nền tảng để quyết định AI/System sẽ render Component nào và tự động giao task cho Role nào trong toàn bộ ứng dụng SIRA.
+Tài liệu này mô tả chi tiết giao diện người dùng (UI) và tính năng (UX) cho phần thiết lập cấu trúc Lõi của một Công trình Khách hàng. Đây là nền tảng để quyết định AI/System sẽ render Component nào và tự động giao task cho Role nào trong toàn bộ ứng dụng BAC.
 
 ---
 

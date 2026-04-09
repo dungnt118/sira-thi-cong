@@ -113,7 +113,7 @@ const SurveyCoordination: React.FC = () => {
                                                                 </div>
                                                                 <Title level={5} style={{ margin: '0 0 4px' }}>{s.customer_name || 'Khách hàng ẩn'}</Title>
                                                                 <div style={{ fontSize: 13, color: '#8c8c8c', marginBottom: 8 }}>
-                                                                    <EnvironmentOutlined /> {s.meeting_address || 'Tầng 1, Tòa nhà SIRA'}
+                                                                    <EnvironmentOutlined /> {s.meeting_address || 'Tầng 1, Tòa nhà BAC'}
                                                                 </div>
                                                                 <Space style={{ fontSize: 12, color: '#595959' }}>
                                                                     <Text strong>{s.contact_name}</Text>

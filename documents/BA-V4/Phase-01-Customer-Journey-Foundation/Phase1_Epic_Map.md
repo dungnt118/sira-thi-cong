@@ -78,8 +78,8 @@ Checklist:
 
 ## 6. Tài liệu chi tiết theo vai trò
 
-- [Phase1_CrossCutting_Backlog.md](E:/SIRA-PROJECTS/BAC-GROUP/documents/BA-V4/Phase-01-Customer-Journey-Foundation/Phase1_CrossCutting_Backlog.md)
-- [Phase1_PM_CustomerJourney_Backlog.md](E:/SIRA-PROJECTS/BAC-GROUP/documents/BA-V4/Phase-01-Customer-Journey-Foundation/Phase1_PM_CustomerJourney_Backlog.md)
-- [Phase1_Sale_Backlog.md](E:/SIRA-PROJECTS/BAC-GROUP/documents/BA-V4/Phase-01-Customer-Journey-Foundation/Phase1_Sale_Backlog.md)
-- [Phase1_GiamSat_Backlog.md](E:/SIRA-PROJECTS/BAC-GROUP/documents/BA-V4/Phase-01-Customer-Journey-Foundation/Phase1_GiamSat_Backlog.md)
-- [Phase1_CustomerPortal_Backlog.md](E:/SIRA-PROJECTS/BAC-GROUP/documents/BA-V4/Phase-01-Customer-Journey-Foundation/Phase1_CustomerPortal_Backlog.md)
+- [Phase1_CrossCutting_Backlog.md](E:/BAC-PROJECTS/BAC-GROUP/documents/BA-V4/Phase-01-Customer-Journey-Foundation/Phase1_CrossCutting_Backlog.md)
+- [Phase1_PM_CustomerJourney_Backlog.md](E:/BAC-PROJECTS/BAC-GROUP/documents/BA-V4/Phase-01-Customer-Journey-Foundation/Phase1_PM_CustomerJourney_Backlog.md)
+- [Phase1_Sale_Backlog.md](E:/BAC-PROJECTS/BAC-GROUP/documents/BA-V4/Phase-01-Customer-Journey-Foundation/Phase1_Sale_Backlog.md)
+- [Phase1_GiamSat_Backlog.md](E:/BAC-PROJECTS/BAC-GROUP/documents/BA-V4/Phase-01-Customer-Journey-Foundation/Phase1_GiamSat_Backlog.md)
+- [Phase1_CustomerPortal_Backlog.md](E:/BAC-PROJECTS/BAC-GROUP/documents/BA-V4/Phase-01-Customer-Journey-Foundation/Phase1_CustomerPortal_Backlog.md)

@@ -223,13 +223,13 @@ const SaleSurveyDetail: React.FC = () => {
 
                             <div style={{ textAlign: 'center', margin: '40px 0' }}>
                                 <div style={{ fontSize: 24, fontWeight: 'bold' }}>BIÊN BẢN KHẢO SÁT HIỆN TRẠNG</div>
-                                <div style={{ fontSize: 13, fontStyle: 'italic', marginTop: 5 }}>Số: SUR-{surveyId?.substring(0, 6) || '2024'} / SIRA</div>
+                                <div style={{ fontSize: 13, fontStyle: 'italic', marginTop: 5 }}>Số: SUR-{surveyId?.substring(0, 6) || '2024'} / BAC</div>
                             </div>
 
                             <div style={{ lineHeight: 1.8, fontSize: 14 }}>
                                 <p>Hôm nay, ngày {new Date().getDate()} tháng {new Date().getMonth() + 1} năm {new Date().getFullYear()}, chúng tôi gồm có:</p>
 
-                                <strong>I. Thành phần Khảo sát (Đại diện SIRA):</strong>
+                                <strong>I. Thành phần Khảo sát (Đại diện BAC):</strong>
                                 <p style={{ marginLeft: 20, margin: 0 }}>Ông/Bà: Báo cáo viên kỹ thuật</p>
                                 <p style={{ marginLeft: 20, margin: 0 }}>Chức vụ: Chuyên viên Khảo sát - Báo giá</p>
                                 <br />
@@ -275,7 +275,7 @@ const SaleSurveyDetail: React.FC = () => {
                                         </div>
                                     </div>
                                     <div style={{ width: '40%' }}>
-                                        <strong>ĐẠI DIỆN KHẢO SÁT (SIRA)</strong>
+                                        <strong>ĐẠI DIỆN KHẢO SÁT (BAC)</strong>
                                         <div style={{ fontStyle: 'italic', fontSize: 12 }}>(Ký và ghi rõ họ tên)</div>
                                         <div style={{ height: 100 }}></div>
                                     </div>

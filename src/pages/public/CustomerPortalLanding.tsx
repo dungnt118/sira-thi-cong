@@ -152,7 +152,7 @@ const CustomerPortalLanding: React.FC = () => {
                                 <PhoneOutlined /> Hotline: 1900 xxxx (8:00 - 18:00)
                             </Paragraph>
                             <Paragraph style={{ color: '#475569', margin: 0 }}>
-                                <EnvironmentOutlined /> Địa chỉ: Tòa nhà SIRA, Quận Bình Thạnh, TP. HCM
+                                <EnvironmentOutlined /> Địa chỉ: Tòa nhà BAC, Quận Bình Thạnh, TP. HCM
                             </Paragraph>
                         </div>
                     </Space>

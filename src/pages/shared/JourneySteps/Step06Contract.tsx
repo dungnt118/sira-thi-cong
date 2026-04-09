@@ -59,7 +59,7 @@ export const Step06Contract: React.FC<Step06ContractProps> = ({ journeyId, isEdi
                         <Text strong type="danger">{formatVND(contract.value)}</Text>
                     </Descriptions.Item>
                     <Descriptions.Item label="Đại diện KH">Khách hàng (Chủ đầu tư)</Descriptions.Item>
-                    <Descriptions.Item label="Đại diện SIRA">Giám đốc chi nhánh</Descriptions.Item>
+                    <Descriptions.Item label="Đại diện BAC">Giám đốc chi nhánh</Descriptions.Item>
                     <Descriptions.Item label="Thời hạn thực hiện"> Theo tiến độ thi công</Descriptions.Item>
                     <Descriptions.Item label="Hình thức thanh toán"> Chuyển khoản / Tiền mặt</Descriptions.Item>
                 </Descriptions>
@@ -73,22 +73,22 @@ export const Step06Contract: React.FC<Step06ContractProps> = ({ journeyId, isEdi
     };
 
     const renderEditable = () => (
-        <Form 
-            form={form} 
-            layout="vertical" 
+        <Form
+            form={form}
+            layout="vertical"
             onFinish={handleFinish}
-            initialValues={{ 
+            initialValues={{
                 contract_no: contract?.contract_no,
                 sign_date: contract?.sign_date,
                 value: contract?.value,
-                notes: '' 
+                notes: ''
             }}
         >
             <Divider orientation="left">Điều chỉnh thông tin hợp đồng</Divider>
             <Row gutter={16}>
                 <Col span={12}>
                     <Form.Item label="Số hợp đồng" name="contract_no" rules={[{ required: true }]}>
-                        <Input placeholder="VD: SIRA-2026-001" />
+                        <Input placeholder="VD: BAC-2026-001" />
                     </Form.Item>
                 </Col>
                 <Col span={12}>
@@ -98,9 +98,9 @@ export const Step06Contract: React.FC<Step06ContractProps> = ({ journeyId, isEdi
                 </Col>
                 <Col span={12}>
                     <Form.Item label="Giá trị hợp đồng (VNĐ)" name="value" rules={[{ required: true }]}>
-                        <InputNumber 
-                            style={{ width: '100%' }} 
-                            min={0} 
+                        <InputNumber
+                            style={{ width: '100%' }}
+                            min={0}
                             formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                         />
                     </Form.Item>
@@ -117,12 +117,12 @@ export const Step06Contract: React.FC<Step06ContractProps> = ({ journeyId, isEdi
     );
 
     return (
-        <Card 
-            title={isEditing ? "Thực hiện: Ký kết hợp đồng" : "Chi tiết bước: Ký kết hợp đồng"} 
-            variant="borderless" 
+        <Card
+            title={isEditing ? "Thực hiện: Ký kết hợp đồng" : "Chi tiết bước: Ký kết hợp đồng"}
+            variant="borderless"
             className="ky-card"
             extra={isEditable && (
-                <Button 
+                <Button
                     type={isEditing ? "default" : "primary"}
                     icon={isEditing ? <EyeOutlined /> : <EditOutlined />}
                     onClick={() => {

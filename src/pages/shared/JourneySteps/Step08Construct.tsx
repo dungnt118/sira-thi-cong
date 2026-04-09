@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { 
-    Card, Form, Input, Button, Result, Space, Divider, 
-    Typography, Progress, Timeline, Image, Row, Col, 
-    Alert, InputNumber, App, Spin, Empty, Avatar, Tag 
+import {
+    Card, Form, Input, Button, Result, Space, Divider,
+    Typography, Progress, Timeline, Image, Row, Col,
+    Alert, InputNumber, App, Spin, Empty, Avatar, Tag
 } from 'antd';
-import { 
-    SaveOutlined, EditOutlined, EyeOutlined, RocketOutlined, 
-    BuildOutlined, CheckCircleOutlined, PictureOutlined, 
-    LoadingOutlined, UserOutlined, PlusOutlined, ClockCircleOutlined 
+import {
+    SaveOutlined, EditOutlined, EyeOutlined, RocketOutlined,
+    BuildOutlined, CheckCircleOutlined, PictureOutlined,
+    LoadingOutlined, UserOutlined, PlusOutlined, ClockCircleOutlined
 } from '@ant-design/icons';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -26,11 +26,11 @@ export interface Step08ConstructProps {
     onEditStateChange?: (isEditing: boolean) => void;
 }
 
-export const Step08Construct: React.FC<Step08ConstructProps> = ({ 
-    journeyId, 
-    isEditable = false, 
-    onSave, 
-    onEditStateChange 
+export const Step08Construct: React.FC<Step08ConstructProps> = ({
+    journeyId,
+    isEditable = false,
+    onSave,
+    onEditStateChange
 }) => {
     const { isAdmin } = useAuth();
     const { message, notification } = App.useApp();
@@ -62,7 +62,7 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
                     children: [],
                     propType: 'OBJECTID' as any
                 },
-                sorted: [{ id: 'createdAt', desc: false }] 
+                sorted: [{ id: 'createdAt', desc: false }]
             });
             setReports(response.data || []);
         } catch (error) {
@@ -89,7 +89,7 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
                 title: `Nhật ký ngày ${new Date().toLocaleDateString('vi-VN')}`,
                 medias: values.medias || []
             });
-            
+
             if (response) {
                 message.success('Đã lưu nhật ký mới thành công');
                 setIsEditing(false);
@@ -116,19 +116,19 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
     const timelineItems = useMemo(() => {
         try {
             if (!reports || reports.length === 0) return [];
-            
+
             return reports.slice().reverse().map((report, idx) => {
                 if (!report) return null;
-                
+
                 const reportId = typeof report._id === 'string' ? report._id : `report-${idx}-${Math.random()}`;
                 const dateObj = report.createdAt ? new Date(report.createdAt) : null;
                 const isValidDate = dateObj && !isNaN(dateObj.getTime());
                 const dateStr = isValidDate ? dateObj.toLocaleDateString('vi-VN') : 'N/A';
                 const timeStr = isValidDate ? dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : '';
-                
+
                 // Extra defensive handling for complex fields
                 const creator = (report.createdBy && typeof report.createdBy === 'object') ? report.createdBy : null;
-                const creatorTitle = creator?.title || (typeof report.createdBy === 'string' ? report.createdBy : 'Thành viên SIRA');
+                const creatorTitle = creator?.title || (typeof report.createdBy === 'string' ? report.createdBy : 'Thành viên BAC');
                 const progress = typeof report.progress_pct === 'number' ? report.progress_pct : (Number(report.progress_pct) || 0);
 
                 return {
@@ -142,15 +142,15 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
                     ),
                     color: progress >= 100 ? 'green' : 'blue',
                     children: (
-                        <Card 
-                            size="small" 
+                        <Card
+                            size="small"
                             style={{ borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.05)', marginBottom: 16 }}
                             title={
                                 <Space>
-                                    <Avatar 
-                                        size="small" 
-                                        icon={<UserOutlined />} 
-                                        src={typeof creator?.avatar === 'string' ? getFileLink(creator.avatar) : undefined} 
+                                    <Avatar
+                                        size="small"
+                                        icon={<UserOutlined />}
+                                        src={typeof creator?.avatar === 'string' ? getFileLink(creator.avatar) : undefined}
                                     />
                                     <Text strong>{String(creatorTitle)}</Text>
                                     <Tag color="cyan">{progress}%</Tag>
@@ -160,7 +160,7 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
                             <div style={{ padding: '4px 0' }}>
                                 <Paragraph style={{ margin: 0 }}>{String(report.content || 'Không có nội dung')}</Paragraph>
                             </div>
-                            
+
                             {report.medias && Array.isArray(report.medias) && report.medias.length > 0 && (
                                 <div style={{ marginTop: 12 }}>
                                     <Space wrap>
@@ -168,11 +168,11 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
                                             const imgSrc = getFileLink(img.file_path || img.url || img);
                                             if (!imgSrc) return null;
                                             return (
-                                                <Image 
-                                                    key={`img-${i}`} 
-                                                    width={80} 
-                                                    height={60} 
-                                                    src={imgSrc} 
+                                                <Image
+                                                    key={`img-${i}`}
+                                                    width={80}
+                                                    height={60}
+                                                    src={imgSrc}
                                                     fallback="https://via.placeholder.com/80x60?text=No+Image"
                                                     style={{ borderRadius: 4, objectFit: 'cover', border: '1px solid #f0f0f0' }}
                                                 />
@@ -235,11 +235,11 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
                                 <Title level={4} style={{ margin: 0 }}>Tiến độ tổng thể</Title>
                                 <Text strong style={{ fontSize: 20, color: '#1890ff' }}>{overallProgress}%</Text>
                             </div>
-                            <Progress 
-                                percent={overallProgress} 
-                                status={overallProgress >= 100 ? "success" : "active"} 
+                            <Progress
+                                percent={overallProgress}
+                                status={overallProgress >= 100 ? "success" : "active"}
                                 strokeWidth={12}
-                                strokeColor={overallProgress >= 100 ? '#52c41a' : '#1890ff'} 
+                                strokeColor={overallProgress >= 100 ? '#52c41a' : '#1890ff'}
                             />
                         </Col>
                     </Row>
@@ -250,16 +250,16 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
                         <ClockCircleOutlined /> Lịch sử nhật ký hiện trường
                     </Title>
                 </Divider>
-                
-                <Timeline 
-                    mode="left" 
+
+                <Timeline
+                    mode="left"
                     pending={overallProgress < 100 ? "Đang tiếp tục thi công..." : false}
                     items={timelineItems as any}
                 />
 
                 {overallProgress >= 100 && (
-                    <Alert 
-                        message="Thi công hoàn tất" 
+                    <Alert
+                        message="Thi công hoàn tất"
                         description="Hạng mục đã hoàn thành 100% khối lượng. Đang chuẩn bị các bước Nghiệm thu & Bàn giao."
                         type="success"
                         showIcon
@@ -277,15 +277,15 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
                 <Divider orientation="left" plain>
                     <Title level={5} style={{ margin: 0 }}><PlusOutlined /> Ghi nhận nhật ký mới</Title>
                 </Divider>
-                
+
                 <Row gutter={24}>
                     <Col xs={24} sm={8}>
-                        <Form.Item 
-                            label="Cập nhật tiến độ (%)" 
-                            name="progress" 
+                        <Form.Item
+                            label="Cập nhật tiến độ (%)"
+                            name="progress"
                             rules={[
                                 { required: true, message: 'Nhập % tiến độ' },
-                                { 
+                                {
                                     validator: async (_, value) => {
                                         if (value !== undefined && value < lastProgress) {
                                             throw new Error(`Tiến độ không được thấp hơn mức cũ (${lastProgress}%)`);
@@ -297,50 +297,50 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
                                 }
                             ]}
                         >
-                            <InputNumber 
-                                min={lastProgress} 
-                                max={100} 
+                            <InputNumber
+                                min={lastProgress}
+                                max={100}
                                 step={1}
                                 precision={0}
-                                style={{ width: '100%' }} 
+                                style={{ width: '100%' }}
                                 addonAfter="%"
                                 placeholder={`Tiến độ hiện tại: ${lastProgress}%`}
                             />
                         </Form.Item>
                     </Col>
                     <Col xs={24} sm={16}>
-                        <Alert 
-                            type="info" 
-                            showIcon 
+                        <Alert
+                            type="info"
+                            showIcon
                             message={`Tiến độ hiện tại đang ở mức ${lastProgress}%. Vui lòng cập nhật con số mới sau ca thi công.`}
                             style={{ marginBottom: 24 }}
                         />
                     </Col>
                 </Row>
-                
+
                 <Form.Item label="Nội dung công việc hôm nay" name="notes" rules={[{ required: true, message: 'Vui lòng mô tả công việc' }]}>
                     <TextArea rows={5} placeholder="Ví dụ: Đã hoàn thành lắp đặt hệ khung xương, đi dây điện âm trần..." />
                 </Form.Item>
-                
-                <Form.Item 
-                    label="Hình ảnh & Video hiện trường (Tối đa 100MB/file)" 
+
+                <Form.Item
+                    label="Hình ảnh & Video hiện trường (Tối đa 100MB/file)"
                     name="medias"
                     extra="Hỗ trợ tải lên nhiều ảnh và video (.mp4, .mov, .png, .jpg)"
                 >
                     <UploadFiles fileSizeLimit={100} />
                 </Form.Item>
-                
+
                 <Divider />
-                
+
                 <Space size="middle" style={{ width: '100%', justifyContent: 'flex-end' }}>
                     <Button onClick={() => {
                         setIsEditing(false);
                         onEditStateChange?.(false);
                     }}>Hủy bỏ</Button>
-                    <Button 
-                        type="primary" 
-                        htmlType="submit" 
-                        icon={isSubmitting ? <LoadingOutlined /> : <PlusOutlined />} 
+                    <Button
+                        type="primary"
+                        htmlType="submit"
+                        icon={isSubmitting ? <LoadingOutlined /> : <PlusOutlined />}
                         loading={isSubmitting}
                     >
                         Lưu nhật ký & Cập nhật tiến độ
@@ -351,18 +351,18 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
     };
 
     return (
-        <Card 
+        <Card
             title={
                 <Space>
                     <BuildOutlined style={{ color: '#1890ff' }} />
                     <span style={{ fontSize: 16 }}>{isEditing ? "Ghi nhận tiến độ thi công" : "Nhật ký thi công dự án"}</span>
                 </Space>
-            } 
-            variant="borderless" 
+            }
+            variant="borderless"
             className="ky-card-detail"
             style={{ boxShadow: '0 2px 10px rgba(0,0,0,0.05)', borderRadius: 12 }}
             extra={(isEditable || isAdmin) && (
-                <Button 
+                <Button
                     type={isEditing ? "default" : "primary"}
                     icon={isEditing ? <EyeOutlined /> : <EditOutlined />}
                     onClick={() => {

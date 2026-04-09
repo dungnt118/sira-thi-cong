@@ -80,7 +80,7 @@ Deliverable chính:
 
 Chi tiết tại:
 
-- [Phase 1](E:/SIRA-PROJECTS/BAC-GROUP/docs/Phase-01-Customer-Journey-Foundation/README.md)
+- [Phase 1](E:/BAC-PROJECTS/BAC-GROUP/docs/Phase-01-Customer-Journey-Foundation/README.md)
 
 ### 5.2 Phase 2 - Preconstruction & Commercial Control
 
@@ -100,7 +100,7 @@ Deliverable chính:
 
 Chi tiết tại:
 
-- [Phase 2](E:/SIRA-PROJECTS/BAC-GROUP/docs/Phase-02-Preconstruction-Commercial-Control/README.md)
+- [Phase 2](E:/BAC-PROJECTS/BAC-GROUP/docs/Phase-02-Preconstruction-Commercial-Control/README.md)
 
 ### 5.3 Phase 3 - Internal Delivery, Inventory & Finance Control
 
@@ -120,7 +120,7 @@ Deliverable chính:
 
 Chi tiết tại:
 
-- [Phase 3](E:/SIRA-PROJECTS/BAC-GROUP/docs/Phase-03-Internal-Delivery-Inventory-Finance/README.md)
+- [Phase 3](E:/BAC-PROJECTS/BAC-GROUP/docs/Phase-03-Internal-Delivery-Inventory-Finance/README.md)
 
 ### 5.4 Phase 4 - Aftersales, Governance & Reporting
 
@@ -139,7 +139,7 @@ Deliverable chính:
 
 Chi tiết tại:
 
-- [Phase 4](E:/SIRA-PROJECTS/BAC-GROUP/docs/Phase-04-Aftersales-Governance-Reporting/README.md)
+- [Phase 4](E:/BAC-PROJECTS/BAC-GROUP/docs/Phase-04-Aftersales-Governance-Reporting/README.md)
 
 ## 6. Điều kiện qua phase
 

@@ -260,7 +260,7 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({
 
                 <div style={{ textAlign: 'center', margin: '30px 0' }}>
                     <div style={{ fontSize: 20, fontWeight: 'bold' }}>BIÊN BẢN KHẢO SÁT HIỆN TRẠNG</div>
-                    <div style={{ fontSize: 12, fontStyle: 'italic', marginTop: 5 }}>Số: SUR-{journey?.journey_code || 'N/A'} / SIRA</div>
+                    <div style={{ fontSize: 12, fontStyle: 'italic', marginTop: 5 }}>Số: SUR-{journey?.journey_code || 'N/A'} / BAC</div>
                 </div>
 
                 <div style={{ lineHeight: 1.6, fontSize: 14 }}>
