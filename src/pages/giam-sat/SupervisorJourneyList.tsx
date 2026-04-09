@@ -13,6 +13,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { journeyService } from '@/services/core-contracts/services/journey.service';
 import { IJourney } from '@/services/core-contracts/types/journey.types';
 import { FilterOperation, AND_OR } from '@/types/filters/GroupQueryFilter';
+import { buildJourneyDetailRoute } from '@/utils/adminRoutes';
 
 const { Title, Text } = Typography;
 const { Search } = Input;
@@ -164,7 +165,7 @@ export const SupervisorJourneyList: React.FC = () => {
                     overflow: 'hidden'
                 }}
                 hoverable
-                onClick={() => navigate(`/gs/journeys/${j._id}`)}
+                onClick={() => navigate(buildJourneyDetailRoute('gs', j._id))}
                 styles={{ body: { padding: '16px' } }}
             >
                 <Row gutter={16} align="middle">
@@ -210,7 +211,7 @@ export const SupervisorJourneyList: React.FC = () => {
                         <Button
                             size="small"
                             icon={<BookOutlined />}
-                            onClick={(e) => { e.stopPropagation(); navigate(`/gs/journeys/${j._id}?tab=GRP_08_CONSTRUCT`); }}
+                            onClick={(e) => { e.stopPropagation(); navigate(buildJourneyDetailRoute('gs', j._id, '?tab=GRP_08_CONSTRUCT')); }}
                         >
                             Nhật ký
                         </Button>
@@ -219,7 +220,7 @@ export const SupervisorJourneyList: React.FC = () => {
                             size="small"
                             icon={<BuildOutlined />}
                             style={{ backgroundColor: '#fa8c16', borderColor: '#fa8c16' }}
-                            onClick={(e) => { e.stopPropagation(); navigate(`/gs/journeys/${j._id}`); }}
+                            onClick={(e) => { e.stopPropagation(); navigate(buildJourneyDetailRoute('gs', j._id)); }}
                         >
                             Chi tiết
                         </Button>
@@ -300,4 +301,3 @@ export const SupervisorJourneyList: React.FC = () => {
 };
 
 export default SupervisorJourneyList;
-

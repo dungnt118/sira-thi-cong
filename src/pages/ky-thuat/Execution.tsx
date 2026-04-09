@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { journeyService } from '@/services/core-contracts/services/journey.service';
 import { IJourney } from '@/services/core-contracts/types/journey.types';
+import { buildJourneyDetailRoute } from '@/utils/adminRoutes';
 
 const { Title, Text } = Typography;
 
@@ -74,7 +75,7 @@ export const Execution: React.FC = () => {
                             type="primary"
                             block
                             icon={<RocketOutlined />}
-                            onClick={() => navigate(`/kyt/journeys/${item._id}`)}
+                            onClick={() => navigate(buildJourneyDetailRoute('kyt', item._id))}
                             style={{ height: 40, borderRadius: 8 }}
                         >
                             Cập nhật Nhật ký thi công <ArrowRightOutlined />
