@@ -113,7 +113,7 @@ const CustomerDetail: React.FC = () => {
         }
 
         if (journeys.length > 0) {
-            message.warning('Không thể xóa khách hàng đang còn liên kết với hành trình.');
+            message.warning('Không thể xóa khách hàng đang còn liên kết với công trình.');
             return;
         }
 
@@ -146,7 +146,7 @@ const CustomerDetail: React.FC = () => {
 
     const journeyColumns: ColumnsType<IJourney> = [
         {
-            title: 'Mã hành trình',
+            title: 'Mã công trình',
             dataIndex: 'journey_code',
             key: 'journey_code',
             render: (value: string, journey) => (
@@ -208,9 +208,9 @@ const CustomerDetail: React.FC = () => {
                         <Card bordered={false} style={{ borderRadius: 18, marginBottom: 20 }}>
                             <Statistic title="Tổng yêu cầu dịch vụ" value={journeys.length} />
                             <div style={{ marginTop: 12 }}>
-                                <Text type="secondary">Hành trình gần nhất</Text>
+                                <Text type="secondary">Công trình gần nhất</Text>
                                 <div style={{ marginTop: 4 }}>
-                                    <Text strong>{latestJourney?.journey_code || 'Chưa có hành trình'}</Text>
+                                    <Text strong>{latestJourney?.journey_code || 'Chưa có công trình'}</Text>
                                 </div>
                             </div>
                         </Card>
@@ -274,7 +274,7 @@ const CustomerDetail: React.FC = () => {
                     <Col xs={24} lg={16}>
                         <Space size={12}>
                             <Tag color="blue">{customer?.code || 'Chưa có mã'}</Tag>
-                            <Tag color="processing">{journeys.length} hành trình</Tag>
+                            <Tag color="processing">{journeys.length} công trình</Tag>
                         </Space>
                         <Title level={3} style={{ margin: '12px 0 4px' }}>
                             {customer?.full_name || 'Khách hàng chưa đặt tên'}
@@ -301,7 +301,7 @@ const CustomerDetail: React.FC = () => {
                             </Button>
                             <Popconfirm
                                 title="Xóa khách hàng"
-                                description="Chỉ nên xóa khi khách hàng không còn hành trình nào."
+                                description="Chỉ nên xóa khi khách hàng không còn công trình nào."
                                 okText="Xóa"
                                 cancelText="Hủy"
                                 okButtonProps={{ danger: true }}

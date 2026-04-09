@@ -80,11 +80,11 @@ export const docsData: UserGuide[] = [
             },
             {
                 title: '2. Bộ lọc & Tìm kiếm Dự án',
-                content: 'Sử dụng bộ lọc "Đang thi công" để tập trung vào các hành trình đang thực thi. Bạn có thể tìm nhanh dự án theo mã JRN hoặc tên khách hàng.',
+                content: 'Sử dụng bộ lọc "Đang thi công" để tập trung vào các công trình đang thực thi. Bạn có thể tìm nhanh dự án theo mã JRN hoặc tên khách hàng.',
                 image: '/assets/docs/gs/gs_pro_journey_list.png'
             },
             {
-                title: '3. Tổng quan Hành trình chi tiết',
+                title: '3. Tổng quan Công trình chi tiết',
                 content: 'Màn hình này cung cấp cái nhìn 360 độ về dự án: Địa chỉ thi công, số điện thoại khách hàng, nhân sự phối hợp (Sale/KT) và thanh tiến độ tổng thể.',
                 image: '/assets/docs/gs/gs_pro_journey_overview.png'
             },
@@ -174,7 +174,7 @@ export const docsData: UserGuide[] = [
             },
             {
                 title: '4. Quản lý Bản vẽ & Tài liệu',
-                content: 'Tất cả bản vẽ mặt bằng, chi tiết kỹ thuật và ảnh hiện trường được quản lý tập trung theo từng hành trình công trình.',
+                content: 'Tất cả bản vẽ mặt bằng, chi tiết kỹ thuật và ảnh hiện trường được quản lý tập trung theo từng công trình công trình.',
                 image: '/assets/docs/ky-thuat/kt_project_docs_form.png',
                 alert: {
                     type: 'important',
@@ -195,7 +195,7 @@ export const docsData: UserGuide[] = [
         sections: [
             {
                 title: '1. Tổng quan Giao diện Kinh doanh',
-                content: 'Màn hình "Yêu cầu" là trung tâm điều phối công việc của nhân viên kinh doanh. Tại đây, bạn có thể theo dõi tổng số hành trình đang phụ trách, các yêu cầu trễ hạn hoặc có rủi ro về tiến độ (SLA).',
+                content: 'Màn hình "Yêu cầu" là trung tâm điều phối công việc của nhân viên kinh doanh. Tại đây, bạn có thể theo dõi tổng số công trình đang phụ trách, các yêu cầu trễ hạn hoặc có rủi ro về tiến độ (SLA).',
                 image: '/assets/docs/sale/sl_dashboard_mobile.png',
                 alert: {
                     type: 'info',
@@ -215,12 +215,12 @@ export const docsData: UserGuide[] = [
                 ]
             },
             {
-                title: '3. Tiếp nhận & Theo dõi Hành trình',
-                content: 'Mỗi khách hàng sẽ gắn liền với một "Hành trình" (Journey) xuyên suốt từ khi tư vấn đến khi hoàn thành thi công. Sale cần theo dõi sát sao từng giai đoạn để kịp thời thông tin cho khách.',
+                title: '3. Tiếp nhận & Theo dõi Công trình',
+                content: 'Mỗi khách hàng sẽ gắn liền với một "Công trình" (Journey) xuyên suốt từ khi tư vấn đến khi hoàn thành thi công. Sale cần theo dõi sát sao từng giai đoạn để kịp thời thông tin cho khách.',
                 image: '/assets/docs/sale/sl_journey_detail_mobile.png',
                 alert: {
                     type: 'tip',
-                    text: 'Sử dụng các tab chi tiết trong Hành trình để xem tình trạng khảo sát của kỹ thuật hoặc lịch sử bàn giao vật tư.'
+                    text: 'Sử dụng các tab chi tiết trong Công trình để xem tình trạng khảo sát của kỹ thuật hoặc lịch sử bàn giao vật tư.'
                 }
             },
             {
@@ -242,11 +242,11 @@ export const docsData: UserGuide[] = [
     {
         id: 'pm',
         title: 'Hướng Dẫn Sử Dụng Quản Lý Dự Án (PM)',
-        description: 'Tài liệu quản trị hành trình khách hàng, giám sát tiến độ thi công và phê duyệt khảo sát kỹ thuật trên di động.',
+        description: 'Tài liệu quản trị công trình khách hàng, giám sát tiến độ thi công và phê duyệt khảo sát kỹ thuật trên di động.',
         sections: [
             {
                 title: '1. Bàn làm việc Quản lý (Dashboard)',
-                content: 'Màn hình Dashboard tập trung các chỉ số vận hành quan trọng: tổng số hành trình, các tác vụ quá hạn cần ưu tiên xử lý và các hồ sơ khảo sát đang chờ phê duyệt.',
+                content: 'Màn hình Dashboard tập trung các chỉ số vận hành quan trọng: tổng số công trình, các tác vụ quá hạn cần ưu tiên xử lý và các hồ sơ khảo sát đang chờ phê duyệt.',
                 image: '/assets/docs/pm/pm-dashboard.png',
                 alert: {
                     type: 'important',
@@ -254,8 +254,8 @@ export const docsData: UserGuide[] = [
                 }
             },
             {
-                title: '2. Trung tâm xử lý Hành trình',
-                content: 'Đây là Action Center giúp PM bám sát các yêu cầu đang thực thi. Hệ thống tự động phân loại các hành trình "Chưa hoàn thành" để PM dễ dàng quản trị theo thời gian thực.',
+                title: '2. Trung tâm xử lý Công trình',
+                content: 'Đây là Action Center giúp PM bám sát các yêu cầu đang thực thi. Hệ thống tự động phân loại các công trình "Chưa hoàn thành" để PM dễ dàng quản trị theo thời gian thực.',
                 image: '/assets/docs/pm/pm-action-center.png'
             },
             {

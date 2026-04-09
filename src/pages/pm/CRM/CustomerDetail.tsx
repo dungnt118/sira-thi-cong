@@ -113,7 +113,7 @@ const CustomerDetail: React.FC = () => {
                                 </div>
                             </div>
                             <Divider style={{ margin: '8px 0' }} />
-                             {[
+                            {[
                                 { id: 'phone', label: <span><PhoneOutlined /> Điện thoại</span>, value: customer.phone },
                                 { id: 'email', label: <span><MailOutlined /> Email</span>, value: customer.email || '—' },
                                 { id: 'address', label: <span><EnvironmentOutlined /> Địa chỉ</span>, value: `${customer.address}, ${customer.district}, ${customer.city}` },
@@ -165,16 +165,16 @@ const CustomerDetail: React.FC = () => {
         },
         {
             key: 'journeys',
-            label: <span><BuildOutlined /> Hành trình KH ({customerJourneys.length})</span>,
+            label: <span><BuildOutlined /> Công trình KH ({customerJourneys.length})</span>,
             children: (
                 <div>
                     {customerJourneys.length === 0 ? (
                         <div style={{ textAlign: 'center', padding: 40 }}>
-                            <Text type="secondary">Khách hàng này chưa có hành trình nào</Text>
+                            <Text type="secondary">Khách hàng này chưa có công trình nào</Text>
                             <br />
                             <Button type="primary" style={{ marginTop: 12 }}
                                 onClick={() => navigate('/admin/ql/journeys')}>
-                                Đi tới danh sách Hành trình
+                                Đi tới danh sách Công trình
                             </Button>
                         </div>
                     ) : (

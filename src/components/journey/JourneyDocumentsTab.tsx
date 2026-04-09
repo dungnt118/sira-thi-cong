@@ -163,9 +163,9 @@ export const JourneyDocumentsTab: React.FC<JourneyDocumentsTabProps> = ({
                 style={{ margin: 0, flexShrink: 0, alignSelf: 'center' }}
                 color={
                     kind === 'pdf' ? 'red'
-                    : kind === 'image' ? 'green'
-                    : kind === 'video' ? 'orange'
-                    : 'blue'
+                        : kind === 'image' ? 'green'
+                            : kind === 'video' ? 'orange'
+                                : 'blue'
                 }
             >
                 {FILE_KIND_LABEL[kind]}
@@ -338,7 +338,7 @@ export const JourneyDocumentsTab: React.FC<JourneyDocumentsTabProps> = ({
                             <Space wrap>
                                 <Text strong>
                                     {stepKey === '__unassigned'
-                                        ? 'Chưa gán bước hành trình'
+                                        ? 'Chưa gán bước công trình'
                                         : STEP_NAME_MAPPING[stepKey] || stepKey}
                                 </Text>
                                 <Badge count={stepDocs.length} style={{ backgroundColor: '#1890ff' }} />
@@ -360,33 +360,33 @@ export const JourneyDocumentsTab: React.FC<JourneyDocumentsTabProps> = ({
 
                                     const actions = isEditable
                                         ? [
-                                              <EditOutlined
-                                                  key="edit"
-                                                  onClick={() => {
-                                                      setEditingDoc(doc);
-                                                      setIsDocModalOpen(true);
-                                                  }}
-                                              />,
-                                              <Button
-                                                  key="delete"
-                                                  type="text"
-                                                  danger
-                                                  icon={<CloseCircleOutlined />}
-                                                  onClick={() => {
-                                                      Modal.confirm({
-                                                          title: 'Xóa tài liệu',
-                                                          content: 'Bạn có chắc chắn muốn xóa tài liệu này?',
-                                                          onOk: async () => {
-                                                              await journeyDocumentService.deleteJourneyDocument(
-                                                                  doc._id,
-                                                              );
-                                                              message.success('Đã xóa tài liệu');
-                                                              fetchDocuments();
-                                                          },
-                                                      });
-                                                  }}
-                                              />,
-                                          ]
+                                            <EditOutlined
+                                                key="edit"
+                                                onClick={() => {
+                                                    setEditingDoc(doc);
+                                                    setIsDocModalOpen(true);
+                                                }}
+                                            />,
+                                            <Button
+                                                key="delete"
+                                                type="text"
+                                                danger
+                                                icon={<CloseCircleOutlined />}
+                                                onClick={() => {
+                                                    Modal.confirm({
+                                                        title: 'Xóa tài liệu',
+                                                        content: 'Bạn có chắc chắn muốn xóa tài liệu này?',
+                                                        onOk: async () => {
+                                                            await journeyDocumentService.deleteJourneyDocument(
+                                                                doc._id,
+                                                            );
+                                                            message.success('Đã xóa tài liệu');
+                                                            fetchDocuments();
+                                                        },
+                                                    });
+                                                }}
+                                            />,
+                                        ]
                                         : [];
 
                                     return (
@@ -477,33 +477,33 @@ export const JourneyDocumentsTab: React.FC<JourneyDocumentsTabProps> = ({
                     content:
                         filePreview?.kind === 'pdf'
                             ? {
-                                  height: '100dvh',
-                                  display: 'flex',
-                                  flexDirection: 'column',
-                                  padding: 0,
-                                  borderRadius: 0,
-                                  overflow: 'hidden',
-                              }
+                                height: '100dvh',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                padding: 0,
+                                borderRadius: 0,
+                                overflow: 'hidden',
+                            }
                             : {},
                     header:
                         filePreview?.kind === 'pdf'
                             ? {
-                                  padding: '12px 16px',
-                                  marginBottom: 0,
-                                  borderBottom: '1px solid #f0f0f0',
-                                  flexShrink: 0,
-                              }
+                                padding: '12px 16px',
+                                marginBottom: 0,
+                                borderBottom: '1px solid #f0f0f0',
+                                flexShrink: 0,
+                            }
                             : {},
                     body:
                         filePreview?.kind === 'pdf'
                             ? {
-                                  flex: 1,
-                                  padding: 0,
-                                  overflow: 'hidden',
-                                  display: 'flex',
-                                  flexDirection: 'column',
-                                  minHeight: 0,
-                              }
+                                flex: 1,
+                                padding: 0,
+                                overflow: 'hidden',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                minHeight: 0,
+                            }
                             : { padding: '16px 24px' },
                 }}
                 destroyOnHidden

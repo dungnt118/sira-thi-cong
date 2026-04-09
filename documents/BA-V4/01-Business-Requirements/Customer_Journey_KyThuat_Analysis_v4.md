@@ -1,8 +1,8 @@
-# Phân tích hành trình khách hàng - Vai trò Kỹ thuật (Technical) v4
+# Phân tích công trình khách hàng - Vai trò Kỹ thuật (Technical) v4
 
 ## 1. Nguồn gốc quy chiếu
 Tài liệu phân tích này dựa trên:
-1. `Customer Journey - Hành trình trải nghiệm khách hàng.xlsx`
+1. `Customer Journey - Công trình trải nghiệm khách hàng.xlsx`
 2. `Quy-trinh-lam-viec-theo-tung-buoc-trong-CUSTOMOR JOURNEY.docx`
 
 Theo đó, vai trò **Kỹ thuật** đóng vai trò cực kỳ quan trọng trong giai đoạn định hình giải pháp (Pre-construction), triển khai thực tế (Execution), và chăm sóc sau bán (After-sales). Kỹ thuật **không chỉ** là nhân công ra công trường (Worker thuần túy) mà còn là chuyên gia đánh giá hiện trạng và tư vấn kỹ thuật.

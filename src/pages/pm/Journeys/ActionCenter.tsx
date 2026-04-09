@@ -4,7 +4,7 @@ import {
     Space, Button, Statistic, Grid, message, Empty
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { 
+import {
     ClockCircleOutlined, MessageOutlined,
     SendOutlined, StopOutlined, EyeOutlined, ReloadOutlined,
     ProjectOutlined, HistoryOutlined, ArrowRightOutlined
@@ -25,8 +25,8 @@ const ACTION_BUCKET_CONFIG: Record<ActionType, { label: string; desc: string; co
     survey_waiting: { label: 'Khảo sát chờ duyệt', desc: 'Đã nộp khảo sát, chưa phê duyệt', color: '#fa8c16', icon: <EyeOutlined /> },
     portal_unread: { label: 'Tin nhắn Portal', desc: 'Các trao đổi cần phản hồi', color: '#1890ff', icon: <MessageOutlined /> },
     publish_pending: { label: 'Chờ công khai', desc: 'Sẵn sàng đẩy thông tin Portal', color: '#722ed1', icon: <SendOutlined /> },
-    blocked: { label: 'Hành trình bị lỗi', desc: 'Tồn đọng tác vụ chặn đứng', color: '#d4380d', icon: <StopOutlined /> },
-    active_all: { label: 'Đang thực hiện', desc: 'Hành trình chưa đóng', color: '#13c2c2', icon: <ProjectOutlined /> },
+    blocked: { label: 'Công trình bị lỗi', desc: 'Tồn đọng tác vụ chặn đứng', color: '#d4380d', icon: <StopOutlined /> },
+    active_all: { label: 'Đang thực hiện', desc: 'Công trình chưa đóng', color: '#13c2c2', icon: <ProjectOutlined /> },
 };
 
 const PRIORITY_CONFIG: Record<PriorityLevel, { label: string; color: string }> = {
@@ -86,7 +86,7 @@ const ActionCenter: React.FC = () => {
             }
         } catch (error) {
             console.error('Failed to fetch journeys for Action Center:', error);
-            message.error('Không thể tải dữ liệu hành trình');
+            message.error('Không thể tải dữ liệu công trình');
         } finally {
             setIsLoading(false);
         }
@@ -198,7 +198,7 @@ const ActionCenter: React.FC = () => {
                     due_at: j.planned_end_date?.toString(),
                     start_at: j.planned_start_date?.toString(),
                     owner_user: j.supervisor_name || 'Chưa gán',
-                    source_tab: 'Hành trình'
+                    source_tab: 'Công trình'
                 });
             }
 
@@ -217,7 +217,7 @@ const ActionCenter: React.FC = () => {
                 start_at: j.planned_start_date?.toString(),
                 priority: (j.priority as PriorityLevel) || 'low',
                 owner_user: j.supervisor_name || 'Chưa gán',
-                source_tab: 'Hành trình'
+                source_tab: 'Công trình'
             });
         });
 
@@ -225,7 +225,7 @@ const ActionCenter: React.FC = () => {
         // Let's filter out 'active_all' for journeys that have other actions to keep the list clean.
         const finalItems: ActionItem[] = [];
         const journeysWithActions = new Set(items.filter(i => i.action_type !== 'active_all').map(i => i.journey_id));
-        
+
         items.forEach(i => {
             if (i.action_type !== 'active_all' || !journeysWithActions.has(i.journey_id)) {
                 finalItems.push(i);
@@ -259,7 +259,7 @@ const ActionCenter: React.FC = () => {
             },
         },
         {
-            title: 'Mã hành trình',
+            title: 'Mã công trình',
             key: 'journey',
             width: 150,
             render: (_, a) => {
@@ -303,7 +303,7 @@ const ActionCenter: React.FC = () => {
             width: 140,
             render: (_, a) => {
                 const startDateStr = a.start_at?.split('T')[0] || '—';
-                
+
                 if (!a.due_at) {
                     return (
                         <Space direction="vertical" size={0}>
@@ -312,18 +312,18 @@ const ActionCenter: React.FC = () => {
                         </Space>
                     );
                 }
-                
+
                 const dueDate = new Date(a.due_at);
                 const today = new Date();
-                today.setHours(0, 0, 0, 0); 
-                
+                today.setHours(0, 0, 0, 0);
+
                 const diffTime = dueDate.getTime() - today.getTime();
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                
+
                 let textColor = '#52c41a'; // Default success green
                 let statusLabel = '';
                 let fontWeight = 600;
-                
+
                 if (diffDays < 0) {
                     textColor = '#ff4d4f'; // Danger red
                     statusLabel = '(Trễ)';
@@ -333,7 +333,7 @@ const ActionCenter: React.FC = () => {
                     statusLabel = '(Sắp tới)';
                     fontWeight = 700;
                 }
-                
+
                 return (
                     <Space direction="vertical" size={0}>
                         <Text style={{ fontSize: 12, color: '#1890ff', fontWeight: 500 }}>BĐ: {startDateStr}</Text>
@@ -391,9 +391,9 @@ const ActionCenter: React.FC = () => {
                 </Col>
                 <Col>
                     <Space>
-                        <Button 
-                            icon={<ReloadOutlined />} 
-                            onClick={() => { fetchJourneys(); fetchRecentLogs(); }} 
+                        <Button
+                            icon={<ReloadOutlined />}
+                            onClick={() => { fetchJourneys(); fetchRecentLogs(); }}
                             loading={isLoading || isLoadingLogs}
                         >
                             Làm mới
@@ -445,7 +445,7 @@ const ActionCenter: React.FC = () => {
                             prefix={<StopOutlined style={{ color: '#d4380d', marginRight: 8 }} />}
                             valueStyle={{ color: '#d4380d', fontSize: 28, fontWeight: 700 }}
                         />
-                        <Text type="secondary" style={{ fontSize: 12 }}>Hành trình đang bị tồn đọng</Text>
+                        <Text type="secondary" style={{ fontSize: 12 }}>Công trình đang bị tồn đọng</Text>
                     </Card>
                 </Col>
             </Row>
@@ -524,7 +524,7 @@ const ActionCenter: React.FC = () => {
 
                 {/* Right: Recent Activity Sidebar */}
                 <Col xs={24} lg={7}>
-                    <Card 
+                    <Card
                         title={<Space><HistoryOutlined style={{ color: '#1890ff' }} /> <Text strong>Hoạt động mới nhất</Text></Space>}
                         bodyStyle={{ padding: '0 16px' }}
                         style={{ height: '100%', borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}
@@ -542,9 +542,9 @@ const ActionCenter: React.FC = () => {
                                 const slaCfg = SLA_STATUS_LOG_CONFIG[log.sla_status || ''] || { label: '', color: 'default' };
 
                                 return (
-                                    <div key={log._id} style={{ 
-                                        padding: '12px 0', 
-                                        borderBottom: idx === recentLogs.length - 1 ? 'none' : '1px solid #f0f0f0' 
+                                    <div key={log._id} style={{
+                                        padding: '12px 0',
+                                        borderBottom: idx === recentLogs.length - 1 ? 'none' : '1px solid #f0f0f0'
                                     }}>
                                         <div style={{ display: 'flex', flexDirection: 'column', marginBottom: 4 }}>
                                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -573,10 +573,10 @@ const ActionCenter: React.FC = () => {
                                 );
                             })
                         )}
-                        <Button 
-                            type="link" 
-                            block 
-                            style={{ marginTop: 8 }} 
+                        <Button
+                            type="link"
+                            block
+                            style={{ marginTop: 8 }}
                             onClick={() => navigate('/admin/ql/journeys')}
                             icon={<ArrowRightOutlined />}
                         >

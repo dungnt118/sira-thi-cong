@@ -125,7 +125,7 @@ const OutboundForm: React.FC = () => {
 
         const formValues = form.getFieldsValue();
         if (!formValues.journey_id) {
-            message.error('Vui lòng chọn hành trình tiếp nhận');
+            message.error('Vui lòng chọn công trình tiếp nhận');
             return;
         }
 
@@ -279,11 +279,11 @@ const OutboundForm: React.FC = () => {
                         <Form form={form} layout="vertical">
                             <Form.Item
                                 name="journey_id"
-                                label="Hành trình / Công trình tiếp nhận"
-                                rules={[{ required: true, message: 'Vui lòng chọn hành trình' }]}
+                                label="Công trình / Công trình tiếp nhận"
+                                rules={[{ required: true, message: 'Vui lòng chọn công trình' }]}
                             >
                                 <Select
-                                    placeholder="Chọn hành trình"
+                                    placeholder="Chọn công trình"
                                     showSearch
                                     optionFilterProp="children"
                                     size={isMobile ? 'large' : 'middle'}

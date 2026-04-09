@@ -5,17 +5,17 @@
 **Phiên bản:** v4.0
 
 ## 1. MỤC ĐÍCH
-Tài liệu này mô tả chi tiết giao diện người dùng (UI) và tính năng (UX) cho phần thiết lập cấu trúc Lõi của một Hành trình Khách hàng. Đây là nền tảng để quyết định AI/System sẽ render Component nào và tự động giao task cho Role nào trong toàn bộ ứng dụng SIRA.
+Tài liệu này mô tả chi tiết giao diện người dùng (UI) và tính năng (UX) cho phần thiết lập cấu trúc Lõi của một Công trình Khách hàng. Đây là nền tảng để quyết định AI/System sẽ render Component nào và tự động giao task cho Role nào trong toàn bộ ứng dụng BAC.
 
 ---
 
 ## 2. DANH SÁCH TÍNH NĂNG (FEATURES LIST)
 
 ### 2.1. Quản lý danh sách Template (`/ql/journeys/templates`)
-- **Hiển thị danh sách:** Liệt kê các bộ khung Hành trình.
-- **Tính năng Hành trình Chuẩn (Set Active Standard):** 
-  - Thêm một tuỳ chọn / Nút gạt (Toggle) đánh dấu 1 template là "Hành trình Chuẩn Đang Áp Dụng".
-  - **Quy tắc:** Chỉ 1 Hành trình được Active tại 1 thời điểm. Tất cả ticket tạo mới sẽ áp dụng quy trình này (Ticket cũ giữ phiên bản hành trình lúc được tạo).
+- **Hiển thị danh sách:** Liệt kê các bộ khung Công trình.
+- **Tính năng Công trình Chuẩn (Set Active Standard):** 
+  - Thêm một tuỳ chọn / Nút gạt (Toggle) đánh dấu 1 template là "Công trình Chuẩn Đang Áp Dụng".
+  - **Quy tắc:** Chỉ 1 Công trình được Active tại 1 thời điểm. Tất cả ticket tạo mới sẽ áp dụng quy trình này (Ticket cũ giữ phiên bản công trình lúc được tạo).
 - **Tạo mới / Sao chép Template:** Tái sử dụng form cũ để tăng tốc thiết lập.
 
 ### 2.2. Màn hình Chi tiết Template (`/ql/journeys/templates/:id`)

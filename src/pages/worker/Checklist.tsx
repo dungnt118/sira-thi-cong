@@ -39,7 +39,7 @@ const WorkerChecklist: React.FC = () => {
     const [selectedStep, setSelectedStep] = useState<JourneyChecklistStep | null>(null);
     const [uploadModalOpen, setUploadModalOpen] = useState(false);
 
-    if (!journey) return <div style={{ padding: 16 }}>Không tìm thấy hành trình</div>;
+    if (!journey) return <div style={{ padding: 16 }}>Không tìm thấy công trình</div>;
 
     const materialsOk = hasMaterialsDispached(journey);
     const workSteps = journey.work_steps || [];
@@ -58,7 +58,7 @@ const WorkerChecklist: React.FC = () => {
                 content: (
                     <div>
                         <p>Bạn chưa ký nhận phiếu xuất kho cho dự án này.</p>
-                        <p>Theo quy trình SIRA, bạn cần ký nhận vật tư <strong>trước khi bắt đầu thi công</strong>.</p>
+                        <p>Theo quy trình BAC, bạn cần ký nhận vật tư <strong>trước khi bắt đầu thi công</strong>.</p>
                         <p>Vui lòng liên hệ PM/Kế toán để được cấp phiếu xuất kho.</p>
                     </div>
                 ),
@@ -191,7 +191,7 @@ const WorkerChecklist: React.FC = () => {
                             {/* Evidence thumbnails */}
                             {step.evidences.length > 0 && (
                                 <div style={{ marginTop: 8, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                                {step.evidences.slice(0, 5).map((ev: JourneyChecklistStep['evidences'][number]) => (
+                                    {step.evidences.slice(0, 5).map((ev: JourneyChecklistStep['evidences'][number]) => (
                                         <img
                                             key={ev.id}
                                             src={ev.url}

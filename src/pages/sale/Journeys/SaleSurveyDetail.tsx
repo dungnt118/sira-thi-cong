@@ -202,7 +202,7 @@ const SaleSurveyDetail: React.FC = () => {
                                 icon={<CheckCircleOutlined />}
                                 style={{ background: '#52c41a', borderColor: '#52c41a' }}
                                 onClick={() => {
-                                    message.success('Hồ sơ khảo sát đã được chốt và lưu vào Hành trình!');
+                                    message.success('Hồ sơ khảo sát đã được chốt và lưu vào Công trình!');
                                     setOverallStatus('completed');
                                 }}
                             >
@@ -223,13 +223,13 @@ const SaleSurveyDetail: React.FC = () => {
 
                             <div style={{ textAlign: 'center', margin: '40px 0' }}>
                                 <div style={{ fontSize: 24, fontWeight: 'bold' }}>BIÊN BẢN KHẢO SÁT HIỆN TRẠNG</div>
-                                <div style={{ fontSize: 13, fontStyle: 'italic', marginTop: 5 }}>Số: SUR-{surveyId?.substring(0, 6) || '2024'} / SIRA</div>
+                                <div style={{ fontSize: 13, fontStyle: 'italic', marginTop: 5 }}>Số: SUR-{surveyId?.substring(0, 6) || '2024'} / BAC</div>
                             </div>
 
                             <div style={{ lineHeight: 1.8, fontSize: 14 }}>
                                 <p>Hôm nay, ngày {new Date().getDate()} tháng {new Date().getMonth() + 1} năm {new Date().getFullYear()}, chúng tôi gồm có:</p>
 
-                                <strong>I. Thành phần Khảo sát (Đại diện SIRA):</strong>
+                                <strong>I. Thành phần Khảo sát (Đại diện BAC):</strong>
                                 <p style={{ marginLeft: 20, margin: 0 }}>Ông/Bà: Báo cáo viên kỹ thuật</p>
                                 <p style={{ marginLeft: 20, margin: 0 }}>Chức vụ: Chuyên viên Khảo sát - Báo giá</p>
                                 <br />
@@ -275,7 +275,7 @@ const SaleSurveyDetail: React.FC = () => {
                                         </div>
                                     </div>
                                     <div style={{ width: '40%' }}>
-                                        <strong>ĐẠI DIỆN KHẢO SÁT (SIRA)</strong>
+                                        <strong>ĐẠI DIỆN KHẢO SÁT (BAC)</strong>
                                         <div style={{ fontStyle: 'italic', fontSize: 12 }}>(Ký và ghi rõ họ tên)</div>
                                         <div style={{ height: 100 }}></div>
                                     </div>
@@ -293,7 +293,7 @@ const SaleSurveyDetail: React.FC = () => {
     return (
         <div style={{ paddingBottom: 60 }}>
             <Button icon={<ArrowLeftOutlined />} type="text" onClick={handleBack} style={{ marginBottom: 12 }}>
-                Quay lại Hành trình
+                Quay lại Công trình
             </Button>
 
             <Card variant="borderless" style={{ marginBottom: 16, borderRadius: 8 }} styles={{ body: { padding: '16px 24px' } }}>
@@ -305,7 +305,7 @@ const SaleSurveyDetail: React.FC = () => {
                                 <div style={{ fontWeight: 600, fontSize: 16 }}>SUR-{surveyId?.substring(0, 6) || '2024'}</div>
                             </div>
                             <div>
-                                <Text type="secondary" style={{ fontSize: 12 }}>Hành trình</Text>
+                                <Text type="secondary" style={{ fontSize: 12 }}>Công trình</Text>
                                 <div style={{ fontWeight: 600 }}>{journey.journey_code}</div>
                             </div>
                             <div>
@@ -385,10 +385,10 @@ const SaleSurveyDetail: React.FC = () => {
                     <Result
                         status="success"
                         title="Khảo sát đã hoàn thành và Hồ sơ đã được chốt (Read-only)"
-                        subTitle="Hồ sơ khảo sát này đã được lưu vào Hành trình và không thể chỉnh sửa thêm."
+                        subTitle="Hồ sơ khảo sát này đã được lưu vào Công trình và không thể chỉnh sửa thêm."
                         extra={[
                             <Button type="primary" key="console" onClick={handleBack}>
-                                Quay lại Hành trình
+                                Quay lại Công trình
                             </Button>,
                             <Button key="buy" icon={<FilePdfOutlined />} onClick={handleDownloadPDF}>Xuất PDF Hồ sơ</Button>,
                         ]}

@@ -1,6 +1,6 @@
 import os
 
-root_dir = r"e:\SIRA-PROJECTS\BAC-GROUP\documents\BA-V4"
+root_dir = r"e:\BAC-PROJECTS\BAC-GROUP\documents\BA-V4"
 
 def rename_paths():
     for dirpath, dirnames, filenames in os.walk(root_dir, topdown=False):

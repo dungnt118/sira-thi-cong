@@ -44,7 +44,7 @@ const PERMISSION_OPTIONS = [
 const CustomerJourneySettingPage: React.FC = () => {
     const dispatch = useAppDispatch();
     const [form] = Form.useForm();
-    
+
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [setting, setSetting] = useState<ICustomerJourneySetting | null>(null);
@@ -72,19 +72,19 @@ const CustomerJourneySettingPage: React.FC = () => {
     }, []);
 
     const stepList = useMemo(() => {
-        if (!setting) return FIXED_STEPS.map((s, idx) => ({ 
-            step_code: s.code, 
-            step_name: s.name, 
+        if (!setting) return FIXED_STEPS.map((s, idx) => ({
+            step_code: s.code,
+            step_name: s.name,
             step_order: idx + 1,
-            is_enabled: true 
+            is_enabled: true
         }));
 
         return FIXED_STEPS.map((stepDef, idx) => {
             const fieldData = (setting as any)[stepDef.code];
-            const stepData = Array.isArray(fieldData) 
+            const stepData = Array.isArray(fieldData)
                 ? (fieldData.length > 0 ? fieldData[0] : null)
                 : (fieldData || null);
-            
+
             if (!stepData) {
                 return { step_code: stepDef.code, step_name: stepDef.name, step_order: idx + 1, is_enabled: true };
             }
@@ -118,14 +118,14 @@ const CustomerJourneySettingPage: React.FC = () => {
     const handleSaveStep = async () => {
         const values = await form.validateFields();
         const currentSetting = setting || { _id: '' };
-        
+
         // Remove transient fields if any exist
         const { ...cleanStep } = values;
-        
+
         const payload: ICustomerJourneySetting = {
             ...currentSetting,
             setting_key: 'default_journey',
-            setting_name: 'Hành trình khách hàng chuẩn',
+            setting_name: 'Công trình khách hàng chuẩn',
             is_active: true,
             [selectedStepCode]: cleanStep
         };
@@ -186,7 +186,7 @@ const CustomerJourneySettingPage: React.FC = () => {
 
             <Row gutter={24}>
                 <Col span={9}>
-                    <Card 
+                    <Card
                         title={<Space><SettingOutlined /> Các giai đoạn quy trình</Space>}
                         style={{ borderRadius: 12 }}
                         bodyStyle={{ padding: '12px' }}
@@ -216,16 +216,16 @@ const CustomerJourneySettingPage: React.FC = () => {
                                             <Badge count={idx + 1} style={{ backgroundColor: step.is_enabled !== false ? '#1890ff' : '#d9d9d9' }} />
                                             <Text strong style={{ color: step.is_enabled !== false ? '#262626' : '#bfbfbf' }}>{step.step_name}</Text>
                                             {step.sla_hours > 0 && (
-                                                <Tag 
-                                                    color={step.is_enabled !== false ? "cyan" : "default"} 
+                                                <Tag
+                                                    color={step.is_enabled !== false ? "cyan" : "default"}
                                                     style={{ marginLeft: 8, borderRadius: 10, fontSize: 10 }}
                                                 >
                                                     {step.sla_hours}h
                                                 </Tag>
                                             )}
                                             {step.portal_visible !== false && (
-                                                <Tag 
-                                                    color="blue" 
+                                                <Tag
+                                                    color="blue"
                                                     style={{ marginLeft: 4, borderRadius: 10, fontSize: 10 }}
                                                     icon={<GlobalOutlined />}
                                                 >
@@ -309,9 +309,9 @@ const CustomerJourneySettingPage: React.FC = () => {
                                                             name={[name, 'permissions']}
                                                             style={{ marginBottom: 0 }}
                                                         >
-                                                            <Select 
-                                                                mode="multiple" 
-                                                                placeholder="Chọn quyền..." 
+                                                            <Select
+                                                                mode="multiple"
+                                                                placeholder="Chọn quyền..."
                                                                 options={PERMISSION_OPTIONS}
                                                                 allowClear
                                                             />
@@ -336,21 +336,21 @@ const CustomerJourneySettingPage: React.FC = () => {
                                 <Form.List name="checklist">
                                     {(fields, { add, remove }) => (
                                         <>
-                                            <Collapse 
-                                                defaultActiveKey={[]} 
-                                                size="small" 
+                                            <Collapse
+                                                defaultActiveKey={[]}
+                                                size="small"
                                                 ghost={false}
                                                 expandIcon={({ isActive }) => (
-                                                    <CaretRightFilled 
-                                                        rotate={isActive ? 90 : 0} 
-                                                        style={{ fontSize: 12, position: 'relative', top: '12px' }} 
+                                                    <CaretRightFilled
+                                                        rotate={isActive ? 90 : 0}
+                                                        style={{ fontSize: 12, position: 'relative', top: '12px' }}
                                                     />
                                                 )}
                                                 style={{ marginBottom: 16, background: 'transparent' }}
                                             >
                                                 {fields.map(({ key, name, ...restField }) => (
-                                                    <Collapse.Panel 
-                                                        key={key} 
+                                                    <Collapse.Panel
+                                                        key={key}
                                                         header={
                                                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', minHeight: 32 }}>
                                                                 <Space align="center" size="small">
@@ -395,9 +395,9 @@ const CustomerJourneySettingPage: React.FC = () => {
                                                                     name={[name, 'description']}
                                                                     style={{ marginBottom: 0 }}
                                                                 >
-                                                                    <TextArea 
-                                                                        autoSize={{ minRows: 2, maxRows: 4 }} 
-                                                                        placeholder="Hướng dẫn thực hiện cho nhân viên..." 
+                                                                    <TextArea
+                                                                        autoSize={{ minRows: 2, maxRows: 4 }}
+                                                                        placeholder="Hướng dẫn thực hiện cho nhân viên..."
                                                                     />
                                                                 </Form.Item>
                                                             </Col>
@@ -492,14 +492,14 @@ const CustomerJourneySettingPage: React.FC = () => {
                                                 size="small"
                                                 rowKey="name"
                                                 columns={[
-                                                    { 
-                                                        title: '#', 
+                                                    {
+                                                        title: '#',
                                                         width: 50,
                                                         align: 'center',
-                                                        render: (_: any, __: any, index: number) => <Badge count={index + 1} size="small" style={{ backgroundColor: '#52c41a' }} /> 
+                                                        render: (_: any, __: any, index: number) => <Badge count={index + 1} size="small" style={{ backgroundColor: '#52c41a' }} />
                                                     },
-                                                    { 
-                                                        title: 'Tên hạng mục', 
+                                                    {
+                                                        title: 'Tên hạng mục',
                                                         dataIndex: 'name',
                                                         render: (name: string, record: IChecklistItem) => (
                                                             <Space>

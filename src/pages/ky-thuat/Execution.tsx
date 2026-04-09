@@ -85,7 +85,7 @@ export const Execution: React.FC = () => {
 
             <div style={{ marginTop: 24, padding: 16, background: '#e6f7ff', borderRadius: 8, border: '1px solid #91d5ff' }}>
                 <Text style={{ fontSize: 13, color: '#0050b3' }}>
-                    <strong>Ghi chú:</strong> Chỉ những hành trình đang ở bước "Thi công" mới hiển thị tại đây. Để xem các bước khác, vui lòng kiểm tra tại "Tổng quan" hoặc "Lịch trình".
+                    <strong>Ghi chú:</strong> Chỉ những công trình đang ở bước "Thi công" mới hiển thị tại đây. Để xem các bước khác, vui lòng kiểm tra tại "Tổng quan" hoặc "Lịch trình".
                 </Text>
             </div>
         </div>

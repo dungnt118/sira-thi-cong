@@ -120,7 +120,7 @@ const TemplateList: React.FC = () => {
                 gap: 12
             }}>
                 <div>
-                    <h2 style={{ margin: 0, fontSize: isMobile ? 20 : 24 }}>Template Hành trình</h2>
+                    <h2 style={{ margin: 0, fontSize: isMobile ? 20 : 24 }}>Template Công trình</h2>
                     <Text type="secondary">Quản lý các template quy trình dịch vụ</Text>
                 </div>
                 <Button

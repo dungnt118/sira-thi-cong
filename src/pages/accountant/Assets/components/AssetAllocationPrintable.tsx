@@ -32,7 +32,7 @@ const AssetAllocationPrintable: React.FC<AssetAllocationPrintableProps> = ({ ord
             {/* Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
                 <div style={{ textAlign: 'left' }}>
-                    <div style={{ fontWeight: 'bold', fontSize: 14 }}>CÔNG TY CP ĐẦU TƯ & XÂY DỰNG SIRA</div>
+                    <div style={{ fontWeight: 'bold', fontSize: 14 }}>CÔNG TY CP ĐẦU TƯ & XÂY DỰNG BAC</div>
                     <div style={{ fontSize: 12 }}>Địa chỉ: Lô 2, KCN Hà Bình Phương, Thường Tín, Hà Nội</div>
                     <div style={{ fontSize: 12 }}>Điện thoại: 024.3333.6666</div>
                 </div>

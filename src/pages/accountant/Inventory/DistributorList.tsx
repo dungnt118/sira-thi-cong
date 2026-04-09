@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { 
+import {
     Table, Button, Space, Modal, Form, Input, Select, Tag,
     Typography, Card, message, Grid
 } from 'antd';
-import { 
-    PlusOutlined, EditOutlined, DeleteOutlined, 
-    BankOutlined 
+import {
+    PlusOutlined, EditOutlined, DeleteOutlined,
+    BankOutlined
 } from '@ant-design/icons';
 import { distributorService } from '../../../services/core-contracts/services/distributor.service';
 import type { IDistributor } from '../../../services/core-contracts/types/distributor.types';
@@ -129,16 +129,16 @@ const DistributorList: React.FC = () => {
             width: 120,
             render: (_: any, record: IDistributor) => (
                 <Space>
-                    <Button 
-                        type="text" 
-                        icon={<EditOutlined />} 
-                        onClick={() => showModal(record)} 
+                    <Button
+                        type="text"
+                        icon={<EditOutlined />}
+                        onClick={() => showModal(record)}
                     />
-                    <Button 
-                        type="text" 
-                        danger 
-                        icon={<DeleteOutlined />} 
-                        onClick={() => handleDelete(record._id)} 
+                    <Button
+                        type="text"
+                        danger
+                        icon={<DeleteOutlined />}
+                        onClick={() => handleDelete(record._id)}
                     />
                 </Space>
             )
@@ -157,10 +157,10 @@ const DistributorList: React.FC = () => {
             </div>
 
             <Card bodyStyle={{ padding: 0 }}>
-                <Table 
+                <Table
                     loading={loading}
-                    dataSource={distributors} 
-                    columns={columns} 
+                    dataSource={distributors}
+                    columns={columns}
                     rowKey="_id"
                     pagination={{ pageSize: 15, size: 'small' }}
                     scroll={{ x: 'max-content' }}
@@ -178,12 +178,12 @@ const DistributorList: React.FC = () => {
                 cancelText="Hủy"
             >
                 <Form form={form} layout="vertical">
-                    <Form.Item 
-                        name="name" 
-                        label="Tên nhà phân phối" 
+                    <Form.Item
+                        name="name"
+                        label="Tên nhà phân phối"
                         rules={[{ required: true, message: 'Vui lòng nhập tên' }]}
                     >
-                        <Input placeholder="Ví dụ: Công ty SIRA" />
+                        <Input placeholder="Ví dụ: Công ty BAC" />
                     </Form.Item>
                     <Form.Item name="phone" label="Số điện thoại">
                         <Input placeholder="Số điện thoại liên hệ" />

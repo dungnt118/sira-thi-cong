@@ -115,7 +115,7 @@ const JourneyDetail360: React.FC = () => {
             }
         } catch (error) {
             console.error('Failed to fetch journey:', error);
-            message.error('Không thể tải thông tin hành trình');
+            message.error('Không thể tải thông tin công trình');
         } finally {
             setIsLoading(false);
         }
@@ -256,7 +256,7 @@ const JourneyDetail360: React.FC = () => {
         modal.confirm({
             title: 'Khởi tạo danh sách công việc?',
             icon: <ExclamationCircleOutlined />,
-            content: 'Hệ thống sẽ XÓA các nhiệm vụ hiện tại (nếu có) của hành trình này và tạo mới dựa trên cấu hình mẫu. Bạn có chắc chắn?',
+            content: 'Hệ thống sẽ XÓA các nhiệm vụ hiện tại (nếu có) của công trình này và tạo mới dựa trên cấu hình mẫu. Bạn có chắc chắn?',
             okText: 'Đồng ý',
             cancelText: 'Hủy',
             onOk: async () => {
@@ -466,11 +466,11 @@ const JourneyDetail360: React.FC = () => {
                         lineHeight: 1.6,
                         ...(isMobile
                             ? {
-                                  display: '-webkit-box',
-                                  WebkitLineClamp: 3,
-                                  WebkitBoxOrient: 'vertical',
-                                  overflow: 'hidden',
-                              }
+                                display: '-webkit-box',
+                                WebkitLineClamp: 3,
+                                WebkitBoxOrient: 'vertical',
+                                overflow: 'hidden',
+                            }
                             : {})
                     }}
                 >
@@ -485,7 +485,7 @@ const JourneyDetail360: React.FC = () => {
     if (!journey) {
         return (
             <div style={{ padding: 40, textAlign: 'center' }}>
-                <Empty description="Không tìm thấy hành trình" />
+                <Empty description="Không tìm thấy công trình" />
                 <Button style={{ marginTop: 16 }} onClick={() => navigate(-1)}>
                     Quay lại
                 </Button>
@@ -615,38 +615,38 @@ const JourneyDetail360: React.FC = () => {
                 </Button>
                 {(role === 'QL' || isAdmin) && (
                     <div style={isMobile ? { maxWidth: '100%', overflowX: 'auto', paddingBottom: 4 } : undefined}>
-                    <Space size={isMobile ? 4 : 8} wrap={!isMobile}>
-                        {(currentHeaderStepIndex < 0 || currentHeaderStepIndex < 5) && (
-                            <Button
-                                icon={<RocketOutlined />}
-                                onClick={handleInitializeTasks}
-                                loading={isSubmitting}
-                            >
-                                {isMobile ? '' : 'Khởi tạo công việc'}
-                            </Button>
-                        )}
-                        <Button icon={<FileTextOutlined />} onClick={() => { setEditingDoc(null); setShowCreateDocModal(true); }}>{isMobile ? '' : 'Tạo tài liệu'}</Button>
-                        <Button icon={<EditOutlined />} onClick={() => setIsEditDrawerVisible(true)}>{isMobile ? '' : 'Sửa hành trình'}</Button>
-                        <Button icon={<UserOutlined />} onClick={() => setShowAssignModal(true)}>{isMobile ? '' : 'Phân công'}</Button>
-                        <Button icon={<FlagOutlined />} onClick={() => setShowPriorityModal(true)}>{isMobile ? '' : 'Ưu tiên'}</Button>
-                        <Button type="primary" icon={<SendOutlined />} onClick={() => setShowPublishModal(true)}>{isMobile ? 'Portal' : 'Publish Portal'}</Button>
-                        {chatToggleButton}
-                        <Tooltip title="Lịch sử các bước">
-                            <Button icon={<HistoryOutlined />} onClick={() => setShowHistoryModal(true)} />
-                        </Tooltip>
-                    </Space>
+                        <Space size={isMobile ? 4 : 8} wrap={!isMobile}>
+                            {(currentHeaderStepIndex < 0 || currentHeaderStepIndex < 5) && (
+                                <Button
+                                    icon={<RocketOutlined />}
+                                    onClick={handleInitializeTasks}
+                                    loading={isSubmitting}
+                                >
+                                    {isMobile ? '' : 'Khởi tạo công việc'}
+                                </Button>
+                            )}
+                            <Button icon={<FileTextOutlined />} onClick={() => { setEditingDoc(null); setShowCreateDocModal(true); }}>{isMobile ? '' : 'Tạo tài liệu'}</Button>
+                            <Button icon={<EditOutlined />} onClick={() => setIsEditDrawerVisible(true)}>{isMobile ? '' : 'Sửa công trình'}</Button>
+                            <Button icon={<UserOutlined />} onClick={() => setShowAssignModal(true)}>{isMobile ? '' : 'Phân công'}</Button>
+                            <Button icon={<FlagOutlined />} onClick={() => setShowPriorityModal(true)}>{isMobile ? '' : 'Ưu tiên'}</Button>
+                            <Button type="primary" icon={<SendOutlined />} onClick={() => setShowPublishModal(true)}>{isMobile ? 'Portal' : 'Publish Portal'}</Button>
+                            {chatToggleButton}
+                            <Tooltip title="Lịch sử các bước">
+                                <Button icon={<HistoryOutlined />} onClick={() => setShowHistoryModal(true)} />
+                            </Tooltip>
+                        </Space>
                     </div>
                 )}
                 {role === 'KD' && (
                     <div style={isMobile ? { maxWidth: '100%', overflowX: 'auto', paddingBottom: 4 } : undefined}>
-                    <Space size={isMobile ? 4 : 8} wrap={!isMobile}>
-                        <Button icon={<MessageOutlined />} onClick={() => setShowLogModal(true)}>{isMobile ? '' : 'Ghi Log'}</Button>
-                        <Button icon={<ClockCircleOutlined />} onClick={() => setShowFollowUpModal(true)}>{isMobile ? '' : 'Follow-up'}</Button>
-                        {chatToggleButton}
-                        <Tooltip title="Lịch sử các bước">
-                            <Button icon={<HistoryOutlined />} onClick={() => setShowHistoryModal(true)} />
-                        </Tooltip>
-                    </Space>
+                        <Space size={isMobile ? 4 : 8} wrap={!isMobile}>
+                            <Button icon={<MessageOutlined />} onClick={() => setShowLogModal(true)}>{isMobile ? '' : 'Ghi Log'}</Button>
+                            <Button icon={<ClockCircleOutlined />} onClick={() => setShowFollowUpModal(true)}>{isMobile ? '' : 'Follow-up'}</Button>
+                            {chatToggleButton}
+                            <Tooltip title="Lịch sử các bước">
+                                <Button icon={<HistoryOutlined />} onClick={() => setShowHistoryModal(true)} />
+                            </Tooltip>
+                        </Space>
                     </div>
                 )}
                 {role !== 'QL' && !isAdmin && role !== 'KD' && (
@@ -857,7 +857,7 @@ const JourneyDetail360: React.FC = () => {
             </Card>
 
             <Drawer
-                title="Lộ trình Hành trình"
+                title="Lộ trình Công trình"
                 placement="right"
                 onClose={() => setIsJourneyDrawerVisible(false)}
                 open={isJourneyDrawerVisible}
@@ -1202,7 +1202,7 @@ const JourneyDetail360: React.FC = () => {
                             setIsSubmitting(true);
                             try {
                                 await journeyService.updateJourney(journey._id, values);
-                                message.success("Cập nhật hành trình thành công!");
+                                message.success("Cập nhật công trình thành công!");
                                 setIsEditDrawerVisible(false);
                                 fetchJourney();
                             } catch (error) {

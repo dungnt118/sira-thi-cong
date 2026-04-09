@@ -105,11 +105,11 @@ export const Dashboard: React.FC = () => {
                 />
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, fontSize: 12, color: '#8c8c8c' }}>
                     <span>Sắp hoàn thành: {journeys.filter(j => (j.progress_pct || 0) > 80).length}</span>
-                    <span>Tổng hành trình: {journeys.length}</span>
+                    <span>Tổng công trình: {journeys.length}</span>
                 </div>
             </div>
 
-            <Title level={5} style={{ marginBottom: 16 }}>Danh sách Hành trình</Title>
+            <Title level={5} style={{ marginBottom: 16 }}>Danh sách công trình</Title>
 
             <List
                 itemLayout="vertical"
@@ -140,7 +140,7 @@ export const Dashboard: React.FC = () => {
                         </Button>
                     </Card>
                 )}
-                locale={{ emptyText: <Text type="secondary">Không có hành trình nào được tìm thấy trên hệ thống.</Text> }}
+                locale={{ emptyText: <Text type="secondary">Không có công trình nào được tìm thấy trên hệ thống.</Text> }}
             />
         </div>
     );

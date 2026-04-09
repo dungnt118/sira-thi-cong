@@ -25,8 +25,8 @@ const mapJourneyToProject = (j: Journey): Project => ({
     category: j.idx_serviceTypeId?.title || 'Chống thấm',
     type: 'Nội bộ',
     templateId: j.template_id || 'TPL-001',
-    status: (j.project_status === 'completed' ? 'COMPLETED' : 
-             j.project_status === 'active' ? 'IN_PROGRESS' : 'SCHEDULED') as ProjectStatus,
+    status: (j.project_status === 'completed' ? 'COMPLETED' :
+        j.project_status === 'active' ? 'IN_PROGRESS' : 'SCHEDULED') as ProjectStatus,
     pmId: j.owner_user || 'U001',
     pmName: j.owner_user || 'Nguyễn Văn PM',
     workerIds: [j.supervisor_name || ''],
@@ -42,10 +42,10 @@ const mapJourneyToProject = (j: Journey): Project => ({
         name: s.name,
         description: s.description || '',
         minPhotos: s.minPhotos || 1,
-        status: (s.status === 'APPROVED' ? 'COMPLETED' : 
-                 s.status === 'IN_PROGRESS' ? 'IN_PROGRESS' : 
-                 s.status === 'AWAITING_REVIEW' ? 'AWAITING_REVIEW' :
-                 s.status === 'OPEN' ? 'OPEN' : 'LOCKED') as any,
+        status: (s.status === 'APPROVED' ? 'COMPLETED' :
+            s.status === 'IN_PROGRESS' ? 'IN_PROGRESS' :
+                s.status === 'AWAITING_REVIEW' ? 'AWAITING_REVIEW' :
+                    s.status === 'OPEN' ? 'OPEN' : 'LOCKED') as any,
         evidences: s.evidences || []
     })),
     incidents: [],
@@ -132,7 +132,7 @@ export const mockTemplates: ChecklistTemplate[] = [
 export const mockPipelines: Pipeline[] = [
     {
         id: 'PPL-001',
-        name: 'Quy trình Khách Lẻ SIRA',
+        name: 'Quy trình Khách Lẻ BAC',
         isActive: true,
         isDefault: true,
         stages: [

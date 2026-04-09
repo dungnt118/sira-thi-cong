@@ -2,7 +2,7 @@
 
 ## 1. Mục tiêu
 
-Các flow dưới đây mô tả các hành trình PM bắt buộc phải làm được trong V4. Flow được viết theo mô hình mới:
+Các flow dưới đây mô tả các công trình PM bắt buộc phải làm được trong V4. Flow được viết theo mô hình mới:
 
 - `Service Request-first`
 - `Giám sát thao tác thay kỹ thuật profile`

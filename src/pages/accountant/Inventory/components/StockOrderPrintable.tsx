@@ -28,7 +28,7 @@ function legacyKtSignatureDataUrl(order: IStockOrder): string | undefined {
 
 const StockOrderPrintable: React.FC<StockOrderPrintableProps> = ({ order }) => {
     const isOutbound = order.type === 'out';
-    
+
     const columns = [
         {
             title: 'STT',
@@ -92,7 +92,7 @@ const StockOrderPrintable: React.FC<StockOrderPrintableProps> = ({ order }) => {
             {/* Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
                 <div style={{ textAlign: 'left' }}>
-                    <div style={{ fontWeight: 'bold', fontSize: 14 }}>CÔNG TY CP ĐẦU TƯ & XÂY DỰNG SIRA</div>
+                    <div style={{ fontWeight: 'bold', fontSize: 14 }}>CÔNG TY CP ĐẦU TƯ & XÂY DỰNG BAC</div>
                     <div style={{ fontSize: 12 }}>Địa chỉ: Lô 2, KCN Hà Bình Phương, Thường Tín, Hà Nội</div>
                     <div style={{ fontSize: 12 }}>Điện thoại: 024.3333.6666</div>
                 </div>
@@ -113,12 +113,12 @@ const StockOrderPrintable: React.FC<StockOrderPrintableProps> = ({ order }) => {
             {/* General Info */}
             <div style={{ marginBottom: 20 }}>
                 <div style={{ marginBottom: 5 }}>
-                    <Text strong>{isOutbound ? 'Dự án / Hành trình: ' : 'Nhà cung cấp / Nguồn: '}</Text>
+                    <Text strong>{isOutbound ? 'Dự án / Công trình: ' : 'Nhà cung cấp / Nguồn: '}</Text>
                     <Text>{isOutbound ? (order.journey_name || order.journey_code || '---') : (order.supplier || order.source || '---')}</Text>
                 </div>
                 {order.journey_code && (
                     <div style={{ marginBottom: 5 }}>
-                        <Text strong>Mã hành trình: </Text>
+                        <Text strong>Mã công trình: </Text>
                         <Text>{order.journey_code}</Text>
                     </div>
                 )}
@@ -195,7 +195,7 @@ const StockOrderPrintable: React.FC<StockOrderPrintableProps> = ({ order }) => {
 
             {/* Footer */}
             <div style={{ position: 'absolute', bottom: '20mm', left: '20mm', right: '20mm', textAlign: 'center', fontSize: 10, color: '#888', borderTop: '1px solid #eee', paddingTop: 10 }}>
-                Phiếu được khởi tạo tự động từ hệ thống Quản lý SIRA
+                Phiếu được khởi tạo tự động từ hệ thống Quản lý BAC
             </div>
         </div>
     );

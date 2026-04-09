@@ -52,12 +52,12 @@ const Auth: React.FC<AuthProps> = ({ children, match }) => {
   const dispatch = useAppDispatch();
   const userData = useAppSelector((state: any) => state.auth?.user?.data);
   const schemas = (useAppSelector((state: any) => state.schemas))?.all_schemas;
-  
+
   const isCloudEnabledRaw = get(CLOUD_ENABLE);
   const isCloudEnabled = isCloudEnabledRaw === true || String(isCloudEnabledRaw).toLowerCase() === 'true';
   const [tenantReady, setTenantReady] = useState<boolean>(() => !isCloudEnabled);
   const [loading, setLoading] = useState(true);
-  
+
   const matchToken = match?.params?.token;
   const hasResetApolloClient = useRef(false);
   const lastTenantHostRef = useRef<string | null>(null);
@@ -93,7 +93,7 @@ const Auth: React.FC<AuthProps> = ({ children, match }) => {
       setTenantReady(true);
       return;
     }
-    
+
     const tenantHostName = window.location.hostname;
     const tenantUrl = `${get(BASE_URL)}/api/tenant-info/get_registration?access_uri=${encodeURIComponent(tenantHostName)}`;
 
@@ -115,13 +115,13 @@ const Auth: React.FC<AuthProps> = ({ children, match }) => {
   // 2) Init auth after tenant config is ready
   useEffect(() => {
     const query = qs.parse(window.location.search, { ignoreQueryPrefix: true }) as Record<string, unknown>;
-    
+
     if (tenantReady && !userData?.user && !query.layoutStyle) {
       const token = (query.token as string) ?? matchToken;
       if (token) {
         updateToken(token);
       }
-      
+
       const existingToken = elsagaService.getAccessToken();
       const currentPathname = getCurrentPathname();
       const currentPath = getCurrentPath();
@@ -137,9 +137,9 @@ const Auth: React.FC<AuthProps> = ({ children, match }) => {
         }
         setLoading(false);
       }
-    } else if (userData?.user || 
-               isPublicPath(getCurrentPathname()) ||
-               query.layoutStyle) {
+    } else if (userData?.user ||
+      isPublicPath(getCurrentPathname()) ||
+      query.layoutStyle) {
       setLoading(false);
     }
   }, [authenCheck, tenantReady, userData?.user, matchToken]);
@@ -172,7 +172,7 @@ const Auth: React.FC<AuthProps> = ({ children, match }) => {
       <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f0f2f5' }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{ marginBottom: 16 }}>
-             <span style={{ fontSize: 24, fontWeight: 'bold', color: '#1890ff' }}>SIRA</span>
+            <span style={{ fontSize: 24, fontWeight: 'bold', color: '#1890ff' }}>BAC</span>
           </div>
           <div style={{ fontSize: 16, color: '#888' }}>Đang tải phiên làm việc...</div>
         </div>

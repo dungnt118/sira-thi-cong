@@ -267,9 +267,9 @@ const InboundForm: React.FC = () => {
                                                 <InputNumber
                                                     disabled
                                                     value={
-                                                        Form.useWatch('is_partial', form) 
-                                                        ? (Form.useWatch('remaining_quantity', form) || 0) * (Form.useWatch('unit_cost', form) || 0)
-                                                        : (Form.useWatch('quantity', form) || 0) * (Form.useWatch('unit_cost', form) || 0)
+                                                        Form.useWatch('is_partial', form)
+                                                            ? (Form.useWatch('remaining_quantity', form) || 0) * (Form.useWatch('unit_cost', form) || 0)
+                                                            : (Form.useWatch('quantity', form) || 0) * (Form.useWatch('unit_cost', form) || 0)
                                                     }
                                                     style={{ width: '100%', background: '#f5f5f5', color: '#333', fontWeight: 'bold' }}
                                                     formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
@@ -303,7 +303,7 @@ const InboundForm: React.FC = () => {
                             <Form.Item label="Hình thức">
                                 <Radio.Group value={sourceType} onChange={e => setSourceType(e.target.value)} size={isMobile ? 'middle' : 'small'} style={{ width: '100%', textAlign: 'center' }}>
                                     <Radio.Button value="distributor" style={{ width: '50%' }}>Từ NPP</Radio.Button>
-                                    <Radio.Button value="journey" style={{ width: '50%' }}>Hành trình</Radio.Button>
+                                    <Radio.Button value="journey" style={{ width: '50%' }}>Công trình</Radio.Button>
                                 </Radio.Group>
                             </Form.Item>
 
@@ -322,10 +322,10 @@ const InboundForm: React.FC = () => {
                             ) : (
                                 <Form.Item
                                     name="journey_id"
-                                    label="Hành trình / Công trình"
-                                    rules={[{ required: true, message: 'Chọn hành trình' }]}
+                                    label="Công trình / Công trình"
+                                    rules={[{ required: true, message: 'Chọn công trình' }]}
                                 >
-                                    <Select placeholder="Chọn hành trình" style={{ width: '100%' }} loading={loading} showSearch optionFilterProp="children">
+                                    <Select placeholder="Chọn công trình" style={{ width: '100%' }} loading={loading} showSearch optionFilterProp="children">
                                         {journeys.map(j => (
                                             <Select.Option key={j._id} value={j._id}>
                                                 [{j.journey_code}] {j.customer_name}

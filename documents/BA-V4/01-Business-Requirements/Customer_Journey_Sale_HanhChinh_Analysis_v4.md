@@ -1,25 +1,25 @@
-# Phân tích vai trò Sale và Hành Chính theo hành trình khách hàng v4
+# Phân tích vai trò Sale và Hành Chính theo công trình khách hàng v4
 
 ## 1. Nguồn gốc phân tích
 
 Tài liệu này bóc tách trực tiếp từ workbook:
 
-- `documents/Orignal-Requirements-Docs/2. QUY TRÌNH/QUY TRÌNH LÀM VIỆC VỚI KHÁCH HÀNG/Customer Junior - Hành trình trải nghiệm khách hàng.xlsx`
+- `documents/Orignal-Requirements-Docs/2. QUY TRÌNH/QUY TRÌNH LÀM VIỆC VỚI KHÁCH HÀNG/Customer Junior - Công trình trải nghiệm khách hàng.xlsx`
 
 Workbook có 2 sheet chính:
 
-- `Hành trình trải nghiệm khách hà`: mô tả trách nhiệm theo từng bộ phận trên 13 bước trải nghiệm khách hàng.
+- `Công trình trải nghiệm khách hà`: mô tả trách nhiệm theo từng bộ phận trên 13 bước trải nghiệm khách hàng.
 - `Nội dung cần thực hiện`: liệt kê các biểu mẫu, kịch bản gọi điện, báo cáo và tài liệu chuẩn còn thiếu.
 
 ## 2. Kết luận trọng yếu rút ra từ workbook
 
 1. Vai trò `Sale/Kinh doanh` phải được mô hình hóa thành actor nghiệp vụ riêng, không nên gộp hoàn toàn vào `PM`.
 2. Vai trò `Hành Chính` là actor điều phối hồ sơ và giao nhận chứng từ, khác hoàn toàn với `Admin quản trị hệ thống`.
-3. Hệ thống cần một lớp chức năng mới cho `Quản lý mẫu tài liệu` và `Chữ ký điện tử` vì workbook yêu cầu nhiều loại hồ sơ số lặp lại xuyên suốt hành trình khách hàng.
+3. Hệ thống cần một lớp chức năng mới cho `Quản lý mẫu tài liệu` và `Chữ ký điện tử` vì workbook yêu cầu nhiều loại hồ sơ số lặp lại xuyên suốt công trình khách hàng.
 4. Chuỗi trước hợp đồng và sau nghiệm thu đều có hoạt động follow-up rõ ràng, nên BA không thể chỉ mô tả đến bước tạo dự án.
 5. Hệ thống phải quản lý được cả `bản giấy`, `bản PDF sinh tự động`, `bản đã ký touch`, và `hồ sơ số lưu trữ`.
 
-## 3. Bóc tách trách nhiệm theo từng bước hành trình
+## 3. Bóc tách trách nhiệm theo từng bước công trình
 
 | Bước | Sale/Kinh doanh | Hành Chính | Liên kết bắt buộc |
 |---|---|---|---|
@@ -121,4 +121,4 @@ Từ sheet `Nội dung cần thực hiện`, V4 cần quản lý tối thiểu c
 
 ## 8. Kết luận
 
-Workbook gốc cho thấy hành trình khách hàng của BAC Group không chỉ là CRM và delivery. Đó là chuỗi vận hành có `front-office`, `back-office`, `hồ sơ`, `ký duyệt`, `thanh toán` và `after-sales` liên kết chặt với nhau. Vì vậy việc bổ sung riêng package `Sale`, `HanhChinh`, cùng capability `Document Template + Digital Signature` là bắt buộc để BA-V4 trở thành baseline triển khai thực tế.
+Workbook gốc cho thấy công trình khách hàng của BAC Group không chỉ là CRM và delivery. Đó là chuỗi vận hành có `front-office`, `back-office`, `hồ sơ`, `ký duyệt`, `thanh toán` và `after-sales` liên kết chặt với nhau. Vì vậy việc bổ sung riêng package `Sale`, `HanhChinh`, cùng capability `Document Template + Digital Signature` là bắt buộc để BA-V4 trở thành baseline triển khai thực tế.

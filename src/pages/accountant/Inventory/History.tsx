@@ -1,8 +1,8 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { 
-    Typography, Table, Button, Tag, Card, Row, Col, 
-    Statistic, Tabs, Input, Steps, Space, Badge, Grid, 
-    List, message, Modal, Tooltip, DatePicker 
+import {
+    Typography, Table, Button, Tag, Card, Row, Col,
+    Statistic, Tabs, Input, Steps, Space, Badge, Grid,
+    List, message, Modal, Tooltip, DatePicker
 } from 'antd';
 import {
     FileTextOutlined, ClockCircleOutlined,
@@ -14,9 +14,9 @@ import {
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
 import { stockOrderService } from '../../../services/core-contracts/services/stockOrder.service';
-import { 
-    content_segment_group_count, 
-    content_numeric_aggregate 
+import {
+    content_segment_group_count,
+    content_numeric_aggregate
 } from '../../../store/actions/data/data.action';
 import type { IStockOrder } from '../../../services/core-contracts/types/stockOrder.types';
 import {
@@ -40,7 +40,7 @@ const SOURCE_LABELS: Record<string, string> = {
     internal: 'Nội bộ',
     distributor: 'Nhà phân phối',
     retail: 'Kho lẻ',
-    journey: 'Hành trình',
+    journey: 'Công trình',
     discrepancy: 'Điều chỉnh',
     manual: 'Thủ công',
     project: 'Công trình'
@@ -64,7 +64,7 @@ const InventoryHistory: React.FC = () => {
     // ─── State Management ──────────────────────────────────────
     const [loading, setLoading] = useState(false);
     const [stockOrders, setStockOrders] = useState<IStockOrder[]>([]);
-    
+
     // Initial states from URL params or defaults
     const [activeTabType, setActiveTabType] = useState<'out' | 'in'>(
         (searchParams.get('type') as 'out' | 'in') || 'out'
@@ -72,9 +72,9 @@ const InventoryHistory: React.FC = () => {
     const [activeStep, setActiveStep] = useState<string>(
         searchParams.get('step') || 'requested'
     );
-    
+
     const [searchText, setSearchText] = useState('');
-    
+
     // Filtering states
     const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null]>([
         dayjs().startOf('month'),
@@ -104,7 +104,7 @@ const InventoryHistory: React.FC = () => {
     } | null>(null);
 
     // ─── Query Logic ──────────────────────────────────────────
-    
+
     const buildFilter = useCallback((override?: any) => {
         const currentType = override?.type || activeTabType;
         const currentStep = override?.step !== undefined ? override.step : activeStep;
@@ -156,11 +156,11 @@ const InventoryHistory: React.FC = () => {
 
             if (res.data) {
                 setStockOrders(res.data);
-                setPagination(prev => ({ 
-                    ...prev, 
-                    current: page, 
-                    pageSize, 
-                    total: res.records || res.data?.length || 0 
+                setPagination(prev => ({
+                    ...prev,
+                    current: page,
+                    pageSize,
+                    total: res.records || res.data?.length || 0
                 }));
             }
         } catch (error) {
@@ -173,25 +173,25 @@ const InventoryHistory: React.FC = () => {
     const fetchStats = async () => {
         try {
             const filterGroup = buildFilter({ step: 'ALL' });
-            
+
             // 1. Get counts by status
-            const countsRes = await content_segment_group_count({ 
+            const countsRes = await content_segment_group_count({
                 field: 'status',
-                filter: { target_schema: 'StockOrder', group: filterGroup } 
+                filter: { target_schema: 'StockOrder', group: filterGroup }
             } as any);
-            
+
             if (countsRes.data) {
                 const counts: Record<string, number> = {};
                 let total = 0;
                 let pending = 0;
-                
+
                 countsRes.data.forEach(item => {
                     const status = item.key;
                     counts[status] = item.count;
                     total += item.count;
                     if (status === 'requested') pending += item.count;
                 });
-                
+
                 const mappedStepCounts: Record<string, number> = {
                     draft: counts.draft || 0,
                     requested: counts.requested || 0,
@@ -199,7 +199,7 @@ const InventoryHistory: React.FC = () => {
                     completed: counts.completed || 0,
                     cancelled: (counts.cancelled || 0) + (counts.discrepancy || 0)
                 };
-                
+
                 setStepCounts(mappedStepCounts);
                 setStatAgg(prev => ({ ...prev, totalCount: total, pendingCount: pending }));
             }
@@ -207,24 +207,24 @@ const InventoryHistory: React.FC = () => {
             // 2. Get financial sums
             // Fix: Create modified children for the stats to correctly count across types when calculated individually
             const baseChildren = filterGroup.children.filter(g => g.id !== 'type');
-            
+
             const [inRes, outRes] = await Promise.all([
-                content_numeric_aggregate({ 
+                content_numeric_aggregate({
                     field: 'total_value',
-                    filter: { 
-                        target_schema: 'StockOrder', 
-                        group: { op: 'AND', children: [{ id: 'type', operation: 'eq', value: 'in' }, ...baseChildren] } 
-                    } 
+                    filter: {
+                        target_schema: 'StockOrder',
+                        group: { op: 'AND', children: [{ id: 'type', operation: 'eq', value: 'in' }, ...baseChildren] }
+                    }
                 } as any),
-                content_numeric_aggregate({ 
+                content_numeric_aggregate({
                     field: 'total_value',
-                    filter: { 
-                        target_schema: 'StockOrder', 
-                        group: { op: 'AND', children: [{ id: 'type', operation: 'eq', value: 'out' }, ...baseChildren] } 
-                    } 
+                    filter: {
+                        target_schema: 'StockOrder',
+                        group: { op: 'AND', children: [{ id: 'type', operation: 'eq', value: 'out' }, ...baseChildren] }
+                    }
                 } as any)
             ]);
-            
+
             setStatAgg(prev => ({
                 ...prev,
                 totalInValue: inRes.data?.sum || 0,
@@ -322,11 +322,11 @@ const InventoryHistory: React.FC = () => {
                 </Button>
             )
         },
-        { 
-            title: 'Người lập', 
-            dataIndex: 'createdBy', 
-            key: 'created_by', 
-            width: 140, 
+        {
+            title: 'Người lập',
+            dataIndex: 'createdBy',
+            key: 'created_by',
+            width: 140,
             render: (v: any) => (
                 <Space size={4}>
                     <UserOutlined style={{ fontSize: 12, color: '#8c8c8c' }} />
@@ -335,7 +335,7 @@ const InventoryHistory: React.FC = () => {
             )
         },
         {
-            title: 'Hành trình',
+            title: 'Công trình',
             key: 'journey',
             minWidth: 180,
             render: (_: any, record: IStockOrder) => {
@@ -350,12 +350,12 @@ const InventoryHistory: React.FC = () => {
                 return <span style={{ color: '#bfbfbf' }}>—</span>;
             }
         },
-        { 
-            title: 'Nguồn', 
-            dataIndex: 'source', 
-            key: 'source', 
-            width: 110, 
-            render: (s: string) => <Tag style={{ margin: 0 }}>{SOURCE_LABELS[s] || s?.toUpperCase() || '—'}</Tag> 
+        {
+            title: 'Nguồn',
+            dataIndex: 'source',
+            key: 'source',
+            width: 110,
+            render: (s: string) => <Tag style={{ margin: 0 }}>{SOURCE_LABELS[s] || s?.toUpperCase() || '—'}</Tag>
         },
         {
             title: 'Trạng thái',
@@ -365,18 +365,18 @@ const InventoryHistory: React.FC = () => {
             render: (s: string) => getStatusTag(s || 'draft')
         },
         { title: 'Giá trị', dataIndex: 'total_value', key: 'val', width: 110, align: 'right' as const, render: (v: number) => <Text strong>{(v || 0).toLocaleString('vi-VN')}đ</Text> },
-        { 
-            title: 'Tạo lúc', 
-            dataIndex: 'createdAt', 
-            key: 'date', 
-            width: 140, 
-            render: (d: any) => d ? <div style={{ fontSize: 12 }}><CalendarOutlined style={{ marginRight: 4, color: '#bfbfbf' }} />{dayjs(d).format('DD/MM/YY HH:mm')}</div> : '—' 
+        {
+            title: 'Tạo lúc',
+            dataIndex: 'createdAt',
+            key: 'date',
+            width: 140,
+            render: (d: any) => d ? <div style={{ fontSize: 12 }}><CalendarOutlined style={{ marginRight: 4, color: '#bfbfbf' }} />{dayjs(d).format('DD/MM/YY HH:mm')}</div> : '—'
         },
-        { 
-            title: 'Duyệt lúc', 
-            dataIndex: 'reviewed_at', 
-            key: 'rev_date', 
-            width: 140, 
+        {
+            title: 'Duyệt lúc',
+            dataIndex: 'reviewed_at',
+            key: 'rev_date',
+            width: 140,
             render: (d: any) => d ? <div style={{ fontSize: 12, color: '#52c41a' }}><CalendarOutlined style={{ marginRight: 4 }} />{dayjs(d).format('DD/MM/YY HH:mm')}</div> : '—'
         },
         { title: 'Ghi chú', dataIndex: 'notes', key: 'notes', width: 150, ellipsis: true, render: (n: string) => n || '—' },
@@ -403,7 +403,7 @@ const InventoryHistory: React.FC = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, gap: 12, flexWrap: 'wrap' }}>
                 <Title level={isMobile ? 5 : 4} style={{ margin: 0 }}>⏱️ Hồ sơ xuất/nhập kho</Title>
                 <Space wrap>
-                    <RangePicker 
+                    <RangePicker
                         value={dateRange}
                         onChange={(val) => setDateRange(val as any)}
                         presets={[
@@ -448,7 +448,7 @@ const InventoryHistory: React.FC = () => {
                 <Tabs
                     activeKey={activeTabType}
                     onChange={onTabChange}
-                    items={[ { key: 'out', label: `Phiếu xuất kho` }, { key: 'in', label: `Phiếu nhập kho` } ]}
+                    items={[{ key: 'out', label: `Phiếu xuất kho` }, { key: 'in', label: `Phiếu nhập kho` }]}
                     style={{ padding: isMobile ? '0 12px' : '0 24px', backgroundColor: '#fff', borderBottom: '1px solid #f0f0f0' }}
                     size={isMobile ? 'small' : 'middle'}
                 />
@@ -466,10 +466,10 @@ const InventoryHistory: React.FC = () => {
                                     title: (
                                         <Space size="small">
                                             {s.title}
-                                            <Badge count={stepCounts[s.key] || 0} showZero style={{ 
-                                                backgroundColor: activeStep === s.key ? '#1890ff' : '#f0f0f0', 
-                                                color: activeStep === s.key ? '#fff' : '#8c8c8c', 
-                                                boxShadow: 'none', fontSize: 10 
+                                            <Badge count={stepCounts[s.key] || 0} showZero style={{
+                                                backgroundColor: activeStep === s.key ? '#1890ff' : '#f0f0f0',
+                                                color: activeStep === s.key ? '#fff' : '#8c8c8c',
+                                                boxShadow: 'none', fontSize: 10
                                             }} />
                                         </Space>
                                     ),
@@ -524,14 +524,14 @@ const InventoryHistory: React.FC = () => {
                                             </Space>
                                         </div>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                                             <Text type="secondary" style={{ fontSize: 12 }}>Người lập:</Text>
-                                             <Text style={{ fontSize: 12 }}>{renderUser(item.createdBy)}</Text>
+                                            <Text type="secondary" style={{ fontSize: 12 }}>Người lập:</Text>
+                                            <Text style={{ fontSize: 12 }}>{renderUser(item.createdBy)}</Text>
                                         </div>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                                            <Text type="secondary" style={{ fontSize: 12 }}>Hành trình:</Text>
+                                            <Text type="secondary" style={{ fontSize: 12 }}>Công trình:</Text>
                                             <div style={{ textAlign: 'right' }}>
                                                 {item.journey_code && <Tag color="blue" style={{ margin: 0, fontSize: 10 }}>{item.journey_code}</Tag>}
-                                                <br/><Text style={{ fontSize: 11 }}>{item.journey_name}</Text>
+                                                <br /><Text style={{ fontSize: 11 }}>{item.journey_name}</Text>
                                             </div>
                                         </div>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>

@@ -22,7 +22,7 @@ Mục tiêu:
 
 | Phase | Tên phase | Trọng tâm | Vai trò trung tâm | Đầu ra chiến lược |
 |---|---|---|---|---|
-| 1 | Customer Journey Foundation | Hành trình khách hàng 360 độ, responsive, configurable, liên kết Sale/Giám sát/Portal | PM, Sale, Giám sát, Customer Portal | Màn `CustomerJourney` trở thành trục điều hành prototype |
+| 1 | Customer Journey Foundation | Công trình khách hàng 360 độ, responsive, configurable, liên kết Sale/Giám sát/Portal | PM, Sale, Giám sát, Customer Portal | Màn `CustomerJourney` trở thành trục điều hành prototype |
 | 2 | Preconstruction & Commercial Control | Dự toán nội bộ, go/no-go, báo giá, hợp đồng, tài liệu số | PM, Sale, Hành Chính, Kế toán | Kiểm soát được bước trước dự án và chốt thương mại |
 | 3 | Internal Delivery, Inventory & Finance Control | Task orchestration, workforce, kho, tài sản, phần dư, thanh toán, cost ledger | PM, Giám sát, Kế toán | Điều hành nội bộ và tài chính bắt đầu chạy thật |
 | 4 | Aftersales, Governance & Reporting | Bảo hành/bảo trì, portal hoàn chỉnh, báo cáo, audit, governance | PM, Sale, Giám sát, Kế toán, Admin | Đóng vòng hậu mãi và quản trị dữ liệu |
@@ -49,8 +49,8 @@ Phase 1 phải tạo ra một prototype mà khi người dùng mở vào sẽ th
   - quy trình nội bộ gắn kèm
   - điều kiện vào/ra
   - dữ liệu liên quan
-- Sale nhìn được hành trình cùng ngữ cảnh
-- Giám sát đẩy được dữ liệu khảo sát/hiện trường vào hành trình
+- Sale nhìn được công trình cùng ngữ cảnh
+- Giám sát đẩy được dữ liệu khảo sát/hiện trường vào công trình
 - Portal khách hàng xem được dữ liệu đã publish và chat theo ngữ cảnh
 
 ### 4.3 Những gì phase 1 chưa cần làm sâu
@@ -80,7 +80,7 @@ Deliverable chính:
 
 Chi tiết tại:
 
-- [Phase 1](E:/SIRA-PROJECTS/BAC-GROUP/docs/Phase-01-Customer-Journey-Foundation/README.md)
+- [Phase 1](E:/BAC-PROJECTS/BAC-GROUP/docs/Phase-01-Customer-Journey-Foundation/README.md)
 
 ### 5.2 Phase 2 - Preconstruction & Commercial Control
 
@@ -100,7 +100,7 @@ Deliverable chính:
 
 Chi tiết tại:
 
-- [Phase 2](E:/SIRA-PROJECTS/BAC-GROUP/docs/Phase-02-Preconstruction-Commercial-Control/README.md)
+- [Phase 2](E:/BAC-PROJECTS/BAC-GROUP/docs/Phase-02-Preconstruction-Commercial-Control/README.md)
 
 ### 5.3 Phase 3 - Internal Delivery, Inventory & Finance Control
 
@@ -120,7 +120,7 @@ Deliverable chính:
 
 Chi tiết tại:
 
-- [Phase 3](E:/SIRA-PROJECTS/BAC-GROUP/docs/Phase-03-Internal-Delivery-Inventory-Finance/README.md)
+- [Phase 3](E:/BAC-PROJECTS/BAC-GROUP/docs/Phase-03-Internal-Delivery-Inventory-Finance/README.md)
 
 ### 5.4 Phase 4 - Aftersales, Governance & Reporting
 
@@ -139,7 +139,7 @@ Deliverable chính:
 
 Chi tiết tại:
 
-- [Phase 4](E:/SIRA-PROJECTS/BAC-GROUP/docs/Phase-04-Aftersales-Governance-Reporting/README.md)
+- [Phase 4](E:/BAC-PROJECTS/BAC-GROUP/docs/Phase-04-Aftersales-Governance-Reporting/README.md)
 
 ## 6. Điều kiện qua phase
 

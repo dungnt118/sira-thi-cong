@@ -89,7 +89,7 @@ const JourneyList: React.FC = () => {
             }
         } catch (error) {
             console.error('Failed to fetch journeys:', error);
-            message.error('Không thể tải danh sách hành trình');
+            message.error('Không thể tải danh sách công trình');
         } finally {
             setIsLoading(false);
         }
@@ -117,23 +117,23 @@ const JourneyList: React.FC = () => {
         try {
             const success = await journeyService.deleteJourney(id);
             if (success) {
-                message.success('Đã xóa hành trình');
+                message.success('Đã xóa công trình');
                 fetchJourneys();
             }
         } catch (error) {
-            message.error('Lỗi khi xóa hành trình');
+            message.error('Lỗi khi xóa công trình');
         }
     };
 
     const handleBulkDelete = async () => {
         if (selectedRowKeys.length === 0) return;
         Modal.confirm({
-            title: `Xác nhận xóa ${selectedRowKeys.length} hành trình?`,
+            title: `Xác nhận xóa ${selectedRowKeys.length} công trình?`,
             onOk: async () => {
                 try {
                     const success = await journeyService.deleteMultiJourney(selectedRowKeys as string[]);
                     if (success) {
-                        message.success('Đã xóa các hành trình đã chọn');
+                        message.success('Đã xóa các công trình đã chọn');
                         setSelectedRowKeys([]);
                         fetchJourneys();
                     }
@@ -149,10 +149,10 @@ const JourneyList: React.FC = () => {
         try {
             if (editingJourney) {
                 await journeyService.updateJourney(editingJourney._id, values);
-                message.success('Đã cập nhật hành trình');
+                message.success('Đã cập nhật công trình');
             } else {
                 await journeyService.createJourney(values);
-                message.success('Đã tạo hành trình mới');
+                message.success('Đã tạo công trình mới');
             }
             setIsFormVisible(false);
             fetchJourneys();
@@ -180,7 +180,7 @@ const JourneyList: React.FC = () => {
 
     const columns: ColumnsType<IJourney> = [
         {
-            title: 'Hành trình',
+            title: 'Công trình',
             key: 'journey',
             render: (_, j) => (
                 <div>
@@ -273,7 +273,7 @@ const JourneyList: React.FC = () => {
                             <Menu.Divider />
                             <Menu.Item key="delete" icon={<DeleteOutlined />} danger>
                                 <Popconfirm
-                                    title="Xóa hành trình này?"
+                                    title="Xóa công trình này?"
                                     onConfirm={(e) => {
                                         e?.stopPropagation();
                                         handleDelete(j._id);
@@ -300,12 +300,12 @@ const JourneyList: React.FC = () => {
             {/* Page Header */}
             <Row justify="space-between" align="middle" gutter={[16, 16]} style={{ marginBottom: 20 }}>
                 <Col xs={24} sm={12}>
-                    <h2 style={{ margin: 0 }}>Danh sách Hành trình Khách hàng</h2>
-                    <Text type="secondary">Quản lý toàn bộ hành trình dịch vụ theo cấu hình chuẩn 13 bước</Text>
+                    <h2 style={{ margin: 0 }}>Danh sách công trình Khách hàng</h2>
+                    <Text type="secondary">Quản lý toàn bộ công trình dịch vụ theo cấu hình chuẩn 13 bước</Text>
                 </Col>
                 <Col xs={24} sm={12} style={{ textAlign: isMobile ? 'left' : 'right' }}>
                     <Space wrap>
-                        <Tooltip title="Thêm hành trình mới">
+                        <Tooltip title="Thêm công trình mới">
                             <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>Tạo yêu cầu</Button>
                         </Tooltip>
                         <Tooltip title="Xem dạng Board">
@@ -368,7 +368,7 @@ const JourneyList: React.FC = () => {
                 <Row gutter={12} style={{ marginBottom: 16 }}>
                     <Col flex="auto">
                         <Input
-                            placeholder="Tìm kiếm hành trình..."
+                            placeholder="Tìm kiếm công trình..."
                             prefix={<SearchOutlined />}
                             value={keyword}
                             onChange={e => setKeyword(e.target.value)}
@@ -453,15 +453,15 @@ const JourneyList: React.FC = () => {
                                 </div>
                             </Card>
                         ))}
-                        {filtered.length === 0 && <Empty description="Không có hành trình nào" />}
+                        {filtered.length === 0 && <Empty description="Không có công trình nào" />}
                     </div>
                 ) : (
                     <Table
                         columns={columns}
                         dataSource={filtered}
                         rowKey="_id"
-                        pagination={{ pageSize: 15, showTotal: (t) => `${t} hành trình` }}
-                        locale={{ emptyText: <Empty description="Không có hành trình nào phù hợp bộ lọc" /> }}
+                        pagination={{ pageSize: 15, showTotal: (t) => `${t} công trình` }}
+                        locale={{ emptyText: <Empty description="Không có công trình nào phù hợp bộ lọc" /> }}
                         size="small"
                         loading={isLoading}
                         onRow={(j) => ({
@@ -489,7 +489,7 @@ const JourneyList: React.FC = () => {
 
             {/* DLG-01 Filter Drawer (Mobile) */}
             <Drawer
-                title="Bộ lọc hành trình"
+                title="Bộ lọc công trình"
                 placement="right"
                 onClose={() => setIsFilterVisible(false)}
                 open={isFilterVisible}

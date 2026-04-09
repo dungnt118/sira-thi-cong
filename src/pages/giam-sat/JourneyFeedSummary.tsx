@@ -77,7 +77,7 @@ const JourneyFeedSummary: React.FC = () => {
     return (
         <div>
             <div style={{ marginBottom: 16 }}>
-                <h2 style={{ margin: 0 }}>Feed Hành trình</h2>
+                <h2 style={{ margin: 0 }}>Feed Công trình</h2>
                 <Text type="secondary">Dữ liệu khảo sát đã nộp</Text>
             </div>
 

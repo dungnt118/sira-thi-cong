@@ -178,7 +178,7 @@ const SaleJourneyContext: React.FC = () => {
                     <Col xs={24} xl={14}>
                         <Card variant="borderless" style={{ borderRadius: 18 }}>
                             <Descriptions column={1} size="small" bordered>
-                                <Descriptions.Item label="Mã hành trình">{journey.journey_code}</Descriptions.Item>
+                                <Descriptions.Item label="Mã công trình">{journey.journey_code}</Descriptions.Item>
                                 <Descriptions.Item label="Tiêu đề yêu cầu">{journey.request_title || JOURNEY_EMPTY_VALUE}</Descriptions.Item>
                                 <Descriptions.Item label="Khách hàng">{customerName}</Descriptions.Item>
                                 <Descriptions.Item label="Số điện thoại">{customerPhone}</Descriptions.Item>

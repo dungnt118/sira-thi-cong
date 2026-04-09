@@ -119,7 +119,7 @@ export const SaleLayout: React.FC = () => {
         {
             key: 'journeys-group',
             icon: <InboxOutlined />,
-            label: 'Hành trình khách hàng',
+            label: 'Công trình khách hàng',
             children: [
                 {
                     key: '/admin/kd/dashboard',
@@ -217,7 +217,7 @@ export const SaleLayout: React.FC = () => {
 
                     {!isMobile && (
                         <Search
-                            placeholder="Tìm hành trình, khách hàng hoặc nội dung yêu cầu..."
+                            placeholder="Tìm công trình, khách hàng hoặc nội dung yêu cầu..."
                             allowClear
                             style={{ maxWidth: 460, margin: '0 24px' }}
                             prefix={<SearchOutlined />}

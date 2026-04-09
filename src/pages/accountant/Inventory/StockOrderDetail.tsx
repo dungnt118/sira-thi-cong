@@ -168,17 +168,17 @@ const StockOrderDetail: React.FC = () => {
         }
 
         return (
-            <div style={{ 
-                display: 'flex', 
-                flexWrap: 'wrap', 
-                gap: '12px 8px', 
+            <div style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '12px 8px',
                 marginBottom: 32,
                 padding: '0 8px'
             }}>
                 {steps.map((step, index) => {
                     const isActive = index === current;
                     const isDone = index < current;
-                    
+
                     let bgColor = '#fff';
                     let borderColor = 'rgba(0, 0, 0, 0.25)';
                     let textColor = 'rgba(0, 0, 0, 0.45)';
@@ -195,9 +195,9 @@ const StockOrderDetail: React.FC = () => {
                     }
 
                     return (
-                        <div key={index} style={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
+                        <div key={index} style={{
+                            display: 'flex',
+                            alignItems: 'center',
                             flex: '1 0 30%',
                             minWidth: '100px',
                             opacity: isDone || isActive ? 1 : 0.6
@@ -263,7 +263,7 @@ const StockOrderDetail: React.FC = () => {
 
         const result = await response.json();
         const data = result.result || result;
-        
+
         const fileRef = data.file_path || data.file_id || data.url;
         if (!fileRef) {
             throw new Error('Server không trả về mã định danh file hợp lệ');
@@ -298,9 +298,9 @@ const StockOrderDetail: React.FC = () => {
         return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
                 {(order.items || []).map((item, index) => (
-                    <Card 
-                        key={index} 
-                        size="small" 
+                    <Card
+                        key={index}
+                        size="small"
                         styles={{ body: { padding: '8px 12px' } }}
                         style={{ borderRadius: 6, border: '1px solid #f0f0f0' }}
                     >
@@ -326,8 +326,8 @@ const StockOrderDetail: React.FC = () => {
                             </Col>
                             <Col span={8}>
                                 <Text type="secondary" style={{ fontSize: 11 }}>Thực nhận:</Text>
-                                <div style={{ 
-                                    fontSize: 13, 
+                                <div style={{
+                                    fontSize: 13,
                                     fontWeight: 600,
                                     color: (item.received_quantity !== undefined && item.received_quantity < (item.issued_quantity || 0)) ? '#ff4d4f' : '#52c41a'
                                 }}>
@@ -394,7 +394,7 @@ const StockOrderDetail: React.FC = () => {
     const handleFinalize = async () => {
         console.log('Finalize button clicked');
         if (!id || !order) return;
-        
+
         const msgKey = 'finalizing_order';
         message.loading({ content: 'Bắt đầu quá trình lưu trữ...', key: msgKey, duration: 0 });
         setLoading(true);
@@ -416,7 +416,7 @@ const StockOrderDetail: React.FC = () => {
 
             // Sử dụng worker API của html2pdf một cách tường minh
             html2pdf().from(element).set(opt).toPdf().output('blob').then(async (pdfBlob: Blob) => {
-                const fileName = `SIRA-${order.code || id}-FINAL.pdf`;
+                const fileName = `BAC-${order.code || id}-FINAL.pdf`;
 
                 // 2. Upload lên server
                 const fileData = await uploadPdfFile(pdfBlob, fileName);
@@ -446,7 +446,7 @@ const StockOrderDetail: React.FC = () => {
     const handleDownloadPDF = () => {
         const element = document.getElementById('stock-order-printable');
         if (element && order) {
-            const fileName = `SIRA-${order.code || order._id}.pdf`;
+            const fileName = `BAC-${order.code || order._id}.pdf`;
             const opt = {
                 margin: 10,
                 filename: fileName,
@@ -531,10 +531,10 @@ const StockOrderDetail: React.FC = () => {
                         <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(`/${role?.toLowerCase()}/inventory/history`)} />
                         <div style={{ minWidth: 0, flex: 1 }}>
                             <Text type="secondary" style={{ display: 'block', fontSize: '12px' }}>{order.type === 'out' ? 'Phiếu Xuất Kho' : 'Phiếu Nhập Kho'}</Text>
-                            <Title 
-                                level={4} 
-                                style={{ 
-                                    margin: 0, 
+                            <Title
+                                level={4}
+                                style={{
+                                    margin: 0,
                                     fontSize: 'clamp(14px, 4.5vw, 18px)',
                                     whiteSpace: 'nowrap',
                                     overflow: 'hidden',
@@ -567,13 +567,13 @@ const StockOrderDetail: React.FC = () => {
 
                 <Row gutter={[24, 24]}>
                     <Col xs={24} sm={24} md={16}>
-                        <div 
-                            style={{ 
-                                background: '#f8f9fa', 
-                                border: '1px solid #e9ecef', 
-                                borderRadius: 12, 
-                                padding: 20, 
-                                marginBottom: 24 
+                        <div
+                            style={{
+                                background: '#f8f9fa',
+                                border: '1px solid #e9ecef',
+                                borderRadius: 12,
+                                padding: 20,
+                                marginBottom: 24
                             }}
                         >
                             <Row gutter={[32, 20]}>
@@ -586,8 +586,8 @@ const StockOrderDetail: React.FC = () => {
                                 <Col xs={24} sm={12}>
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                                         <Text type="secondary" style={{ fontSize: 13 }}>Trạng thái</Text>
-                                        <Tag 
-                                            color={getStatusInfo(order.status).color} 
+                                        <Tag
+                                            color={getStatusInfo(order.status).color}
                                             icon={getStatusInfo(order.status).icon}
                                             style={{ alignSelf: 'flex-start', margin: 0, borderRadius: 10, padding: '0 12px' }}
                                         >
@@ -597,7 +597,7 @@ const StockOrderDetail: React.FC = () => {
                                 </Col>
                                 <Col xs={24} sm={12}>
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                                        <Text type="secondary" style={{ fontSize: 13 }}>Dự án / Hành trình</Text>
+                                        <Text type="secondary" style={{ fontSize: 13 }}>Dự án / Công trình</Text>
                                         <Text strong style={{ color: '#1890ff' }}>
                                             {order.journey_code ? `[${order.journey_code}] ${order.journey_name}` : (order.source === 'distributor' ? 'Nhà phân phối' : 'Khác')}
                                         </Text>
@@ -656,8 +656,8 @@ const StockOrderDetail: React.FC = () => {
                     </Col>
 
                     <Col xs={24} sm={24} md={8}>
-                        <Card 
-                            title={<Space><SignatureOutlined /> Quy trình Ký duyệt</Space>} 
+                        <Card
+                            title={<Space><SignatureOutlined /> Quy trình Ký duyệt</Space>}
                             size="small"
                             className="signature-process-card"
                         >
@@ -691,12 +691,12 @@ const StockOrderDetail: React.FC = () => {
                                         )}
                                     </div>
                                 ) : (
-                                    <Button 
-                                        block 
-                                        type="primary" 
-                                        size="small" 
-                                        style={{ marginTop: 8 }} 
-                                        icon={<CheckCircleOutlined />} 
+                                    <Button
+                                        block
+                                        type="primary"
+                                        size="small"
+                                        style={{ marginTop: 8 }}
+                                        icon={<CheckCircleOutlined />}
                                         onClick={() => { setSigningRole('kt'); setIsSignatureModalOpen(true); }}
                                         disabled={role?.toUpperCase() !== 'KT'}
                                     >
@@ -722,13 +722,13 @@ const StockOrderDetail: React.FC = () => {
                                         )}
                                     </div>
                                 ) : (
-                                    <Button 
-                                        block 
-                                        type={order.status === 'approved' ? 'primary' : 'default'} 
-                                        disabled={order.status !== 'approved' || role?.toUpperCase() !== 'KT'} 
-                                        size="small" 
-                                        style={{ marginTop: 8 }} 
-                                        icon={<CarOutlined />} 
+                                    <Button
+                                        block
+                                        type={order.status === 'approved' ? 'primary' : 'default'}
+                                        disabled={order.status !== 'approved' || role?.toUpperCase() !== 'KT'}
+                                        size="small"
+                                        style={{ marginTop: 8 }}
+                                        icon={<CarOutlined />}
                                         onClick={() => { setSigningRole('warehouse'); setIsSignatureModalOpen(true); }}
                                     >
                                         Kho Xuất & Ký
@@ -753,13 +753,13 @@ const StockOrderDetail: React.FC = () => {
                                         )}
                                     </div>
                                 ) : (
-                                    <Button 
-                                        block 
-                                        type={order.status === 'dispatched' ? 'primary' : 'default'} 
-                                        disabled={order.status !== 'dispatched' || role?.toUpperCase() !== 'GS'} 
-                                        size="small" 
-                                        style={{ marginTop: 8 }} 
-                                        icon={<HomeOutlined />} 
+                                    <Button
+                                        block
+                                        type={order.status === 'dispatched' ? 'primary' : 'default'}
+                                        disabled={order.status !== 'dispatched' || role?.toUpperCase() !== 'GS'}
+                                        size="small"
+                                        style={{ marginTop: 8 }}
+                                        icon={<HomeOutlined />}
                                         onClick={() => { setSigningRole('gs'); setIsSignatureModalOpen(true); }}
                                     >
                                         GS Nhận & Ký
@@ -829,33 +829,33 @@ const StockOrderDetail: React.FC = () => {
                     content:
                         filePreview?.kind === 'pdf'
                             ? {
-                                  height: '100dvh',
-                                  display: 'flex',
-                                  flexDirection: 'column',
-                                  padding: 0,
-                                  borderRadius: 0,
-                                  overflow: 'hidden',
-                              }
+                                height: '100dvh',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                padding: 0,
+                                borderRadius: 0,
+                                overflow: 'hidden',
+                            }
                             : {},
                     header:
                         filePreview?.kind === 'pdf'
                             ? {
-                                  padding: '12px 16px',
-                                  marginBottom: 0,
-                                  borderBottom: '1px solid #f0f0f0',
-                                  flexShrink: 0,
-                              }
+                                padding: '12px 16px',
+                                marginBottom: 0,
+                                borderBottom: '1px solid #f0f0f0',
+                                flexShrink: 0,
+                            }
                             : {},
                     body:
                         filePreview?.kind === 'pdf'
                             ? {
-                                  flex: 1,
-                                  padding: 0,
-                                  overflow: 'hidden',
-                                  display: 'flex',
-                                  flexDirection: 'column',
-                                  minHeight: 0,
-                              }
+                                flex: 1,
+                                padding: 0,
+                                overflow: 'hidden',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                minHeight: 0,
+                            }
                             : { padding: '16px 24px' },
                 }}
                 destroyOnHidden

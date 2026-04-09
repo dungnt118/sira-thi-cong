@@ -2,7 +2,7 @@
 
 ## 1. Mục tiêu phase
 
-Phase 2 làm sâu toàn bộ lớp `trước dự án` để hệ thống chốt thương mại đúng, thay vì chỉ nhìn thấy hành trình.
+Phase 2 làm sâu toàn bộ lớp `trước dự án` để hệ thống chốt thương mại đúng, thay vì chỉ nhìn thấy công trình.
 
 Trọng tâm:
 

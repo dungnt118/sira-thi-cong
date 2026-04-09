@@ -74,7 +74,7 @@ export const documentationContent: GuideCategory[] = [
                     },
                     {
                         title: 'Quy trình Xuất kho',
-                        content: 'Vật tư được xuất cho các đội thi công dựa trên yêu cầu từ Giám sát. Kế toán cần chọn đúng mã hành trình (Journey) để ghi nhận chi phí vật tư cho từng công trình.',
+                        content: 'Vật tư được xuất cho các đội thi công dựa trên yêu cầu từ Giám sát. Kế toán cần chọn đúng mã công trình (Journey) để ghi nhận chi phí vật tư cho từng công trình.',
                         image: '/assets/docs/kt/kt_stock_out_form_empty.png',
                         subsections: [
                             {
@@ -84,7 +84,7 @@ export const documentationContent: GuideCategory[] = [
                             },
                             {
                                 title: 'In phiếu xuất & Giao hàng',
-                                content: 'Hoàn tất quy trình xuất kho để hệ thống trừ tồn và ghi nhận chi phí vào bảng giá trị hành trình.',
+                                content: 'Hoàn tất quy trình xuất kho để hệ thống trừ tồn và ghi nhận chi phí vào bảng giá trị công trình.',
                                 image: '/assets/docs/kt/kt_stock_out_success.png'
                             }
                         ]
@@ -210,7 +210,7 @@ export const documentationContent: GuideCategory[] = [
                 sections: [
                     {
                         title: 'Tổng quan chỉ số hiện trường',
-                        content: 'Dashboard cung cấp cái nhìn nhanh về các công trình đang phụ trách. Các thẻ màu (Đỏ/Cam) giúp nhận diện hành trình đang bị nghẽn (Blocked) hoặc trễ tiến độ (SLA).',
+                        content: 'Dashboard cung cấp cái nhìn nhanh về các công trình đang phụ trách. Các thẻ màu (Đỏ/Cam) giúp nhận diện công trình đang bị nghẽn (Blocked) hoặc trễ tiến độ (SLA).',
                         image: '/assets/docs/gs/gs_pro_dashboard.png',
                         alert: {
                             type: 'important',
@@ -225,7 +225,7 @@ export const documentationContent: GuideCategory[] = [
                 description: 'Cách tìm nhanh các công trình đang thi công.',
                 sections: [
                     {
-                        title: 'Tìm kiếm hành trình thông minh',
+                        title: 'Tìm kiếm công trình thông minh',
                         content: 'Sử dụng thanh tìm kiếm để nhập mã JRN hoặc tên khách hàng. Kết hợp bộ lọc trạng thái "Đang thi công" để quản lý danh sách công việc hiệu quả.',
                         image: '/assets/docs/gs/gs_pro_journey_list.png'
                     }
@@ -233,7 +233,7 @@ export const documentationContent: GuideCategory[] = [
             },
             {
                 id: '3-tong-quan-hanh-trinh',
-                title: '3. Tổng quan Hành trình chi tiết',
+                title: '3. Tổng quan Công trình chi tiết',
                 description: 'Xem thông tin 360 độ về một dự án cụ thể.',
                 sections: [
                     {
@@ -428,7 +428,7 @@ export const documentationContent: GuideCategory[] = [
     {
         id: 'sale',
         title: 'Hướng dẫn sử dụng Kinh doanh',
-        description: 'Tài liệu hướng dẫn quản lý khách hàng, theo dõi hành trình yêu cầu và lập báo giá chuyên nghiệp trên di động.',
+        description: 'Tài liệu hướng dẫn quản lý khách hàng, theo dõi công trình yêu cầu và lập báo giá chuyên nghiệp trên di động.',
         documents: [
             {
                 id: 'tong-quan-kinh-doanh',
@@ -442,7 +442,7 @@ export const documentationContent: GuideCategory[] = [
                         subsections: [
                             {
                                 title: '1.1. Các chỉ số cảnh báo (KPI)',
-                                content: 'Hệ thống tự động thống kê số lượng hành trình trễ hạn hoặc có rủi ro về thời gian xử lý (SLA) để bạn ưu tiên chăm sóc khách hàng.'
+                                content: 'Hệ thống tự động thống kê số lượng công trình trễ hạn hoặc có rủi ro về thời gian xử lý (SLA) để bạn ưu tiên chăm sóc khách hàng.'
                             },
                             {
                                 title: '1.2. Danh sách yêu cầu mới',
@@ -464,7 +464,7 @@ export const documentationContent: GuideCategory[] = [
                     },
                     {
                         title: '2. Thêm mới khách hàng tiềm năng',
-                        content: 'Khi gặp gỡ hoặc nhận yêu cầu mới, Sale nhập nhanh các thông tin định danh (Tên, SĐT, Địa chỉ) để hệ thống khởi tạo hành trình tư vấn.',
+                        content: 'Khi gặp gỡ hoặc nhận yêu cầu mới, Sale nhập nhanh các thông tin định danh (Tên, SĐT, Địa chỉ) để hệ thống khởi tạo công trình tư vấn.',
                         image: '/assets/docs/sale/sl_customer_form_mobile.png',
                         alert: {
                             type: 'tip',
@@ -475,12 +475,12 @@ export const documentationContent: GuideCategory[] = [
             },
             {
                 id: 'theo-doi-hanh-trinh',
-                title: 'Tiếp nhận & Theo dõi Hành trình',
+                title: 'Tiếp nhận & Theo dõi Công trình',
                 description: 'Quy trình bám sát yêu cầu từ giai đoạn tư vấn đến khi hoàn thành.',
                 sections: [
                     {
-                        title: '1. Chi tiết Hành trình (Journey)',
-                        content: 'Mỗi yêu cầu dịch vụ được quản lý như một hành trình xuyên suốt. Tại đây Sale có thể xem trạng thái khảo sát của kỹ thuật hoặc tiến độ thi công thực tế.',
+                        title: '1. Chi tiết Công trình (Journey)',
+                        content: 'Mỗi yêu cầu dịch vụ được quản lý như một công trình xuyên suốt. Tại đây Sale có thể xem trạng thái khảo sát của kỹ thuật hoặc tiến độ thi công thực tế.',
                         image: '/assets/docs/sale/sl_journey_detail_mobile.png',
                         alert: {
                             type: 'info',
@@ -522,7 +522,7 @@ export const documentationContent: GuideCategory[] = [
     {
         id: 'pm',
         title: 'Hướng dẫn sử dụng Quản lý dự án (PM)',
-        description: 'Tài liệu quản trị hành trình khách hàng, giám sát thi công và phê duyệt hồ sơ trên di động.',
+        description: 'Tài liệu quản trị công trình khách hàng, giám sát thi công và phê duyệt hồ sơ trên di động.',
         documents: [
             {
                 id: 'tong-quan-dashboard',
@@ -539,11 +539,11 @@ export const documentationContent: GuideCategory[] = [
             {
                 id: 'trung-tam-xu-ly',
                 title: 'Trung tâm xử lý Action Center',
-                description: 'Lọc và điều hướng nhanh các hành trình đang thực thi.',
+                description: 'Lọc và điều hướng nhanh các công trình đang thực thi.',
                 sections: [
                     {
                         title: '1. Quản lý tác vụ chờ đóng',
-                        content: 'PM sử dụng màn hình danh sách hành trình để theo dõi các điểm chạm của khách hàng, đảm bảo các yêu cầu được đóng đúng thời hạn.',
+                        content: 'PM sử dụng màn hình danh sách công trình để theo dõi các điểm chạm của khách hàng, đảm bảo các yêu cầu được đóng đúng thời hạn.',
                         image: '/assets/docs/pm/pm-action-center.png'
                     }
                 ]
@@ -551,10 +551,10 @@ export const documentationContent: GuideCategory[] = [
             {
                 id: 'tra-cuu-ho-so',
                 title: 'Tra cứu hồ sơ dự án',
-                description: 'Tìm kiếm hồ sơ khách hàng và lọc danh sách hành trình.',
+                description: 'Tìm kiếm hồ sơ khách hàng và lọc danh sách công trình.',
                 sections: [
                     {
-                        title: '1. Danh sách hành trình công trình',
+                        title: '1. Danh sách công trình công trình',
                         content: 'Tra cứu tập trung mọi dự án, từ khảo sát đến bảo hành. PM có thể lọc danh sách theo khu vực giám sát của từng cá nhân.',
                         image: '/assets/docs/pm/pm-journey-list.png'
                     }
