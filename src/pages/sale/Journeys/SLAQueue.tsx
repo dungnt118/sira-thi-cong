@@ -208,7 +208,7 @@ const SLAQueue: React.FC = () => {
                     Cảnh báo tiến độ
                 </Title>
                 <Text type="secondary">
-                    Ưu tiên xử lý các hành trình đang trễ hạn hoặc có rủi ro để đội Sale chủ động
+                    Ưu tiên xử lý các công trình đang trễ hạn hoặc có rủi ro để đội Sale chủ động
                     phản hồi khách hàng.
                 </Text>
             </div>
@@ -293,7 +293,7 @@ const SLAQueue: React.FC = () => {
                         emptyText: (
                             <Empty
                                 image={Empty.PRESENTED_IMAGE_SIMPLE}
-                                description="Hiện chưa có hành trình nào cần cảnh báo tiến độ."
+                                description="Hiện chưa có công trình nào cần cảnh báo tiến độ."
                             />
                         ),
                     }}

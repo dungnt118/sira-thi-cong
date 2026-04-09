@@ -15,7 +15,7 @@ Tài liệu này mô tả chi tiết giao diện người dùng (UI) và tính n
 - **Hiển thị danh sách:** Liệt kê các bộ khung Hành trình.
 - **Tính năng Hành trình Chuẩn (Set Active Standard):** 
   - Thêm một tuỳ chọn / Nút gạt (Toggle) đánh dấu 1 template là "Hành trình Chuẩn Đang Áp Dụng".
-  - **Quy tắc:** Chỉ 1 Hành trình được Active tại 1 thời điểm. Tất cả ticket tạo mới sẽ áp dụng quy trình này (Ticket cũ giữ phiên bản hành trình lúc được tạo).
+  - **Quy tắc:** Chỉ 1 Hành trình được Active tại 1 thời điểm. Tất cả ticket tạo mới sẽ áp dụng quy trình này (Ticket cũ giữ phiên bản công trình lúc được tạo).
 - **Tạo mới / Sao chép Template:** Tái sử dụng form cũ để tăng tốc thiết lập.
 
 ### 2.2. Màn hình Chi tiết Template (`/ql/journeys/templates/:id`)

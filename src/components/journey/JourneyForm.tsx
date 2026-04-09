@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-    Form, Input, Select, DatePicker, Row, Col, 
+    Form, Input, Select, DatePicker, Row, Col,
     Divider, Typography, Space, Button, message, Spin, AutoComplete
 } from 'antd';
 import {
@@ -71,9 +71,9 @@ const JourneyForm: React.FC<JourneyFormProps> = ({
                 ]);
 
                 if (empRes.data) {
-                    setEmployees(empRes.data.map(e => ({ 
-                        label: e.name || 'N/A', 
-                        value: e._id 
+                    setEmployees(empRes.data.map(e => ({
+                        label: e.name || 'N/A',
+                        value: e._id
                     })));
                 }
 
@@ -152,28 +152,28 @@ const JourneyForm: React.FC<JourneyFormProps> = ({
     const handleFinish = async (values: any) => {
         let customerId = selectedCustomerId;
 
-                // Step 1: Ensure customer exists if phone is provided
-                if (!customerId && values.customer_phone) {
-                    setIsSavingCustomer(true);
-                    try {
-                        const newCustomer = await customerService.createCustomer({
-                            phone: values.customer_phone,
-                            full_name: values.customer_full_name,
-                            email: values.customer_email,
-                            address: values.customer_address,
-                            province: values.customer_province,
-                            ward: values.customer_ward
-                        });
-                        customerId = newCustomer._id;
-                        message.success(`Đã tạo hồ sơ khách hàng mới: ${newCustomer.full_name}`);
-                    } catch (error) {
-                        message.error("Không thể tạo hồ sơ khách hàng mới (Thiếu thông tin bắt buộc?).");
-                        setIsSavingCustomer(false);
-                        return;
-                    } finally {
-                        setIsSavingCustomer(false);
-                    }
-                }
+        // Step 1: Ensure customer exists if phone is provided
+        if (!customerId && values.customer_phone) {
+            setIsSavingCustomer(true);
+            try {
+                const newCustomer = await customerService.createCustomer({
+                    phone: values.customer_phone,
+                    full_name: values.customer_full_name,
+                    email: values.customer_email,
+                    address: values.customer_address,
+                    province: values.customer_province,
+                    ward: values.customer_ward
+                });
+                customerId = newCustomer._id;
+                message.success(`Đã tạo hồ sơ khách hàng mới: ${newCustomer.full_name}`);
+            } catch (error) {
+                message.error("Không thể tạo hồ sơ khách hàng mới (Thiếu thông tin bắt buộc?).");
+                setIsSavingCustomer(false);
+                return;
+            } finally {
+                setIsSavingCustomer(false);
+            }
+        }
 
         // Step 2: Format and Submit Journey
         const formattedValues: ICreateJourneyInput = {
@@ -246,8 +246,8 @@ const JourneyForm: React.FC<JourneyFormProps> = ({
 
                 <Row gutter={16}>
                     <Col span={12}>
-                        <Form.Item 
-                            label="Tỉnh/Thành" 
+                        <Form.Item
+                            label="Tỉnh/Thành"
                             name="customer_province"
                             rules={[{ required: true, message: 'Bắt buộc' }]}
                         >
@@ -255,8 +255,8 @@ const JourneyForm: React.FC<JourneyFormProps> = ({
                         </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <Form.Item 
-                            label="Phường/Xã" 
+                        <Form.Item
+                            label="Phường/Xã"
                             name="customer_ward"
                             rules={[{ required: true, message: 'Bắt buộc' }]}
                         >
@@ -268,11 +268,11 @@ const JourneyForm: React.FC<JourneyFormProps> = ({
                 <Divider orientation="left">
                     <Space><InfoCircleOutlined /> <Text strong>Thông tin Hành trình & Kỹ thuật</Text></Space>
                 </Divider>
-                
+
                 <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item
-                            label="Mã hành trình"
+                            label="Mã công trình"
                             name="journey_code"
                         >
                             <Input placeholder="VD: HN-2024-001 (Để trống để tự động tạo)" />
@@ -300,7 +300,7 @@ const JourneyForm: React.FC<JourneyFormProps> = ({
                     </Col>
                     <Col span={12}>
                         <Form.Item
-                            label={mode === 'sale' ? "Chủ sở hữu hành trình" : "Người phụ trách (PM)"}
+                            label={mode === 'sale' ? "Chủ sở hữu công trình" : "Người phụ trách (PM)"}
                             name="owner_user"
                         >
                             <Select

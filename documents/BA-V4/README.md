@@ -93,7 +93,7 @@ Lưu ý:
 
 - Folder `Kỹ thuật/` vẫn được giữ để quản lý blueprint nghiệp vụ cho lực lượng thi công và cho phase sau, nhưng ở giai đoạn hiện tại hệ thống chưa cấp tài khoản đăng nhập trực tiếp cho Kỹ thuật; `Giám sát` là actor thao tác trên phần mềm thay mặt Kỹ thuật.
 - Folder `Admin/` là quản trị hệ thống. Folder `HanhChinh/` là vận hành hồ sơ nghiệp vụ. Hai vai trò này không nên trộn lẫn.
-- Folder `Sale/` là vai trò front-office theo workbook hành trình khách hàng; không nên tiếp tục coi toàn bộ phần này chỉ là nhánh phụ của `PM`.
+- Folder `Sale/` là vai trò front-office theo workbook công trình khách hàng; không nên tiếp tục coi toàn bộ phần này chỉ là nhánh phụ của `PM`.
 
 - Nếu cần nhìn toàn cảnh hiện trạng, đọc `Current_State_Assessment_v4.md`.
 - Nếu cần chốt phạm vi và business rule đích, đọc `BRD_v4.md`.

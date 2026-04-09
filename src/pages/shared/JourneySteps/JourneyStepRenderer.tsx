@@ -52,9 +52,9 @@ const JOURNEY_STEP_SEQUENCE = [
     'contract_signing', 'project_execution', 'handover_acceptance', 'warranty_aftercare'
 ];
 
-export const JourneyStepRenderer: React.FC<JourneyStepRendererProps> = ({ 
-    stepCode, 
-    journeyId, 
+export const JourneyStepRenderer: React.FC<JourneyStepRendererProps> = ({
+    stepCode,
+    journeyId,
     isEditable = false,
     canFinalize = false,
     journeyCurrentStep,
@@ -75,7 +75,7 @@ export const JourneyStepRenderer: React.FC<JourneyStepRendererProps> = ({
         // We use journeyCurrentStep if provided (the actual progress), 
         // fallback to mapping existing stepCode back to a sequence key if possible
         const actualStep = journeyCurrentStep || (Object.keys(MAP_ENUM_TO_STEP_CODE).find(key => MAP_ENUM_TO_STEP_CODE[key] === stepCode) || stepCode);
-        
+
         console.log("handleConfirmStep triggered", { actualStep, stepCode, journeyCurrentStep });
 
         const currentIndex = JOURNEY_STEP_SEQUENCE.indexOf(actualStep);
@@ -89,7 +89,7 @@ export const JourneyStepRenderer: React.FC<JourneyStepRendererProps> = ({
         // 1. Validation Logic: Check mandatory worktasks for this step
         const stepTasks = workTasks.filter(t => t.journey_step_code === actualStep);
         const unfinishedMandatoryTasks = stepTasks.filter(t => t.is_required && t.status !== 'finished');
-        
+
         console.log("Validation check:", {
             stepTasksCount: stepTasks.length,
             unfinishedMandatoryCount: unfinishedMandatoryTasks.length,
@@ -99,7 +99,7 @@ export const JourneyStepRenderer: React.FC<JourneyStepRendererProps> = ({
         if (unfinishedMandatoryTasks.length > 0) {
             const taskNames = unfinishedMandatoryTasks.map(t => t.title).join(', ');
             console.warn("Validation failed: Unfinished mandatory tasks", unfinishedMandatoryTasks);
-            
+
             if (modalApi) {
                 modalApi.warning({
                     title: 'Chưa thể Hoàn thành Bước',
@@ -128,7 +128,7 @@ export const JourneyStepRenderer: React.FC<JourneyStepRendererProps> = ({
         }
 
         if (currentIndex === JOURNEY_STEP_SEQUENCE.length - 1) {
-            message.info("Đây là bước cuối cùng của hành trình!");
+            message.info("Đây là bước cuối cùng của công trình!");
             return;
         }
 
@@ -147,8 +147,8 @@ export const JourneyStepRenderer: React.FC<JourneyStepRendererProps> = ({
     };
 
     const renderStep = () => {
-        const commonProps = { 
-            journeyId, 
+        const commonProps = {
+            journeyId,
             isEditable: isEditable,
             onEditStateChange: (editing: boolean) => setIsInternalEdit(editing),
             onSave: () => { if (onRefresh) onRefresh(); }
@@ -182,9 +182,9 @@ export const JourneyStepRenderer: React.FC<JourneyStepRendererProps> = ({
                             <br />
                             <Text type="secondary" style={{ fontSize: 12 }}>Bạn có vai trò chốt bước này. Nhấp xác nhận để kết thúc và chuyển sang bước tiếp theo.</Text>
                         </div>
-                        <Button 
-                            type="primary" 
-                            onClick={handleConfirmStep} 
+                        <Button
+                            type="primary"
+                            onClick={handleConfirmStep}
                             loading={isUpdating}
                             icon={isUpdating ? <LoadingOutlined /> : <CheckCircleOutlined />}
                             style={{ background: '#52c41a', borderColor: '#52c41a' }}

@@ -8,7 +8,7 @@
 
 | Story ID | User Story | Priority | Phụ thuộc |
 |---|---|---|---|
-| P1-US-PRT-001 | Là khách hàng, tôi muốn truy cập portal của công trình để theo dõi hành trình đã được BAC công bố. | Must | P1-CORE-01, P1-CORE-02 |
+| P1-US-PRT-001 | Là khách hàng, tôi muốn truy cập portal của công trình để theo dõi công trình đã được BAC công bố. | Must | P1-CORE-01, P1-CORE-02 |
 
 Acceptance checklist:
 

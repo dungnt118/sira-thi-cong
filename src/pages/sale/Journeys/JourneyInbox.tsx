@@ -293,7 +293,7 @@ const JourneyInbox: React.FC = () => {
             <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
                 <Col xs={12} lg={6}>
                     <Card variant="borderless" style={{ borderRadius: 18 }}>
-                        <Statistic title="Tổng hành trình" value={stats.total} />
+                        <Statistic title="Tổng công trình" value={stats.total} />
                     </Card>
                 </Col>
                 <Col xs={12} lg={6}>

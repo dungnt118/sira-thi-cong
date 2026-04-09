@@ -27,7 +27,7 @@ Với trọng tâm số 1 là:
 |---|---|---|---|---|---|
 | P1-CORE-01 | Journey Core Domain & Permission | Cross-role | Có aggregate `journey`, `step`, `template`, `role visibility` | Must | Không |
 | P1-CORE-02 | Responsive Shell & Shared Patterns | Cross-role | Có trải nghiệm dùng được trên desktop + mobile | Must | P1-CORE-01 |
-| P1-PM-01 | PM Journey List & Board | PM | PM thấy danh sách hành trình và board đúng ngữ cảnh | Must | P1-CORE-01, P1-CORE-02 |
+| P1-PM-01 | PM Journey List & Board | PM | PM thấy danh sách công trình và board đúng ngữ cảnh | Must | P1-CORE-01, P1-CORE-02 |
 | P1-PM-02 | PM Journey Detail 360 | PM | PM mở 1 journey và xem được toàn bộ thông tin liên kết | Must | P1-PM-01 |
 | P1-PM-03 | PM Journey Step Config & Template Library | PM/Admin | Journey configurable, có template mặc định và reset | Must | P1-CORE-01 |
 | P1-PM-04 | PM Action Center & Publish Handoff | PM | PM thấy việc chờ xử lý và publish được dữ liệu ra portal | Should | P1-PM-02, P1-PRT-01 |

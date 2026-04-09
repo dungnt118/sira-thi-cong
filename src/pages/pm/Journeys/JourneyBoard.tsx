@@ -118,7 +118,7 @@ const JourneyBoard: React.FC = () => {
         setChangeStepModal({ visible: false });
         Modal.success({
             title: 'Chuyển bước thành công',
-            content: `Đã chuyển hành trình ${changeStepModal.journey.journey_code} sang bước ${STEP_LABELS[changeStepModal.newStep]}`,
+            content: `Đã chuyển công trình ${changeStepModal.journey.journey_code} sang bước ${STEP_LABELS[changeStepModal.newStep]}`,
         });
     };
 
@@ -209,7 +209,7 @@ const JourneyBoard: React.FC = () => {
                                 />
                             </div>
                             {stepJourneys.length === 0 && (
-                                <Empty description="Không có hành trình" imageStyle={{ height: 40 }} style={{ opacity: 0.4 }} />
+                                <Empty description="Không có công trình" imageStyle={{ height: 40 }} style={{ opacity: 0.4 }} />
                             )}
                             {stepJourneys.map(j => (
                                 <div key={j.id} style={{ position: 'relative' }}>
@@ -243,7 +243,7 @@ const JourneyBoard: React.FC = () => {
             <Card size="small" style={{ borderRadius: 8, marginTop: 8 }}>
                 <Row gutter={24}>
                     <Col>
-                        <Text type="secondary" style={{ fontSize: 12 }}>Tổng hiển thị: <strong>{filtered.length}</strong> hành trình</Text>
+                        <Text type="secondary" style={{ fontSize: 12 }}>Tổng hiển thị: <strong>{filtered.length}</strong> công trình</Text>
                     </Col>
                     {STEP_ORDER.map(sc => {
                         const cnt = filtered.filter(j => j.current_step_code === sc).length;
@@ -268,7 +268,7 @@ const JourneyBoard: React.FC = () => {
             >
                 {changeStepModal.journey && changeStepModal.newStep && (
                     <div>
-                        <p>Bạn đang chuyển hành trình <strong>{changeStepModal.journey.journey_code}</strong> ({changeStepModal.journey.customer_name})</p>
+                        <p>Bạn đang chuyển công trình <strong>{changeStepModal.journey.journey_code}</strong> ({changeStepModal.journey.customer_name})</p>
                         <p>
                             Từ: <Tag>{STEP_LABELS[changeStepModal.journey.current_step_code]}</Tag> <SwapRightOutlined /> Đến: <Tag color={STEP_COLORS[changeStepModal.newStep]}>{STEP_LABELS[changeStepModal.newStep]}</Tag>
                         </p>

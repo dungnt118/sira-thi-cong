@@ -49,8 +49,8 @@ Phase 1 phải tạo ra một prototype mà khi người dùng mở vào sẽ th
   - quy trình nội bộ gắn kèm
   - điều kiện vào/ra
   - dữ liệu liên quan
-- Sale nhìn được hành trình cùng ngữ cảnh
-- Giám sát đẩy được dữ liệu khảo sát/hiện trường vào hành trình
+- Sale nhìn được công trình cùng ngữ cảnh
+- Giám sát đẩy được dữ liệu khảo sát/hiện trường vào công trình
 - Portal khách hàng xem được dữ liệu đã publish và chat theo ngữ cảnh
 
 ### 4.3 Những gì phase 1 chưa cần làm sâu

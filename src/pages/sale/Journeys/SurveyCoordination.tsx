@@ -41,7 +41,7 @@ const SurveyCoordination: React.FC = () => {
                 journeyService.queryContent(),
                 employeeService.queryContent()
             ]);
-            
+
             if (appointmentsRes && appointmentsRes.data) {
                 setScheduled(appointmentsRes.data.filter((s: any) => !s.is_cancelled));
             }
@@ -146,7 +146,7 @@ const SurveyCoordination: React.FC = () => {
                             children: (
                                 <Spin spinning={loading}>
                                     <div style={{ padding: '16px 0', minHeight: 300 }}>
-                                        {unscheduled.length === 0 && <Empty description="Tất cả hành trình đã được lên lịch" />}
+                                        {unscheduled.length === 0 && <Empty description="Tất cả công trình đã được lên lịch" />}
                                         <Row gutter={[12, 12]}>
                                             {unscheduled.map(j => (
                                                 <Col xs={24} md={12} lg={8} key={j._id || j.id}>
@@ -206,14 +206,14 @@ const SurveyCoordination: React.FC = () => {
                         </Col>
                         <Col span={10}>
                             <Form.Item label="Giám sát phụ trách" name="assigned_to" rules={[{ required: true }]}>
-                                <Select 
+                                <Select
                                     placeholder="Chọn nhân sự"
-                                    options={employees.map(e => ({ value: e._id, label: e.full_name }))} 
+                                    options={employees.map(e => ({ value: e._id, label: e.full_name }))}
                                 />
                             </Form.Item>
                         </Col>
                     </Row>
-                    
+
                     <Form.Item label="Địa điểm gặp khách" name="meeting_address" rules={[{ required: true }]}>
                         <Input prefix={<EnvironmentOutlined style={{ color: '#bfbfbf' }} />} placeholder="Địa chỉ cụ thể" />
                     </Form.Item>
@@ -258,12 +258,12 @@ const SurveyCoordination: React.FC = () => {
             >
                 <Form form={rescheduleForm} layout="vertical" onFinish={() => { setShowRescheduleModal(false); rescheduleForm.resetFields(); }} style={{ paddingTop: 16 }}>
                     <Form.Item label="Lý do thay đổi" name="reschedule_reason" rules={[{ required: true }]}>
-                         <Select options={[
-                             { value: 'customer_request', label: 'Khách hàng yêu cầu' },
-                             { value: 'staff_unavailable', label: 'Nhân viên kẹt lịch' },
-                             { value: 'weather', label: 'Thời tiết xấu' },
-                             { value: 'other', label: 'Lý do khác' },
-                         ]} />
+                        <Select options={[
+                            { value: 'customer_request', label: 'Khách hàng yêu cầu' },
+                            { value: 'staff_unavailable', label: 'Nhân viên kẹt lịch' },
+                            { value: 'weather', label: 'Thời tiết xấu' },
+                            { value: 'other', label: 'Lý do khác' },
+                        ]} />
                     </Form.Item>
                     <Form.Item label="Thời gian mới" name="new_scheduled_datetime" rules={[{ required: true }]}>
                         <DatePicker showTime style={{ width: '100%' }} />

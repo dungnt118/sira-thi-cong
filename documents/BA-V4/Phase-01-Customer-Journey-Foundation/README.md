@@ -8,7 +8,7 @@ Phase 1 là phase dựng `trục vận hành nhìn thấy được` cho người
 
 - PM có màn `CustomerJourney`
 - từ `1 yêu cầu` nhìn thấy được `360 độ thông tin`
-- Sale, Giám sát và Portal khách hàng cùng bám vào chung một hành trình
+- Sale, Giám sát và Portal khách hàng cùng bám vào chung một công trình
 
 ## 2. Vai trò nằm trong phase
 
@@ -37,7 +37,7 @@ Phase 1 là phase dựng `trục vận hành nhìn thấy được` cho người
 
 ### 3.2 Kết quả về Sale
 
-- Sale nhìn đúng ngữ cảnh hành trình của khách.
+- Sale nhìn đúng ngữ cảnh công trình của khách.
 - Không còn bị tách riêng khỏi PM theo kiểu chỉ có list lead hoặc báo giá.
 
 ### 3.3 Kết quả về Giám sát
@@ -322,7 +322,7 @@ Checklist phase:
 - [ ] PM xem được journey 360 từ một yêu cầu
 - [ ] Journey configurable theo template và reset mặc định
 - [ ] Responsive dùng được trên desktop và mobile
-- [ ] Sale nhìn được đúng context hành trình
+- [ ] Sale nhìn được đúng context công trình
 - [ ] Giám sát đẩy được dữ liệu khảo sát vào journey
 - [ ] Portal hiển thị timeline publish và chat cơ bản
 - [ ] Có log hành động tối thiểu theo journey

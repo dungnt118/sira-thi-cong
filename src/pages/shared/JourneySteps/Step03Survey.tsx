@@ -40,19 +40,19 @@ export interface Step03SurveyProps {
     onEditStateChange?: (isEditing: boolean) => void;
 }
 
-export const Step03Survey: React.FC<Step03SurveyProps> = ({ 
-    journeyId, 
-    isEditable = false, 
-    onSave, 
-    onEditStateChange 
+export const Step03Survey: React.FC<Step03SurveyProps> = ({
+    journeyId,
+    isEditable = false,
+    onSave,
+    onEditStateChange
 }) => {
     const { isAdmin } = useAuth();
     const [journey, setJourney] = useState<IJourney | null>(null);
     const [surveyRecord, setSurveyRecord] = useState<ISurveyRecord | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
-    
-    const [overallStatus, setOverallStatus] = useState<'in_progress' | 'completed'>( 'in_progress');
+
+    const [overallStatus, setOverallStatus] = useState<'in_progress' | 'completed'>('in_progress');
     const [formStep, setFormStep] = useState(0);
     const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
     const [surveyDataForm] = Form.useForm();
@@ -66,7 +66,7 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({
                 // 1. Fetch Journey
                 const jData = await journeyService.findJourneyDto(journeyId);
                 setJourney(jData);
-                
+
                 // 2. Fetch Existing Survey Record
                 const sRecords = await surveyRecordService.querySurveyRecordsDto({
                     group: {
@@ -76,12 +76,12 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({
                         children: [],
                     },
                 });
-                
+
                 if (sRecords.data && sRecords.data.length > 0) {
                     const record = sRecords.data[0];
                     setSurveyRecord(record);
                     setOverallStatus(record.survey_status === 'completed' ? 'completed' : 'in_progress');
-                    
+
                     // Map back to DynamicSurveyForm structure
                     const mappedFormData = {
                         header: {
@@ -113,7 +113,7 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({
 
     // Data for rendering
     const formValues = Form.useWatch([], surveyDataForm);
-    
+
     // E-Signature States
     const [isSigModalOpen, setIsSigModalOpen] = useState(false);
     const [sigData, setSigData] = useState<string | null>(null);
@@ -125,11 +125,11 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
-        
+
         const rect = canvas.getBoundingClientRect();
         const clientX = 'touches' in e ? (e as React.TouchEvent).touches[0].clientX : (e as React.MouseEvent).clientX;
         const clientY = 'touches' in e ? (e as React.TouchEvent).touches[0].clientY : (e as React.MouseEvent).clientY;
-        
+
         ctx.beginPath();
         ctx.moveTo(clientX - rect.left, clientY - rect.top);
         setIsDrawing(true);
@@ -177,11 +177,11 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({
         const element = document.getElementById(`printable-a4-${journeyId}`);
         if (element) {
             const opt = {
-                margin:       10,
-                filename:     `SURVEY-${journey?.journey_code || journeyId}.pdf`,
-                image:        { type: 'jpeg' as const, quality: 0.98 },
-                html2canvas:  { scale: 2 },
-                jsPDF:        { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
+                margin: 10,
+                filename: `SURVEY-${journey?.journey_code || journeyId}.pdf`,
+                image: { type: 'jpeg' as const, quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
             };
             html2pdf().set(opt).from(element).save();
         }
@@ -206,7 +206,7 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({
         setIsSaving(true);
         try {
             const values = surveyDataForm.getFieldsValue();
-            
+
             // Map DynamicSurveyForm -> ISurveyRecord
             const payload = {
                 journey_id: journeyId,
@@ -245,9 +245,9 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({
 
     const renderA4Sheet = (data: any) => (
         <div style={{ width: '100%', overflowX: 'auto', WebkitOverflowScrolling: 'touch', border: '1px solid #d9d9d9', borderRadius: 8, background: '#f0f2f5', padding: '16px 0' }}>
-            <div id={`printable-a4-${journeyId}`} style={{ 
-                width: '210mm', minHeight: '297mm', background: '#fff', 
-                padding: '15mm 20mm', boxShadow: '0 0 10px rgba(0,0,0,0.1)', 
+            <div id={`printable-a4-${journeyId}`} style={{
+                width: '210mm', minHeight: '297mm', background: '#fff',
+                padding: '15mm 20mm', boxShadow: '0 0 10px rgba(0,0,0,0.1)',
                 fontFamily: '"Times New Roman", Times, serif',
                 margin: '0 auto',
                 color: '#000'
@@ -257,7 +257,7 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({
                     <div style={{ fontSize: 13, fontWeight: 'bold' }}>Độc lập - Tự do - Hạnh phúc</div>
                     <div style={{ margin: '5px auto', width: 100, borderTop: '1px solid #000' }}></div>
                 </div>
-                
+
                 <div style={{ textAlign: 'center', margin: '30px 0' }}>
                     <div style={{ fontSize: 20, fontWeight: 'bold' }}>BIÊN BẢN KHẢO SÁT HIỆN TRẠNG</div>
                     <div style={{ fontSize: 12, fontStyle: 'italic', marginTop: 5 }}>Số: SUR-{journey?.journey_code || 'N/A'} / SIRA</div>
@@ -265,7 +265,7 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({
 
                 <div style={{ lineHeight: 1.6, fontSize: 14 }}>
                     <p style={{ marginBottom: 15 }}>Hôm nay, ngày {new Date().getDate()} tháng {new Date().getMonth() + 1} năm {new Date().getFullYear()}, tại địa chỉ: {journey?.site_address || '---'}</p>
-                    
+
                     <div style={{ fontWeight: 'bold', marginBottom: 5 }}>I. Thành phần Khách hàng:</div>
                     <div style={{ marginLeft: 15, marginBottom: 10 }}>
                         <div>- Ông/Bà: <strong>{journey?.customer_full_name || '---'}</strong></div>
@@ -300,7 +300,7 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({
                     <div style={{ marginTop: 20 }}>
                         <p>Hai bên cùng xác nhận các thông tin trên là đúng với thực tế quan sát tại hiện trường. Kết quả khảo sát này là cơ sở để BAClập biện pháp thi công và báo giá chính thức.</p>
                     </div>
-                    
+
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 40, textAlign: 'center' }}>
                         <div style={{ width: '45%' }}>
                             <strong>ĐẠI DIỆN KHÁCH HÀNG</strong>
@@ -350,7 +350,7 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({
                                 <Col xs={24} sm={8} key={tpl.id}>
                                     <div
                                         className="ky-card"
-                                        style={{ 
+                                        style={{
                                             background: '#fff',
                                             padding: 16,
                                             border: selectedTemplate === tpl.id ? '2px solid #1677ff' : '1px solid #f0f0f0',
@@ -376,7 +376,7 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({
                 return (
                     <div style={{ padding: '16px 0' }}>
                         <DynamicSurveyForm form={surveyDataForm} initialTemplate={selectedTemplate} />
-                        
+
                         <div style={{ marginTop: 24, display: 'flex', gap: 12 }}>
                             <Button onClick={() => setFormStep(0)} style={{ flex: 1 }}>Quay lại</Button>
                             <Button type="primary" size="large" onClick={handleFormSubmit} style={{ flex: 2 }}>
@@ -395,7 +395,7 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({
                             style={{ padding: '16px 0' }}
                         />
                         {renderA4Sheet(formValues)}
-                        
+
                         <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
                             <Button key="back" onClick={() => setFormStep(1)} style={{ flex: 1 }}>Sửa lại</Button>
                             <Button key="submit" type="primary" size="large" onClick={() => setFormStep(3)} style={{ flex: 2 }}>
@@ -415,12 +415,12 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({
                         </Space>
 
                         <div style={{ width: '100%', marginBottom: 24 }}>
-                            <Button 
-                                type="primary" 
-                                size="large" 
+                            <Button
+                                type="primary"
+                                size="large"
                                 block
                                 loading={isSaving}
-                                icon={<CheckCircleOutlined />} 
+                                icon={<CheckCircleOutlined />}
                                 style={{ background: '#52c41a', borderColor: '#52c41a', height: 50 }}
                                 onClick={onCompleteSurvey}
                             >
@@ -455,19 +455,19 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({
                 </Card>
 
                 {surveyRecord ? (
-                    renderA4Sheet({ 
+                    renderA4Sheet({
                         zones: surveyRecord.condition_items?.map(i => ({
                             areaType: i.area_name,
                             location_desc: '',
                             issueTypes: [i.condition_note],
                             dims_area: i.measurement_note,
                             proposed_solution: surveyRecord.proposed_solution
-                        })) 
+                        }))
                     })
                 ) : (
-                    <Empty 
+                    <Empty
                         image={Empty.PRESENTED_IMAGE_SIMPLE}
-                        description="Chưa có dữ liệu khảo sát chính thức cho hành trình này." 
+                        description="Chưa có dữ liệu khảo sát chính thức cho công trình này."
                     />
                 )}
 
@@ -481,13 +481,13 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({
     };
 
     return (
-        <Card 
-            title={isEditing ? "Đang tiến hành Khảo sát" : "Chi tiết Khảo sát"} 
-            variant="borderless" 
+        <Card
+            title={isEditing ? "Đang tiến hành Khảo sát" : "Chi tiết Khảo sát"}
+            variant="borderless"
             className="ky-card"
             style={{ borderRadius: 12 }}
             extra={(isEditable || isAdmin) && (
-                <Button 
+                <Button
                     type={isEditing ? "default" : "primary"}
                     icon={isEditing ? <EyeOutlined /> : <EditOutlined />}
                     onClick={() => {
@@ -502,7 +502,7 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({
         >
             {isEditing ? (
                 <div>
-                     <div style={{ marginBottom: 20 }}>
+                    <div style={{ marginBottom: 20 }}>
                         <Steps
                             current={formStep}
                             size="small"
@@ -533,15 +533,15 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({
                 <div style={{ textAlign: 'center', padding: '10px 0' }}>
                     <Text type="secondary">Vui lòng ký vào khung bên dưới</Text>
                 </div>
-                <div style={{ 
-                    borderTop: '1px solid #f0f0f0', 
-                    borderBottom: '1px solid #f0f0f0', 
-                    background: '#fff', 
+                <div style={{
+                    borderTop: '1px solid #f0f0f0',
+                    borderBottom: '1px solid #f0f0f0',
+                    background: '#fff',
                     touchAction: 'none',
                     display: 'flex',
                     justifyContent: 'center'
                 }}>
-                    <canvas 
+                    <canvas
                         ref={sigPadRef}
                         width={350}
                         height={250}

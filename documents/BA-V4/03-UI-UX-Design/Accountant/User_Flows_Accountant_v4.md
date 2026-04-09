@@ -2,7 +2,7 @@
 
 ## 1. Mục tiêu
 
-Các flow dưới đây mô tả những hành trình nghiệp vụ bắt buộc mà Accountant phải thực hiện được trong V4, bám theo:
+Các flow dưới đây mô tả những công trình nghiệp vụ bắt buộc mà Accountant phải thực hiện được trong V4, bám theo:
 
 - đợt thanh toán hợp đồng
 - chi phí công trình và lệnh chi

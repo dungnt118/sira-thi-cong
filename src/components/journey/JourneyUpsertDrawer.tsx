@@ -25,9 +25,9 @@ const JourneyUpsertDrawer: React.FC<JourneyUpsertDrawerProps> = ({
     onSubmit,
 }) => {
     const isEdit = !!journey?._id;
-    const title = mode === 'sale' 
+    const title = mode === 'sale'
         ? (isEdit ? 'Cập nhật yêu cầu dịch vụ' : 'Tạo yêu cầu dịch vụ')
-        : (isEdit ? 'Chỉnh sửa hành trình' : 'Tạo hành trình mới');
+        : (isEdit ? 'Chỉnh sửa công trình' : 'Tạo công trình mới');
 
     return (
         <Drawer

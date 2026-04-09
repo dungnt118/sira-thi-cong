@@ -1,4 +1,4 @@
-# Phân tích hành trình khách hàng - Vai trò Kỹ thuật (Technical) v4
+# Phân tích công trình khách hàng - Vai trò Kỹ thuật (Technical) v4
 
 ## 1. Nguồn gốc quy chiếu
 Tài liệu phân tích này dựa trên:

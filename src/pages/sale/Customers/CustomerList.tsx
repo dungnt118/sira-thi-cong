@@ -157,7 +157,7 @@ const CustomerList: React.FC = () => {
 
     const handleDelete = async (customer: ICustomer) => {
         if ((journeyMap.get(customer._id) || []).length > 0) {
-            message.warning('Không thể xóa khách hàng đang còn liên kết với hành trình.');
+            message.warning('Không thể xóa khách hàng đang còn liên kết với công trình.');
             return;
         }
 
@@ -242,7 +242,7 @@ const CustomerList: React.FC = () => {
                             {customerJourneys.length} yêu cầu dịch vụ
                         </Tag>
                         <Text type="secondary" style={{ fontSize: 12 }}>
-                            Gần nhất: {latestJourney?.journey_code || 'Chưa có hành trình'}
+                            Gần nhất: {latestJourney?.journey_code || 'Chưa có công trình'}
                         </Text>
                     </Space>
                 );
@@ -275,7 +275,7 @@ const CustomerList: React.FC = () => {
                     </Tooltip>
                     <Popconfirm
                         title="Xóa khách hàng"
-                        description="Chỉ nên xóa khi khách hàng chưa phát sinh hành trình nào."
+                        description="Chỉ nên xóa khi khách hàng chưa phát sinh công trình nào."
                         okText="Xóa"
                         cancelText="Hủy"
                         okButtonProps={{ danger: true }}
@@ -317,7 +317,7 @@ const CustomerList: React.FC = () => {
                 </Col>
                 <Col xs={12} lg={6}>
                     <Card bordered={false} style={{ borderRadius: 18 }}>
-                        <Statistic title="Đã có hành trình" value={customersWithJourney} valueStyle={{ color: '#1677ff' }} />
+                        <Statistic title="Đã có công trình" value={customersWithJourney} valueStyle={{ color: '#1677ff' }} />
                     </Card>
                 </Col>
                 <Col xs={12} lg={6}>
@@ -327,7 +327,7 @@ const CustomerList: React.FC = () => {
                 </Col>
                 <Col xs={12} lg={6}>
                     <Card bordered={false} style={{ borderRadius: 18 }}>
-                        <Statistic title="Chưa có hành trình" value={customersWithoutJourney} valueStyle={{ color: '#8c8c8c' }} />
+                        <Statistic title="Chưa có công trình" value={customersWithoutJourney} valueStyle={{ color: '#8c8c8c' }} />
                     </Card>
                 </Col>
             </Row>

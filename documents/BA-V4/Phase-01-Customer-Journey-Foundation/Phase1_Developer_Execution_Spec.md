@@ -200,8 +200,8 @@ Phase 1 phải dùng được trên desktop + mobile trước khi chốt.
 
 | Menu cấp 1 | Menu cấp 2 | Route đề xuất | Ghi chú |
 |---|---|---|---|
-| Hành trình khách hàng | Danh sách hành trình | `/ql/journeys` | menu chính của phase 1 |
-| Hành trình khách hàng | Board hành trình | `/ql/journeys/board` | thay cho Kanban cũ |
+| Hành trình khách hàng | Danh sách công trình | `/ql/journeys` | menu chính của phase 1 |
+| Hành trình khách hàng | Board công trình | `/ql/journeys/board` | thay cho Kanban cũ |
 | Hành trình khách hàng | Action Center | `/ql/journeys/action-center` | gom blocker, overdue, unread thread |
 | Hành trình khách hàng | Templates | `/ql/journeys/templates` | quản lý template mặc định |
 
@@ -220,7 +220,7 @@ Phase 1 phải dùng được trên desktop + mobile trước khi chốt.
 |---|---|---|---|
 | Khảo sát & hiện trường | Lịch khảo sát | `/giam-sat/surveys` | queue khảo sát |
 | Khảo sát & hiện trường | Form khảo sát | `/giam-sat/surveys/:journeyId` | page nhập khảo sát |
-| Khảo sát & hiện trường | Feed hành trình | `/giam-sat/journey-feed` | xem dữ liệu đã đẩy |
+| Khảo sát & hiện trường | Feed công trình | `/giam-sat/journey-feed` | xem dữ liệu đã đẩy |
 
 ## 4.4 Portal menu
 
@@ -278,7 +278,7 @@ Phase 1 phải dùng được trên desktop + mobile trước khi chốt.
 
 | Field key | Label | Type | Required | Editable | Ghi chú |
 |---|---|---|---|---|---|
-| journey_code | Mã hành trình | text | Có | Không | generated |
+| journey_code | Mã công trình | text | Có | Không | generated |
 | service_request_code | Mã yêu cầu | text | Có | Không | link sang request |
 | customer_name | Khách hàng | text | Có | Không | từ customer |
 | customer_phone | Số điện thoại | text | Có | Không | từ customer/request |
@@ -442,7 +442,7 @@ Phase 1 phải dùng được trên desktop + mobile trước khi chốt.
 
 ### Menu và route
 
-- Menu: `PM > Hành trình khách hàng > Danh sách hành trình`
+- Menu: `PM > Hành trình khách hàng > Danh sách công trình`
 - Route: `/ql/journeys`
 
 ### Section bắt buộc
@@ -483,7 +483,7 @@ Phải có tối thiểu 4 card:
 
 ### Menu và route
 
-- Menu: `PM > Hành trình khách hàng > Board hành trình`
+- Menu: `PM > Hành trình khách hàng > Board công trình`
 - Route: `/ql/journeys/board`
 
 ### Section bắt buộc

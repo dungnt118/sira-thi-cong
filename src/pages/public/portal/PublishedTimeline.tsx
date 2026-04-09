@@ -29,8 +29,8 @@ const PublishedTimeline: React.FC = () => {
 
     return (
         <div style={{ maxWidth: 1000, margin: '0 auto', padding: '24px 16px' }}>
-            <PortalPageHeader 
-                title="Tiến độ hành trình" 
+            <PortalPageHeader
+                title="Tiến độ công trình"
                 subtitle={`${journey.customer_name} · ${journey.idx_serviceTypeId?.title || ''}`}
                 token={token || ''}
                 icon={<CalendarOutlined />}
@@ -73,8 +73,8 @@ const PublishedTimeline: React.FC = () => {
                 {/* Selected Step Detail Panel */}
                 <Col xs={24} md={10}>
                     {selectedStepIdx !== null && publishedSteps[selectedStepIdx] ? (
-                        <Card title={`Chi tiết: ${publishedSteps[selectedStepIdx].step_name}`} 
-                              style={{ borderRadius: 12, position: 'sticky', top: 24, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+                        <Card title={`Chi tiết: ${publishedSteps[selectedStepIdx].step_name}`}
+                            style={{ borderRadius: 12, position: 'sticky', top: 24, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
                             <div style={{ marginBottom: 16 }}>
                                 <Text strong>Mục tiêu:</Text>
                                 <p style={{ marginTop: 4 }}>{publishedSteps[selectedStepIdx].step_goal}</p>
@@ -93,8 +93,8 @@ const PublishedTimeline: React.FC = () => {
                                     <div style={{ background: '#f5f5f5', borderRadius: 8, height: 80, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888' }}><CameraOutlined /> Ảnh 2</div>
                                 </div>
                             </div>
-                            <Button type="primary" block icon={<MessageOutlined />} 
-                                    onClick={() => { setShowThreadModal(true); threadForm.setFieldValue('context_label', `Hỏi về: ${publishedSteps[selectedStepIdx].step_name}`); }}>
+                            <Button type="primary" block icon={<MessageOutlined />}
+                                onClick={() => { setShowThreadModal(true); threadForm.setFieldValue('context_label', `Hỏi về: ${publishedSteps[selectedStepIdx].step_name}`); }}>
                                 Gửi thắc mắc về bước này
                             </Button>
                         </Card>

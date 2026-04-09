@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { 
-    Form, Input, Select, Button, Card, 
+import {
+    Form, Input, Select, Button, Card,
     Typography, Space, Row, Col, message,
     Table, Empty, DatePicker, Tag, Grid
 } from 'antd';
-import { 
-    PlusOutlined, SaveOutlined, ArrowLeftOutlined, 
-    DeleteOutlined, WarningOutlined 
+import {
+    PlusOutlined, SaveOutlined, ArrowLeftOutlined,
+    DeleteOutlined, WarningOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import useLocalStorageData from '../../hooks/useLocalStorageData';
@@ -24,10 +24,10 @@ const AllocationForm: React.FC = () => {
     const [addForm] = Form.useForm();
     const screens = useBreakpoint();
     const isMobile = !screens.md;
-    
+
     const [assets] = useLocalStorageData<Asset[]>('ASSETS', (mockAssetsData as any).assets);
     const [allocations, setAllocations] = useLocalStorageData<AssetAllocation[]>('ASSET_ALLOCATIONS', []);
-    
+
     const [selectedItems, setSelectedItems] = useState<Asset[]>([]);
 
     const handleAddItem = () => {
@@ -39,7 +39,7 @@ const AllocationForm: React.FC = () => {
 
         const asset = assets.find(a => a.id === values.assetId);
         if (!asset) return;
-        
+
         if (selectedItems.find(i => i.id === asset.id)) {
             message.warning('Tài sản này đã được chọn');
             return;
@@ -110,8 +110,8 @@ const AllocationForm: React.FC = () => {
 
             <Row gutter={[24, 24]}>
                 <Col xs={24} lg={15}>
-                    <Card 
-                        title="Chọn tài sản cần cấp phát" 
+                    <Card
+                        title="Chọn tài sản cần cấp phát"
                         style={{ marginBottom: '16px' }}
                         bodyStyle={{ padding: isMobile ? '12px' : '24px' }}
                     >
@@ -119,7 +119,7 @@ const AllocationForm: React.FC = () => {
                             <Row gutter={16}>
                                 <Col xs={24} sm={16}>
                                     <Form.Item name="assetId" label="Tài sản (Chỉ hiển thị tài sản Sẵn sàng)">
-                                        <Select 
+                                        <Select
                                             showSearch
                                             placeholder="Gõ mã, serial hoặc tên tài sản"
                                             optionFilterProp="children"
@@ -128,7 +128,7 @@ const AllocationForm: React.FC = () => {
                                             {assets.filter(a => a.status === 'AVAILABLE').map(a => (
                                                 <Select.Option key={a.id} value={a.id}>
                                                     <div style={{ whiteSpace: 'normal' }}>
-                                                        <Text strong>[{a.code}]</Text> {a.name} 
+                                                        <Text strong>[{a.code}]</Text> {a.name}
                                                         {a.serialNumber && <div style={{ fontSize: 11, color: '#8c8c8c' }}>SN: {a.serialNumber}</div>}
                                                     </div>
                                                 </Select.Option>
@@ -137,9 +137,9 @@ const AllocationForm: React.FC = () => {
                                     </Form.Item>
                                 </Col>
                                 <Col xs={24} sm={8} style={{ display: 'flex', alignItems: 'flex-end', paddingBottom: '24px' }}>
-                                    <Button 
-                                        type="primary" 
-                                        icon={<PlusOutlined />} 
+                                    <Button
+                                        type="primary"
+                                        icon={<PlusOutlined />}
                                         onClick={handleAddItem}
                                         block={isMobile}
                                         size={isMobile ? 'large' : 'middle'}
@@ -150,10 +150,10 @@ const AllocationForm: React.FC = () => {
                             </Row>
                         </Form>
 
-                        <Table 
-                            dataSource={selectedItems} 
-                            columns={itemColumns} 
-                            pagination={false} 
+                        <Table
+                            dataSource={selectedItems}
+                            columns={itemColumns}
+                            pagination={false}
                             size="small"
                             rowKey="id"
                             scroll={{ x: 'max-content' }}
@@ -163,20 +163,20 @@ const AllocationForm: React.FC = () => {
                 </Col>
 
                 <Col xs={24} lg={9}>
-                    <Card 
+                    <Card
                         title="Thông tin người nhận & Dự án"
                         variant="borderless"
                         styles={{ body: { padding: isMobile ? '12px' : '24px' } }}
                     >
                         <Form form={form} layout="vertical">
-                            <Form.Item 
-                                name="requestedBy" 
+                            <Form.Item
+                                name="requestedBy"
                                 label="Người yêu cầu / Người nhận"
                                 rules={[{ required: true, message: 'Vui lòng chọn người nhận' }]}
                             >
-                                <Select 
-                                    placeholder="Chọn nhân viên mượn đồ" 
-                                    showSearch 
+                                <Select
+                                    placeholder="Chọn nhân viên mượn đồ"
+                                    showSearch
                                     optionFilterProp="children"
                                     size={isMobile ? 'large' : 'middle'}
                                 >
@@ -188,14 +188,14 @@ const AllocationForm: React.FC = () => {
                                 </Select>
                             </Form.Item>
 
-                            <Form.Item 
-                                name="journeyId" 
+                            <Form.Item
+                                name="journeyId"
                                 label="Hành trình sử dụng (Nếu có)"
                             >
-                                <Select 
-                                    placeholder="Chọn hành trình công trình" 
-                                    allowClear 
-                                    showSearch 
+                                <Select
+                                    placeholder="Chọn công trình công trình"
+                                    allowClear
+                                    showSearch
                                     optionFilterProp="children"
                                     size={isMobile ? 'large' : 'middle'}
                                 >
@@ -204,7 +204,7 @@ const AllocationForm: React.FC = () => {
                                         .map(j => (
                                             <Select.Option key={j.id} value={j.id}>
                                                 <Space direction={isMobile ? 'vertical' : 'horizontal'} size={0}>
-                                                    <Tag color="blue" style={{fontSize: 11}}>{j.journey_code}</Tag>
+                                                    <Tag color="blue" style={{ fontSize: 11 }}>{j.journey_code}</Tag>
                                                     <Text style={{ fontSize: isMobile ? 12 : 14 }}>{j.customer_name} — {j.idx_serviceTypeId?.title}</Text>
                                                 </Space>
                                             </Select.Option>
@@ -213,10 +213,10 @@ const AllocationForm: React.FC = () => {
                             </Form.Item>
 
                             <Form.Item name="expectedReturnDate" label="Ngày dự kiến trả (Tùy chọn)">
-                                <DatePicker 
-                                    style={{ width: '100%' }} 
-                                    format="DD/MM/YYYY" 
-                                    placeholder="Chọn ngày" 
+                                <DatePicker
+                                    style={{ width: '100%' }}
+                                    format="DD/MM/YYYY"
+                                    placeholder="Chọn ngày"
                                     size={isMobile ? 'large' : 'middle'}
                                 />
                             </Form.Item>
@@ -226,11 +226,11 @@ const AllocationForm: React.FC = () => {
                             </Form.Item>
 
                             <div style={{ marginTop: isMobile ? '16px' : '24px' }}>
-                                <Button 
-                                    type="primary" 
-                                    size="large" 
-                                    block 
-                                    icon={<SaveOutlined />} 
+                                <Button
+                                    type="primary"
+                                    size="large"
+                                    block
+                                    icon={<SaveOutlined />}
                                     onClick={handleSubmit}
                                     style={{ height: isMobile ? '50px' : 'auto' }}
                                 >
@@ -244,7 +244,7 @@ const AllocationForm: React.FC = () => {
                         <Space align="start">
                             <WarningOutlined style={{ color: '#faad14', marginTop: '4px' }} />
                             <Text style={{ fontSize: '13px' }}>
-                                Yêu cầu cấp phát sẽ tự động chuyển sang <strong>Chờ phê duyệt</strong>. 
+                                Yêu cầu cấp phát sẽ tự động chuyển sang <strong>Chờ phê duyệt</strong>.
                                 Sau khi duyệt, người mượn có thể kiểm tra ở phần lịch sử mượn trả tài sản.
                             </Text>
                         </Space>

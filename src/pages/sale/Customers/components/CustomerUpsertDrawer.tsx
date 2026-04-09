@@ -112,7 +112,7 @@ const CustomerUpsertDrawer: React.FC<CustomerUpsertDrawerProps> = ({
                     Thông tin định danh
                 </Title>
                 <Text type="secondary">
-                    Quản lý hồ sơ khách hàng phục vụ Sale, tạo yêu cầu dịch vụ và theo dõi hành trình.
+                    Quản lý hồ sơ khách hàng phục vụ Sale, tạo yêu cầu dịch vụ và theo dõi công trình.
                 </Text>
 
                 <Row gutter={16} style={{ marginTop: 16 }}>

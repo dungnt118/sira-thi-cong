@@ -28,7 +28,7 @@ function legacyKtSignatureDataUrl(order: IStockOrder): string | undefined {
 
 const StockOrderPrintable: React.FC<StockOrderPrintableProps> = ({ order }) => {
     const isOutbound = order.type === 'out';
-    
+
     const columns = [
         {
             title: 'STT',
@@ -118,7 +118,7 @@ const StockOrderPrintable: React.FC<StockOrderPrintableProps> = ({ order }) => {
                 </div>
                 {order.journey_code && (
                     <div style={{ marginBottom: 5 }}>
-                        <Text strong>Mã hành trình: </Text>
+                        <Text strong>Mã công trình: </Text>
                         <Text>{order.journey_code}</Text>
                     </div>
                 )}

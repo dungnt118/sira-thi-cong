@@ -14,7 +14,7 @@ Mục tiêu của BA-V4 không còn là "trình diễn màn hình", mà là đ�
 
 - Dữ liệu sale, khảo sát, dự án và tài chính chưa liên tục thành một chuỗi.
 - Hồ sơ thực tế đang nằm rải rác trong folder khách hàng, file Word/Excel và sổ theo dõi thủ công.
-- Kanban hành trình khách hàng mới dừng ở cột trạng thái, chưa gắn được nhiệm vụ thực thi.
+- Kanban công trình khách hàng mới dừng ở cột trạng thái, chưa gắn được nhiệm vụ thực thi.
 - Checklist thi công đã có ý tưởng nhưng chưa liên thông với task, kho, nghiệm thu và bảo hành.
 - PM phải dùng nhiều màn hình rời rạc, thiếu một trung tâm điều hành.
 - Chưa có ERD chuẩn để kết nối `Khách hàng`, `Service Request`, `Project`, `Pipeline`, `Task`.
