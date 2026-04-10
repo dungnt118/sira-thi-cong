@@ -38,6 +38,7 @@ import type {
 } from '../../../services/core-contracts/types/customer.types';
 import type { IJourney } from '../../../services/core-contracts/types/journey.types';
 import CustomerUpsertDrawer from './components/CustomerUpsertDrawer';
+import SectionHeader from '../../../components/common/SectionHeader';
 
 const { Text, Title } = Typography;
 
@@ -293,24 +294,21 @@ const CustomerList: React.FC = () => {
 
     return (
         <div style={{ paddingBottom: 32 }}>
-            <Row justify="space-between" align="bottom" gutter={[16, 16]} style={{ marginBottom: 24 }}>
-                <Col xs={24} lg={16}>
-                    <Text type="secondary" style={{ fontSize: 13, textTransform: 'uppercase', letterSpacing: 1 }}>
-                        Hệ thống quản lý bán hàng
-                    </Text>
-                    <Title level={2} style={{ margin: '4px 0 8px' }}>
-                        Khách hàng
-                    </Title>
-                    <Text type="secondary">
-                        Quản lý danh sách khách hàng, thông tin liên hệ và điều hướng sang tạo yêu cầu dịch vụ mới.
-                    </Text>
-                </Col>
-                <Col xs={24} lg={8} style={{ textAlign: 'right' }}>
-                    <Button type="primary" icon={<PlusOutlined />} onClick={openCreateDrawer}>
-                        Tạo khách hàng
+            <SectionHeader
+                title="Khách hàng"
+                breadcrumb="Hệ thống quản lý bán hàng"
+                description="Quản lý danh sách khách hàng, thông tin liên hệ và điều hướng sang tạo yêu cầu dịch vụ mới."
+                actions={
+                    <Button 
+                        type="primary" 
+                        icon={<PlusOutlined />} 
+                        onClick={openCreateDrawer}
+                        size={!screens.md ? 'middle' : 'small'}
+                    >
+                        {!screens.md ? 'Tạo' : 'Tạo khách hàng'}
                     </Button>
-                </Col>
-            </Row>
+                }
+            />
 
             <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
                 <Col xs={12} lg={6}>

@@ -25,8 +25,10 @@ import {
     ExclamationCircleOutlined,
     HistoryOutlined,
     PhoneOutlined,
+    ReloadOutlined,
     UserOutlined,
 } from '@ant-design/icons';
+import SectionHeader from '../../../components/common/SectionHeader';
 import { useNavigate } from 'react-router-dom';
 import { ConsultationLogForm } from '../../../components/journey/SharedModals';
 import { journeyService } from '../../../services/core-contracts/services/journey.service';
@@ -200,21 +202,32 @@ const SLAQueue: React.FC = () => {
 
     return (
         <div style={{ padding: '4px 0' }}>
-            <div style={{ marginBottom: 24 }}>
-                <Text
-                    type="secondary"
-                    style={{ fontSize: 13, textTransform: 'uppercase', letterSpacing: 1 }}
-                >
-                    Hệ thống quản lý bán hàng
-                </Text>
-                <Title level={2} style={{ margin: '4px 0 0', fontWeight: 700 }}>
-                    Cảnh báo tiến độ
-                </Title>
-                <Text type="secondary">
-                    Ưu tiên xử lý các công trình đang trễ hạn hoặc có rủi ro để đội Sale chủ động
-                    phản hồi khách hàng.
-                </Text>
-            </div>
+            <SectionHeader
+                title="Cảnh báo tiến độ"
+                breadcrumb="Hệ thống quản lý bán hàng"
+                description="Ưu tiên xử lý các công trình đang trễ hạn hoặc có rủi ro để đội Sale chủ động phản hồi khách hàng."
+                actions={
+                    <Button 
+                        icon={<ReloadOutlined />} 
+                        onClick={() => {
+                            const fetchJourneys = async () => {
+                                setLoading(true);
+                                try {
+                                    const response = await journeyService.queryContent();
+                                    setJourneys(response?.data || []);
+                                } catch (error) {
+                                    console.error('Không thể tải danh sách cảnh báo tiến độ', error);
+                                } finally {
+                                    setLoading(false);
+                                }
+                            };
+                            fetchJourneys();
+                        }}
+                    >
+                        Làm mới
+                    </Button>
+                }
+            />
 
             <Row gutter={[20, 20]} style={{ marginBottom: 24 }}>
                 <Col xs={24} sm={8}>

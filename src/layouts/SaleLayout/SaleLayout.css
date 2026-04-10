@@ -13,11 +13,17 @@
     justify-content: space-between;
     align-items: center;
     box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-    position: sticky;
-    top: 0;
+    position: relative; /* Default non-sticky on mobile */
     z-index: 10;
     height: 56px;
     line-height: 56px;
+}
+
+@media (min-width: 768px) {
+    .sale-header {
+        position: sticky;
+        top: 0;
+    }
 }
 
 .header-brand {

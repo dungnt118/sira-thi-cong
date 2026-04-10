@@ -40,6 +40,7 @@ import type { IJourney, ICreateJourneyInput } from '../../../services/core-contr
 import type { IPipelineStage } from '../../../services/core-contracts/types/pipelineStage.types';
 import type { ISalesPipeline } from '../../../services/core-contracts/types/salesPipeline.types';
 import JourneyUpsertDrawer from '../../../components/journey/JourneyUpsertDrawer';
+import SectionHeader from '../../../components/common/SectionHeader';
 import {
     formatJourneyDate,
     getJourneyPriorityLabel,
@@ -277,29 +278,30 @@ const JourneyInbox: React.FC = () => {
 
     return (
         <div style={{ paddingBottom: 32 }}>
-            <Row justify="space-between" align="bottom" gutter={[16, 16]} style={{ marginBottom: 24 }}>
-                <Col xs={24} lg={16}>
-                    <Text type="secondary" style={{ fontSize: 13, textTransform: 'uppercase', letterSpacing: 1 }}>
-                        Hệ thống quản lý bán hàng
-                    </Text>
-                    <Title level={2} style={{ margin: '4px 0 8px' }}>
-                        Yêu cầu
-                    </Title>
-                    <Text type="secondary">
-                        Quản lý toàn bộ lead, nhu cầu khách hàng và trạng thái bán hàng trực tiếp trên Journey.
-                    </Text>
-                </Col>
-                <Col xs={24} lg={8} style={{ textAlign: 'right' }}>
-                    <Space wrap>
-                        <Button icon={<ReloadOutlined />} onClick={loadData}>
-                            Làm mới
+            <SectionHeader
+                title="Yêu cầu"
+                breadcrumb="Hệ thống quản lý bán hàng"
+                description="Quản lý toàn bộ lead, nhu cầu khách hàng và trạng thái bán hàng trực tiếp trên Journey."
+                actions={
+                    <>
+                        <Button 
+                            icon={<ReloadOutlined />} 
+                            onClick={loadData}
+                            size={isMobile ? 'middle' : 'small'}
+                        >
+                            {!isMobile && 'Làm mới'}
                         </Button>
-                        <Button type="primary" icon={<PlusOutlined />} onClick={openCreateDrawer}>
-                            Tạo yêu cầu
+                        <Button 
+                            type="primary" 
+                            icon={<PlusOutlined />} 
+                            onClick={openCreateDrawer}
+                            size={isMobile ? 'middle' : 'small'}
+                        >
+                            {!isMobile ? 'Tạo yêu cầu' : 'Tạo'}
                         </Button>
-                    </Space>
-                </Col>
-            </Row>
+                    </>
+                }
+            />
 
             <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
                 <Col xs={12} lg={6}>
@@ -589,6 +591,11 @@ const JourneyInbox: React.FC = () => {
                 onCancel={closeDrawer}
                 onSubmit={handleSubmit}
             />
+            <div style={{ textAlign: 'center', marginTop: 24 }}>
+                <Typography.Text type="secondary">
+                    &copy; {new Date().getFullYear()} SIRA. All rights reserved.
+                </Typography.Text>
+            </div>
         </div>
     );
 };

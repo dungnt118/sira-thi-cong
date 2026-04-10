@@ -9,6 +9,7 @@ import {
     UserOutlined, EnvironmentOutlined, BellOutlined, HistoryOutlined,
     ClockCircleOutlined
 } from '@ant-design/icons';
+import SectionHeader from '../../../components/common/SectionHeader';
 import { journeyService } from '../../../services/core-contracts/services/journey.service';
 import { surveyAppointmentService } from '../../../services/core-contracts/services/surveyAppointment.service';
 import { employeeService } from '../../../services/core-contracts/services/employee.service';
@@ -97,15 +98,21 @@ const SurveyCoordination: React.FC = () => {
 
     return (
         <div style={{ padding: '4px 0' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 24 }}>
-                <div>
-                    <Text type="secondary" style={{ fontSize: 13, textTransform: 'uppercase', letterSpacing: 1 }}>Quản lý Vận hành</Text>
-                    <Title level={2} style={{ margin: '4px 0 0', fontWeight: 700 }}>Điều phối Khảo sát</Title>
-                </div>
-                <Button type="primary" size="large" shape="round" icon={<PlusOutlined />} onClick={() => setShowScheduleModal(true)}>
-                    Đặt lịch khảo sát
-                </Button>
-            </div>
+            <SectionHeader
+                title="Điều phối Khảo sát"
+                breadcrumb="Quản lý Vận hành"
+                actions={
+                    <Button 
+                        type="primary" 
+                        size="middle" 
+                        shape="round" 
+                        icon={<PlusOutlined />} 
+                        onClick={() => setShowScheduleModal(true)}
+                    >
+                        Đặt lịch
+                    </Button>
+                }
+            />
 
             <Card variant="borderless" style={{ borderRadius: 16, boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }} styles={{ body: { padding: '8px 16px' } }}>
                 <Tabs

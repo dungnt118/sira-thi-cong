@@ -1,13 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
     List, Tag, Button, Typography, Input, Select, Space,
-    Modal, Form, Badge, Row, Col, Avatar, Switch, Spin, message, Empty
+    Modal, Form, Badge, Row, Col, Avatar, Switch, Spin, message, Empty,
+    Grid
 } from 'antd';
 import { 
     MessageOutlined, PlusOutlined, SendOutlined, UserOutlined, 
     SearchOutlined, CheckCircleOutlined,
     MoreOutlined
 } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
+import SectionHeader from '../../../components/common/SectionHeader';
 import { portalThreadService } from '../../../services/core-contracts/services/portalThread.service';
 import dayjs from 'dayjs';
 
@@ -18,6 +21,8 @@ const STATUS_COLOR: Record<string, string> = { open: 'processing', waiting: 'war
 const STATUS_LABEL: Record<string, string> = { open: 'Đang mở', waiting: 'Chờ KH', closed: 'Đã đóng' };
 
 const CommunicationsCenter: React.FC = () => {
+    const navigate = useNavigate();
+    const screens = Grid.useBreakpoint();
     const [filterStatus, setFilterStatus] = useState('ALL');
     const [selectedThread, setSelectedThread] = useState<any>(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
@@ -96,15 +101,21 @@ const CommunicationsCenter: React.FC = () => {
 
     return (
         <div style={{ height: 'calc(100vh - 120px)', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 20 }}>
-                <div>
-                    <Text type="secondary" style={{ fontSize: 13, textTransform: 'uppercase', letterSpacing: 1 }}>Cổng Giao tiếp KH</Text>
-                    <Title level={2} style={{ margin: '4px 0 0', fontWeight: 700 }}>Communications Center</Title>
-                </div>
-                <Button type="primary" size="large" shape="round" icon={<PlusOutlined />} onClick={() => setShowCreateModal(true)}>
-                    Tạo hội thoại mới
-                </Button>
-            </div>
+            <SectionHeader
+                title="Communications Center"
+                breadcrumb="Cổng Giao tiếp KH"
+                actions={
+                    <Button 
+                        type="primary" 
+                        size={!screens.md ? 'middle' : 'small'} 
+                        shape="round" 
+                        icon={<PlusOutlined />} 
+                        onClick={() => setShowCreateModal(true)}
+                    >
+                        {!screens.md ? 'Tạo' : 'Tạo hội thoại mới'}
+                    </Button>
+                }
+            />
 
             <Row gutter={0} style={{ flex: 1, overflow: 'hidden', background: '#fff', borderRadius: 20, boxShadow: '0 10px 40px rgba(0,0,0,0.04)' }}>
                 {/* Conversations List */}
