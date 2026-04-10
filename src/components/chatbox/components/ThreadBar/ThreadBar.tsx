@@ -85,6 +85,7 @@ export default function ThreadBar({
     return (
         <div className="chatbox-thread-bar">
             <Tabs
+                size="small"
                 activeKey={activeThreadId}
                 onChange={(key) => {
                     if (key === '__add_thread__') {
