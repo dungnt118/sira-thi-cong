@@ -17,6 +17,7 @@ import type { IJourney } from '../../../services/core-contracts/types/journey.ty
 import type { ActionItem, ActionType, PriorityLevel } from '../../../types/journey';
 import { FilterOperation } from '../../../types/filters/GroupQueryFilter';
 import { buildJourneyDetailRoute } from '@/utils/adminRoutes';
+import SectionHeader from '../../../components/common/SectionHeader';
 
 const { Text } = Typography;
 const { useBreakpoint } = Grid;
@@ -245,21 +246,6 @@ const ActionCenter: React.FC = () => {
 
     const columns: ColumnsType<ActionItem> = [
         {
-            title: 'Loại hành động',
-            key: 'type',
-            fixed: isMobile ? 'left' : undefined,
-            width: 150,
-            render: (_, a) => {
-                const cfg = ACTION_BUCKET_CONFIG[a.action_type];
-                return (
-                    <Space size={4}>
-                        <span style={{ color: cfg.color }}>{cfg.icon}</span>
-                        <Text style={{ color: cfg.color, fontWeight: 600 }}>{cfg.label}</Text>
-                    </Space>
-                );
-            },
-        },
-        {
             title: 'Mã công trình',
             key: 'journey',
             width: 150,
@@ -385,23 +371,24 @@ const ActionCenter: React.FC = () => {
 
     return (
         <div>
-            <Row justify="space-between" align="middle" style={{ marginBottom: isMobile ? 16 : 24 }}>
-                <Col>
-                    <h2 style={{ margin: 0, fontSize: isMobile ? 22 : 28, color: '#1976D2' }}>Dashboard Quản Lý</h2>
-                    <Text type="secondary">Tổng quan vận hành và các hành động cần xử lý ngay</Text>
-                </Col>
-                <Col>
-                    <Space>
-                        <Button
-                            icon={<ReloadOutlined />}
-                            onClick={() => { fetchJourneys(); fetchRecentLogs(); }}
-                            loading={isLoading || isLoadingLogs}
-                        >
-                            Làm mới
-                        </Button>
-                    </Space>
-                </Col>
-            </Row>
+            <SectionHeader
+                title="Dashboard Quản Lý"
+                titleColor="#1976D2"
+                description="Tổng quan vận hành và các hành động cần xử lý ngay"
+                actions={
+                    <Button
+                        icon={<ReloadOutlined />}
+                        onClick={() => {
+                            fetchJourneys();
+                            fetchRecentLogs();
+                        }}
+                        loading={isLoading || isLoadingLogs}
+                        size={isMobile ? 'middle' : 'small'}
+                    >
+                        {!isMobile ? 'Làm mới' : 'Mới'}
+                    </Button>
+                }
+            />
 
             {/* Row 1: KPI Statistics */}
             <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>

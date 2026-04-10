@@ -1,6 +1,6 @@
 import React from 'react';
 import { Layout, Drawer, Button, Grid } from 'antd';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { MenuOutlined } from '@ant-design/icons';
 import { Breadcrumbs } from '@components/common/Breadcrumbs';
 import './BaseLayout.css';
@@ -24,6 +24,9 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({ sidebar, topBar }) => {
     const [mobileOpen, setMobileOpen] = React.useState(false);
     const screens = useBreakpoint();
     const isMobile = !screens.md;
+    const location = useLocation();
+    const hideBreadcrumbsMobilePm =
+        isMobile && location.pathname.startsWith('/admin/ql');
 
     const siderWidth = 240;
     const collapsedWidth = 80;
@@ -74,6 +77,7 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({ sidebar, topBar }) => {
             )}
 
             <Layout
+                className="base-layout__main"
                 style={{
                     minWidth: 0,
                     marginLeft: isMobile ? 0 : (collapsed ? collapsedWidth : siderWidth),
@@ -81,34 +85,40 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({ sidebar, topBar }) => {
                 }}
             >
                 <Header
+                    className="base-layout__header"
                     style={{
                         padding: 0,
                         background: '#fff',
                         position: 'sticky',
                         top: 0,
-                        zIndex: 1,
+                        zIndex: 1000,
                         width: '100%',
                         minWidth: 0,
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                        lineHeight: 'normal',
+                        height: 'auto',
+                        minHeight: 56,
+                        boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
                         display: 'flex',
-                        alignItems: 'center',
-                        paddingRight: isMobile ? 8 : 0,
+                        alignItems: 'stretch',
                     }}
                 >
                     {isMobile && (
                         <Button
                             type="text"
+                            className="base-layout__menu-trigger"
                             icon={<MenuOutlined />}
                             onClick={() => setMobileOpen(true)}
                             style={{
                                 fontSize: 18,
                                 width: 48,
                                 height: 48,
-                                marginLeft: 8,
+                                marginLeft: 'max(8px, env(safe-area-inset-left, 0px))',
+                                alignSelf: 'center',
+                                flexShrink: 0,
                             }}
                         />
                     )}
-                    <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
+                    <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'stretch' }}>
                         {topBar}
                     </div>
                 </Header>
@@ -116,12 +126,20 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({ sidebar, topBar }) => {
                     style={{
                         minWidth: 0,
                         width: '100%',
+                        maxWidth: '100%',
+                        overflowX: 'hidden',
                         margin: isMobile ? '0 0 12px' : '0 16px 24px',
-                        padding: isMobile ? '12px 12px 16px' : 24,
+                        // Mobile PM: không breadcrumb → bỏ padding-top để Section Header (sticky) sát Page Header
+                        padding: isMobile
+                            ? hideBreadcrumbsMobilePm
+                                ? '0 12px 16px'
+                                : '12px 12px 16px'
+                            : 24,
                         background: '#f0f2f5',
+                        boxSizing: 'border-box',
                     }}
                 >
-                    <Breadcrumbs />
+                    {!hideBreadcrumbsMobilePm && <Breadcrumbs />}
                     <Outlet />
                 </Content>
             </Layout>

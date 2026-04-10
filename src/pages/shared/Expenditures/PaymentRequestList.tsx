@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
     Table, Card, Tag, Button, Space, Typography,
     Statistic, Row, Col, Input, Select, Badge, Empty,
-    Modal, Form, InputNumber, message, Popconfirm, Divider, Tooltip, Image, Grid, Tabs
+    Modal, Form, InputNumber, message, Popconfirm, Divider, Tooltip, Image, Grid, Tabs, List
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
@@ -15,7 +15,7 @@ import {
     AccountBookOutlined, TeamOutlined, PropertySafetyOutlined,
     SwapOutlined, InfoCircleOutlined, ThunderboltOutlined,
     FieldTimeOutlined, DollarOutlined, PaperClipOutlined,
-    FileImageOutlined, EyeOutlined, DownloadOutlined
+    FileImageOutlined, EyeOutlined, DownloadOutlined, ArrowRightOutlined
 } from '@ant-design/icons';
 import { useAuth } from '@/hooks/useAuth';
 import PaymentRequestDetailModal from './components/PaymentRequestDetailModal';
@@ -518,23 +518,68 @@ const PaymentRequestList: React.FC = () => {
                 style={{ marginBottom: 16 }}
             />
 
-            <Table
-                columns={columns}
-                dataSource={filteredData}
-                loading={loading}
-                rowKey="_id"
-                size="middle"
-                pagination={{ pageSize: 10, size: 'small' }}
-                scroll={{ x: 1000 }}
-                locale={{ emptyText: <Empty description="Không có dữ liệu yêu cầu chi" /> }}
-                onRow={(record) => ({
-                    onClick: () => {
-                        setEditingRequest(record);
-                        setIsModalOpen(true);
-                    },
-                    style: { cursor: 'pointer' }
-                })}
-            />
+            {isMobile ? (
+                <List
+                    loading={loading}
+                    dataSource={filteredData}
+                    pagination={{ pageSize: 10, size: 'small' }}
+                    renderItem={(record) => (
+                        <Card 
+                            size="small" 
+                            style={{ marginBottom: 12, borderRadius: 12, border: '1px solid #f0f0f0' }}
+                            onClick={() => {
+                                setEditingRequest(record);
+                                setIsModalOpen(true);
+                            }}
+                        >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                                <Space direction="vertical" size={0}>
+                                    <Text strong style={{ fontSize: 13 }}>{record.code || 'CHƯA CÓ MÃ'}</Text>
+                                    <Text type="secondary" style={{ fontSize: 11 }}>
+                                        {record.request_date ? new Date(record.request_date).toLocaleDateString('vi-VN') : '—'}
+                                    </Text>
+                                </Space>
+                                {getStatusTag(record.status)}
+                            </div>
+                            
+                            <div style={{ marginBottom: 8 }}>
+                                <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>{record.payment_content}</div>
+                                <Text type="secondary" style={{ fontSize: 11 }}>
+                                    {record.beneficiary_name_snapshot} ({record.beneficiary_bank_name_snapshot})
+                                </Text>
+                            </div>
+
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                                <div style={{ fontWeight: 'bold', color: '#1890ff', fontSize: 15 }}>
+                                    {record.amount?.toLocaleString('vi-VN')} <span style={{ fontSize: 11, fontWeight: 'normal' }}>{record.currency?.toUpperCase() || 'VND'}</span>
+                                </div>
+                                <Space>
+                                    {renderFileCell(record.supporting_files || [])}
+                                    <Button size="small" icon={<ArrowRightOutlined />} type="text" />
+                                </Space>
+                            </div>
+                        </Card>
+                    )}
+                />
+            ) : (
+                <Table
+                    columns={columns}
+                    dataSource={filteredData}
+                    loading={loading}
+                    rowKey="_id"
+                    size="middle"
+                    pagination={{ pageSize: 10, size: 'small' }}
+                    scroll={{ x: 1000 }}
+                    locale={{ emptyText: <Empty description="Không có dữ liệu yêu cầu chi" /> }}
+                    onRow={(record) => ({
+                        onClick: () => {
+                            setEditingRequest(record);
+                            setIsModalOpen(true);
+                        },
+                        style: { cursor: 'pointer' }
+                    })}
+                />
+            )}
 
             <PaymentRequestDetailModal 
                 isOpen={isModalOpen}

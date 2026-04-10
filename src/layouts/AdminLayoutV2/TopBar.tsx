@@ -1,9 +1,7 @@
-import { BellOutlined, MenuOutlined, SearchOutlined } from '@ant-design/icons';
-import { Badge, Button, Input, Layout, Space } from 'antd';
+import { MenuOutlined } from '@ant-design/icons';
+import { Button, Layout } from 'antd';
 import React from 'react';
-import { AppBrandLogo } from '../../components/common/AppBrandLogo';
-import { UserMenu } from '../../components/common/Header/UserMenuWithDocs';
-
+import { AppShellHeader } from '../shared/AppShellHeader';
 
 interface AdminTopBarProps {
     onMenuClick?: () => void;
@@ -11,75 +9,39 @@ interface AdminTopBarProps {
 }
 
 /**
- * AdminTopBar - Top navigation bar
- * Components: Logo, Global Search, Notifications, User Profile
+ * Top bar Admin — cùng shell header với các vai trò (Notify + UserMenu + chuyển quyền).
  */
 const AdminTopBar: React.FC<AdminTopBarProps> = ({ onMenuClick, isMobile }) => {
-
-    // User dropdown menu logic moved to shared UserMenu component
-
-    const handleSearch = (value: string) => {
-        console.log('Search:', value);
-        // TODO: Implement global search
-    };
-
     return (
         <Layout.Header
             style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
+                padding: 0,
                 background: '#fff',
-                padding: isMobile ? '0 16px' : '0 24px',
-                borderBottom: '1px solid #f0f0f0',
-                height: 64,
                 position: 'sticky',
                 top: 0,
-                zIndex: 100,
+                zIndex: 1000,
+                lineHeight: 'normal',
+                height: 'auto',
+                minHeight: 56,
+                borderBottom: '1px solid #f0f0f0',
             }}
         >
-            {/* Left Section: Menu Toggle (Mobile) + Logo */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 8 : 12 }}>
-                {isMobile && (
-                    <Button 
-                        type="text" 
-                        icon={<MenuOutlined />} 
-                        onClick={onMenuClick}
-                        style={{ fontSize: 18 }}
-                    />
-                )}
-                <AppBrandLogo size={isMobile ? 'sm' : 'md'} />
-                {!isMobile && (
-                    <span style={{ fontSize: 18, fontWeight: 600, color: '#1976D2' }}>
-                        BACAdmin
-                    </span>
-                )}
-            </div>
-
-            {/* Global Search */}
-            {!isMobile && (
-                <Input.Search
-                    placeholder="Tìm kiếm..."
-                    allowClear
-                    onSearch={handleSearch}
-                    style={{ width: 300 }}
-                    prefix={<SearchOutlined />}
-                />
-            )}
-
-            {/* Right Section: Notifications + User */}
-            <Space size={isMobile ? 12 : 24}>
-                {/* Search icon for mobile if needed, or just notifications */}
-                {isMobile && <SearchOutlined style={{ fontSize: 18, cursor: 'pointer' }} />}
-                
-                {/* Notifications */}
-                <Badge count={3} offset={[-5, 5]} size="small">
-                    <BellOutlined style={{ fontSize: 20, cursor: 'pointer' }} />
-                </Badge>
-
-                {/* User Profile */}
-                <UserMenu avatarColor="#1976D2" />
-            </Space>
+            <AppShellHeader
+                leadingSlot={
+                    isMobile ? (
+                        <Button type="text" icon={<MenuOutlined />} onClick={onMenuClick} style={{ fontSize: 18 }} />
+                    ) : null
+                }
+                productTitle="BACAdmin"
+                brandAccentColor="#1976D2"
+                avatarColor="#1976D2"
+                logoSize="md"
+                placeholder="Tìm kiếm..."
+                onSearch={(value) => {
+                    console.log('Search:', value);
+                }}
+                userMenuShowName={!isMobile}
+            />
         </Layout.Header>
     );
 };

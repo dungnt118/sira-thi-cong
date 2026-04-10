@@ -1,24 +1,31 @@
 import {
-    BellOutlined,
-    ClockCircleOutlined,
+    DollarOutlined,
     FormOutlined,
     InboxOutlined,
-    MessageOutlined,
-    SearchOutlined,
+    MoreOutlined,
     TeamOutlined,
     UserOutlined,
-    DollarOutlined,
 } from '@ant-design/icons';
-import { Badge, Grid, Input, Layout, Menu } from 'antd';
+import type { MenuProps } from 'antd';
+import { Dropdown, Grid, Layout, Menu } from 'antd';
 import React from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { AppBrandLogo } from '../../components/common/AppBrandLogo';
-import { UserMenu } from '../../components/common/Header/UserMenuWithDocs';
+import { AppShellHeader } from '../shared/AppShellHeader';
 import { useAuth } from '../../hooks/useAuth';
 import './SaleLayout.css';
 
 const { Header, Content, Sider } = Layout;
-const { Search } = Input;
+
+/** Tối đa 5 ô trên bottom bar; nếu nhiều hơn thì 4 tab đầu + ô thứ 5 là menu "Thêm". */
+const MOBILE_BOTTOM_MAX_TABS = 5;
+
+type MobileNavItem = {
+    key: string;
+    icon: React.ReactNode;
+    label: string;
+    onClick: () => void;
+};
 
 export const SaleLayout: React.FC = () => {
     const navigate = useNavigate();
@@ -47,8 +54,8 @@ export const SaleLayout: React.FC = () => {
             return '/admin/kd/dashboard';
         }
 
-        if (location.pathname.startsWith('/admin/kd/sla')) {
-            return '/admin/kd/sla';
+        if (location.pathname.startsWith('/admin/kd/surveys')) {
+            return '/admin/kd/surveys';
         }
 
         if (location.pathname.startsWith('/admin/kd/surveys')) {
@@ -56,7 +63,7 @@ export const SaleLayout: React.FC = () => {
         }
 
         if (location.pathname.startsWith('/admin/kd/communications')) {
-            return '/admin/kd/communications';
+            return '';
         }
 
         if (location.pathname.startsWith('/admin/kd/expenditures/payment-requests')) {
@@ -70,7 +77,7 @@ export const SaleLayout: React.FC = () => {
         return '/admin/kd/dashboard';
     };
 
-    const mobileMenuItems = [
+    const mobileMenuItems: MobileNavItem[] = [
         {
             key: '/admin/kd/dashboard',
             icon: <InboxOutlined />,
@@ -84,22 +91,10 @@ export const SaleLayout: React.FC = () => {
             onClick: () => navigate('/admin/kd/customers'),
         },
         {
-            key: '/admin/kd/sla',
-            icon: <ClockCircleOutlined />,
-            label: 'Cảnh báo tiến độ',
-            onClick: () => navigate('/admin/kd/sla'),
-        },
-        {
             key: '/admin/kd/surveys',
             icon: <FormOutlined />,
             label: 'Khảo sát',
             onClick: () => navigate('/admin/kd/surveys'),
-        },
-        {
-            key: '/admin/kd/communications',
-            icon: <MessageOutlined />,
-            label: 'Giao tiếp',
-            onClick: () => navigate('/admin/kd/communications'),
         },
         {
             key: '/admin/kd/expenditures/payment-requests',
@@ -114,6 +109,29 @@ export const SaleLayout: React.FC = () => {
             onClick: () => navigate('/admin/kd/profile'),
         },
     ];
+
+    const mobilePrimaryItems: MobileNavItem[] =
+        mobileMenuItems.length <= MOBILE_BOTTOM_MAX_TABS
+            ? mobileMenuItems
+            : mobileMenuItems.slice(0, MOBILE_BOTTOM_MAX_TABS - 1);
+    const mobileOverflowItems: MobileNavItem[] =
+        mobileMenuItems.length <= MOBILE_BOTTOM_MAX_TABS
+            ? []
+            : mobileMenuItems.slice(MOBILE_BOTTOM_MAX_TABS - 1);
+
+    const activeKey = getActiveKey();
+    const isOverflowActive = mobileOverflowItems.some((item) => item.key === activeKey);
+
+    const overflowDropdownItems: MenuProps['items'] = mobileOverflowItems.map((item) => ({
+        key: item.key,
+        icon: item.icon,
+        label: item.label,
+    }));
+
+    const onOverflowMenuClick: MenuProps['onClick'] = ({ key }) => {
+        const item = mobileOverflowItems.find((i) => i.key === key);
+        item?.onClick();
+    };
 
     const desktopMenuItems = [
         {
@@ -132,19 +150,9 @@ export const SaleLayout: React.FC = () => {
                     onClick: () => navigate('/admin/kd/customers'),
                 },
                 {
-                    key: '/admin/kd/sla',
-                    label: 'Cảnh báo tiến độ',
-                    onClick: () => navigate('/admin/kd/sla'),
-                },
-                {
                     key: '/admin/kd/surveys',
                     label: 'Khảo sát',
                     onClick: () => navigate('/admin/kd/surveys'),
-                },
-                {
-                    key: '/admin/kd/communications',
-                    label: 'Giao tiếp khách hàng',
-                    onClick: () => navigate('/admin/kd/communications'),
                 },
                 {
                     key: '/admin/kd/expenditures/payment-requests',
@@ -155,17 +163,6 @@ export const SaleLayout: React.FC = () => {
             ],
         },
     ];
-
-    const memoizedMobileMenuItems = React.useMemo(() => mobileMenuItems.map((item) => ({
-        ...item,
-        label: (
-            <div className="bottom-nav-item">
-                <span className="bottom-nav-icon">{item.icon}</span>
-                <span className="bottom-nav-text">{item.label}</span>
-            </div>
-        ),
-        icon: null,
-    })), [mobileMenuItems]);
 
     return (
         <Layout className="sale-layout">
@@ -201,35 +198,34 @@ export const SaleLayout: React.FC = () => {
                     <Menu
                         theme="dark"
                         mode="inline"
-                        selectedKeys={[getActiveKey()]}
+                        selectedKeys={activeKey ? [activeKey] : []}
                         defaultOpenKeys={['journeys-group']}
                         items={desktopMenuItems}
                     />
                 </Sider>
             )}
 
-            <Layout style={{ marginLeft: isMobile ? 0 : 240, transition: 'margin-left 0.2s' }}>
-                <Header className="sale-header">
-                    <div className="header-brand">
-                        <AppBrandLogo size="sm" />
-                        <span className="brand-text">BACSale</span>
-                    </div>
-
-                    {!isMobile && (
-                        <Search
-                            placeholder="Tìm công trình, khách hàng hoặc nội dung yêu cầu..."
-                            allowClear
-                            style={{ maxWidth: 460, margin: '0 24px' }}
-                            prefix={<SearchOutlined />}
-                        />
-                    )}
-
-                    <div className="header-actions" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                        <Badge count={3} size="small">
-                            <BellOutlined className="header-icon" />
-                        </Badge>
-                        <UserMenu avatarColor="#52c41a" />
-                    </div>
+            <Layout
+                className="sale-layout__main"
+                style={{ marginLeft: isMobile ? 0 : 240, transition: 'margin-left 0.2s' }}
+            >
+                <Header
+                    className="sale-layout__header"
+                    style={{
+                        padding: 0,
+                        background: '#fff',
+                        lineHeight: 'normal',
+                        height: 'auto',
+                        minHeight: 56,
+                    }}
+                >
+                    <AppShellHeader
+                        productTitle="BACSale"
+                        brandAccentColor="#52c41a"
+                        avatarColor="#52c41a"
+                        logoSize="sm"
+                        placeholder="Tìm công trình, khách hàng hoặc nội dung yêu cầu..."
+                    />
                 </Header>
 
                 <Content className="sale-content">
@@ -238,14 +234,48 @@ export const SaleLayout: React.FC = () => {
             </Layout>
 
             {isMobile && (
-                <div className="sale-bottom-nav">
-                    <Menu
-                        mode="horizontal"
-                        selectedKeys={[getActiveKey()]}
-                        items={memoizedMobileMenuItems}
-                        className="bottom-menu"
-                    />
-                </div>
+                <nav className="sale-bottom-nav" aria-label="Điều hướng chính">
+                    <div className="bottom-nav-bar">
+                        {mobilePrimaryItems.map((item) => {
+                            const selected = activeKey === item.key;
+                            return (
+                                <button
+                                    key={item.key}
+                                    type="button"
+                                    className={`bottom-nav-slot${selected ? ' bottom-nav-slot--active' : ''}`}
+                                    onClick={item.onClick}
+                                >
+                                    <span className="bottom-nav-icon">{item.icon}</span>
+                                    <span className="bottom-nav-text">{item.label}</span>
+                                </button>
+                            );
+                        })}
+                        {mobileOverflowItems.length > 0 && (
+                            <Dropdown
+                                menu={{
+                                    items: overflowDropdownItems,
+                                    onClick: onOverflowMenuClick,
+                                    selectedKeys: isOverflowActive ? [activeKey] : [],
+                                }}
+                                placement="top"
+                                trigger={['click']}
+                                destroyOnHidden
+                                getPopupContainer={() => document.body}
+                            >
+                                <button
+                                    type="button"
+                                    className={`bottom-nav-slot bottom-nav-slot--more${isOverflowActive ? ' bottom-nav-slot--active' : ''}`}
+                                    aria-haspopup="menu"
+                                >
+                                    <span className="bottom-nav-icon">
+                                        <MoreOutlined />
+                                    </span>
+                                    <span className="bottom-nav-text">Thêm</span>
+                                </button>
+                            </Dropdown>
+                        )}
+                    </div>
+                </nav>
             )}
         </Layout>
     );

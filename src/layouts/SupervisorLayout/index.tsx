@@ -12,6 +12,7 @@ import { Menu } from 'antd';
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AppBrandLogo } from '../../components/common/AppBrandLogo';
+import { AppShellHeader } from '../shared/AppShellHeader';
 import { BaseLayout } from '../shared/BaseLayout';
 
 type MenuItem = Required<MenuProps>['items'][number];
@@ -86,18 +87,14 @@ const SupervisorSidebar: React.FC = () => {
     );
 };
 
-const SupervisorTopBar: React.FC = () => {
-    return (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '0 24px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <AppBrandLogo size="sm" />
-            </div>
-            <div style={{ display: 'flex', gap: 16 }}>
-                {/* Search, Notifications, Profile */}
-            </div>
-        </div>
-    );
-};
+const SupervisorTopBar: React.FC = () => (
+    <AppShellHeader
+        productTitle="BAC Giám sát"
+        brandAccentColor="#1890ff"
+        avatarColor="#1890ff"
+        showSearch={false}
+    />
+);
 
 export const SupervisorLayout: React.FC = () => {
     return <BaseLayout sidebar={<SupervisorSidebar />} topBar={<SupervisorTopBar />} />;

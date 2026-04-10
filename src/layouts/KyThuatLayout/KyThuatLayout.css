@@ -5,40 +5,11 @@
     padding-bottom: 60px; /* space for bottom nav */
 }
 
-.ky-thuat-header {
-    background: #fff;
-    padding: 0 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+.ky-thuat-layout__header.ant-layout-header {
     position: sticky;
     top: 0;
-    z-index: 10;
-    height: 56px;
-    line-height: 56px;
-}
-
-.header-brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    min-width: 0;
-}
-
-.header-brand .brand-text {
-    font-size: 18px;
-    font-weight: 600;
-    color: #13a8a8;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.header-icon {
-    font-size: 20px;
-    color: #595959;
-    cursor: pointer;
+    z-index: 1000;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
 .ky-thuat-content {

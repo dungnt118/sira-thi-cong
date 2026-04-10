@@ -2,19 +2,19 @@ import React, { useState, useEffect, useMemo } from 'react';
 import {
     Card, Button, Space, Typography, Row, Col, Descriptions,
     Tag, Badge, List, message, Spin, Divider,
-    Form, Input, Switch, Select, Table, Collapse
+    Form, Input, Switch, Select, Table, Collapse,
+    Grid, Drawer, FloatButton,
 } from 'antd';
 import {
     SettingOutlined, EditOutlined,
     SaveOutlined, ReloadOutlined, InfoCircleOutlined,
     CheckCircleOutlined, PlusOutlined, DeleteOutlined,
-    CaretRightFilled, GlobalOutlined
+    CaretRightFilled, GlobalOutlined, UnorderedListOutlined,
 } from '@ant-design/icons';
 import { useAppDispatch } from '@/store/hooks';
 import { find_setting, save_setting } from '@/store/actions/data/data.action';
 import type { ICustomerJourneySetting, IRolesItem, IChecklistItem } from '@/services/core-contracts/types/customerJourneySetting.types';
-import IndexedSelect from '../../../components/common/Form/IndexedSelect';
-import IndexedView from '../../../components/common/Form/IndexedView';
+import './CustomerJourneySettingPage.css';
 
 const { Text, Title, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -35,21 +35,68 @@ const FIXED_STEPS = [
     { code: 'warranty_aftercare', name: 'Bước 13 - Bảo hành / chăm sóc sau bàn giao' },
 ];
 
+/** Option chuẩn (không dùng `read` — dữ liệu cũ `read` hiển thị raw + user chuyển sang "Chỉ xem" / view) */
 const PERMISSION_OPTIONS = [
     { label: 'Chỉ xem', value: 'view' },
     { label: 'Sửa', value: 'edit' },
     { label: 'Chịu trách nhiệm', value: 'commit' },
 ];
 
+const PERMISSION_KNOWN_VALUES = new Set(PERMISSION_OPTIONS.map((o) => o.value));
+
+function formatPermissionLabel(value: string): string {
+    return PERMISSION_OPTIONS.find((o) => o.value === value)?.label ?? value;
+}
+
+/** Vai trò cố định cho Customer Journey (mã lưu DB, không lấy từ schema Role) */
+const CUSTOMER_JOURNEY_ROLE_OPTIONS = [
+    { value: 'QL', label: 'Quản lý dự án' },
+    { value: 'KYT', label: 'Kỹ thuật' },
+    { value: 'KT', label: 'Kế toán' },
+    { value: 'KD', label: 'Kinh doanh' },
+    { value: 'GS', label: 'Giám sát' },
+    { value: 'ADMIN', label: 'Admin' },
+    { value: 'TENANT_ADMIN', label: 'Tenant Admin' },
+] as const;
+
+const JOURNEY_ROLE_LABEL_MAP: Record<string, string> = Object.fromEntries(
+    CUSTOMER_JOURNEY_ROLE_OPTIONS.map((o) => [o.value, o.label]),
+);
+
+function formatJourneyRoleDisplay(roleValue?: string): string {
+    if (!roleValue) return '—';
+    return JOURNEY_ROLE_LABEL_MAP[roleValue] || roleValue;
+}
+
+const { useBreakpoint } = Grid;
+
 const CustomerJourneySettingPage: React.FC = () => {
     const dispatch = useAppDispatch();
     const [form] = Form.useForm();
+    const screens = useBreakpoint();
+    const isMobile = !screens.md;
 
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [setting, setSetting] = useState<ICustomerJourneySetting | null>(null);
     const [selectedStepCode, setSelectedStepCode] = useState<string>(FIXED_STEPS[0].code);
     const [isEditing, setIsEditing] = useState(false);
+    const [stepsDrawerOpen, setStepsDrawerOpen] = useState(false);
+
+    const watchedRoles = Form.useWatch('roles', form);
+
+    /** Gộp option chuẩn + mã đang lưu nhưng không còn trong danh sách (vd: read) để Select hiển thị đúng tag */
+    const permissionSelectOptions = useMemo(() => {
+        const extras = new Map<string, { label: string; value: string }>();
+        (watchedRoles || []).forEach((row: { permissions?: string[] }) => {
+            (row?.permissions || []).forEach((p: string) => {
+                if (p && !PERMISSION_KNOWN_VALUES.has(p)) {
+                    extras.set(p, { label: p, value: p });
+                }
+            });
+        });
+        return [...PERMISSION_OPTIONS, ...extras.values()];
+    }, [watchedRoles]);
 
     const SCHEMA = 'CustomerJourneySetting';
 
@@ -104,23 +151,32 @@ const CustomerJourneySettingPage: React.FC = () => {
 
     useEffect(() => {
         if (isEditing && selectedStep) {
+            const rolesNormalized = (selectedStep.roles || []).map((r: IRolesItem) => ({
+                role: r.role,
+                permissions: r.permissions,
+            }));
             form.setFieldsValue({
                 ...selectedStep,
                 is_enabled: selectedStep.is_enabled !== false,
                 portal_visible: selectedStep.portal_visible !== false,
                 handoff_required: selectedStep.handoff_required === true,
-                roles: selectedStep.roles || [],
-                checklist: selectedStep.checklist || []
+                roles: rolesNormalized,
+                checklist: selectedStep.checklist || [],
             });
         }
-    }, [isEditing, selectedStepCode, form]);
+    }, [isEditing, selectedStep, selectedStepCode, form]);
 
     const handleSaveStep = async () => {
         const values = await form.validateFields();
         const currentSetting = setting || { _id: '' };
 
-        // Remove transient fields if any exist
         const { ...cleanStep } = values;
+        if (Array.isArray(cleanStep.roles)) {
+            cleanStep.roles = cleanStep.roles.map((r: IRolesItem) => ({
+                role: r.role,
+                permissions: r.permissions,
+            }));
+        }
 
         const payload: ICustomerJourneySetting = {
             ...currentSetting,
@@ -168,11 +224,101 @@ const CustomerJourneySettingPage: React.FC = () => {
         return <div style={{ padding: 100, textAlign: 'center' }}><Spin size="large" /></div>;
     }
 
+    const onSelectStep = (stepCode: string) => {
+        setSelectedStepCode(stepCode);
+        setIsEditing(false);
+        if (isMobile) {
+            setStepsDrawerOpen(false);
+        }
+    };
+
+    const stepsListNode = (
+        <List
+            dataSource={stepList}
+            renderItem={(step: any, idx) => (
+                <List.Item
+                    className={`step-item ${selectedStepCode === step.step_code ? 'active' : ''}`}
+                    style={{
+                        cursor: 'pointer',
+                        borderRadius: 8,
+                        padding: isMobile ? '12px 16px' : '8px 10px',
+                        marginBottom: 8,
+                        border: '1px solid #f0f0f0',
+                        background: selectedStepCode === step.step_code ? '#e6f7ff' : '#fff',
+                        borderColor: selectedStepCode === step.step_code ? '#91d5ff' : '#f0f0f0',
+                        transition: 'all 0.3s',
+                    }}
+                    onClick={() => onSelectStep(step.step_code)}
+                >
+                    <div style={{ width: '100%', minWidth: 0 }}>
+                        <Space direction="vertical" size={6} style={{ width: '100%' }}>
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'flex-start',
+                                    gap: 8,
+                                    width: '100%',
+                                    minWidth: 0,
+                                }}
+                            >
+                                <Badge count={idx + 1} style={{ backgroundColor: step.is_enabled !== false ? '#1890ff' : '#d9d9d9', flexShrink: 0 }} />
+                                <Text
+                                    strong
+                                    ellipsis={{ tooltip: step.step_name }}
+                                    style={{
+                                        color: step.is_enabled !== false ? '#262626' : '#bfbfbf',
+                                        flex: 1,
+                                        minWidth: 0,
+                                        margin: 0,
+                                        display: 'block',
+                                    }}
+                                >
+                                    {step.step_name}
+                                </Text>
+                            </div>
+                            <Space wrap size={[4, 4]}>
+                                {step.sla_hours > 0 && (
+                                    <Tag
+                                        color={step.is_enabled !== false ? 'cyan' : 'default'}
+                                        style={{ borderRadius: 10, fontSize: 10, margin: 0 }}
+                                    >
+                                        {step.sla_hours}h
+                                    </Tag>
+                                )}
+                                {step.portal_visible !== false && (
+                                    <Tag
+                                        color="blue"
+                                        style={{ borderRadius: 10, fontSize: 10, margin: 0 }}
+                                        icon={<GlobalOutlined />}
+                                    >
+                                        Portal
+                                    </Tag>
+                                )}
+                                {selectedStepCode === step.step_code && (
+                                    <Tag color="processing" style={{ margin: 0, fontSize: 11 }}>Đang chọn</Tag>
+                                )}
+                            </Space>
+                        </Space>
+                    </div>
+                </List.Item>
+            )}
+        />
+    );
+
     return (
-        <div style={{ padding: '0 24px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <div className="customer-journey-page" style={{ padding: isMobile ? '0 12px 88px' : '0 24px' }}>
+            <div
+                style={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    gap: 12,
+                    marginBottom: 16,
+                }}
+            >
                 <Title level={4} style={{ margin: 0 }}>Cấu hình Customer Journey</Title>
-                <Space>
+                <Space wrap>
                     <Button icon={<ReloadOutlined />} onClick={loadData} disabled={saving}>Làm mới</Button>
                     <Button icon={<SaveOutlined />} type="primary" onClick={handleGlobalSave} loading={saving}>Lưu Cấu hình</Button>
                 </Space>
@@ -181,71 +327,43 @@ const CustomerJourneySettingPage: React.FC = () => {
             <Card style={{ marginBottom: 16, background: '#f0f2f5', border: 'none', borderRadius: 12 }}>
                 <Paragraph style={{ margin: 0, color: '#595959' }}>
                     Quy trình chuẩn gồm 13 giai đoạn cố định. Thiết lập Roles, Checklist và các quyền vận hành chi tiết dựa trên lược đồ mới.
+                    {isMobile && (
+                        <>
+                            {' '}
+                            <Text type="secondary">Trên điện thoại, mở danh sách giai đoạn bằng nút nổi góc phải.</Text>
+                        </>
+                    )}
                 </Paragraph>
             </Card>
 
-            <Row gutter={24}>
-                <Col span={9}>
-                    <Card
-                        title={<Space><SettingOutlined /> Các giai đoạn quy trình</Space>}
-                        style={{ borderRadius: 12 }}
-                        bodyStyle={{ padding: '12px' }}
-                    >
-                        <List
-                            dataSource={stepList}
-                            renderItem={(step: any, idx) => (
-                                <List.Item
-                                    className={`step-item ${selectedStepCode === step.step_code ? 'active' : ''}`}
-                                    style={{
-                                        cursor: 'pointer',
-                                        borderRadius: 8,
-                                        padding: '12px 16px',
-                                        marginBottom: 8,
-                                        border: '1px solid #f0f0f0',
-                                        background: selectedStepCode === step.step_code ? '#e6f7ff' : '#fff',
-                                        borderColor: selectedStepCode === step.step_code ? '#91d5ff' : '#f0f0f0',
-                                        transition: 'all 0.3s'
-                                    }}
-                                    onClick={() => {
-                                        setSelectedStepCode(step.step_code);
-                                        setIsEditing(false);
-                                    }}
-                                >
-                                    <Space size="large" style={{ width: '100%', justifyContent: 'space-between' }}>
-                                        <Space>
-                                            <Badge count={idx + 1} style={{ backgroundColor: step.is_enabled !== false ? '#1890ff' : '#d9d9d9' }} />
-                                            <Text strong style={{ color: step.is_enabled !== false ? '#262626' : '#bfbfbf' }}>{step.step_name}</Text>
-                                            {step.sla_hours > 0 && (
-                                                <Tag
-                                                    color={step.is_enabled !== false ? "cyan" : "default"}
-                                                    style={{ marginLeft: 8, borderRadius: 10, fontSize: 10 }}
-                                                >
-                                                    {step.sla_hours}h
-                                                </Tag>
-                                            )}
-                                            {step.portal_visible !== false && (
-                                                <Tag
-                                                    color="blue"
-                                                    style={{ marginLeft: 4, borderRadius: 10, fontSize: 10 }}
-                                                    icon={<GlobalOutlined />}
-                                                >
-                                                    Portal
-                                                </Tag>
-                                            )}
-                                        </Space>
-                                        {selectedStepCode === step.step_code && <Text style={{ color: '#1890ff', fontSize: 12 }}>Đang chọn</Text>}
-                                    </Space>
-                                </List.Item>
-                            )}
-                        />
-                    </Card>
-                </Col>
+            {/* wrap=false: tránh 5+19 span + gutter >100% khiến cột chi tiết xuống dòng → nhìn như mất nội dung */}
+            <Row gutter={[16, 16]} wrap={false}>
+                {!isMobile && (
+                    <Col xs={24} md={7} lg={6} xl={5} className="cj-steps-rail" style={{ maxWidth: '100%' }}>
+                        <Card
+                            title={<Space><SettingOutlined /> Các giai đoạn quy trình</Space>}
+                            style={{ borderRadius: 12 }}
+                            styles={{ body: { padding: 10 } }}
+                        >
+                            {stepsListNode}
+                        </Card>
+                    </Col>
+                )}
 
-                <Col span={15}>
+                <Col xs={24} md={isMobile ? 24 : 17} lg={isMobile ? 24 : 18} xl={isMobile ? 24 : 19} style={{ maxWidth: '100%' }}>
                     <Card
                         title={
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                                <Space>
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    width: '100%',
+                                    flexWrap: 'wrap',
+                                    gap: 8,
+                                }}
+                            >
+                                <Space wrap>
                                     {isEditing ? <EditOutlined style={{ color: '#1890ff' }} /> : <InfoCircleOutlined style={{ color: '#52c41a' }} />}
                                     <Title level={5} style={{ margin: 0 }}>{selectedStep?.step_name}</Title>
                                 </Space>
@@ -259,23 +377,24 @@ const CustomerJourneySettingPage: React.FC = () => {
                                 )}
                             </div>
                         }
-                        style={{ borderRadius: 12, minHeight: 600 }}
+                        style={{ borderRadius: 12, minHeight: 600, maxWidth: '100%' }}
+                        styles={{ body: { maxWidth: '100%', minWidth: 0, overflowX: 'hidden' } }}
                     >
                         {/* Edit Mode Content */}
                         <div style={{ display: isEditing ? 'block' : 'none' }}>
                             <Form form={form} layout="vertical" initialValues={selectedStep}>
-                                <Row gutter={16}>
-                                    <Col span={10}>
+                                <Row gutter={[16, 16]}>
+                                    <Col xs={24} sm={12} md={10}>
                                         <Form.Item label="Mã Giai đoạn" name="step_code">
                                             <Input disabled variant="filled" />
                                         </Form.Item>
                                     </Col>
-                                    <Col span={10}>
+                                    <Col xs={24} sm={12} md={10}>
                                         <Form.Item label="SLA Xử lý (Giờ)" name="sla_hours">
                                             <Input type="number" suffix="Giờ" />
                                         </Form.Item>
                                     </Col>
-                                    <Col span={4}>
+                                    <Col xs={24} sm={24} md={4}>
                                         <Form.Item label="Kích hoạt" name="is_enabled" valuePropName="checked">
                                             <Switch />
                                         </Form.Item>
@@ -292,18 +411,24 @@ const CustomerJourneySettingPage: React.FC = () => {
                                     {(fields, { add, remove }) => (
                                         <>
                                             {fields.map(({ key, name, ...restField }) => (
-                                                <Row key={key} gutter={16} style={{ marginBottom: 12, alignItems: 'center' }}>
-                                                    <Col span={10}>
+                                                <Row key={key} gutter={[16, 12]} style={{ marginBottom: 12 }} align="middle">
+                                                    <Col xs={24} md={10}>
                                                         <Form.Item
                                                             {...restField}
                                                             name={[name, 'role']}
                                                             rules={[{ required: true, message: 'Chọn vai trò' }]}
                                                             style={{ marginBottom: 0 }}
                                                         >
-                                                            <IndexedSelect schema="Role" propType="Lookup" placeholder="Chọn vai trò..." />
+                                                            <Select
+                                                                placeholder="Chọn vai trò..."
+                                                                options={[...CUSTOMER_JOURNEY_ROLE_OPTIONS]}
+                                                                showSearch
+                                                                optionFilterProp="label"
+                                                                allowClear
+                                                            />
                                                         </Form.Item>
                                                     </Col>
-                                                    <Col span={12}>
+                                                    <Col xs={24} md={12}>
                                                         <Form.Item
                                                             {...restField}
                                                             name={[name, 'permissions']}
@@ -312,13 +437,13 @@ const CustomerJourneySettingPage: React.FC = () => {
                                                             <Select
                                                                 mode="multiple"
                                                                 placeholder="Chọn quyền..."
-                                                                options={PERMISSION_OPTIONS}
+                                                                options={permissionSelectOptions}
                                                                 allowClear
                                                             />
                                                         </Form.Item>
                                                     </Col>
-                                                    <Col span={2}>
-                                                        <Button type="text" danger icon={<DeleteOutlined />} onClick={() => remove(name)} />
+                                                    <Col xs={24} md={2} style={{ textAlign: isMobile ? 'left' : 'center' }}>
+                                                        <Button type="text" danger icon={<DeleteOutlined />} onClick={() => remove(name)} aria-label="Xóa vai trò" />
                                                     </Col>
                                                 </Row>
                                             ))}
@@ -416,13 +541,13 @@ const CustomerJourneySettingPage: React.FC = () => {
 
                                 <Divider orientation="left" style={{ margin: '16px 0' }}>Tiêu chuẩn & Hướng dẫn</Divider>
 
-                                <Row gutter={16}>
-                                    <Col span={12}>
+                                <Row gutter={[16, 16]}>
+                                    <Col xs={24} md={12}>
                                         <Form.Item label="Tiêu chí Bắt đầu" name="entry_criteria">
                                             <TextArea rows={2} placeholder="Yêu cầu để bắt đầu..." />
                                         </Form.Item>
                                     </Col>
-                                    <Col span={12}>
+                                    <Col xs={24} md={12}>
                                         <Form.Item label="Tiêu chí Hoàn tất" name="exit_criteria">
                                             <TextArea rows={2} placeholder="Yêu cầu để kết thúc..." />
                                         </Form.Item>
@@ -453,7 +578,27 @@ const CustomerJourneySettingPage: React.FC = () => {
                         {/* View Mode Content */}
                         <div style={{ display: !isEditing ? 'block' : 'none' }}>
                             <div className="step-detail-view">
-                                <Descriptions bordered column={1} labelStyle={{ width: '220px', background: '#fafafa', fontWeight: 600 }}>
+                                <Descriptions
+                                    bordered
+                                    column={1}
+                                    layout={isMobile ? 'vertical' : 'horizontal'}
+                                    labelStyle={
+                                        isMobile
+                                            ? { background: '#fafafa', fontWeight: 600 }
+                                            : {
+                                                minWidth: 200,
+                                                width: 200,
+                                                maxWidth: '28%',
+                                                background: '#fafafa',
+                                                fontWeight: 600,
+                                            }
+                                    }
+                                    contentStyle={{
+                                        minWidth: 0,
+                                        wordBreak: 'break-word',
+                                        overflowWrap: 'anywhere',
+                                    }}
+                                >
                                     <Descriptions.Item label="Mã Giai đoạn">
                                         <Tag color="blue">{selectedStep?.step_code}</Tag>
                                     </Descriptions.Item>
@@ -461,7 +606,9 @@ const CustomerJourneySettingPage: React.FC = () => {
                                         {selectedStep?.is_enabled !== false ? <Badge status="success" text="Đang kích hoạt" /> : <Badge status="default" text="Đang tắt" />}
                                     </Descriptions.Item>
                                     <Descriptions.Item label="Mục tiêu (Goal)">
-                                        <Paragraph style={{ margin: 0 }}>{selectedStep?.goal || '—'}</Paragraph>
+                                        <Paragraph className="cj-wrap-text" style={{ margin: 0 }}>
+                                            {selectedStep?.goal || '—'}
+                                        </Paragraph>
                                     </Descriptions.Item>
 
                                     <Descriptions.Item label="Phân Quyền Vai Trò (Roles)">
@@ -470,13 +617,12 @@ const CustomerJourneySettingPage: React.FC = () => {
                                                 size="small"
                                                 dataSource={selectedStep.roles}
                                                 renderItem={(r: IRolesItem) => (
-                                                    <List.Item>
-                                                        <Space>
-                                                            <IndexedView schema="Role" propType="Lookup" value={r.role} idxValue={r.idx_role} color="orange" />
-                                                            {r.permissions?.map((p: string) => {
-                                                                const label = PERMISSION_OPTIONS.find(opt => opt.value === p)?.label || p;
-                                                                return <Tag key={p} color="blue">{label}</Tag>;
-                                                            })}
+                                                    <List.Item style={{ paddingLeft: 0, paddingRight: 0 }}>
+                                                        <Space wrap size={[8, 8]} style={{ width: '100%' }}>
+                                                            <Tag color="orange">{formatJourneyRoleDisplay(r.role)}</Tag>
+                                                            {r.permissions?.map((p: string) => (
+                                                                <Tag key={p} color="blue">{formatPermissionLabel(p)}</Tag>
+                                                            ))}
                                                         </Space>
                                                     </List.Item>
                                                 )}
@@ -487,28 +633,39 @@ const CustomerJourneySettingPage: React.FC = () => {
                                     <Descriptions.Item label="Checklist">
                                         {selectedStep?.checklist && selectedStep.checklist.length > 0 ? (
                                             <Table
+                                                className="cj-checklist-table"
                                                 dataSource={selectedStep.checklist}
                                                 pagination={false}
                                                 size="small"
-                                                rowKey="name"
+                                                rowKey={(r, i) => `${r.name}-${i}`}
+                                                tableLayout="fixed"
                                                 columns={[
                                                     {
                                                         title: '#',
-                                                        width: 50,
+                                                        width: 44,
                                                         align: 'center',
                                                         render: (_: any, __: any, index: number) => <Badge count={index + 1} size="small" style={{ backgroundColor: '#52c41a' }} />
                                                     },
                                                     {
                                                         title: 'Tên hạng mục',
                                                         dataIndex: 'name',
+                                                        width: '30%',
+                                                        ellipsis: false,
                                                         render: (name: string, record: IChecklistItem) => (
-                                                            <Space>
-                                                                <Text strong>{name}</Text>
+                                                            <Space wrap size={[4, 4]}>
+                                                                <Text strong className="cj-wrap-text">{name}</Text>
                                                                 {record.is_required && <Tag color="red">Bắt buộc</Tag>}
                                                             </Space>
                                                         )
                                                     },
-                                                    { title: 'Mô tả', dataIndex: 'description' }
+                                                    {
+                                                        title: 'Mô tả',
+                                                        dataIndex: 'description',
+                                                        ellipsis: false,
+                                                        render: (text: string) => (
+                                                            <span className="cj-wrap-text">{text || '—'}</span>
+                                                        ),
+                                                    },
                                                 ]}
                                             />
                                         ) : <Text type="secondary">Chưa cấu hình</Text>}
@@ -519,15 +676,17 @@ const CustomerJourneySettingPage: React.FC = () => {
                                     </Descriptions.Item>
 
                                     <Descriptions.Item label="Tiêu chí Bắt đầu">
-                                        <Text type="secondary">{selectedStep?.entry_criteria || 'Không yêu cầu'}</Text>
+                                        <Text type="secondary" className="cj-wrap-text">{selectedStep?.entry_criteria || 'Không yêu cầu'}</Text>
                                     </Descriptions.Item>
 
                                     <Descriptions.Item label="Tiêu chí Hoàn tất">
-                                        <Text type="secondary">{selectedStep?.exit_criteria || 'Không yêu cầu'}</Text>
+                                        <Text type="secondary" className="cj-wrap-text">{selectedStep?.exit_criteria || 'Không yêu cầu'}</Text>
                                     </Descriptions.Item>
 
                                     <Descriptions.Item label="Hướng dẫn thực hiện">
-                                        <Paragraph style={{ fontStyle: 'italic', margin: 0 }}>{selectedStep?.instruction_note || 'Chưa cập nhật'}</Paragraph>
+                                        <Paragraph className="cj-wrap-text" style={{ fontStyle: 'italic', margin: 0 }}>
+                                            {selectedStep?.instruction_note || 'Chưa cập nhật'}
+                                        </Paragraph>
                                     </Descriptions.Item>
 
                                     <Descriptions.Item label="Cấu hình nâng cao">
@@ -544,6 +703,31 @@ const CustomerJourneySettingPage: React.FC = () => {
                     </Card>
                 </Col>
             </Row>
+
+            {isMobile && (
+                <>
+                    <Drawer
+                        title={<Space><SettingOutlined /> Các giai đoạn quy trình</Space>}
+                        placement="right"
+                        width="min(92vw, 360px)"
+                        onClose={() => setStepsDrawerOpen(false)}
+                        open={stepsDrawerOpen}
+                        destroyOnClose={false}
+                    >
+                        <div style={{ paddingBottom: 16 }}>{stepsListNode}</div>
+                    </Drawer>
+                    <FloatButton
+                        icon={<UnorderedListOutlined />}
+                        type="primary"
+                        tooltip="Danh sách giai đoạn"
+                        onClick={() => setStepsDrawerOpen(true)}
+                        style={{
+                            right: 16,
+                            bottom: 'calc(24px + env(safe-area-inset-bottom, 0px))',
+                        }}
+                    />
+                </>
+            )}
         </div>
     );
 };

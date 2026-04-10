@@ -15,6 +15,8 @@ import {
     Tooltip,
     Typography,
     message,
+    Grid,
+    List,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
@@ -36,11 +38,13 @@ import type {
 } from '../../../services/core-contracts/types/customer.types';
 import type { IJourney } from '../../../services/core-contracts/types/journey.types';
 import CustomerUpsertDrawer from './components/CustomerUpsertDrawer';
+import SectionHeader from '../../../components/common/SectionHeader';
 
 const { Text, Title } = Typography;
 
 const CustomerList: React.FC = () => {
     const navigate = useNavigate();
+    const screens = Grid.useBreakpoint();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [customers, setCustomers] = useState<ICustomer[]>([]);
@@ -290,24 +294,22 @@ const CustomerList: React.FC = () => {
 
     return (
         <div style={{ paddingBottom: 32 }}>
-            <Row justify="space-between" align="bottom" gutter={[16, 16]} style={{ marginBottom: 24 }}>
-                <Col xs={24} lg={16}>
-                    <Text type="secondary" style={{ fontSize: 13, textTransform: 'uppercase', letterSpacing: 1 }}>
-                        Hệ thống quản lý bán hàng
-                    </Text>
-                    <Title level={2} style={{ margin: '4px 0 8px' }}>
-                        Khách hàng
-                    </Title>
-                    <Text type="secondary">
-                        Quản lý danh sách khách hàng, thông tin liên hệ và điều hướng sang tạo yêu cầu dịch vụ mới.
-                    </Text>
-                </Col>
-                <Col xs={24} lg={8} style={{ textAlign: 'right' }}>
-                    <Button type="primary" icon={<PlusOutlined />} onClick={openCreateDrawer}>
-                        Tạo khách hàng
+            <SectionHeader
+                contentBleedPx={8}
+                title="Khách hàng"
+                breadcrumb="Hệ thống quản lý bán hàng"
+                description="Quản lý danh sách khách hàng, thông tin liên hệ và điều hướng sang tạo yêu cầu dịch vụ mới."
+                actions={
+                    <Button 
+                        type="primary" 
+                        icon={<PlusOutlined />} 
+                        onClick={openCreateDrawer}
+                        size={!screens.md ? 'middle' : 'small'}
+                    >
+                        {!screens.md ? 'Tạo' : 'Tạo khách hàng'}
                     </Button>
-                </Col>
-            </Row>
+                }
+            />
 
             <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
                 <Col xs={12} lg={6}>
@@ -344,21 +346,102 @@ const CustomerList: React.FC = () => {
             </Card>
 
             <Card bordered={false} style={{ borderRadius: 20 }}>
-                <Table
-                    rowKey="_id"
-                    loading={loading}
-                    columns={columns}
-                    dataSource={filteredCustomers}
-                    pagination={{ pageSize: 10, showSizeChanger: false }}
-                    locale={{
-                        emptyText: (
-                            <Empty
-                                image={Empty.PRESENTED_IMAGE_SIMPLE}
-                                description="Chưa có khách hàng phù hợp với bộ lọc hiện tại."
-                            />
-                        ),
-                    }}
-                />
+                {screens.md ? (
+                    <Table
+                        rowKey="_id"
+                        loading={loading}
+                        columns={columns}
+                        dataSource={filteredCustomers}
+                        pagination={{ pageSize: 10, showSizeChanger: false }}
+                        locale={{
+                            emptyText: (
+                                <Empty
+                                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                                    description="Chưa có khách hàng phù hợp với bộ lọc hiện tại."
+                                />
+                            ),
+                        }}
+                    />
+                ) : (
+                    <List
+                        loading={loading}
+                        itemLayout="vertical"
+                        dataSource={filteredCustomers}
+                        pagination={{ pageSize: 10, size: 'small' }}
+                        renderItem={(customer) => {
+                            const customerJourneys = journeyMap.get(customer._id) || [];
+                            const latestJourney = customerJourneys
+                                .slice()
+                                .sort((left, right) =>
+                                    String(right.last_activity_at || '').localeCompare(
+                                        String(left.last_activity_at || ''),
+                                    ),
+                                )[0];
+
+                            return (
+                                <List.Item
+                                    key={customer._id}
+                                    style={{ padding: '16px 0', borderBottom: '1px solid #f0f0f0' }}
+                                    actions={[
+                                        <Button 
+                                            key="view"
+                                            type="link" 
+                                            icon={<EyeOutlined />} 
+                                            onClick={() => navigate(`/admin/kd/customers/${customer._id}`)}
+                                        >
+                                            Chi tiết
+                                        </Button>,
+                                        <Button 
+                                            key="edit"
+                                            type="link" 
+                                            icon={<EditOutlined />} 
+                                            onClick={() => openEditDrawer(customer)}
+                                        >
+                                            Sửa
+                                        </Button>,
+                                        <Button
+                                            key="create"
+                                            type="link"
+                                            icon={<SolutionOutlined />}
+                                            onClick={() => navigate(`/admin/kd/dashboard?customerId=${customer._id}`)}
+                                        >
+                                            Tạo yêu cầu
+                                        </Button>,
+                                    ]}
+                                >
+                                    <List.Item.Meta
+                                        avatar={<Avatar icon={<UserOutlined />} style={{ background: '#1677ff' }} />}
+                                        title={
+                                            <div style={{ fontWeight: 600, color: '#1677ff' }}>
+                                                {customer.full_name || 'Khách hàng chưa đặt tên'}
+                                            </div>
+                                        }
+                                        description={
+                                            <Space direction="vertical" size={2} style={{ width: '100%' }}>
+                                                <Text type="secondary" style={{ fontSize: 12 }}>{customer.code || 'Chưa có mã'}</Text>
+                                                <div style={{ marginTop: 4 }}>
+                                                    <PhoneOutlined style={{ marginRight: 6, fontSize: 12 }} />
+                                                    <Text style={{ fontSize: 13 }}>{customer.phone}</Text>
+                                                </div>
+                                                <Text type="secondary" style={{ fontSize: 12 }}>{customer.email || 'Chưa có email'}</Text>
+                                                <div style={{ marginTop: 8 }}>
+                                                    <Tag color={customerJourneys.length > 0 ? 'processing' : 'default'} style={{ borderRadius: 4 }}>
+                                                        {customerJourneys.length} yêu cầu
+                                                    </Tag>
+                                                    {latestJourney && (
+                                                        <Text type="secondary" style={{ fontSize: 11, marginLeft: 8 }}>
+                                                            Gần nhất: {latestJourney.journey_code}
+                                                        </Text>
+                                                    )}
+                                                </div>
+                                            </Space>
+                                        }
+                                    />
+                                </List.Item>
+                            );
+                        }}
+                    />
+                )}
             </Card>
 
             <CustomerUpsertDrawer

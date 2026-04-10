@@ -1,0 +1,118 @@
+/* Tránh scroll ngang mobile: wrap text, bảng co theo viewport */
+.customer-journey-page {
+    max-width: 100%;
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+
+.customer-journey-page .ant-card {
+    max-width: 100%;
+}
+
+.customer-journey-page .ant-card-body {
+    overflow-x: hidden;
+    max-width: 100%;
+}
+
+.customer-journey-page .step-detail-view {
+    min-width: 0;
+    max-width: 100%;
+}
+
+/* Mobile: fixed layout + wrap để không tràn ngang */
+.customer-journey-page .ant-descriptions-view table {
+    width: 100%;
+}
+
+@media (max-width: 767.98px) {
+    .customer-journey-page .ant-descriptions-view table {
+        table-layout: fixed;
+    }
+}
+
+/* Desktop: cột nhãn đủ rộng — tránh co về 1 ký tự/chữ dọc */
+@media (min-width: 768px) {
+    .customer-journey-page .step-detail-view .ant-descriptions-view > table {
+        table-layout: fixed;
+    }
+
+    .customer-journey-page .step-detail-view .ant-descriptions-item-label {
+        width: 200px;
+        min-width: 200px;
+        max-width: 28%;
+        box-sizing: border-box;
+        white-space: normal;
+        word-break: normal;
+        overflow-wrap: break-word;
+    }
+
+    .customer-journey-page .step-detail-view .ant-descriptions-item-content {
+        width: auto;
+        min-width: 0;
+    }
+}
+
+.customer-journey-page .ant-descriptions-item-label,
+.customer-journey-page .ant-descriptions-item-content {
+    vertical-align: top;
+}
+
+.customer-journey-page .ant-descriptions-item-label {
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+.customer-journey-page .ant-descriptions-item-content {
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    min-width: 0;
+}
+
+.customer-journey-page .cj-wrap-text {
+    display: block;
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    max-width: 100%;
+}
+
+.customer-journey-page .ant-list-item {
+    flex-wrap: wrap;
+}
+
+.customer-journey-page .ant-table-wrapper {
+    max-width: 100%;
+}
+
+/* Checklist trong Descriptions: full width container, không ép min-width gây scroll ngang */
+.customer-journey-page .cj-checklist-table {
+    width: 100%;
+    max-width: 100%;
+}
+
+.customer-journey-page .cj-checklist-table .ant-table {
+    width: 100% !important;
+    table-layout: fixed;
+}
+
+.customer-journey-page .cj-checklist-table .ant-table-container {
+    max-width: 100%;
+}
+
+.customer-journey-page .ant-table {
+    table-layout: fixed;
+}
+
+/* Cột trái giai đoạn hẹp: tiêu đề card gọn */
+@media (min-width: 768px) {
+    .customer-journey-page .cj-steps-rail .ant-card-head-title {
+        padding: 8px 0;
+        font-size: 14px;
+    }
+}
+
+.customer-journey-page .ant-table-cell {
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    white-space: normal !important;
+}

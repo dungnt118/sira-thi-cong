@@ -12,7 +12,7 @@ import { Menu } from 'antd';
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AppBrandLogo } from '../../components/common/AppBrandLogo';
-import { UserMenu } from '../../components/common/Header/UserMenuWithDocs';
+import { AppShellHeader } from '../shared/AppShellHeader';
 import { BaseLayout } from '../shared/BaseLayout';
 
 type MenuItem = Required<MenuProps>['items'][number];
@@ -87,18 +87,14 @@ const PartnerSidebar: React.FC = () => {
     );
 };
 
-const PartnerTopBar: React.FC = () => {
-    return (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '0 24px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <AppBrandLogo size="sm" />
-            </div>
-            <div style={{ display: 'flex', gap: 16 }}>
-                <UserMenu avatarColor="#13c2c2" />
-            </div>
-        </div>
-    );
-};
+const PartnerTopBar: React.FC = () => (
+    <AppShellHeader
+        productTitle="BACPartner"
+        brandAccentColor="#13c2c2"
+        avatarColor="#13c2c2"
+        showSearch={false}
+    />
+);
 
 export const PartnerLayout: React.FC = () => {
     return <BaseLayout sidebar={<PartnerSidebar />} topBar={<PartnerTopBar />} />;
