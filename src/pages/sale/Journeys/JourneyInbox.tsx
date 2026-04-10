@@ -15,11 +15,13 @@ import {
     Statistic,
     Tag,
     Typography,
+    Grid,
 } from 'antd';
 import {
     ClockCircleOutlined,
     DeleteOutlined,
     EditOutlined,
+    EnvironmentOutlined,
     EyeOutlined,
     PhoneOutlined,
     PlusOutlined,
@@ -54,9 +56,12 @@ import {
 } from './journeySaleMeta';
 
 const { Text, Title } = Typography;
+const { useBreakpoint } = Grid;
 
 const JourneyInbox: React.FC = () => {
     const navigate = useNavigate();
+    const screens = useBreakpoint();
+    const isMobile = !screens.md;
     const [searchParams, setSearchParams] = useSearchParams();
     const { user } = useAuth();
     const [loading, setLoading] = useState(true);
@@ -114,6 +119,12 @@ const JourneyInbox: React.FC = () => {
         journey.customer_phone ||
         journey.idx_customer_id?.secondary_text ||
         resolveCustomer(journey)?.phone ||
+        JOURNEY_EMPTY_VALUE;
+
+    const resolveCustomerAddress = (journey: IJourney) =>
+        journey.site_address ||
+        journey.customer_address ||
+        resolveCustomer(journey)?.address ||
         JOURNEY_EMPTY_VALUE;
 
     const resolvePipelineName = (journey: IJourney) =>
@@ -471,10 +482,14 @@ const JourneyInbox: React.FC = () => {
                                                 </Text>
 
                                                 <Space size={[20, 10]} wrap>
-                                                    <Space size={6}>
+                                                    <a 
+                                                        href={`tel:${resolveCustomerPhone(journey)}`} 
+                                                        onClick={(e) => e.stopPropagation()}
+                                                        style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#1677ff' }}
+                                                    >
                                                         <PhoneOutlined />
-                                                        <Text type="secondary">{resolveCustomerPhone(journey)}</Text>
-                                                    </Space>
+                                                        <Text strong style={{ color: 'inherit' }}>{resolveCustomerPhone(journey)}</Text>
+                                                    </a>
                                                     <Space size={6}>
                                                         <UserOutlined />
                                                         <Text type="secondary">
@@ -487,86 +502,74 @@ const JourneyInbox: React.FC = () => {
                                                             Cập nhật: {formatJourneyDate(journey.last_activity_at, true)}
                                                         </Text>
                                                     </Space>
+                                                    <Tag color="cyan">
+                                                        {getOptionLabel(JOURNEY_SOURCE_CHANNEL_OPTIONS, journey.source_channel)}
+                                                    </Tag>
                                                 </Space>
+
+                                                {(resolveCustomerAddress(journey) !== JOURNEY_EMPTY_VALUE) && (
+                                                    <div style={{ marginTop: 12 }}>
+                                                        <EnvironmentOutlined style={{ marginRight: 6, color: '#8c8c8c' }} />
+                                                        <a 
+                                                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(resolveCustomerAddress(journey))}`}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            onClick={(e) => e.stopPropagation()}
+                                                            style={{ fontSize: 13, color: '#595959', textDecoration: 'underline' }}
+                                                        >
+                                                            {resolveCustomerAddress(journey)} <Text type="secondary" style={{ fontSize: 11 }}>(Bản đồ)</Text>
+                                                        </a>
+                                                    </div>
+                                                )}
                                             </Col>
 
-                                            <Col xs={24} lg={8}>
-                                                <div
-                                                    style={{
-                                                        display: 'flex',
-                                                        flexDirection: 'column',
-                                                        gap: 12,
-                                                        alignItems: 'stretch',
-                                                    }}
-                                                >
-                                                    <Card
-                                                        size="small"
+                                            {!isMobile && (
+                                                <Col xs={24} lg={8}>
+                                                    <div
                                                         style={{
-                                                            borderRadius: 16,
-                                                            background: '#fafafa',
-                                                            border: '1px solid #f0f0f0',
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                            gap: 12,
+                                                            alignItems: 'stretch',
                                                         }}
                                                     >
-                                                        <Space align="start">
-                                                            <Avatar icon={<UserOutlined />} />
-                                                            <div>
-                                                                <Text type="secondary" style={{ display: 'block' }}>
-                                                                    Chủ sở hữu
-                                                                </Text>
-                                                                <Text strong>
-                                                                    {journey.owner_user || JOURNEY_EMPTY_VALUE}
-                                                                </Text>
-                                                            </div>
-                                                        </Space>
-                                                        <div style={{ marginTop: 12 }}>
-                                                            <Text type="secondary" style={{ display: 'block' }}>
-                                                                Kênh tiếp nhận
-                                                            </Text>
-                                                            <Text strong>
-                                                                {getOptionLabel(
-                                                                    JOURNEY_SOURCE_CHANNEL_OPTIONS,
-                                                                    journey.source_channel,
-                                                                )}
-                                                            </Text>
-                                                        </div>
-                                                    </Card>
-
-                                                    <Space wrap style={{ justifyContent: 'flex-end' }}>
-                                                        <Button
-                                                            icon={<EyeOutlined />}
-                                                            onClick={(event) => {
-                                                                event.stopPropagation();
-                                                                navigate(`/admin/kd/journeys/${journey._id}`);
-                                                            }}
-                                                        >
-                                                            Mở hồ sơ
-                                                        </Button>
-                                                        <Button
-                                                            icon={<EditOutlined />}
-                                                            onClick={(event) => openEditDrawer(journey, event)}
-                                                        >
-                                                            Sửa
-                                                        </Button>
-                                                        <Popconfirm
-                                                            title="Xóa yêu cầu"
-                                                            description="Thao tác này sẽ xóa trực tiếp Journey hiện tại."
-                                                            okText="Xóa"
-                                                            cancelText="Hủy"
-                                                            okButtonProps={{ danger: true }}
-                                                            onConfirm={(event) => handleDelete(journey, event as any)}
-                                                            onPopupClick={(event) => event.stopPropagation()}
-                                                        >
+                                                        <Space wrap style={{ justifyContent: 'flex-end' }}>
                                                             <Button
-                                                                danger
-                                                                icon={<DeleteOutlined />}
-                                                                onClick={(event) => event.stopPropagation()}
+                                                                icon={<EyeOutlined />}
+                                                                onClick={(event) => {
+                                                                    event.stopPropagation();
+                                                                    navigate(`/admin/kd/journeys/${journey._id}`);
+                                                                }}
                                                             >
-                                                                Xóa
+                                                                Mở hồ sơ
                                                             </Button>
-                                                        </Popconfirm>
-                                                    </Space>
-                                                </div>
-                                            </Col>
+                                                            <Button
+                                                                icon={<EditOutlined />}
+                                                                onClick={(event) => openEditDrawer(journey, event)}
+                                                            >
+                                                                Sửa
+                                                            </Button>
+                                                            <Popconfirm
+                                                                title="Xóa yêu cầu"
+                                                                description="Thao tác này sẽ xóa trực tiếp Journey hiện tại."
+                                                                okText="Xóa"
+                                                                cancelText="Hủy"
+                                                                okButtonProps={{ danger: true }}
+                                                                onConfirm={(event) => handleDelete(journey, event as any)}
+                                                                onPopupClick={(event) => event.stopPropagation()}
+                                                            >
+                                                                <Button
+                                                                    danger
+                                                                    icon={<DeleteOutlined />}
+                                                                    onClick={(event) => event.stopPropagation()}
+                                                                >
+                                                                    Xóa
+                                                                </Button>
+                                                            </Popconfirm>
+                                                        </Space>
+                                                    </div>
+                                                </Col>
+                                            )}
                                         </Row>
                                     </Card>
                                 </Col>

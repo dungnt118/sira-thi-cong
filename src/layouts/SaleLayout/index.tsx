@@ -1,15 +1,17 @@
 import {
     BellOutlined,
     ClockCircleOutlined,
+    DollarOutlined,
     FormOutlined,
     InboxOutlined,
     MessageOutlined,
+    MoreOutlined,
     SearchOutlined,
     TeamOutlined,
     UserOutlined,
-    DollarOutlined,
 } from '@ant-design/icons';
-import { Badge, Grid, Input, Layout, Menu } from 'antd';
+import type { MenuProps } from 'antd';
+import { Badge, Dropdown, Grid, Input, Layout, Menu } from 'antd';
 import React from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { AppBrandLogo } from '../../components/common/AppBrandLogo';
@@ -19,6 +21,16 @@ import './SaleLayout.css';
 
 const { Header, Content, Sider } = Layout;
 const { Search } = Input;
+
+/** Tối đa 5 ô trên bottom bar; nếu nhiều hơn thì 4 tab đầu + ô thứ 5 là menu "Thêm". */
+const MOBILE_BOTTOM_MAX_TABS = 5;
+
+type MobileNavItem = {
+    key: string;
+    icon: React.ReactNode;
+    label: string;
+    onClick: () => void;
+};
 
 export const SaleLayout: React.FC = () => {
     const navigate = useNavigate();
@@ -70,7 +82,7 @@ export const SaleLayout: React.FC = () => {
         return '/admin/kd/dashboard';
     };
 
-    const mobileMenuItems = [
+    const mobileMenuItems: MobileNavItem[] = [
         {
             key: '/admin/kd/dashboard',
             icon: <InboxOutlined />,
@@ -115,6 +127,29 @@ export const SaleLayout: React.FC = () => {
         },
     ];
 
+    const mobilePrimaryItems: MobileNavItem[] =
+        mobileMenuItems.length <= MOBILE_BOTTOM_MAX_TABS
+            ? mobileMenuItems
+            : mobileMenuItems.slice(0, MOBILE_BOTTOM_MAX_TABS - 1);
+    const mobileOverflowItems: MobileNavItem[] =
+        mobileMenuItems.length <= MOBILE_BOTTOM_MAX_TABS
+            ? []
+            : mobileMenuItems.slice(MOBILE_BOTTOM_MAX_TABS - 1);
+
+    const activeKey = getActiveKey();
+    const isOverflowActive = mobileOverflowItems.some((item) => item.key === activeKey);
+
+    const overflowDropdownItems: MenuProps['items'] = mobileOverflowItems.map((item) => ({
+        key: item.key,
+        icon: item.icon,
+        label: item.label,
+    }));
+
+    const onOverflowMenuClick: MenuProps['onClick'] = ({ key }) => {
+        const item = mobileOverflowItems.find((i) => i.key === key);
+        item?.onClick();
+    };
+
     const desktopMenuItems = [
         {
             key: 'journeys-group',
@@ -155,17 +190,6 @@ export const SaleLayout: React.FC = () => {
             ],
         },
     ];
-
-    const memoizedMobileMenuItems = React.useMemo(() => mobileMenuItems.map((item) => ({
-        ...item,
-        label: (
-            <div className="bottom-nav-item">
-                <span className="bottom-nav-icon">{item.icon}</span>
-                <span className="bottom-nav-text">{item.label}</span>
-            </div>
-        ),
-        icon: null,
-    })), [mobileMenuItems]);
 
     return (
         <Layout className="sale-layout">
@@ -238,14 +262,48 @@ export const SaleLayout: React.FC = () => {
             </Layout>
 
             {isMobile && (
-                <div className="sale-bottom-nav">
-                    <Menu
-                        mode="horizontal"
-                        selectedKeys={[getActiveKey()]}
-                        items={memoizedMobileMenuItems}
-                        className="bottom-menu"
-                    />
-                </div>
+                <nav className="sale-bottom-nav" aria-label="Điều hướng chính">
+                    <div className="bottom-nav-bar">
+                        {mobilePrimaryItems.map((item) => {
+                            const selected = activeKey === item.key;
+                            return (
+                                <button
+                                    key={item.key}
+                                    type="button"
+                                    className={`bottom-nav-slot${selected ? ' bottom-nav-slot--active' : ''}`}
+                                    onClick={item.onClick}
+                                >
+                                    <span className="bottom-nav-icon">{item.icon}</span>
+                                    <span className="bottom-nav-text">{item.label}</span>
+                                </button>
+                            );
+                        })}
+                        {mobileOverflowItems.length > 0 && (
+                            <Dropdown
+                                menu={{
+                                    items: overflowDropdownItems,
+                                    onClick: onOverflowMenuClick,
+                                    selectedKeys: isOverflowActive ? [activeKey] : [],
+                                }}
+                                placement="top"
+                                trigger={['click']}
+                                destroyOnHidden
+                                getPopupContainer={() => document.body}
+                            >
+                                <button
+                                    type="button"
+                                    className={`bottom-nav-slot bottom-nav-slot--more${isOverflowActive ? ' bottom-nav-slot--active' : ''}`}
+                                    aria-haspopup="menu"
+                                >
+                                    <span className="bottom-nav-icon">
+                                        <MoreOutlined />
+                                    </span>
+                                    <span className="bottom-nav-text">Thêm</span>
+                                </button>
+                            </Dropdown>
+                        )}
+                    </div>
+                </nav>
             )}
         </Layout>
     );

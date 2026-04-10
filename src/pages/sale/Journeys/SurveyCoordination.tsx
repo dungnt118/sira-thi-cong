@@ -29,6 +29,27 @@ const SurveyCoordination: React.FC = () => {
     const [employees, setEmployees] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
+    const fillFormFromJourney = (journey: any) => {
+        const customerName = journey.idx_customer_id?.primary_text || journey.customer_name;
+        const contactPhone = journey.idx_customer_id?.secondary_text || journey.customer_phone;
+        
+        // Extract supervisor ID
+        let supervisorId = journey.pm_user?._id || journey.pm_user; // Handle both object and ID
+        if (!supervisorId && journey.supervisor_users?.length > 0) {
+            const firstSup = journey.supervisor_users[0];
+            supervisorId = firstSup?._id || firstSup;
+        }
+
+        scheduleForm.setFieldsValue({
+            journey_id: journey._id,
+            customer_name: customerName,
+            contact_name: customerName,
+            contact_phone: contactPhone,
+            meeting_address: journey.site_address || journey.address || '',
+            assigned_to: supervisorId
+        });
+    };
+
     useEffect(() => {
         loadData();
     }, []);
@@ -163,12 +184,7 @@ const SurveyCoordination: React.FC = () => {
                                                                 type="primary"
                                                                 icon={<PlusOutlined />}
                                                                 onClick={() => {
-                                                                    scheduleForm.setFieldsValue({
-                                                                        customer_name: j.idx_customer_id?.primary_text,
-                                                                        journey_id: j._id,
-                                                                        contact_name: j.idx_customer_id?.primary_text,
-                                                                        contact_phone: j.idx_customer_id?.secondary_text
-                                                                    });
+                                                                    fillFormFromJourney(j);
                                                                     setShowScheduleModal(true);
                                                                 }}
                                                             >
@@ -208,11 +224,43 @@ const SurveyCoordination: React.FC = () => {
                             <Form.Item label="Giám sát phụ trách" name="assigned_to" rules={[{ required: true }]}>
                                 <Select
                                     placeholder="Chọn nhân sự"
-                                    options={employees.map(e => ({ value: e._id, label: e.full_name }))}
+                                    showSearch
+                                    optionFilterProp="label"
+                                    options={employees.map(e => ({ value: e._id, label: e.name || e.full_name }))}
                                 />
                             </Form.Item>
                         </Col>
                     </Row>
+
+                    <Form.Item 
+                        noStyle
+                        shouldUpdate={(prevValues, currentValues) => prevValues.journey_id !== currentValues.journey_id}
+                    >
+                        {({ getFieldValue }) => (
+                            <Form.Item
+                                label="Công trình / Yêu cầu"
+                                name="journey_id"
+                                rules={[{ required: true }]}
+                                hidden={!!getFieldValue('journey_id')}
+                            >
+                                <Select
+                                    placeholder="Chọn công trình cần khảo sát"
+                                    showSearch
+                                    optionFilterProp="label"
+                                    onChange={(value) => {
+                                        const journey = unscheduled.find(j => j._id === value);
+                                        if (journey) {
+                                            fillFormFromJourney(journey);
+                                        }
+                                    }}
+                                    options={unscheduled.map(j => ({
+                                        value: j._id,
+                                        label: `${j.journey_code} - ${j.idx_customer_id?.primary_text || j.customer_name}`
+                                    }))}
+                                />
+                            </Form.Item>
+                        )}
+                    </Form.Item>
 
                     <Form.Item label="Địa điểm gặp khách" name="meeting_address" rules={[{ required: true }]}>
                         <Input prefix={<EnvironmentOutlined style={{ color: '#bfbfbf' }} />} placeholder="Địa chỉ cụ thể" />

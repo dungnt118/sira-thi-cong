@@ -14,6 +14,8 @@ import {
     Tag,
     Tooltip,
     Typography,
+    Grid,
+    List,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
@@ -34,6 +36,7 @@ const { Text, Title } = Typography;
 
 const SLAQueue: React.FC = () => {
     const navigate = useNavigate();
+    const screens = Grid.useBreakpoint();
     const [showLogModal, setShowLogModal] = useState(false);
     const [selectedJourney, setSelectedJourney] = useState<IJourney | null>(null);
     const [loading, setLoading] = useState(false);
@@ -283,23 +286,100 @@ const SLAQueue: React.FC = () => {
                 }}
                 styles={{ body: { padding: 0 } }}
             >
-                <Table
-                    columns={columns}
-                    dataSource={attentionJourneys}
-                    rowKey="_id"
-                    loading={loading}
-                    pagination={{ pageSize: 10, position: ['bottomRight'] }}
-                    locale={{
-                        emptyText: (
-                            <Empty
-                                image={Empty.PRESENTED_IMAGE_SIMPLE}
-                                description="Hiện chưa có công trình nào cần cảnh báo tiến độ."
-                            />
-                        ),
-                    }}
-                    style={{ borderRadius: 16, overflow: 'hidden' }}
-                    className="premium-table"
-                />
+                {screens.md ? (
+                    <Table
+                        columns={columns}
+                        dataSource={attentionJourneys}
+                        rowKey="_id"
+                        loading={loading}
+                        pagination={{ pageSize: 10, position: ['bottomRight'] }}
+                        locale={{
+                            emptyText: (
+                                <Empty
+                                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                                    description="Hiện chưa có công trình nào cần cảnh báo tiến độ."
+                                />
+                            ),
+                        }}
+                        style={{ borderRadius: 16, overflow: 'hidden' }}
+                        className="premium-table"
+                    />
+                ) : (
+                    <List
+                        loading={loading}
+                        dataSource={attentionJourneys}
+                        pagination={{ pageSize: 10, size: 'small' }}
+                        renderItem={(journey) => {
+                            const isOverdue = journey.sla_status === 'overdue';
+                            const deadline = journey.next_milestone_due
+                                ? new Date(journey.next_milestone_due).toLocaleDateString('vi-VN')
+                                : '—';
+                            
+                            return (
+                                <List.Item
+                                    key={journey._id}
+                                    style={{ padding: '16px', borderBottom: '1px solid #f0f0f0' }}
+                                    actions={[
+                                        <Button 
+                                            key="call"
+                                            shape="circle" 
+                                            icon={<PhoneOutlined />} 
+                                        />,
+                                        <Button 
+                                            key="log"
+                                            type="primary" 
+                                            ghost 
+                                            size="small"
+                                            icon={<HistoryOutlined />}
+                                            onClick={() => {
+                                                setSelectedJourney(journey);
+                                                setShowLogModal(true);
+                                            }}
+                                            style={{ borderRadius: 6 }}
+                                        >
+                                            Ghi log
+                                        </Button>,
+                                        <Button
+                                            key="view"
+                                            type="link"
+                                            icon={<ArrowRightOutlined />}
+                                            onClick={() => navigate(`/admin/kd/dashboard/${journey._id}`)}
+                                        />
+                                    ]}
+                                >
+                                    <List.Item.Meta
+                                        avatar={<Avatar icon={<UserOutlined />} style={{ backgroundColor: '#f0f2f5', color: '#8c8c8c' }} />}
+                                        title={
+                                            <div 
+                                                style={{ fontWeight: 600, color: '#1677ff', cursor: 'pointer' }}
+                                                onClick={() => navigate(`/admin/kd/dashboard/${journey._id}`)}
+                                            >
+                                                {resolveCustomerName(journey)}
+                                            </div>
+                                        }
+                                        description={
+                                            <Space direction="vertical" size={2} style={{ width: '100%' }}>
+                                                <Text type="secondary" style={{ fontSize: 12 }}>{resolveCustomerPhone(journey)}</Text>
+                                                <div style={{ marginTop: 4 }}>
+                                                    <Text strong style={{ fontSize: 13 }}>{journey.journey_code}</Text>
+                                                    <div style={{ fontSize: 11, color: '#8c8c8c' }}>{journey.request_title}</div>
+                                                </div>
+                                                <div style={{ marginTop: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                    <Tag color={isOverdue ? 'error' : 'warning'} style={{ borderRadius: 4 }}>
+                                                        {isOverdue ? 'Quá hạn' : 'Có rủi ro'}
+                                                    </Tag>
+                                                    <Text style={{ fontSize: 12, color: isOverdue ? '#cf1322' : 'inherit', fontWeight: 600 }}>
+                                                        Hạn: {deadline}
+                                                    </Text>
+                                                </div>
+                                            </Space>
+                                        }
+                                    />
+                                </List.Item>
+                            );
+                        }}
+                    />
+                )}
             </Card>
 
             <Modal
