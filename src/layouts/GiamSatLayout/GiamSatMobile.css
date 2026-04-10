@@ -5,42 +5,11 @@
     padding-bottom: 60px; /* space for bottom nav */
 }
 
-.giam-sat-header {
-    background: #fa8c16; /* BACOrange */
-    padding: 0 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+.giam-sat-layout__header.ant-layout-header {
     position: sticky;
     top: 0;
-    z-index: 100;
-    height: 56px;
-    line-height: 56px;
-}
-
-.header-brand-mobile {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.brand-text-mobile {
-    font-size: 16px;
-    font-weight: 600;
-    color: #fff;
-}
-
-.header-actions-mobile {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
-
-.header-icon-mobile {
-    font-size: 20px;
-    color: #fff;
-    cursor: pointer;
+    z-index: 1000;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
 .giam-sat-content {

@@ -1,26 +1,21 @@
 import {
-    BellOutlined,
-    ClockCircleOutlined,
     DollarOutlined,
     FormOutlined,
     InboxOutlined,
-    MessageOutlined,
     MoreOutlined,
-    SearchOutlined,
     TeamOutlined,
     UserOutlined,
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
-import { Badge, Dropdown, Grid, Input, Layout, Menu } from 'antd';
+import { Dropdown, Grid, Layout, Menu } from 'antd';
 import React from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { AppBrandLogo } from '../../components/common/AppBrandLogo';
-import { UserMenu } from '../../components/common/Header/UserMenuWithDocs';
+import { AppShellHeader } from '../shared/AppShellHeader';
 import { useAuth } from '../../hooks/useAuth';
 import './SaleLayout.css';
 
 const { Header, Content, Sider } = Layout;
-const { Search } = Input;
 
 /** Tối đa 5 ô trên bottom bar; nếu nhiều hơn thì 4 tab đầu + ô thứ 5 là menu "Thêm". */
 const MOBILE_BOTTOM_MAX_TABS = 5;
@@ -68,7 +63,7 @@ export const SaleLayout: React.FC = () => {
         }
 
         if (location.pathname.startsWith('/admin/kd/communications')) {
-            return '/admin/kd/communications';
+            return '';
         }
 
         if (location.pathname.startsWith('/admin/kd/expenditures/payment-requests')) {
@@ -100,12 +95,6 @@ export const SaleLayout: React.FC = () => {
             icon: <FormOutlined />,
             label: 'Khảo sát',
             onClick: () => navigate('/admin/kd/surveys'),
-        },
-        {
-            key: '/admin/kd/communications',
-            icon: <MessageOutlined />,
-            label: 'Giao tiếp',
-            onClick: () => navigate('/admin/kd/communications'),
         },
         {
             key: '/admin/kd/expenditures/payment-requests',
@@ -166,11 +155,6 @@ export const SaleLayout: React.FC = () => {
                     onClick: () => navigate('/admin/kd/surveys'),
                 },
                 {
-                    key: '/admin/kd/communications',
-                    label: 'Giao tiếp khách hàng',
-                    onClick: () => navigate('/admin/kd/communications'),
-                },
-                {
                     key: '/admin/kd/expenditures/payment-requests',
                     label: 'Yêu cầu chi tiền',
                     icon: <DollarOutlined />,
@@ -214,7 +198,7 @@ export const SaleLayout: React.FC = () => {
                     <Menu
                         theme="dark"
                         mode="inline"
-                        selectedKeys={[getActiveKey()]}
+                        selectedKeys={activeKey ? [activeKey] : []}
                         defaultOpenKeys={['journeys-group']}
                         items={desktopMenuItems}
                     />
@@ -222,27 +206,23 @@ export const SaleLayout: React.FC = () => {
             )}
 
             <Layout style={{ marginLeft: isMobile ? 0 : 240, transition: 'margin-left 0.2s' }}>
-                <Header className="sale-header">
-                    <div className="header-brand">
-                        <AppBrandLogo size="sm" />
-                        <span className="brand-text">BACSale</span>
-                    </div>
-
-                    {!isMobile && (
-                        <Search
-                            placeholder="Tìm công trình, khách hàng hoặc nội dung yêu cầu..."
-                            allowClear
-                            style={{ maxWidth: 460, margin: '0 24px' }}
-                            prefix={<SearchOutlined />}
-                        />
-                    )}
-
-                    <div className="header-actions" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                        <Badge count={3} size="small">
-                            <BellOutlined className="header-icon" />
-                        </Badge>
-                        <UserMenu avatarColor="#52c41a" />
-                    </div>
+                <Header
+                    className="sale-layout__header"
+                    style={{
+                        padding: 0,
+                        background: '#fff',
+                        lineHeight: 'normal',
+                        height: 'auto',
+                        minHeight: 56,
+                    }}
+                >
+                    <AppShellHeader
+                        productTitle="BACSale"
+                        brandAccentColor="#52c41a"
+                        avatarColor="#52c41a"
+                        logoSize="sm"
+                        placeholder="Tìm công trình, khách hàng hoặc nội dung yêu cầu..."
+                    />
                 </Header>
 
                 <Content className="sale-content">

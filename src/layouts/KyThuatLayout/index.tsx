@@ -1,19 +1,17 @@
 import React from 'react';
-import { Layout, Menu, Badge } from 'antd';
+import { Layout, Menu } from 'antd';
 import {
     HomeOutlined,
     CalendarOutlined,
     ToolOutlined,
     UserOutlined,
-    BellOutlined,
     FormOutlined,
     HistoryOutlined,
     DollarOutlined,
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { UserMenu } from '../../components/common/Header/UserMenuWithDocs';
-import { AppBrandLogo } from '../../components/common/AppBrandLogo';
+import { AppShellHeader } from '../shared/AppShellHeader';
 import './KyThuatLayout.css';
 
 const { Header, Content } = Layout;
@@ -80,17 +78,23 @@ export const KyThuatLayout: React.FC = () => {
 
     return (
         <Layout className="ky-thuat-layout">
-            <Header className="ky-thuat-header">
-                <div className="header-brand">
-                    <AppBrandLogo size="sm" />
-                    <span className="brand-text">Kỹ Thuật</span>
-                </div>
-                <div className="header-actions">
-                    <Badge count={2} size="small">
-                        <BellOutlined className="header-icon" />
-                    </Badge>
-                    <UserMenu avatarColor="#13a8a8" showName={false} />
-                </div>
+            <Header
+                className="ky-thuat-layout__header"
+                style={{
+                    padding: 0,
+                    background: '#fff',
+                    lineHeight: 'normal',
+                    minHeight: 56,
+                    height: 'auto',
+                }}
+            >
+                <AppShellHeader
+                    productTitle="Kỹ Thuật"
+                    brandAccentColor="#13a8a8"
+                    avatarColor="#13a8a8"
+                    userMenuShowName={false}
+                    showSearch={false}
+                />
             </Header>
             <Content className="ky-thuat-content">
                 <Outlet />

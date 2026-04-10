@@ -29,8 +29,8 @@ const SectionHeader: React.FC<SectionHeaderProps> = ({
             <div
                 style={{
                     position: 'sticky',
-                    top: 0,
-                    zIndex: 100,
+                    top: 56,
+                    zIndex: 999,
                     background: '#fff',
                     padding: '12px 16px',
                     margin: '0 -16px 16px -16px',

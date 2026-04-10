@@ -1,18 +1,16 @@
 import {
     AppstoreOutlined,
-    BellOutlined,
     HistoryOutlined,
     HomeOutlined,
     InboxOutlined,
     UserOutlined,
     DollarOutlined,
 } from '@ant-design/icons';
-import { Badge, Layout } from 'antd';
+import { Layout } from 'antd';
 import React from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { AppBrandLogo } from '../../components/common/AppBrandLogo';
-import { UserMenu } from '../../components/common/Header/UserMenuWithDocs';
 import { useAuth } from '../../hooks/useAuth';
+import { AppShellHeader } from '../shared/AppShellHeader';
 import './GiamSatMobile.css';
 
 const { Header, Content } = Layout;
@@ -51,17 +49,23 @@ export const GiamSatLayout: React.FC = () => {
 
     return (
         <Layout className="giam-sat-layout">
-            <Header className="giam-sat-header">
-                <div className="header-brand-mobile">
-                    <AppBrandLogo size="sm" variant="onDark" />
-                    <span className="brand-text-mobile">BACGiám Sát</span>
-                </div>
-                <div className="header-actions-mobile">
-                    <Badge count={2} size="small" offset={[-4, 4]}>
-                        <BellOutlined className="header-icon-mobile" />
-                    </Badge>
-                    <UserMenu avatarColor="#fa8c16" showName={false} />
-                </div>
+            <Header
+                className="giam-sat-layout__header"
+                style={{
+                    padding: 0,
+                    background: '#fff',
+                    lineHeight: 'normal',
+                    minHeight: 56,
+                    height: 'auto',
+                }}
+            >
+                <AppShellHeader
+                    productTitle="BAC Giám sát"
+                    brandAccentColor="#fa8c16"
+                    avatarColor="#fa8c16"
+                    userMenuShowName={false}
+                    showSearch={false}
+                />
             </Header>
 
             <Content className="giam-sat-content">

@@ -3,7 +3,6 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { SET_JOURNEY_SETTING } from '@/store/reducers/schemas/schemas.reducer';
 import {
     BarChartOutlined,
-    BellOutlined,
     DashboardOutlined,
     DollarOutlined,
     ExportOutlined,
@@ -11,7 +10,6 @@ import {
     InboxOutlined,
     LayoutOutlined,
     NodeIndexOutlined,
-    SearchOutlined,
     SettingOutlined,
     TeamOutlined,
     UnorderedListOutlined,
@@ -19,16 +17,13 @@ import {
 } from '@ant-design/icons';
 import { LABELS } from '@utils/constants';
 import type { MenuProps } from 'antd';
-import { Badge, Grid, Input, Menu, Space } from 'antd';
+import { Menu } from 'antd';
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AppBrandLogo } from '../../components/common/AppBrandLogo';
-import { UserMenu } from '../../components/common/Header/UserMenuWithDocs';
 import { useAuth } from '../../hooks/useAuth';
+import { AppShellHeader } from '../shared/AppShellHeader';
 import { BaseLayout } from '../shared/BaseLayout';
-
-const { Search } = Input;
-const { useBreakpoint } = Grid;
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -128,58 +123,18 @@ const PMSidebar: React.FC = () => {
     );
 };
 
-const PMTopBar: React.FC = () => {
-    const screens = useBreakpoint();
-    const isMobile = !screens.md;
-
-    const handleSearch = (value: string) => {
-        console.log('PM Search:', value);
-    };
-
-    // User menu logic moved to shared UserMenu component
-
-    return (
-        <div
-            style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                width: '100%',
-                padding: isMobile ? '0 4px' : '0 24px',
-                height: '100%',
-                gap: 12,
-            }}
-        >
-            {/* Logo & App Name - Hidden on mobile since hamburger takes its place */}
-            {!isMobile && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
-                    <AppBrandLogo size="md" />
-                    <span style={{ fontSize: 18, fontWeight: 600, color: '#1976D2' }}>
-                        Quản lý dự án
-                    </span>
-                </div>
-            )}
-
-            {/* Global Search */}
-            <Search
-                placeholder={isMobile ? 'Tìm kiếm...' : 'Tìm kiếm dự án, đội nhóm...'}
-                allowClear
-                onSearch={handleSearch}
-                style={{ maxWidth: 400, flex: 1 }}
-                prefix={<SearchOutlined />}
-            />
-
-            {/* Right Section: Notifications + User */}
-            <Space size={isMobile ? 12 : 24} style={{ flexShrink: 0 }}>
-                <Badge count={5} offset={[-5, 5]}>
-                    <BellOutlined style={{ fontSize: 20, cursor: 'pointer' }} />
-                </Badge>
-
-                <UserMenu avatarColor="#1976D2" showName={!isMobile} />
-            </Space>
-        </div>
-    );
-};
+const PMTopBar: React.FC = () => (
+    <AppShellHeader
+        productTitle="Quản lý dự án"
+        brandAccentColor="#1976D2"
+        avatarColor="#1976D2"
+        logoSize="md"
+        placeholder="Tìm kiếm dự án, đội nhóm..."
+        onSearch={(value) => {
+            console.log('PM Search:', value);
+        }}
+    />
+);
 
 export const PMLayout: React.FC = () => {
     const navigate = useNavigate();

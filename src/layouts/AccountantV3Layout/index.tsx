@@ -1,5 +1,5 @@
 import React from 'react';
-import { Menu, Badge, Space, Grid } from 'antd';
+import { Menu } from 'antd';
 import type { MenuProps } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
@@ -9,14 +9,12 @@ import {
     DollarOutlined,
     SafetyOutlined,
     BarChartOutlined,
-    BellOutlined,
     ToolOutlined,
     BankOutlined,
-    ContactsOutlined,
 } from '@ant-design/icons';
 import { BaseLayout } from '../shared/BaseLayout';
-import { UserMenu } from '../../components/common/Header/UserMenuWithDocs';
 import { AppBrandLogo } from '../../components/common/AppBrandLogo';
+import { AppShellHeader } from '../shared/AppShellHeader';
 
 const menuItems: MenuProps['items'] = [
     {
@@ -111,58 +109,15 @@ const AccountantSidebar: React.FC = () => {
     );
 };
 
-const AccountantTopBar: React.FC = () => {
-    const screens = Grid.useBreakpoint();
-    const isMobile = !screens.md;
-    // User menu logic moved to shared UserMenu component
-
-    return (
-        <div
-            style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                width: '100%',
-                minWidth: 0,
-                padding: isMobile ? '0 8px 0 4px' : '0 24px',
-                height: '100%',
-                gap: isMobile ? 8 : 12,
-            }}
-        >
-            <div
-                style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 12,
-                    minWidth: 0,
-                    flex: '1 1 auto',
-                    overflow: 'hidden',
-                }}
-            >
-                <AppBrandLogo size={isMobile ? 'sm' : 'md'} />
-                <span
-                    style={{
-                        fontSize: isMobile ? 14 : 16,
-                        fontWeight: 600,
-                        color: '#52c41a',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                        minWidth: 0,
-                    }}
-                >
-                    Lam Bac – Kế toán
-                </span>
-            </div>
-            <Space size={isMobile ? 12 : 24} style={{ minWidth: 0, flex: '0 1 auto' }}>
-                <Badge count={3} offset={[-5, 5]}>
-                    <BellOutlined style={{ fontSize: isMobile ? 18 : 20, cursor: 'pointer' }} />
-                </Badge>
-                <UserMenu avatarColor="#52c41a" />
-            </Space>
-        </div>
-    );
-};
+const AccountantTopBar: React.FC = () => (
+    <AppShellHeader
+        productTitle="Lam Bac – Kế toán"
+        brandAccentColor="#52c41a"
+        avatarColor="#52c41a"
+        logoSize="md"
+        showSearch={false}
+    />
+);
 
 export const AccountantV3Layout: React.FC = () => {
     const navigate = useNavigate();

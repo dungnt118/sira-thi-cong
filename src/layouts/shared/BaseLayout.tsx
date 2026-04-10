@@ -81,18 +81,21 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({ sidebar, topBar }) => {
                 }}
             >
                 <Header
+                    className="base-layout__header"
                     style={{
                         padding: 0,
-                        background: '#fff',
+                        background: 'transparent',
                         position: 'sticky',
                         top: 0,
-                        zIndex: 1,
+                        zIndex: 1000,
                         width: '100%',
                         minWidth: 0,
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                        lineHeight: 'normal',
+                        height: 'auto',
+                        minHeight: 56,
+                        boxShadow: 'none',
                         display: 'flex',
-                        alignItems: 'center',
-                        paddingRight: isMobile ? 8 : 0,
+                        alignItems: 'stretch',
                     }}
                 >
                     {isMobile && (
@@ -104,11 +107,13 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({ sidebar, topBar }) => {
                                 fontSize: 18,
                                 width: 48,
                                 height: 48,
-                                marginLeft: 8,
+                                marginLeft: 'max(8px, env(safe-area-inset-left, 0px))',
+                                alignSelf: 'center',
+                                flexShrink: 0,
                             }}
                         />
                     )}
-                    <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
+                    <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'stretch' }}>
                         {topBar}
                     </div>
                 </Header>
