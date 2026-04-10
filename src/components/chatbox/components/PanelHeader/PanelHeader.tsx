@@ -12,7 +12,7 @@ import {
 } from '@ant-design/icons';
 import { Badge, Button, Drawer, Dropdown, Space, Tooltip, message } from 'antd';
 import { useMemo, useState } from 'react';
-import type { IConversationThread } from '../../contentConversation.types';
+import type { ChatPanelLayoutMode, IConversationThread } from '../../contentConversation.types';
 import ThreadInfoDrawer from '../ThreadInfoDrawer/ThreadInfoDrawer';
 import './PanelHeader.less';
 
@@ -22,6 +22,7 @@ interface IPanelHeaderProps {
     title?: string;
     subtitle?: string;
     onClose?: () => void;
+    layoutWidthMode?: ChatPanelLayoutMode;
     onToggleWidth?: () => void;
     onRefresh?: () => void;
     onSearchClick?: () => void;
@@ -38,6 +39,7 @@ export default function PanelHeader({
     title,
     subtitle,
     onClose,
+    layoutWidthMode = 'expanded',
     onToggleWidth,
     onRefresh,
     onSearchClick,
@@ -50,8 +52,8 @@ export default function PanelHeader({
     const [showThreadInfo, setShowThreadInfo] = useState(false);
     const primaryText = title || thread.source_content_title || thread.title || 'Trao đổi';
     const secondaryText = useMemo(() => {
-        if (subtitle) {
-            return subtitle;
+        if (subtitle !== undefined) {
+            return subtitle.trim();
         }
 
         const parts = [thread.source_schema, thread.source_content_id].filter(Boolean);
@@ -141,7 +143,7 @@ export default function PanelHeader({
                             </Tooltip>
                         )}
 
-                        <Tooltip title="Thu gọn hoặc mở rộng">
+                        <Tooltip title={layoutWidthMode === 'expanded' ? 'Thu gọn drawer' : 'Mở rộng drawer'}>
                             <Button type="text" size="small" icon={<ExpandOutlined />} onClick={onToggleWidth} />
                         </Tooltip>
 
@@ -153,8 +155,14 @@ export default function PanelHeader({
                     </Space>
                 </div>
 
-                <div className="header-row header-row-secondary">
-                    <div className="header-secondary">{secondaryText}</div>
+                <div
+                    className={`header-row header-row-secondary${secondaryText ? '' : ' header-row-secondary--solo-meta'}`.trim()}
+                >
+                    {secondaryText ? (
+                        <div className="header-secondary">{secondaryText}</div>
+                    ) : (
+                        <div className="header-secondary header-secondary--empty" aria-hidden />
+                    )}
                     <div className="header-meta">
                         <Tooltip title={`${thread.participants?.length ?? 0} thành viên`}>
                             <Button type="text" size="small" className="header-participants-trigger" onClick={onParticipantsClick}>

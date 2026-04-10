@@ -11,6 +11,7 @@ import { contentConversationService } from '../../contentConversation.service';
 import {
     ComposerMode,
     ConversationVisibility,
+    type ChatPanelLayoutMode,
     type IChatboxSettings,
     type IContentChatboxMessage,
     type IConversationParticipant,
@@ -42,6 +43,7 @@ interface IChatPanelProps {
     subtitle?: string;
     settings?: IChatboxSettings;
     onClose?: () => void;
+    onLayoutModeChange?: (mode: ChatPanelLayoutMode) => void;
     className?: string;
     style?: CSSProperties;
 }
@@ -139,6 +141,7 @@ export default function ChatPanel({
     subtitle,
     settings,
     onClose,
+    onLayoutModeChange,
     className,
     style,
 }: IChatPanelProps) {
@@ -149,7 +152,11 @@ export default function ChatPanel({
     const uploadFilesRef = useRef<IUploadFilesEditRef | null>(null);
     const uploadImageRef = useRef<IUploadImageEditRef | null>(null);
 
-    const [panelWidth, setPanelWidth] = useState<'compact' | 'expanded'>('compact');
+    const [panelWidth, setPanelWidth] = useState<ChatPanelLayoutMode>('expanded');
+
+    useEffect(() => {
+        onLayoutModeChange?.(panelWidth);
+    }, [panelWidth, onLayoutModeChange]);
     const [loadingHierarchy, setLoadingHierarchy] = useState(true);
     const [loadingMessages, setLoadingMessages] = useState(false);
     const [hierarchy, setHierarchy] = useState<IThreadHierarchyResponse | null>(null);
@@ -449,7 +456,7 @@ export default function ChatPanel({
 
     if (loadingHierarchy && !hierarchy) {
         return (
-            <div className={`chatbox-panel ${panelWidth} ${className || ''}`.trim()} style={style}>
+            <div className={`chatbox-panel ${className || ''}`.trim()} style={style}>
                 <div className="chatbox-panel-loading">
                     <Spin size="large" />
                 </div>
@@ -459,7 +466,7 @@ export default function ChatPanel({
 
     if (!hierarchy || !activeThread) {
         return (
-            <div className={`chatbox-panel ${panelWidth} ${className || ''}`.trim()} style={style}>
+            <div className={`chatbox-panel ${className || ''}`.trim()} style={style}>
                 <div className="chatbox-panel-error">
                     <div className="chatbox-panel-error-content">
                         <p className="chatbox-panel-error-message">Không tìm thấy luồng chat phù hợp.</p>
@@ -483,14 +490,15 @@ export default function ChatPanel({
     }
 
     return (
-        <div className={`chatbox-panel ${panelWidth} ${className || ''}`.trim()} style={style}>
+        <div className={`chatbox-panel ${className || ''}`.trim()} style={style}>
             <PanelHeader
                 thread={activeThread}
                 totalUnread={hierarchy.totalUnread}
                 title={title}
                 subtitle={subtitle}
                 onClose={onClose}
-                onToggleWidth={() => setPanelWidth((currentValue) => currentValue === 'compact' ? 'expanded' : 'compact')}
+                layoutWidthMode={panelWidth}
+                onToggleWidth={() => setPanelWidth((currentValue) => (currentValue === 'compact' ? 'expanded' : 'compact'))}
                 onRefresh={() => void reloadChatboxData(true)}
                 onSearchClick={() => {
                     setShowSearchBar((currentValue) => !currentValue);
@@ -621,7 +629,6 @@ export default function ChatPanel({
                 open={addMembersModalOpen}
                 onClose={() => setAddMembersModalOpen(false)}
                 threadId={activeThread._id}
-                existingUsernames={(activeThread.participants || []).map((item) => item.username).filter(Boolean)}
                 onInviteSuccess={async () => {
                     await reloadChatboxData(false);
                     setParticipantsModalOpen(true);

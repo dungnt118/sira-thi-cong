@@ -1,6 +1,6 @@
 import { DeleteOutlined, TeamOutlined } from '@ant-design/icons';
 import { Button, Empty, List, Modal, Typography, message } from 'antd';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { AuthorizedUserSelect } from '@/components/authorizedusers/AuthorizedUser';
 import { contentConversationService } from '../../contentConversation.service';
 import './AddThreadMembersModal.less';
@@ -11,31 +11,17 @@ export interface IAddThreadMembersModalProps {
     open: boolean;
     onClose: () => void;
     threadId: string;
-    existingUsernames: string[];
     onInviteSuccess?: () => void | Promise<void>;
 }
-
-const normalizeUsernameKey = (value: string) => value.trim().toLowerCase();
 
 export default function AddThreadMembersModal({
     open,
     onClose,
     threadId,
-    existingUsernames,
     onInviteSuccess,
 }: IAddThreadMembersModalProps) {
     const [selectedUsernames, setSelectedUsernames] = useState<string[]>([]);
     const [submitting, setSubmitting] = useState(false);
-
-    const existingSet = useMemo(
-        () => new Set(existingUsernames.map(normalizeUsernameKey).filter(Boolean)),
-        [existingUsernames],
-    );
-
-    const pendingUsernames = useMemo(
-        () => selectedUsernames.filter((username) => !existingSet.has(normalizeUsernameKey(username))),
-        [existingSet, selectedUsernames],
-    );
 
     const handleClose = () => {
         setSelectedUsernames([]);
@@ -48,14 +34,14 @@ export default function AddThreadMembersModal({
             return;
         }
 
-        if (pendingUsernames.length === 0) {
+        if (selectedUsernames.length === 0) {
             message.warning('Vui lòng chọn ít nhất một thành viên.');
             return;
         }
 
         setSubmitting(true);
         try {
-            await contentConversationService.inviteThreadUsers(threadId, pendingUsernames);
+            await contentConversationService.inviteThreadUsers(threadId, selectedUsernames);
             await onInviteSuccess?.();
             message.success('Đã mời thêm thành viên vào luồng.');
             handleClose();
@@ -93,10 +79,10 @@ export default function AddThreadMembersModal({
                 />
 
                 <div className="add-thread-members-modal-section-title">
-                    Danh sách chờ ({pendingUsernames.length})
+                    Danh sách chờ ({selectedUsernames.length})
                 </div>
 
-                {pendingUsernames.length === 0 ? (
+                {selectedUsernames.length === 0 ? (
                     <Empty
                         image={Empty.PRESENTED_IMAGE_SIMPLE}
                         description={<Text type="secondary">Chưa chọn thành viên nào.</Text>}
@@ -105,7 +91,7 @@ export default function AddThreadMembersModal({
                     <List
                         size="small"
                         className="add-thread-members-modal-list"
-                        dataSource={pendingUsernames}
+                        dataSource={selectedUsernames}
                         renderItem={(username) => (
                             <List.Item
                                 actions={[

@@ -1,11 +1,14 @@
 import { DownloadOutlined } from '@ant-design/icons';
 import { Button, Image } from 'antd';
-import { getFileLink } from '../../../../services/storeService';
+import { BASE_URL, get, getFileLink } from '@/services/storeService';
 import type { IHeadlessFileUpload } from '../../contentConversation.types';
 import { formatFileSize, getAttachmentUrl, getFileIcon } from '../../utils/chatboxUtils';
 import './AttachmentList.less';
 
-const IMAGE_EXT = /\.(jpg|jpeg|png|gif|webp|bmp)(\?|$)/i;
+const IMAGE_EXT = /\.(jpg|jpeg|png|gif|webp|bmp|avif|heic|svg)(\?|$)/i;
+
+const isDirectMediaUrl = (value: string): boolean =>
+    /^https?:\/\//i.test(value) || value.startsWith('data:') || value.startsWith('blob:');
 
 const isImageAttachment = (attachment: IHeadlessFileUpload): boolean => {
     if (attachment.file_type === 'image') return true;
@@ -14,11 +17,25 @@ const isImageAttachment = (attachment: IHeadlessFileUpload): boolean => {
     return IMAGE_EXT.test(name);
 };
 
+/** Ưu tiên URL xem được; tránh dùng `url` thô (key/đường dẫn tương đối) khiến <img> lỗi trong khi `file_path`/`file_id` có preview chuẩn. */
 const resolveAttachmentUrl = (attachment: IHeadlessFileUpload): string | null => {
-    if (attachment.url) return attachment.url;
-    if (attachment.file_path) return getFileLink(attachment.file_path) || null;
-    if (attachment.file_id) return getFileLink(attachment.file_id) || null;
-    return null;
+    const rawUrl = attachment.url?.trim();
+    const fromPath = attachment.file_path ? getFileLink(attachment.file_path) : undefined;
+    const fromId = attachment.file_id ? getFileLink(attachment.file_id) : undefined;
+    const fromRawKey = rawUrl && !isDirectMediaUrl(rawUrl) ? getFileLink(rawUrl) : undefined;
+    const baseUrl = (get(BASE_URL) as string | undefined)?.replace(/\/$/, '');
+    const absoluteFromRelative = rawUrl && rawUrl.startsWith('/') && baseUrl ? `${baseUrl}${rawUrl}` : undefined;
+
+    const candidates = [
+        rawUrl && isDirectMediaUrl(rawUrl) ? rawUrl : undefined,
+        fromPath,
+        fromId,
+        fromRawKey,
+        absoluteFromRelative,
+        rawUrl && !isDirectMediaUrl(rawUrl) ? rawUrl : undefined,
+    ];
+
+    return candidates.find((item): item is string => Boolean(item?.length)) ?? null;
 };
 
 interface IAttachmentListProps {

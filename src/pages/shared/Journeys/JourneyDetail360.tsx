@@ -23,7 +23,7 @@ import { JourneyStepRenderer, StepLabor, StepMaterials } from '../JourneySteps';
 import { ConsultationLogForm } from '../../../components/journey/SharedModals';
 import { CreateJourneyDocumentModal } from '../../../components/journey/CreateJourneyDocumentModal';
 import { CreateSiteReportModal } from '../../../components/journey/CreateSiteReportModal';
-import { ContentConversationPanel } from '../../../components/chatbox';
+import { ContentConversationPanel, type ChatPanelLayoutMode } from '../../../components/chatbox';
 import PortalDashboard from '../../../components/portal/PortalDashboard';
 import { journeyService } from '../../../services/core-contracts/services/journey.service';
 import { workTaskService } from '../../../services/core-contracts/services/workTask.service';
@@ -246,6 +246,7 @@ const JourneyDetail360: React.FC = () => {
     const [isEditDrawerVisible, setIsEditDrawerVisible] = useState(false);
     const [isJourneyDrawerVisible, setIsJourneyDrawerVisible] = useState(false);
     const [isChatDrawerVisible, setIsChatDrawerVisible] = useState(false);
+    const [chatDrawerLayoutMode, setChatDrawerLayoutMode] = useState<ChatPanelLayoutMode>('expanded');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [publishTab, setPublishTab] = useState('settings');
     const [assignForm] = Form.useForm();
@@ -1119,17 +1120,26 @@ const JourneyDetail360: React.FC = () => {
                 onClose={() => setIsChatDrawerVisible(false)}
                 open={isChatDrawerVisible}
                 closable={false}
-                width={isMobile ? '100%' : 720}
+                width={isMobile ? '100%' : chatDrawerLayoutMode === 'expanded' ? 920 : 420}
                 styles={{
                     header: { display: 'none' },
-                    body: { padding: isMobile ? 0 : 16, background: '#f5f6f8' }
+                    body: {
+                        padding: 0,
+                        background: '#ffffff',
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                    },
                 }}
             >
                 <ContentConversationPanel
                     schemaName="Journey"
                     contentId={journey._id}
+                    title={`Công trình : ${(journey.request_title || '').trim() || journey.journey_code || '—'}`}
+                    subtitle=""
                     onClose={() => setIsChatDrawerVisible(false)}
-                    style={{ minHeight: '100%' }}
+                    onLayoutModeChange={setChatDrawerLayoutMode}
+                    style={{ minHeight: '100%', flex: 1, width: '100%' }}
                 />
             </Drawer>
 

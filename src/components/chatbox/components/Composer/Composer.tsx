@@ -2,6 +2,7 @@ import IndexedSelect from '@/components/common/Form/IndexedSelect';
 import { get_indexed_content } from '@/store/actions/schemas/schemas.action';
 import { useAppDispatch } from '@/store/hooks';
 import {
+    AppstoreOutlined,
     BulbOutlined,
     CalendarOutlined,
     CheckCircleOutlined,
@@ -19,7 +20,8 @@ import {
     SendOutlined,
     UserOutlined,
 } from '@ant-design/icons';
-import { Button, DatePicker, Dropdown, Input, InputNumber, Radio, Select, Space, Tooltip } from 'antd';
+import type { MenuProps } from 'antd';
+import { Button, DatePicker, Dropdown, Input, InputNumber, Select, Space, Tooltip } from 'antd';
 import type { Dayjs } from 'dayjs';
 import React, { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import {
@@ -563,6 +565,36 @@ const Composer = forwardRef<IComposerRef, IComposerProps>(({
         },
     ];
 
+    const composerModeLabel: Record<ComposerMode, string> = {
+        [ComposerMode.Message]: 'Tin nhắn',
+        [ComposerMode.Note]: 'Ghi chú',
+        [ComposerMode.Schedule]: 'Lịch',
+        [ComposerMode.LinkedContent]: 'Nội dung liên kết',
+    };
+
+    const composerModeMenuItems: MenuProps['items'] = [
+        {
+            key: ComposerMode.Message,
+            icon: <MessageOutlined />,
+            label: composerModeLabel[ComposerMode.Message],
+        },
+        {
+            key: ComposerMode.Note,
+            icon: <FileTextOutlined />,
+            label: composerModeLabel[ComposerMode.Note],
+        },
+        {
+            key: ComposerMode.Schedule,
+            icon: <CalendarOutlined />,
+            label: composerModeLabel[ComposerMode.Schedule],
+        },
+        {
+            key: ComposerMode.LinkedContent,
+            icon: <LinkOutlined />,
+            label: composerModeLabel[ComposerMode.LinkedContent],
+        },
+    ];
+
     const sendIcon = sendStatus === 'success'
         ? <CheckCircleOutlined />
         : sendStatus === 'error'
@@ -622,15 +654,6 @@ const Composer = forwardRef<IComposerRef, IComposerProps>(({
 
             {!isDisabled && (
                 <>
-                    <div className="composer-mode-selector">
-                        <Radio.Group value={mode} onChange={(event) => setMode(event.target.value)}>
-                            <Radio.Button value={ComposerMode.Message}><MessageOutlined style={{ marginRight: 4 }} />Tin nhắn</Radio.Button>
-                            <Radio.Button value={ComposerMode.Note}><FileTextOutlined style={{ marginRight: 4 }} />Ghi chú</Radio.Button>
-                            <Radio.Button value={ComposerMode.Schedule}><CalendarOutlined style={{ marginRight: 4 }} />Lịch</Radio.Button>
-                            <Radio.Button value={ComposerMode.LinkedContent}><LinkOutlined style={{ marginRight: 4 }} />Nội dung liên kết</Radio.Button>
-                        </Radio.Group>
-                    </div>
-
                     {mode === ComposerMode.Note && (
                         <div className="composer-note-warning">
                             <ExclamationCircleOutlined /> Ghi chú nội bộ, chỉ nhân sự nội bộ mới nhìn thấy.
@@ -723,8 +746,28 @@ const Composer = forwardRef<IComposerRef, IComposerProps>(({
 
             <div className="composer-input-wrapper">
                 <div className="composer-input-area">
+                    <Tooltip title={`Kiểu gửi: ${composerModeLabel[mode]} — bấm để đổi`} placement="top">
+                        <Dropdown
+                            menu={{
+                                items: composerModeMenuItems,
+                                selectable: true,
+                                selectedKeys: [mode],
+                                onClick: ({ key }) => setMode(key as ComposerMode),
+                            }}
+                            trigger={['click']}
+                            disabled={isDisabled}
+                        >
+                            <Button
+                                type="text"
+                                icon={<AppstoreOutlined />}
+                                disabled={isDisabled}
+                                className="composer-mode-toggle-button"
+                                aria-label="Chọn kiểu gửi tin nhắn"
+                            />
+                        </Dropdown>
+                    </Tooltip>
                     {enableFileSharing && (
-                        <Tooltip title="Tải tệp lên" placement="top">
+                        <Tooltip title="Đính kèm tệp" placement="top">
                             <Dropdown menu={{ items: attachmentMenuItems }} trigger={['click']} disabled={isDisabled}>
                                 <Button type="text" icon={<PaperClipOutlined />} disabled={isDisabled} className="composer-attachment-button" />
                             </Dropdown>

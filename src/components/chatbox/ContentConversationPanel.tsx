@@ -25,6 +25,7 @@ export default function ContentConversationPanel({
     subtitle,
     settings,
     onClose,
+    onLayoutModeChange,
     className,
     style,
 }: IContentConversationPanelProps) {
@@ -68,6 +69,7 @@ export default function ContentConversationPanel({
             subtitle={subtitle}
             settings={resolvedSettings}
             onClose={onClose}
+            onLayoutModeChange={onLayoutModeChange}
             className={className}
             style={style}
         />

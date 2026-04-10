@@ -75,26 +75,6 @@
   padding: 2px 8px;
 }
 
-.composer-mode-selector .ant-radio-group {
-  display: flex;
-  width: 100%;
-}
-
-.composer-mode-selector .ant-radio-button-wrapper {
-  flex: 1;
-  height: 38px;
-  line-height: 36px;
-  padding: 0 12px;
-  font-size: 14px;
-  text-align: center;
-}
-
-.composer-mode-selector .ant-radio-button-wrapper-checked {
-  color: #531dab;
-  border-color: #d3adf7;
-  box-shadow: none;
-}
-
 .composer-note-warning {
   background-color: #fffbe6;
   border-left: 3px solid #faad14;
@@ -199,7 +179,7 @@
 
 .composer-input-area {
   display: flex;
-  gap: 8px;
+  gap: 4px;
   align-items: flex-end;
   border: 1px solid #d9d9d9;
   border-radius: 6px;
@@ -213,11 +193,17 @@
   box-shadow: 0 0 0 2px rgba(146, 84, 222, 0.08);
 }
 
+.composer-mode-toggle-button,
 .composer-attachment-button {
   flex-shrink: 0;
   color: #262626 !important;
   padding: 4px 8px !important;
   font-size: 16px;
+}
+
+.composer-mode-toggle-button.ant-btn-text:not(:disabled):hover {
+  color: #531dab !important;
+  background-color: rgba(82, 24, 140, 0.06) !important;
 }
 
 .composer-textarea {
@@ -310,11 +296,6 @@
 @media (max-width: 768px) {
   .composer {
     padding: 12px;
-  }
-
-  .composer-mode-selector .ant-radio-group {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
   }
 
   .composer-linked-content-row {
