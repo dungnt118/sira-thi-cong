@@ -278,6 +278,7 @@ const JourneyInbox: React.FC = () => {
     return (
         <div style={{ paddingBottom: 32 }}>
             <SectionHeader
+                contentBleedPx={8}
                 title="Yêu cầu"
                 breadcrumb="Hệ thống quản lý bán hàng"
                 description="Quản lý toàn bộ lead, nhu cầu khách hàng và trạng thái bán hàng trực tiếp trên Journey."

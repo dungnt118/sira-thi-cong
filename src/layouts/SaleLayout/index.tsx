@@ -205,7 +205,10 @@ export const SaleLayout: React.FC = () => {
                 </Sider>
             )}
 
-            <Layout style={{ marginLeft: isMobile ? 0 : 240, transition: 'margin-left 0.2s' }}>
+            <Layout
+                className="sale-layout__main"
+                style={{ marginLeft: isMobile ? 0 : 240, transition: 'margin-left 0.2s' }}
+            >
                 <Header
                     className="sale-layout__header"
                     style={{

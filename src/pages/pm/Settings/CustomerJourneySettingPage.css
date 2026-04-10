@@ -1,0 +1,62 @@
+/* Tránh scroll ngang mobile: wrap text, bảng co theo viewport */
+.customer-journey-page {
+    max-width: 100%;
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+
+.customer-journey-page .ant-card {
+    max-width: 100%;
+}
+
+.customer-journey-page .ant-card-body {
+    overflow-x: hidden;
+    max-width: 100%;
+}
+
+.customer-journey-page .step-detail-view {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.customer-journey-page .ant-descriptions-view table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+.customer-journey-page .ant-descriptions-item-label,
+.customer-journey-page .ant-descriptions-item-content {
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    vertical-align: top;
+}
+
+.customer-journey-page .ant-descriptions-item-content {
+    min-width: 0;
+}
+
+.customer-journey-page .cj-wrap-text {
+    display: block;
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    max-width: 100%;
+}
+
+.customer-journey-page .ant-list-item {
+    flex-wrap: wrap;
+}
+
+.customer-journey-page .ant-table-wrapper {
+    max-width: 100%;
+}
+
+.customer-journey-page .ant-table {
+    table-layout: fixed;
+}
+
+.customer-journey-page .ant-table-cell {
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    white-space: normal !important;
+}

@@ -102,6 +102,7 @@ const CommunicationsCenter: React.FC = () => {
     return (
         <div style={{ height: 'calc(100vh - 120px)', display: 'flex', flexDirection: 'column' }}>
             <SectionHeader
+                contentBleedPx={8}
                 title="Communications Center"
                 breadcrumb="Cổng Giao tiếp KH"
                 actions={

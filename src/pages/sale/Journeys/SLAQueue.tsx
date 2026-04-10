@@ -203,6 +203,7 @@ const SLAQueue: React.FC = () => {
     return (
         <div style={{ padding: '4px 0' }}>
             <SectionHeader
+                contentBleedPx={8}
                 title="Cảnh báo tiến độ"
                 breadcrumb="Hệ thống quản lý bán hàng"
                 description="Ưu tiên xử lý các công trình đang trễ hạn hoặc có rủi ro để đội Sale chủ động phản hồi khách hàng."

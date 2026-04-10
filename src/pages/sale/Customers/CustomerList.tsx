@@ -295,6 +295,7 @@ const CustomerList: React.FC = () => {
     return (
         <div style={{ paddingBottom: 32 }}>
             <SectionHeader
+                contentBleedPx={8}
                 title="Khách hàng"
                 breadcrumb="Hệ thống quản lý bán hàng"
                 description="Quản lý danh sách khách hàng, thông tin liên hệ và điều hướng sang tạo yêu cầu dịch vụ mới."

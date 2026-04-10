@@ -99,6 +99,7 @@ const SurveyCoordination: React.FC = () => {
     return (
         <div style={{ padding: '4px 0' }}>
             <SectionHeader
+                contentBleedPx={8}
                 title="Điều phối Khảo sát"
                 breadcrumb="Quản lý Vận hành"
                 actions={

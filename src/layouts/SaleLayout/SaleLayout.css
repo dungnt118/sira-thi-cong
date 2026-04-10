@@ -1,3 +1,7 @@
+.sale-layout__main {
+    --section-header-sticky-top: 56px;
+}
+
 .sale-layout {
     min-height: 100vh;
     background-color: #f0f2f5;

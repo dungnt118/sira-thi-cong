@@ -1,3 +1,7 @@
+.base-layout__main {
+    --section-header-sticky-top: 56px;
+}
+
 .base-layout-sidebar {
     background: #001529;
 }
@@ -11,4 +15,21 @@
 
 .base-layout-content {
     min-height: 280px;
+}
+
+/* Nút mở sidemenu: nền đục, không lộ nội dung scroll phía sau */
+.base-layout__header.ant-layout-header {
+    isolation: isolate;
+}
+
+.base-layout__menu-trigger.ant-btn {
+    background: #fff !important;
+    border: 1px solid #f0f0f0 !important;
+    border-radius: 8px;
+}
+
+.base-layout__menu-trigger.ant-btn:hover,
+.base-layout__menu-trigger.ant-btn:focus {
+    background: #fafafa !important;
+    border-color: #d9d9d9 !important;
 }
