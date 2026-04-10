@@ -66,6 +66,8 @@ export interface JourneyDocumentsTabProps {
     isEditable?: boolean;
     /** Ẩn nút "Tạo tài liệu" nằm trong header của component này (mặc định false) */
     hideCreateButton?: boolean;
+    /** Bước hiện tại của công trình — dùng để mặc định "Giai đoạn/Bước" khi thêm tài liệu */
+    journeyCurrentStep?: string | null;
 }
 
 // ─── Component ─────────────────────────────────────────────
@@ -73,6 +75,7 @@ export const JourneyDocumentsTab: React.FC<JourneyDocumentsTabProps> = ({
     journeyId,
     isEditable = true,
     hideCreateButton = false,
+    journeyCurrentStep,
 }) => {
     const [documents, setDocuments] = useState<IJourneyDocument[]>([]);
     const [isLoadingDocs, setIsLoadingDocs] = useState(false);
@@ -560,6 +563,7 @@ export const JourneyDocumentsTab: React.FC<JourneyDocumentsTabProps> = ({
                     fetchDocuments();
                 }}
                 journeyId={journeyId}
+                stepCode={journeyCurrentStep || undefined}
                 editingDoc={editingDoc}
             />
         </div>

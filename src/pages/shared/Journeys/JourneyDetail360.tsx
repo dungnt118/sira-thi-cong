@@ -575,6 +575,7 @@ const JourneyDetail360: React.FC = () => {
                 <JourneyDocumentsTab
                     journeyId={journey._id}
                     isEditable={role === 'QL' || isAdmin}
+                    journeyCurrentStep={journey.current_step}
                 />
             ),
         },
@@ -1426,6 +1427,7 @@ const JourneyDetail360: React.FC = () => {
                     window.dispatchEvent(new CustomEvent('journey-documents-updated'));
                 }}
                 journeyId={journeyId!}
+                stepCode={journey?.current_step}
                 editingDoc={editingDoc}
             />
 

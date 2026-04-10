@@ -28,7 +28,8 @@ export interface CreateJourneyDocumentModalProps {
     onCancel: () => void;
     onSuccess: (doc: IJourneyDocument) => void;
     journeyId: string;
-    stepCode?: string;
+    /** Mã bước journey (vd. `current_step`) — tự điền "Giai đoạn/Bước" khi thêm mới */
+    stepCode?: string | null;
     editingDoc?: IJourneyDocument | null;
 }
 
@@ -75,12 +76,13 @@ export const CreateJourneyDocumentModal: React.FC<CreateJourneyDocumentModalProp
                     setFileList([]);
                 }
             } else {
+                const step = stepCode && String(stepCode).trim() ? String(stepCode).trim() : undefined;
                 form.resetFields();
                 form.setFieldsValue({
                     context_type: 'general',
                     is_published: true,
                     published_at: dayjs(),
-                    journey_step_code: stepCode,
+                    ...(step ? { journey_step_code: step } : {}),
                 });
                 setFileList([]);
             }
