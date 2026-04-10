@@ -10,7 +10,7 @@
 }
 
 .customer-journey-page .ant-card-body {
-    overflow-x: hidden;
+    overflow-x: auto;
     max-width: 100%;
 }
 
@@ -37,13 +37,20 @@
     }
 
     .customer-journey-page .step-detail-view .ant-descriptions-item-label {
-        width: 200px;
-        min-width: 200px;
-        max-width: 28%;
+        width: 160px;
+        min-width: 160px;
+        max-width: 30%;
         box-sizing: border-box;
         white-space: normal;
         word-break: normal;
         overflow-wrap: break-word;
+    }
+
+    @media (min-width: 1200px) {
+        .customer-journey-page .step-detail-view .ant-descriptions-item-label {
+            width: 200px;
+            min-width: 200px;
+        }
     }
 
     .customer-journey-page .step-detail-view .ant-descriptions-item-content {

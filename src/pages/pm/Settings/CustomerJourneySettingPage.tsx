@@ -336,10 +336,10 @@ const CustomerJourneySettingPage: React.FC = () => {
                 </Paragraph>
             </Card>
 
-            {/* wrap=false: tránh 5+19 span + gutter >100% khiến cột chi tiết xuống dòng → nhìn như mất nội dung */}
-            <Row gutter={[16, 16]} wrap={false}>
+            {/* Remove wrap={false} to allow columns to wrap on narrow screens, avoiding clipping */}
+            <Row gutter={[16, 16]}>
                 {!isMobile && (
-                    <Col xs={24} md={7} lg={6} xl={5} className="cj-steps-rail" style={{ maxWidth: '100%' }}>
+                    <Col xs={24} md={7} lg={6} xl={5} className="cj-steps-rail">
                         <Card
                             title={<Space><SettingOutlined /> Các giai đoạn quy trình</Space>}
                             style={{ borderRadius: 12 }}
@@ -350,7 +350,7 @@ const CustomerJourneySettingPage: React.FC = () => {
                     </Col>
                 )}
 
-                <Col xs={24} md={isMobile ? 24 : 17} lg={isMobile ? 24 : 18} xl={isMobile ? 24 : 19} style={{ maxWidth: '100%' }}>
+                <Col xs={24} md={isMobile ? 24 : 17} lg={isMobile ? 24 : 18} xl={isMobile ? 24 : 19}>
                     <Card
                         title={
                             <div
@@ -377,8 +377,8 @@ const CustomerJourneySettingPage: React.FC = () => {
                                 )}
                             </div>
                         }
-                        style={{ borderRadius: 12, minHeight: 600, maxWidth: '100%' }}
-                        styles={{ body: { maxWidth: '100%', minWidth: 0, overflowX: 'hidden' } }}
+                        style={{ borderRadius: 12, minHeight: 600 }}
+                        styles={{ body: { minWidth: 0, overflowX: 'auto' } }}
                     >
                         {/* Edit Mode Content */}
                         <div style={{ display: isEditing ? 'block' : 'none' }}>
