@@ -14,7 +14,8 @@ import {
     ClockCircleOutlined, MessageOutlined, CloseCircleOutlined,
     TeamOutlined,
     FormOutlined, PaperClipOutlined, EditOutlined, RocketOutlined, PlusOutlined,
-    AuditOutlined, ProjectOutlined, HistoryOutlined, ArrowRightOutlined
+    AuditOutlined, ProjectOutlined, HistoryOutlined, ArrowRightOutlined,
+    ShopOutlined, ToolOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
@@ -90,6 +91,10 @@ const JourneyDetail360: React.FC = () => {
     const activeTab = searchParams.get('tab') || 'GRP_01_INFO';
     const navigate = useNavigate();
     const { role, isAdmin, user } = useAuth();
+    /** PM trong app = mã QL (route /admin/ql); từng có nhầm `role === 'pm'` nên modal không mount. */
+    const isPmManager =
+        isAdmin ||
+        (typeof role === 'string' && ['QL', 'PM'].includes(role.toUpperCase()));
 
     const [journey, setJourney] = useState<IJourney | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -345,8 +350,8 @@ const JourneyDetail360: React.FC = () => {
         const editableGroupCodes: string[] = [];
         const finalizableGroupCodes: string[] = [];
 
-        if (role === 'QL' || isAdmin) {
-            // Admin or PM sees everything, can edit and can finalize
+        if (isPmManager) {
+            // Admin or PM (QL) sees everything, can edit and can finalize
             journeySteps.forEach(s => {
                 if (s.standardProcedureGroupCd) {
                     allowedGroupCodes.push(s.standardProcedureGroupCd);
@@ -374,7 +379,7 @@ const JourneyDetail360: React.FC = () => {
             editableGroupCodes: [...new Set(editableGroupCodes)],
             finalizableGroupCodes: [...new Set(finalizableGroupCodes)]
         };
-    }, [role, isAdmin, journeySteps]);
+    }, [role, isPmManager, journeySteps]);
 
     const taskStatsByStep = useMemo(() => {
         const stats: Record<string, { total: number; finished: number; percentage: number }> = {};
@@ -459,21 +464,7 @@ const JourneyDetail360: React.FC = () => {
         >
             <Text style={{ color: 'rgba(255,255,255,0.68)', display: 'block', marginBottom: 6 }}>{label}</Text>
             {isNote ? (
-                <Text
-                    style={{
-                        color: '#fff',
-                        display: 'block',
-                        lineHeight: 1.6,
-                        ...(isMobile
-                            ? {
-                                display: '-webkit-box',
-                                WebkitLineClamp: 3,
-                                WebkitBoxOrient: 'vertical',
-                                overflow: 'hidden',
-                            }
-                            : {})
-                    }}
-                >
+                <Text style={{ color: '#fff', display: 'block', lineHeight: 1.6 }}>
                     {content}
                 </Text>
             ) : (
@@ -613,7 +604,7 @@ const JourneyDetail360: React.FC = () => {
                 <Button icon={<ArrowLeftOutlined />} type="text" onClick={() => navigate(-1)} style={{ padding: isMobile ? '4px 8px' : undefined }}>
                     {!isMobile && 'Quay lại'}
                 </Button>
-                {(role === 'QL' || isAdmin) && (
+                {isPmManager && (
                     <div style={isMobile ? { maxWidth: '100%', overflowX: 'auto', paddingBottom: 4 } : undefined}>
                         <Space size={isMobile ? 4 : 8} wrap={!isMobile}>
                             {(currentHeaderStepIndex < 0 || currentHeaderStepIndex < 5) && (
@@ -662,28 +653,127 @@ const JourneyDetail360: React.FC = () => {
             <Card variant="borderless" style={{ marginBottom: isMobile ? 8 : 16, borderRadius: 10, background: 'linear-gradient(135deg, #1e3a5f 0%, #1976D2 100%)' }}>
                 <Row gutter={24} align="middle">
                     <Col xs={24} md={16}>
-                        <div style={{ marginBottom: 4 }}>
-                            <Tag style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', fontWeight: 700 }}>
-                                {journey.journey_code}
-                            </Tag>
-                        </div>
-                        <Title level={4} style={{ color: '#fff', margin: '4px 0' }}>{journey.idx_customer_id?.title || journey.customer_full_name || 'Khách hàng ẩn danh'}</Title>
+                        {isMobile ? (
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    gap: 8,
+                                    marginBottom: 6,
+                                    minWidth: 0,
+                                }}
+                            >
+                                <Tag
+                                    style={{
+                                        background: 'rgba(255,255,255,0.2)',
+                                        border: 'none',
+                                        color: '#fff',
+                                        fontWeight: 700,
+                                        margin: 0,
+                                        flex: '1 1 auto',
+                                        minWidth: 0,
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        whiteSpace: 'nowrap',
+                                        maxWidth: '56%',
+                                    }}
+                                >
+                                    {journey.journey_code}
+                                </Tag>
+                                <Text
+                                    style={{
+                                        flexShrink: 0,
+                                        fontSize: 11,
+                                        color: 'rgba(255,255,255,0.92)',
+                                        whiteSpace: 'nowrap',
+                                    }}
+                                >
+                                    {journey.planned_start_date
+                                        ? dayjs(journey.planned_start_date).format('DD/MM/YYYY')
+                                        : '—'}
+                                    <span style={{ margin: '0 3px', opacity: 0.55 }}>→</span>
+                                    {journey.planned_end_date
+                                        ? dayjs(journey.planned_end_date).format('DD/MM/YYYY')
+                                        : '—'}
+                                </Text>
+                            </div>
+                        ) : (
+                            <div style={{ marginBottom: 4 }}>
+                                <Tag style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', fontWeight: 700 }}>
+                                    {journey.journey_code}
+                                </Tag>
+                            </div>
+                        )}
+                        {isMobile ? (
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    gap: 8,
+                                    margin: '6px 0 4px',
+                                    minWidth: 0,
+                                }}
+                            >
+                                <Title
+                                    level={4}
+                                    ellipsis={{ rows: 2 }}
+                                    style={{
+                                        color: '#fff',
+                                        margin: 0,
+                                        flex: '1 1 auto',
+                                        minWidth: 0,
+                                        marginBottom: 0,
+                                    }}
+                                >
+                                    {journey.idx_customer_id?.title || journey.customer_full_name || 'Khách hàng ẩn danh'}
+                                </Title>
+                                <Tag
+                                    color={SLA_CONFIG[journey.sla_status as SlaStatus]?.color || 'default'}
+                                    style={{
+                                        margin: 0,
+                                        flexShrink: 0,
+                                        fontWeight: 600,
+                                        border: 'none',
+                                        maxWidth: '42%',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        whiteSpace: 'nowrap',
+                                    }}
+                                    title={
+                                        SLA_CONFIG[journey.sla_status as SlaStatus]?.label ||
+                                        journey.sla_status ||
+                                        undefined
+                                    }
+                                >
+                                    SLA:{' '}
+                                    {SLA_CONFIG[journey.sla_status as SlaStatus]?.label || journey.sla_status || '—'}
+                                </Tag>
+                            </div>
+                        ) : (
+                            <Title level={4} style={{ color: '#fff', margin: '4px 0' }}>
+                                {journey.idx_customer_id?.title || journey.customer_full_name || 'Khách hàng ẩn danh'}
+                            </Title>
+                        )}
                         <Text style={{ color: 'rgba(255,255,255,0.8)' }}>{journey.request_title}</Text>
 
-                        <div style={{ marginTop: 12 }}>
-                            <Space size="middle">
-                                <CalendarOutlined style={{ color: 'rgba(255,255,255,0.6)' }} />
-                                <Text style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13 }}>
-                                    Kế hoạch: <Text strong style={{ color: '#fff', marginLeft: 4 }}>
-                                        {journey.planned_start_date ? dayjs(journey.planned_start_date).format('DD/MM/YYYY') : 'Chưa định ngày'}
+                        {!isMobile && (
+                            <div style={{ marginTop: 12 }}>
+                                <Space size="middle">
+                                    <CalendarOutlined style={{ color: 'rgba(255,255,255,0.6)' }} />
+                                    <Text style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13 }}>
+                                        Kế hoạch: <Text strong style={{ color: '#fff', marginLeft: 4 }}>
+                                            {journey.planned_start_date ? dayjs(journey.planned_start_date).format('DD/MM/YYYY') : 'Chưa định ngày'}
+                                        </Text>
+                                        <Text style={{ margin: '0 8px', color: 'rgba(255,255,255,0.4)' }}>➔</Text>
+                                        <Text strong style={{ color: '#fff' }}>
+                                            {journey.planned_end_date ? dayjs(journey.planned_end_date).format('DD/MM/YYYY') : 'Chưa định ngày'}
+                                        </Text>
                                     </Text>
-                                    <Text style={{ margin: '0 8px', color: 'rgba(255,255,255,0.4)' }}>➔</Text>
-                                    <Text strong style={{ color: '#fff' }}>
-                                        {journey.planned_end_date ? dayjs(journey.planned_end_date).format('DD/MM/YYYY') : 'Chưa định ngày'}
-                                    </Text>
-                                </Text>
-                            </Space>
-                        </div>
+                                </Space>
+                            </div>
+                        )}
 
                         {currentStepLog && (currentStepLog.sla_status === 'at_risk' || currentStepLog.sla_status === 'overdue') && (
                             <div style={{ marginTop: 12 }}>
@@ -708,25 +798,6 @@ const JourneyDetail360: React.FC = () => {
                                 />
                             </div>
                         )}
-
-                        {isMobile && (
-                            <div style={{ marginTop: 16 }}>
-                                <Button
-                                    type="primary"
-                                    ghost
-                                    icon={<RocketOutlined />}
-                                    onClick={() => setIsJourneyDrawerVisible(true)}
-                                    style={{
-                                        borderRadius: 8,
-                                        borderColor: 'rgba(255,255,255,0.4)',
-                                        color: '#fff',
-                                        background: 'rgba(255,255,255,0.1)'
-                                    }}
-                                >
-                                    Theo dõi lộ trình
-                                </Button>
-                            </div>
-                        )}
                     </Col>
                     <Col xs={24} md={8} style={{ textAlign: isMobile ? 'left' : 'right' }}>
                         <Space wrap>
@@ -741,9 +812,11 @@ const JourneyDetail360: React.FC = () => {
                                     </Tag>
                                 </Tooltip>
                             )}
-                            <Tag color={SLA_CONFIG[journey.sla_status as SlaStatus]?.color || 'default'}>
-                                Toàn trình: {SLA_CONFIG[journey.sla_status as SlaStatus]?.label || journey.sla_status}
-                            </Tag>
+                            {!isMobile && (
+                                <Tag color={SLA_CONFIG[journey.sla_status as SlaStatus]?.color || 'default'}>
+                                    Toàn trình: {SLA_CONFIG[journey.sla_status as SlaStatus]?.label || journey.sla_status}
+                                </Tag>
+                            )}
                             <Tag color={GO_NO_GO_CONFIG[journey.go_no_go_status as GoNoGoStatus]?.color || 'default'}>
                                 {GO_NO_GO_CONFIG[journey.go_no_go_status as GoNoGoStatus]?.label || journey.go_no_go_status}
                             </Tag>
@@ -753,34 +826,139 @@ const JourneyDetail360: React.FC = () => {
 
                 <div
                     style={{
-                        marginTop: 16,
-                        padding: isMobile ? 12 : 16,
+                        marginTop: isMobile ? 10 : 16,
+                        padding: isMobile ? '8px 10px' : 16,
                         borderRadius: 12,
                         background: 'rgba(255,255,255,0.08)',
-                        border: '1px solid rgba(255,255,255,0.12)'
+                        border: '1px solid rgba(255,255,255,0.12)',
+                        overflow: isMobile ? 'hidden' : undefined,
+                        maxWidth: '100%',
                     }}
                 >
-                    <Space style={{ marginBottom: 12 }}>
-                        <TeamOutlined style={{ color: '#fff' }} />
-                        <Text strong style={{ color: '#fff' }}>Điều phối nhân sự</Text>
-                    </Space>
+                    <div
+                        style={{
+                            marginBottom: isMobile ? 6 : 12,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            gap: 8,
+                            minWidth: 0,
+                        }}
+                    >
+                        <Space style={{ marginBottom: 0, minWidth: 0, flex: '1 1 auto' }} size={8}>
+                            <TeamOutlined style={{ color: '#fff', flexShrink: 0 }} />
+                            <Text
+                                strong
+                                style={{
+                                    color: '#fff',
+                                    minWidth: 0,
+                                    ...(isMobile
+                                        ? { display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }
+                                        : {}),
+                                }}
+                            >
+                                Điều phối nhân sự
+                            </Text>
+                        </Space>
+                        {isMobile && (
+                            <Button
+                                type="primary"
+                                ghost
+                                size="small"
+                                icon={<RocketOutlined />}
+                                onClick={() => setIsJourneyDrawerVisible(true)}
+                                style={{
+                                    flexShrink: 0,
+                                    borderRadius: 8,
+                                    borderColor: 'rgba(255,255,255,0.4)',
+                                    color: '#fff',
+                                    background: 'rgba(255,255,255,0.1)',
+                                }}
+                            >
+                                Lộ trình
+                            </Button>
+                        )}
+                    </div>
 
-                    <div style={isMobile ? { overflowX: 'auto', paddingBottom: 4 } : undefined}>
-                        <Row gutter={[16, 12]} wrap={!isMobile}>
-                            <Col xs={24} sm={12} lg={6} style={isMobile ? { flex: '0 0 min(260px, 78vw)', maxWidth: 'min(260px, 78vw)' } : undefined}>
+                    {isMobile ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                            {(
+                                [
+                                    {
+                                        Icon: UserOutlined,
+                                        label: 'Quản lý',
+                                        value: toUserList(journey.pm_user).join(', ') || '—',
+                                    },
+                                    {
+                                        Icon: ShopOutlined,
+                                        label: 'Kinh doanh',
+                                        value: toUserList(journey.sale_users).join(', ') || '—',
+                                    },
+                                    {
+                                        Icon: AuditOutlined,
+                                        label: 'Giám sát',
+                                        value: toUserList(journey.supervisor_users).join(', ') || '—',
+                                    },
+                                    {
+                                        Icon: ToolOutlined,
+                                        label: 'Kỹ thuật',
+                                        value: toUserList(journey.technical_users).join(', ') || '—',
+                                    },
+                                ]
+                            ).map(({ Icon, label, value }) => (
+                                <div
+                                    key={label}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'flex-start',
+                                        gap: 6,
+                                        minWidth: 0,
+                                        lineHeight: 1.35,
+                                    }}
+                                >
+                                    <Icon style={{ color: 'rgba(255,255,255,0.72)', fontSize: 13, marginTop: 2, flexShrink: 0 }} />
+                                    <div style={{ fontSize: 12, margin: 0, minWidth: 0, flex: 1, color: '#fff' }}>
+                                        <span style={{ color: 'rgba(255,255,255,0.7)' }}>{label}: </span>
+                                        <span
+                                            style={{
+                                                color: 'rgba(255,255,255,0.98)',
+                                                wordBreak: 'break-word',
+                                                overflowWrap: 'anywhere',
+                                            }}
+                                        >
+                                            {value}
+                                        </span>
+                                    </div>
+                                </div>
+                            ))}
+                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6, minWidth: 0, lineHeight: 1.3 }}>
+                                <FileTextOutlined style={{ color: 'rgba(255,255,255,0.72)', fontSize: 13, marginTop: 2, flexShrink: 0 }} />
+                                <div style={{ minWidth: 0, flex: 1 }}>
+                                    <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', margin: 0 }}>Ghi chú:</Text>{' '}
+                                    <Tooltip title={journey.delivery_note?.trim() ? journey.delivery_note : undefined}>
+                                        <Text ellipsis style={{ fontSize: 12, color: '#fff', margin: 0, display: 'block', maxWidth: '100%' }}>
+                                            {journey.delivery_note?.trim() ? journey.delivery_note : '—'}
+                                        </Text>
+                                    </Tooltip>
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <Row gutter={[16, 12]} wrap>
+                            <Col xs={24} sm={12} lg={6}>
                                 {renderAssignmentPanel('PM', renderAssignmentTags(toUserList(journey.pm_user)))}
                             </Col>
-                            <Col xs={24} sm={12} lg={6} style={isMobile ? { flex: '0 0 min(260px, 78vw)', maxWidth: 'min(260px, 78vw)' } : undefined}>
+                            <Col xs={24} sm={12} lg={6}>
                                 {renderAssignmentPanel('Giám sát', renderAssignmentTags(toUserList(journey.supervisor_users)))}
                             </Col>
-                            <Col xs={24} sm={12} lg={6} style={isMobile ? { flex: '0 0 min(260px, 78vw)', maxWidth: 'min(260px, 78vw)' } : undefined}>
+                            <Col xs={24} sm={12} lg={6}>
                                 {renderAssignmentPanel('Kỹ thuật', renderAssignmentTags(toUserList(journey.technical_users)))}
                             </Col>
-                            <Col xs={24} sm={12} lg={6} style={isMobile ? { flex: '0 0 min(260px, 78vw)', maxWidth: 'min(260px, 78vw)' } : undefined}>
+                            <Col xs={24} sm={12} lg={6}>
                                 {renderAssignmentPanel('Ghi chú bàn giao', journey.delivery_note || 'Chưa có ghi chú', true)}
                             </Col>
                         </Row>
-                    </div>
+                    )}
                 </div>
 
                 {HEADER_STEP_CONFIG.length > 0 && !isMobile && (
@@ -1017,8 +1195,8 @@ const JourneyDetail360: React.FC = () => {
                 </>
             )}
 
-            {/* Modals for PM */}
-            {role === 'pm' && (
+            {/* Modals + drawer PM (mã vai trò: QL) */}
+            {isPmManager && (
                 <>
                     <Modal
                         title="Phân công phụ trách"
@@ -1097,16 +1275,6 @@ const JourneyDetail360: React.FC = () => {
                             </Form.Item>
                         </Form>
                     </Modal>
-
-                    <CreateJourneyDocumentModal
-                        open={showCreateDocModal}
-                        onCancel={() => setShowCreateDocModal(false)}
-                        onSuccess={() => {
-                            setShowCreateDocModal(false);
-                            window.dispatchEvent(new CustomEvent('journey-documents-updated'));
-                        }}
-                        journeyId={journeyId!}
-                    />
 
                     <Modal
                         title="Publish lên Portal"

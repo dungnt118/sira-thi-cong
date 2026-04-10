@@ -241,7 +241,7 @@ const CustomerJourneySettingPage: React.FC = () => {
                     style={{
                         cursor: 'pointer',
                         borderRadius: 8,
-                        padding: '12px 16px',
+                        padding: isMobile ? '12px 16px' : '8px 10px',
                         marginBottom: 8,
                         border: '1px solid #f0f0f0',
                         background: selectedStepCode === step.step_code ? '#e6f7ff' : '#fff',
@@ -252,10 +252,30 @@ const CustomerJourneySettingPage: React.FC = () => {
                 >
                     <div style={{ width: '100%', minWidth: 0 }}>
                         <Space direction="vertical" size={6} style={{ width: '100%' }}>
-                            <Space wrap size="small" style={{ width: '100%' }}>
-                                <Badge count={idx + 1} style={{ backgroundColor: step.is_enabled !== false ? '#1890ff' : '#d9d9d9' }} />
-                                <Text strong style={{ color: step.is_enabled !== false ? '#262626' : '#bfbfbf' }}>{step.step_name}</Text>
-                            </Space>
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'flex-start',
+                                    gap: 8,
+                                    width: '100%',
+                                    minWidth: 0,
+                                }}
+                            >
+                                <Badge count={idx + 1} style={{ backgroundColor: step.is_enabled !== false ? '#1890ff' : '#d9d9d9', flexShrink: 0 }} />
+                                <Text
+                                    strong
+                                    ellipsis={{ tooltip: step.step_name }}
+                                    style={{
+                                        color: step.is_enabled !== false ? '#262626' : '#bfbfbf',
+                                        flex: 1,
+                                        minWidth: 0,
+                                        margin: 0,
+                                        display: 'block',
+                                    }}
+                                >
+                                    {step.step_name}
+                                </Text>
+                            </div>
                             <Space wrap size={[4, 4]}>
                                 {step.sla_hours > 0 && (
                                     <Tag
@@ -316,20 +336,21 @@ const CustomerJourneySettingPage: React.FC = () => {
                 </Paragraph>
             </Card>
 
-            <Row gutter={[16, 16]}>
+            {/* wrap=false: tránh 5+19 span + gutter >100% khiến cột chi tiết xuống dòng → nhìn như mất nội dung */}
+            <Row gutter={[16, 16]} wrap={false}>
                 {!isMobile && (
-                    <Col xs={24} md={9}>
+                    <Col xs={24} md={7} lg={6} xl={5} className="cj-steps-rail" style={{ maxWidth: '100%' }}>
                         <Card
                             title={<Space><SettingOutlined /> Các giai đoạn quy trình</Space>}
                             style={{ borderRadius: 12 }}
-                            styles={{ body: { padding: 12 } }}
+                            styles={{ body: { padding: 10 } }}
                         >
                             {stepsListNode}
                         </Card>
                     </Col>
                 )}
 
-                <Col xs={24} md={isMobile ? 24 : 15}>
+                <Col xs={24} md={isMobile ? 24 : 17} lg={isMobile ? 24 : 18} xl={isMobile ? 24 : 19} style={{ maxWidth: '100%' }}>
                     <Card
                         title={
                             <div
@@ -357,7 +378,7 @@ const CustomerJourneySettingPage: React.FC = () => {
                             </div>
                         }
                         style={{ borderRadius: 12, minHeight: 600, maxWidth: '100%' }}
-                        styles={{ body: { maxWidth: '100%', overflowX: 'hidden' } }}
+                        styles={{ body: { maxWidth: '100%', minWidth: 0, overflowX: 'hidden' } }}
                     >
                         {/* Edit Mode Content */}
                         <div style={{ display: isEditing ? 'block' : 'none' }}>
@@ -564,7 +585,13 @@ const CustomerJourneySettingPage: React.FC = () => {
                                     labelStyle={
                                         isMobile
                                             ? { background: '#fafafa', fontWeight: 600 }
-                                            : { width: 220, background: '#fafafa', fontWeight: 600 }
+                                            : {
+                                                minWidth: 200,
+                                                width: 200,
+                                                maxWidth: '28%',
+                                                background: '#fafafa',
+                                                fontWeight: 600,
+                                            }
                                     }
                                     contentStyle={{
                                         minWidth: 0,
@@ -606,12 +633,12 @@ const CustomerJourneySettingPage: React.FC = () => {
                                     <Descriptions.Item label="Checklist">
                                         {selectedStep?.checklist && selectedStep.checklist.length > 0 ? (
                                             <Table
+                                                className="cj-checklist-table"
                                                 dataSource={selectedStep.checklist}
                                                 pagination={false}
                                                 size="small"
-                                                rowKey="name"
+                                                rowKey={(r, i) => `${r.name}-${i}`}
                                                 tableLayout="fixed"
-                                                scroll={isMobile ? undefined : { x: 'max-content' }}
                                                 columns={[
                                                     {
                                                         title: '#',
@@ -622,6 +649,7 @@ const CustomerJourneySettingPage: React.FC = () => {
                                                     {
                                                         title: 'Tên hạng mục',
                                                         dataIndex: 'name',
+                                                        width: '30%',
                                                         ellipsis: false,
                                                         render: (name: string, record: IChecklistItem) => (
                                                             <Space wrap size={[4, 4]}>
