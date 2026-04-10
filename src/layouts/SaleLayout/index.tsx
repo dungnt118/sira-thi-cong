@@ -59,8 +59,8 @@ export const SaleLayout: React.FC = () => {
             return '/admin/kd/dashboard';
         }
 
-        if (location.pathname.startsWith('/admin/kd/sla')) {
-            return '/admin/kd/sla';
+        if (location.pathname.startsWith('/admin/kd/surveys')) {
+            return '/admin/kd/surveys';
         }
 
         if (location.pathname.startsWith('/admin/kd/surveys')) {
@@ -94,12 +94,6 @@ export const SaleLayout: React.FC = () => {
             icon: <TeamOutlined />,
             label: 'Khách hàng',
             onClick: () => navigate('/admin/kd/customers'),
-        },
-        {
-            key: '/admin/kd/sla',
-            icon: <ClockCircleOutlined />,
-            label: 'Cảnh báo tiến độ',
-            onClick: () => navigate('/admin/kd/sla'),
         },
         {
             key: '/admin/kd/surveys',
@@ -165,11 +159,6 @@ export const SaleLayout: React.FC = () => {
                     key: '/admin/kd/customers',
                     label: 'Khách hàng',
                     onClick: () => navigate('/admin/kd/customers'),
-                },
-                {
-                    key: '/admin/kd/sla',
-                    label: 'Cảnh báo tiến độ',
-                    onClick: () => navigate('/admin/kd/sla'),
                 },
                 {
                     key: '/admin/kd/surveys',
