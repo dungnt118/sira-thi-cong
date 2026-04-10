@@ -32,6 +32,7 @@ import { customerJourneySettingService } from '../../../services/core-contracts/
 import { employeeService } from '../../../services/core-contracts/services/employee.service';
 import { journeyStepLogService } from '../../../services/core-contracts/services/journeyStepLog.service';
 import { IJourney } from '../../../services/core-contracts/types/journey.types';
+import type { ICustomerJourneySetting, IRolesItem } from '../../../services/core-contracts/types/customerJourneySetting.types';
 import { IWorkTask } from '../../../services/core-contracts/types/workTask.types';
 import { IJourneyStepLog } from '../../../services/core-contracts/types/journeyStepLog.types';
 import { AuthorizedUserSelect } from '../../../components/authorizedusers/AuthorizedUser';
@@ -79,6 +80,66 @@ const toUserList = (value: unknown): string[] => {
     return Array.isArray(value)
         ? value.filter((item): item is string => Boolean(item)).map((item) => String(item))
         : [String(value)];
+};
+
+/** Thứ tự bước trùng `CustomerJourneySetting` — ghép cùng chỉ số với `journeySteps` (mock template). */
+const CUSTOMER_JOURNEY_SETTING_STEP_CODES = [
+    'lead_intake',
+    'qualification',
+    'survey_planning',
+    'site_survey',
+    'survey_review',
+    'estimate_preparation',
+    'quotation_preparation',
+    'quotation_sent',
+    'quotation_approved',
+    'contract_signing',
+    'project_execution',
+    'handover_acceptance',
+    'warranty_aftercare',
+] as const;
+
+const DOCUMENT_PERMISSION_VALUES = new Set(['edit', 'submit', 'commit']);
+
+const normalizeRoleKey = (value: string | undefined) => (value || '').trim().toUpperCase();
+
+const getSettingStepPayload = (setting: ICustomerJourneySetting | null, stepCode: string): unknown => {
+    if (!setting) {
+        return null;
+    }
+
+    const fieldData = (setting as unknown as Record<string, unknown>)[stepCode];
+    if (Array.isArray(fieldData)) {
+        return fieldData[0] ?? null;
+    }
+
+    return fieldData ?? null;
+};
+
+const permissionsAllowDocumentActions = (permissions: string[] | undefined): boolean => {
+    if (!permissions?.length) {
+        return false;
+    }
+
+    return permissions.some((permission) => DOCUMENT_PERMISSION_VALUES.has(String(permission).toLowerCase().trim()));
+};
+
+const hasRoleDocumentPermissionFromStepRoles = (roles: IRolesItem[] | undefined, userRole: string | undefined): boolean => {
+    if (!roles?.length || !userRole) {
+        return false;
+    }
+
+    const target = normalizeRoleKey(userRole);
+    const row = roles.find((item) => {
+        const code = (item.role || (item.idx_role as { title?: string } | undefined)?.title || '').toString().trim();
+        if (!code) {
+            return false;
+        }
+
+        return normalizeRoleKey(code) === target || code === userRole;
+    });
+
+    return row ? permissionsAllowDocumentActions(row.permissions) : false;
 };
 
 // formatDuration is imported from shared components
@@ -231,6 +292,18 @@ const JourneyDetail360: React.FC = () => {
         }
     }, [activeTab, setSearchParams]);
 
+    useEffect(() => {
+        let cancelled = false;
+        void customerJourneySettingService.findSetting().then((data) => {
+            if (!cancelled && data) {
+                setCustomerJourneySetting(data);
+            }
+        }).catch(() => {});
+        return () => {
+            cancelled = true;
+        };
+    }, []);
+
     // Resolve template/steps
     const template = mockJourneyTemplates.find(t => t.id === 'default') || mockJourneyTemplates[0];
     const journeySteps = template?.steps || [];
@@ -247,6 +320,7 @@ const JourneyDetail360: React.FC = () => {
     const [isJourneyDrawerVisible, setIsJourneyDrawerVisible] = useState(false);
     const [isChatDrawerVisible, setIsChatDrawerVisible] = useState(false);
     const [chatDrawerLayoutMode, setChatDrawerLayoutMode] = useState<ChatPanelLayoutMode>('expanded');
+    const [customerJourneySetting, setCustomerJourneySetting] = useState<ICustomerJourneySetting | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [publishTab, setPublishTab] = useState('settings');
     const [assignForm] = Form.useForm();
@@ -373,6 +447,31 @@ const JourneyDetail360: React.FC = () => {
                     }
                 }
             });
+
+            /** Quyền ghi tài liệu theo CustomerJourneySetting: permissions chứa edit / submit / commit (Chịu trách nhiệm). */
+            if (customerJourneySetting && role) {
+                CUSTOMER_JOURNEY_SETTING_STEP_CODES.forEach((stepCode, index) => {
+                    const stepPayload = getSettingStepPayload(customerJourneySetting, stepCode);
+                    if (!stepPayload || typeof stepPayload !== 'object') {
+                        return;
+                    }
+
+                    const roles = (stepPayload as { roles?: IRolesItem[] }).roles;
+                    if (!hasRoleDocumentPermissionFromStepRoles(roles, role)) {
+                        return;
+                    }
+
+                    const groupCd = journeySteps[index]?.standardProcedureGroupCd;
+                    if (!groupCd) {
+                        return;
+                    }
+
+                    editableGroupCodes.push(groupCd);
+                    if (!allowedGroupCodes.includes(groupCd)) {
+                        allowedGroupCodes.push(groupCd);
+                    }
+                });
+            }
         }
 
         return {
@@ -380,7 +479,12 @@ const JourneyDetail360: React.FC = () => {
             editableGroupCodes: [...new Set(editableGroupCodes)],
             finalizableGroupCodes: [...new Set(finalizableGroupCodes)]
         };
-    }, [role, isPmManager, journeySteps]);
+    }, [role, isPmManager, journeySteps, customerJourneySetting]);
+
+    const canCreateJourneyDocument = useMemo(
+        () => isPmManager || userRoleConfig.editableGroupCodes.length > 0,
+        [isPmManager, userRoleConfig.editableGroupCodes],
+    );
 
     const taskStatsByStep = useMemo(() => {
         const stats: Record<string, { total: number; finished: number; percentage: number }> = {};
@@ -575,7 +679,7 @@ const JourneyDetail360: React.FC = () => {
             children: (
                 <JourneyDocumentsTab
                     journeyId={journey._id}
-                    isEditable={role === 'QL' || isAdmin}
+                    isEditable={canCreateJourneyDocument}
                     journeyCurrentStep={journey.current_step}
                 />
             ),
@@ -609,6 +713,9 @@ const JourneyDetail360: React.FC = () => {
                 {isPmManager && (
                     <div style={isMobile ? { maxWidth: '100%', overflowX: 'auto', paddingBottom: 4 } : undefined}>
                         <Space size={isMobile ? 4 : 8} wrap={!isMobile}>
+                            {canCreateJourneyDocument && (
+                                <Button icon={<FileTextOutlined />} onClick={() => { setEditingDoc(null); setShowCreateDocModal(true); }}>{isMobile ? '' : 'Tạo tài liệu'}</Button>
+                            )}
                             {(currentHeaderStepIndex < 0 || currentHeaderStepIndex < 5) && (
                                 <Button
                                     icon={<RocketOutlined />}
@@ -618,7 +725,6 @@ const JourneyDetail360: React.FC = () => {
                                     {isMobile ? '' : 'Khởi tạo công việc'}
                                 </Button>
                             )}
-                            <Button icon={<FileTextOutlined />} onClick={() => { setEditingDoc(null); setShowCreateDocModal(true); }}>{isMobile ? '' : 'Tạo tài liệu'}</Button>
                             <Button icon={<EditOutlined />} onClick={() => setIsEditDrawerVisible(true)}>{isMobile ? '' : 'Sửa công trình'}</Button>
                             <Button icon={<UserOutlined />} onClick={() => setShowAssignModal(true)}>{isMobile ? '' : 'Phân công'}</Button>
                             <Button icon={<FlagOutlined />} onClick={() => setShowPriorityModal(true)}>{isMobile ? '' : 'Ưu tiên'}</Button>
@@ -633,6 +739,9 @@ const JourneyDetail360: React.FC = () => {
                 {role === 'KD' && (
                     <div style={isMobile ? { maxWidth: '100%', overflowX: 'auto', paddingBottom: 4 } : undefined}>
                         <Space size={isMobile ? 4 : 8} wrap={!isMobile}>
+                            {canCreateJourneyDocument && (
+                                <Button icon={<FileTextOutlined />} onClick={() => { setEditingDoc(null); setShowCreateDocModal(true); }}>{isMobile ? '' : 'Tạo tài liệu'}</Button>
+                            )}
                             <Button icon={<MessageOutlined />} onClick={() => setShowLogModal(true)}>{isMobile ? '' : 'Ghi Log'}</Button>
                             <Button icon={<ClockCircleOutlined />} onClick={() => setShowFollowUpModal(true)}>{isMobile ? '' : 'Follow-up'}</Button>
                             {chatToggleButton}
@@ -645,6 +754,9 @@ const JourneyDetail360: React.FC = () => {
                 {role !== 'QL' && !isAdmin && role !== 'KD' && (
                     <div style={isMobile ? { maxWidth: '100%', overflowX: 'auto', paddingBottom: 4 } : undefined}>
                         <Space size={isMobile ? 4 : 8} wrap={!isMobile}>
+                            {canCreateJourneyDocument && (
+                                <Button icon={<FileTextOutlined />} onClick={() => { setEditingDoc(null); setShowCreateDocModal(true); }}>{isMobile ? '' : 'Tạo tài liệu'}</Button>
+                            )}
                             {chatToggleButton}
                         </Space>
                     </div>
