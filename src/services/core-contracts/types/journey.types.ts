@@ -138,6 +138,34 @@ export interface ICreateJourneyInput {
   customer_ward?: string;
 }
 
+export interface ICreatePortalJourneyRequestInput {
+  fullName: string;
+  phone: string;
+  serviceType: string;
+  description?: string;
+  email?: string;
+  address?: string;
+  province?: string;
+  ward?: string;
+  requestTitle?: string;
+  siteAddress?: string;
+  serviceTypeId?: string;
+  priority?: JourneyPriorityEnum2;
+  sourceChannel?: JourneySourceChannelEnum2;
+}
+
+export interface ICreatePortalJourneyRequestResult {
+  success: boolean;
+  message?: string;
+  data?: {
+    journeyId?: string;
+    journeyCode?: string | null;
+    customerId?: string;
+    createdCustomer?: boolean;
+    requestTitle?: string;
+  };
+}
+
 export type IJourneyListResponse = ApiListResponse<IJourney>
 
 // Union types generated from value_options
