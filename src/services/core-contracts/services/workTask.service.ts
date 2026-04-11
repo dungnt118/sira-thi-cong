@@ -5,6 +5,7 @@ import {
   query_content,
   count_content,
   save_content,
+  save_many_content,
   update_partial_content,
   delete_content,
   delete_multi_content,
@@ -90,14 +91,22 @@ export const workTaskService = {
       { filter, custominput: {} }
     );
   },
-  async saveManyWorkTasks(tasks: any[]): Promise<any> {
-    if (!tasks.length) return { success: true, data: [] };
-    const response = await save_content({
+  /** Lưu nhiều WorkTask — phải dùng save_many_content (mảng), không dùng save_content (một Dictionary). */
+  async saveManyWorkTasks(tasks: any[]): Promise<any[]> {
+    if (!tasks.length) return [];
+    const response = await save_many_content({
       schema: 'WorkTask',
       data: tasks,
       update_if_duplicate: false
     });
-    return response;
+    if (response?.code !== 0) {
+      throw new Error(response?.message || 'Không thể lưu hàng loạt WorkTask');
+    }
+    const data = response?.data;
+    if (data == null) {
+      throw new Error('Không thể lưu hàng loạt WorkTask (thiếu dữ liệu trả về)');
+    }
+    return Array.isArray(data) ? data : [data];
   },
 };
 

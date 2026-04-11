@@ -1,56 +1,263 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import dayjs from 'dayjs';
 import {
-    Card, Tabs, Tag, Button, Space, Typography, Row, Col,
-    Badge, Statistic, Timeline, Descriptions, Modal, Drawer,
-    Form, Select, Alert, Checkbox, message, Steps, Empty,
-    DatePicker, Input, Grid, List, Tooltip, Avatar, Divider
-} from 'antd';
-import {
-    CalendarOutlined, FileSearchOutlined, CalculatorOutlined, FileTextOutlined,
-    BoxPlotOutlined, DollarOutlined,
-    ArrowLeftOutlined, UserOutlined, FlagOutlined,
-    SendOutlined, ExclamationCircleOutlined, CheckCircleOutlined,
-    ClockCircleOutlined, MessageOutlined, CloseCircleOutlined,
+    ArrowLeftOutlined,
+    AuditOutlined,
+    BoxPlotOutlined,
+    CalculatorOutlined,
+    CalendarOutlined,
+    CarryOutOutlined,
+    ClockCircleOutlined,
+    DollarOutlined,
+    EditOutlined,
+    ExclamationCircleOutlined,
+    FileSearchOutlined,
+    FileTextOutlined,
+    FlagOutlined,
+    FormOutlined,
+    HistoryOutlined,
+    MessageOutlined,
+    NodeIndexOutlined,
+    PaperClipOutlined,
+    PartitionOutlined,
+    RocketOutlined,
+    SendOutlined,
+    ShopOutlined,
     TeamOutlined,
-    FormOutlined, PaperClipOutlined, EditOutlined, RocketOutlined, PlusOutlined,
-    AuditOutlined, ProjectOutlined, HistoryOutlined, ArrowRightOutlined,
-    ShopOutlined, ToolOutlined
+    ToolOutlined,
+    UserOutlined
 } from '@ant-design/icons';
+import {
+    Alert,
+    Badge,
+    Button,
+    Card,
+    Checkbox,
+    Col,
+    DatePicker,
+    Drawer,
+    Empty,
+    Form,
+    Grid,
+    Input,
+    message,
+    Modal,
+    Row,
+    Select,
+    Space,
+    Steps,
+    Tabs, Tag,
+    Tooltip,
+    Typography
+} from 'antd';
+import dayjs from 'dayjs';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { useAuth } from '../../../hooks/useAuth';
-import { JourneyStepRenderer, StepLabor, StepMaterials } from '../JourneySteps';
-import { ConsultationLogForm } from '../../../components/journey/SharedModals';
+import { ContentConversationPanel, type ChatPanelLayoutMode } from '../../../components/chatbox';
 import { CreateJourneyDocumentModal } from '../../../components/journey/CreateJourneyDocumentModal';
 import { CreateSiteReportModal } from '../../../components/journey/CreateSiteReportModal';
-import { ContentConversationPanel, type ChatPanelLayoutMode } from '../../../components/chatbox';
+import { ConsultationLogForm } from '../../../components/journey/SharedModals';
 import PortalDashboard from '../../../components/portal/PortalDashboard';
-import { journeyService } from '../../../services/core-contracts/services/journey.service';
-import { workTaskService } from '../../../services/core-contracts/services/workTask.service';
-import { siteReportService } from '../../../services/core-contracts/services/siteReport.service';
+import { useAuth } from '../../../hooks/useAuth';
 import { customerJourneySettingService } from '../../../services/core-contracts/services/customerJourneySetting.service';
 import { employeeService } from '../../../services/core-contracts/services/employee.service';
+import { journeyService } from '../../../services/core-contracts/services/journey.service';
 import { journeyStepLogService } from '../../../services/core-contracts/services/journeyStepLog.service';
+import { siteReportService } from '../../../services/core-contracts/services/siteReport.service';
+import { workTaskService } from '../../../services/core-contracts/services/workTask.service';
+import {
+    IChecklistItem,
+    ICustomerJourneySetting,
+    IRolesItem,
+    IStepsItem,
+} from '../../../services/core-contracts/types/customerJourneySetting.types';
 import { IJourney } from '../../../services/core-contracts/types/journey.types';
-import { ICustomerJourneySetting, IRolesItem, IStepsItem } from '../../../services/core-contracts/types/customerJourneySetting.types';
+import { JourneyStepRenderer, StepLabor, StepMaterials } from '../JourneySteps';
 
-import { IWorkTask } from '../../../services/core-contracts/types/workTask.types';
-import { IJourneyStepLog } from '../../../services/core-contracts/types/journeyStepLog.types';
 import { AuthorizedUserSelect } from '../../../components/authorizedusers/AuthorizedUser';
-import { mockJourneyTemplates } from '../../../data/journeyMockData';
-import type { GoNoGoStatus, SlaStatus, PortalPublishStatus } from '../../../types/journey';
+import { JourneyDocumentsTab } from '../../../components/journey/JourneyDocumentsTab';
 import JourneyUpsertDrawer from '../../../components/journey/JourneyUpsertDrawer';
 import { StepWorkTaskList } from '../../../components/journey/StepWorkTaskList';
-import { JourneyDocumentsTab } from '../../../components/journey/JourneyDocumentsTab';
+import { mockJourneyTemplates } from '../../../data/journeyMockData';
+import { journeyDocumentService } from '../../../services/core-contracts/services/journeyDocument.service';
+import { IJourneyDocument } from '../../../services/core-contracts/types/journeyDocument.types';
+import { IJourneyStepLog } from '../../../services/core-contracts/types/journeyStepLog.types';
+import type { ICreateWorkTaskInput, WorkTaskAssigneeRoleEnum2 } from '../../../services/core-contracts/types/workTask.types';
+import { IWorkTask } from '../../../services/core-contracts/types/workTask.types';
+import type { GoNoGoStatus, PortalPublishStatus, SlaStatus } from '../../../types/journey';
 
 const { Text, Title } = Typography;
 const { TextArea } = Input;
 
 import {
+    HEADER_STEP_CONFIG,
     JourneyHistoryModal,
-    SLA_CONFIG,
-    HEADER_STEP_CONFIG
+    SLA_CONFIG
 } from './components/JourneyHistoryModal';
+
+const WORKTASK_ASSIGNEE_ROLES: WorkTaskAssigneeRoleEnum2[] = ['QL', 'GS', 'KYT', 'KT', 'HC', 'KD', 'ADMIN'];
+
+const JOURNEY_ASSIGNMENT_HINT_BY_ROLE: Record<WorkTaskAssigneeRoleEnum2, string> = {
+    QL: 'Phân công Quản lý dự án (PM) trên công trình.',
+    KD: 'Gán Kinh doanh phụ trách (sale_users) trên hồ sơ / công trình.',
+    GS: 'Phân công Giám sát trên công trình.',
+    KYT: 'Phân công Kỹ thuật trên công trình.',
+    KT: 'Gán chủ sở hữu / người phụ trách (owner_user) trên công trình.',
+    HC: 'Gán chủ sở hữu / người phụ trách (owner_user) trên công trình.',
+    ADMIN: 'Cần có PM (pm_user) hoặc chủ sở hữu (owner_user) trên công trình.',
+};
+
+/** Bỏ dấu + gom khoảng trắng để map nhãn tiếng Việt / mã vai trò. */
+const normalizeRoleToken = (raw: string): { spaced: string; compact: string } => {
+    const spaced = raw
+        .trim()
+        .toUpperCase()
+        .normalize('NFD')
+        .replace(/\p{M}/gu, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+    return { spaced, compact: spaced.replace(/\s/g, '') };
+};
+
+/** Đồng nghĩa nhãn hiển thị / biến thể → mã WorkTask (KD, QL, …). */
+const CHECKLIST_ROLE_SYNONYM_TO_CODE: Record<string, WorkTaskAssigneeRoleEnum2> = {
+    KD: 'KD',
+    KINHDOANH: 'KD',
+    'KINH DOANH': 'KD',
+    QL: 'QL',
+    QUANLY: 'QL',
+    'QUAN LY': 'QL',
+    QUANLYDUAN: 'QL',
+    'QUAN LY DU AN': 'QL',
+    GS: 'GS',
+    GIAMSAT: 'GS',
+    'GIAM SAT': 'GS',
+    KYT: 'KYT',
+    KYTHUAT: 'KYT',
+    'KY THUAT': 'KYT',
+    KT: 'KT',
+    KETHUAN: 'KT',
+    'KE TOAN': 'KT',
+    HC: 'HC',
+    HANHCHINH: 'HC',
+    'HANH CHINH': 'HC',
+    ADMIN: 'ADMIN',
+};
+
+const normalizeChecklistAssigneeRole = (role: unknown): WorkTaskAssigneeRoleEnum2 | null => {
+    if (role == null || role === '') return null;
+    const { spaced, compact } = normalizeRoleToken(String(role));
+    if (WORKTASK_ASSIGNEE_ROLES.includes(spaced as WorkTaskAssigneeRoleEnum2)) {
+        return spaced as WorkTaskAssigneeRoleEnum2;
+    }
+    if (WORKTASK_ASSIGNEE_ROLES.includes(compact as WorkTaskAssigneeRoleEnum2)) {
+        return compact as WorkTaskAssigneeRoleEnum2;
+    }
+    return CHECKLIST_ROLE_SYNONYM_TO_CODE[spaced] ?? CHECKLIST_ROLE_SYNONYM_TO_CODE[compact] ?? null;
+};
+
+/** Lấy role từ checklist: field `role` hoặc title từ idx_role (một số bản ghi GraphQL). */
+const extractChecklistItemRole = (item: IChecklistItem & { idx_role?: { title?: string } }): unknown => {
+    if (item.role != null && String(item.role).trim() !== '') {
+        return item.role;
+    }
+    const t = item.idx_role?.title;
+    if (t != null && String(t).trim() !== '') {
+        return t;
+    }
+    return null;
+};
+
+/** Một user đại diện (id/chuỗi lưu trên Journey) theo mã vai trò checklist → WorkTask.assignee */
+const getPrimaryJourneyAssigneeForRole = (journey: IJourney, assigneeRole: WorkTaskAssigneeRoleEnum2): string | undefined => {
+    const first = (value: unknown): string | undefined => toUserList(value)[0];
+    switch (assigneeRole) {
+        case 'QL':
+            return first(journey.pm_user);
+        case 'KD':
+            return first(journey.sale_users);
+        case 'GS':
+            return first(journey.supervisor_users);
+        case 'KYT':
+            return first(journey.technical_users);
+        case 'KT':
+        case 'HC':
+            return first(journey.owner_user);
+        case 'ADMIN':
+            return first(journey.pm_user) ?? first(journey.owner_user);
+        default:
+            return undefined;
+    }
+};
+
+const journeyStepLabel = (stepCode: string) => HEADER_STEP_CONFIG.find((s) => s.key === stepCode)?.label || stepCode;
+
+type BuildWorkTasksResult =
+    | { ok: true; tasks: ICreateWorkTaskInput[] }
+    | {
+          ok: false;
+          missingRoleOnChecklist: string[];
+          missingAssigneeByRole: Map<WorkTaskAssigneeRoleEnum2, string>;
+      }
+    | { ok: false; reason: 'no_setting' | 'no_tasks' };
+
+/** Dựng payload WorkTask từ CustomerJourneySetting + journey (đã gộp form phân công). */
+const buildWorkTasksFromSetting = (
+    setting: ICustomerJourneySetting | null,
+    journeyId: string,
+    journey: IJourney
+): BuildWorkTasksResult => {
+    if (!setting?.steps?.length) {
+        return { ok: false, reason: 'no_setting' };
+    }
+
+    const tasksToCreate: ICreateWorkTaskInput[] = [];
+    const missingRoleOnChecklist: string[] = [];
+    const missingAssigneeByRole = new Map<WorkTaskAssigneeRoleEnum2, string>();
+    console.log('setting.steps', setting.steps);
+    for (const stepConfig of setting.steps) {
+        /** Cùng semantics với CustomerJourneySettingPage: thiếu field = coi như bật. */
+        if (stepConfig.is_enabled === false || !stepConfig.checklist?.length) {
+            continue;
+        }
+        const stepLabel = journeyStepLabel(String(stepConfig.step_code || ''));
+        for (const item of stepConfig.checklist) {
+            const assigneeRole = normalizeChecklistAssigneeRole(extractChecklistItemRole(item));
+            if (!assigneeRole) {
+                missingRoleOnChecklist.push(
+                    `${stepLabel} — «${item.name || 'Nhiệm vụ'}»: thiếu vai trò (role) trên checklist`
+                );
+                continue;
+            }
+            const assignee = getPrimaryJourneyAssigneeForRole(journey, assigneeRole);
+            if (!assignee) {
+                if (!missingAssigneeByRole.has(assigneeRole)) {
+                    missingAssigneeByRole.set(assigneeRole, JOURNEY_ASSIGNMENT_HINT_BY_ROLE[assigneeRole]);
+                }
+                continue;
+            }
+            tasksToCreate.push({
+                journey_id: journeyId,
+                journey_step_code: stepConfig.step_code as ICreateWorkTaskInput['journey_step_code'],
+                title: item.name,
+                description: item.description,
+                is_required: item.is_required,
+                status: 'pending',
+                assignee_role: assigneeRole,
+                assignee,
+            });
+        }
+    }
+
+    if (missingRoleOnChecklist.length > 0) {
+        return { ok: false, missingRoleOnChecklist, missingAssigneeByRole: new Map() };
+    }
+    if (missingAssigneeByRole.size > 0) {
+        return { ok: false, missingRoleOnChecklist: [], missingAssigneeByRole };
+    }
+    if (tasksToCreate.length === 0) {
+        return { ok: false, reason: 'no_tasks' };
+    }
+    return { ok: true, tasks: tasksToCreate };
+};
 
 const GO_NO_GO_CONFIG: Record<GoNoGoStatus, { label: string; color: string }> = {
     draft: { label: 'Nháp', color: 'default' },
@@ -78,9 +285,32 @@ const toUserList = (value: unknown): string[] => {
         return [];
     }
 
-    return Array.isArray(value)
-        ? value.filter((item): item is string => Boolean(item)).map((item) => String(item))
-        : [String(value)];
+    const pickId = (item: unknown): string | null => {
+        if (item == null || item === '') {
+            return null;
+        }
+        if (typeof item === 'string' || typeof item === 'number') {
+            const s = String(item).trim();
+            return s.length > 0 ? s : null;
+        }
+        if (typeof item === 'object') {
+            const o = item as Record<string, unknown>;
+            const candidates = [o.username, o.userName, o.code, o._id, o.id];
+            for (const c of candidates) {
+                if (c == null || c === '') continue;
+                const s = String(c).trim();
+                if (s.length > 0) return s;
+            }
+        }
+        return null;
+    };
+
+    if (Array.isArray(value)) {
+        return value.map(pickId).filter((s): s is string => Boolean(s));
+    }
+
+    const one = pickId(value);
+    return one ? [one] : [];
 };
 
 /** Thứ tự bước từ enum StepsStepCodeEnum */
@@ -165,6 +395,7 @@ const JourneyDetail360: React.FC = () => {
     const [editingDoc, setEditingDoc] = useState<any>(null);
     const [selectedTaskStepCode, setSelectedTaskStepCode] = useState<string | null>(null);
     const [reportCountByTask, setReportCountByTask] = useState<Record<string, number>>({});
+    const [journeyDocuments, setJourneyDocuments] = useState<IJourneyDocument[]>([]);
 
     const fetchJourney = async () => {
         if (!journeyId) return;
@@ -252,6 +483,18 @@ const JourneyDetail360: React.FC = () => {
         }
     };
 
+    const fetchJourneyDocuments = async () => {
+        if (!journeyId) return;
+        try {
+            const res = await journeyDocumentService.queryJourneyDocumentsDto({
+                group: { id: 'journey_id', operation: 'eq', value: journeyId }
+            } as any);
+            setJourneyDocuments(res.data || []);
+        } catch (error) {
+            console.error('Failed to fetch journey documents:', error);
+        }
+    };
+
     const handleStatusUpdate = async (taskId: string, newStatus: string) => {
         try {
             await workTaskService.updateWorkTask(taskId, { status: newStatus as any });
@@ -267,6 +510,17 @@ const JourneyDetail360: React.FC = () => {
         fetchJourney();
         fetchEmployees();
         fetchWorkTasks();
+        fetchJourneyDocuments();
+    }, [journeyId]);
+
+    useEffect(() => {
+        const handleDocsRefresh = () => {
+            fetchJourneyDocuments();
+        };
+        window.addEventListener('journey-documents-updated', handleDocsRefresh);
+        return () => {
+            window.removeEventListener('journey-documents-updated', handleDocsRefresh);
+        };
     }, [journeyId]);
 
     useEffect(() => {
@@ -306,7 +560,7 @@ const JourneyDetail360: React.FC = () => {
     const currentStepCode = journey?.current_step || 'lead_new';
     const currentHeaderStepIndex = HEADER_STEP_CONFIG.findIndex((step) => step.key === currentStepCode);
 
-    const [showAssignModal, setShowAssignModal] = useState(false);
+    const [showDispatchWorkModal, setShowDispatchWorkModal] = useState(false);
     const [showPriorityModal, setShowPriorityModal] = useState(false);
     const [showPublishModal, setShowPublishModal] = useState(false);
     const [showLogModal, setShowLogModal] = useState(false);
@@ -319,77 +573,139 @@ const JourneyDetail360: React.FC = () => {
     const [customerJourneySetting, setCustomerJourneySetting] = useState<ICustomerJourneySetting | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [publishTab, setPublishTab] = useState('settings');
-    const [assignForm] = Form.useForm();
+    const [dispatchWorkForm] = Form.useForm();
     const [priorityForm] = Form.useForm();
     const [followUpForm] = Form.useForm();
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
     const [selectedTaskForReport, setSelectedTaskForReport] = useState<IWorkTask | null>(null);
     const [modal, modalContextHolder] = Modal.useModal();
 
-    /** Xử lý khởi tạo nhiệm vụ hàng loạt theo cấu hình */
-    const handleInitializeTasks = () => {
-        console.log("handleInitializeTasks triggered");
-        modal.confirm({
-            title: 'Khởi tạo danh sách công việc?',
-            icon: <ExclamationCircleOutlined />,
-            content: 'Hệ thống sẽ XÓA các nhiệm vụ hiện tại (nếu có) của công trình này và tạo mới dựa trên cấu hình mẫu. Bạn có chắc chắn?',
-            okText: 'Đồng ý',
-            cancelText: 'Hủy',
-            onOk: async () => {
-                console.log("Initialization confirmed");
-                setIsSubmitting(true);
-                try {
-                    // 1. Fetch singleton setting
-                    const setting = await customerJourneySettingService.findSetting();
-                    if (!setting || !setting.steps?.length) {
-                        message.error("Không tìm thấy cấu hình các bước (CustomerJourneySetting.steps)");
-                        return;
-                    }
-
-                    // 2. Clear old tasks for this journey
-                    const res = await workTaskService.queryContent({
-                        group: { id: 'journey_id', operation: 'eq', value: journeyId },
-                        limit: 200
-                    } as any);
-                    if (res?.data?.length) {
-                        await workTaskService.deleteMultiWorkTask(res.data.map(t => t._id));
-                    }
-
-                    // 3. Batch create new tasks from setting checklist dynamic steps
-                    const tasksToCreate: any[] = [];
-                    for (const stepConfig of setting.steps) {
-                        if (stepConfig.is_enabled && stepConfig.checklist?.length) {
-                            for (const item of stepConfig.checklist) {
-                                tasksToCreate.push({
-                                    journey_id: journeyId,
-                                    journey_step_code: stepConfig.step_code,
-                                    title: item.name,
-                                    description: item.description,
-                                    is_required: item.is_required,
-                                    status: 'pending'
-                                });
-                            }
-                        }
-                    }
-
-                    if (tasksToCreate.length > 0) {
-                        await workTaskService.saveManyWorkTasks(tasksToCreate);
-                    }
-
-                    message.success(`Đã khởi tạo ${tasksToCreate.length} nhiệm vụ công việc từ cấu hình mẫu!`);
-
-
-                    fetchJourney();
-                    // Dispatch event for components to refresh
-                    window.dispatchEvent(new CustomEvent('journey-tasks-updated'));
-                } catch (error) {
-                    console.error("Initialize tasks error:", error);
-                    message.error("Lỗi khi khởi tạo công việc: " + (error instanceof Error ? error.message : "Unknown error"));
-                } finally {
-                    setIsSubmitting(false);
-                }
+    const showBuildWorkTasksFailure = (built: BuildWorkTasksResult) => {
+        if (built.ok) return;
+        if ('reason' in built) {
+            if (built.reason === 'no_setting') {
+                message.error('Không tìm thấy cấu hình các bước (CustomerJourneySetting.steps)');
+            } else {
+                message.warning('Không có nhiệm vụ checklist nào được bật trong cấu hình.');
             }
+            return;
+        }
+        if (built.missingRoleOnChecklist.length > 0) {
+            message.error({
+                content: (
+                    <div>
+                        <div style={{ marginBottom: 8 }}>Cấu hình checklist chưa đủ vai trò:</div>
+                        <ul style={{ margin: 0, paddingLeft: 18, maxHeight: 220, overflow: 'auto' }}>
+                            {built.missingRoleOnChecklist.slice(0, 12).map((line: string, i: number) => (
+                                <li key={i} style={{ fontSize: 12 }}>{line}</li>
+                            ))}
+                        </ul>
+                        {built.missingRoleOnChecklist.length > 12 && (
+                            <div style={{ fontSize: 12, marginTop: 6 }}>
+                                … và thêm {built.missingRoleOnChecklist.length - 12} mục.
+                            </div>
+                        )}
+                    </div>
+                ),
+                duration: 10,
+            });
+            return;
+        }
+        if (built.missingAssigneeByRole.size > 0) {
+            message.error({
+                content: (
+                    <div>
+                        <div style={{ marginBottom: 8 }}>
+                            Chưa gán đủ người theo vai trò — không thể tạo WorkTask (bắt buộc assignee + assignee_role).
+                            Điền đủ phân công bên dưới hoặc kiểm tra cấu hình checklist:
+                        </div>
+                        <ul style={{ margin: 0, paddingLeft: 18 }}>
+                            {[...built.missingAssigneeByRole.entries()].map(([role, hint]) => (
+                                <li key={role} style={{ fontSize: 12 }}>
+                                    <strong>{role}</strong>: {hint}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                ),
+                duration: 12,
+            });
+        }
+    };
+
+    const openDispatchWorkModal = () => {
+        if (!journey) return;
+        dispatchWorkForm.setFieldsValue({
+            pm_user: journey.pm_user,
+            supervisor_users: journey.supervisor_users,
+            technical_users: journey.technical_users,
+            sale_users: journey.sale_users,
+            delivery_note: journey.delivery_note,
         });
+        setShowDispatchWorkModal(true);
+    };
+
+    /** Lưu phân công + tạo WorkTask (xóa task cũ, tạo mới từ checklist). Kiểm tra hợp lệ trước khi gọi API cập nhật journey. */
+    const handleDispatchWorkModalOk = async () => {
+        if (!journeyId || !journey) {
+            message.error('Thiếu thông tin công trình.');
+            return;
+        }
+        try {
+            await dispatchWorkForm.validateFields();
+        } catch {
+            return;
+        }
+        const values = dispatchWorkForm.getFieldsValue();
+        const mergedJourney: IJourney = {
+            ...journey,
+            pm_user: values.pm_user,
+            supervisor_users: values.supervisor_users,
+            technical_users: values.technical_users,
+            sale_users: values.sale_users,
+            delivery_note: values.delivery_note,
+        };
+
+        setIsSubmitting(true);
+        try {
+            const setting = await customerJourneySettingService.findSetting();
+            const built = buildWorkTasksFromSetting(setting, journeyId, mergedJourney);
+            if (!built.ok) {
+                showBuildWorkTasksFailure(built);
+                return;
+            }
+
+            await journeyService.updateJourney(journey._id, {
+                pm_user: values.pm_user,
+                supervisor_users: values.supervisor_users,
+                technical_users: values.technical_users,
+                sale_users: values.sale_users,
+                delivery_note: values.delivery_note,
+            });
+
+            const res = await workTaskService.queryContent({
+                group: { id: 'journey_id', operation: 'eq', value: journeyId },
+                limit: 200
+            } as any);
+            if (res?.data?.length) {
+                await workTaskService.deleteMultiWorkTask(res.data.map((t: IWorkTask) => t._id));
+            }
+
+            await workTaskService.saveManyWorkTasks(built.tasks);
+
+            message.success(
+                `Đã cập nhật phân công và giao ${built.tasks.length} nhiệm vụ (assignee + assignee_role theo cấu hình).`
+            );
+            setShowDispatchWorkModal(false);
+            fetchJourney();
+            await fetchWorkTasks();
+            window.dispatchEvent(new CustomEvent('journey-tasks-updated'));
+        } catch (error) {
+            console.error('Dispatch work error:', error);
+            message.error('Lỗi khi giao việc: ' + (error instanceof Error ? error.message : 'Unknown error'));
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const screens = Grid.useBreakpoint();
@@ -492,6 +808,37 @@ const JourneyDetail360: React.FC = () => {
     const selectedStepTasks = useMemo(
         () => workTasks.filter((task) => task.journey_step_code === selectedTaskStepCode),
         [selectedTaskStepCode, workTasks]
+    );
+
+    const assignedPeopleCount = useMemo(() => {
+        if (!journey) return 0;
+        const ids = new Set<string>();
+        const add = (value: unknown) => {
+            toUserList(value).forEach((id) => {
+                if (id) ids.add(String(id));
+            });
+        };
+        add(journey.pm_user);
+        add(journey.sale_users);
+        add(journey.supervisor_users);
+        add(journey.technical_users);
+        return ids.size;
+    }, [journey]);
+
+    const currentStepWorkTaskCount = useMemo(
+        () => taskStatsByStep[currentStepCode]?.total ?? 0,
+        [taskStatsByStep, currentStepCode]
+    );
+
+    const currentStepDocumentCount = useMemo(
+        () =>
+            journeyDocuments.filter((doc) => doc.journey_step_code === currentStepCode).length,
+        [journeyDocuments, currentStepCode]
+    );
+
+    const currentStepDisplayLabel = useMemo(
+        () => HEADER_STEP_CONFIG.find((s) => s.key === currentStepCode)?.label || currentStepCode,
+        [currentStepCode]
     );
 
     const chatToggleButton = (
@@ -688,20 +1035,29 @@ const JourneyDetail360: React.FC = () => {
                 {isPmManager && (
                     <div style={isMobile ? { maxWidth: '100%', overflowX: 'auto', paddingBottom: 4 } : undefined}>
                         <Space size={isMobile ? 4 : 8} wrap={!isMobile}>
+                            {(currentHeaderStepIndex < 0 || currentHeaderStepIndex < 5) &&
+                                (isMobile ? (
+                                    <Tooltip title="Giao việc & phân công">
+                                        <Button
+                                            icon={<PartitionOutlined />}
+                                            onClick={openDispatchWorkModal}
+                                            loading={isSubmitting}
+                                            aria-label="Giao việc & phân công"
+                                        />
+                                    </Tooltip>
+                                ) : (
+                                    <Button
+                                        icon={<PartitionOutlined />}
+                                        onClick={openDispatchWorkModal}
+                                        loading={isSubmitting}
+                                    >
+                                        Giao việc
+                                    </Button>
+                                ))}
                             {canCreateJourneyDocument && (
                                 <Button icon={<FileTextOutlined />} onClick={() => { setEditingDoc(null); setShowCreateDocModal(true); }}>{isMobile ? '' : 'Tạo tài liệu'}</Button>
                             )}
-                            {(currentHeaderStepIndex < 0 || currentHeaderStepIndex < 5) && (
-                                <Button
-                                    icon={<RocketOutlined />}
-                                    onClick={handleInitializeTasks}
-                                    loading={isSubmitting}
-                                >
-                                    {isMobile ? '' : 'Khởi tạo công việc'}
-                                </Button>
-                            )}
                             <Button icon={<EditOutlined />} onClick={() => setIsEditDrawerVisible(true)}>{isMobile ? '' : 'Sửa công trình'}</Button>
-                            <Button icon={<UserOutlined />} onClick={() => setShowAssignModal(true)}>{isMobile ? '' : 'Phân công'}</Button>
                             <Button icon={<FlagOutlined />} onClick={() => setShowPriorityModal(true)}>{isMobile ? '' : 'Ưu tiên'}</Button>
                             <Button type="primary" icon={<SendOutlined />} onClick={() => setShowPublishModal(true)}>{isMobile ? 'Portal' : 'Publish Portal'}</Button>
                             {chatToggleButton}
@@ -847,23 +1203,6 @@ const JourneyDetail360: React.FC = () => {
                         )}
                         <Text style={{ color: 'rgba(255,255,255,0.8)' }}>{journey.request_title}</Text>
 
-                        {!isMobile && (
-                            <div style={{ marginTop: 12 }}>
-                                <Space size="middle">
-                                    <CalendarOutlined style={{ color: 'rgba(255,255,255,0.6)' }} />
-                                    <Text style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13 }}>
-                                        Kế hoạch: <Text strong style={{ color: '#fff', marginLeft: 4 }}>
-                                            {journey.planned_start_date ? dayjs(journey.planned_start_date).format('DD/MM/YYYY') : 'Chưa định ngày'}
-                                        </Text>
-                                        <Text style={{ margin: '0 8px', color: 'rgba(255,255,255,0.4)' }}>➔</Text>
-                                        <Text strong style={{ color: '#fff' }}>
-                                            {journey.planned_end_date ? dayjs(journey.planned_end_date).format('DD/MM/YYYY') : 'Chưa định ngày'}
-                                        </Text>
-                                    </Text>
-                                </Space>
-                            </div>
-                        )}
-
                         {currentStepLog && (currentStepLog.sla_status === 'at_risk' || currentStepLog.sla_status === 'overdue') && (
                             <div style={{ marginTop: 12 }}>
                                 <Alert
@@ -889,6 +1228,42 @@ const JourneyDetail360: React.FC = () => {
                         )}
                     </Col>
                     <Col xs={24} md={8} style={{ textAlign: isMobile ? 'left' : 'right' }}>
+                        {!isMobile && (
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'flex-end',
+                                    gap: 8,
+                                    flexWrap: 'wrap',
+                                    marginBottom: 10,
+                                    minWidth: 0,
+                                }}
+                            >
+                                <CalendarOutlined style={{ color: 'rgba(255,255,255,0.72)', flexShrink: 0 }} />
+                                <Text
+                                    style={{
+                                        color: 'rgba(255,255,255,0.92)',
+                                        fontSize: 13,
+                                        textAlign: 'right',
+                                        minWidth: 0,
+                                    }}
+                                >
+                                    <Text style={{ color: 'rgba(255,255,255,0.75)', marginRight: 6 }}>Kế hoạch:</Text>
+                                    <Text strong style={{ color: '#fff' }}>
+                                        {journey.planned_start_date
+                                            ? dayjs(journey.planned_start_date).format('DD/MM/YYYY')
+                                            : '—'}
+                                    </Text>
+                                    <span style={{ margin: '0 6px', opacity: 0.55 }}>→</span>
+                                    <Text strong style={{ color: '#fff' }}>
+                                        {journey.planned_end_date
+                                            ? dayjs(journey.planned_end_date).format('DD/MM/YYYY')
+                                            : '—'}
+                                    </Text>
+                                </Text>
+                            </div>
+                        )}
                         <Space wrap>
                             {currentStepLog && (
                                 <Tooltip title={`SLA Bước ${HEADER_STEP_CONFIG.find(s => s.key === currentStepLog.step_code)?.label || currentStepLog.step_code}`}>
@@ -935,7 +1310,7 @@ const JourneyDetail360: React.FC = () => {
                         }}
                     >
                         <Space style={{ marginBottom: 0, minWidth: 0, flex: '1 1 auto' }} size={8}>
-                            <TeamOutlined style={{ color: '#fff', flexShrink: 0 }} />
+                            <NodeIndexOutlined style={{ color: '#fff', flexShrink: 0 }} />
                             <Text
                                 strong
                                 style={{
@@ -946,27 +1321,60 @@ const JourneyDetail360: React.FC = () => {
                                         : {}),
                                 }}
                             >
-                                Điều phối nhân sự
+                                {currentStepDisplayLabel}
                             </Text>
                         </Space>
-                        {isMobile && (
-                            <Button
-                                type="primary"
-                                ghost
-                                size="small"
-                                icon={<RocketOutlined />}
-                                onClick={() => setIsJourneyDrawerVisible(true)}
-                                style={{
-                                    flexShrink: 0,
-                                    borderRadius: 8,
-                                    borderColor: 'rgba(255,255,255,0.4)',
-                                    color: '#fff',
-                                    background: 'rgba(255,255,255,0.1)',
-                                }}
-                            >
-                                Lộ trình
-                            </Button>
-                        )}
+                        <Button
+                            type="primary"
+                            ghost
+                            size="small"
+                            icon={<RocketOutlined />}
+                            onClick={() => setIsJourneyDrawerVisible(true)}
+                            style={{
+                                flexShrink: 0,
+                                borderRadius: 8,
+                                borderColor: 'rgba(255,255,255,0.4)',
+                                color: '#fff',
+                                background: 'rgba(255,255,255,0.1)',
+                            }}
+                        >
+                            Lộ trình
+                        </Button>
+                    </div>
+
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexWrap: 'wrap',
+                            alignItems: 'center',
+                            gap: isMobile ? 10 : 16,
+                            marginBottom: isMobile ? 8 : 12,
+                        }}
+                    >
+                        <Tooltip title="Số người phụ trách (PM, Kinh doanh, Giám sát, Kỹ thuật)">
+                            <Space size={6} style={{ color: '#fff' }}>
+                                <UserOutlined style={{ color: 'rgba(255,255,255,0.85)', fontSize: 15 }} />
+                                <Text strong style={{ color: '#fff', fontSize: 14 }}>
+                                    {assignedPeopleCount}
+                                </Text>
+                            </Space>
+                        </Tooltip>
+                        <Tooltip title="Công việc (worktask) tại bước hiện tại">
+                            <Space size={6} style={{ color: '#fff' }}>
+                                <CarryOutOutlined style={{ color: 'rgba(255,255,255,0.85)', fontSize: 15 }} />
+                                <Text strong style={{ color: '#fff', fontSize: 14 }}>
+                                    {currentStepWorkTaskCount}
+                                </Text>
+                            </Space>
+                        </Tooltip>
+                        <Tooltip title="Tài liệu (JourneyDocument) gắn bước hiện tại">
+                            <Space size={6} style={{ color: '#fff' }}>
+                                <FileTextOutlined style={{ color: 'rgba(255,255,255,0.85)', fontSize: 15 }} />
+                                <Text strong style={{ color: '#fff', fontSize: 14 }}>
+                                    {currentStepDocumentCount}
+                                </Text>
+                            </Space>
+                        </Tooltip>
                     </div>
 
                     {isMobile ? (
@@ -1049,78 +1457,6 @@ const JourneyDetail360: React.FC = () => {
                         </Row>
                     )}
                 </div>
-
-                {HEADER_STEP_CONFIG.length > 0 && !isMobile && (
-                    <div style={{ marginTop: 24, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.1)', overflowX: 'auto' }}>
-                        <Steps
-                            size="small"
-                            current={currentHeaderStepIndex >= 0 ? currentHeaderStepIndex : 0}
-                            onChange={(index) => {
-                                const step = HEADER_STEP_CONFIG[index];
-                                if (step) {
-                                    openTaskModal(step.key);
-                                }
-                            }}
-                            items={HEADER_STEP_CONFIG.map((step) => {
-                                const stats = taskStatsByStep[step.key] || { total: 0, finished: 0, percentage: 0 };
-                                let badgeColor = 'rgba(255,255,255,0.25)';
-                                if (stats.total > 0) {
-                                    if (stats.percentage === 100) badgeColor = '#52c41a';
-                                    else if (stats.percentage > 50) badgeColor = '#faad14';
-                                    else badgeColor = '#1890ff';
-                                }
-
-                                return {
-                                    title: (
-                                        <span
-                                            onClick={() => openTaskModal(step.key)}
-                                            style={{
-                                                color: stats.percentage === 100 ? '#52c41a' : 'rgba(255,255,255,0.85)',
-                                                fontSize: 12,
-                                                whiteSpace: 'nowrap',
-                                                fontWeight: stats.total > 0 ? 600 : 400,
-                                                cursor: 'pointer'
-                                            }}
-                                        >
-                                            {step.label}
-                                        </span>
-                                    ),
-                                    description: stats.total > 0 ? (
-                                        <div
-                                            onClick={() => openTaskModal(step.key)}
-                                            style={{ marginTop: -4, cursor: 'pointer' }}
-                                        >
-                                            <Space size={4} align="center">
-                                                <Badge
-                                                    count={stats.total}
-                                                    overflowCount={99}
-                                                    style={{
-                                                        backgroundColor: badgeColor,
-                                                        color: '#fff',
-                                                        boxShadow: 'none',
-                                                        fontSize: 9,
-                                                        height: 14,
-                                                        lineHeight: '14px',
-                                                        minWidth: 14,
-                                                        padding: '0 4px'
-                                                    }}
-                                                />
-                                                <span style={{
-                                                    color: 'rgba(255,255,255,0.6)',
-                                                    fontSize: 10,
-                                                    whiteSpace: 'nowrap'
-                                                }}>
-                                                    {stats.finished}/{stats.total}
-                                                </span>
-                                            </Space>
-                                        </div>
-                                    ) : null
-                                };
-                            })}
-                            className="journey-dark-steps"
-                        />
-                    </div>
-                )}
             </Card>
 
             <Drawer
@@ -1297,43 +1633,34 @@ const JourneyDetail360: React.FC = () => {
             {isPmManager && (
                 <>
                     <Modal
-                        title="Phân công phụ trách"
-                        open={showAssignModal}
-                        onCancel={() => setShowAssignModal(false)}
-                        onOk={() => {
-                            assignForm.validateFields().then(async values => {
-                                setIsSubmitting(true);
-                                try {
-                                    await journeyService.updateJourney(journey._id, {
-                                        pm_user: values.pm_user,
-                                        supervisor_users: values.supervisor_users,
-                                        technical_users: values.technical_users,
-                                        delivery_note: values.delivery_note
-                                    });
-                                    message.success("Đã phân công nhân sự!");
-                                    setShowAssignModal(false);
-                                    fetchJourney();
-                                } catch (error) {
-                                    message.error("Lỗi khi phân công");
-                                } finally {
-                                    setIsSubmitting(false);
-                                }
-                            });
-                        }}
+                        title="Giao việc & phân công"
+                        open={showDispatchWorkModal}
+                        onCancel={() => setShowDispatchWorkModal(false)}
+                        onOk={handleDispatchWorkModalOk}
+                        okText="Giao việc"
+                        okButtonProps={{ icon: <PartitionOutlined /> }}
+                        cancelText="Hủy"
+                        confirmLoading={isSubmitting}
+                        width={560}
+                        destroyOnClose
                     >
-                        <Form form={assignForm} layout="vertical" initialValues={{
-                            pm_user: journey.pm_user,
-                            supervisor_users: journey.supervisor_users,
-                            technical_users: journey.technical_users,
-                            delivery_note: journey.delivery_note
-                        }}>
-                            <Form.Item label="Quản lý dự án (PM)" name="pm_user">
+                        <Alert
+                            type="info"
+                            showIcon
+                            style={{ marginBottom: 16 }}
+                            message="Cập nhật phân công trên công trình, sau đó tạo lại danh sách WorkTask từ checklist (xóa toàn bộ nhiệm vụ hiện tại của công trình). Mỗi mục checklist cần khớp người phụ trách theo vai trò (assignee + assignee_role)."
+                        />
+                        <Form form={dispatchWorkForm} layout="vertical">
+                            <Form.Item label="Quản lý dự án — QL (PM)" name="pm_user">
                                 <AuthorizedUserSelect allowMultiple={false} placeholder="Chọn PM" />
                             </Form.Item>
-                            <Form.Item label="Giám sát (Supervisors)" name="supervisor_users">
+                            <Form.Item label="Kinh doanh — KD" name="sale_users">
+                                <AuthorizedUserSelect allowMultiple={true} placeholder="Chọn Kinh doanh phụ trách" />
+                            </Form.Item>
+                            <Form.Item label="Giám sát — GS" name="supervisor_users">
                                 <AuthorizedUserSelect allowMultiple={true} placeholder="Chọn Giám sát" />
                             </Form.Item>
-                            <Form.Item label="Kỹ thuật (Technical)" name="technical_users">
+                            <Form.Item label="Kỹ thuật — KYT" name="technical_users">
                                 <AuthorizedUserSelect allowMultiple={true} placeholder="Chọn Kỹ thuật" />
                             </Form.Item>
                             <Form.Item label="Ghi chú bàn giao/phối hợp" name="delivery_note">

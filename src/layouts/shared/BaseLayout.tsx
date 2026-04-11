@@ -8,6 +8,14 @@ import './BaseLayout.css';
 const { Header, Sider, Content } = Layout;
 const { useBreakpoint } = Grid;
 
+/** Chi tiết công trình (JourneyDetail360): /admin/{ql|gs|kt}/journeys/:id — không hiển thị breadcrumb. */
+const isJourneyDetailPath = (pathname: string): boolean => {
+    const m = pathname.match(/^\/admin\/(ql|gs|kt)\/journeys\/([^/]+)$/);
+    if (!m) return false;
+    if (m[1] === 'ql' && m[2] === 'board') return false;
+    return true;
+};
+
 interface BaseLayoutProps {
     sidebar: React.ReactNode;
     topBar: React.ReactNode;
@@ -27,7 +35,9 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({ sidebar, topBar }) => {
     const location = useLocation();
     const isCustomerJourneySetting = location.pathname === '/admin/ql/settings/customer-journey';
     const hideBreadcrumbs =
-        (isMobile && location.pathname.startsWith('/admin/ql')) || isCustomerJourneySetting;
+        (isMobile && location.pathname.startsWith('/admin/ql')) ||
+        isCustomerJourneySetting ||
+        isJourneyDetailPath(location.pathname);
 
     const siderWidth = 240;
     const collapsedWidth = 80;
