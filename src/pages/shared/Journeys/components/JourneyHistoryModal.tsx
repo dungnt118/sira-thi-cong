@@ -11,20 +11,20 @@ import { IJourneyStepLog } from '../../../../services/core-contracts/types/journ
 const { Text } = Typography;
 
 export const HEADER_STEP_CONFIG = [
-    { key: 'lead_intake', label: 'Tiếp nhận' },
-    { key: 'qualification', label: 'Thẩm định' },
-    { key: 'survey_planning', label: 'Lập lịch KS' },
+    { key: 'lead_new', label: 'Tiếp nhận' },
+    { key: 'consult_contact', label: 'Tư vấn & Hẹn lịch' },
     { key: 'site_survey', label: 'Khảo sát' },
-    { key: 'survey_review', label: 'Duyệt KS' },
-    { key: 'estimate_preparation', label: 'Lập dự toán' },
-    { key: 'quotation_preparation', label: 'Lập báo giá' },
-    { key: 'quotation_sent', label: 'Gửi báo giá' },
-    { key: 'quotation_approved', label: 'Khách duyệt' },
-    { key: 'contract_signing', label: 'Ký hợp đồng' },
-    { key: 'project_execution', label: 'Thi công' },
-    { key: 'handover_acceptance', label: 'Nghiệm thu' },
-    { key: 'warranty_aftercare', label: 'Bảo hành' }
+    { key: 'solution_design', label: 'Thiết kế giải pháp' },
+    { key: 'quotation', label: 'Báo giá' },
+    { key: 'contract', label: 'Hợp đồng' },
+    { key: 'execution', label: 'Thi công' },
+    { key: 'final_acceptance', label: 'Nghiệm thu' },
+    { key: 'payment', label: 'Thanh toán' },
+    { key: 'maintenance', label: 'Bảo trì' },
+    { key: 'warranty', label: 'Bảo hành' },
+    { key: 'after_sales', label: 'Chăm sóc' }
 ] as const;
+
 
 export const SLA_CONFIG: Record<string, { label: string; color: string }> = {
     ontime: { label: 'Đúng hạn', color: 'success' },

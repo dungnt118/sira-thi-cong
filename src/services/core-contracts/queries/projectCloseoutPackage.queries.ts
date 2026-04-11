@@ -19,32 +19,21 @@ export const FIND_PROJECTCLOSEOUTPACKAGE_DTO = gql`
         status
         journey_id
         idx_journey_id
-        journey_id
         journey_step_code
-        project_id
-        idx_project_id
-        project_id
         project_settlement_id
         idx_project_settlement_id
-        project_settlement_id
         customer_id
         idx_customer_id
-        customer_id
         portal_thread_id
         idx_portal_thread_id
-        portal_thread_id
         published_at
         customer_confirmed_at
         closed_at
         published_document_ids
         idx_published_document_ids
-        published_document_ids
         summary
         closing_note
         reopen_reason
-        contract_id
-        idx_contract_id
-        contract_id
       }
     }
   }
@@ -69,32 +58,21 @@ export const QUERY_PROJECTCLOSEOUTPACKAGES_DTO = gql`
         status
         journey_id
         idx_journey_id
-        journey_id
         journey_step_code
-        project_id
-        idx_project_id
-        project_id
         project_settlement_id
         idx_project_settlement_id
-        project_settlement_id
         customer_id
         idx_customer_id
-        customer_id
         portal_thread_id
         idx_portal_thread_id
-        portal_thread_id
         published_at
         customer_confirmed_at
         closed_at
         published_document_ids
         idx_published_document_ids
-        published_document_ids
         summary
         closing_note
         reopen_reason
-        contract_id
-        idx_contract_id
-        contract_id
       }
     }
   }

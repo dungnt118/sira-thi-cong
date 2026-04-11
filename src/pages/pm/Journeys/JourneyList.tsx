@@ -37,20 +37,20 @@ const SLA_CONFIG: Record<string, { label: string; color: string }> = {
 };
 
 const JOURNEY_STEPS_CONFIG = [
-    { key: 'lead_intake', label: 'Tiếp nhận', color: 'cyan' },
-    { key: 'qualification', label: 'Thẩm định', color: 'blue' },
-    { key: 'survey_planning', label: 'Lập lịch KS', color: 'geekblue' },
-    { key: 'site_survey', label: 'Khảo sát', color: 'purple' },
-    { key: 'survey_review', label: 'Duyệt KS', color: 'magenta' },
-    { key: 'estimate_preparation', label: 'Lập dự toán', color: 'gold' },
-    { key: 'quotation_preparation', label: 'Lập báo giá', color: 'orange' },
-    { key: 'quotation_sent', label: 'Gửi báo giá', color: 'volcano' },
-    { key: 'quotation_approved', label: 'Duyệt báo giá', color: 'green' },
-    { key: 'contract_signing', label: 'Ký kết', color: 'lime' },
-    { key: 'project_execution', label: 'Thi công', color: 'processing' },
-    { key: 'handover_acceptance', label: 'Nghiệm thu', color: 'success' },
-    { key: 'warranty_aftercare', label: 'Bảo hành', color: 'default' },
+    { key: 'lead_new', label: 'Tiếp nhận', color: 'cyan' },
+    { key: 'consult_contact', label: 'Tư vấn', color: 'blue' },
+    { key: 'site_survey', label: 'Khảo sát', color: 'geekblue' },
+    { key: 'solution_design', label: 'Giải pháp', color: 'purple' },
+    { key: 'quotation', label: 'Báo giá', color: 'magenta' },
+    { key: 'contract', label: 'Hợp đồng', color: 'gold' },
+    { key: 'execution', label: 'Thi công', color: 'orange' },
+    { key: 'final_acceptance', label: 'Nghiệm thu', color: 'volcano' },
+    { key: 'payment', label: 'Thanh toán', color: 'green' },
+    { key: 'maintenance', label: 'Bảo trì', color: 'lime' },
+    { key: 'warranty', label: 'Bảo hành', color: 'processing' },
+    { key: 'after_sales', label: 'Hậu mãi', color: 'default' },
 ];
+
 
 const JourneyList: React.FC = () => {
     const navigate = useNavigate();
@@ -302,7 +302,7 @@ const JourneyList: React.FC = () => {
             <Row justify="space-between" align="middle" gutter={[16, 16]} style={{ marginBottom: 20 }}>
                 <Col xs={24} sm={12}>
                     <h2 style={{ margin: 0 }}>Danh sách công trình Khách hàng</h2>
-                    <Text type="secondary">Quản lý toàn bộ công trình dịch vụ theo cấu hình chuẩn 13 bước</Text>
+                    <Text type="secondary">Quản lý toàn bộ công trình dịch vụ theo cấu hình chuẩn 12 bước</Text>
                 </Col>
                 <Col xs={24} sm={12} style={{ textAlign: isMobile ? 'left' : 'right' }}>
                     <Space wrap>

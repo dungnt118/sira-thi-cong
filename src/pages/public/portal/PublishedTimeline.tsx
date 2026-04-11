@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import {
     Card, Steps, Button, Tag, Typography, Row, Col,
-    Modal, Form, Input, Select
+    Modal, Form, Input, Select, Spin
 } from 'antd';
-import { ClockCircleOutlined, CheckCircleOutlined, MessageOutlined, SyncOutlined, CameraOutlined, CalendarOutlined } from '@ant-design/icons';
+import { ClockCircleOutlined, CheckCircleOutlined, MessageOutlined, SyncOutlined, CameraOutlined, CalendarOutlined, LoadingOutlined } from '@ant-design/icons';
 import { useParams } from 'react-router-dom';
-import { mockJourneys } from '../../../data/journeyMockData';
+import { usePortalJourney } from '../../../hooks/usePortalJourney';
 import { mockJourneyTemplates } from '../../../data/journeyMockData';
 import PortalPageHeader from '../../../components/portal/PortalPageHeader';
 
@@ -13,26 +13,43 @@ const { Text } = Typography;
 const { TextArea } = Input;
 
 const PublishedTimeline: React.FC = () => {
-    const { token } = useParams<{ token: string }>();
-    const journey = mockJourneys.find(j => j.portal_token === token || j.journey_code === token);
-    const template = mockJourneyTemplates.find(t => t.id === journey?.template_id);
+    const { journeyId, token } = useParams<{ journeyId?: string; token?: string }>();
+    const portalKey = journeyId || token;
+    const { journey, isLoading } = usePortalJourney(portalKey);
+    // Use the template defined in mock or resolve from journey if possible
+    const template = mockJourneyTemplates.find(t => t.id === (journey as any)?.template_id) || mockJourneyTemplates[0];
     const steps = template?.steps || [];
 
     const [showThreadModal, setShowThreadModal] = useState(false);
     const [threadForm] = Form.useForm();
 
-    if (!journey) return <div style={{ padding: 40, textAlign: 'center' }}>Không tìm thấy dữ liệu.</div>;
-
     const publishedSteps = steps.filter(s => s.publish_flag);
-    const currentIdx = publishedSteps.findIndex(s => s.step_code === journey.current_step_code);
-    const [selectedStepIdx, setSelectedStepIdx] = useState<number | null>(currentIdx >= 0 ? currentIdx : 0);
+    const currentIdx = journey ? publishedSteps.findIndex(s => s.step_code === journey.current_step) : -1;
+    const [selectedStepIdx, setSelectedStepIdx] = useState<number | null>(null);
+
+    // Initial selection when journey loads
+    React.useEffect(() => {
+        if (journey && selectedStepIdx === null) {
+            setSelectedStepIdx(currentIdx >= 0 ? currentIdx : 0);
+        }
+    }, [journey, currentIdx, selectedStepIdx]);
+
+    if (isLoading) {
+        return (
+            <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Spin indicator={<LoadingOutlined style={{ fontSize: 48, color: '#38bdf8' }} spin />} />
+            </div>
+        );
+    }
+
+    if (!journey) return <div style={{ padding: 40, textAlign: 'center' }}>Không tìm thấy dữ liệu.</div>;
 
     return (
         <div style={{ maxWidth: 1000, margin: '0 auto', padding: '24px 16px' }}>
             <PortalPageHeader
                 title="Tiến độ công trình"
-                subtitle={`${journey.customer_name} · ${journey.idx_serviceTypeId?.title || ''}`}
-                token={token || ''}
+                subtitle={`${journey.customer_full_name || journey.customer_id || ''} · ${journey.idx_serviceTypeId?.title || ''}`}
+                token={journey._id || portalKey || ''}
                 icon={<CalendarOutlined />}
             />
 

@@ -17,11 +17,7 @@ export const FIND_HANDOVERACCEPTANCE_DTO = gql`
         code
         journey_id
         idx_journey_id
-        journey_id
         journey_step_code
-        project_id
-        idx_project_id
-        project_id
         handover_date
         acceptance_status
         accepted_by_customer
@@ -31,9 +27,6 @@ export const FIND_HANDOVERACCEPTANCE_DTO = gql`
         evidence_files
         signature_customer
         signature_company
-        contract_id
-        idx_contract_id
-        contract_id
       }
     }
   }
@@ -56,11 +49,7 @@ export const QUERY_HANDOVERACCEPTANCES_DTO = gql`
         code
         journey_id
         idx_journey_id
-        journey_id
         journey_step_code
-        project_id
-        idx_project_id
-        project_id
         handover_date
         acceptance_status
         accepted_by_customer
@@ -70,9 +59,6 @@ export const QUERY_HANDOVERACCEPTANCES_DTO = gql`
         evidence_files
         signature_customer
         signature_company
-        contract_id
-        idx_contract_id
-        contract_id
       }
     }
   }

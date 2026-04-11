@@ -65,14 +65,13 @@ const { Text, Title } = Typography;
 const { useBreakpoint } = Grid;
 
 const SALE_MANAGED_STEPS = [
-    'lead_intake',
-    'qualification',
-    'survey_planning',
-    'quotation_sent',
-    'quotation_approved',
-    'contract_signing',
-    'warranty_aftercare',
+    'lead_new',
+    'consult_contact',
+    'quotation',
+    'contract',
+    'after_sales',
 ];
+
 
 const JourneyInbox: React.FC = () => {
     const navigate = useNavigate();
@@ -170,9 +169,9 @@ const JourneyInbox: React.FC = () => {
         const matchesKeyword = !keyword || haystacks.includes(keyword.toLowerCase());
         const matchesSla = !filterSla || journey.sla_status === filterSla;
         
-        // Match step with fallback for null/empty to 'lead_intake'
+        // Match step with fallback for null/empty to 'lead_new'
         const matchesStep = !filterStep || 
-            (filterStep === 'lead_intake' ? (!journey.current_step || journey.current_step === 'lead_intake') : journey.current_step === filterStep);
+            (filterStep === 'lead_new' ? (!journey.current_step || journey.current_step === 'lead_new') : journey.current_step === filterStep);
 
         return matchesKeyword && matchesSla && matchesStep;
     });
@@ -232,7 +231,7 @@ const JourneyInbox: React.FC = () => {
             customer_id: customer._id,
             customer_phone: customer.phone,
             customer_email: customer.email,
-            site_address: [customer.address, customer.ward, customer.district, customer.province]
+            site_address: [customer.address, customer.ward, customer.city, customer.province]
                 .filter(Boolean)
                 .join(', '),
         });
@@ -440,8 +439,8 @@ const JourneyInbox: React.FC = () => {
                                 color: '#8c8c8c',
                             };
                             
-                            // Fallback to lead_intake if current_step is null/empty
-                            const effectiveStep = journey.current_step || 'lead_intake';
+                            // Fallback to lead_new if current_step is null/empty
+                            const effectiveStep = journey.current_step || 'lead_new';
                             const stepMeta = JOURNEY_STEP_META[effectiveStep] || {
                                 label: getJourneyStepLabel(effectiveStep),
                                 color: '#8c8c8c',

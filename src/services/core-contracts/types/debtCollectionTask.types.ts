@@ -16,8 +16,6 @@ export interface IDebtCollectionTask {
   idx_payment_milestone_id?: IndexedContentItem;
   debt_confirmation_id?: string;
   idx_debt_confirmation_id?: IndexedContentItem;
-  project_id?: string;
-  idx_project_id?: IndexedContentItem;
   customer_id?: string;
   idx_customer_id?: IndexedContentItem;
   task_type?: DebtCollectionTaskTaskTypeEnum;
@@ -30,8 +28,11 @@ export interface IDebtCollectionTask {
   result_note?: string;
   next_action?: string;
   evidence_files?: HeadlessFileUpload[];
-  contract_id?: string;
-  idx_contract_id?: IndexedContentItem;
+  //deprecated fields
+  // project_id?: string;
+  // idx_project_id?: IndexedContentItem;
+  // contract_id?: string;
+  // idx_contract_id?: IndexedContentItem;
 }
 
 export interface ICreateDebtCollectionTaskInput {
@@ -40,7 +41,6 @@ export interface ICreateDebtCollectionTaskInput {
   journey_step_code?: DebtCollectionTaskJourneyStepCodeEnum2;
   payment_milestone_id?: string;
   debt_confirmation_id?: string;
-  project_id?: string;
   customer_id?: string;
   task_type?: DebtCollectionTaskTaskTypeEnum2;
   status?: DebtCollectionTaskStatusEnum2;
@@ -52,15 +52,17 @@ export interface ICreateDebtCollectionTaskInput {
   result_note?: string;
   next_action?: string;
   evidence_files?: HeadlessFileUpload[];
-  contract_id?: string;
+  //deprecated fields
+  // project_id?: string;
+  // contract_id?: string;
 }
 
 export type IDebtCollectionTaskListResponse = ApiListResponse<IDebtCollectionTask>
 
 // Union types generated from value_options
-export type DebtCollectionTaskJourneyStepCodeEnum = 'contract_signing' | 'handover_acceptance' | 'warranty_aftercare';
+export type DebtCollectionTaskJourneyStepCodeEnum = 'lead_new' | 'consult_contact' | 'site_survey' | 'solution_design' | 'quotation' | 'contract' | 'execution' | 'final_acceptance' | 'payment' | 'maintenance' | 'warranty' | 'after_sales';
 export type DebtCollectionTaskTaskTypeEnum = 'reminder_call' | 'reminder_message' | 'commitment_follow_up' | 'escalation';
 export type DebtCollectionTaskStatusEnum = 'open' | 'in_progress' | 'committed' | 'completed' | 'overdue' | 'cancelled';
-export type DebtCollectionTaskJourneyStepCodeEnum2 = 'contract_signing' | 'handover_acceptance' | 'warranty_aftercare';
+export type DebtCollectionTaskJourneyStepCodeEnum2 = 'lead_new' | 'consult_contact' | 'site_survey' | 'solution_design' | 'quotation' | 'contract' | 'execution' | 'final_acceptance' | 'payment' | 'maintenance' | 'warranty' | 'after_sales';
 export type DebtCollectionTaskTaskTypeEnum2 = 'reminder_call' | 'reminder_message' | 'commitment_follow_up' | 'escalation';
 export type DebtCollectionTaskStatusEnum2 = 'open' | 'in_progress' | 'committed' | 'completed' | 'overdue' | 'cancelled';

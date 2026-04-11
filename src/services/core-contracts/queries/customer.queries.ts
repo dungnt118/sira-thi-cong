@@ -19,7 +19,6 @@ export const FIND_CUSTOMER_DTO = gql`
         phone
         email
         zalo
-        district
         city
         province
         ward
@@ -58,7 +57,6 @@ export const QUERY_CUSTOMERS_DTO = gql`
         phone
         email
         zalo
-        district
         city
         province
         ward

@@ -83,7 +83,7 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
         try {
             const response = await siteReportService.createSiteReport({
                 journey_id: journeyId,
-                journey_step_code: 'project_execution',
+                journey_step_code: 'execution',
                 content: values.notes,
                 progress_pct: Number(values.progress),
                 title: `Nhật ký ngày ${new Date().toLocaleDateString('vi-VN')}`,

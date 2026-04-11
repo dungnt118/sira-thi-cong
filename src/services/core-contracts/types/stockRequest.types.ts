@@ -61,9 +61,9 @@ export type IStockRequestListResponse = ApiListResponse<IStockRequest>
 
 // Union types generated from value_options
 export type StockRequestTypeEnum = 'request_out' | 'request_in';
-export type StockRequestJourneyStepCodeEnum = 'lead_intake' | 'qualification' | 'survey_planning' | 'site_survey' | 'survey_review' | 'estimate_preparation' | 'quotation_preparation' | 'quotation_sent' | 'quotation_approved' | 'contract_signing' | 'project_execution' | 'handover_acceptance' | 'warranty_aftercare';
+export type StockRequestJourneyStepCodeEnum = 'lead_new' | 'consult_contact' | 'site_survey' | 'solution_design' | 'quotation' | 'contract' | 'execution' | 'final_acceptance' | 'payment' | 'maintenance' | 'warranty' | 'after_sales';
 export type StockRequestStatusEnum = 'pending' | 'approved' | 'rejected' | 'converted';
 export type ItemsUnitEnum = 'kg' | 'lit' | 'm2' | 'thung' | 'cuon' | 'cai';
 export type StockRequestTypeEnum2 = 'request_out' | 'request_in';
-export type StockRequestJourneyStepCodeEnum2 = 'lead_intake' | 'qualification' | 'survey_planning' | 'site_survey' | 'survey_review' | 'estimate_preparation' | 'quotation_preparation' | 'quotation_sent' | 'quotation_approved' | 'contract_signing' | 'project_execution' | 'handover_acceptance' | 'warranty_aftercare';
+export type StockRequestJourneyStepCodeEnum2 = 'lead_new' | 'consult_contact' | 'site_survey' | 'solution_design' | 'quotation' | 'contract' | 'execution' | 'final_acceptance' | 'payment' | 'maintenance' | 'warranty' | 'after_sales';
 export type StockRequestStatusEnum2 = 'pending' | 'approved' | 'rejected' | 'converted';

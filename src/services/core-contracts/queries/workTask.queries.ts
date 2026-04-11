@@ -16,7 +16,6 @@ export const FIND_WORKTASK_DTO = gql`
         updatedBy
         journey_id
         idx_journey_id
-        journey_id
         journey_step_code
         title
         description
@@ -30,6 +29,11 @@ export const FIND_WORKTASK_DTO = gql`
         verified_by
         verified_time
         note
+        assignee_role
+        action_key
+        documentId
+        idx_documentId
+        assignee
       }
     }
   }
@@ -51,7 +55,6 @@ export const QUERY_WORKTASKS_DTO = gql`
         _id
         journey_id
         idx_journey_id
-        journey_id
         journey_step_code
         title
         description
@@ -65,6 +68,11 @@ export const QUERY_WORKTASKS_DTO = gql`
         verified_by
         verified_time
         note
+        assignee_role
+        action_key
+        documentId
+        idx_documentId
+        assignee
       }
     }
   }

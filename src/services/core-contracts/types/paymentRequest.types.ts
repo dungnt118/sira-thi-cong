@@ -36,7 +36,6 @@ export interface IPaymentRequest {
   approved_by?: any;
   approved_at?: string | Date;
   rejected_at?: string | Date;
-  rejected_by?: any;
   rejection_reason?: string;
   paid_by?: any;
   paid_at?: string | Date;
@@ -46,6 +45,8 @@ export interface IPaymentRequest {
   cancel_reason?: string;
   payment_proof_files?: HeadlessFileUpload[];
   payment_proof_note?: string;
+  createdBy?: any;
+  rejected_by?: any;
 }
 
 export interface ICreatePaymentRequestInput {
@@ -75,7 +76,6 @@ export interface ICreatePaymentRequestInput {
   approved_by?: any;
   approved_at?: string | Date;
   rejected_at?: string | Date;
-  rejected_by?: any;
   rejection_reason?: string;
   paid_by?: any;
   paid_at?: string | Date;
@@ -85,6 +85,8 @@ export interface ICreatePaymentRequestInput {
   cancel_reason?: string;
   payment_proof_files?: HeadlessFileUpload[];
   payment_proof_note?: string;
+  createdBy?: any;
+  rejected_by?: any;
 }
 
 export type IPaymentRequestListResponse = ApiListResponse<IPaymentRequest>

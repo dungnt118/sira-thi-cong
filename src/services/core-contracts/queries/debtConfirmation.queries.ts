@@ -17,17 +17,11 @@ export const FIND_DEBTCONFIRMATION_DTO = gql`
         code
         journey_id
         idx_journey_id
-        journey_id
         journey_step_code
         payment_milestone_id
         idx_payment_milestone_id
-        payment_milestone_id
-        project_id
-        idx_project_id
-        project_id
         customer_id
         idx_customer_id
-        customer_id
         confirmation_date
         status
         debt_amount
@@ -39,9 +33,6 @@ export const FIND_DEBTCONFIRMATION_DTO = gql`
         payment_commitment_date
         reason
         evidence_files
-        contract_id
-        idx_contract_id
-        contract_id
       }
     }
   }
@@ -64,17 +55,11 @@ export const QUERY_DEBTCONFIRMATIONS_DTO = gql`
         code
         journey_id
         idx_journey_id
-        journey_id
         journey_step_code
         payment_milestone_id
         idx_payment_milestone_id
-        payment_milestone_id
-        project_id
-        idx_project_id
-        project_id
         customer_id
         idx_customer_id
-        customer_id
         confirmation_date
         status
         debt_amount
@@ -86,9 +71,6 @@ export const QUERY_DEBTCONFIRMATIONS_DTO = gql`
         payment_commitment_date
         reason
         evidence_files
-        contract_id
-        idx_contract_id
-        contract_id
       }
     }
   }

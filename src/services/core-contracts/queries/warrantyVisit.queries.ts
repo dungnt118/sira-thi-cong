@@ -17,17 +17,11 @@ export const FIND_WARRANTYVISIT_DTO = gql`
         code
         journey_id
         idx_journey_id
-        journey_id
         journey_step_code
         warranty_case_id
         idx_warranty_case_id
-        warranty_case_id
         warranty_card_id
         idx_warranty_card_id
-        warranty_card_id
-        project_id
-        idx_project_id
-        project_id
         scheduled_at
         visit_status
         performed_by
@@ -60,17 +54,11 @@ export const QUERY_WARRANTYVISITS_DTO = gql`
         code
         journey_id
         idx_journey_id
-        journey_id
         journey_step_code
         warranty_case_id
         idx_warranty_case_id
-        warranty_case_id
         warranty_card_id
         idx_warranty_card_id
-        warranty_card_id
-        project_id
-        idx_project_id
-        project_id
         scheduled_at
         visit_status
         performed_by

@@ -1,4 +1,3 @@
-import { AppBrandLogo } from '@/components/common/AppBrandLogo';
 import {
     ClockCircleOutlined,
     EnvironmentOutlined,
@@ -15,7 +14,7 @@ import {
     Col,
     Divider,
     Form, Input,
-    message,
+    Modal,
     Row,
     Select,
     Space,
@@ -23,58 +22,125 @@ import {
     Upload
 } from 'antd';
 import React, { useState } from 'react';
-import { mockServiceRequests as defaultServiceRequests } from '../../data/mockData';
-import { useLocalStorageData } from '../../hooks/useLocalStorageData';
-import { demoDataService } from '../../services/core-graphql/localstorage/demoDataService';
-import type { ServiceRequest } from '../../types/v3';
+import { useJourneyServiceTypeOptions } from '../../hooks/useJourneyServiceTypeOptions';
+import journeyPortalRequestService from '../../services/portal/journeyPortalRequest.service';
 
-const { Title, Text, Paragraph } = Typography;
-const { Option } = Select;
+const { Title, Text, Paragraph, Link } = Typography;
 const { Dragger } = Upload;
+
+interface PortalServiceTypeOption {
+    value: string;
+    label: string;
+    slug: string;
+    serviceTypeId?: string;
+}
+
+const FALLBACK_SERVICE_TYPE_OPTIONS: PortalServiceTypeOption[] = [
+    { value: 'chong-tham', label: 'Chống thấm chuyên sâu', slug: 'chong-tham' },
+    { value: 'son-nu', label: 'Sơn nước & Trang trí', slug: 'son-nu' },
+    { value: 'dien-nuoc', label: 'Hệ thống Điện - Nước', slug: 'dien-nuoc' },
+    { value: 'cai-tao', label: 'Cải tạo trọn gói', slug: 'cai-tao' },
+];
+
+const normalizeServiceTypeKey = (value: string) =>
+    value
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '') || 'dich-vu';
+
+const getPortalSubmitErrorMessage = (error: unknown): string => {
+    if (error instanceof Error && error.message.trim()) {
+        return error.message.trim();
+    }
+
+    if (typeof error === 'string' && error.trim()) {
+        return error.trim();
+    }
+
+    if (error && typeof error === 'object') {
+        const messageValue = (error as { message?: unknown }).message;
+        if (typeof messageValue === 'string' && messageValue.trim()) {
+            return messageValue.trim();
+        }
+
+        const responseMessage = (error as { response?: { message?: unknown } }).response?.message;
+        if (typeof responseMessage === 'string' && responseMessage.trim()) {
+            return responseMessage.trim();
+        }
+    }
+
+    return 'Không thể gửi yêu cầu. Vui lòng thử lại.';
+};
 
 const CustomerPortalLanding: React.FC = () => {
     const [form] = Form.useForm();
+    const [modal, contextHolder] = Modal.useModal();
     const [loading, setLoading] = useState(false);
-    const [mockServiceRequests, setMockServiceRequests] = useLocalStorageData<ServiceRequest[]>(
-        demoDataService.KEYS.SERVICE_REQUESTS,
-        defaultServiceRequests
-    );
+    const { serviceTypeOptions, isLoading: isLoadingServiceTypes } = useJourneyServiceTypeOptions();
 
-    const onFinish = (values: any) => {
+    const portalServiceTypeOptions: PortalServiceTypeOption[] = serviceTypeOptions.length > 0
+        ? serviceTypeOptions.map((option) => ({
+            value: normalizeServiceTypeKey(option.item.value || option.label),
+            label: option.label,
+            slug: normalizeServiceTypeKey(option.item.value || option.label),
+            serviceTypeId: option.item._id,
+        }))
+        : FALLBACK_SERVICE_TYPE_OPTIONS;
+
+    const onFinish = async (values: any) => {
         setLoading(true);
-        // Simulate API call
-        setTimeout(() => {
-            const newReq: ServiceRequest = {
-                id: `sr-${Date.now()}`,
-                code: `SR-${Math.floor(1000 + Math.random() * 9000)}`,
-                name: values.description || `Yêu cầu từ ${values.fullName}`,
-                customerId: 'guest-' + Date.now(),
-                customerName: values.fullName,
-                pipelineId: 'pipe-01',
-                stageId: 'st-01',
-                status: 'NEW',
-                assignedPmId: 'pm-01',
-                assignedPmName: 'Admin',
-                createdAt: new Date().toISOString(),
-                surveyImages: [],
-                moistureReadings: [],
-                quotations: []
-            };
 
-            setMockServiceRequests([newReq, ...mockServiceRequests]);
-            setLoading(false);
-            form.resetFields();
+        try {
+            const selectedServiceType = portalServiceTypeOptions.find((option) => option.value === values.serviceType);
 
-            message.success({
-                content: (
-                    <span>
-                        Đã gửi yêu cầu thành công! Mã yêu cầu của bạn là <b>{newReq.code}</b>.
-                        Chúng tôi sẽ liên hệ lại trong vòng 2 giờ.
-                    </span>
-                ),
-                duration: 5,
+            if (!selectedServiceType) {
+                throw new Error('Không xác định được loại dịch vụ');
+            }
+
+            const result = await journeyPortalRequestService.createPortalRequest({
+                fullName: values.fullName,
+                phone: values.phone,
+                serviceType: selectedServiceType.slug,
+                serviceTypeId: selectedServiceType.serviceTypeId,
+                requestTitle: 'Yêu cầu ' + selectedServiceType.label + ' - ' + values.fullName,
+                description: values.description,
+                address: values.address,
+                province: values.province,
+                ward: values.ward,
+                siteAddress: values.address,
             });
-        }, 1500);
+
+            const journeyId = result.data?.journeyId || result.data?._id;
+            const requestCode = result.data?.journeyCode || 'N/A';
+
+            form.resetFields();
+            const trackingUrl = '/portal/journeys/' + encodeURIComponent(String(journeyId || requestCode));
+            modal.success({
+                title: 'Gửi yêu cầu thành công',
+                okText: 'Đã hiểu',
+                content: (
+                    <Space direction="vertical" size={8}>
+                        <Text>Yêu cầu của bạn đã được ghi nhận thành công.</Text>
+                        <Text>Mã yêu cầu: <Text strong>{requestCode}</Text></Text>
+                        <Text>Chúng tôi sẽ liên hệ lại trong vòng 2 giờ.</Text>
+                        <Link href={trackingUrl} target="_blank" rel="noreferrer">
+                            Theo dõi yêu cầu
+                        </Link>
+                    </Space>
+                ),
+            });
+        } catch (error) {
+            const errorMessage = getPortalSubmitErrorMessage(error);
+            modal.error({
+                title: 'Gửi yêu cầu không thành công',
+                okText: 'Đóng',
+                content: errorMessage,
+            });
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -85,6 +151,7 @@ const CustomerPortalLanding: React.FC = () => {
             color: '#1e293b',
             fontFamily: "'Inter', sans-serif"
         }}>
+            {contextHolder}
 
             <Row gutter={[40, 40]} justify="center" style={{ maxWidth: 1200, margin: '0 auto' }}>
                 {/* Left Side: Service Info */}
@@ -204,6 +271,44 @@ const CustomerPortalLanding: React.FC = () => {
                             </Row>
 
                             <Form.Item
+                                label={<Text style={{ color: '#94a3b8' }}>Địa chỉ liên hệ</Text>}
+                                name="address"
+                            >
+                                <Input
+                                    prefix={<EnvironmentOutlined style={{ color: '#94a3b8' }} />}
+                                    placeholder="Số nhà, đường, khu vực công trình"
+                                    style={{ background: '#fff', border: '1px solid #d1d5db', color: '#1e293b', height: 45 }}
+                                />
+                            </Form.Item>
+
+                            <Row gutter={16}>
+                                <Col xs={24} sm={12}>
+                                    <Form.Item
+                                        label={<Text style={{ color: '#94a3b8' }}>Tỉnh/Thành</Text>}
+                                        name="province"
+                                        rules={[{ required: true, message: 'Vui lòng nhập tỉnh/thành' }]}
+                                    >
+                                        <Input
+                                            placeholder="VD: TP. HCM"
+                                            style={{ background: '#fff', border: '1px solid #d1d5db', color: '#1e293b', height: 45 }}
+                                        />
+                                    </Form.Item>
+                                </Col>
+                                <Col xs={24} sm={12}>
+                                    <Form.Item
+                                        label={<Text style={{ color: '#94a3b8' }}>Phường/Xã</Text>}
+                                        name="ward"
+                                        rules={[{ required: true, message: 'Vui lòng nhập phường/xã' }]}
+                                    >
+                                        <Input
+                                            placeholder="VD: Phường 25"
+                                            style={{ background: '#fff', border: '1px solid #d1d5db', color: '#1e293b', height: 45 }}
+                                        />
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+
+                            <Form.Item
                                 label={<Text style={{ color: '#94a3b8' }}>Dịch vụ quan tâm</Text>}
                                 name="serviceType"
                                 rules={[{ required: true, message: 'Vui lòng chọn loại dịch vụ' }]}
@@ -212,12 +317,12 @@ const CustomerPortalLanding: React.FC = () => {
                                     placeholder="Chọn loại dịch vụ"
                                     style={{ width: '100%' }}
                                     dropdownStyle={{ background: '#fff' }}
-                                >
-                                    <Option value="chong-tham">Chống thấm chuyên sâu</Option>
-                                    <Option value="son-nu">Sơn nước & Trang trí</Option>
-                                    <Option value="dien-nuoc">Hệ thống Điện - Nước</Option>
-                                    <Option value="cai-tao">Cải tạo trọn gói</Option>
-                                </Select>
+                                    loading={isLoadingServiceTypes}
+                                    options={portalServiceTypeOptions.map((option) => ({
+                                        value: option.value,
+                                        label: option.label,
+                                    }))}
+                                />
                             </Form.Item>
 
                             <Form.Item
@@ -242,6 +347,7 @@ const CustomerPortalLanding: React.FC = () => {
                                     <p className="ant-upload-text" style={{ color: '#64748b' }}>Kéo thả hoặc nhấp để tải ảnh lên</p>
                                 </Dragger>
                             </Form.Item>
+
 
                             <Button
                                 type="primary"

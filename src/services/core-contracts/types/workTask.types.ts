@@ -23,6 +23,11 @@ export interface IWorkTask {
   verified_by?: any;
   verified_time?: string | Date;
   note?: string;
+  assignee_role?: WorkTaskAssigneeRoleEnum;
+  action_key?: WorkTaskActionKeyEnum;
+  documentId?: string;
+  idx_documentId?: IndexedContentItem;
+  assignee?: any;
 }
 
 export interface ICreateWorkTaskInput {
@@ -40,12 +45,20 @@ export interface ICreateWorkTaskInput {
   verified_by?: any;
   verified_time?: string | Date;
   note?: string;
+  assignee_role?: WorkTaskAssigneeRoleEnum2;
+  action_key?: WorkTaskActionKeyEnum2;
+  documentId?: string;
+  assignee?: any;
 }
 
 export type IWorkTaskListResponse = ApiListResponse<IWorkTask>
 
 // Union types generated from value_options
-export type WorkTaskJourneyStepCodeEnum = 'lead_intake' | 'qualification' | 'survey_planning' | 'site_survey' | 'survey_review' | 'estimate_preparation' | 'quotation_preparation' | 'quotation_sent' | 'quotation_approved' | 'contract_signing' | 'project_execution' | 'handover_acceptance' | 'warranty_aftercare';
+export type WorkTaskJourneyStepCodeEnum = 'lead_new' | 'consult_contact' | 'site_survey' | 'solution_design' | 'quotation' | 'contract' | 'execution' | 'final_acceptance' | 'payment' | 'maintenance' | 'warranty' | 'after_sales';
 export type WorkTaskStatusEnum = 'pending' | 'finished' | 'skipped';
-export type WorkTaskJourneyStepCodeEnum2 = 'lead_intake' | 'qualification' | 'survey_planning' | 'site_survey' | 'survey_review' | 'estimate_preparation' | 'quotation_preparation' | 'quotation_sent' | 'quotation_approved' | 'contract_signing' | 'project_execution' | 'handover_acceptance' | 'warranty_aftercare';
+export type WorkTaskAssigneeRoleEnum = 'QL' | 'GS' | 'KYT' | 'KT' | 'HC' | 'KD' | 'ADMIN';
+export type WorkTaskActionKeyEnum = 'fill_site_address' | 'assign_owner_user' | 'upload_survey_report' | 'upload_site_photos' | 'upload_solution_doc' | 'upload_business_plan' | 'upload_customer_quotation' | 'upload_contract' | 'confirm_quote_approved' | 'confirm_final_acceptance' | 'upload_payment_receipt' | 'link_origin_journey';
+export type WorkTaskJourneyStepCodeEnum2 = 'lead_new' | 'consult_contact' | 'site_survey' | 'solution_design' | 'quotation' | 'contract' | 'execution' | 'final_acceptance' | 'payment' | 'maintenance' | 'warranty' | 'after_sales';
 export type WorkTaskStatusEnum2 = 'pending' | 'finished' | 'skipped';
+export type WorkTaskAssigneeRoleEnum2 = 'QL' | 'GS' | 'KYT' | 'KT' | 'HC' | 'KD' | 'ADMIN';
+export type WorkTaskActionKeyEnum2 = 'fill_site_address' | 'assign_owner_user' | 'upload_survey_report' | 'upload_site_photos' | 'upload_solution_doc' | 'upload_business_plan' | 'upload_customer_quotation' | 'upload_contract' | 'confirm_quote_approved' | 'confirm_final_acceptance' | 'upload_payment_receipt' | 'link_origin_journey';

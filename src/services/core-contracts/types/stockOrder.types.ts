@@ -99,13 +99,13 @@ export type IStockOrderListResponse = ApiListResponse<IStockOrder>
 // Union types generated from value_options
 export type StockOrderTypeEnum = 'out' | 'in';
 export type StockOrderStatusEnum = 'draft' | 'requested' | 'approved' | 'dispatched' | 'received' | 'completed' | 'discrepancy' | 'cancelled';
-export type StockOrderJourneyStepCodeEnum = 'lead_intake' | 'qualification' | 'survey_planning' | 'site_survey' | 'survey_review' | 'estimate_preparation' | 'quotation_preparation' | 'quotation_sent' | 'quotation_approved' | 'contract_signing' | 'project_execution' | 'handover_acceptance' | 'warranty_aftercare';
+export type StockOrderJourneyStepCodeEnum = 'lead_new' | 'consult_contact' | 'site_survey' | 'solution_design' | 'quotation' | 'contract' | 'execution' | 'final_acceptance' | 'payment' | 'maintenance' | 'warranty' | 'after_sales';
 export type StockOrderSourceEnum = 'distributor' | 'journey' | 'other';
 export type StockOrderDiscrepancyStatusEnum = 'none' | 'pending_review' | 'confirmed' | 'resolved';
 export type ItemsUnitEnum = 'kg' | 'lit' | 'm2' | 'thung' | 'cuon' | 'cai';
 export type SignaturesRoleEnum = 'pm' | 'kt' | 'warehouse' | 'gs';
 export type StockOrderTypeEnum2 = 'out' | 'in';
 export type StockOrderStatusEnum2 = 'draft' | 'requested' | 'approved' | 'dispatched' | 'received' | 'completed' | 'discrepancy' | 'cancelled';
-export type StockOrderJourneyStepCodeEnum2 = 'lead_intake' | 'qualification' | 'survey_planning' | 'site_survey' | 'survey_review' | 'estimate_preparation' | 'quotation_preparation' | 'quotation_sent' | 'quotation_approved' | 'contract_signing' | 'project_execution' | 'handover_acceptance' | 'warranty_aftercare';
+export type StockOrderJourneyStepCodeEnum2 = 'lead_new' | 'consult_contact' | 'site_survey' | 'solution_design' | 'quotation' | 'contract' | 'execution' | 'final_acceptance' | 'payment' | 'maintenance' | 'warranty' | 'after_sales';
 export type StockOrderSourceEnum2 = 'distributor' | 'journey' | 'other';
 export type StockOrderDiscrepancyStatusEnum2 = 'none' | 'pending_review' | 'confirmed' | 'resolved';

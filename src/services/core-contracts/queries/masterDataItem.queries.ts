@@ -16,7 +16,6 @@ export const FIND_MASTERDATAITEM_DTO = gql`
         updatedBy
         categoryId
         idx_categoryId
-        categoryId
         label
         value
         shortLabel
@@ -48,7 +47,6 @@ export const QUERY_MASTERDATAITEMS_DTO = gql`
         _id
         categoryId
         idx_categoryId
-        categoryId
         label
         value
         shortLabel

@@ -74,6 +74,9 @@ export interface IJourney {
   customer_address?: string;
   customer_province?: string;
   customer_ward?: string;
+  journey_kind?: JourneyJourneyKindEnum;
+  origin_journey_id?: string;
+  idx_origin_journey_id?: IndexedContentItem;
 }
 
 export interface ICreateJourneyInput {
@@ -136,6 +139,8 @@ export interface ICreateJourneyInput {
   customer_address?: string;
   customer_province?: string;
   customer_ward?: string;
+  journey_kind?: JourneyJourneyKindEnum2;
+  origin_journey_id?: string;
 }
 
 export type IJourneyListResponse = ApiListResponse<IJourney>
@@ -149,8 +154,9 @@ export type JourneySourceChannelEnum = 'marketing' | 'hotline' | 'referral' | 'd
 export type JourneySurveyStatusEnum = 'not_started' | 'scheduled' | 'in_progress' | 'completed';
 export type JourneyQuoteStatusEnum = 'not_started' | 'draft' | 'sent' | 'approved';
 export type JourneyProjectStatusEnum = 'not_started' | 'active' | 'completed' | 'cancelled';
-export type JourneyCurrentStepEnum = 'lead_intake' | 'qualification' | 'survey_planning' | 'site_survey' | 'survey_review' | 'estimate_preparation' | 'quotation_preparation' | 'quotation_sent' | 'quotation_approved' | 'contract_signing' | 'project_execution' | 'handover_acceptance' | 'warranty_aftercare';
+export type JourneyCurrentStepEnum = 'lead_new' | 'consult_contact' | 'site_survey' | 'solution_design' | 'quotation' | 'contract' | 'execution' | 'final_acceptance' | 'payment' | 'maintenance' | 'warranty' | 'after_sales';
 export type JourneyMaterialNeedStatusEnum = 'enough' | 'partial' | 'waiting';
+export type JourneyJourneyKindEnum = 'main' | 'maintenance' | 'warranty';
 export type JourneyPriorityEnum2 = 'low' | 'medium' | 'high' | 'critical';
 export type JourneyGoNoGoStatusEnum2 = 'draft' | 'go' | 'no_go' | 'on_hold' | 'pending';
 export type JourneySlaStatusEnum2 = 'on_time' | 'at_risk' | 'overdue';
@@ -159,5 +165,6 @@ export type JourneySourceChannelEnum2 = 'marketing' | 'hotline' | 'referral' | '
 export type JourneySurveyStatusEnum2 = 'not_started' | 'scheduled' | 'in_progress' | 'completed';
 export type JourneyQuoteStatusEnum2 = 'not_started' | 'draft' | 'sent' | 'approved';
 export type JourneyProjectStatusEnum2 = 'not_started' | 'active' | 'completed' | 'cancelled';
-export type JourneyCurrentStepEnum2 = 'lead_intake' | 'qualification' | 'survey_planning' | 'site_survey' | 'survey_review' | 'estimate_preparation' | 'quotation_preparation' | 'quotation_sent' | 'quotation_approved' | 'contract_signing' | 'project_execution' | 'handover_acceptance' | 'warranty_aftercare';
+export type JourneyCurrentStepEnum2 = 'lead_new' | 'consult_contact' | 'site_survey' | 'solution_design' | 'quotation' | 'contract' | 'execution' | 'final_acceptance' | 'payment' | 'maintenance' | 'warranty' | 'after_sales';
 export type JourneyMaterialNeedStatusEnum2 = 'enough' | 'partial' | 'waiting';
+export type JourneyJourneyKindEnum2 = 'main' | 'maintenance' | 'warranty';

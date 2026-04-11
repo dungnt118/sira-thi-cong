@@ -25,32 +25,44 @@ import dayjs from 'dayjs';
 const { Text } = Typography;
 
 // ─── Config constants ──────────────────────────────────────
-const CONTEXT_TYPE_LABELS: Record<string, string> = {
-    survey: 'Tài liệu khảo sát',
-    quotation: 'Báo giá / Dự toán',
-    contract: 'Hợp đồng / PLHĐ',
-    progress: 'Tiến độ / Báo cáo',
-    payment: 'Chứng từ thanh toán',
-    general: 'Tài liệu chung',
+const DOC_TYPE_LABELS: Record<string, string> = {
+    survey_report: 'Báo cáo khảo sát',
+    site_photos: 'Ảnh mặt bằng',
+    solution_doc: 'Thiết kế giải pháp',
+    business_plan: 'Phương án kinh doanh',
+    quotation: 'Báo giá',
+    contract: 'Hợp đồng',
+    advance_request: 'Yêu cầu tạm ứng',
+    stage_acceptance: 'Nghiệm thu giai đoạn',
+    stage_payment_proof: 'Chứng từ thanh toán GĐ',
+    final_acceptance: 'Nghiệm thu bàn giao',
+    payment_receipt: 'Hóa đơn / Phiếu thu',
+    maintenance_record: 'Biên bản bảo trì',
+    warranty_record: 'Biên bản bảo hành',
+    after_sales_note: 'Ghi chú sau bán',
 };
+
 
 const STEP_NAME_MAPPING: Record<string, string> = {
-    lead_intake: '1. Tiếp nhận (Lead Intake)',
-    qualification: '2. Thẩm định (Qualification)',
-    survey_planning: '3. Lập phương án KS (Survey Planning)',
-    site_survey: '4. Khảo sát (Site Survey)',
-    survey_review: '5. Duyệt khảo sát (Survey Review)',
-    estimate_preparation: '6. Lập dự toán (Estimate)',
-    quotation_preparation: '7. Lập báo giá (Quotation)',
-    quotation_sent: '8. Gửi báo giá',
-    quotation_approved: '9. Khách duyệt',
-    contract_signing: '10. Ký hợp đồng',
-    project_execution: '11. Thi công',
-    handover_acceptance: '12. Nghiệm thu bàn giao',
-    warranty_aftercare: '13. Bảo hành/CSKH',
+    'lead_new': '1. Tiếp nhận',
+    'consult_contact': '2. Tư vấn & Hẹn lịch',
+    'site_survey': '3. Khảo sát',
+    'solution_design': '4. Thiết kế giải pháp',
+    'quotation': '5. Báo giá',
+    'contract': '6. Hợp đồng',
+    'execution': '7. Thi công',
+    'final_acceptance': '8. Nghiệm thu',
+    'payment': '9. Thanh toán',
+    'maintenance': '10. Bảo trì',
+    'warranty': '11. Bảo hành',
+    'after_sales': '12. Chăm sóc khách hàng',
 };
 
-const JOURNEY_STEP_SORT_ORDER = Object.keys(STEP_NAME_MAPPING);
+const JOURNEY_STEP_SORT_ORDER = [
+    'lead_new', 'consult_contact', 'site_survey', 'solution_design',
+    'quotation', 'contract', 'execution', 'final_acceptance',
+    'payment', 'maintenance', 'warranty', 'after_sales'
+];
 
 const FILE_KIND_LABEL: Record<JourneyFileKind, string> = {
     pdf: 'PDF',
@@ -357,9 +369,10 @@ export const JourneyDocumentsTab: React.FC<JourneyDocumentsTabProps> = ({
                                     const firstFileHref = firstFile
                                         ? resolveJourneyFileHref(firstFile)
                                         : undefined;
-                                    const classificationTitle = doc.context_type
-                                        ? CONTEXT_TYPE_LABELS[doc.context_type] || doc.context_type
+                                    const classificationTitle = doc.doc_type
+                                        ? DOC_TYPE_LABELS[doc.doc_type as string] || doc.doc_type
                                         : 'Chưa phân loại';
+
 
                                     const actions = isEditable
                                         ? [

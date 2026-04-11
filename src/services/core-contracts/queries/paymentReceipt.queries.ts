@@ -17,14 +17,9 @@ export const FIND_PAYMENTRECEIPT_DTO = gql`
         code
         journey_id
         idx_journey_id
-        journey_id
         journey_step_code
         payment_milestone_id
         idx_payment_milestone_id
-        payment_milestone_id
-        project_id
-        idx_project_id
-        project_id
         receipt_date
         receipt_method
         amount_received
@@ -32,9 +27,6 @@ export const FIND_PAYMENTRECEIPT_DTO = gql`
         collected_by
         proof_files
         note
-        contract_id
-        idx_contract_id
-        contract_id
       }
     }
   }
@@ -57,14 +49,9 @@ export const QUERY_PAYMENTRECEIPTS_DTO = gql`
         code
         journey_id
         idx_journey_id
-        journey_id
         journey_step_code
         payment_milestone_id
         idx_payment_milestone_id
-        payment_milestone_id
-        project_id
-        idx_project_id
-        project_id
         receipt_date
         receipt_method
         amount_received
@@ -72,9 +59,6 @@ export const QUERY_PAYMENTRECEIPTS_DTO = gql`
         collected_by
         proof_files
         note
-        contract_id
-        idx_contract_id
-        contract_id
       }
     }
   }

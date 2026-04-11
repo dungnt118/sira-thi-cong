@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import {
-    Card, List, Tag, Button, Typography, Space, Badge, Modal, Form, Input, Select
+    Card, List, Tag, Button, Typography, Space, Badge, Modal, Form, Input, Select, Spin
 } from 'antd';
-import { PlusOutlined, MessageOutlined, FileSearchOutlined, BuildOutlined, DollarOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import { PlusOutlined, MessageOutlined, FileSearchOutlined, BuildOutlined, DollarOutlined, QuestionCircleOutlined, LoadingOutlined } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
-import { mockPortalThreads, mockJourneys } from '../../../data/journeyMockData';
-import type { PortalThread } from '../../../types/journey';
 import PortalPageHeader from '../../../components/portal/PortalPageHeader';
+import { usePortalJourney } from '../../../hooks/usePortalJourney';
+import { usePortalThreads } from '../../../hooks/usePortalThreads';
+import { IPortalThread } from '../../../services/core-contracts/types/portalThread.types';
+import dayjs from 'dayjs';
 
 const { Text } = Typography;
 const { TextArea } = Input;
@@ -15,13 +17,25 @@ const STATUS_COLOR: Record<string, string> = { open: 'processing', waiting: 'war
 const STATUS_LABEL: Record<string, string> = { open: 'Đang mở', waiting: 'Chờ phản hồi', closed: 'Đã đóng' };
 
 const ThreadInbox: React.FC = () => {
-    const { token } = useParams<{ token: string }>();
+    const { journeyId, token } = useParams<{ journeyId?: string; token?: string }>();
+    const portalKey = journeyId || token;
     const navigate = useNavigate();
-    const journey = mockJourneys.find(j => j.portal_token === token || j.journey_code === token);
-    const threads = mockPortalThreads.filter(t => t.journey_id === journey?.id);
+    const { journey, isLoading: isLoadingJourney } = usePortalJourney(portalKey);
+    const { threads, isLoading: isLoadingThreads } = usePortalThreads(journey?._id);
+
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [createForm] = Form.useForm();
     const [filterContext, setFilterContext] = useState<string>('all');
+
+    const isLoading = isLoadingJourney || (journey && isLoadingThreads);
+
+    if (isLoading) {
+        return (
+            <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Spin indicator={<LoadingOutlined style={{ fontSize: 48, color: '#38bdf8' }} spin />} />
+            </div>
+        );
+    }
 
     if (!journey) return <div style={{ padding: 40, textAlign: 'center' }}>Không tìm thấy dữ liệu.</div>;
 
@@ -31,8 +45,8 @@ const ThreadInbox: React.FC = () => {
         <div style={{ maxWidth: 680, margin: '0 auto', padding: '24px 16px' }}>
             <PortalPageHeader 
                 title="Hội thoại & Câu hỏi" 
-                subtitle={journey.customer_name}
-                token={token || ''}
+                subtitle={journey.customer_full_name || journey.customer_id || ''}
+                token={journey._id || portalKey || ''}
                 icon={<MessageOutlined />}
                 extra={
                     <Button type="primary" icon={<PlusOutlined />} size="small" onClick={() => setShowCreateModal(true)}>
@@ -59,33 +73,30 @@ const ThreadInbox: React.FC = () => {
             <List
                 dataSource={filteredThreads}
                 locale={{ emptyText: 'Chưa có hội thoại nào. Nhấn "Tạo thread" để bắt đầu.' }}
-                renderItem={(thread: PortalThread) => (
+                renderItem={(thread: IPortalThread) => (
                     <Card
-                        key={thread.thread_id}
+                        key={thread._id}
                         size="small"
                         hoverable
                         style={{ marginBottom: 10, borderRadius: 10, cursor: 'pointer' }}
-                        onClick={() => navigate(`/portal/${token}/threads/${thread.thread_id}`)}
+                        onClick={() => navigate(`/portal/journeys/${journey.journey_code || portalKey}/threads/${thread._id}`)}
                     >
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                             <div>
                                 <Space>
-                                    <MessageOutlined style={{ color: '#1976D2' }} />
+                                    <MessageOutlined style={{ color: '#38bdf8' }} />
                                     <Text strong>{thread.context_label}</Text>
-                                    {thread.unread_count > 0 && <Badge count={thread.unread_count} size="small" />}
+                                    {(thread.unread_count || 0) > 0 && <Badge count={thread.unread_count} size="small" />}
                                 </Space>
                                 <div style={{ marginTop: 4 }}>
-                                    <Tag color={STATUS_COLOR[thread.status]} style={{ fontSize: 11 }}>
-                                        {STATUS_LABEL[thread.status]}
+                                    <Tag color={STATUS_COLOR[thread.status || 'open']} style={{ fontSize: 11 }}>
+                                        {STATUS_LABEL[thread.status || 'open']}
                                     </Tag>
                                     <Tag style={{ fontSize: 11 }}>{thread.context_type}</Tag>
                                 </div>
-                                <Text type="secondary" style={{ fontSize: 12, display: 'block', marginTop: 4 }}>
-                                    {thread.messages[thread.messages.length - 1]?.message_body?.slice(0, 60)}...
-                                </Text>
                             </div>
                             <Text type="secondary" style={{ fontSize: 11 }}>
-                                {thread.last_message_at?.split('T')[0]}
+                                {thread.last_message_at ? dayjs(thread.last_message_at).format('DD/MM/YYYY') : ''}
                             </Text>
                         </div>
                     </Card>

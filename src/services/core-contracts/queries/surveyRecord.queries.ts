@@ -14,12 +14,8 @@ export const FIND_SURVEYRECORD_DTO = gql`
         updatedAt
         createdBy
         updatedBy
-        service_request_id
-        idx_service_request_id
-        service_request_id
         journey_id
         idx_journey_id
-        journey_id
         journey_step_code
         scheduled_date
         survey_date
@@ -65,12 +61,8 @@ export const QUERY_SURVEYRECORDS_DTO = gql`
       records
       data {
         _id
-        service_request_id
-        idx_service_request_id
-        service_request_id
         journey_id
         idx_journey_id
-        journey_id
         journey_step_code
         scheduled_date
         survey_date

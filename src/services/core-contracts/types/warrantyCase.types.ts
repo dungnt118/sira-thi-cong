@@ -16,8 +16,6 @@ export interface IWarrantyCase {
   idx_warranty_card_id?: IndexedContentItem;
   source_handover_issue_id?: string;
   idx_source_handover_issue_id?: IndexedContentItem;
-  project_id?: string;
-  idx_project_id?: IndexedContentItem;
   reported_at?: string | Date;
   issue_title?: string;
   severity?: WarrantyCaseSeverityEnum;
@@ -29,6 +27,9 @@ export interface IWarrantyCase {
   issue_detail?: string;
   resolution_note?: string;
   evidence_files?: HeadlessFileUpload[];
+  //deprecated fields
+  // project_id?: string;
+  // idx_project_id?: IndexedContentItem;
 }
 
 export interface ICreateWarrantyCaseInput {
@@ -37,7 +38,6 @@ export interface ICreateWarrantyCaseInput {
   journey_step_code?: WarrantyCaseJourneyStepCodeEnum2;
   warranty_card_id?: string;
   source_handover_issue_id?: string;
-  project_id?: string;
   reported_at?: string | Date;
   issue_title?: string;
   severity?: WarrantyCaseSeverityEnum2;
@@ -48,14 +48,16 @@ export interface ICreateWarrantyCaseInput {
   issue_detail?: string;
   resolution_note?: string;
   evidence_files?: HeadlessFileUpload[];
+  //deprecated fields
+  // project_id?: string;
 }
 
 export type IWarrantyCaseListResponse = ApiListResponse<IWarrantyCase>
 
 // Union types generated from value_options
-export type WarrantyCaseJourneyStepCodeEnum = 'warranty_aftercare' | 'handover_acceptance' | 'project_execution';
+export type WarrantyCaseJourneyStepCodeEnum = 'lead_new' | 'consult_contact' | 'site_survey' | 'solution_design' | 'quotation' | 'contract' | 'execution' | 'final_acceptance' | 'payment' | 'maintenance' | 'warranty' | 'after_sales';
 export type WarrantyCaseSeverityEnum = 'low' | 'medium' | 'high' | 'critical';
 export type WarrantyCaseStatusEnum = 'new' | 'assigned' | 'in_progress' | 'resolved' | 'closed';
-export type WarrantyCaseJourneyStepCodeEnum2 = 'warranty_aftercare' | 'handover_acceptance' | 'project_execution';
+export type WarrantyCaseJourneyStepCodeEnum2 = 'lead_new' | 'consult_contact' | 'site_survey' | 'solution_design' | 'quotation' | 'contract' | 'execution' | 'final_acceptance' | 'payment' | 'maintenance' | 'warranty' | 'after_sales';
 export type WarrantyCaseSeverityEnum2 = 'low' | 'medium' | 'high' | 'critical';
 export type WarrantyCaseStatusEnum2 = 'new' | 'assigned' | 'in_progress' | 'resolved' | 'closed';

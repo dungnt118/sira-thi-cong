@@ -16,8 +16,6 @@ export interface IWarrantyVisit {
   idx_warranty_case_id?: IndexedContentItem;
   warranty_card_id?: string;
   idx_warranty_card_id?: IndexedContentItem;
-  project_id?: string;
-  idx_project_id?: IndexedContentItem;
   scheduled_at?: string | Date;
   visit_status?: WarrantyVisitVisitStatusEnum;
   performed_by?: any;
@@ -28,6 +26,9 @@ export interface IWarrantyVisit {
   next_action?: string;
   evidence_files?: HeadlessFileUpload[];
   note?: string;
+  //deprecated fields
+  // project_id?: string;
+  // idx_project_id?: IndexedContentItem;
 }
 
 export interface ICreateWarrantyVisitInput {
@@ -36,7 +37,6 @@ export interface ICreateWarrantyVisitInput {
   journey_step_code?: WarrantyVisitJourneyStepCodeEnum2;
   warranty_case_id?: string;
   warranty_card_id?: string;
-  project_id?: string;
   scheduled_at?: string | Date;
   visit_status?: WarrantyVisitVisitStatusEnum2;
   performed_by?: any;
@@ -47,14 +47,16 @@ export interface ICreateWarrantyVisitInput {
   next_action?: string;
   evidence_files?: HeadlessFileUpload[];
   note?: string;
+  //deprecated fields
+  // project_id?: string;
 }
 
 export type IWarrantyVisitListResponse = ApiListResponse<IWarrantyVisit>
 
 // Union types generated from value_options
-export type WarrantyVisitJourneyStepCodeEnum = 'warranty_aftercare' | 'handover_acceptance' | 'project_execution';
+export type WarrantyVisitJourneyStepCodeEnum = 'lead_new' | 'consult_contact' | 'site_survey' | 'solution_design' | 'quotation' | 'contract' | 'execution' | 'final_acceptance' | 'payment' | 'maintenance' | 'warranty' | 'after_sales';
 export type WarrantyVisitVisitStatusEnum = 'scheduled' | 'in_progress' | 'completed' | 'rescheduled' | 'cancelled';
 export type WarrantyVisitResultEnum = 'fixed' | 'follow_up_required' | 'customer_absent' | 'outside_scope' | 'cancelled';
-export type WarrantyVisitJourneyStepCodeEnum2 = 'warranty_aftercare' | 'handover_acceptance' | 'project_execution';
+export type WarrantyVisitJourneyStepCodeEnum2 = 'lead_new' | 'consult_contact' | 'site_survey' | 'solution_design' | 'quotation' | 'contract' | 'execution' | 'final_acceptance' | 'payment' | 'maintenance' | 'warranty' | 'after_sales';
 export type WarrantyVisitVisitStatusEnum2 = 'scheduled' | 'in_progress' | 'completed' | 'rescheduled' | 'cancelled';
 export type WarrantyVisitResultEnum2 = 'fixed' | 'follow_up_required' | 'customer_absent' | 'outside_scope' | 'cancelled';

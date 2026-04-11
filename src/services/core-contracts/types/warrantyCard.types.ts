@@ -13,9 +13,6 @@ export interface IWarrantyCard {
   idx_journey_id?: IndexedContentItem;
   journey_step_code?: WarrantyCardJourneyStepCodeEnum;
   journey_code?: string;
-  project_id?: string;
-  idx_project_id?: IndexedContentItem;
-  project_name?: string;
   customer_name?: string;
   customer_phone?: string;
   address?: string;
@@ -29,6 +26,10 @@ export interface IWarrantyCard {
   materials?: string[];
   qr_code?: string;
   journey_name?: string;
+  //deprecated fields
+  // project_id?: string;
+  // idx_project_id?: IndexedContentItem;
+  // project_name?: string;
 }
 
 export interface ICreateWarrantyCardInput {
@@ -36,8 +37,6 @@ export interface ICreateWarrantyCardInput {
   journey_id?: string;
   journey_step_code?: WarrantyCardJourneyStepCodeEnum2;
   journey_code?: string;
-  project_id?: string;
-  project_name?: string;
   customer_name?: string;
   customer_phone?: string;
   address?: string;
@@ -50,10 +49,13 @@ export interface ICreateWarrantyCardInput {
   materials?: string[];
   qr_code?: string;
   journey_name?: string;
+  //deprecated fields
+  // project_id?: string;
+  // project_name?: string;
 }
 
 export type IWarrantyCardListResponse = ApiListResponse<IWarrantyCard>
 
 // Union types generated from value_options
-export type WarrantyCardJourneyStepCodeEnum = 'lead_intake' | 'qualification' | 'survey_planning' | 'site_survey' | 'survey_review' | 'estimate_preparation' | 'quotation_preparation' | 'quotation_sent' | 'quotation_approved' | 'contract_signing' | 'project_execution' | 'handover_acceptance' | 'warranty_aftercare';
-export type WarrantyCardJourneyStepCodeEnum2 = 'lead_intake' | 'qualification' | 'survey_planning' | 'site_survey' | 'survey_review' | 'estimate_preparation' | 'quotation_preparation' | 'quotation_sent' | 'quotation_approved' | 'contract_signing' | 'project_execution' | 'handover_acceptance' | 'warranty_aftercare';
+export type WarrantyCardJourneyStepCodeEnum = 'lead_new' | 'consult_contact' | 'site_survey' | 'solution_design' | 'quotation' | 'contract' | 'execution' | 'final_acceptance' | 'payment' | 'maintenance' | 'warranty' | 'after_sales';
+export type WarrantyCardJourneyStepCodeEnum2 = 'lead_new' | 'consult_contact' | 'site_survey' | 'solution_design' | 'quotation' | 'contract' | 'execution' | 'final_acceptance' | 'payment' | 'maintenance' | 'warranty' | 'after_sales';

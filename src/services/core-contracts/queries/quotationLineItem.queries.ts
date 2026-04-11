@@ -16,10 +16,8 @@ export const FIND_QUOTATIONLINEITEM_DTO = gql`
         updatedBy
         quotation_id
         idx_quotation_id
-        quotation_id
         mapping_rule_id
         idx_mapping_rule_id
-        mapping_rule_id
         item_name
         unit
         quantity
@@ -47,10 +45,8 @@ export const QUERY_QUOTATIONLINEITEMS_DTO = gql`
         _id
         quotation_id
         idx_quotation_id
-        quotation_id
         mapping_rule_id
         idx_mapping_rule_id
-        mapping_rule_id
         item_name
         unit
         quantity

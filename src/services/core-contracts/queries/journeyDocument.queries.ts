@@ -16,15 +16,15 @@ export const FIND_JOURNEYDOCUMENT_DTO = gql`
         updatedBy
         journey_id
         idx_journey_id
-        journey_id
         journey_step_code
-        context_type
         description
         files
         published_at
         is_published
         createdAt
         createdBy
+        title
+        doc_type
       }
     }
   }
@@ -46,15 +46,15 @@ export const QUERY_JOURNEYDOCUMENTS_DTO = gql`
         _id
         journey_id
         idx_journey_id
-        journey_id
         journey_step_code
-        context_type
         description
         files
         published_at
         is_published
         createdAt
         createdBy
+        title
+        doc_type
       }
     }
   }

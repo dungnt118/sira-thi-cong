@@ -53,20 +53,20 @@ export const JOURNEY_PROJECT_STATUS_OPTIONS: JourneySelectOption[] = [
 ];
 
 export const JOURNEY_STEP_OPTIONS: JourneySelectOption[] = [
-    { value: 'lead_intake', label: 'Tiếp nhận lead' },
-    { value: 'qualification', label: 'Sàng lọc nhu cầu' },
-    { value: 'survey_planning', label: 'Lập lịch khảo sát' },
+    { value: 'lead_new', label: 'Tiếp nhận Lead' },
+    { value: 'consult_contact', label: 'Tư vấn & Hẹn lịch' },
     { value: 'site_survey', label: 'Khảo sát hiện trạng' },
-    { value: 'survey_review', label: 'Review khảo sát' },
-    { value: 'estimate_preparation', label: 'Lập dự toán nội bộ' },
-    { value: 'quotation_preparation', label: 'Soạn báo giá' },
-    { value: 'quotation_sent', label: 'Gửi báo giá' },
-    { value: 'quotation_approved', label: 'Chốt báo giá' },
-    { value: 'contract_signing', label: 'Ký hợp đồng' },
-    { value: 'project_execution', label: 'Triển khai thi công' },
-    { value: 'handover_acceptance', label: 'Nghiệm thu / bàn giao' },
-    { value: 'warranty_aftercare', label: 'Bảo hành / chăm sóc sau bàn giao' },
+    { value: 'solution_design', label: 'Thiết kế giải pháp' },
+    { value: 'quotation', label: 'Báo giá' },
+    { value: 'contract', label: 'Ký hợp đồng' },
+    { value: 'execution', label: 'Triển khai thi công' },
+    { value: 'final_acceptance', label: 'Nghiệm thu / bàn giao' },
+    { value: 'payment', label: 'Thanh toán' },
+    { value: 'maintenance', label: 'Bảo trì' },
+    { value: 'warranty', label: 'Bảo hành' },
+    { value: 'after_sales', label: 'Chăm sóc sau bán' },
 ];
+
 
 export const JOURNEY_SLA_META: Record<string, { label: string; color: string; background: string }> = {
     on_time: { label: 'Đúng hạn', color: '#2f855a', background: '#f0fff4' },
@@ -82,20 +82,20 @@ export const JOURNEY_PRIORITY_META: Record<string, { label: string; color: strin
 };
 
 export const JOURNEY_STEP_META: Record<string, { label: string; color: string }> = {
-    lead_intake: { label: 'Tiếp nhận lead', color: '#6b7280' },
-    qualification: { label: 'Sàng lọc nhu cầu', color: '#0891b2' },
-    survey_planning: { label: 'Lập lịch khảo sát', color: '#2563eb' },
+    lead_new: { label: 'Tiếp nhận lead', color: '#6b7280' },
+    consult_contact: { label: 'Tư vấn & Hẹn lịch', color: '#2563eb' },
     site_survey: { label: 'Khảo sát hiện trạng', color: '#f59e0b' },
-    survey_review: { label: 'Review khảo sát', color: '#8b5cf6' },
-    estimate_preparation: { label: 'Lập dự toán nội bộ', color: '#4f46e5' },
-    quotation_preparation: { label: 'Soạn báo giá', color: '#0f766e' },
-    quotation_sent: { label: 'Gửi báo giá', color: '#0284c7' },
-    quotation_approved: { label: 'Chốt báo giá', color: '#16a34a' },
-    contract_signing: { label: 'Ký hợp đồng', color: '#15803d' },
-    project_execution: { label: 'Triển khai thi công', color: '#ea580c' },
-    handover_acceptance: { label: 'Nghiệm thu / bàn giao', color: '#2563eb' },
-    warranty_aftercare: { label: 'Bảo hành / chăm sóc sau bàn giao', color: '#dc2626' },
+    solution_design: { label: 'Thiết kế giải pháp', color: '#8b5cf6' },
+    quotation: { label: 'Báo giá', color: '#0f766e' },
+    contract: { label: 'Ký hợp đồng', color: '#15803d' },
+    execution: { label: 'Triển khai thi công', color: '#ea580c' },
+    final_acceptance: { label: 'Nghiệm thu / bàn giao', color: '#2563eb' },
+    payment: { label: 'Thanh toán', color: '#16a34a' },
+    maintenance: { label: 'Bảo trì', color: '#0891b2' },
+    warranty: { label: 'Bảo hành', color: '#dc2626' },
+    after_sales: { label: 'Chăm sóc sau bán', color: '#dc2626' },
 };
+
 
 export const JOURNEY_EMPTY_VALUE = 'Chưa cập nhật';
 

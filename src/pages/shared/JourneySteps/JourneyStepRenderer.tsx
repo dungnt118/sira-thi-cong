@@ -31,26 +31,25 @@ export interface JourneyStepRendererProps {
 }
 
 export const MAP_ENUM_TO_STEP_CODE: Record<string, string> = {
-    'lead_intake': 'S01_INFO',
-    'qualification': 'S01_INFO',
-    'survey_planning': 'S02_CONSULT',
+    'lead_new': 'S01_INFO',
+    'consult_contact': 'S02_CONSULT',
     'site_survey': 'S03_SURVEY',
-    'survey_review': 'S03_SURVEY',
-    'estimate_preparation': 'S04_SOLUTION',
-    'quotation_preparation': 'S05_QUOTE',
-    'quotation_sent': 'S05_QUOTE',
-    'quotation_approved': 'S05_QUOTE',
-    'contract_signing': 'S06_CONTRACT',
-    'project_execution': 'S08_CONSTRUCT',
-    'handover_acceptance': 'S09_ACCEPTANCE',
-    'warranty_aftercare': 'S12_WARRANTY',
+    'solution_design': 'S04_SOLUTION',
+    'quotation': 'S05_QUOTE',
+    'contract': 'S06_CONTRACT',
+    'execution': 'S08_CONSTRUCT',
+    'final_acceptance': 'S09_ACCEPTANCE',
+    'payment': 'S10_PAYMENT',
+    'maintenance': 'S11_MAINTAIN',
+    'warranty': 'S12_WARRANTY',
+    'after_sales': 'S13_CARE',
 };
 
 const JOURNEY_STEP_SEQUENCE = [
-    'lead_intake', 'qualification', 'survey_planning', 'site_survey', 'survey_review',
-    'estimate_preparation', 'quotation_preparation', 'quotation_sent', 'quotation_approved',
-    'contract_signing', 'project_execution', 'handover_acceptance', 'warranty_aftercare'
+    'lead_new', 'consult_contact', 'site_survey', 'solution_design', 'quotation', 'contract', 
+    'execution', 'final_acceptance', 'payment', 'maintenance', 'warranty', 'after_sales'
 ];
+
 
 export const JourneyStepRenderer: React.FC<JourneyStepRendererProps> = ({
     stepCode,
@@ -161,7 +160,7 @@ export const JourneyStepRenderer: React.FC<JourneyStepRendererProps> = ({
             case 'S04_SOLUTION': return <Step04Solution {...commonProps} />;
             case 'S05_QUOTE': return <Step05Quote {...commonProps} />;
             case 'S06_CONTRACT': return <Step06Contract {...commonProps} />;
-            case 'S07_ADVANCE': return <Step07Advance {...commonProps} />;
+            case 'S07_ADVANCE': return <Step07Advance {...commonProps} />; // Keep for legacy potential but not in main sequence
             case 'S08_CONSTRUCT': return <Step08Construct {...commonProps} />;
             case 'S09_ACCEPTANCE': return <Step09Acceptance {...commonProps} />;
             case 'S10_PAYMENT': return <Step10Payment {...commonProps} />;
@@ -171,6 +170,7 @@ export const JourneyStepRenderer: React.FC<JourneyStepRendererProps> = ({
             default: return <Empty description={`Component cho bước ${resolvedStepCode} đang được phát triển`} />;
         }
     };
+
 
     return (
         <Space direction="vertical" style={{ width: '100%' }} size={isMobile ? 'small' : 'middle'}>
