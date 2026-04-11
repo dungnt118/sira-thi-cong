@@ -13,26 +13,38 @@ import {
 } from '@ant-design/icons';
 import { useAppDispatch } from '@/store/hooks';
 import { find_setting, save_setting } from '@/store/actions/data/data.action';
-import type { ICustomerJourneySetting, IRolesItem, IChecklistItem } from '@/services/core-contracts/types/customerJourneySetting.types';
+import type { ICustomerJourneySetting, IStepsItem, IRolesItem, IChecklistItem, IActionsItem } from '@/services/core-contracts/types/customerJourneySetting.types';
 import './CustomerJourneySettingPage.css';
 
 const { Text, Title, Paragraph } = Typography;
 const { TextArea } = Input;
 
-const FIXED_STEPS = [
-    { code: 'lead_intake', name: 'Bước 01 - Tiếp nhận lead' },
-    { code: 'qualification', name: 'Bước 02 - Sàng lọc nhu cầu' },
-    { code: 'survey_planning', name: 'Bước 03 - Lập lịch khảo sát' },
-    { code: 'site_survey', name: 'Bước 04 - Khảo sát hiện trạng' },
-    { code: 'survey_review', name: 'Bước 05 - Review khảo sát' },
-    { code: 'estimate_preparation', name: 'Bước 06 - Lập dự toán nội bộ' },
-    { code: 'quotation_preparation', name: 'Bước 07 - Soạn báo giá' },
-    { code: 'quotation_sent', name: 'Bước 08 - Gửi báo giá' },
-    { code: 'quotation_approved', name: 'Bước 09 - Chốt báo giá' },
-    { code: 'contract_signing', name: 'Bước 10 - Ký hợp đồng' },
-    { code: 'project_execution', name: 'Bước 11 - Triển khai thi công' },
-    { code: 'handover_acceptance', name: 'Bước 12 - Nghiệm thu / bàn giao' },
-    { code: 'warranty_aftercare', name: 'Bước 13 - Bảo hành / chăm sóc sau bàn giao' },
+type StepCode = NonNullable<IStepsItem['step_code']>;
+
+interface StepDefinition {
+    code: StepCode;
+    name: string;
+}
+
+interface StepViewModel extends Omit<IStepsItem, 'step_code'> {
+    step_code: StepCode;
+    step_name: string;
+    step_order: number;
+}
+
+const FIXED_STEPS: StepDefinition[] = [
+    { code: 'lead_new', name: 'Bước 01 - Lead mới' },
+    { code: 'consult_contact', name: 'Bước 02 - Tư vấn / liên hệ' },
+    { code: 'site_survey', name: 'Bước 03 - Khảo sát hiện trạng' },
+    { code: 'solution_design', name: 'Bước 04 - Thiết kế giải pháp' },
+    { code: 'quotation', name: 'Bước 05 - Báo giá' },
+    { code: 'contract', name: 'Bước 06 - Hợp đồng' },
+    { code: 'execution', name: 'Bước 07 - Triển khai' },
+    { code: 'final_acceptance', name: 'Bước 08 - Nghiệm thu cuối' },
+    { code: 'payment', name: 'Bước 09 - Thanh toán' },
+    { code: 'maintenance', name: 'Bước 10 - Bảo trì' },
+    { code: 'warranty', name: 'Bước 11 - Bảo hành' },
+    { code: 'after_sales', name: 'Bước 12 - Chăm sóc sau bán' },
 ];
 
 /** Option chuẩn (không dùng `read` — dữ liệu cũ `read` hiển thị raw + user chuyển sang "Chỉ xem" / view) */
@@ -51,12 +63,12 @@ function formatPermissionLabel(value: string): string {
 /** Vai trò cố định cho Customer Journey (mã lưu DB, không lấy từ schema Role) */
 const CUSTOMER_JOURNEY_ROLE_OPTIONS = [
     { value: 'QL', label: 'Quản lý dự án' },
+    { value: 'GS', label: 'Giám sát' },
     { value: 'KYT', label: 'Kỹ thuật' },
     { value: 'KT', label: 'Kế toán' },
+    { value: 'HC', label: 'Hành chính' },
     { value: 'KD', label: 'Kinh doanh' },
-    { value: 'GS', label: 'Giám sát' },
     { value: 'ADMIN', label: 'Admin' },
-    { value: 'TENANT_ADMIN', label: 'Tenant Admin' },
 ] as const;
 
 const JOURNEY_ROLE_LABEL_MAP: Record<string, string> = Object.fromEntries(
@@ -67,6 +79,110 @@ function formatJourneyRoleDisplay(roleValue?: string): string {
     if (!roleValue) return '—';
     return JOURNEY_ROLE_LABEL_MAP[roleValue] || roleValue;
 }
+
+const CHECKLIST_ACTION_OPTIONS = [
+    { value: 'fill_site_address', label: 'Điền địa chỉ công trình' },
+    { value: 'assign_owner_user', label: 'Gán người phụ trách' },
+    { value: 'upload_survey_report', label: 'Tải biên bản khảo sát' },
+    { value: 'upload_site_photos', label: 'Tải ảnh hiện trạng' },
+    { value: 'upload_solution_doc', label: 'Tải hồ sơ giải pháp' },
+    { value: 'upload_business_plan', label: 'Tải kế hoạch kinh doanh' },
+    { value: 'upload_customer_quotation', label: 'Tải báo giá khách hàng' },
+    { value: 'upload_contract', label: 'Tải hợp đồng' },
+    { value: 'confirm_quote_approved', label: 'Xác nhận chốt báo giá' },
+    { value: 'confirm_final_acceptance', label: 'Xác nhận nghiệm thu cuối' },
+    { value: 'upload_payment_receipt', label: 'Tải chứng từ thanh toán' },
+    { value: 'link_origin_journey', label: 'Liên kết Journey gốc' },
+];
+
+const ACTION_TYPE_OPTIONS = [
+    { value: 'require_journey_field', label: 'Bắt buộc trường Journey' },
+    { value: 'require_document', label: 'Bắt buộc tài liệu' },
+    { value: 'require_status_equals', label: 'Bắt buộc trạng thái' },
+];
+
+const ACTION_TARGET_FIELD_OPTIONS = [
+    { value: 'request_title', label: 'Tiêu đề yêu cầu' },
+    { value: 'customer_id', label: 'Khách hàng' },
+    { value: 'owner_user', label: 'Người phụ trách' },
+    { value: 'site_address', label: 'Địa chỉ công trình' },
+    { value: 'serviceTypeId', label: 'Loại dịch vụ' },
+    { value: 'go_no_go_status', label: 'Go/No-Go' },
+    { value: 'survey_status', label: 'Trạng thái khảo sát' },
+    { value: 'quote_status', label: 'Trạng thái báo giá' },
+    { value: 'project_status', label: 'Trạng thái triển khai' },
+    { value: 'portal_publish_status', label: 'Trạng thái portal' },
+    { value: 'journey_kind', label: 'Loại journey' },
+    { value: 'origin_journey_id', label: 'Journey gốc' },
+];
+
+const ACTION_DOC_TYPE_OPTIONS = [
+    { value: 'survey_report', label: 'Biên bản khảo sát' },
+    { value: 'site_photos', label: 'Ảnh hiện trạng' },
+    { value: 'solution_doc', label: 'Hồ sơ giải pháp' },
+    { value: 'business_plan', label: 'Kế hoạch kinh doanh' },
+    { value: 'quotation', label: 'Báo giá' },
+    { value: 'contract', label: 'Hợp đồng' },
+    { value: 'advance_request', label: 'Đề nghị tạm ứng' },
+    { value: 'stage_acceptance', label: 'Nghiệm thu giai đoạn' },
+    { value: 'stage_payment_proof', label: 'Chứng từ thanh toán giai đoạn' },
+    { value: 'final_acceptance', label: 'Nghiệm thu cuối' },
+    { value: 'payment_receipt', label: 'Phiếu thu / chứng từ thanh toán' },
+    { value: 'maintenance_record', label: 'Biên bản bảo trì' },
+    { value: 'warranty_record', label: 'Biên bản bảo hành' },
+    { value: 'after_sales_note', label: 'Ghi chú sau bán' },
+];
+
+const createDefaultStep = (stepDef: StepDefinition, idx: number): StepViewModel => ({
+    step_code: stepDef.code,
+    step_name: stepDef.name,
+    step_order: idx + 1,
+    is_enabled: true,
+    portal_visible: true,
+    allow_skip: false,
+    auto_open_next: false,
+    roles: [],
+    checklist: [],
+});
+
+const normalizeRoles = (roles?: IRolesItem[]): IRolesItem[] =>
+    (roles || []).map((r) => ({
+        role: r.role,
+        permissions: r.permissions || [],
+    }));
+
+const normalizeActions = (actions?: IActionsItem[]): IActionsItem[] =>
+    (actions || []).map((action) => ({
+        action_key: action.action_key,
+        action_type: action.action_type,
+        target_field: action.target_field,
+        expected_value: action.expected_value,
+        doc_type: action.doc_type,
+        min_count: action.min_count,
+        note: action.note,
+    }));
+
+const normalizeChecklist = (items?: IChecklistItem[]): IChecklistItem[] =>
+    (items || []).map((item) => ({
+        name: item.name,
+        is_required: item.is_required !== false,
+        role: item.role,
+        description: item.description,
+        actions: normalizeActions(item.actions),
+    }));
+
+const formatChecklistActionSummary = (action?: IActionsItem): string => {
+    if (!action) return '—';
+
+    const keyLabel = CHECKLIST_ACTION_OPTIONS.find((o) => o.value === action.action_key)?.label || action.action_key || 'Action';
+    const typeLabel = ACTION_TYPE_OPTIONS.find((o) => o.value === action.action_type)?.label || action.action_type || '';
+    const targetLabel = ACTION_TARGET_FIELD_OPTIONS.find((o) => o.value === action.target_field)?.label || action.target_field || '';
+    const docLabel = ACTION_DOC_TYPE_OPTIONS.find((o) => o.value === action.doc_type)?.label || action.doc_type || '';
+
+    return [keyLabel, typeLabel, targetLabel, docLabel, action.expected_value, action.min_count ? 'min: ' + action.min_count : '', action.note]
+        .filter(Boolean)
+        .join(' | ');
+};
 
 const { useBreakpoint } = Grid;
 
@@ -118,72 +234,74 @@ const CustomerJourneySettingPage: React.FC = () => {
         loadData();
     }, []);
 
-    const stepList = useMemo(() => {
-        if (!setting) return FIXED_STEPS.map((s, idx) => ({
-            step_code: s.code,
-            step_name: s.name,
-            step_order: idx + 1,
-            is_enabled: true
-        }));
+    const stepList = useMemo<StepViewModel[]>(() => {
+        const storedSteps = setting?.steps || [];
 
         return FIXED_STEPS.map((stepDef, idx) => {
-            const fieldData = (setting as any)[stepDef.code];
-            const stepData = Array.isArray(fieldData)
-                ? (fieldData.length > 0 ? fieldData[0] : null)
-                : (fieldData || null);
+            const matchedStep = storedSteps.find((step) => step.step_code === stepDef.code);
+            const baseStep = createDefaultStep(stepDef, idx);
 
-            if (!stepData) {
-                return { step_code: stepDef.code, step_name: stepDef.name, step_order: idx + 1, is_enabled: true };
+            if (!matchedStep) {
+                return baseStep;
             }
 
             return {
-                ...stepData,
-                step_code: stepDef.code,
-                step_name: stepDef.name,
-                step_order: idx + 1
+                ...baseStep,
+                ...matchedStep,
+                roles: normalizeRoles(matchedStep.roles),
+                checklist: normalizeChecklist(matchedStep.checklist),
             };
         });
     }, [setting]);
 
     const selectedStep = useMemo(() => {
-        return stepList.find(s => s.step_code === selectedStepCode);
+        return stepList.find((step) => step.step_code === selectedStepCode);
     }, [stepList, selectedStepCode]);
 
     useEffect(() => {
         if (isEditing && selectedStep) {
-            const rolesNormalized = (selectedStep.roles || []).map((r: IRolesItem) => ({
-                role: r.role,
-                permissions: r.permissions,
-            }));
             form.setFieldsValue({
                 ...selectedStep,
                 is_enabled: selectedStep.is_enabled !== false,
                 portal_visible: selectedStep.portal_visible !== false,
-                handoff_required: selectedStep.handoff_required === true,
-                roles: rolesNormalized,
-                checklist: selectedStep.checklist || [],
+                allow_skip: selectedStep.allow_skip === true,
+                auto_open_next: selectedStep.auto_open_next === true,
+                roles: normalizeRoles(selectedStep.roles),
+                checklist: normalizeChecklist(selectedStep.checklist),
             });
         }
     }, [isEditing, selectedStep, selectedStepCode, form]);
 
     const handleSaveStep = async () => {
         const values = await form.validateFields();
-        const currentSetting = setting || { _id: '' };
+        const currentSetting = setting || ({ _id: '' } as ICustomerJourneySetting);
 
-        const { ...cleanStep } = values;
-        if (Array.isArray(cleanStep.roles)) {
-            cleanStep.roles = cleanStep.roles.map((r: IRolesItem) => ({
-                role: r.role,
-                permissions: r.permissions,
-            }));
-        }
+        const cleanStep: IStepsItem = {
+            ...values,
+            step_code: selectedStepCode as StepCode,
+            roles: normalizeRoles(values.roles),
+            checklist: normalizeChecklist(values.checklist),
+        };
+
+        const nextSteps = stepList.map((step) =>
+            step.step_code === selectedStepCode
+                ? {
+                    ...step,
+                    ...cleanStep,
+                    roles: normalizeRoles(cleanStep.roles),
+                    checklist: normalizeChecklist(cleanStep.checklist),
+                }
+                : step
+        );
 
         const payload: ICustomerJourneySetting = {
             ...currentSetting,
-            setting_key: 'default_journey',
-            setting_name: 'Công trình khách hàng chuẩn',
-            is_active: true,
-            [selectedStepCode]: cleanStep
+            setting_key: currentSetting.setting_key || 'default_journey',
+            setting_name: currentSetting.setting_name || 'Công trình khách hàng chuẩn',
+            is_active: currentSetting.is_active !== false,
+            version_label: currentSetting.version_label,
+            note: currentSetting.note,
+            steps: nextSteps.map(({ step_name, step_order, ...step }) => step),
         };
 
         setSetting(payload);
@@ -191,7 +309,7 @@ const CustomerJourneySettingPage: React.FC = () => {
         try {
             const res = await save_setting({ schema: SCHEMA, data: payload }, dispatch);
             if (res?.code === 0) {
-                message.success(`Đã cập nhật cấu hình ${selectedStep?.step_name}`);
+                message.success('Đã cập nhật cấu hình ' + (selectedStep?.step_name || 'giai đoạn'));
                 setIsEditing(false);
                 loadData();
             } else {
@@ -205,13 +323,30 @@ const CustomerJourneySettingPage: React.FC = () => {
     };
 
     const handleGlobalSave = async () => {
-        if (!setting) return;
+        const currentSetting = setting || ({ _id: '' } as ICustomerJourneySetting);
+        const payload: ICustomerJourneySetting = {
+            ...currentSetting,
+            setting_key: currentSetting.setting_key || 'default_journey',
+            setting_name: currentSetting.setting_name || 'Công trình khách hàng chuẩn',
+            is_active: currentSetting.is_active !== false,
+            version_label: currentSetting.version_label,
+            note: currentSetting.note,
+            steps: stepList.map(({ step_name, step_order, ...step }) => ({
+                ...step,
+                roles: normalizeRoles(step.roles),
+                checklist: normalizeChecklist(step.checklist),
+            })),
+        };
+
         setSaving(true);
         try {
-            const res = await save_setting({ schema: SCHEMA, data: setting }, dispatch);
+            const res = await save_setting({ schema: SCHEMA, data: payload }, dispatch);
             if (res?.code === 0) {
                 message.success('Đã lưu toàn bộ cấu hình');
+                setSetting(payload);
                 loadData();
+            } else {
+                message.error(res?.message || 'Lỗi khi lưu cấu hình');
             }
         } catch (error) {
             message.error('Lỗi khi lưu cấu hình');
@@ -326,7 +461,7 @@ const CustomerJourneySettingPage: React.FC = () => {
 
             <Card style={{ marginBottom: 16, background: '#f0f2f5', border: 'none', borderRadius: 12 }}>
                 <Paragraph style={{ margin: 0, color: '#595959' }}>
-                    Quy trình chuẩn gồm 13 giai đoạn cố định. Thiết lập Roles, Checklist và các quyền vận hành chi tiết dựa trên lược đồ mới.
+                    Quy trình chuẩn gồm 12 giai đoạn cố định. Thiết lập Roles, checklist và action validation theo contract schema mới.
                     {isMobile && (
                         <>
                             {' '}
@@ -448,7 +583,7 @@ const CustomerJourneySettingPage: React.FC = () => {
                                                 </Row>
                                             ))}
                                             <Form.Item>
-                                                <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                                                <Button type="dashed" onClick={() => add({ is_required: true, actions: [] })} block icon={<PlusOutlined />}>
                                                     Thêm Vai trò tham gia
                                                 </Button>
                                             </Form.Item>
@@ -501,8 +636,8 @@ const CustomerJourneySettingPage: React.FC = () => {
                                                         }
                                                         style={{ background: '#fff', marginBottom: 8, borderRadius: 8, border: '1px solid #f0f0f0' }}
                                                     >
-                                                        <Row gutter={12}>
-                                                            <Col span={24}>
+                                                        <Row gutter={[12, 12]}>
+                                                            <Col xs={24} lg={12}>
                                                                 <Form.Item
                                                                     {...restField}
                                                                     label={<span style={{ fontSize: 12, color: '#8c8c8c' }}>Tên nhiệm vụ</span>}
@@ -511,6 +646,16 @@ const CustomerJourneySettingPage: React.FC = () => {
                                                                     style={{ marginBottom: 12 }}
                                                                 >
                                                                     <Input placeholder="Nhập tên nhiệm vụ..." />
+                                                                </Form.Item>
+                                                            </Col>
+                                                            <Col xs={24} lg={12}>
+                                                                <Form.Item
+                                                                    {...restField}
+                                                                    label={<span style={{ fontSize: 12, color: '#8c8c8c' }}>Vai trò thực hiện</span>}
+                                                                    name={[name, 'role']}
+                                                                    style={{ marginBottom: 12 }}
+                                                                >
+                                                                    <Select placeholder="Chọn vai trò..." options={[...CUSTOMER_JOURNEY_ROLE_OPTIONS]} allowClear showSearch optionFilterProp="label" />
                                                                 </Form.Item>
                                                             </Col>
                                                             <Col span={24}>
@@ -526,12 +671,38 @@ const CustomerJourneySettingPage: React.FC = () => {
                                                                     />
                                                                 </Form.Item>
                                                             </Col>
+                                                            <Col span={24}>
+                                                                <Divider orientation="left" plain style={{ margin: '8px 0 12px' }}>Action validation</Divider>
+                                                                <Form.List name={[name, 'actions']}>
+                                                                    {(actionFields, { add: addAction, remove: removeAction }) => (
+                                                                        <>
+                                                                            <Space direction="vertical" size={12} style={{ width: '100%' }}>
+                                                                                {actionFields.map(({ key: actionKey, name: actionName, ...actionRestField }) => (
+                                                                                    <Card key={actionKey} size="small" style={{ background: '#fafafa', borderRadius: 8 }}>
+                                                                                        <Row gutter={[12, 12]}>
+                                                                                            <Col xs={24} md={12}><Form.Item {...actionRestField} label="Action key" name={[actionName, 'action_key']} rules={[{ required: true, message: 'Bắt buộc' }]} style={{ marginBottom: 0 }}><Select placeholder="Chọn action..." options={CHECKLIST_ACTION_OPTIONS} allowClear showSearch optionFilterProp="label" /></Form.Item></Col>
+                                                                                            <Col xs={24} md={12}><Form.Item {...actionRestField} label="Action type" name={[actionName, 'action_type']} rules={[{ required: true, message: 'Bắt buộc' }]} style={{ marginBottom: 0 }}><Select placeholder="Chọn loại action..." options={ACTION_TYPE_OPTIONS} allowClear /></Form.Item></Col>
+                                                                                            <Col xs={24} md={12}><Form.Item {...actionRestField} label="Target field" name={[actionName, 'target_field']} style={{ marginBottom: 0 }}><Select placeholder="Chọn trường dữ liệu..." options={ACTION_TARGET_FIELD_OPTIONS} allowClear showSearch optionFilterProp="label" /></Form.Item></Col>
+                                                                                            <Col xs={24} md={12}><Form.Item {...actionRestField} label="Loại tài liệu" name={[actionName, 'doc_type']} style={{ marginBottom: 0 }}><Select placeholder="Chọn loại tài liệu..." options={ACTION_DOC_TYPE_OPTIONS} allowClear showSearch optionFilterProp="label" /></Form.Item></Col>
+                                                                                            <Col xs={24} md={12}><Form.Item {...actionRestField} label="Giá trị kỳ vọng" name={[actionName, 'expected_value']} style={{ marginBottom: 0 }}><Input placeholder="Ví dụ: approved" /></Form.Item></Col>
+                                                                                            <Col xs={24} md={8}><Form.Item {...actionRestField} label="Số lượng tối thiểu" name={[actionName, 'min_count']} style={{ marginBottom: 0 }}><Input type="number" min={1} placeholder="1" /></Form.Item></Col>
+                                                                                            <Col xs={24} md={4} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-end' }}><Button type="text" danger icon={<DeleteOutlined />} onClick={() => removeAction(actionName)} /></Col>
+                                                                                            <Col span={24}><Form.Item {...actionRestField} label="Ghi chú" name={[actionName, 'note']} style={{ marginBottom: 0 }}><TextArea rows={2} placeholder="Mô tả thêm cho action này..." /></Form.Item></Col>
+                                                                                        </Row>
+                                                                                    </Card>
+                                                                                ))}
+                                                                            </Space>
+                                                                            <Form.Item style={{ marginTop: 12, marginBottom: 0 }}><Button type="dashed" onClick={() => addAction({ min_count: 1 })} block icon={<PlusOutlined />}>Thêm action</Button></Form.Item>
+                                                                        </>
+                                                                    )}
+                                                                </Form.List>
+                                                            </Col>
                                                         </Row>
                                                     </Collapse.Panel>
                                                 ))}
                                             </Collapse>
                                             <Form.Item>
-                                                <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                                                <Button type="dashed" onClick={() => add({ is_required: true, actions: [] })} block icon={<PlusOutlined />}>
                                                     Thêm Nhiệm vụ Checklist
                                                 </Button>
                                             </Form.Item>
@@ -566,9 +737,6 @@ const CustomerJourneySettingPage: React.FC = () => {
                                         <Switch />
                                     </Form.Item>
                                     <Form.Item label="Tự động mở tiếp" name="auto_open_next" valuePropName="checked">
-                                        <Switch />
-                                    </Form.Item>
-                                    <Form.Item label="Yêu cầu ký bàn giao" name="handoff_required" valuePropName="checked">
                                         <Switch />
                                     </Form.Item>
                                 </Space>
@@ -649,7 +817,7 @@ const CustomerJourneySettingPage: React.FC = () => {
                                                     {
                                                         title: 'Tên hạng mục',
                                                         dataIndex: 'name',
-                                                        width: '30%',
+                                                        width: '26%',
                                                         ellipsis: false,
                                                         render: (name: string, record: IChecklistItem) => (
                                                             <Space wrap size={[4, 4]}>
@@ -659,11 +827,36 @@ const CustomerJourneySettingPage: React.FC = () => {
                                                         )
                                                     },
                                                     {
+                                                        title: 'Vai trò',
+                                                        dataIndex: 'role',
+                                                        width: '16%',
+                                                        ellipsis: false,
+                                                        render: (role?: string) => role ? <Tag color="orange">{formatJourneyRoleDisplay(role)}</Tag> : <Text type="secondary">—</Text>,
+                                                    },
+                                                    {
                                                         title: 'Mô tả',
                                                         dataIndex: 'description',
+                                                        width: '28%',
                                                         ellipsis: false,
                                                         render: (text: string) => (
                                                             <span className="cj-wrap-text">{text || '—'}</span>
+                                                        ),
+                                                    },
+                                                    {
+                                                        title: 'Actions',
+                                                        ellipsis: false,
+                                                        render: (_: unknown, record: IChecklistItem) => (
+                                                            record.actions && record.actions.length > 0 ? (
+                                                                <Space direction="vertical" size={4} style={{ width: '100%' }}>
+                                                                    {record.actions.map((action: IActionsItem, index: number) => (
+                                                                        <Text key={(action.action_key || 'action') + '-' + index} className="cj-wrap-text">
+                                                                            {formatChecklistActionSummary(action)}
+                                                                        </Text>
+                                                                    ))}
+                                                                </Space>
+                                                            ) : (
+                                                                <Text type="secondary">Không có action</Text>
+                                                            )
                                                         ),
                                                     },
                                                 ]}
@@ -694,7 +887,7 @@ const CustomerJourneySettingPage: React.FC = () => {
                                             <Tag color={selectedStep?.portal_visible ? 'blue' : 'default'}>PORTAL: {selectedStep?.portal_visible ? 'HIỆN' : 'ẨN'}</Tag>
                                             <Tag color={selectedStep?.allow_skip ? 'orange' : 'default'}>BỎ QUA: {selectedStep?.allow_skip ? 'CHO PHÉP' : 'CẤM'}</Tag>
                                             <Tag color={selectedStep?.auto_open_next ? 'green' : 'default'}>AUTO NEXT: {selectedStep?.auto_open_next ? 'BẬT' : 'TẮT'}</Tag>
-                                            <Tag color={selectedStep?.handoff_required ? 'red' : 'default'}>BÀN GIAO KÝ: {selectedStep?.handoff_required ? 'BẮT BUỘC' : 'KHÔNG'}</Tag>
+                                            <Tag color={(selectedStep?.checklist?.length ?? 0) > 0 ? 'purple' : 'default'}>CHECKLIST: {selectedStep?.checklist?.length ?? 0}</Tag>
                                         </Space>
                                     </Descriptions.Item>
                                 </Descriptions>

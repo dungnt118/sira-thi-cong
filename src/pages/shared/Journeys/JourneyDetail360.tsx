@@ -307,7 +307,7 @@ const JourneyDetail360: React.FC = () => {
     // Resolve template/steps
     const template = mockJourneyTemplates.find(t => t.id === 'default') || mockJourneyTemplates[0];
     const journeySteps = template?.steps || [];
-    const currentStepCode = journey?.current_step || 'lead_intake';
+    const currentStepCode = journey?.current_step || 'lead_new';
     const currentHeaderStepIndex = HEADER_STEP_CONFIG.findIndex((step) => step.key === currentStepCode);
 
     const [showAssignModal, setShowAssignModal] = useState(false);
@@ -1582,3 +1582,4 @@ const JourneyDetail360: React.FC = () => {
 };
 
 export default JourneyDetail360;
+
