@@ -128,15 +128,12 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({ sidebar, topBar }) => {
                         minWidth: 0,
                         width: '100%',
                         maxWidth: '100%',
-                        margin: isMobile ? '0 0 12px' : '0 16px 24px',
-                        // Mobile PM: không breadcrumb → bỏ padding-top để Section Header (sticky) sát Page Header
-                        padding: isMobile
-                            ? hideBreadcrumbs
-                                ? '0 12px 16px'
-                                : '12px 12px 16px'
-                            : 24,
+                        margin: isCustomerJourneySetting ? 0 : (isMobile ? '0 0 12px' : '0 16px 24px'),
+                        padding: isCustomerJourneySetting ? 0 : (isMobile ? (hideBreadcrumbs ? '0 12px 16px' : '12px 12px 16px') : 24),
                         background: '#f0f2f5',
                         boxSizing: 'border-box',
+                        height: isCustomerJourneySetting ? 'calc(100vh - 64px)' : 'auto',
+                        overflow: isCustomerJourneySetting ? 'hidden' : 'visible',
                     }}
                 >
                     {!hideBreadcrumbs && <Breadcrumbs />}

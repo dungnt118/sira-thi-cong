@@ -1,8 +1,12 @@
 /* Tránh scroll ngang mobile: wrap text, bảng co theo viewport */
 .customer-journey-page {
     max-width: 100%;
-    overflow: visible;
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
     box-sizing: border-box;
+    background: #f0f2f5;
 }
 
 .customer-journey-page .ant-card {
@@ -32,7 +36,7 @@
 
 /* Desktop: cột nhãn đủ rộng — tránh co về 1 ký tự/chữ dọc */
 @media (min-width: 768px) {
-    .customer-journey-page .step-detail-view .ant-descriptions-view > table {
+    .customer-journey-page .step-detail-view .ant-descriptions-view>table {
         table-layout: fixed;
     }
 
@@ -122,4 +126,61 @@
     word-break: break-word;
     overflow-wrap: anywhere;
     white-space: normal !important;
+}
+
+/* Layout mới hỗ trợ scroll độc lập */
+.cj-content-layout {
+    flex: 1;
+    min-height: 0;
+    /* Quan trọng để flex child scroll được */
+    display: flex;
+    flex-direction: column;
+    padding-top: 16px;
+}
+
+.cj-main-row {
+    flex: 1;
+    min-height: 0;
+    margin: 0 !important;
+    height: 100%;
+}
+
+.cj-scroll-col {
+    height: 100%;
+    overflow-y: auto;
+    padding-bottom: 24px;
+}
+
+/* Sticky Header cho phần nội dung bước */
+.cj-detail-card {
+    border-radius: 12px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.cj-detail-card>.ant-card-head {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #fff;
+    border-bottom: 1px solid #f0f0f0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.cj-detail-card>.ant-card-body {
+    flex: 1;
+    overflow-y: visible;
+    /* Để phần tử con bên trong scroll hoặc card cha scroll */
+}
+
+/* Header trang cố định phía trên */
+.cj-page-header-sticky {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: #f0f2f5;
+    padding: 16px 24px;
+    border-bottom: 1px solid #d9d9d9;
+    flex-shrink: 0;
 }

@@ -571,471 +571,455 @@ const CustomerJourneySettingPage: React.FC = () => {
     );
 
     return (
-        <div 
-            className="customer-journey-page" 
-            style={{ 
-                padding: isMobile ? '0 12px 88px' : '0 24px',
-                position: 'relative'
-            }}
-        >
-            <div
-                style={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    gap: 12,
-                    marginBottom: 16,
-                    position: 'sticky',
-                    top: 64, // Standard Ant Layout Header height or slightly more
-                    zIndex: 999,
-                    background: '#f0f2f5',
-                    padding: '16px 0',
-                    borderBottom: '1px solid #d9d9d9',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-                    transition: 'all 0.3s',
-                }}
-            >
-                <Title level={4} style={{ margin: 0 }}>Cấu hình Customer Journey</Title>
-                <Space wrap>
-                    <Button icon={<ReloadOutlined />} onClick={loadData} disabled={loading || saving}>Làm mới</Button>
-                    <Button icon={<SaveOutlined />} type="primary" onClick={handleGlobalSave} loading={saving}>Lưu Cấu hình</Button>
-                </Space>
+        <div className="customer-journey-page">
+            {/* Header trang cố định */}
+            <div className="cj-page-header-sticky">
+                <div
+                    style={{
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        gap: 12,
+                    }}
+                >
+                    <Title level={4} style={{ margin: 0 }}>Cấu hình Customer Journey</Title>
+                    <Space wrap>
+                        <Button icon={<ReloadOutlined />} onClick={loadData} disabled={loading || saving}>Làm mới</Button>
+                        <Button icon={<SaveOutlined />} type="primary" onClick={handleGlobalSave} loading={saving}>Lưu Cấu hình</Button>
+                    </Space>
+                </div>
             </div>
 
-            <Card style={{ marginBottom: 16, background: '#f0f2f5', border: 'none', borderRadius: 12 }}>
-                <Paragraph style={{ margin: 0, color: '#595959' }}>
-                    Quy trình chuẩn gồm 12 giai đoạn cố định. Thiết lập Roles, checklist và action validation theo contract schema mới.
-                    {isMobile && (
-                        <>
-                            {' '}
-                            <Text type="secondary">Trên điện thoại, mở danh sách giai đoạn bằng nút nổi góc phải.</Text>
-                        </>
-                    )}
-                </Paragraph>
-            </Card>
+            <div className="cj-content-layout">
 
-            {/* Remove wrap={false} to allow columns to wrap on narrow screens, avoiding clipping */}
-            <Row gutter={[16, 16]}>
-                {!isMobile && (
-                    <Col xs={24} md={7} lg={6} xl={5} className="cj-steps-rail">
-                        <Card
-                            title={<Space><SettingOutlined /> Các giai đoạn quy trình</Space>}
-                            style={{ borderRadius: 12 }}
-                            styles={{ body: { padding: 10 } }}
-                        >
-                            {stepsListNode}
-                        </Card>
-                    </Col>
-                )}
-
-                <Col xs={24} md={isMobile ? 24 : 17} lg={isMobile ? 24 : 18} xl={isMobile ? 24 : 19}>
-                    <Card
-                        title={
-                            <div
-                                style={{
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                    width: '100%',
-                                    flexWrap: 'wrap',
-                                    gap: 8,
-                                }}
+                {/* Main Content Row với scroll độc lập */}
+                <Row gutter={[16, 16]} className="cj-main-row" style={{ padding: '0 16px' }}>
+                    {!isMobile && (
+                        <Col xs={24} md={7} lg={6} xl={5} className="cj-scroll-col">
+                            <Card
+                                title={<Space><SettingOutlined /> Các giai đoạn quy trình</Space>}
+                                style={{ borderRadius: 12 }}
+                                styles={{ body: { padding: 10 } }}
                             >
-                                <Space wrap>
-                                    {isEditing ? <EditOutlined style={{ color: '#1890ff' }} /> : <InfoCircleOutlined style={{ color: '#52c41a' }} />}
-                                    <Title level={5} style={{ margin: 0 }}>{selectedStep?.step_name}</Title>
-                                </Space>
-                                {!isEditing ? (
-                                    <Button icon={<EditOutlined />} size="small" onClick={() => setIsEditing(true)}>Chỉnh sửa</Button>
-                                ) : (
-                                    <Space>
-                                        <Button size="small" onClick={() => setIsEditing(false)}>Hủy</Button>
-                                        <Button size="small" type="primary" icon={<CheckCircleOutlined />} onClick={handleSaveStep} loading={saving}>Cập nhật</Button>
-                                    </Space>
-                                )}
-                            </div>
-                        }
-                        style={{ borderRadius: 12, minHeight: 600 }}
-                        styles={{ body: { minWidth: 0, overflowX: 'auto' } }}
+                                {stepsListNode}
+                            </Card>
+                        </Col>
+                    )}
+
+                    <Col
+                        xs={24}
+                        md={isMobile ? 24 : 17}
+                        lg={isMobile ? 24 : 18}
+                        xl={isMobile ? 24 : 19}
+                        className="cj-scroll-col"
                     >
-                        {/* Edit Mode Content */}
-                        <div style={{ display: isEditing ? 'block' : 'none' }}>
-                            <Form form={form} layout="vertical" initialValues={selectedStep}>
-                                <Row gutter={[16, 16]}>
-                                    <Col xs={24} sm={12} md={10}>
-                                        <Form.Item label="Mã Giai đoạn" name="step_code">
-                                            <Input disabled variant="filled" />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col xs={24} sm={12} md={10}>
-                                        <Form.Item label="SLA Xử lý (Giờ)" name="sla_hours">
-                                            <Input type="number" suffix="Giờ" />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col xs={24} sm={24} md={4}>
-                                        <Form.Item label="Kích hoạt" name="is_enabled" valuePropName="checked">
-                                            <Switch />
-                                        </Form.Item>
-                                    </Col>
-                                </Row>
-
-                                <Form.Item label="Mục tiêu Giai đoạn (Goal)" name="goal" rules={[{ required: true, message: 'Vui lòng nhập mục tiêu' }]}>
-                                    <TextArea rows={2} />
-                                </Form.Item>
-
-                                <Divider orientation="left" style={{ margin: '16px 0' }}>Phân Quyền Vai Trò (Roles)</Divider>
-
-                                <Form.List name="roles">
-                                    {(fields, { add, remove }) => (
-                                        <>
-                                            {fields.map(({ key, name, ...restField }) => (
-                                                <Row key={key} gutter={[16, 12]} style={{ marginBottom: 12 }} align="middle">
-                                                    <Col xs={24} md={10}>
-                                                        <Form.Item
-                                                            {...restField}
-                                                            name={[name, 'role']}
-                                                            rules={[{ required: true, message: 'Chọn vai trò' }]}
-                                                            style={{ marginBottom: 0 }}
-                                                        >
-                                                            <Select
-                                                                placeholder="Chọn vai trò..."
-                                                                options={[...CUSTOMER_JOURNEY_ROLE_OPTIONS]}
-                                                                showSearch
-                                                                optionFilterProp="label"
-                                                                allowClear
-                                                            />
-                                                        </Form.Item>
-                                                    </Col>
-                                                    <Col xs={24} md={12}>
-                                                        <Form.Item
-                                                            {...restField}
-                                                            name={[name, 'permissions']}
-                                                            style={{ marginBottom: 0 }}
-                                                        >
-                                                            <Select
-                                                                mode="multiple"
-                                                                placeholder="Chọn quyền..."
-                                                                options={permissionSelectOptions}
-                                                                allowClear
-                                                            />
-                                                        </Form.Item>
-                                                    </Col>
-                                                    <Col xs={24} md={2} style={{ textAlign: isMobile ? 'left' : 'center' }}>
-                                                        <Button type="text" danger icon={<DeleteOutlined />} onClick={() => remove(name)} aria-label="Xóa vai trò" />
-                                                    </Col>
-                                                </Row>
-                                            ))}
-                                            <Form.Item>
-                                                <Button type="dashed" onClick={() => add({ is_required: true, actions: [] })} block icon={<PlusOutlined />}>
-                                                    Thêm Vai trò tham gia
-                                                </Button>
-                                            </Form.Item>
-                                        </>
-                                    )}
-                                </Form.List>
-
-                                <Divider orientation="left" style={{ margin: '16px 0' }}>Danh sách Checklist</Divider>
-
-                                <Form.List name="checklist">
-                                    {(fields, { add, remove }) => (
-                                        <>
-                                            <Collapse
-                                                defaultActiveKey={[]}
-                                                size="small"
-                                                ghost={false}
-                                                expandIcon={({ isActive }) => (
-                                                    <CaretRightFilled
-                                                        rotate={isActive ? 90 : 0}
-                                                        style={{ fontSize: 12, position: 'relative', top: '12px' }}
-                                                    />
-                                                )}
-                                                style={{ marginBottom: 16, background: 'transparent' }}
-                                            >
-                                                {fields.map(({ key, name, ...restField }) => (
-                                                    <Collapse.Panel
-                                                        key={key}
-                                                        header={
-                                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', minHeight: 32 }}>
-                                                                <Space align="center" size="small">
-                                                                    <Badge count={name + 1} style={{ backgroundColor: '#52c41a' }} size="small" />
-                                                                    <Text strong style={{ fontSize: 13 }}>
-                                                                        {form.getFieldValue(['checklist', name, 'name']) || `Nhiệm vụ #${name + 1}`}
-                                                                    </Text>
-                                                                </Space>
-                                                                <Space onClick={e => e.stopPropagation()} align="center">
-                                                                    <Form.Item
-                                                                        {...restField}
-                                                                        name={[name, 'is_required']}
-                                                                        valuePropName="checked"
-                                                                        initialValue={true}
-                                                                        style={{ marginBottom: 0 }}
-                                                                        label={<span style={{ fontSize: 11 }}>Bắt buộc?</span>}
-                                                                    >
-                                                                        <Switch size="small" />
-                                                                    </Form.Item>
-                                                                    <Button type="text" danger icon={<DeleteOutlined />} onClick={() => remove(name)} size="small" />
-                                                                </Space>
-                                                            </div>
-                                                        }
-                                                        style={{ background: '#fff', marginBottom: 8, borderRadius: 8, border: '1px solid #f0f0f0' }}
-                                                    >
-                                                        <Row gutter={[12, 12]}>
-                                                            <Col xs={24} lg={12}>
-                                                                <Form.Item
-                                                                    {...restField}
-                                                                    label={<span style={{ fontSize: 12, color: '#8c8c8c' }}>Tên nhiệm vụ</span>}
-                                                                    name={[name, 'name']}
-                                                                    rules={[{ required: true, message: 'Bắt buộc' }]}
-                                                                    style={{ marginBottom: 12 }}
-                                                                >
-                                                                    <Input placeholder="Nhập tên nhiệm vụ..." />
-                                                                </Form.Item>
-                                                            </Col>
-                                                            <Col xs={24} lg={12}>
-                                                                <Form.Item
-                                                                    {...restField}
-                                                                    label={<span style={{ fontSize: 12, color: '#8c8c8c' }}>Vai trò thực hiện</span>}
-                                                                    name={[name, 'role']}
-                                                                    style={{ marginBottom: 12 }}
-                                                                >
-                                                                    <Select placeholder="Chọn vai trò..." options={[...CUSTOMER_JOURNEY_ROLE_OPTIONS]} allowClear showSearch optionFilterProp="label" />
-                                                                </Form.Item>
-                                                            </Col>
-                                                            <Col span={24}>
-                                                                <Form.Item
-                                                                    {...restField}
-                                                                    label={<span style={{ fontSize: 12, color: '#8c8c8c' }}>Mô tả chi tiết</span>}
-                                                                    name={[name, 'description']}
-                                                                    style={{ marginBottom: 0 }}
-                                                                >
-                                                                    <TextArea
-                                                                        autoSize={{ minRows: 2, maxRows: 4 }}
-                                                                        placeholder="Hướng dẫn thực hiện cho nhân viên..."
-                                                                    />
-                                                                </Form.Item>
-                                                            </Col>
-                                                            <Col span={24}>
-                                                                <Divider orientation="left" plain style={{ margin: '8px 0 12px' }}>Action validation</Divider>
-                                                                <Form.List name={[name, 'actions']}>
-                                                                    {(actionFields, { add: addAction, remove: removeAction }) => (
-                                                                        <>
-                                                                            <Space direction="vertical" size={12} style={{ width: '100%' }}>
-                                                                                {actionFields.map(({ key: actionKey, name: actionName, ...actionRestField }) => (
-                                                                                    <ActionValidationItem
-                                                                                        key={actionKey}
-                                                                                        checklistIndex={name}
-                                                                                        actionIndex={actionName}
-                                                                                        restField={actionRestField}
-                                                                                        form={form}
-                                                                                        removeAction={removeAction}
-                                                                                    />
-                                                                                ))}
-                                                                            </Space>
-                                                                            <Form.Item style={{ marginTop: 12, marginBottom: 0 }}><Button type="dashed" onClick={() => addAction({ min_count: 1 })} block icon={<PlusOutlined />}>Thêm action</Button></Form.Item>
-                                                                        </>
-                                                                    )}
-                                                                </Form.List>
-                                                            </Col>
-                                                        </Row>
-                                                    </Collapse.Panel>
-                                                ))}
-                                            </Collapse>
-                                            <Form.Item>
-                                                <Button type="dashed" onClick={() => add({ is_required: true, actions: [] })} block icon={<PlusOutlined />}>
-                                                    Thêm Nhiệm vụ Checklist
-                                                </Button>
-                                            </Form.Item>
-                                        </>
-                                    )}
-                                </Form.List>
-
-                                <Divider orientation="left" style={{ margin: '16px 0' }}>Tiêu chuẩn & Hướng dẫn</Divider>
-
-                                <Row gutter={[16, 16]}>
-                                    <Col xs={24} md={12}>
-                                        <Form.Item label="Tiêu chí Bắt đầu" name="entry_criteria">
-                                            <TextArea rows={2} placeholder="Yêu cầu để bắt đầu..." />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col xs={24} md={12}>
-                                        <Form.Item label="Tiêu chí Hoàn tất" name="exit_criteria">
-                                            <TextArea rows={2} placeholder="Yêu cầu để kết thúc..." />
-                                        </Form.Item>
-                                    </Col>
-                                </Row>
-
-                                <Form.Item label="Hướng dẫn thực hiện" name="instruction_note">
-                                    <TextArea rows={3} placeholder="Ghi chú hướng dẫn cho nhân viên..." />
-                                </Form.Item>
-
-                                <Space size="large" wrap>
-                                    <Form.Item label="Hiện trên Portal" name="portal_visible" valuePropName="checked">
-                                        <Switch />
-                                    </Form.Item>
-                                    <Form.Item label="Cho phép bỏ qua" name="allow_skip" valuePropName="checked">
-                                        <Switch />
-                                    </Form.Item>
-                                    <Form.Item label="Tự động mở tiếp" name="auto_open_next" valuePropName="checked">
-                                        <Switch />
-                                    </Form.Item>
-                                </Space>
-                            </Form>
-                        </div>
-
-                        {/* View Mode Content */}
-                        <div style={{ display: !isEditing ? 'block' : 'none' }}>
-                            <div className="step-detail-view">
-                                <Descriptions
-                                    bordered
-                                    column={1}
-                                    layout={isMobile ? 'vertical' : 'horizontal'}
-                                    labelStyle={
-                                        isMobile
-                                            ? { background: '#fafafa', fontWeight: 600 }
-                                            : {
-                                                minWidth: 200,
-                                                width: 200,
-                                                maxWidth: '28%',
-                                                background: '#fafafa',
-                                                fontWeight: 600,
-                                            }
-                                    }
-                                    contentStyle={{
-                                        minWidth: 0,
-                                        wordBreak: 'break-word',
-                                        overflowWrap: 'anywhere',
+                        <Card
+                            className="cj-detail-card"
+                            title={
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        width: '100%',
+                                        flexWrap: 'wrap',
+                                        gap: 8,
                                     }}
                                 >
-                                    <Descriptions.Item label="Mã Giai đoạn">
-                                        <Tag color="blue">{selectedStep?.step_code}</Tag>
-                                    </Descriptions.Item>
-                                    <Descriptions.Item label="Trạng thái vận hành">
-                                        {selectedStep?.is_enabled !== false ? <Badge status="success" text="Đang kích hoạt" /> : <Badge status="default" text="Đang tắt" />}
-                                    </Descriptions.Item>
-                                    <Descriptions.Item label="Mục tiêu (Goal)">
-                                        <Paragraph className="cj-wrap-text" style={{ margin: 0 }}>
-                                            {selectedStep?.goal || '—'}
-                                        </Paragraph>
-                                    </Descriptions.Item>
-
-                                    <Descriptions.Item label="Phân Quyền Vai Trò">
-                                        {selectedStep?.roles && selectedStep.roles.length > 0 ? (
-                                            <List
-                                                size="small"
-                                                dataSource={selectedStep.roles}
-                                                renderItem={(r: IRolesItem) => (
-                                                    <List.Item style={{ paddingLeft: 0, paddingRight: 0 }}>
-                                                        <Space wrap size={[8, 8]} style={{ width: '100%' }}>
-                                                            <Tag color="orange">{formatJourneyRoleDisplay(r.role)}</Tag>
-                                                            {r.permissions?.map((p: string) => (
-                                                                <Tag key={p} color="blue">{formatPermissionLabel(p)}</Tag>
-                                                            ))}
-                                                        </Space>
-                                                    </List.Item>
-                                                )}
-                                            />
-                                        ) : <Text type="secondary">Chưa cấu hình</Text>}
-                                    </Descriptions.Item>
-
-                                    <Descriptions.Item label="Checklist">
-                                        {selectedStep?.checklist && selectedStep.checklist.length > 0 ? (
-                                            <Table
-                                                className="cj-checklist-table"
-                                                dataSource={selectedStep.checklist}
-                                                pagination={false}
-                                                size="small"
-                                                rowKey={(r, i) => `${r.name}-${i}`}
-                                                tableLayout="fixed"
-                                                columns={[
-                                                    {
-                                                        title: '#',
-                                                        width: 44,
-                                                        align: 'center',
-                                                        render: (_: any, __: any, index: number) => <Badge count={index + 1} size="small" style={{ backgroundColor: '#52c41a' }} />
-                                                    },
-                                                    {
-                                                        title: 'Tên hạng mục',
-                                                        dataIndex: 'name',
-                                                        width: '26%',
-                                                        ellipsis: false,
-                                                        render: (name: string, record: IChecklistItem) => (
-                                                            <Space wrap size={[4, 4]}>
-                                                                <Text strong className="cj-wrap-text">{name}</Text>
-                                                                {record.is_required && <Tag color="red">Bắt buộc</Tag>}
-                                                            </Space>
-                                                        )
-                                                    },
-                                                    {
-                                                        title: 'Vai trò',
-                                                        dataIndex: 'role',
-                                                        width: '16%',
-                                                        ellipsis: false,
-                                                        render: (role?: string) => role ? <Tag color="orange">{formatJourneyRoleDisplay(role)}</Tag> : <Text type="secondary">—</Text>,
-                                                    },
-                                                    {
-                                                        title: 'Mô tả',
-                                                        dataIndex: 'description',
-                                                        width: '28%',
-                                                        ellipsis: false,
-                                                        render: (text: string) => (
-                                                            <span className="cj-wrap-text">{text || '—'}</span>
-                                                        ),
-                                                    },
-                                                    {
-                                                        title: 'Actions',
-                                                        ellipsis: false,
-                                                        render: (_: unknown, record: IChecklistItem) => (
-                                                            record.actions && record.actions.length > 0 ? (
-                                                                <Space direction="vertical" size={4} style={{ width: '100%' }}>
-                                                                    {record.actions.map((action: IActionsItem, index: number) => (
-                                                                        <Text key={(action.action_key || 'action') + '-' + index} className="cj-wrap-text">
-                                                                            {formatChecklistActionSummary(action)}
-                                                                        </Text>
-                                                                    ))}
-                                                                </Space>
-                                                            ) : (
-                                                                <Text type="secondary">Không có action</Text>
-                                                            )
-                                                        ),
-                                                    },
-                                                ]}
-                                            />
-                                        ) : <Text type="secondary">Chưa cấu hình</Text>}
-                                    </Descriptions.Item>
-
-                                    <Descriptions.Item label="Cấu hình SLA">
-                                        <Badge count={`${selectedStep?.sla_hours || 0} giờ`} style={{ backgroundColor: '#1890ff' }} />
-                                    </Descriptions.Item>
-
-                                    <Descriptions.Item label="Tiêu chí Bắt đầu">
-                                        <Text type="secondary" className="cj-wrap-text">{selectedStep?.entry_criteria || 'Không yêu cầu'}</Text>
-                                    </Descriptions.Item>
-
-                                    <Descriptions.Item label="Tiêu chí Hoàn tất">
-                                        <Text type="secondary" className="cj-wrap-text">{selectedStep?.exit_criteria || 'Không yêu cầu'}</Text>
-                                    </Descriptions.Item>
-
-                                    <Descriptions.Item label="Hướng dẫn thực hiện">
-                                        <Paragraph className="cj-wrap-text" style={{ fontStyle: 'italic', margin: 0 }}>
-                                            {selectedStep?.instruction_note || 'Chưa cập nhật'}
-                                        </Paragraph>
-                                    </Descriptions.Item>
-
-                                    <Descriptions.Item label="Cấu hình nâng cao">
-                                        <Space wrap>
-                                            <Tag color={selectedStep?.portal_visible ? 'blue' : 'default'}>PORTAL: {selectedStep?.portal_visible ? 'HIỆN' : 'ẨN'}</Tag>
-                                            <Tag color={selectedStep?.allow_skip ? 'orange' : 'default'}>BỎ QUA: {selectedStep?.allow_skip ? 'CHO PHÉP' : 'CẤM'}</Tag>
-                                            <Tag color={selectedStep?.auto_open_next ? 'green' : 'default'}>AUTO NEXT: {selectedStep?.auto_open_next ? 'BẬT' : 'TẮT'}</Tag>
-                                            <Tag color={(selectedStep?.checklist?.length ?? 0) > 0 ? 'purple' : 'default'}>CHECKLIST: {selectedStep?.checklist?.length ?? 0}</Tag>
+                                    <Space wrap>
+                                        {isEditing ? <EditOutlined style={{ color: '#1890ff' }} /> : <InfoCircleOutlined style={{ color: '#52c41a' }} />}
+                                        <Title level={5} style={{ margin: 0 }}>{selectedStep?.step_name}</Title>
+                                    </Space>
+                                    {!isEditing ? (
+                                        <Button icon={<EditOutlined />} size="small" onClick={() => setIsEditing(true)}>Chỉnh sửa</Button>
+                                    ) : (
+                                        <Space>
+                                            <Button size="small" onClick={() => setIsEditing(false)}>Hủy</Button>
+                                            <Button size="small" type="primary" icon={<CheckCircleOutlined />} onClick={handleSaveStep} loading={saving}>Cập nhật</Button>
                                         </Space>
-                                    </Descriptions.Item>
-                                </Descriptions>
+                                    )}
+                                </div>
+                            }
+                        >
+                            {/* Edit Mode Content */}
+                            <div style={{ display: isEditing ? 'block' : 'none' }}>
+                                <Form form={form} layout="vertical" initialValues={selectedStep}>
+                                    <Row gutter={[16, 16]}>
+                                        <Col xs={24} sm={12} md={10}>
+                                            <Form.Item label="Mã Giai đoạn" name="step_code">
+                                                <Input disabled variant="filled" />
+                                            </Form.Item>
+                                        </Col>
+                                        <Col xs={24} sm={12} md={10}>
+                                            <Form.Item label="SLA Xử lý (Giờ)" name="sla_hours">
+                                                <Input type="number" suffix="Giờ" />
+                                            </Form.Item>
+                                        </Col>
+                                        <Col xs={24} sm={24} md={4}>
+                                            <Form.Item label="Kích hoạt" name="is_enabled" valuePropName="checked">
+                                                <Switch />
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
+
+                                    <Form.Item label="Mục tiêu Giai đoạn (Goal)" name="goal" rules={[{ required: true, message: 'Vui lòng nhập mục tiêu' }]}>
+                                        <TextArea rows={2} />
+                                    </Form.Item>
+
+                                    <Divider orientation="left" style={{ margin: '16px 0' }}>Phân Quyền Vai Trò (Roles)</Divider>
+
+                                    <Form.List name="roles">
+                                        {(fields, { add, remove }) => (
+                                            <>
+                                                {fields.map(({ key, name, ...restField }) => (
+                                                    <Row key={key} gutter={[16, 12]} style={{ marginBottom: 12 }} align="middle">
+                                                        <Col xs={24} md={10}>
+                                                            <Form.Item
+                                                                {...restField}
+                                                                name={[name, 'role']}
+                                                                rules={[{ required: true, message: 'Chọn vai trò' }]}
+                                                                style={{ marginBottom: 0 }}
+                                                            >
+                                                                <Select
+                                                                    placeholder="Chọn vai trò..."
+                                                                    options={[...CUSTOMER_JOURNEY_ROLE_OPTIONS]}
+                                                                    showSearch
+                                                                    optionFilterProp="label"
+                                                                    allowClear
+                                                                />
+                                                            </Form.Item>
+                                                        </Col>
+                                                        <Col xs={24} md={12}>
+                                                            <Form.Item
+                                                                {...restField}
+                                                                name={[name, 'permissions']}
+                                                                style={{ marginBottom: 0 }}
+                                                            >
+                                                                <Select
+                                                                    mode="multiple"
+                                                                    placeholder="Chọn quyền..."
+                                                                    options={permissionSelectOptions}
+                                                                    allowClear
+                                                                />
+                                                            </Form.Item>
+                                                        </Col>
+                                                        <Col xs={24} md={2} style={{ textAlign: isMobile ? 'left' : 'center' }}>
+                                                            <Button type="text" danger icon={<DeleteOutlined />} onClick={() => remove(name)} aria-label="Xóa vai trò" />
+                                                        </Col>
+                                                    </Row>
+                                                ))}
+                                                <Form.Item>
+                                                    <Button type="dashed" onClick={() => add({ is_required: true, actions: [] })} block icon={<PlusOutlined />}>
+                                                        Thêm Vai trò tham gia
+                                                    </Button>
+                                                </Form.Item>
+                                            </>
+                                        )}
+                                    </Form.List>
+
+                                    <Divider orientation="left" style={{ margin: '16px 0' }}>Danh sách Checklist</Divider>
+
+                                    <Form.List name="checklist">
+                                        {(fields, { add, remove }) => (
+                                            <>
+                                                <Collapse
+                                                    defaultActiveKey={[]}
+                                                    size="small"
+                                                    ghost={false}
+                                                    expandIcon={({ isActive }) => (
+                                                        <CaretRightFilled
+                                                            rotate={isActive ? 90 : 0}
+                                                            style={{ fontSize: 12, position: 'relative', top: '12px' }}
+                                                        />
+                                                    )}
+                                                    style={{ marginBottom: 16, background: 'transparent' }}
+                                                >
+                                                    {fields.map(({ key, name, ...restField }) => (
+                                                        <Collapse.Panel
+                                                            key={key}
+                                                            header={
+                                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', minHeight: 32 }}>
+                                                                    <Space align="center" size="small">
+                                                                        <Badge count={name + 1} style={{ backgroundColor: '#52c41a' }} size="small" />
+                                                                        <Text strong style={{ fontSize: 13 }}>
+                                                                            {form.getFieldValue(['checklist', name, 'name']) || `Nhiệm vụ #${name + 1}`}
+                                                                        </Text>
+                                                                    </Space>
+                                                                    <Space onClick={e => e.stopPropagation()} align="center">
+                                                                        <Form.Item
+                                                                            {...restField}
+                                                                            name={[name, 'is_required']}
+                                                                            valuePropName="checked"
+                                                                            initialValue={true}
+                                                                            style={{ marginBottom: 0 }}
+                                                                            label={<span style={{ fontSize: 11 }}>Bắt buộc?</span>}
+                                                                        >
+                                                                            <Switch size="small" />
+                                                                        </Form.Item>
+                                                                        <Button type="text" danger icon={<DeleteOutlined />} onClick={() => remove(name)} size="small" />
+                                                                    </Space>
+                                                                </div>
+                                                            }
+                                                            style={{ background: '#fff', marginBottom: 8, borderRadius: 8, border: '1px solid #f0f0f0' }}
+                                                        >
+                                                            <Row gutter={[12, 12]}>
+                                                                <Col xs={24} lg={12}>
+                                                                    <Form.Item
+                                                                        {...restField}
+                                                                        label={<span style={{ fontSize: 12, color: '#8c8c8c' }}>Tên nhiệm vụ</span>}
+                                                                        name={[name, 'name']}
+                                                                        rules={[{ required: true, message: 'Bắt buộc' }]}
+                                                                        style={{ marginBottom: 12 }}
+                                                                    >
+                                                                        <Input placeholder="Nhập tên nhiệm vụ..." />
+                                                                    </Form.Item>
+                                                                </Col>
+                                                                <Col xs={24} lg={12}>
+                                                                    <Form.Item
+                                                                        {...restField}
+                                                                        label={<span style={{ fontSize: 12, color: '#8c8c8c' }}>Vai trò thực hiện</span>}
+                                                                        name={[name, 'role']}
+                                                                        style={{ marginBottom: 12 }}
+                                                                    >
+                                                                        <Select placeholder="Chọn vai trò..." options={[...CUSTOMER_JOURNEY_ROLE_OPTIONS]} allowClear showSearch optionFilterProp="label" />
+                                                                    </Form.Item>
+                                                                </Col>
+                                                                <Col span={24}>
+                                                                    <Form.Item
+                                                                        {...restField}
+                                                                        label={<span style={{ fontSize: 12, color: '#8c8c8c' }}>Mô tả chi tiết</span>}
+                                                                        name={[name, 'description']}
+                                                                        style={{ marginBottom: 0 }}
+                                                                    >
+                                                                        <TextArea
+                                                                            autoSize={{ minRows: 2, maxRows: 4 }}
+                                                                            placeholder="Hướng dẫn thực hiện cho nhân viên..."
+                                                                        />
+                                                                    </Form.Item>
+                                                                </Col>
+                                                                <Col span={24}>
+                                                                    <Divider orientation="left" plain style={{ margin: '8px 0 12px' }}>Action validation</Divider>
+                                                                    <Form.List name={[name, 'actions']}>
+                                                                        {(actionFields, { add: addAction, remove: removeAction }) => (
+                                                                            <>
+                                                                                <Space direction="vertical" size={12} style={{ width: '100%' }}>
+                                                                                    {actionFields.map(({ key: actionKey, name: actionName, ...actionRestField }) => (
+                                                                                        <ActionValidationItem
+                                                                                            key={actionKey}
+                                                                                            checklistIndex={name}
+                                                                                            actionIndex={actionName}
+                                                                                            restField={actionRestField}
+                                                                                            form={form}
+                                                                                            removeAction={removeAction}
+                                                                                        />
+                                                                                    ))}
+                                                                                </Space>
+                                                                                <Form.Item style={{ marginTop: 12, marginBottom: 0 }}><Button type="dashed" onClick={() => addAction({ min_count: 1 })} block icon={<PlusOutlined />}>Thêm action</Button></Form.Item>
+                                                                            </>
+                                                                        )}
+                                                                    </Form.List>
+                                                                </Col>
+                                                            </Row>
+                                                        </Collapse.Panel>
+                                                    ))}
+                                                </Collapse>
+                                                <Form.Item>
+                                                    <Button type="dashed" onClick={() => add({ is_required: true, actions: [] })} block icon={<PlusOutlined />}>
+                                                        Thêm Nhiệm vụ Checklist
+                                                    </Button>
+                                                </Form.Item>
+                                            </>
+                                        )}
+                                    </Form.List>
+
+                                    <Divider orientation="left" style={{ margin: '16px 0' }}>Tiêu chuẩn & Hướng dẫn</Divider>
+
+                                    <Row gutter={[16, 16]}>
+                                        <Col xs={24} md={12}>
+                                            <Form.Item label="Tiêu chí Bắt đầu" name="entry_criteria">
+                                                <TextArea rows={2} placeholder="Yêu cầu để bắt đầu..." />
+                                            </Form.Item>
+                                        </Col>
+                                        <Col xs={24} md={12}>
+                                            <Form.Item label="Tiêu chí Hoàn tất" name="exit_criteria">
+                                                <TextArea rows={2} placeholder="Yêu cầu để kết thúc..." />
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
+
+                                    <Form.Item label="Hướng dẫn thực hiện" name="instruction_note">
+                                        <TextArea rows={3} placeholder="Ghi chú hướng dẫn cho nhân viên..." />
+                                    </Form.Item>
+
+                                    <Space size="large" wrap>
+                                        <Form.Item label="Hiện trên Portal" name="portal_visible" valuePropName="checked">
+                                            <Switch />
+                                        </Form.Item>
+                                        <Form.Item label="Cho phép bỏ qua" name="allow_skip" valuePropName="checked">
+                                            <Switch />
+                                        </Form.Item>
+                                        <Form.Item label="Tự động mở tiếp" name="auto_open_next" valuePropName="checked">
+                                            <Switch />
+                                        </Form.Item>
+                                    </Space>
+                                </Form>
                             </div>
-                        </div>
-                    </Card>
-                </Col>
-            </Row>
+
+                            {/* View Mode Content */}
+                            <div style={{ display: !isEditing ? 'block' : 'none' }}>
+                                <div className="step-detail-view">
+                                    <Descriptions
+                                        bordered
+                                        column={1}
+                                        layout={isMobile ? 'vertical' : 'horizontal'}
+                                        labelStyle={
+                                            isMobile
+                                                ? { background: '#fafafa', fontWeight: 600 }
+                                                : {
+                                                    minWidth: 200,
+                                                    width: 200,
+                                                    maxWidth: '28%',
+                                                    background: '#fafafa',
+                                                    fontWeight: 600,
+                                                }
+                                        }
+                                        contentStyle={{
+                                            minWidth: 0,
+                                            wordBreak: 'break-word',
+                                            overflowWrap: 'anywhere',
+                                        }}
+                                    >
+                                        <Descriptions.Item label="Mã Giai đoạn">
+                                            <Tag color="blue">{selectedStep?.step_code}</Tag>
+                                        </Descriptions.Item>
+                                        <Descriptions.Item label="Trạng thái vận hành">
+                                            {selectedStep?.is_enabled !== false ? <Badge status="success" text="Đang kích hoạt" /> : <Badge status="default" text="Đang tắt" />}
+                                        </Descriptions.Item>
+                                        <Descriptions.Item label="Mục tiêu (Goal)">
+                                            <Paragraph className="cj-wrap-text" style={{ margin: 0 }}>
+                                                {selectedStep?.goal || '—'}
+                                            </Paragraph>
+                                        </Descriptions.Item>
+
+                                        <Descriptions.Item label="Phân Quyền Vai Trò">
+                                            {selectedStep?.roles && selectedStep.roles.length > 0 ? (
+                                                <List
+                                                    size="small"
+                                                    dataSource={selectedStep.roles}
+                                                    renderItem={(r: IRolesItem) => (
+                                                        <List.Item style={{ paddingLeft: 0, paddingRight: 0 }}>
+                                                            <Space wrap size={[8, 8]} style={{ width: '100%' }}>
+                                                                <Tag color="orange">{formatJourneyRoleDisplay(r.role)}</Tag>
+                                                                {r.permissions?.map((p: string) => (
+                                                                    <Tag key={p} color="blue">{formatPermissionLabel(p)}</Tag>
+                                                                ))}
+                                                            </Space>
+                                                        </List.Item>
+                                                    )}
+                                                />
+                                            ) : <Text type="secondary">Chưa cấu hình</Text>}
+                                        </Descriptions.Item>
+
+                                        <Descriptions.Item label="Checklist">
+                                            {selectedStep?.checklist && selectedStep.checklist.length > 0 ? (
+                                                <Table
+                                                    className="cj-checklist-table"
+                                                    dataSource={selectedStep.checklist}
+                                                    pagination={false}
+                                                    size="small"
+                                                    rowKey={(r, i) => `${r.name}-${i}`}
+                                                    tableLayout="fixed"
+                                                    columns={[
+                                                        {
+                                                            title: '#',
+                                                            width: 44,
+                                                            align: 'center',
+                                                            render: (_: any, __: any, index: number) => <Badge count={index + 1} size="small" style={{ backgroundColor: '#52c41a' }} />
+                                                        },
+                                                        {
+                                                            title: 'Tên hạng mục',
+                                                            dataIndex: 'name',
+                                                            width: '26%',
+                                                            ellipsis: false,
+                                                            render: (name: string, record: IChecklistItem) => (
+                                                                <Space wrap size={[4, 4]}>
+                                                                    <Text strong className="cj-wrap-text">{name}</Text>
+                                                                    {record.is_required && <Tag color="red">Bắt buộc</Tag>}
+                                                                </Space>
+                                                            )
+                                                        },
+                                                        {
+                                                            title: 'Vai trò',
+                                                            dataIndex: 'role',
+                                                            width: '16%',
+                                                            ellipsis: false,
+                                                            render: (role?: string) => role ? <Tag color="orange">{formatJourneyRoleDisplay(role)}</Tag> : <Text type="secondary">—</Text>,
+                                                        },
+                                                        {
+                                                            title: 'Mô tả',
+                                                            dataIndex: 'description',
+                                                            width: '28%',
+                                                            ellipsis: false,
+                                                            render: (text: string) => (
+                                                                <span className="cj-wrap-text">{text || '—'}</span>
+                                                            ),
+                                                        },
+                                                        {
+                                                            title: 'Actions',
+                                                            ellipsis: false,
+                                                            render: (_: unknown, record: IChecklistItem) => (
+                                                                record.actions && record.actions.length > 0 ? (
+                                                                    <Space direction="vertical" size={4} style={{ width: '100%' }}>
+                                                                        {record.actions.map((action: IActionsItem, index: number) => (
+                                                                            <Text key={(action.action_key || 'action') + '-' + index} className="cj-wrap-text">
+                                                                                {formatChecklistActionSummary(action)}
+                                                                            </Text>
+                                                                        ))}
+                                                                    </Space>
+                                                                ) : (
+                                                                    <Text type="secondary">Không có action</Text>
+                                                                )
+                                                            ),
+                                                        },
+                                                    ]}
+                                                />
+                                            ) : <Text type="secondary">Chưa cấu hình</Text>}
+                                        </Descriptions.Item>
+
+                                        <Descriptions.Item label="Cấu hình SLA">
+                                            <Badge count={`${selectedStep?.sla_hours || 0} giờ`} style={{ backgroundColor: '#1890ff' }} />
+                                        </Descriptions.Item>
+
+                                        <Descriptions.Item label="Tiêu chí Bắt đầu">
+                                            <Text type="secondary" className="cj-wrap-text">{selectedStep?.entry_criteria || 'Không yêu cầu'}</Text>
+                                        </Descriptions.Item>
+
+                                        <Descriptions.Item label="Tiêu chí Hoàn tất">
+                                            <Text type="secondary" className="cj-wrap-text">{selectedStep?.exit_criteria || 'Không yêu cầu'}</Text>
+                                        </Descriptions.Item>
+
+                                        <Descriptions.Item label="Hướng dẫn thực hiện">
+                                            <Paragraph className="cj-wrap-text" style={{ fontStyle: 'italic', margin: 0 }}>
+                                                {selectedStep?.instruction_note || 'Chưa cập nhật'}
+                                            </Paragraph>
+                                        </Descriptions.Item>
+
+                                        <Descriptions.Item label="Cấu hình nâng cao">
+                                            <Space wrap>
+                                                <Tag color={selectedStep?.portal_visible ? 'blue' : 'default'}>PORTAL: {selectedStep?.portal_visible ? 'HIỆN' : 'ẨN'}</Tag>
+                                                <Tag color={selectedStep?.allow_skip ? 'orange' : 'default'}>BỎ QUA: {selectedStep?.allow_skip ? 'CHO PHÉP' : 'CẤM'}</Tag>
+                                                <Tag color={selectedStep?.auto_open_next ? 'green' : 'default'}>AUTO NEXT: {selectedStep?.auto_open_next ? 'BẬT' : 'TẮT'}</Tag>
+                                                <Tag color={(selectedStep?.checklist?.length ?? 0) > 0 ? 'purple' : 'default'}>CHECKLIST: {selectedStep?.checklist?.length ?? 0}</Tag>
+                                            </Space>
+                                        </Descriptions.Item>
+                                    </Descriptions>
+                                </div>
+                            </div>
+                        </Card>
+                    </Col>
+                </Row>
+            </div>
 
             {isMobile && (
                 <>
