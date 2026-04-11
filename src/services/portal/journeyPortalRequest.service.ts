@@ -37,17 +37,82 @@ const getPortalRequestHeaders = (): Record<string, string> => {
   return headers;
 };
 
+const tryParsePortalJson = (value: unknown): unknown => {
+  if (typeof value !== 'string') {
+    return value;
+  }
+
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(trimmed);
+  } catch {
+    return value;
+  }
+};
+
+const decodeBackendEscapes = (value: string): string => {
+  if (!value.trim()) {
+    return value;
+  }
+
+  return value
+    .replace(/\\u([0-9a-fA-F]{4})/g, (_, hex: string) => String.fromCharCode(parseInt(hex, 16)))
+    .replace(/\\n/g, '\n')
+    .replace(/\\t/g, '\t')
+    .trim();
+};
+
+const unwrapPortalPayload = (value: unknown): any => {
+  let current = tryParsePortalJson(value);
+
+  for (let index = 0; index < 3; index += 1) {
+    if (typeof current === 'string') {
+      const reparsed = tryParsePortalJson(current);
+      if (reparsed === current) {
+        return current;
+      }
+      current = reparsed;
+      continue;
+    }
+
+    if (current && typeof current === 'object' && 'response' in current) {
+      current = tryParsePortalJson((current as { response?: unknown }).response);
+      continue;
+    }
+
+    return current;
+  }
+
+  return current;
+};
+
 const getPortalApiMessage = (value: any, fallback: string = 'Không thể gửi yêu cầu dịch vụ'): string => {
-  if (typeof value === 'string' && value.trim()) {
-    return value.trim();
-  }
+  const normalized = unwrapPortalPayload(value);
+  const candidates = [
+    normalized,
+    normalized?.message,
+    normalized?.error,
+    normalized?.data?.message,
+    normalized?.response?.message,
+    value,
+  ];
 
-  if (value && typeof value.message === 'string' && value.message.trim()) {
-    return value.message.trim();
-  }
+  for (const candidate of candidates) {
+    if (typeof candidate === 'string' && candidate.trim()) {
+      const reparsed = tryParsePortalJson(candidate);
+      if (reparsed && reparsed !== candidate) {
+        const nestedMessage = getPortalApiMessage(reparsed, '');
+        if (nestedMessage) {
+          return nestedMessage;
+        }
+      }
 
-  if (value && typeof value.error === 'string' && value.error.trim()) {
-    return value.error.trim();
+      return decodeBackendEscapes(candidate);
+    }
   }
 
   return fallback;
@@ -62,17 +127,7 @@ export const journeyPortalRequestService = {
     });
 
     const rawText = await response.text();
-    let parsed: any = null;
-
-    try {
-      parsed = rawText ? JSON.parse(rawText) : null;
-    } catch {
-      if (!response.ok) {
-        throw new Error(getPortalApiMessage(rawText));
-      }
-    }
-
-    const normalized = parsed && typeof parsed.response === 'object' ? parsed.response : parsed;
+    const normalized = unwrapPortalPayload(rawText);
     const normalizedMessage = getPortalApiMessage(normalized, getPortalApiMessage(rawText));
 
     if (normalized && normalized.code !== undefined && normalized.code !== null) {

@@ -14,7 +14,7 @@ import {
     Col,
     Divider,
     Form, Input,
-    message,
+    Modal,
     Row,
     Select,
     Space,
@@ -25,7 +25,7 @@ import React, { useState } from 'react';
 import { useJourneyServiceTypeOptions } from '../../hooks/useJourneyServiceTypeOptions';
 import journeyPortalRequestService from '../../services/portal/journeyPortalRequest.service';
 
-const { Title, Text, Paragraph } = Typography;
+const { Title, Text, Paragraph, Link } = Typography;
 const { Dragger } = Upload;
 
 interface PortalServiceTypeOption {
@@ -76,6 +76,7 @@ const getPortalSubmitErrorMessage = (error: unknown): string => {
 
 const CustomerPortalLanding: React.FC = () => {
     const [form] = Form.useForm();
+    const [modal, contextHolder] = Modal.useModal();
     const [loading, setLoading] = useState(false);
     const { serviceTypeOptions, isLoading: isLoadingServiceTypes } = useJourneyServiceTypeOptions();
 
@@ -114,20 +115,27 @@ const CustomerPortalLanding: React.FC = () => {
             const requestCode = result.data?.journeyCode || result.data?.journeyId || 'N/A';
 
             form.resetFields();
-            message.success({
+            const trackingUrl = '/portal/requests/' + encodeURIComponent(String(requestCode));
+            modal.success({
+                title: 'Gửi yêu cầu thành công',
+                okText: 'Đã hiểu',
                 content: (
-                    <span>
-                        Đã gửi yêu cầu thành công! Mã yêu cầu của bạn là <b>{requestCode}</b>.
-                        Chúng tôi sẽ liên hệ lại trong vòng 2 giờ.
-                    </span>
+                    <Space direction="vertical" size={8}>
+                        <Text>Yêu cầu của bạn đã được ghi nhận thành công.</Text>
+                        <Text>Mã yêu cầu: <Text strong>{requestCode}</Text></Text>
+                        <Text>Chúng tôi sẽ liên hệ lại trong vòng 2 giờ.</Text>
+                        <Link href={trackingUrl} target="_blank" rel="noreferrer">
+                            Theo dõi yêu cầu
+                        </Link>
+                    </Space>
                 ),
-                duration: 5,
             });
         } catch (error) {
             const errorMessage = getPortalSubmitErrorMessage(error);
-            message.error({
+            modal.error({
+                title: 'Gửi yêu cầu không thành công',
+                okText: 'Đóng',
                 content: errorMessage,
-                duration: 6,
             });
         } finally {
             setLoading(false);
@@ -142,6 +150,7 @@ const CustomerPortalLanding: React.FC = () => {
             color: '#1e293b',
             fontFamily: "'Inter', sans-serif"
         }}>
+            {contextHolder}
 
             <Row gutter={[40, 40]} justify="center" style={{ maxWidth: 1200, margin: '0 auto' }}>
                 {/* Left Side: Service Info */}
@@ -337,6 +346,7 @@ const CustomerPortalLanding: React.FC = () => {
                                     <p className="ant-upload-text" style={{ color: '#64748b' }}>Kéo thả hoặc nhấp để tải ảnh lên</p>
                                 </Dragger>
                             </Form.Item>
+
 
                             <Button
                                 type="primary"
