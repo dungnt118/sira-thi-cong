@@ -29,8 +29,9 @@ const PortalDashboard: React.FC<PortalDashboardProps> = ({ journey, token, onNav
     const publishedSteps = allSteps.filter(s => s.publish_flag);
     
     // Find index of current step in the sequence of published steps
-    // Note: We need to find where the technical current_step_code sits relative to published steps
-    const currentStepIndexInAll = allSteps.findIndex(s => s.step_code === journey.current_step_code);
+    // Note: We need to find where the technical current_step situates relative to published steps
+    const currentStepCode = (journey as any).current_step || journey.current_step_code;
+    const currentStepIndexInAll = allSteps.findIndex(s => s.step_code === currentStepCode);
     
     const steps = publishedSteps.map((s) => {
         const stepIndexInAll = allSteps.findIndex(as => as.step_code === s.step_code);
@@ -93,7 +94,7 @@ const PortalDashboard: React.FC<PortalDashboardProps> = ({ journey, token, onNav
             }}>
                 <div style={{ maxWidth: 800, margin: '0 auto', position: 'relative', zIndex: 1 }}>
                     <Title level={isPreview ? 4 : 2} style={{ color: '#0f172a', margin: '0 0 12px' }}>
-                        {journey.request_title}
+                        {journey.request_title || 'Chi tiết công trình'}
                     </Title>
                     <Space size="middle" style={{ color: '#475569' }}>
                         <Text style={{ color: '#475569', fontSize: 12 }}>Mã: {journey.journey_code}</Text>
@@ -123,7 +124,7 @@ const PortalDashboard: React.FC<PortalDashboardProps> = ({ journey, token, onNav
                             />
                             <Progress percent={progress} showInfo={false} strokeColor="#1890ff" size="small" />
                             <div style={{ marginTop: 8, fontSize: 11, color: '#666' }}>
-                                Bước hiện tại: <strong>{journey.current_step}</strong>
+                                Bước hiện tại: <strong>{currentStepCode || 'Khởi tạo'}</strong>
                             </div>
                         </Card>
                     </Col>
@@ -146,7 +147,7 @@ const PortalDashboard: React.FC<PortalDashboardProps> = ({ journey, token, onNav
                         <Card size="small" style={{ borderRadius: 12, height: '100%', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }} bodyStyle={{ padding: 16 }}>
                             <Statistic 
                                 title={<span style={{ fontSize: 12 }}>Tin nhắn / Phản hồi</span>}
-                                value={journey.thread_count || 2} 
+                                value={journey.thread_count || 0} 
                                 valueStyle={{ color: '#fa8c16', fontWeight: 600, fontSize: 20 }}
                                 prefix={<MessageOutlined style={{ marginRight: 8, color: '#ffd591' }} />}
                             />
@@ -191,7 +192,7 @@ const PortalDashboard: React.FC<PortalDashboardProps> = ({ journey, token, onNav
                             <UserOutlined />
                         </div>
                         <div style={{ flex: 1 }}>
-                            <Text strong style={{ fontSize: 14 }}>PM: {journey.owner_user}</Text>
+                            <Text strong style={{ fontSize: 14 }}>PM: {(journey as any).owner_user || journey.idx_owner_user?.title || 'Quản lý dự án'}</Text>
                             <div style={{ color: '#666', fontSize: 11 }}>
                                 Cần hỗ trợ khẩn cấp? Vui lòng gọi Hotline.
                             </div>

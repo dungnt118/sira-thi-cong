@@ -1435,7 +1435,7 @@ const JourneyDetail360: React.FC = () => {
                                                     <Text strong style={{ display: 'block', marginBottom: 8 }}>Link Portal khách hàng</Text>
                                                     <div style={{ display: 'flex', gap: 8, alignItems: 'center', background: '#fff', padding: '8px 12px', borderRadius: 6, border: '1px solid #d9d9d9' }}>
                                                         <Text ellipsis style={{ flex: 1, color: '#1890ff' }}>
-                                                            {`${window.location.origin}/portal/journeys/${journey.journey_code}`}
+                                                            {`${window.location.origin}/portal/journeys/${journey._id}`}
                                                         </Text>
                                                         <Space>
                                                             <Button
@@ -1443,7 +1443,7 @@ const JourneyDetail360: React.FC = () => {
                                                                 type="link"
                                                                 icon={<PaperClipOutlined />}
                                                                 onClick={() => {
-                                                                    navigator.clipboard.writeText(`${window.location.origin}/portal/journeys/${journey.journey_code}`);
+                                                                    navigator.clipboard.writeText(`${window.location.origin}/portal/journeys/${journey._id}`);
                                                                     message.success("Đã copy link portal!");
                                                                 }}
                                                             >
@@ -1453,7 +1453,7 @@ const JourneyDetail360: React.FC = () => {
                                                                 size="small"
                                                                 type="link"
                                                                 icon={<SendOutlined />}
-                                                                onClick={() => window.open(`/portal/journeys/${journey.journey_code}`, '_blank')}
+                                                                onClick={() => window.open(`/portal/journeys/${journey._id}`, '_blank')}
                                                             >
                                                                 Mở
                                                             </Button>

@@ -112,10 +112,11 @@ const CustomerPortalLanding: React.FC = () => {
                 siteAddress: values.address,
             });
 
-            const requestCode = result.data?.journeyCode || result.data?.journeyId || 'N/A';
+            const journeyId = result.data?.journeyId || result.data?._id;
+            const requestCode = result.data?.journeyCode || 'N/A';
 
             form.resetFields();
-            const trackingUrl = '/portal/journeys/' + encodeURIComponent(String(requestCode));
+            const trackingUrl = '/portal/journeys/' + encodeURIComponent(String(journeyId || requestCode));
             modal.success({
                 title: 'Gửi yêu cầu thành công',
                 okText: 'Đã hiểu',
