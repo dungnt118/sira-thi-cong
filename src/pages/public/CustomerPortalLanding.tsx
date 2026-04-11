@@ -23,7 +23,7 @@ import {
 } from 'antd';
 import React, { useState } from 'react';
 import { useJourneyServiceTypeOptions } from '../../hooks/useJourneyServiceTypeOptions';
-import journeyService from '../../services/core-contracts/services/journey.service';
+import journeyPortalRequestService from '../../services/portal/journeyPortalRequest.service';
 
 const { Title, Text, Paragraph } = Typography;
 const { Dragger } = Upload;
@@ -98,7 +98,7 @@ const CustomerPortalLanding: React.FC = () => {
                 throw new Error('Không xác định được loại dịch vụ');
             }
 
-            const result = await journeyService.createPortalRequest({
+            const result = await journeyPortalRequestService.createPortalRequest({
                 fullName: values.fullName,
                 phone: values.phone,
                 serviceType: selectedServiceType.slug,
