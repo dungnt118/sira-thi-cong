@@ -20,6 +20,7 @@ import { IWorkTask } from '../../../services/core-contracts/types/workTask.types
 import { AuthorizedUserSelect } from '../../../components/authorizedusers/AuthorizedUser';
 import { StepWorkTaskList } from '../../../components/journey/StepWorkTaskList';
 import { CreateSiteReportModal } from '../../../components/journey/CreateSiteReportModal';
+import { useAuth } from '../../../hooks/useAuth';
 import { siteReportService } from '../../../services/core-contracts/services/siteReport.service';
 
 const { TextArea } = Input;
@@ -85,6 +86,7 @@ const STEP_NAME_MAPPING: Record<string, string> = {
 
 
 export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = false, onSave, onEditStateChange }) => {
+    const { user } = useAuth();
     const [form] = Form.useForm();
     const [isEditing, setIsEditing] = useState(false);
     const [journeyData, setJourneyData] = useState<IJourney | null>(null);
@@ -533,6 +535,7 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                                                 tasks={workTasks.filter(t => t.journey_step_code === currentStep)}
                                                 loading={isLoadingTasks}
                                                 reportCounts={reportCountByTask}
+                                                currentUserId={user?._id}
                                                 onStatusUpdate={handleStatusUpdate}
                                                 onCreateReport={(task) => {
                                                     setSelectedTaskForReport(task);

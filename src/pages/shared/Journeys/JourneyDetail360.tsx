@@ -1309,21 +1309,47 @@ const JourneyDetail360: React.FC = () => {
                             minWidth: 0,
                         }}
                     >
-                        <Space style={{ marginBottom: 0, minWidth: 0, flex: '1 1 auto' }} size={8}>
-                            <NodeIndexOutlined style={{ color: '#fff', flexShrink: 0 }} />
-                            <Text
-                                strong
+                        <Tooltip title="Nhấn để mở danh sách công việc của bước hiện tại">
+                            <div
+                                role="button"
+                                tabIndex={0}
+                                onClick={() => openTaskModal(currentStepCode)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                        e.preventDefault();
+                                        openTaskModal(currentStepCode);
+                                    }
+                                }}
                                 style={{
-                                    color: '#fff',
+                                    cursor: 'pointer',
+                                    marginBottom: 0,
                                     minWidth: 0,
-                                    ...(isMobile
-                                        ? { display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }
-                                        : {}),
+                                    flex: '1 1 auto',
+                                    outline: 'none',
                                 }}
                             >
-                                {currentStepDisplayLabel}
-                            </Text>
-                        </Space>
+                                <Space style={{ marginBottom: 0, minWidth: 0 }} size={8}>
+                                    <NodeIndexOutlined style={{ color: '#fff', flexShrink: 0 }} />
+                                    <Text
+                                        strong
+                                        style={{
+                                            color: '#fff',
+                                            minWidth: 0,
+                                            ...(isMobile
+                                                ? {
+                                                      display: 'block',
+                                                      overflow: 'hidden',
+                                                      textOverflow: 'ellipsis',
+                                                      whiteSpace: 'nowrap',
+                                                  }
+                                                : {}),
+                                        }}
+                                    >
+                                        {currentStepDisplayLabel}
+                                    </Text>
+                                </Space>
+                            </div>
+                        </Tooltip>
                         <Button
                             type="primary"
                             ghost
@@ -1359,13 +1385,26 @@ const JourneyDetail360: React.FC = () => {
                                 </Text>
                             </Space>
                         </Tooltip>
-                        <Tooltip title="Công việc (worktask) tại bước hiện tại">
-                            <Space size={6} style={{ color: '#fff' }}>
-                                <CarryOutOutlined style={{ color: 'rgba(255,255,255,0.85)', fontSize: 15 }} />
-                                <Text strong style={{ color: '#fff', fontSize: 14 }}>
-                                    {currentStepWorkTaskCount}
-                                </Text>
-                            </Space>
+                        <Tooltip title="Công việc (worktask) tại bước hiện tại — nhấn để mở danh sách">
+                            <span
+                                role="button"
+                                tabIndex={0}
+                                onClick={() => openTaskModal(currentStepCode)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                        e.preventDefault();
+                                        openTaskModal(currentStepCode);
+                                    }
+                                }}
+                                style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', outline: 'none' }}
+                            >
+                                <Space size={6} style={{ color: '#fff' }}>
+                                    <CarryOutOutlined style={{ color: 'rgba(255,255,255,0.85)', fontSize: 15 }} />
+                                    <Text strong style={{ color: '#fff', fontSize: 14 }}>
+                                        {currentStepWorkTaskCount}
+                                    </Text>
+                                </Space>
+                            </span>
                         </Tooltip>
                         <Tooltip title="Tài liệu (JourneyDocument) gắn bước hiện tại">
                             <Space size={6} style={{ color: '#fff' }}>
@@ -1823,6 +1862,7 @@ const JourneyDetail360: React.FC = () => {
                             tasks={selectedStepTasks}
                             loading={isLoadingTasks}
                             reportCounts={reportCountByTask}
+                            currentUserId={user?._id}
                             onStatusUpdate={handleStatusUpdate}
                             onCreateReport={(task) => {
                                 setSelectedTaskForReport(task);
