@@ -196,7 +196,7 @@ const CustomerDetail: React.FC = () => {
                                 <Descriptions.Item label="Zalo">{customer?.zalo || 'Chưa cập nhật'}</Descriptions.Item>
                                 <Descriptions.Item label="PM phụ trách">{customer?.assigned_pm_id || 'Chưa gán'}</Descriptions.Item>
                                 <Descriptions.Item label="Địa chỉ">
-                                    {[customer?.address, customer?.ward, customer?.district, customer?.province]
+                                    {[customer?.address, customer?.ward, customer?.province, customer?.city]
                                         .filter(Boolean)
                                         .join(', ') || 'Chưa cập nhật'}
                                 </Descriptions.Item>

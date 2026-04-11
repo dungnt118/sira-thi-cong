@@ -19,6 +19,8 @@ export interface ICreatePortalJourneyRequestResult {
   message?: string;
   data?: {
     journeyId?: string;
+    /** Một số phiên bản API trả _id journey thay cho journeyId */
+    _id?: string;
     journeyCode?: string | null;
     customerId?: string;
     createdCustomer?: boolean;

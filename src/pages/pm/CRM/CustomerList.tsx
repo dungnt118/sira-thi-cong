@@ -106,7 +106,7 @@ const CustomerList: React.FC = () => {
                 <div>
                     <div><PhoneOutlined style={{ marginRight: 4 }} />{r.phone}</div>
                     <Text type="secondary" style={{ fontSize: 12 }}>
-                        <EnvironmentOutlined style={{ marginRight: 4 }} />{r.district}, {r.city}
+                        <EnvironmentOutlined style={{ marginRight: 4 }} />{[r.ward, r.city].filter(Boolean).join(', ') || '—'}
                     </Text>
                 </div>
             ),
