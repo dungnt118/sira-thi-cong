@@ -80,23 +80,27 @@ function formatJourneyRoleDisplay(roleValue?: string): string {
     return JOURNEY_ROLE_LABEL_MAP[roleValue] || roleValue;
 }
 
-const CHECKLIST_ACTION_OPTIONS = [
-    { value: 'fill_site_address', label: 'Điền địa chỉ công trình' },
-    { value: 'assign_owner_user', label: 'Gán người phụ trách' },
-    { value: 'upload_survey_report', label: 'Tải biên bản khảo sát' },
-    { value: 'upload_site_photos', label: 'Tải ảnh hiện trạng' },
-    { value: 'upload_solution_doc', label: 'Tải hồ sơ giải pháp' },
-    { value: 'upload_business_plan', label: 'Tải kế hoạch kinh doanh' },
-    { value: 'upload_customer_quotation', label: 'Tải báo giá khách hàng' },
-    { value: 'upload_contract', label: 'Tải hợp đồng' },
-    { value: 'confirm_quote_approved', label: 'Xác nhận chốt báo giá' },
-    { value: 'confirm_final_acceptance', label: 'Xác nhận nghiệm thu cuối' },
-    { value: 'upload_payment_receipt', label: 'Tải chứng từ thanh toán' },
-    { value: 'link_origin_journey', label: 'Liên kết Journey gốc' },
-];
+const ACTION_PRESETS: Record<string, { label: string; type: string; target_field?: string; doc_type?: string }> = {
+    fill_site_address: { label: 'Điền địa chỉ công trình', type: 'require_journey_field', target_field: 'site_address' },
+    assign_owner_user: { label: 'Gán người phụ trách', type: 'require_journey_field', target_field: 'owner_user' },
+    link_origin_journey: { label: 'Liên kết Journey gốc', type: 'require_journey_field', target_field: 'origin_journey_id' },
+
+    upload_survey_report: { label: 'Tải biên bản khảo sát', type: 'require_document', doc_type: 'survey_report' },
+    upload_site_photos: { label: 'Tải ảnh hiện trạng', type: 'require_document', doc_type: 'site_photos' },
+    upload_solution_doc: { label: 'Tải hồ sơ giải pháp', type: 'require_document', doc_type: 'solution_doc' },
+    upload_business_plan: { label: 'Tải kế hoạch kinh doanh', type: 'require_document', doc_type: 'business_plan' },
+    upload_customer_quotation: { label: 'Tải báo giá khách hàng', type: 'require_document', doc_type: 'quotation' },
+    upload_contract: { label: 'Tải hợp đồng', type: 'require_document', doc_type: 'contract' },
+    upload_payment_receipt: { label: 'Tải chứng từ thanh toán', type: 'require_document', doc_type: 'payment_receipt' },
+
+    confirm_quote_approved: { label: 'Xác nhận chốt báo giá', type: 'require_status_equals', target_field: 'quote_status' },
+    confirm_final_acceptance: { label: 'Xác nhận nghiệm thu cuối', type: 'require_status_equals', target_field: 'project_status' },
+};
+
+const CHECKLIST_ACTION_OPTIONS = Object.entries(ACTION_PRESETS).map(([value, { label }]) => ({ value, label }));
 
 const ACTION_TYPE_OPTIONS = [
-    { value: 'require_journey_field', label: 'Bắt buộc trường Journey' },
+    { value: 'require_journey_field', label: 'Bắt buộc điền thông tin' },
     { value: 'require_document', label: 'Bắt buộc tài liệu' },
     { value: 'require_status_equals', label: 'Bắt buộc trạng thái' },
 ];
@@ -156,7 +160,6 @@ const normalizeActions = (actions?: IActionsItem[]): IActionsItem[] =>
         action_key: action.action_key,
         action_type: action.action_type,
         target_field: action.target_field,
-        expected_value: action.expected_value,
         doc_type: action.doc_type,
         min_count: action.min_count,
         note: action.note,
@@ -185,6 +188,133 @@ const formatChecklistActionSummary = (action?: IActionsItem): string => {
 };
 
 const { useBreakpoint } = Grid;
+
+/** Component con để xử lý logic phức tạp cho từng Action Validation */
+const ActionValidationItem: React.FC<{
+    checklistIndex: number;
+    actionIndex: number;
+    restField: any;
+    form: any;
+    removeAction: (index: number) => void;
+}> = ({ checklistIndex, actionIndex, restField, form, removeAction }) => {
+    // Watch action_type và action_key của action hiện tại
+    const actionType = Form.useWatch(['checklist', checklistIndex, 'actions', actionIndex, 'action_type'], form);
+
+    // Lọc danh sách action_key theo type đã chọn
+    const filteredActionKeys = useMemo(() => {
+        return Object.entries(ACTION_PRESETS)
+            .filter(([_, config]) => !actionType || config.type === actionType)
+            .map(([value, config]) => ({ value, label: config.label }));
+    }, [actionType]);
+
+    const onActionKeyChange = (val: string) => {
+        const preset = ACTION_PRESETS[val];
+        if (preset) {
+            form.setFieldValue(['checklist', checklistIndex, 'actions', actionIndex, 'target_field'], preset.target_field);
+            form.setFieldValue(['checklist', checklistIndex, 'actions', actionIndex, 'doc_type'], preset.doc_type);
+        }
+    };
+
+    const onActionTypeChange = () => {
+        // Reset các trường liên quan khi đổi loại
+        form.setFieldValue(['checklist', checklistIndex, 'actions', actionIndex, 'action_key'], undefined);
+        form.setFieldValue(['checklist', checklistIndex, 'actions', actionIndex, 'target_field'], undefined);
+        form.setFieldValue(['checklist', checklistIndex, 'actions', actionIndex, 'doc_type'], undefined);
+    };
+
+    return (
+        <Card size="small" style={{ background: '#fafafa', borderRadius: 8, marginBottom: 8, border: '1px solid #f0f0f0' }}>
+            <Row gutter={[12, 12]}>
+                <Col xs={24} md={12}>
+                    <Form.Item
+                        {...restField}
+                        label={<span style={{ fontSize: 12 }}>Loại kiểm chứng</span>}
+                        name={[actionIndex, 'action_type']}
+                        rules={[{ required: true, message: 'Bắt buộc' }]}
+                        style={{ marginBottom: 0 }}
+                    >
+                        <Select
+                            placeholder="Chọn loại action..."
+                            options={ACTION_TYPE_OPTIONS}
+                            allowClear
+                            onChange={onActionTypeChange}
+                        />
+                    </Form.Item>
+                </Col>
+                <Col xs={24} md={12}>
+                    <Form.Item
+                        {...restField}
+                        label={<span style={{ fontSize: 12 }}>Hành động</span>}
+                        name={[actionIndex, 'action_key']}
+                        rules={[{ required: true, message: 'Bắt buộc' }]}
+                        style={{ marginBottom: 0 }}
+                    >
+                        <Select
+                            placeholder={actionType ? "Chọn hành động..." : "Vui lòng chọn loại trước"}
+                            options={filteredActionKeys}
+                            allowClear
+                            showSearch
+                            optionFilterProp="label"
+                            onChange={onActionKeyChange}
+                            disabled={!actionType}
+                        />
+                    </Form.Item>
+                </Col>
+
+                {/* Hiển thị thêm cấu hình cho tài liệu */}
+                {actionType === 'require_document' && (
+                    <>
+                        <Col xs={24} md={12}>
+                            <Form.Item
+                                {...restField}
+                                label={<span style={{ fontSize: 12 }}>Loại tài liệu</span>}
+                                name={[actionIndex, 'doc_type']}
+                                style={{ marginBottom: 0 }}
+                                tooltip="Tự động điền theo hành động đã chọn"
+                            >
+                                <Select
+                                    placeholder="Loại tài liệu..."
+                                    options={ACTION_DOC_TYPE_OPTIONS}
+                                    disabled
+                                    variant="filled"
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} md={12}>
+                            <Form.Item
+                                {...restField}
+                                label={<span style={{ fontSize: 12 }}>Số lượng tối thiểu</span>}
+                                name={[actionIndex, 'min_count']}
+                                style={{ marginBottom: 0 }}
+                            >
+                                <Input type="number" min={1} placeholder="1" />
+                            </Form.Item>
+                        </Col>
+                    </>
+                )}
+
+                {/* Các trường ẩn để đảm bảo dữ liệu submit đúng schema */}
+                <Form.Item name={[actionIndex, 'target_field']} noStyle hidden><Input /></Form.Item>
+
+                <Col span={24}>
+                    <Form.Item
+                        {...restField}
+                        label={<span style={{ fontSize: 12 }}>Ghi chú</span>}
+                        name={[actionIndex, 'note']}
+                        style={{ marginBottom: 0 }}
+                    >
+                        <TextArea rows={2} placeholder="Mô tả thêm cho action này (nếu có)..." />
+                    </Form.Item>
+                </Col>
+                <Col span={24} style={{ textAlign: 'right' }}>
+                    <Button type="text" danger icon={<DeleteOutlined />} onClick={() => removeAction(actionIndex)} size="small" style={{ padding: 0 }}>
+                        Xóa action
+                    </Button>
+                </Col>
+            </Row>
+        </Card>
+    );
+};
 
 const CustomerJourneySettingPage: React.FC = () => {
     const dispatch = useAppDispatch();
@@ -692,18 +822,14 @@ const CustomerJourneySettingPage: React.FC = () => {
                                                                         <>
                                                                             <Space direction="vertical" size={12} style={{ width: '100%' }}>
                                                                                 {actionFields.map(({ key: actionKey, name: actionName, ...actionRestField }) => (
-                                                                                    <Card key={actionKey} size="small" style={{ background: '#fafafa', borderRadius: 8 }}>
-                                                                                        <Row gutter={[12, 12]}>
-                                                                                            <Col xs={24} md={12}><Form.Item {...actionRestField} label="Action key" name={[actionName, 'action_key']} rules={[{ required: true, message: 'Bắt buộc' }]} style={{ marginBottom: 0 }}><Select placeholder="Chọn action..." options={CHECKLIST_ACTION_OPTIONS} allowClear showSearch optionFilterProp="label" /></Form.Item></Col>
-                                                                                            <Col xs={24} md={12}><Form.Item {...actionRestField} label="Action type" name={[actionName, 'action_type']} rules={[{ required: true, message: 'Bắt buộc' }]} style={{ marginBottom: 0 }}><Select placeholder="Chọn loại action..." options={ACTION_TYPE_OPTIONS} allowClear /></Form.Item></Col>
-                                                                                            <Col xs={24} md={12}><Form.Item {...actionRestField} label="Target field" name={[actionName, 'target_field']} style={{ marginBottom: 0 }}><Select placeholder="Chọn trường dữ liệu..." options={ACTION_TARGET_FIELD_OPTIONS} allowClear showSearch optionFilterProp="label" /></Form.Item></Col>
-                                                                                            <Col xs={24} md={12}><Form.Item {...actionRestField} label="Loại tài liệu" name={[actionName, 'doc_type']} style={{ marginBottom: 0 }}><Select placeholder="Chọn loại tài liệu..." options={ACTION_DOC_TYPE_OPTIONS} allowClear showSearch optionFilterProp="label" /></Form.Item></Col>
-                                                                                            <Col xs={24} md={12}><Form.Item {...actionRestField} label="Giá trị kỳ vọng" name={[actionName, 'expected_value']} style={{ marginBottom: 0 }}><Input placeholder="Ví dụ: approved" /></Form.Item></Col>
-                                                                                            <Col xs={24} md={8}><Form.Item {...actionRestField} label="Số lượng tối thiểu" name={[actionName, 'min_count']} style={{ marginBottom: 0 }}><Input type="number" min={1} placeholder="1" /></Form.Item></Col>
-                                                                                            <Col xs={24} md={4} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-end' }}><Button type="text" danger icon={<DeleteOutlined />} onClick={() => removeAction(actionName)} /></Col>
-                                                                                            <Col span={24}><Form.Item {...actionRestField} label="Ghi chú" name={[actionName, 'note']} style={{ marginBottom: 0 }}><TextArea rows={2} placeholder="Mô tả thêm cho action này..." /></Form.Item></Col>
-                                                                                        </Row>
-                                                                                    </Card>
+                                                                                    <ActionValidationItem
+                                                                                        key={actionKey}
+                                                                                        checklistIndex={name}
+                                                                                        actionIndex={actionName}
+                                                                                        restField={actionRestField}
+                                                                                        form={form}
+                                                                                        removeAction={removeAction}
+                                                                                    />
                                                                                 ))}
                                                                             </Space>
                                                                             <Form.Item style={{ marginTop: 12, marginBottom: 0 }}><Button type="dashed" onClick={() => addAction({ min_count: 1 })} block icon={<PlusOutlined />}>Thêm action</Button></Form.Item>
