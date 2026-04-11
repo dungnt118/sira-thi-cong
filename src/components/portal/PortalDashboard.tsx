@@ -136,7 +136,7 @@ const PortalDashboard: React.FC<PortalDashboardProps> = ({ journey, token, onNav
                                 prefix={<FileTextOutlined style={{ marginRight: 8, color: '#b7eb8f' }} />}
                             />
                             <div style={{ marginTop: 8 }}>
-                                <Button size="small" type="link" style={{ padding: 0, fontSize: 12 }} onClick={() => onNavigate?.(`/portal/${token}/documents`)}>
+                                <Button size="small" type="link" style={{ padding: 0, fontSize: 12 }} onClick={() => onNavigate?.(`/portal/journeys/${token}/documents`)}>
                                     Xem tài liệu <RightOutlined style={{ fontSize: 10 }} />
                                 </Button>
                             </div>
@@ -151,7 +151,7 @@ const PortalDashboard: React.FC<PortalDashboardProps> = ({ journey, token, onNav
                                 prefix={<MessageOutlined style={{ marginRight: 8, color: '#ffd591' }} />}
                             />
                             <div style={{ marginTop: 8 }}>
-                                <Button size="small" type="link" style={{ padding: 0, fontSize: 12 }} onClick={() => onNavigate?.(`/portal/${token}/threads`)}>
+                                <Button size="small" type="link" style={{ padding: 0, fontSize: 12 }} onClick={() => onNavigate?.(`/portal/journeys/${token}/threads`)}>
                                     Mở hộp thư <RightOutlined style={{ fontSize: 10 }} />
                                 </Button>
                             </div>
@@ -165,7 +165,7 @@ const PortalDashboard: React.FC<PortalDashboardProps> = ({ journey, token, onNav
                     size="small"
                     style={{ borderRadius: 12, marginBottom: 20, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
                     headStyle={{ fontSize: 14 }}
-                    extra={<Button type="link" size="small" onClick={() => onNavigate?.(`/portal/${token}/timeline`)}>Xem chi tiết</Button>}
+                    extra={<Button type="link" size="small" onClick={() => onNavigate?.(`/portal/journeys/${token}/timeline`)}>Xem chi tiết</Button>}
                 >
                     <Steps 
                         direction="vertical" 
@@ -196,7 +196,7 @@ const PortalDashboard: React.FC<PortalDashboardProps> = ({ journey, token, onNav
                                 Cần hỗ trợ khẩn cấp? Vui lòng gọi Hotline.
                             </div>
                         </div>
-                        <Button type="primary" size="small" shape="round" icon={<MessageOutlined />} onClick={() => onNavigate?.(`/portal/${token}/threads`)}>
+                        <Button type="primary" size="small" shape="round" icon={<MessageOutlined />} onClick={() => onNavigate?.(`/portal/journeys/${token}/threads`)}>
                             Chat
                         </Button>
                     </div>

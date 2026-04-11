@@ -229,6 +229,16 @@ function App() {
                                     <Route path="/documents" element={<DocumentationPage />} />
                                     <Route path="/login" element={<Login />} />
                                     <Route path="/portal" element={<CustomerPortal />} />
+                                    <Route path="/portal/journeys/:journeyCode" element={<CustomerPortal />} />
+                                    <Route path="/portal/journeys/:journeyCode/timeline" element={<PublishedTimeline />} />
+                                    <Route path="/portal/journeys/:journeyCode/documents" element={<PortalDocuments />} />
+                                    <Route path="/portal/journeys/:journeyCode/threads" element={<ThreadInbox />} />
+                                    <Route path="/portal/journeys/:journeyCode/threads/:threadId" element={<ThreadDetail />} />
+                                    <Route path="/portal/:token" element={<CustomerPortal />} />
+                                    <Route path="/portal/:token/timeline" element={<PublishedTimeline />} />
+                                    <Route path="/portal/:token/documents" element={<PortalDocuments />} />
+                                    <Route path="/portal/:token/threads" element={<ThreadInbox />} />
+                                    <Route path="/portal/:token/threads/:threadId" element={<ThreadDetail />} />
                                     <Route path="/" element={<CustomerPortal />} />
                                     <Route path="/:token" element={<CustomerPortal />} />
                                     <Route path="/:token/timeline" element={<PublishedTimeline />} />

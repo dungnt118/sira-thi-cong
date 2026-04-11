@@ -59,7 +59,7 @@ const PortalPageHeader: React.FC<PortalPageHeaderProps> = ({ title, subtitle, on
                                 size="small" 
                                 ghost
                                 type="primary"
-                                onClick={() => navigate(`/portal/${token}`)}
+                                onClick={() => navigate(`/portal/journeys/${token}`)}
                                 style={{ borderRadius: 6 }}
                             >
                                 Về tổng quan

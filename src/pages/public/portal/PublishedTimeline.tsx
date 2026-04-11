@@ -13,8 +13,9 @@ const { Text } = Typography;
 const { TextArea } = Input;
 
 const PublishedTimeline: React.FC = () => {
-    const { token } = useParams<{ token: string }>();
-    const journey = mockJourneys.find(j => j.portal_token === token || j.journey_code === token);
+    const { journeyCode, token } = useParams<{ journeyCode?: string; token?: string }>();
+    const portalKey = journeyCode || token;
+    const journey = mockJourneys.find(j => j.journey_code === portalKey || String((j as any)._id || j.id || "") === String(portalKey) || j.portal_token === portalKey);
     const template = mockJourneyTemplates.find(t => t.id === journey?.template_id);
     const steps = template?.steps || [];
 
@@ -32,7 +33,7 @@ const PublishedTimeline: React.FC = () => {
             <PortalPageHeader
                 title="Tiến độ công trình"
                 subtitle={`${journey.customer_name} · ${journey.idx_serviceTypeId?.title || ''}`}
-                token={token || ''}
+                token={journey?.journey_code || portalKey || ''}
                 icon={<CalendarOutlined />}
             />
 

@@ -11,9 +11,10 @@ import PortalPageHeader from '../../../components/portal/PortalPageHeader';
 const { TextArea } = Input;
 
 const ThreadDetail: React.FC = () => {
-    const { token, threadId } = useParams<{ token: string; threadId: string }>();
+    const { journeyCode, token, threadId } = useParams<{ journeyCode?: string; token?: string; threadId: string }>();
+    const portalKey = journeyCode || token;
     const navigate = useNavigate();
-    const journey = mockJourneys.find(j => j.portal_token === token || j.journey_code === token);
+    const journey = mockJourneys.find(j => j.journey_code === portalKey || String((j as any)._id || j.id || "") === String(portalKey) || j.portal_token === portalKey);
     const thread = mockPortalThreads.find(t => t.thread_id === threadId) || mockPortalThreads[0];
     const [replyForm] = Form.useForm();
 
@@ -25,8 +26,8 @@ const ThreadDetail: React.FC = () => {
             <PortalPageHeader 
                 title={thread.context_label}
                 subtitle={thread.context_type}
-                onBack={() => navigate(`/portal/${token}/threads`)}
-                token={token || ''}
+                onBack={() => navigate(`/portal/journeys/${journey.journey_code || portalKey}/threads`)}
+                token={journey.journey_code || portalKey || ''}
                 extra={
                     <Tag color={thread.status === 'open' ? 'processing' : thread.status === 'closed' ? 'default' : 'warning'}>
                         {thread.status === 'open' ? 'Đang mở' : thread.status === 'closed' ? 'Đã đóng' : 'Chờ phản hồi'}

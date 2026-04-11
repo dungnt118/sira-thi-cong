@@ -15,9 +15,10 @@ const STATUS_COLOR: Record<string, string> = { open: 'processing', waiting: 'war
 const STATUS_LABEL: Record<string, string> = { open: 'Đang mở', waiting: 'Chờ phản hồi', closed: 'Đã đóng' };
 
 const ThreadInbox: React.FC = () => {
-    const { token } = useParams<{ token: string }>();
+    const { journeyCode, token } = useParams<{ journeyCode?: string; token?: string }>();
+    const portalKey = journeyCode || token;
     const navigate = useNavigate();
-    const journey = mockJourneys.find(j => j.portal_token === token || j.journey_code === token);
+    const journey = mockJourneys.find(j => j.journey_code === portalKey || String((j as any)._id || j.id || "") === String(portalKey) || j.portal_token === portalKey);
     const threads = mockPortalThreads.filter(t => t.journey_id === journey?.id);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [createForm] = Form.useForm();
@@ -32,7 +33,7 @@ const ThreadInbox: React.FC = () => {
             <PortalPageHeader 
                 title="Hội thoại & Câu hỏi" 
                 subtitle={journey.customer_name}
-                token={token || ''}
+                token={journey.journey_code || portalKey || ''}
                 icon={<MessageOutlined />}
                 extra={
                     <Button type="primary" icon={<PlusOutlined />} size="small" onClick={() => setShowCreateModal(true)}>
@@ -65,7 +66,7 @@ const ThreadInbox: React.FC = () => {
                         size="small"
                         hoverable
                         style={{ marginBottom: 10, borderRadius: 10, cursor: 'pointer' }}
-                        onClick={() => navigate(`/portal/${token}/threads/${thread.thread_id}`)}
+                        onClick={() => navigate(`/portal/journeys/${journey.journey_code || portalKey}/threads/${thread.thread_id}`)}
                     >
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                             <div>

@@ -14,13 +14,14 @@ import type { PortalDocument } from '../../../types/portal';
 const { Text } = Typography;
 
 const PortalDocuments: React.FC = () => {
-    const { token } = useParams<{ token: string }>();
+    const { journeyCode, token } = useParams<{ journeyCode?: string; token?: string }>();
+    const portalKey = journeyCode || token;
     const [journeys, setJourneys] = useLocalStorageData<Journey[]>(demoDataService.KEYS.JOURNEYS, mockJourneys);
     const [journeyTemplates] = useLocalStorageData<JourneyTemplate[]>(demoDataService.KEYS.JOURNEY_TEMPLATES, mockJourneyTemplates);
     const [portalDocuments] = useLocalStorageData<PortalDocument[]>(demoDataService.KEYS.PORTAL_DOCUMENTS, mockPortalDocuments);
     const [selectedDoc, setSelectedDoc] = useState<PortalDocument | null>(null);
 
-    const currentJourney = journeys.find((item) => item.portal_token === token || item.journey_code === token);
+    const currentJourney = journeys.find((item) => item.journey_code === portalKey || String((item as any)._id || item.id || "") === String(portalKey) || item.portal_token === portalKey);
     const syncedJourney = currentJourney ? syncJourneyPortalSummary(journeys, currentJourney, portalDocuments, journeyTemplates).journey : null;
 
     useEffect(() => {
@@ -44,7 +45,7 @@ const PortalDocuments: React.FC = () => {
 
     return (
         <div style={{ maxWidth: 680, margin: '0 auto', padding: '24px 16px' }}>
-            <PortalPageHeader title='Tài liệu & Hình ảnh' subtitle={syncedJourney.request_title} token={token || ''} icon={<FolderOpenOutlined />} />
+            <PortalPageHeader title='Tài liệu & Hình ảnh' subtitle={syncedJourney.request_title} token={syncedJourney.journey_code || portalKey || ''} icon={<FolderOpenOutlined />} />
 
             <Card title={<span><PictureOutlined /> Hình ảnh ({imageDocuments.length})</span>} style={{ borderRadius: 12, marginBottom: 16 }}>
                 {imageDocuments.length === 0 ? (

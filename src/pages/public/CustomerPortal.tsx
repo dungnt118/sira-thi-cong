@@ -17,14 +17,15 @@ const { Title, Text } = Typography;
 import PortalNavigation from '../../components/portal/PortalNavigation';
 
 const CustomerPortal: React.FC = () => {
-    const { token } = useParams<{ token: string }>();
+    const { journeyCode, token } = useParams<{ journeyCode?: string; token?: string }>();
+    const portalKey = journeyCode || token;
     const navigate = useNavigate();
     const [journeys, setJourneys] = useLocalStorageData<Journey[]>(demoDataService.KEYS.JOURNEYS, mockJourneys);
     const [journeyTemplates] = useLocalStorageData<JourneyTemplate[]>(demoDataService.KEYS.JOURNEY_TEMPLATES, mockJourneyTemplates);
     const [portalDocuments] = useLocalStorageData<PortalDocument[]>(demoDataService.KEYS.PORTAL_DOCUMENTS, mockPortalDocuments);
 
     // If no token, show landing page for general booking
-    if (!token) {
+    if (!portalKey) {
         return (
             <>
                 <PortalNavigation />
@@ -33,7 +34,7 @@ const CustomerPortal: React.FC = () => {
         );
     }
 
-    const currentJourney = journeys.find((item) => item.portal_token === token || item.journey_code === token);
+    const currentJourney = journeys.find((item) => item.journey_code === portalKey || String((item as any)._id || item.id || "") === String(portalKey) || item.portal_token === portalKey);
     const syncedResult = currentJourney ? syncJourneyPortalSummary(journeys, currentJourney, portalDocuments, journeyTemplates) : null;
     const syncedJourney = syncedResult?.journey;
 
@@ -64,7 +65,7 @@ const CustomerPortal: React.FC = () => {
     return (
         <>
             <PortalNavigation />
-            <PortalDashboard journey={syncedJourney} token={token} onNavigate={(path) => navigate(path)} />
+            <PortalDashboard journey={syncedJourney} token={syncedJourney.journey_code || portalKey} onNavigate={(path) => navigate(path)} />
         </>
     );
 };
