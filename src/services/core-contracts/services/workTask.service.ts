@@ -1,21 +1,21 @@
 import { query, queryList } from 'app/services/graphqlService'; // TODO: Check path
-import { GeneralCollectionFilter } from 'types/filters/GeneralCollectionFilter';
 import {
-  find_content,
-  query_content,
   count_content,
-  save_content,
-  save_many_content,
-  update_partial_content,
   delete_content,
   delete_multi_content,
-  lock_content
+  find_content,
+  lock_content,
+  query_content,
+  save_content,
+  save_many_content,
+  update_partial_content
 } from 'app/store/actions/data/data.action'; // TODO: Check path
+import { GeneralCollectionFilter } from 'types/filters/GeneralCollectionFilter';
 
 import { FIND_WORKTASK_DTO, QUERY_WORKTASKS_DTO } from '../queries/workTask.queries';
 import {
-  IWorkTask,
   ICreateWorkTaskInput,
+  IWorkTask,
   IWorkTaskListResponse
 } from '../types/workTask.types';
 
@@ -42,6 +42,24 @@ export const workTaskService = {
     });
     if (!response?.data) throw new Error('Không thể tạo WorkTask');
     return response.data as IWorkTask;
+  },
+
+  /** Lưu nhiều WorkTask — phải dùng save_many_content (mảng), không dùng save_content (một Dictionary). */
+  async saveManyWorkTasks(data: any[]): Promise<any[]> {
+    if (!data.length) return [];
+    const response = await save_many_content({
+      schema: 'WorkTask',
+      data: data,
+      update_if_duplicate: false
+    });
+    if (response?.code !== 0) {
+      throw new Error(response?.message || 'Không thể lưu hàng loạt WorkTask');
+    }
+    const dataResponse = response?.data;
+    if (data == null) {
+      throw new Error('Không thể lưu hàng loạt WorkTask (thiếu dữ liệu trả về)');
+    }
+    return Array.isArray(dataResponse) ? dataResponse : [dataResponse];
   },
 
   async updateWorkTask(id: string, input: Partial<ICreateWorkTaskInput>): Promise<IWorkTask> {
@@ -91,23 +109,5 @@ export const workTaskService = {
       { filter, custominput: {} }
     );
   },
-  /** Lưu nhiều WorkTask — phải dùng save_many_content (mảng), không dùng save_content (một Dictionary). */
-  async saveManyWorkTasks(tasks: any[]): Promise<any[]> {
-    if (!tasks.length) return [];
-    const response = await save_many_content({
-      schema: 'WorkTask',
-      data: tasks,
-      update_if_duplicate: false
-    });
-    if (response?.code !== 0) {
-      throw new Error(response?.message || 'Không thể lưu hàng loạt WorkTask');
-    }
-    const data = response?.data;
-    if (data == null) {
-      throw new Error('Không thể lưu hàng loạt WorkTask (thiếu dữ liệu trả về)');
-    }
-    return Array.isArray(data) ? data : [data];
-  },
 };
-
 export default workTaskService;

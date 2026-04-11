@@ -30,10 +30,18 @@ export const FIND_WORKTASK_DTO = gql`
         verified_time
         note
         assignee_role
-        action_key
         documentId
         idx_documentId
         assignee
+        actions {
+          action_key
+          action_type
+          target_field
+          expected_value
+          doc_type
+          min_count
+          note
+        }
       }
     }
   }
@@ -69,10 +77,18 @@ export const QUERY_WORKTASKS_DTO = gql`
         verified_time
         note
         assignee_role
-        action_key
         documentId
         idx_documentId
         assignee
+        actions {
+          action_key
+          action_type
+          target_field
+          expected_value
+          doc_type
+          min_count
+          note
+        }
       }
     }
   }
