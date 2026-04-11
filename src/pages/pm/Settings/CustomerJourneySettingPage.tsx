@@ -3,13 +3,14 @@ import {
     Card, Button, Space, Typography, Row, Col, Descriptions,
     Tag, Badge, List, message, Spin, Divider,
     Form, Input, Switch, Select, Collapse,
-    Grid, Drawer, FloatButton,
+    Grid, Drawer, FloatButton, Tooltip,
 } from 'antd';
 import {
     SettingOutlined, EditOutlined,
     SaveOutlined, ReloadOutlined, InfoCircleOutlined,
     CheckCircleOutlined, PlusOutlined, DeleteOutlined,
     CaretRightFilled, GlobalOutlined, UnorderedListOutlined,
+    CheckSquareOutlined, TeamOutlined,
 } from '@ant-design/icons';
 import { useAppDispatch } from '@/store/hooks';
 import { find_setting, save_setting } from '@/store/actions/data/data.action';
@@ -78,6 +79,19 @@ const JOURNEY_ROLE_LABEL_MAP: Record<string, string> = Object.fromEntries(
 function formatJourneyRoleDisplay(roleValue?: string): string {
     if (!roleValue) return '—';
     return JOURNEY_ROLE_LABEL_MAP[roleValue] || roleValue;
+}
+
+/** Đếm số mã vai trò khác nhau gán trên các nhiệm vụ checklist (bỏ trống) */
+function countUniqueChecklistRoles(checklist?: IChecklistItem[]): number {
+    if (!checklist?.length) return 0;
+    const roles = new Set<string>();
+    for (const item of checklist) {
+        const r = item.role;
+        if (r == null) continue;
+        const s = String(r).trim();
+        if (s) roles.add(s);
+    }
+    return roles.size;
 }
 
 const ACTION_PRESETS: Record<string, { label: string; type: string; target_field?: string; doc_type?: string }> = {
@@ -172,6 +186,16 @@ const normalizeChecklist = (items?: IChecklistItem[]): IChecklistItem[] =>
         role: item.role,
         description: item.description,
         actions: normalizeActions(item.actions),
+    }));
+
+/**
+ * Lúc submit: bắt buộc mà không có action → ép is_required false (tránh UI "Bắt buộc" + "Không có action").
+ * Gọi sau normalizeChecklist.
+ */
+const coerceChecklistRequiredWhenHasActions = (items: IChecklistItem[]): IChecklistItem[] =>
+    items.map((item) => ({
+        ...item,
+        is_required: item.is_required === true && (item.actions?.length ?? 0) > 0,
     }));
 
 const formatChecklistActionSummary = (action?: IActionsItem): string => {
@@ -456,11 +480,13 @@ const CustomerJourneySettingPage: React.FC = () => {
         const values = await form.validateFields();
         const currentSetting = setting || ({ _id: '' } as ICustomerJourneySetting);
 
+        const checklistForSave = coerceChecklistRequiredWhenHasActions(normalizeChecklist(values.checklist));
+
         const cleanStep: IStepsItem = {
             ...values,
             step_code: selectedStepCode as StepCode,
             roles: normalizeRoles(values.roles),
-            checklist: normalizeChecklist(values.checklist),
+            checklist: checklistForSave,
         };
 
         const nextSteps = stepList.map((step) =>
@@ -518,7 +544,17 @@ const CustomerJourneySettingPage: React.FC = () => {
     const stepsListNode = (
         <List
             dataSource={stepList}
-            renderItem={(step: any, idx) => (
+            renderItem={(step: StepViewModel, idx) => {
+                const taskCount = step.checklist?.length ?? 0;
+                const roleCount = countUniqueChecklistRoles(step.checklist);
+                const tagBaseStyle: React.CSSProperties = {
+                    borderRadius: 10,
+                    fontSize: 10,
+                    margin: 0,
+                    lineHeight: '18px',
+                    paddingInline: 7,
+                };
+                return (
                 <List.Item
                     className={`step-item ${selectedStepCode === step.step_code ? 'active' : ''}`}
                     style={{
@@ -559,11 +595,11 @@ const CustomerJourneySettingPage: React.FC = () => {
                                     {step.step_name}
                                 </Text>
                             </div>
-                            <Space wrap size={[4, 4]}>
-                                {step.sla_hours > 0 && (
+                            <Space wrap size={[4, 4]} align="center">
+                                {(step.sla_hours ?? 0) > 0 && (
                                     <Tag
                                         color={step.is_enabled !== false ? 'cyan' : 'default'}
-                                        style={{ borderRadius: 10, fontSize: 10, margin: 0 }}
+                                        style={tagBaseStyle}
                                     >
                                         {step.sla_hours}h
                                     </Tag>
@@ -571,20 +607,40 @@ const CustomerJourneySettingPage: React.FC = () => {
                                 {step.portal_visible !== false && (
                                     <Tag
                                         color="blue"
-                                        style={{ borderRadius: 10, fontSize: 10, margin: 0 }}
+                                        style={tagBaseStyle}
                                         icon={<GlobalOutlined />}
                                     >
                                         Portal
                                     </Tag>
                                 )}
-                                {selectedStepCode === step.step_code && (
-                                    <Tag color="processing" style={{ margin: 0, fontSize: 11 }}>Đang chọn</Tag>
-                                )}
+                                <Tooltip title="Số nhiệm vụ checklist trong giai đoạn này">
+                                    <span style={{ display: 'inline-flex' }}>
+                                        <Tag
+                                            color={step.is_enabled !== false ? 'purple' : 'default'}
+                                            style={tagBaseStyle}
+                                            icon={<CheckSquareOutlined />}
+                                        >
+                                            {taskCount}
+                                        </Tag>
+                                    </span>
+                                </Tooltip>
+                                <Tooltip title="Số vai trò khác nhau được gán trên các nhiệm vụ checklist">
+                                    <span style={{ display: 'inline-flex' }}>
+                                        <Tag
+                                            color={step.is_enabled !== false ? 'orange' : 'default'}
+                                            style={tagBaseStyle}
+                                            icon={<TeamOutlined />}
+                                        >
+                                            {roleCount}
+                                        </Tag>
+                                    </span>
+                                </Tooltip>
                             </Space>
                         </Space>
                     </div>
                 </List.Item>
-            )}
+                );
+            }}
         />
     );
 
