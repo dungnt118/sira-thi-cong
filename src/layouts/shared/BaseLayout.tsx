@@ -25,8 +25,9 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({ sidebar, topBar }) => {
     const screens = useBreakpoint();
     const isMobile = !screens.md;
     const location = useLocation();
-    const hideBreadcrumbsMobilePm =
-        isMobile && location.pathname.startsWith('/admin/ql');
+    const isCustomerJourneySetting = location.pathname === '/admin/ql/settings/customer-journey';
+    const hideBreadcrumbs =
+        (isMobile && location.pathname.startsWith('/admin/ql')) || isCustomerJourneySetting;
 
     const siderWidth = 240;
     const collapsedWidth = 80;
@@ -127,11 +128,10 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({ sidebar, topBar }) => {
                         minWidth: 0,
                         width: '100%',
                         maxWidth: '100%',
-                        overflowX: 'hidden',
                         margin: isMobile ? '0 0 12px' : '0 16px 24px',
                         // Mobile PM: không breadcrumb → bỏ padding-top để Section Header (sticky) sát Page Header
                         padding: isMobile
-                            ? hideBreadcrumbsMobilePm
+                            ? hideBreadcrumbs
                                 ? '0 12px 16px'
                                 : '12px 12px 16px'
                             : 24,
@@ -139,7 +139,7 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({ sidebar, topBar }) => {
                         boxSizing: 'border-box',
                     }}
                 >
-                    {!hideBreadcrumbsMobilePm && <Breadcrumbs />}
+                    {!hideBreadcrumbs && <Breadcrumbs />}
                     <Outlet />
                 </Content>
             </Layout>

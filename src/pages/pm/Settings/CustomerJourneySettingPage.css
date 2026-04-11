@@ -1,7 +1,7 @@
 /* Tránh scroll ngang mobile: wrap text, bảng co theo viewport */
 .customer-journey-page {
     max-width: 100%;
-    overflow-x: hidden;
+    overflow: visible;
     box-sizing: border-box;
 }
 

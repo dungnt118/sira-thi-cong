@@ -386,14 +386,14 @@ export interface IStepsItem {
 }
 
 export interface IRolesItem {
-  role?: RolesRoleEnum;
+  role: RolesRoleEnum;
   permissions?: string[];
 }
 
 export interface IChecklistItem {
   name?: string;
   is_required?: boolean;
-  role?: ChecklistRoleEnum;
+  role: RolesRoleEnum;
   description?: string;
   actions?: IActionsItem[];
 }

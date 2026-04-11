@@ -441,7 +441,13 @@ const CustomerJourneySettingPage: React.FC = () => {
     );
 
     return (
-        <div className="customer-journey-page" style={{ padding: isMobile ? '0 12px 88px' : '0 24px' }}>
+        <div 
+            className="customer-journey-page" 
+            style={{ 
+                padding: isMobile ? '0 12px 88px' : '0 24px',
+                position: 'relative'
+            }}
+        >
             <div
                 style={{
                     display: 'flex',
@@ -450,11 +456,19 @@ const CustomerJourneySettingPage: React.FC = () => {
                     alignItems: 'center',
                     gap: 12,
                     marginBottom: 16,
+                    position: 'sticky',
+                    top: 64, // Standard Ant Layout Header height or slightly more
+                    zIndex: 999,
+                    background: '#f0f2f5',
+                    padding: '16px 0',
+                    borderBottom: '1px solid #d9d9d9',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                    transition: 'all 0.3s',
                 }}
             >
                 <Title level={4} style={{ margin: 0 }}>Cấu hình Customer Journey</Title>
                 <Space wrap>
-                    <Button icon={<ReloadOutlined />} onClick={loadData} disabled={saving}>Làm mới</Button>
+                    <Button icon={<ReloadOutlined />} onClick={loadData} disabled={loading || saving}>Làm mới</Button>
                     <Button icon={<SaveOutlined />} type="primary" onClick={handleGlobalSave} loading={saving}>Lưu Cấu hình</Button>
                 </Space>
             </div>
@@ -779,7 +793,7 @@ const CustomerJourneySettingPage: React.FC = () => {
                                         </Paragraph>
                                     </Descriptions.Item>
 
-                                    <Descriptions.Item label="Phân Quyền Vai Trò (Roles)">
+                                    <Descriptions.Item label="Phân Quyền Vai Trò">
                                         {selectedStep?.roles && selectedStep.roles.length > 0 ? (
                                             <List
                                                 size="small"
