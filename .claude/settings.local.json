@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /e/SIRA-PROJECTS/BAC-GROUP/src -type f \\\\\\( -name \"*.ts\" -o -name \"*.tsx\" \\\\\\) -exec grep -n \"[''\"\"]lead_intake[''\"\"]\" {} +)",
+      "Bash(done)",
+      "Bash(xargs grep:*)",
+      "Bash(find /e/SIRA-PROJECTS/BAC-GROUP/src -type f \\\\\\( -name \"*.ts\" -o -name \"*.tsx\" \\\\\\) -exec grep -l \"current_step\\\\|step_code\" {} +)"
+    ]
+  }
+}

@@ -520,7 +520,7 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
 
                             <Col span={24}>
                                 {(() => {
-                                    const currentStep = journeyData.current_step || 'lead_intake';
+                                    const currentStep = journeyData.current_step || 'lead_new';
                                     return (
                                         <>
                                             <Divider orientation="left" plain>
