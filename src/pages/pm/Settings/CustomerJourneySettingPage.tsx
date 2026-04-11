@@ -178,13 +178,23 @@ const formatChecklistActionSummary = (action?: IActionsItem): string => {
     if (!action) return '—';
 
     const keyLabel = CHECKLIST_ACTION_OPTIONS.find((o) => o.value === action.action_key)?.label || action.action_key || 'Action';
-    /** Chế độ xem checklist: ẩn "Bắt buộc điền thông tin" vì action đã ngụ ý bắt buộc */
-    const typeLabelRaw = ACTION_TYPE_OPTIONS.find((o) => o.value === action.action_type)?.label || action.action_type || '';
-    const typeLabel = action.action_type === 'require_journey_field' ? '' : typeLabelRaw;
-    const targetLabel = ACTION_TARGET_FIELD_OPTIONS.find((o) => o.value === action.target_field)?.label || action.target_field || '';
-    const docLabel = ACTION_DOC_TYPE_OPTIONS.find((o) => o.value === action.doc_type)?.label || action.doc_type || '';
+    
+    // Đồng bộ logic hiển thị theo action_type giống như trong form Edit
+    const isDoc = action.action_type === 'require_document';
+    const isStatus = action.action_type === 'require_status_equals';
+    const isField = action.action_type === 'require_journey_field';
 
-    return [keyLabel, typeLabel, targetLabel, docLabel, action.expected_value, action.min_count ? 'min: ' + action.min_count : '', action.note]
+    /** Chế độ xem checklist: ẩn "Loại action" nếu là điền field vì đã quá rõ ràng */
+    const typeLabel = !isField ? (ACTION_TYPE_OPTIONS.find((o) => o.value === action.action_type)?.label || action.action_type || '') : '';
+    
+    // target_field bị ẩn trong form edit nên cũng ẩn ở đây (thông qua action_key đã mô tả đủ)
+    const targetLabel = ''; 
+    
+    const docLabel = isDoc ? (ACTION_DOC_TYPE_OPTIONS.find((o) => o.value === action.doc_type)?.label || action.doc_type || '') : '';
+    const minCountLabel = isDoc && action.min_count ? 'min: ' + action.min_count : '';
+    const expectedLabel = isStatus && action.expected_value ? 'giá trị: ' + action.expected_value : '';
+
+    return [keyLabel, typeLabel, targetLabel, docLabel, expectedLabel, minCountLabel, action.note]
         .filter(Boolean)
         .join(' | ');
 };
@@ -479,7 +489,7 @@ const CustomerJourneySettingPage: React.FC = () => {
         try {
             const res = await save_setting({ schema: SCHEMA, data: payload }, dispatch);
             if (res?.code === 0) {
-                message.success('Đã cập nhật cấu hình ' + (selectedStep?.step_name || 'giai đoạn'));
+                message.success('Đã Lưu cấu hình ' + (selectedStep?.step_name || 'giai đoạn'));
                 setIsEditing(false);
                 loadData();
             } else {
@@ -492,38 +502,6 @@ const CustomerJourneySettingPage: React.FC = () => {
         }
     };
 
-    const handleGlobalSave = async () => {
-        const currentSetting = setting || ({ _id: '' } as ICustomerJourneySetting);
-        const payload: ICustomerJourneySetting = {
-            ...currentSetting,
-            setting_key: currentSetting.setting_key || 'default_journey',
-            setting_name: currentSetting.setting_name || 'Công trình khách hàng chuẩn',
-            is_active: currentSetting.is_active !== false,
-            version_label: currentSetting.version_label,
-            note: currentSetting.note,
-            steps: stepList.map(({ step_name, step_order, ...step }) => ({
-                ...step,
-                roles: normalizeRoles(step.roles),
-                checklist: normalizeChecklist(step.checklist),
-            })),
-        };
-
-        setSaving(true);
-        try {
-            const res = await save_setting({ schema: SCHEMA, data: payload }, dispatch);
-            if (res?.code === 0) {
-                message.success('Đã lưu toàn bộ cấu hình');
-                setSetting(payload);
-                loadData();
-            } else {
-                message.error(res?.message || 'Lỗi khi lưu cấu hình');
-            }
-        } catch (error) {
-            message.error('Lỗi khi lưu cấu hình');
-        } finally {
-            setSaving(false);
-        }
-    };
 
     if (loading) {
         return <div style={{ padding: 100, textAlign: 'center' }}><Spin size="large" /></div>;
@@ -626,7 +604,6 @@ const CustomerJourneySettingPage: React.FC = () => {
                     <Title level={4} style={{ margin: 0 }}>Cấu hình Customer Journey</Title>
                     <Space wrap>
                         <Button icon={<ReloadOutlined />} onClick={loadData} disabled={loading || saving}>Làm mới</Button>
-                        <Button icon={<SaveOutlined />} type="primary" onClick={handleGlobalSave} loading={saving}>Lưu Cấu hình</Button>
                     </Space>
                 </div>
             </div>
@@ -676,7 +653,7 @@ const CustomerJourneySettingPage: React.FC = () => {
                                     ) : (
                                         <Space>
                                             <Button size="small" onClick={() => setIsEditing(false)}>Hủy</Button>
-                                            <Button size="small" type="primary" icon={<CheckCircleOutlined />} onClick={handleSaveStep} loading={saving}>Cập nhật</Button>
+                                            <Button size="small" type="primary" icon={<SaveOutlined />} onClick={handleSaveStep} loading={saving}>Cập nhật & Lưu</Button>
                                         </Space>
                                     )}
                                 </div>
