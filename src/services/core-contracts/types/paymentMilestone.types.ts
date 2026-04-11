@@ -12,9 +12,6 @@ export interface IPaymentMilestone {
   idx_journey_id?: IndexedContentItem;
   journey_step_code?: PaymentMilestoneJourneyStepCodeEnum;
   journey_code?: string;
-  project_id?: string;
-  idx_project_id?: IndexedContentItem;
-  project_name?: string;
   quotation_id?: string;
   idx_quotation_id?: IndexedContentItem;
   round?: number;
@@ -39,17 +36,19 @@ export interface IPaymentMilestone {
   latest_collection_task_id?: string;
   idx_latest_collection_task_id?: IndexedContentItem;
   receipt_note?: string;
-  contract_id?: string;
-  idx_contract_id?: IndexedContentItem;
   journey_name?: string;
+  //deprecated fields
+  // project_id?: string;
+  // idx_project_id?: IndexedContentItem;
+  // project_name?: string;
+  // contract_id?: string;
+  // idx_contract_id?: IndexedContentItem;
 }
 
 export interface ICreatePaymentMilestoneInput {
   journey_id?: string;
   journey_step_code?: PaymentMilestoneJourneyStepCodeEnum2;
   journey_code?: string;
-  project_id?: string;
-  project_name?: string;
   quotation_id?: string;
   round?: number;
   percentage?: number;
@@ -68,14 +67,17 @@ export interface ICreatePaymentMilestoneInput {
   latest_debt_confirmation_id?: string;
   latest_collection_task_id?: string;
   receipt_note?: string;
-  contract_id?: string;
   journey_name?: string;
+  //deprecated fields
+  // project_id?: string;
+  // project_name?: string;
+  // contract_id?: string;
 }
 
 export type IPaymentMilestoneListResponse = ApiListResponse<IPaymentMilestone>
 
 // Union types generated from value_options
-export type PaymentMilestoneJourneyStepCodeEnum = 'lead_intake' | 'qualification' | 'survey_planning' | 'site_survey' | 'survey_review' | 'estimate_preparation' | 'quotation_preparation' | 'quotation_sent' | 'quotation_approved' | 'contract_signing' | 'project_execution' | 'handover_acceptance' | 'warranty_aftercare';
+export type PaymentMilestoneJourneyStepCodeEnum = 'lead_new' | 'consult_contact' | 'site_survey' | 'solution_design' | 'quotation' | 'contract' | 'execution' | 'final_acceptance' | 'payment' | 'maintenance' | 'warranty' | 'after_sales';
 export type PaymentMilestoneStatusEnum = 'pending' | 'partially_paid' | 'paid' | 'overdue';
-export type PaymentMilestoneJourneyStepCodeEnum2 = 'lead_intake' | 'qualification' | 'survey_planning' | 'site_survey' | 'survey_review' | 'estimate_preparation' | 'quotation_preparation' | 'quotation_sent' | 'quotation_approved' | 'contract_signing' | 'project_execution' | 'handover_acceptance' | 'warranty_aftercare';
+export type PaymentMilestoneJourneyStepCodeEnum2 = 'lead_new' | 'consult_contact' | 'site_survey' | 'solution_design' | 'quotation' | 'contract' | 'execution' | 'final_acceptance' | 'payment' | 'maintenance' | 'warranty' | 'after_sales';
 export type PaymentMilestoneStatusEnum2 = 'pending' | 'partially_paid' | 'paid' | 'overdue';

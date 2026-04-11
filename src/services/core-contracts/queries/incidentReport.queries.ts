@@ -16,7 +16,6 @@ export const FIND_INCIDENTREPORT_DTO = gql`
         updatedBy
         journey_id
         idx_journey_id
-        journey_id
         journey_step_code
         type
         description
@@ -26,9 +25,6 @@ export const FIND_INCIDENTREPORT_DTO = gql`
         pm_reply
         is_resolved
         resolved_at
-        project_id
-        idx_project_id
-        project_id
         title
         priority
         status
@@ -54,7 +50,6 @@ export const QUERY_INCIDENTREPORTS_DTO = gql`
         _id
         journey_id
         idx_journey_id
-        journey_id
         journey_step_code
         type
         description
@@ -64,9 +59,6 @@ export const QUERY_INCIDENTREPORTS_DTO = gql`
         pm_reply
         is_resolved
         resolved_at
-        project_id
-        idx_project_id
-        project_id
         title
         priority
         status

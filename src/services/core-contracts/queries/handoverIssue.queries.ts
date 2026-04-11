@@ -17,14 +17,9 @@ export const FIND_HANDOVERISSUE_DTO = gql`
         code
         journey_id
         idx_journey_id
-        journey_id
         journey_step_code
         handover_acceptance_id
         idx_handover_acceptance_id
-        handover_acceptance_id
-        project_id
-        idx_project_id
-        project_id
         issue_title
         issue_category
         severity
@@ -33,7 +28,6 @@ export const FIND_HANDOVERISSUE_DTO = gql`
         due_date
         linked_warranty_case_id
         idx_linked_warranty_case_id
-        linked_warranty_case_id
         escalation_status
         escalated_to_warranty_at
         resolved_at
@@ -62,14 +56,9 @@ export const QUERY_HANDOVERISSUES_DTO = gql`
         code
         journey_id
         idx_journey_id
-        journey_id
         journey_step_code
         handover_acceptance_id
         idx_handover_acceptance_id
-        handover_acceptance_id
-        project_id
-        idx_project_id
-        project_id
         issue_title
         issue_category
         severity
@@ -78,7 +67,6 @@ export const QUERY_HANDOVERISSUES_DTO = gql`
         due_date
         linked_warranty_case_id
         idx_linked_warranty_case_id
-        linked_warranty_case_id
         escalation_status
         escalated_to_warranty_at
         resolved_at

@@ -16,12 +16,9 @@ export const FIND_WARRANTYREMINDER_DTO = gql`
         updatedBy
         warranty_card_id
         idx_warranty_card_id
-        warranty_card_id
         journey_id
         idx_journey_id
-        journey_id
         journey_step_code
-        project_name
         customer_name
         customer_phone
         channel
@@ -51,12 +48,9 @@ export const QUERY_WARRANTYREMINDERS_DTO = gql`
         _id
         warranty_card_id
         idx_warranty_card_id
-        warranty_card_id
         journey_id
         idx_journey_id
-        journey_id
         journey_step_code
-        project_name
         customer_name
         customer_phone
         channel

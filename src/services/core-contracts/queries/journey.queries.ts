@@ -80,6 +80,9 @@ export const FIND_JOURNEY_DTO = gql`
         customer_address
         customer_province
         customer_ward
+        journey_kind
+        origin_journey_id
+        idx_origin_journey_id
       }
     }
   }
@@ -165,6 +168,9 @@ export const QUERY_JOURNEYS_DTO = gql`
         customer_address
         customer_province
         customer_ward
+        journey_kind
+        origin_journey_id
+        idx_origin_journey_id
       }
     }
   }

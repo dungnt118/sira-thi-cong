@@ -14,8 +14,6 @@ export interface IDebtConfirmation {
   journey_step_code?: DebtConfirmationJourneyStepCodeEnum;
   payment_milestone_id?: string;
   idx_payment_milestone_id?: IndexedContentItem;
-  project_id?: string;
-  idx_project_id?: IndexedContentItem;
   customer_id?: string;
   idx_customer_id?: IndexedContentItem;
   confirmation_date?: string | Date;
@@ -29,8 +27,11 @@ export interface IDebtConfirmation {
   payment_commitment_date?: string | Date;
   reason?: string;
   evidence_files?: HeadlessFileUpload[];
-  contract_id?: string;
-  idx_contract_id?: IndexedContentItem;
+  //deprecated fields
+  // project_id?: string;
+  // idx_project_id?: IndexedContentItem;
+  // contract_id?: string;
+  // idx_contract_id?: IndexedContentItem;
 }
 
 export interface ICreateDebtConfirmationInput {
@@ -38,7 +39,6 @@ export interface ICreateDebtConfirmationInput {
   journey_id?: string;
   journey_step_code?: DebtConfirmationJourneyStepCodeEnum2;
   payment_milestone_id?: string;
-  project_id?: string;
   customer_id?: string;
   confirmation_date?: string | Date;
   status?: DebtConfirmationStatusEnum2;
@@ -51,13 +51,15 @@ export interface ICreateDebtConfirmationInput {
   payment_commitment_date?: string | Date;
   reason?: string;
   evidence_files?: HeadlessFileUpload[];
-  contract_id?: string;
+  //deprecated fields
+  // project_id?: string;
+  // contract_id?: string;
 }
 
 export type IDebtConfirmationListResponse = ApiListResponse<IDebtConfirmation>
 
 // Union types generated from value_options
-export type DebtConfirmationJourneyStepCodeEnum = 'contract_signing' | 'handover_acceptance' | 'warranty_aftercare';
+export type DebtConfirmationJourneyStepCodeEnum = 'lead_new' | 'consult_contact' | 'site_survey' | 'solution_design' | 'quotation' | 'contract' | 'execution' | 'final_acceptance' | 'payment' | 'maintenance' | 'warranty' | 'after_sales';
 export type DebtConfirmationStatusEnum = 'draft' | 'sent' | 'confirmed' | 'disputed' | 'closed';
-export type DebtConfirmationJourneyStepCodeEnum2 = 'contract_signing' | 'handover_acceptance' | 'warranty_aftercare';
+export type DebtConfirmationJourneyStepCodeEnum2 = 'lead_new' | 'consult_contact' | 'site_survey' | 'solution_design' | 'quotation' | 'contract' | 'execution' | 'final_acceptance' | 'payment' | 'maintenance' | 'warranty' | 'after_sales';
 export type DebtConfirmationStatusEnum2 = 'draft' | 'sent' | 'confirmed' | 'disputed' | 'closed';

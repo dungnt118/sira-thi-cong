@@ -12,8 +12,6 @@ export interface IHandoverAcceptance {
   journey_id?: string;
   idx_journey_id?: IndexedContentItem;
   journey_step_code?: HandoverAcceptanceJourneyStepCodeEnum;
-  project_id?: string;
-  idx_project_id?: IndexedContentItem;
   handover_date?: string | Date;
   acceptance_status?: HandoverAcceptanceAcceptanceStatusEnum;
   accepted_by_customer?: string;
@@ -23,15 +21,17 @@ export interface IHandoverAcceptance {
   evidence_files?: HeadlessFileUpload[];
   signature_customer?: string;
   signature_company?: string;
-  contract_id?: string;
-  idx_contract_id?: IndexedContentItem;
+  //deprecated fields
+  // project_id?: string;
+  // idx_project_id?: IndexedContentItem;
+  // contract_id?: string;
+  // idx_contract_id?: IndexedContentItem;
 }
 
 export interface ICreateHandoverAcceptanceInput {
   code?: string;
   journey_id?: string;
   journey_step_code?: HandoverAcceptanceJourneyStepCodeEnum2;
-  project_id?: string;
   handover_date?: string | Date;
   acceptance_status?: HandoverAcceptanceAcceptanceStatusEnum2;
   accepted_by_customer?: string;
@@ -41,13 +41,15 @@ export interface ICreateHandoverAcceptanceInput {
   evidence_files?: HeadlessFileUpload[];
   signature_customer?: string;
   signature_company?: string;
-  contract_id?: string;
+  //deprecated fields
+  // project_id?: string;
+  // contract_id?: string;
 }
 
 export type IHandoverAcceptanceListResponse = ApiListResponse<IHandoverAcceptance>
 
 // Union types generated from value_options
-export type HandoverAcceptanceJourneyStepCodeEnum = 'handover_acceptance' | 'project_execution' | 'warranty_aftercare';
+export type HandoverAcceptanceJourneyStepCodeEnum = 'lead_new' | 'consult_contact' | 'site_survey' | 'solution_design' | 'quotation' | 'contract' | 'execution' | 'final_acceptance' | 'payment' | 'maintenance' | 'warranty' | 'after_sales';
 export type HandoverAcceptanceAcceptanceStatusEnum = 'draft' | 'partially_accepted' | 'accepted' | 'rework_required';
-export type HandoverAcceptanceJourneyStepCodeEnum2 = 'handover_acceptance' | 'project_execution' | 'warranty_aftercare';
+export type HandoverAcceptanceJourneyStepCodeEnum2 = 'lead_new' | 'consult_contact' | 'site_survey' | 'solution_design' | 'quotation' | 'contract' | 'execution' | 'final_acceptance' | 'payment' | 'maintenance' | 'warranty' | 'after_sales';
 export type HandoverAcceptanceAcceptanceStatusEnum2 = 'draft' | 'partially_accepted' | 'accepted' | 'rework_required';

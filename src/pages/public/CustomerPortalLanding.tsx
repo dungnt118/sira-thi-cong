@@ -28,7 +28,14 @@ import journeyService from '../../services/core-contracts/services/journey.servi
 const { Title, Text, Paragraph } = Typography;
 const { Dragger } = Upload;
 
-const FALLBACK_SERVICE_TYPE_OPTIONS = [
+interface PortalServiceTypeOption {
+    value: string;
+    label: string;
+    slug: string;
+    serviceTypeId?: string;
+}
+
+const FALLBACK_SERVICE_TYPE_OPTIONS: PortalServiceTypeOption[] = [
     { value: 'chong-tham', label: 'Chống thấm chuyên sâu', slug: 'chong-tham' },
     { value: 'son-nu', label: 'Sơn nước & Trang trí', slug: 'son-nu' },
     { value: 'dien-nuoc', label: 'Hệ thống Điện - Nước', slug: 'dien-nuoc' },
@@ -43,12 +50,36 @@ const normalizeServiceTypeKey = (value: string) =>
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-+|-+$/g, '') || 'dich-vu';
 
+const getPortalSubmitErrorMessage = (error: unknown): string => {
+    if (error instanceof Error && error.message.trim()) {
+        return error.message.trim();
+    }
+
+    if (typeof error === 'string' && error.trim()) {
+        return error.trim();
+    }
+
+    if (error && typeof error === 'object') {
+        const messageValue = (error as { message?: unknown }).message;
+        if (typeof messageValue === 'string' && messageValue.trim()) {
+            return messageValue.trim();
+        }
+
+        const responseMessage = (error as { response?: { message?: unknown } }).response?.message;
+        if (typeof responseMessage === 'string' && responseMessage.trim()) {
+            return responseMessage.trim();
+        }
+    }
+
+    return 'Không thể gửi yêu cầu. Vui lòng thử lại.';
+};
+
 const CustomerPortalLanding: React.FC = () => {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
     const { serviceTypeOptions, isLoading: isLoadingServiceTypes } = useJourneyServiceTypeOptions();
 
-    const portalServiceTypeOptions = serviceTypeOptions.length > 0
+    const portalServiceTypeOptions: PortalServiceTypeOption[] = serviceTypeOptions.length > 0
         ? serviceTypeOptions.map((option) => ({
             value: normalizeServiceTypeKey(option.item.value || option.label),
             label: option.label,
@@ -93,8 +124,11 @@ const CustomerPortalLanding: React.FC = () => {
                 duration: 5,
             });
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Không thể gửi yêu cầu. Vui lòng thử lại.';
-            message.error(errorMessage);
+            const errorMessage = getPortalSubmitErrorMessage(error);
+            message.error({
+                content: errorMessage,
+                duration: 6,
+            });
         } finally {
             setLoading(false);
         }

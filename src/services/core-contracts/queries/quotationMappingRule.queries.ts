@@ -16,7 +16,6 @@ export const FIND_QUOTATIONMAPPINGRULE_DTO = gql`
         updatedBy
         service_type
         idx_service_type
-        service_type
         rule_name
         source_cost_types
         target_item_name
@@ -43,7 +42,6 @@ export const QUERY_QUOTATIONMAPPINGRULES_DTO = gql`
         _id
         service_type
         idx_service_type
-        service_type
         rule_name
         source_cost_types
         target_item_name

@@ -16,12 +16,8 @@ export const FIND_QUOTATION_DTO = gql`
         updatedBy
         code
         version_no
-        service_request_id
-        idx_service_request_id
-        service_request_id
         journey_id
         idx_journey_id
-        journey_id
         status
         subtotal
         discount
@@ -49,12 +45,8 @@ export const QUERY_QUOTATIONS_DTO = gql`
         _id
         code
         version_no
-        service_request_id
-        idx_service_request_id
-        service_request_id
         journey_id
         idx_journey_id
-        journey_id
         status
         subtotal
         discount

@@ -13,7 +13,6 @@ export interface ICustomer {
   phone?: string;
   email?: string;
   zalo?: string;
-  district?: string;
   city?: string;
   province?: string;
   ward?: string;
@@ -36,7 +35,6 @@ export interface ICreateCustomerInput {
   phone?: string;
   email?: string;
   zalo?: string;
-  district?: string;
   city?: string;
   province?: string;
   ward?: string;

@@ -13,7 +13,6 @@ export interface IWarrantyReminder {
   journey_id?: string;
   idx_journey_id?: IndexedContentItem;
   journey_step_code?: WarrantyReminderJourneyStepCodeEnum;
-  project_name?: string;
   customer_name?: string;
   customer_phone?: string;
   channel?: WarrantyReminderChannelEnum;
@@ -22,13 +21,14 @@ export interface IWarrantyReminder {
   status?: WarrantyReminderStatusEnum;
   message?: string;
   journey_name?: string;
+  //deprecated fields
+  // project_name?: string;
 }
 
 export interface ICreateWarrantyReminderInput {
   warranty_card_id?: string;
   journey_id?: string;
   journey_step_code?: WarrantyReminderJourneyStepCodeEnum2;
-  project_name?: string;
   customer_name?: string;
   customer_phone?: string;
   channel?: WarrantyReminderChannelEnum2;
@@ -37,14 +37,16 @@ export interface ICreateWarrantyReminderInput {
   status?: WarrantyReminderStatusEnum2;
   message?: string;
   journey_name?: string;
+  //deprecated fields
+  // project_name?: string;
 }
 
 export type IWarrantyReminderListResponse = ApiListResponse<IWarrantyReminder>
 
 // Union types generated from value_options
-export type WarrantyReminderJourneyStepCodeEnum = 'lead_intake' | 'qualification' | 'survey_planning' | 'site_survey' | 'survey_review' | 'estimate_preparation' | 'quotation_preparation' | 'quotation_sent' | 'quotation_approved' | 'contract_signing' | 'project_execution' | 'handover_acceptance' | 'warranty_aftercare';
+export type WarrantyReminderJourneyStepCodeEnum = 'lead_new' | 'consult_contact' | 'site_survey' | 'solution_design' | 'quotation' | 'contract' | 'execution' | 'final_acceptance' | 'payment' | 'maintenance' | 'warranty' | 'after_sales';
 export type WarrantyReminderChannelEnum = 'sms' | 'zalo';
 export type WarrantyReminderStatusEnum = 'pending' | 'sent' | 'failed';
-export type WarrantyReminderJourneyStepCodeEnum2 = 'lead_intake' | 'qualification' | 'survey_planning' | 'site_survey' | 'survey_review' | 'estimate_preparation' | 'quotation_preparation' | 'quotation_sent' | 'quotation_approved' | 'contract_signing' | 'project_execution' | 'handover_acceptance' | 'warranty_aftercare';
+export type WarrantyReminderJourneyStepCodeEnum2 = 'lead_new' | 'consult_contact' | 'site_survey' | 'solution_design' | 'quotation' | 'contract' | 'execution' | 'final_acceptance' | 'payment' | 'maintenance' | 'warranty' | 'after_sales';
 export type WarrantyReminderChannelEnum2 = 'sms' | 'zalo';
 export type WarrantyReminderStatusEnum2 = 'pending' | 'sent' | 'failed';

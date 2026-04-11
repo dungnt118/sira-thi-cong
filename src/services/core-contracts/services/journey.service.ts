@@ -1,5 +1,5 @@
 import { query, queryList } from 'app/services/graphqlService'; // TODO: Check path
-import { EXECUTE_ASYNC_API } from 'app/store/actions/schemas/query';
+import { GeneralCollectionFilter } from 'types/filters/GeneralCollectionFilter';
 import {
   find_content,
   query_content,
@@ -10,15 +10,11 @@ import {
   delete_multi_content,
   lock_content
 } from 'app/store/actions/data/data.action'; // TODO: Check path
-import { ApiResponseCode } from 'types/apis/ApiResponse';
-import { GeneralCollectionFilter } from 'types/filters/GeneralCollectionFilter';
 
 import { FIND_JOURNEY_DTO, QUERY_JOURNEYS_DTO } from '../queries/journey.queries';
 import {
   IJourney,
   ICreateJourneyInput,
-  ICreatePortalJourneyRequestInput,
-  ICreatePortalJourneyRequestResult,
   IJourneyListResponse
 } from '../types/journey.types';
 
@@ -45,19 +41,6 @@ export const journeyService = {
     });
     if (!response?.data) throw new Error('Không thể tạo Journey');
     return response.data as IJourney;
-  },
-
-  async createPortalRequest(input: ICreatePortalJourneyRequestInput): Promise<ICreatePortalJourneyRequestResult> {
-    const response = await query<ICreatePortalJourneyRequestResult>(EXECUTE_ASYNC_API, {
-      api_key: 'journey.create_portal_request_async',
-      input
-    });
-
-    if (response.code !== ApiResponseCode.SUCCESS || !response.data?.success) {
-      throw new Error(response.data?.message || response.message || 'Không thể gửi yêu cầu dịch vụ');
-    }
-
-    return response.data;
   },
 
   async updateJourney(id: string, input: Partial<ICreateJourneyInput>): Promise<IJourney> {

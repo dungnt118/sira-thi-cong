@@ -16,10 +16,8 @@ export const FIND_SITEREPORT_DTO = gql`
         updatedBy
         journey_id
         idx_journey_id
-        journey_id
         worktaskId
         idx_worktaskId
-        worktaskId
         journey_step_code
         title
         content
@@ -50,10 +48,8 @@ export const QUERY_SITEREPORTS_DTO = gql`
         _id
         journey_id
         idx_journey_id
-        journey_id
         worktaskId
         idx_worktaskId
-        worktaskId
         journey_step_code
         title
         content

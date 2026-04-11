@@ -16,16 +16,10 @@ export const FIND_PAYMENTMILESTONE_DTO = gql`
         updatedBy
         journey_id
         idx_journey_id
-        journey_id
         journey_step_code
         journey_code
-        project_id
-        idx_project_id
-        project_id
-        project_name
         quotation_id
         idx_quotation_id
-        quotation_id
         round
         percentage
         amount
@@ -39,23 +33,15 @@ export const FIND_PAYMENTMILESTONE_DTO = gql`
         last_receipt_date
         latest_receipt_id
         idx_latest_receipt_id
-        latest_receipt_id
         latest_invoice_id
         idx_latest_invoice_id
-        latest_invoice_id
         latest_adjustment_id
         idx_latest_adjustment_id
-        latest_adjustment_id
         latest_debt_confirmation_id
         idx_latest_debt_confirmation_id
-        latest_debt_confirmation_id
         latest_collection_task_id
         idx_latest_collection_task_id
-        latest_collection_task_id
         receipt_note
-        contract_id
-        idx_contract_id
-        contract_id
         journey_name
       }
     }
@@ -78,16 +64,10 @@ export const QUERY_PAYMENTMILESTONES_DTO = gql`
         _id
         journey_id
         idx_journey_id
-        journey_id
         journey_step_code
         journey_code
-        project_id
-        idx_project_id
-        project_id
-        project_name
         quotation_id
         idx_quotation_id
-        quotation_id
         round
         percentage
         amount
@@ -101,23 +81,15 @@ export const QUERY_PAYMENTMILESTONES_DTO = gql`
         last_receipt_date
         latest_receipt_id
         idx_latest_receipt_id
-        latest_receipt_id
         latest_invoice_id
         idx_latest_invoice_id
-        latest_invoice_id
         latest_adjustment_id
         idx_latest_adjustment_id
-        latest_adjustment_id
         latest_debt_confirmation_id
         idx_latest_debt_confirmation_id
-        latest_debt_confirmation_id
         latest_collection_task_id
         idx_latest_collection_task_id
-        latest_collection_task_id
         receipt_note
-        contract_id
-        idx_contract_id
-        contract_id
         journey_name
       }
     }

@@ -17,19 +17,13 @@ export const FIND_WARRANTYCARD_DTO = gql`
         code
         journey_id
         idx_journey_id
-        journey_id
         journey_step_code
         journey_code
-        project_id
-        idx_project_id
-        project_id
-        project_name
         customer_name
         customer_phone
         address
         construction_type
         idx_construction_type
-        construction_type
         area_m2
         completed_date
         warranty_months
@@ -60,19 +54,13 @@ export const QUERY_WARRANTYCARDS_DTO = gql`
         code
         journey_id
         idx_journey_id
-        journey_id
         journey_step_code
         journey_code
-        project_id
-        idx_project_id
-        project_id
-        project_name
         customer_name
         customer_phone
         address
         construction_type
         idx_construction_type
-        construction_type
         area_m2
         completed_date
         warranty_months

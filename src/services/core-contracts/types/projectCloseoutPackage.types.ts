@@ -14,8 +14,6 @@ export interface IProjectCloseoutPackage {
   journey_id?: string;
   idx_journey_id?: IndexedContentItem;
   journey_step_code?: ProjectCloseoutPackageJourneyStepCodeEnum;
-  project_id?: string;
-  idx_project_id?: IndexedContentItem;
   project_settlement_id?: string;
   idx_project_settlement_id?: IndexedContentItem;
   customer_id?: string;
@@ -30,8 +28,11 @@ export interface IProjectCloseoutPackage {
   summary?: string;
   closing_note?: string;
   reopen_reason?: string;
-  contract_id?: string;
-  idx_contract_id?: IndexedContentItem;
+  //deprecated fields
+  // project_id?: string;
+  // idx_project_id?: IndexedContentItem;
+  // contract_id?: string;
+  // idx_contract_id?: IndexedContentItem;
 }
 
 export interface ICreateProjectCloseoutPackageInput {
@@ -40,7 +41,6 @@ export interface ICreateProjectCloseoutPackageInput {
   status?: ProjectCloseoutPackageStatusEnum2;
   journey_id?: string;
   journey_step_code?: ProjectCloseoutPackageJourneyStepCodeEnum2;
-  project_id?: string;
   project_settlement_id?: string;
   customer_id?: string;
   portal_thread_id?: string;
@@ -51,13 +51,15 @@ export interface ICreateProjectCloseoutPackageInput {
   summary?: string;
   closing_note?: string;
   reopen_reason?: string;
-  contract_id?: string;
+  //deprecated fields
+  // project_id?: string;
+  // contract_id?: string;
 }
 
 export type IProjectCloseoutPackageListResponse = ApiListResponse<IProjectCloseoutPackage>
 
 // Union types generated from value_options
 export type ProjectCloseoutPackageStatusEnum = 'draft' | 'published' | 'customer_confirmed' | 'reopened' | 'closed';
-export type ProjectCloseoutPackageJourneyStepCodeEnum = 'handover_acceptance' | 'warranty_aftercare';
+export type ProjectCloseoutPackageJourneyStepCodeEnum = 'lead_new' | 'consult_contact' | 'site_survey' | 'solution_design' | 'quotation' | 'contract' | 'execution' | 'final_acceptance' | 'payment' | 'maintenance' | 'warranty' | 'after_sales';
 export type ProjectCloseoutPackageStatusEnum2 = 'draft' | 'published' | 'customer_confirmed' | 'reopened' | 'closed';
-export type ProjectCloseoutPackageJourneyStepCodeEnum2 = 'handover_acceptance' | 'warranty_aftercare';
+export type ProjectCloseoutPackageJourneyStepCodeEnum2 = 'lead_new' | 'consult_contact' | 'site_survey' | 'solution_design' | 'quotation' | 'contract' | 'execution' | 'final_acceptance' | 'payment' | 'maintenance' | 'warranty' | 'after_sales';

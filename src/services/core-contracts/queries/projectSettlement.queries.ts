@@ -19,23 +19,15 @@ export const FIND_PROJECTSETTLEMENT_DTO = gql`
         status
         journey_id
         idx_journey_id
-        journey_id
         journey_step_code
-        project_id
-        idx_project_id
-        project_id
         customer_id
         idx_customer_id
-        customer_id
         handover_acceptance_id
         idx_handover_acceptance_id
-        handover_acceptance_id
         latest_debt_confirmation_id
         idx_latest_debt_confirmation_id
-        latest_debt_confirmation_id
         latest_invoice_id
         idx_latest_invoice_id
-        latest_invoice_id
         contract_value
         approved_appendix_total
         invoiced_total
@@ -46,9 +38,6 @@ export const FIND_PROJECTSETTLEMENT_DTO = gql`
         decision_note
         discrepancy_note
         evidence_files
-        contract_id
-        idx_contract_id
-        contract_id
       }
     }
   }
@@ -73,23 +62,15 @@ export const QUERY_PROJECTSETTLEMENTS_DTO = gql`
         status
         journey_id
         idx_journey_id
-        journey_id
         journey_step_code
-        project_id
-        idx_project_id
-        project_id
         customer_id
         idx_customer_id
-        customer_id
         handover_acceptance_id
         idx_handover_acceptance_id
-        handover_acceptance_id
         latest_debt_confirmation_id
         idx_latest_debt_confirmation_id
-        latest_debt_confirmation_id
         latest_invoice_id
         idx_latest_invoice_id
-        latest_invoice_id
         contract_value
         approved_appendix_total
         invoiced_total
@@ -100,9 +81,6 @@ export const QUERY_PROJECTSETTLEMENTS_DTO = gql`
         decision_note
         discrepancy_note
         evidence_files
-        contract_id
-        idx_contract_id
-        contract_id
       }
     }
   }

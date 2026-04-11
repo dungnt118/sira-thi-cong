@@ -14,8 +14,6 @@ export interface IProjectSettlement {
   journey_id?: string;
   idx_journey_id?: IndexedContentItem;
   journey_step_code?: ProjectSettlementJourneyStepCodeEnum;
-  project_id?: string;
-  idx_project_id?: IndexedContentItem;
   customer_id?: string;
   idx_customer_id?: IndexedContentItem;
   handover_acceptance_id?: string;
@@ -34,8 +32,11 @@ export interface IProjectSettlement {
   decision_note?: string;
   discrepancy_note?: string;
   evidence_files?: HeadlessFileUpload[];
-  contract_id?: string;
-  idx_contract_id?: IndexedContentItem;
+  //deprecated fields
+  // project_id?: string;
+  // idx_project_id?: IndexedContentItem;
+  // contract_id?: string;
+  // idx_contract_id?: IndexedContentItem;
 }
 
 export interface ICreateProjectSettlementInput {
@@ -44,7 +45,6 @@ export interface ICreateProjectSettlementInput {
   status?: ProjectSettlementStatusEnum2;
   journey_id?: string;
   journey_step_code?: ProjectSettlementJourneyStepCodeEnum2;
-  project_id?: string;
   customer_id?: string;
   handover_acceptance_id?: string;
   latest_debt_confirmation_id?: string;
@@ -59,13 +59,15 @@ export interface ICreateProjectSettlementInput {
   decision_note?: string;
   discrepancy_note?: string;
   evidence_files?: HeadlessFileUpload[];
-  contract_id?: string;
+  //deprecated fields
+  // project_id?: string;
+  // contract_id?: string;
 }
 
 export type IProjectSettlementListResponse = ApiListResponse<IProjectSettlement>
 
 // Union types generated from value_options
 export type ProjectSettlementStatusEnum = 'draft' | 'pending_review' | 'confirmed' | 'disputed' | 'closed';
-export type ProjectSettlementJourneyStepCodeEnum = 'handover_acceptance' | 'warranty_aftercare' | 'contract_signing';
+export type ProjectSettlementJourneyStepCodeEnum = 'lead_new' | 'consult_contact' | 'site_survey' | 'solution_design' | 'quotation' | 'contract' | 'execution' | 'final_acceptance' | 'payment' | 'maintenance' | 'warranty' | 'after_sales';
 export type ProjectSettlementStatusEnum2 = 'draft' | 'pending_review' | 'confirmed' | 'disputed' | 'closed';
-export type ProjectSettlementJourneyStepCodeEnum2 = 'handover_acceptance' | 'warranty_aftercare' | 'contract_signing';
+export type ProjectSettlementJourneyStepCodeEnum2 = 'lead_new' | 'consult_contact' | 'site_survey' | 'solution_design' | 'quotation' | 'contract' | 'execution' | 'final_acceptance' | 'payment' | 'maintenance' | 'warranty' | 'after_sales';

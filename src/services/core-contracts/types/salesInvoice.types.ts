@@ -16,8 +16,6 @@ export interface ISalesInvoice {
   idx_payment_milestone_id?: IndexedContentItem;
   payment_receipt_id?: string;
   idx_payment_receipt_id?: IndexedContentItem;
-  project_id?: string;
-  idx_project_id?: IndexedContentItem;
   customer_id?: string;
   idx_customer_id?: IndexedContentItem;
   invoice_type?: SalesInvoiceInvoiceTypeEnum;
@@ -32,8 +30,11 @@ export interface ISalesInvoice {
   sent_at?: string | Date;
   note?: string;
   invoice_files?: HeadlessFileUpload[];
-  contract_id?: string;
-  idx_contract_id?: IndexedContentItem;
+  //deprecated fields
+  // project_id?: string;
+  // idx_project_id?: IndexedContentItem;
+  // contract_id?: string;
+  // idx_contract_id?: IndexedContentItem;
 }
 
 export interface ICreateSalesInvoiceInput {
@@ -42,7 +43,6 @@ export interface ICreateSalesInvoiceInput {
   journey_step_code?: SalesInvoiceJourneyStepCodeEnum2;
   payment_milestone_id?: string;
   payment_receipt_id?: string;
-  project_id?: string;
   customer_id?: string;
   invoice_type?: SalesInvoiceInvoiceTypeEnum2;
   invoice_status?: SalesInvoiceInvoiceStatusEnum2;
@@ -56,15 +56,17 @@ export interface ICreateSalesInvoiceInput {
   sent_at?: string | Date;
   note?: string;
   invoice_files?: HeadlessFileUpload[];
-  contract_id?: string;
+  //deprecated fields
+  // project_id?: string;
+  // contract_id?: string;
 }
 
 export type ISalesInvoiceListResponse = ApiListResponse<ISalesInvoice>
 
 // Union types generated from value_options
-export type SalesInvoiceJourneyStepCodeEnum = 'contract_signing' | 'handover_acceptance' | 'warranty_aftercare';
+export type SalesInvoiceJourneyStepCodeEnum = 'lead_new' | 'consult_contact' | 'site_survey' | 'solution_design' | 'quotation' | 'contract' | 'execution' | 'final_acceptance' | 'payment' | 'maintenance' | 'warranty' | 'after_sales';
 export type SalesInvoiceInvoiceTypeEnum = 'vat_invoice' | 'sales_invoice' | 'adjustment_invoice';
 export type SalesInvoiceInvoiceStatusEnum = 'draft' | 'pending_issue' | 'issued' | 'sent' | 'cancelled';
-export type SalesInvoiceJourneyStepCodeEnum2 = 'contract_signing' | 'handover_acceptance' | 'warranty_aftercare';
+export type SalesInvoiceJourneyStepCodeEnum2 = 'lead_new' | 'consult_contact' | 'site_survey' | 'solution_design' | 'quotation' | 'contract' | 'execution' | 'final_acceptance' | 'payment' | 'maintenance' | 'warranty' | 'after_sales';
 export type SalesInvoiceInvoiceTypeEnum2 = 'vat_invoice' | 'sales_invoice' | 'adjustment_invoice';
 export type SalesInvoiceInvoiceStatusEnum2 = 'draft' | 'pending_issue' | 'issued' | 'sent' | 'cancelled';

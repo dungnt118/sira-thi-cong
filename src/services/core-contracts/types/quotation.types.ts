@@ -10,8 +10,6 @@ export interface IQuotation {
   _id: string;
   code?: string;
   version_no?: number;
-  service_request_id?: string;
-  idx_service_request_id?: IndexedContentItem;
   journey_id?: string;
   idx_journey_id?: IndexedContentItem;
   status?: QuotationStatusEnum;
@@ -20,12 +18,14 @@ export interface IQuotation {
   total?: number;
   approved_at?: string | Date;
   notes?: string;
+  //deprecated fields
+  // service_request_id?: string;
+  // idx_service_request_id?: IndexedContentItem;
 }
 
 export interface ICreateQuotationInput {
   code?: string;
   version_no?: number;
-  service_request_id?: string;
   journey_id?: string;
   status?: QuotationStatusEnum2;
   subtotal?: number;
@@ -33,6 +33,8 @@ export interface ICreateQuotationInput {
   total?: number;
   approved_at?: string | Date;
   notes?: string;
+  //deprecated fields
+  // service_request_id?: string;
 }
 
 export type IQuotationListResponse = ApiListResponse<IQuotation>

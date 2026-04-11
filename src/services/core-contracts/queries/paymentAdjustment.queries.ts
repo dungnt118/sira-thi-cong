@@ -17,14 +17,9 @@ export const FIND_PAYMENTADJUSTMENT_DTO = gql`
         code
         journey_id
         idx_journey_id
-        journey_id
         journey_step_code
         payment_milestone_id
         idx_payment_milestone_id
-        payment_milestone_id
-        project_id
-        idx_project_id
-        project_id
         adjustment_type
         status
         current_amount
@@ -60,14 +55,9 @@ export const QUERY_PAYMENTADJUSTMENTS_DTO = gql`
         code
         journey_id
         idx_journey_id
-        journey_id
         journey_step_code
         payment_milestone_id
         idx_payment_milestone_id
-        payment_milestone_id
-        project_id
-        idx_project_id
-        project_id
         adjustment_type
         status
         current_amount

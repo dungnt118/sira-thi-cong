@@ -42,7 +42,6 @@ export const FIND_PAYMENTREQUEST_DTO = gql`
         approved_by
         approved_at
         rejected_at
-        rejected_by
         rejection_reason
         paid_by
         paid_at
@@ -52,6 +51,8 @@ export const FIND_PAYMENTREQUEST_DTO = gql`
         cancel_reason
         payment_proof_files
         payment_proof_note
+        createdBy
+        rejected_by
       }
     }
   }
@@ -108,6 +109,8 @@ export const QUERY_PAYMENTREQUESTS_DTO = gql`
         cancel_reason
         payment_proof_files
         payment_proof_note
+        createdBy
+        rejected_by
       }
     }
   }
