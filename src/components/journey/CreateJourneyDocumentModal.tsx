@@ -57,8 +57,9 @@ export const CreateJourneyDocumentModal: React.FC<CreateJourneyDocumentModalProp
             if (editingDoc) {
                 form.setFieldsValue({
                     description: editingDoc.description,
-                    context_type: editingDoc.context_type,
+                    doc_type: editingDoc.doc_type,
                     is_published: editingDoc.is_published,
+
                     published_at: editingDoc.published_at ? dayjs(editingDoc.published_at) : null,
                     journey_step_code: editingDoc.journey_step_code,
                 });
@@ -79,13 +80,14 @@ export const CreateJourneyDocumentModal: React.FC<CreateJourneyDocumentModalProp
                 const step = stepCode && String(stepCode).trim() ? String(stepCode).trim() : undefined;
                 form.resetFields();
                 form.setFieldsValue({
-                    context_type: 'general',
+                    doc_type: 'quotation',
                     is_published: true,
                     published_at: dayjs(),
                     ...(step ? { journey_step_code: step } : {}),
                 });
                 setFileList([]);
             }
+
         }
     }, [open, editingDoc, form, stepCode]);
 
@@ -196,35 +198,44 @@ export const CreateJourneyDocumentModal: React.FC<CreateJourneyDocumentModalProp
                     <Col span={12}>
                         <Form.Item label="Giai đoạn/Bước" name="journey_step_code">
                             <Select placeholder="Chọn bước (nếu có)" allowClear>
-                                <Select.Option value="lead_intake">Tiếp nhận thông tin</Select.Option>
-                                <Select.Option value="qualification">Đủ điều kiện</Select.Option>
-                                <Select.Option value="survey_planning">Lên lịch khảo sát</Select.Option>
-                                <Select.Option value="site_survey">Khảo sát hiện trường</Select.Option>
-                                <Select.Option value="survey_review">Duyệt khảo sát</Select.Option>
-                                <Select.Option value="estimate_preparation">Lập dự toán</Select.Option>
-                                <Select.Option value="quotation_preparation">Lập báo giá</Select.Option>
-                                <Select.Option value="quotation_sent">Đã gửi báo giá</Select.Option>
-                                <Select.Option value="quotation_approved">Duyệt báo giá</Select.Option>
-                                <Select.Option value="contract_signing">Ký hợp đồng</Select.Option>
-                                <Select.Option value="project_execution">Thi công</Select.Option>
-                                <Select.Option value="handover_acceptance">Nghiệm thu/Bàn giao</Select.Option>
-                                <Select.Option value="warranty_aftercare">Bảo hành/Hậu mãi</Select.Option>
+                                <Select.Option value="lead_new">1. Tiếp nhận</Select.Option>
+                                <Select.Option value="consult_contact">2. Tư vấn & Hẹn lịch</Select.Option>
+                                <Select.Option value="site_survey">3. Khảo sát</Select.Option>
+                                <Select.Option value="solution_design">4. Thiết kế giải pháp</Select.Option>
+                                <Select.Option value="quotation">5. Báo giá</Select.Option>
+                                <Select.Option value="contract">6. Hợp đồng</Select.Option>
+                                <Select.Option value="execution">7. Thi công</Select.Option>
+                                <Select.Option value="final_acceptance">8. Nghiệm thu bàn giao</Select.Option>
+                                <Select.Option value="payment">9. Thanh toán</Select.Option>
+                                <Select.Option value="maintenance">10. Bảo trì</Select.Option>
+                                <Select.Option value="warranty">11. Bảo hành</Select.Option>
+                                <Select.Option value="after_sales">12. Chăm sóc sau bán</Select.Option>
+
                             </Select>
                         </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <Form.Item label="Phân loại" name="context_type" rules={[{ required: true }]}>
+                        <Form.Item label="Phân loại" name="doc_type" rules={[{ required: true }]}>
                             <Select
                                 options={[
-                                    { value: 'survey', label: 'Tài liệu Khảo sát' },
-                                    { value: 'quotation', label: 'Báo giá / Dự toán' },
-                                    { value: 'contract', label: 'Hợp đồng / PLHĐ' },
-                                    { value: 'progress', label: 'Tiến độ / Báo cáo' },
-                                    { value: 'payment', label: 'Chứng từ Thanh toán' },
-                                    { value: 'general', label: 'Tài liệu chung' },
+                                    { value: 'survey_report', label: 'Báo cáo khảo sát' },
+                                    { value: 'site_photos', label: 'Ảnh hiện trạng' },
+                                    { value: 'solution_doc', label: 'Thiết kế giải pháp' },
+                                    { value: 'business_plan', label: 'Phương án' },
+                                    { value: 'quotation', label: 'Báo giá' },
+                                    { value: 'contract', label: 'Hợp đồng' },
+                                    { value: 'advance_request', label: 'Yêu cầu tạm ứng' },
+                                    { value: 'stage_acceptance', label: 'Nghiệm thu GĐ' },
+                                    { value: 'stage_payment_proof', label: 'Chứng từ TT' },
+                                    { value: 'final_acceptance', label: 'Bàn giao' },
+                                    { value: 'payment_receipt', label: 'Hóa đơn / Phiếu thu' },
+                                    { value: 'maintenance_record', label: 'Biên bản bảo trì' },
+                                    { value: 'warranty_record', label: 'Biên bản bảo hành' },
+                                    { value: 'after_sales_note', label: 'Hậu mãi' },
                                 ]}
                             />
                         </Form.Item>
+
                     </Col>
                 </Row>
 

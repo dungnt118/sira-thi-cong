@@ -95,19 +95,32 @@
     max-width: 100%;
 }
 
-/* Checklist trong Descriptions: full width container, không ép min-width gây scroll ngang */
-.customer-journey-page .cj-checklist-table {
+/* Checklist trong Descriptions (chế độ xem): list item full width, không scroll ngang như table */
+.customer-journey-page .cj-checklist-list {
     width: 100%;
     max-width: 100%;
 }
 
-.customer-journey-page .cj-checklist-table .ant-table {
-    width: 100% !important;
-    table-layout: fixed;
+.customer-journey-page .cj-checklist-list .cj-checklist-item {
+    flex-wrap: nowrap;
 }
 
-.customer-journey-page .cj-checklist-table .ant-table-container {
-    max-width: 100%;
+.customer-journey-page .cj-checklist-list .cj-checklist-item .ant-list-item-meta,
+.customer-journey-page .cj-checklist-list .cj-checklist-item > .ant-list-item-meta {
+    margin-bottom: 0;
+}
+
+/* Mô tả checklist (xem): blockquote gọn, chữ nghiêng */
+.customer-journey-page .cj-checklist-desc-quote {
+    margin: 8px 0 0;
+    margin-inline: 0;
+    padding: 8px 12px;
+    border-left: 3px solid rgba(0, 0, 0, 0.12);
+    background: rgba(0, 0, 0, 0.02);
+    font-style: italic;
+    color: rgba(0, 0, 0, 0.65);
+    font-size: 14px;
+    line-height: 1.5;
 }
 
 .customer-journey-page .ant-table {

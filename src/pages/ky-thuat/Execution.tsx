@@ -21,7 +21,7 @@ export const Execution: React.FC = () => {
             // Fetch all journeys to match PM view behavior as requested
             const response = await journeyService.queryJourneysDto({});
 
-            const filtered = (response.data || []).filter(j => j.current_step === 'project_execution');
+            const filtered = (response.data || []).filter(j => j.current_step === 'execution');
             setActiveJourneys(filtered);
         } catch (error) {
             console.error('Failed to fetch active executions:', error);

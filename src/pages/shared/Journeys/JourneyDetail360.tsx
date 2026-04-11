@@ -32,7 +32,8 @@ import { customerJourneySettingService } from '../../../services/core-contracts/
 import { employeeService } from '../../../services/core-contracts/services/employee.service';
 import { journeyStepLogService } from '../../../services/core-contracts/services/journeyStepLog.service';
 import { IJourney } from '../../../services/core-contracts/types/journey.types';
-import type { ICustomerJourneySetting, IRolesItem } from '../../../services/core-contracts/types/customerJourneySetting.types';
+import { ICustomerJourneySetting, IRolesItem, IStepsItem } from '../../../services/core-contracts/types/customerJourneySetting.types';
+
 import { IWorkTask } from '../../../services/core-contracts/types/workTask.types';
 import { IJourneyStepLog } from '../../../services/core-contracts/types/journeyStepLog.types';
 import { AuthorizedUserSelect } from '../../../components/authorizedusers/AuthorizedUser';
@@ -82,39 +83,34 @@ const toUserList = (value: unknown): string[] => {
         : [String(value)];
 };
 
-/** Thứ tự bước trùng `CustomerJourneySetting` — ghép cùng chỉ số với `journeySteps` (mock template). */
+/** Thứ tự bước từ enum StepsStepCodeEnum */
 const CUSTOMER_JOURNEY_SETTING_STEP_CODES = [
-    'lead_intake',
-    'qualification',
-    'survey_planning',
+    'lead_new',
+    'consult_contact',
     'site_survey',
-    'survey_review',
-    'estimate_preparation',
-    'quotation_preparation',
-    'quotation_sent',
-    'quotation_approved',
-    'contract_signing',
-    'project_execution',
-    'handover_acceptance',
-    'warranty_aftercare',
+    'solution_design',
+    'quotation',
+    'contract',
+    'execution',
+    'final_acceptance',
+    'payment',
+    'maintenance',
+    'warranty',
+    'after_sales'
 ] as const;
+
 
 const DOCUMENT_PERMISSION_VALUES = new Set(['edit', 'submit', 'commit']);
 
 const normalizeRoleKey = (value: string | undefined) => (value || '').trim().toUpperCase();
 
-const getSettingStepPayload = (setting: ICustomerJourneySetting | null, stepCode: string): unknown => {
-    if (!setting) {
+const getSettingStepPayload = (setting: ICustomerJourneySetting | null, stepCode: string): IStepsItem | null => {
+    if (!setting?.steps) {
         return null;
     }
-
-    const fieldData = (setting as unknown as Record<string, unknown>)[stepCode];
-    if (Array.isArray(fieldData)) {
-        return fieldData[0] ?? null;
-    }
-
-    return fieldData ?? null;
+    return setting.steps.find(s => s.step_code === stepCode) || null;
 };
+
 
 const permissionsAllowDocumentActions = (permissions: string[] | undefined): boolean => {
     if (!permissions?.length) {
@@ -345,45 +341,28 @@ const JourneyDetail360: React.FC = () => {
                 try {
                     // 1. Fetch singleton setting
                     const setting = await customerJourneySettingService.findSetting();
-                    if (!setting) {
-                        message.error("Không tìm thấy cấu hình mẫu (CustomerJourneySetting)");
+                    if (!setting || !setting.steps?.length) {
+                        message.error("Không tìm thấy cấu hình các bước (CustomerJourneySetting.steps)");
                         return;
                     }
 
-                    // 2. Clear old tasks for this journey (using high limit to ensure all are found)
+                    // 2. Clear old tasks for this journey
                     const res = await workTaskService.queryContent({
                         group: { id: 'journey_id', operation: 'eq', value: journeyId },
                         limit: 200
                     } as any);
                     if (res?.data?.length) {
-                        console.log(`Found ${res.data.length} old tasks to delete`);
                         await workTaskService.deleteMultiWorkTask(res.data.map(t => t._id));
                     }
 
-                    // 3. Batch create new tasks from setting checklist
-                    const stages = [
-                        { code: 'lead_intake', data: setting.lead_intake },
-                        { code: 'qualification', data: setting.qualification },
-                        { code: 'survey_planning', data: setting.survey_planning },
-                        { code: 'site_survey', data: setting.site_survey },
-                        { code: 'survey_review', data: setting.survey_review },
-                        { code: 'estimate_preparation', data: setting.estimate_preparation },
-                        { code: 'quotation_preparation', data: setting.quotation_preparation },
-                        { code: 'quotation_sent', data: setting.quotation_sent },
-                        { code: 'quotation_approved', data: setting.quotation_approved },
-                        { code: 'contract_signing', data: setting.contract_signing },
-                        { code: 'project_execution', data: setting.project_execution },
-                        { code: 'handover_acceptance', data: setting.handover_acceptance },
-                        { code: 'warranty_aftercare', data: setting.warranty_aftercare },
-                    ];
-
+                    // 3. Batch create new tasks from setting checklist dynamic steps
                     const tasksToCreate: any[] = [];
-                    for (const stage of stages) {
-                        if (stage.data?.is_enabled && stage.data.checklist?.length) {
-                            for (const item of stage.data.checklist) {
+                    for (const stepConfig of setting.steps) {
+                        if (stepConfig.is_enabled && stepConfig.checklist?.length) {
+                            for (const item of stepConfig.checklist) {
                                 tasksToCreate.push({
                                     journey_id: journeyId,
-                                    journey_step_code: stage.code,
+                                    journey_step_code: stepConfig.step_code,
                                     title: item.name,
                                     description: item.description,
                                     is_required: item.is_required,
@@ -394,12 +373,11 @@ const JourneyDetail360: React.FC = () => {
                     }
 
                     if (tasksToCreate.length > 0) {
-                        console.log(`Sending ${tasksToCreate.length} tasks to bulk create`);
                         await workTaskService.saveManyWorkTasks(tasksToCreate);
                     }
 
-                    console.log(`Successfully initialized ${tasksToCreate.length} tasks`);
-                    message.success(`Đã khởi tạo ${tasksToCreate.length} nhiệm vụ công việc thành công!`);
+                    message.success(`Đã khởi tạo ${tasksToCreate.length} nhiệm vụ công việc từ cấu hình mẫu!`);
+
 
                     fetchJourney();
                     // Dispatch event for components to refresh
@@ -449,18 +427,14 @@ const JourneyDetail360: React.FC = () => {
             });
 
             /** Quyền ghi tài liệu theo CustomerJourneySetting: permissions chứa edit / submit / commit (Chịu trách nhiệm). */
-            if (customerJourneySetting && role) {
-                CUSTOMER_JOURNEY_SETTING_STEP_CODES.forEach((stepCode, index) => {
-                    const stepPayload = getSettingStepPayload(customerJourneySetting, stepCode);
-                    if (!stepPayload || typeof stepPayload !== 'object') {
-                        return;
-                    }
-
-                    const roles = (stepPayload as { roles?: IRolesItem[] }).roles;
+            if (customerJourneySetting?.steps?.length && role) {
+                customerJourneySetting.steps.forEach((stepConfig, index) => {
+                    const roles = stepConfig.roles;
                     if (!hasRoleDocumentPermissionFromStepRoles(roles, role)) {
                         return;
                     }
 
+                    // Map step index to standardProcedureGroupCd from mock templates or sequence
                     const groupCd = journeySteps[index]?.standardProcedureGroupCd;
                     if (!groupCd) {
                         return;
@@ -480,6 +454,7 @@ const JourneyDetail360: React.FC = () => {
             finalizableGroupCodes: [...new Set(finalizableGroupCodes)]
         };
     }, [role, isPmManager, journeySteps, customerJourneySetting]);
+
 
     const canCreateJourneyDocument = useMemo(
         () => isPmManager || userRoleConfig.editableGroupCodes.length > 0,

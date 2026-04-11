@@ -68,20 +68,20 @@ const SLA_STATUS_CONFIG: Record<string, { label: string; color: string }> = {
 };
 
 const STEP_NAME_MAPPING: Record<string, string> = {
-    lead_intake: '1. Tiếp nhận (Lead Intake)',
-    qualification: '2. Thẩm định (Qualification)',
-    survey_planning: '3. Lập phương án KS (Survey Planning)',
-    site_survey: '4. Khảo sát (Site Survey)',
-    survey_review: '5. Duyệt khảo sát (Survey Review)',
-    estimate_preparation: '6. Lập dự toán (Estimate)',
-    quotation_preparation: '7. Lập báo giá (Quotation)',
-    quotation_sent: '8. Gửi báo giá',
-    quotation_approved: '9. Khách duyệt',
-    contract_signing: '10. Ký hợp đồng',
-    project_execution: '11. Thi công',
-    handover_acceptance: '12. Nghiệm thu bàn giao',
-    warranty_aftercare: '13. Bảo hành/CSKH',
+    lead_new: '1. Tiếp nhận',
+    consult_contact: '2. Tư vấn',
+    site_survey: '3. Khảo sát',
+    solution_design: '4. Giải pháp',
+    quotation: '5. Báo giá',
+    contract: '6. Hợp đồng',
+    execution: '7. Thi công',
+    final_acceptance: '8. Nghiệm thu',
+    payment: '9. Thanh toán',
+    maintenance: '10. Bảo trì',
+    warranty: '11. Bảo hành',
+    after_sales: '12. Hậu mãi',
 };
+
 
 
 export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = false, onSave, onEditStateChange }) => {

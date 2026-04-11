@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import {
     Card, Button, Space, Typography, Row, Col, Descriptions,
     Tag, Badge, List, message, Spin, Divider,
-    Form, Input, Switch, Select, Table, Collapse,
+    Form, Input, Switch, Select, Collapse,
     Grid, Drawer, FloatButton,
 } from 'antd';
 import {
@@ -178,7 +178,9 @@ const formatChecklistActionSummary = (action?: IActionsItem): string => {
     if (!action) return '—';
 
     const keyLabel = CHECKLIST_ACTION_OPTIONS.find((o) => o.value === action.action_key)?.label || action.action_key || 'Action';
-    const typeLabel = ACTION_TYPE_OPTIONS.find((o) => o.value === action.action_type)?.label || action.action_type || '';
+    /** Chế độ xem checklist: ẩn "Bắt buộc điền thông tin" vì action đã ngụ ý bắt buộc */
+    const typeLabelRaw = ACTION_TYPE_OPTIONS.find((o) => o.value === action.action_type)?.label || action.action_type || '';
+    const typeLabel = action.action_type === 'require_journey_field' ? '' : typeLabelRaw;
     const targetLabel = ACTION_TARGET_FIELD_OPTIONS.find((o) => o.value === action.target_field)?.label || action.target_field || '';
     const docLabel = ACTION_DOC_TYPE_OPTIONS.find((o) => o.value === action.doc_type)?.label || action.doc_type || '';
 
@@ -313,6 +315,44 @@ const ActionValidationItem: React.FC<{
                 </Col>
             </Row>
         </Card>
+    );
+};
+
+/** Chỉ hiển thị Action validation khi nhiệm vụ được bật "Bắt buộc" */
+const ChecklistActionValidationSection: React.FC<{
+    checklistIndex: number;
+    form: ReturnType<typeof Form.useForm>[0];
+}> = ({ checklistIndex, form }) => {
+    const isRequired = Form.useWatch(['checklist', checklistIndex, 'is_required'], form);
+    if (isRequired === false) return null;
+
+    return (
+        <Col span={24}>
+            <Divider orientation="left" plain style={{ margin: '8px 0 12px' }}>Action validation</Divider>
+            <Form.List name={[checklistIndex, 'actions']}>
+                {(actionFields, { add: addAction, remove: removeAction }) => (
+                    <>
+                        <Space direction="vertical" size={12} style={{ width: '100%' }}>
+                            {actionFields.map(({ key: actionKey, name: actionName, ...actionRestField }) => (
+                                <ActionValidationItem
+                                    key={actionKey}
+                                    checklistIndex={checklistIndex}
+                                    actionIndex={actionName}
+                                    restField={actionRestField}
+                                    form={form}
+                                    removeAction={removeAction}
+                                />
+                            ))}
+                        </Space>
+                        <Form.Item style={{ marginTop: 12, marginBottom: 0 }}>
+                            <Button type="dashed" onClick={() => addAction({ min_count: 1 })} block icon={<PlusOutlined />}>
+                                Thêm action
+                            </Button>
+                        </Form.Item>
+                    </>
+                )}
+            </Form.List>
+        </Col>
     );
 };
 
@@ -798,28 +838,7 @@ const CustomerJourneySettingPage: React.FC = () => {
                                                                         />
                                                                     </Form.Item>
                                                                 </Col>
-                                                                <Col span={24}>
-                                                                    <Divider orientation="left" plain style={{ margin: '8px 0 12px' }}>Action validation</Divider>
-                                                                    <Form.List name={[name, 'actions']}>
-                                                                        {(actionFields, { add: addAction, remove: removeAction }) => (
-                                                                            <>
-                                                                                <Space direction="vertical" size={12} style={{ width: '100%' }}>
-                                                                                    {actionFields.map(({ key: actionKey, name: actionName, ...actionRestField }) => (
-                                                                                        <ActionValidationItem
-                                                                                            key={actionKey}
-                                                                                            checklistIndex={name}
-                                                                                            actionIndex={actionName}
-                                                                                            restField={actionRestField}
-                                                                                            form={form}
-                                                                                            removeAction={removeAction}
-                                                                                        />
-                                                                                    ))}
-                                                                                </Space>
-                                                                                <Form.Item style={{ marginTop: 12, marginBottom: 0 }}><Button type="dashed" onClick={() => addAction({ min_count: 1 })} block icon={<PlusOutlined />}>Thêm action</Button></Form.Item>
-                                                                            </>
-                                                                        )}
-                                                                    </Form.List>
-                                                                </Col>
+                                                                <ChecklistActionValidationSection checklistIndex={name} form={form} />
                                                             </Row>
                                                         </Collapse.Panel>
                                                     ))}
@@ -923,66 +942,55 @@ const CustomerJourneySettingPage: React.FC = () => {
 
                                         <Descriptions.Item label="Checklist">
                                             {selectedStep?.checklist && selectedStep.checklist.length > 0 ? (
-                                                <Table
-                                                    className="cj-checklist-table"
-                                                    dataSource={selectedStep.checklist}
-                                                    pagination={false}
+                                                <List
+                                                    className="cj-checklist-list"
                                                     size="small"
-                                                    rowKey={(r, i) => `${r.name}-${i}`}
-                                                    tableLayout="fixed"
-                                                    columns={[
-                                                        {
-                                                            title: '#',
-                                                            width: 44,
-                                                            align: 'center',
-                                                            render: (_: any, __: any, index: number) => <Badge count={index + 1} size="small" style={{ backgroundColor: '#52c41a' }} />
-                                                        },
-                                                        {
-                                                            title: 'Tên hạng mục',
-                                                            dataIndex: 'name',
-                                                            width: '26%',
-                                                            ellipsis: false,
-                                                            render: (name: string, record: IChecklistItem) => (
-                                                                <Space wrap size={[4, 4]}>
-                                                                    <Text strong className="cj-wrap-text">{name}</Text>
-                                                                    {record.is_required && <Tag color="red">Bắt buộc</Tag>}
+                                                    dataSource={selectedStep.checklist}
+                                                    renderItem={(record: IChecklistItem, index: number) => (
+                                                        <List.Item
+                                                            className="cj-checklist-item"
+                                                            style={{ paddingLeft: 0, paddingRight: 0, alignItems: 'flex-start' }}
+                                                        >
+                                                            <Badge
+                                                                count={index + 1}
+                                                                size="small"
+                                                                style={{ backgroundColor: '#52c41a', flexShrink: 0 }}
+                                                            />
+                                                            <div style={{ flex: 1, minWidth: 0, marginLeft: 12 }}>
+                                                                <Space wrap size={[8, 8]} style={{ width: '100%' }}>
+                                                                    <Text strong className="cj-wrap-text">{record.name || '—'}</Text>
+                                                                    {record.role ? (
+                                                                        <Tag color="orange">{formatJourneyRoleDisplay(record.role)}</Tag>
+                                                                    ) : (
+                                                                        <Text type="secondary">—</Text>
+                                                                    )}
                                                                 </Space>
-                                                            )
-                                                        },
-                                                        {
-                                                            title: 'Vai trò',
-                                                            dataIndex: 'role',
-                                                            width: '16%',
-                                                            ellipsis: false,
-                                                            render: (role?: string) => role ? <Tag color="orange">{formatJourneyRoleDisplay(role)}</Tag> : <Text type="secondary">—</Text>,
-                                                        },
-                                                        {
-                                                            title: 'Mô tả',
-                                                            dataIndex: 'description',
-                                                            width: '28%',
-                                                            ellipsis: false,
-                                                            render: (text: string) => (
-                                                                <span className="cj-wrap-text">{text || '—'}</span>
-                                                            ),
-                                                        },
-                                                        {
-                                                            title: 'Actions',
-                                                            ellipsis: false,
-                                                            render: (_: unknown, record: IChecklistItem) => (
-                                                                record.actions && record.actions.length > 0 ? (
-                                                                    <Space direction="vertical" size={4} style={{ width: '100%' }}>
-                                                                        {record.actions.map((action: IActionsItem, index: number) => (
-                                                                            <Text key={(action.action_key || 'action') + '-' + index} className="cj-wrap-text">
-                                                                                {formatChecklistActionSummary(action)}
-                                                                            </Text>
-                                                                        ))}
-                                                                    </Space>
-                                                                ) : (
-                                                                    <Text type="secondary">Không có action</Text>
-                                                                )
-                                                            ),
-                                                        },
-                                                    ]}
+                                                                {record.description?.trim() ? (
+                                                                    <blockquote className="cj-checklist-desc-quote cj-wrap-text">
+                                                                        {record.description.trim()}
+                                                                    </blockquote>
+                                                                ) : null}
+                                                                <div style={{ marginTop: 8 }}>
+                                                                    {record.is_required ? (
+                                                                        <div style={{ marginBottom: 6 }}>
+                                                                            <Tag color="red">Bắt buộc</Tag>
+                                                                        </div>
+                                                                    ) : null}
+                                                                    {record.actions && record.actions.length > 0 ? (
+                                                                        <Space direction="vertical" size={4} style={{ width: '100%' }}>
+                                                                            {record.actions.map((action: IActionsItem, actionIdx: number) => (
+                                                                                <Text key={(action.action_key || 'action') + '-' + actionIdx} className="cj-wrap-text">
+                                                                                    {formatChecklistActionSummary(action)}
+                                                                                </Text>
+                                                                            ))}
+                                                                        </Space>
+                                                                    ) : (
+                                                                        <Text type="secondary">Không có action</Text>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        </List.Item>
+                                                    )}
                                                 />
                                             ) : <Text type="secondary">Chưa cấu hình</Text>}
                                         </Descriptions.Item>

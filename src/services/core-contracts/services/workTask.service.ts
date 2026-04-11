@@ -90,5 +90,15 @@ export const workTaskService = {
       { filter, custominput: {} }
     );
   },
+  async saveManyWorkTasks(tasks: any[]): Promise<any> {
+    if (!tasks.length) return { success: true, data: [] };
+    const response = await save_content({
+      schema: 'WorkTask',
+      data: tasks,
+      update_if_duplicate: false
+    });
+    return response;
+  },
 };
+
 export default workTaskService;

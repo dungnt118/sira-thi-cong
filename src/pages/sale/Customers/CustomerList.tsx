@@ -102,7 +102,7 @@ const CustomerList: React.FC = () => {
             customer.zalo,
             customer.address,
             customer.ward,
-            customer.district,
+            customer.city,
             customer.province,
         ]
             .filter(Boolean)
@@ -117,7 +117,7 @@ const CustomerList: React.FC = () => {
     const activeJourneyCount = journeys.filter(
         (journey) =>
             journey.current_step &&
-            !['handover_acceptance', 'warranty_aftercare'].includes(journey.current_step),
+            !['final_acceptance', 'payment', 'maintenance', 'warranty', 'after_sales'].includes(journey.current_step),
     ).length;
 
     const openCreateDrawer = () => {
@@ -216,7 +216,7 @@ const CustomerList: React.FC = () => {
                 <div>
                     <div>{customer.ward || '—'}</div>
                     <Text type="secondary">
-                        {[customer.district, customer.province].filter(Boolean).join(', ') || 'Chưa cập nhật địa bàn'}
+                        {[customer.city, customer.province].filter(Boolean).join(', ') || 'Chưa cập nhật địa bàn'}
                     </Text>
                 </div>
             ),

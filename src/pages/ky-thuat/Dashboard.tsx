@@ -39,17 +39,17 @@ export const Dashboard: React.FC = () => {
     const stats = [
         {
             title: 'Khảo sát & Giải pháp',
-            value: journeys.filter(j => ['lead_intake', 'qualification', 'survey_planning', 'site_survey', 'survey_review'].includes(j.current_step || '')).length,
+            value: journeys.filter(j => ['lead_new', 'consult_contact', 'site_survey', 'solution_design'].includes(j.current_step || '')).length,
             color: '#faad14'
         },
         {
             title: 'Đang thi công',
-            value: journeys.filter(j => ['project_execution'].includes(j.current_step || '')).length,
+            value: journeys.filter(j => ['execution'].includes(j.current_step || '')).length,
             color: '#1890ff'
         },
         {
             title: 'Hoàn tất / Bảo hành',
-            value: journeys.filter(j => ['handover_acceptance', 'warranty_aftercare'].includes(j.current_step || '')).length,
+            value: journeys.filter(j => ['final_acceptance', 'payment', 'maintenance', 'warranty', 'after_sales'].includes(j.current_step || '')).length,
             color: '#52c41a'
         },
     ];

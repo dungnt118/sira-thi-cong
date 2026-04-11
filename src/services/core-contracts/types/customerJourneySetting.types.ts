@@ -14,38 +14,10 @@ export interface ICustomerJourneySetting {
   version_label?: string;
   note?: string;
   steps?: IStepsItem[];
-  //deprecated fields
-  // lead_intake?: ILeadIntakeItem;
-  // qualification?: IQualificationItem;
-  // survey_planning?: ISurveyPlanningItem;
-  // site_survey?: ISiteSurveyItem;
-  // survey_review?: ISurveyReviewItem;
-  // estimate_preparation?: IEstimatePreparationItem;
-  // quotation_preparation?: IQuotationPreparationItem;
-  // quotation_sent?: IQuotationSentItem;
-  // quotation_approved?: IQuotationApprovedItem;
-  // contract_signing?: IContractSigningItem;
-  // project_execution?: IProjectExecutionItem;
-  // handover_acceptance?: IHandoverAcceptanceItem;
-  // warranty_aftercare?: IWarrantyAftercareItem;
-}
-
-export interface ILeadIntakeItem {
-  is_enabled?: boolean;
-  portal_visible?: boolean;
-  allow_skip?: boolean;
-  auto_open_next?: boolean;
-  sla_hours?: number;
-  goal?: string;
-  instruction_note?: string;
-  entry_criteria?: string;
-  exit_criteria?: string;
-  roles?: IRolesItem[];
-  checklist?: IChecklistItem[];
 }
 
 export interface IRolesItem {
-  role?: string;
+  role?: RolesRoleEnum | string;
   idx_role?: IndexedContentItem;
   permissions?: string[];
 }
@@ -53,321 +25,20 @@ export interface IRolesItem {
 export interface IChecklistItem {
   name?: string;
   is_required?: boolean;
+  role?: RolesRoleEnum | string;
   description?: string;
   action?: ChecklistActionEnum;
-  role?: string;
+  actions?: IActionsItem[];
 }
 
-export interface IQualificationItem {
-  is_enabled?: boolean;
-  portal_visible?: boolean;
-  allow_skip?: boolean;
-  auto_open_next?: boolean;
-  sla_hours?: number;
-  goal?: string;
-  instruction_note?: string;
-  entry_criteria?: string;
-  exit_criteria?: string;
-  roles?: IRolesItem[];
-  checklist?: IChecklistItem[];
-}
-
-export interface IRolesItem {
-  role?: string;
-  idx_role?: IndexedContentItem;
-  permissions?: string[];
-}
-
-export interface IChecklistItem {
-  name?: string;
-  is_required?: boolean;
-  description?: string;
-}
-
-export interface ISurveyPlanningItem {
-  is_enabled?: boolean;
-  portal_visible?: boolean;
-  allow_skip?: boolean;
-  auto_open_next?: boolean;
-  sla_hours?: number;
-  goal?: string;
-  instruction_note?: string;
-  entry_criteria?: string;
-  exit_criteria?: string;
-  roles?: IRolesItem[];
-  checklist?: IChecklistItem[];
-}
-
-export interface IRolesItem {
-  role?: string;
-  idx_role?: IndexedContentItem;
-  permissions?: string[];
-}
-
-export interface IChecklistItem {
-  name?: string;
-  is_required?: boolean;
-  description?: string;
-}
-
-export interface ISiteSurveyItem {
-  is_enabled?: boolean;
-  portal_visible?: boolean;
-  allow_skip?: boolean;
-  auto_open_next?: boolean;
-  sla_hours?: number;
-  goal?: string;
-  instruction_note?: string;
-  entry_criteria?: string;
-  exit_criteria?: string;
-  roles?: IRolesItem[];
-  checklist?: IChecklistItem[];
-}
-
-export interface IRolesItem {
-  role?: string;
-  idx_role?: IndexedContentItem;
-  permissions?: string[];
-}
-
-export interface IChecklistItem {
-  name?: string;
-  is_required?: boolean;
-  description?: string;
-}
-
-export interface ISurveyReviewItem {
-  is_enabled?: boolean;
-  portal_visible?: boolean;
-  allow_skip?: boolean;
-  auto_open_next?: boolean;
-  sla_hours?: number;
-  goal?: string;
-  instruction_note?: string;
-  entry_criteria?: string;
-  exit_criteria?: string;
-  roles?: IRolesItem[];
-  checklist?: IChecklistItem[];
-}
-
-export interface IRolesItem {
-  role?: string;
-  idx_role?: IndexedContentItem;
-  permissions?: string[];
-}
-
-export interface IChecklistItem {
-  name?: string;
-  is_required?: boolean;
-  description?: string;
-}
-
-export interface IEstimatePreparationItem {
-  is_enabled?: boolean;
-  portal_visible?: boolean;
-  allow_skip?: boolean;
-  auto_open_next?: boolean;
-  sla_hours?: number;
-  goal?: string;
-  instruction_note?: string;
-  entry_criteria?: string;
-  exit_criteria?: string;
-  roles?: IRolesItem[];
-  checklist?: IChecklistItem[];
-}
-
-export interface IRolesItem {
-  role?: string;
-  idx_role?: IndexedContentItem;
-  permissions?: string[];
-}
-
-export interface IChecklistItem {
-  name?: string;
-  is_required?: boolean;
-  description?: string;
-}
-
-export interface IQuotationPreparationItem {
-  is_enabled?: boolean;
-  portal_visible?: boolean;
-  allow_skip?: boolean;
-  auto_open_next?: boolean;
-  sla_hours?: number;
-  goal?: string;
-  instruction_note?: string;
-  entry_criteria?: string;
-  exit_criteria?: string;
-  roles?: IRolesItem[];
-  checklist?: IChecklistItem[];
-}
-
-export interface IRolesItem {
-  role?: string;
-  idx_role?: IndexedContentItem;
-  permissions?: string[];
-}
-
-export interface IChecklistItem {
-  name?: string;
-  is_required?: boolean;
-  description?: string;
-}
-
-export interface IQuotationSentItem {
-  is_enabled?: boolean;
-  portal_visible?: boolean;
-  allow_skip?: boolean;
-  auto_open_next?: boolean;
-  sla_hours?: number;
-  goal?: string;
-  instruction_note?: string;
-  entry_criteria?: string;
-  exit_criteria?: string;
-  roles?: IRolesItem[];
-  checklist?: IChecklistItem[];
-}
-
-export interface IRolesItem {
-  role?: string;
-  idx_role?: IndexedContentItem;
-  permissions?: string[];
-}
-
-export interface IChecklistItem {
-  name?: string;
-  is_required?: boolean;
-  description?: string;
-}
-
-export interface IQuotationApprovedItem {
-  is_enabled?: boolean;
-  portal_visible?: boolean;
-  allow_skip?: boolean;
-  auto_open_next?: boolean;
-  sla_hours?: number;
-  goal?: string;
-  instruction_note?: string;
-  entry_criteria?: string;
-  exit_criteria?: string;
-  roles?: IRolesItem[];
-  checklist?: IChecklistItem[];
-}
-
-export interface IRolesItem {
-  role?: string;
-  idx_role?: IndexedContentItem;
-  permissions?: string[];
-}
-
-export interface IChecklistItem {
-  name?: string;
-  is_required?: boolean;
-  description?: string;
-}
-
-export interface IContractSigningItem {
-  is_enabled?: boolean;
-  portal_visible?: boolean;
-  allow_skip?: boolean;
-  auto_open_next?: boolean;
-  sla_hours?: number;
-  goal?: string;
-  instruction_note?: string;
-  entry_criteria?: string;
-  exit_criteria?: string;
-  roles?: IRolesItem[];
-  checklist?: IChecklistItem[];
-}
-
-export interface IRolesItem {
-  role?: string;
-  idx_role?: IndexedContentItem;
-  permissions?: string[];
-}
-
-export interface IChecklistItem {
-  name?: string;
-  is_required?: boolean;
-  description?: string;
-}
-
-export interface IProjectExecutionItem {
-  is_enabled?: boolean;
-  portal_visible?: boolean;
-  allow_skip?: boolean;
-  auto_open_next?: boolean;
-  sla_hours?: number;
-  goal?: string;
-  instruction_note?: string;
-  entry_criteria?: string;
-  exit_criteria?: string;
-  roles?: IRolesItem[];
-  checklist?: IChecklistItem[];
-}
-
-export interface IRolesItem {
-  role?: string;
-  idx_role?: IndexedContentItem;
-  permissions?: string[];
-}
-
-export interface IChecklistItem {
-  name?: string;
-  is_required?: boolean;
-  description?: string;
-}
-
-export interface IHandoverAcceptanceItem {
-  is_enabled?: boolean;
-  portal_visible?: boolean;
-  allow_skip?: boolean;
-  auto_open_next?: boolean;
-  sla_hours?: number;
-  goal?: string;
-  instruction_note?: string;
-  entry_criteria?: string;
-  exit_criteria?: string;
-  roles?: IRolesItem[];
-  checklist?: IChecklistItem[];
-}
-
-export interface IRolesItem {
-  role?: string;
-  idx_role?: IndexedContentItem;
-  permissions?: string[];
-}
-
-export interface IChecklistItem {
-  name?: string;
-  is_required?: boolean;
-  description?: string;
-}
-
-export interface IWarrantyAftercareItem {
-  is_enabled?: boolean;
-  portal_visible?: boolean;
-  allow_skip?: boolean;
-  auto_open_next?: boolean;
-  sla_hours?: number;
-  goal?: string;
-  instruction_note?: string;
-  entry_criteria?: string;
-  exit_criteria?: string;
-  roles?: IRolesItem[];
-  checklist?: IChecklistItem[];
-}
-
-export interface IRolesItem {
-  role?: string;
-  idx_role?: IndexedContentItem;
-  permissions?: string[];
-}
-
-export interface IChecklistItem {
-  name?: string;
-  is_required?: boolean;
-  description?: string;
+export interface IActionsItem {
+  action_key?: ActionsActionKeyEnum;
+  action_type?: ActionsActionTypeEnum;
+  target_field?: ActionsTargetFieldEnum;
+  expected_value?: string;
+  doc_type?: ActionsDocTypeEnum;
+  min_count?: number;
+  note?: string;
 }
 
 export interface IStepsItem {
@@ -385,28 +56,20 @@ export interface IStepsItem {
   checklist?: IChecklistItem[];
 }
 
-export interface IRolesItem {
-  role: RolesRoleEnum;
-  permissions?: string[];
-}
-
-export interface IChecklistItem {
-  name?: string;
-  is_required?: boolean;
-  role: RolesRoleEnum;
-  description?: string;
-  actions?: IActionsItem[];
-}
-
-export interface IActionsItem {
-  action_key?: ActionsActionKeyEnum;
-  action_type?: ActionsActionTypeEnum;
-  target_field?: ActionsTargetFieldEnum;
-  expected_value?: string;
-  doc_type?: ActionsDocTypeEnum;
-  min_count?: number;
-  note?: string;
-}
+// Deprecated Item Interfaces kept for potential logic dependencies but consolidated to use shared sub-interfaces
+export interface ILeadIntakeItem extends IStepsItem {}
+export interface IQualificationItem extends IStepsItem {}
+export interface ISurveyPlanningItem extends IStepsItem {}
+export interface ISiteSurveyItem extends IStepsItem {}
+export interface ISurveyReviewItem extends IStepsItem {}
+export interface IEstimatePreparationItem extends IStepsItem {}
+export interface IQuotationPreparationItem extends IStepsItem {}
+export interface IQuotationSentItem extends IStepsItem {}
+export interface IQuotationApprovedItem extends IStepsItem {}
+export interface IContractSigningItem extends IStepsItem {}
+export interface IProjectExecutionItem extends IStepsItem {}
+export interface IHandoverAcceptanceItem extends IStepsItem {}
+export interface IWarrantyAftercareItem extends IStepsItem {}
 
 export interface ICreateCustomerJourneySettingInput {
   setting_key?: string;
@@ -415,20 +78,6 @@ export interface ICreateCustomerJourneySettingInput {
   version_label?: string;
   note?: string;
   steps?: IStepsItem[];
-  //deprecated fields
-  // lead_intake?: ILeadIntakeItem;
-  // qualification?: IQualificationItem;
-  // survey_planning?: ISurveyPlanningItem;
-  // site_survey?: ISiteSurveyItem;
-  // survey_review?: ISurveyReviewItem;
-  // estimate_preparation?: IEstimatePreparationItem;
-  // quotation_preparation?: IQuotationPreparationItem;
-  // quotation_sent?: IQuotationSentItem;
-  // quotation_approved?: IQuotationApprovedItem;
-  // contract_signing?: IContractSigningItem;
-  // project_execution?: IProjectExecutionItem;
-  // handover_acceptance?: IHandoverAcceptanceItem;
-  // warranty_aftercare?: IWarrantyAftercareItem;
 }
 
 export type ICustomerJourneySettingListResponse = ApiListResponse<ICustomerJourneySetting>
