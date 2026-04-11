@@ -51,7 +51,6 @@ const mapCustomerToForm = (customer?: ICustomer | null) => ({
     zalo: customer?.zalo,
     province: customer?.province,
     city: customer?.city,
-    district: customer?.district,
     ward: customer?.ward,
     address: customer?.address,
     assigned_pm_id: customer?.assigned_pm_id,
@@ -185,11 +184,6 @@ const CustomerUpsertDrawer: React.FC<CustomerUpsertDrawerProps> = ({
                     <Col xs={24} md={12}>
                         <Form.Item label="Thành phố" name="city">
                             <Input placeholder="Nhập thành phố" />
-                        </Form.Item>
-                    </Col>
-                    <Col xs={24} md={12}>
-                        <Form.Item label="Quận / huyện" name="district">
-                            <Input placeholder="Nhập quận / huyện" />
                         </Form.Item>
                     </Col>
                     <Col xs={24} md={12}>

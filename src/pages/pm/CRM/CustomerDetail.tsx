@@ -116,7 +116,7 @@ const CustomerDetail: React.FC = () => {
                             {[
                                 { id: 'phone', label: <span><PhoneOutlined /> Điện thoại</span>, value: customer.phone },
                                 { id: 'email', label: <span><MailOutlined /> Email</span>, value: customer.email || '—' },
-                                { id: 'address', label: <span><EnvironmentOutlined /> Địa chỉ</span>, value: `${customer.address}, ${customer.district}, ${customer.city}` },
+                                { id: 'address', label: <span><EnvironmentOutlined /> Địa chỉ</span>, value: [customer.address, customer.ward, customer.province, customer.city].filter(Boolean).join(', ') || '—' },
                                 { id: 'pm', label: <span><UserOutlined /> Người phụ trách</span>, value: customer.assigned_pm_id || '—' },
                                 { id: 'date', label: <span><CalendarOutlined /> Ngày tham gia</span>, value: String(customer.createdAt).split('T')[0] },
                             ].map(({ id: keyId, label, value }) => (

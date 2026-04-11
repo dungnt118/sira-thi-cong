@@ -15,14 +15,6 @@ import type { ICustomer, ICreateCustomerInput } from '../../../services/core-con
 const { Title, Text } = Typography;
 const { TextArea } = Input;
 
-const DISTRICT_OPTIONS = [
-    'Quận 1', 'Quận 2', 'Quận 3', 'Quận 4', 'Quận 5', 'Quận 6', 'Quận 7',
-    'Quận 8', 'Quận 9', 'Quận 10', 'Quận 11', 'Quận 12',
-    'Quận Bình Thạnh', 'Quận Gò Vấp', 'Quận Tân Bình', 'Quận Tân Phú',
-    'Quận Phú Nhuận', 'Quận Bình Tân', 'Quận Thủ Đức',
-    'Huyện Bình Chánh', 'Huyện Củ Chi', 'Huyện Hóc Môn', 'Huyện Nhà Bè',
-];
-
 const CustomerCreate: React.FC = () => {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
@@ -46,7 +38,6 @@ const CustomerCreate: React.FC = () => {
                     phone: res.phone,
                     email: res.email,
                     address: res.address,
-                    district: res.district,
                     city: res.city,
                     notes: res.notes,
                     assignedPmId: res.assigned_pm_id,
@@ -81,7 +72,6 @@ const CustomerCreate: React.FC = () => {
             phone: values.phone,
             email: values.email,
             address: values.address,
-            district: values.district,
             city: values.city,
             notes: values.notes,
             assigned_pm_id: values.assignedPmId,
@@ -169,22 +159,9 @@ const CustomerCreate: React.FC = () => {
                             >
                                 <Input prefix={<EnvironmentOutlined />} placeholder="Số nhà, tên đường..." />
                             </Form.Item>
-                            <Row gutter={16}>
-                                <Col span={12}>
-                                    <Form.Item name="district" label="Quận/Huyện *" rules={[{ required: true }]}>
-                                        <Select
-                                            placeholder="Chọn quận/huyện"
-                                            showSearch
-                                            options={DISTRICT_OPTIONS.map(d => ({ value: d, label: d }))}
-                                        />
-                                    </Form.Item>
-                                </Col>
-                                <Col span={12}>
-                                    <Form.Item name="city" label="Thành phố">
-                                        <Select options={[{ value: 'TP.HCM', label: 'TP. Hồ Chí Minh' }]} />
-                                    </Form.Item>
-                                </Col>
-                            </Row>
+                            <Form.Item name="city" label="Thành phố">
+                                <Select options={[{ value: 'TP.HCM', label: 'TP. Hồ Chí Minh' }]} />
+                            </Form.Item>
 
                             {/* GPS Picker */}
                             <div style={{

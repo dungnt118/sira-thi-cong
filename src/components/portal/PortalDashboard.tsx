@@ -192,7 +192,7 @@ const PortalDashboard: React.FC<PortalDashboardProps> = ({ journey, token, onNav
                             <UserOutlined />
                         </div>
                         <div style={{ flex: 1 }}>
-                            <Text strong style={{ fontSize: 14 }}>PM: {(journey as any).owner_user || journey.idx_owner_user?.title || 'Quản lý dự án'}</Text>
+                            <Text strong style={{ fontSize: 14 }}>PM: {journey.owner_user || journey.idx_owner_user?.title || 'Quản lý dự án'}</Text>
                             <div style={{ color: '#666', fontSize: 11 }}>
                                 Cần hỗ trợ khẩn cấp? Vui lòng gọi Hotline.
                             </div>

@@ -272,7 +272,7 @@ const ProjectCreate: React.FC = () => {
 
             <Form form={form} layout="vertical" initialValues={{
                 projectName: customer ? `Chống thấm – ${customer.fullName}` : '',
-                address: customer ? `${customer.address}, ${customer.district}, ${customer.city}` : '',
+                address: customer ? [customer.address, customer.city].filter(Boolean).join(', ') : '',
                 areaM2: 100,
                 templateId: selectedTemplate,
                 startDate: dayjs().add(3, 'day'),

@@ -134,7 +134,7 @@ const ServiceRequestDetail: React.FC = () => {
                                         <Descriptions.Item label="Địa chỉ">
                                             <Space>
                                                 <EnvironmentOutlined style={{ color: '#fa8c16' }} />
-                                                {customer.address}, {customer.district}, {customer.city}
+                                                {[customer.address, customer.city].filter(Boolean).join(', ') || '—'}
                                             </Space>
                                         </Descriptions.Item>
                                         {customer.email && <Descriptions.Item label="Email">{customer.email}</Descriptions.Item>}

@@ -200,6 +200,8 @@ export interface Journey {
     request_title: string;
     request_description?: string;
     owner_user: string;
+    /** Lookup đầy đủ khi API trả enriched reference (hiển thị tên PM) */
+    idx_owner_user?: IndexedContentItem;
     priority: PriorityLevel;
     current_step: string;
     current_step_code: string;
