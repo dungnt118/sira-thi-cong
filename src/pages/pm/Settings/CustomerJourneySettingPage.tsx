@@ -198,29 +198,19 @@ const coerceChecklistRequiredWhenHasActions = (items: IChecklistItem[]): ICheckl
         is_required: item.is_required === true && (item.actions?.length ?? 0) > 0,
     }));
 
+/**
+ * Chế độ xem checklist: chỉ hiển thị đúng phần tương ứng form Edit (Hành động = preset + Ghi chú).
+ * Không ghép loại kiểm chứng, doc_type, min_count, target, expected_value — các trường đó phục vụ backend / đã gói trong preset.
+ */
 const formatChecklistActionSummary = (action?: IActionsItem): string => {
     if (!action) return '—';
 
-    const keyLabel = CHECKLIST_ACTION_OPTIONS.find((o) => o.value === action.action_key)?.label || action.action_key || 'Action';
-    
-    // Đồng bộ logic hiển thị theo action_type giống như trong form Edit
-    const isDoc = action.action_type === 'require_document';
-    const isStatus = action.action_type === 'require_status_equals';
-    const isField = action.action_type === 'require_journey_field';
+    const keyLabel =
+        CHECKLIST_ACTION_OPTIONS.find((o) => o.value === action.action_key)?.label ||
+        action.action_key ||
+        'Action';
 
-    /** Chế độ xem checklist: ẩn "Loại action" nếu là điền field vì đã quá rõ ràng */
-    const typeLabel = !isField ? (ACTION_TYPE_OPTIONS.find((o) => o.value === action.action_type)?.label || action.action_type || '') : '';
-    
-    // target_field bị ẩn trong form edit nên cũng ẩn ở đây (thông qua action_key đã mô tả đủ)
-    const targetLabel = ''; 
-    
-    const docLabel = isDoc ? (ACTION_DOC_TYPE_OPTIONS.find((o) => o.value === action.doc_type)?.label || action.doc_type || '') : '';
-    const minCountLabel = isDoc && action.min_count ? 'min: ' + action.min_count : '';
-    const expectedLabel = isStatus && action.expected_value ? 'giá trị: ' + action.expected_value : '';
-
-    return [keyLabel, typeLabel, targetLabel, docLabel, expectedLabel, minCountLabel, action.note]
-        .filter(Boolean)
-        .join(' | ');
+    return [keyLabel, action.note].filter(Boolean).join(' | ');
 };
 
 const { useBreakpoint } = Grid;
