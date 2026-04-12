@@ -891,9 +891,15 @@ export function UploadFilesView({ value, property }: { value: any, property: Pro
                 title={previewFile?.name || 'File Preview'}
                 open={previewModalOpen}
                 onCancel={() => setPreviewModalOpen(false)}
-                width={getFileType(previewFile?.name) === 'pdf' ? 'min(1200px, 96vw)' : 800}
+                width={getFileType(previewFile?.name) === 'pdf' ? '100vw' : 800}
                 zIndex={1410}
-                style={getFileType(previewFile?.name) === 'pdf' ? { top: 0, paddingBottom: 0, margin: '0 auto' } : undefined}
+                style={getFileType(previewFile?.name) === 'pdf' ? { 
+                    top: 0, 
+                    margin: 0, 
+                    maxWidth: '100vw', 
+                    padding: 0,
+                    height: '100dvh' 
+                } : undefined}
                 styles={{
                     content: getFileType(previewFile?.name) === 'pdf' ? {
                         height: '100dvh',
@@ -928,7 +934,7 @@ export function UploadFilesView({ value, property }: { value: any, property: Pro
                 ]}
             >
                 {previewFile && (
-                    <div className={getFileType(previewFile?.name) === 'pdf' ? "h-full flex flex-col" : "text-center"}>
+                    <div className={getFileType(previewFile?.name) === 'pdf' ? "flex-1 flex flex-col min-h-0" : "text-center"}>
                         {isImageFile(previewFile) ? (
                             <Image
                                 src={getFileLink(previewFile.file_id || previewFile.url)}
