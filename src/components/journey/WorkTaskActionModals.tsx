@@ -479,6 +479,7 @@ export const WorkTaskActionModals: React.FC<WorkTaskActionModalsProps> = ({
                     open={Boolean(isDocumentBatchModal)}
                     onCancel={onClose}
                     journeyId={journey._id}
+                    worktaskId={task._id}
                     stepCode={task.journey_step_code}
                     actions={documentActions ?? []}
                     onDocumentsChanged={handleDocumentBatchChanged}

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import {
     Button,
     Collapse,
@@ -25,6 +25,7 @@ import {
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { journeyDocumentService } from '../../services/core-contracts/services/journeyDocument.service';
+import type { IJourneyDocument } from '../../services/core-contracts/types/journeyDocument.types';
 import type { IActionsItem } from '../../services/core-contracts/types/workTask.types';
 import { classifyJourneyFile, resolveJourneyFileHref } from '../../utils/journeyDocumentFileDisplay';
 import { useFileUpload } from '../files/useFileUpload';
@@ -77,6 +78,7 @@ export interface WorkTaskDocumentGroupModalProps {
     open: boolean;
     onCancel: () => void;
     journeyId: string;
+    worktaskId: string;
     stepCode?: string | null;
     /** Chỉ các action require_document đã gom. */
     actions: IActionsItem[];
@@ -87,12 +89,14 @@ export interface WorkTaskDocumentGroupModalProps {
 const DocumentPanel: React.FC<{
     spec: DocTypePanelSpec;
     journeyId: string;
+    worktaskId: string;
     stepCode?: string | null;
     onSaved: () => void | Promise<void>;
-}> = ({ spec, journeyId, stepCode, onSaved }) => {
+}> = ({ spec, journeyId, worktaskId, stepCode, onSaved }) => {
     const [form] = Form.useForm();
     const [fileList, setFileList] = useState<UploadFile[]>([]);
     const [saving, setSaving] = useState(false);
+    const [currentDocId, setCurrentDocId] = useState<string | null>(null);
     const { getUploadConfig, parseUploadResponse } = useFileUpload();
     const uploadConfig = getUploadConfig();
 
@@ -109,6 +113,56 @@ const DocumentPanel: React.FC<{
     const handleUploadChange: UploadProps['onChange'] = ({ fileList: next }) => {
         setFileList(withResolvedPreviewUrls(next));
     };
+
+    // Load existing document for this worktaskId + doc_type
+    useEffect(() => {
+        let active = true;
+        const loadInitial = async () => {
+            if (!journeyId || !worktaskId || !spec.doc_type) return;
+            try {
+                const res = await journeyDocumentService.queryJourneyDocumentsDto({
+                    group: {
+                        op: 'AND',
+                        children: [
+                            { id: 'journey_id', operation: '==', value: journeyId },
+                            { id: 'worktaskId', operation: '==', value: worktaskId },
+                            { id: 'doc_type', operation: '==', value: spec.doc_type },
+                        ],
+                    },
+                    sorted: [{ id: 'createdAt', desc: true }],
+                    limit: 1,
+                } as any);
+
+                if (!active) return;
+                const latest = res.data?.[0];
+                if (latest) {
+                    setCurrentDocId(latest._id);
+                    form.setFieldsValue({
+                        description: latest.description,
+                        published_at: latest.published_at ? dayjs(latest.published_at) : null,
+                        is_published: latest.is_published !== false,
+                    });
+                    if (latest.files?.length) {
+                        setFileList(
+                            latest.files.map((f, i) => ({
+                                uid: String(f.file_id || `existing-${i}`),
+                                name: f.name || 'Tài liệu',
+                                status: 'done',
+                                url: resolveJourneyFileHref(f),
+                                response: f,
+                            }))
+                        );
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to load initial document:', err);
+            }
+        };
+        void loadInitial();
+        return () => {
+            active = false;
+        };
+    }, [journeyId, worktaskId, spec.doc_type, form]);
 
     const uploadIconRender: UploadProps['iconRender'] = (file) => {
         const kind = classifyJourneyFile({
@@ -165,24 +219,27 @@ const DocumentPanel: React.FC<{
             }
 
             setSaving(true);
-            const docData = {
+            const docData: any = {
                 description: values.description,
                 doc_type: spec.doc_type,
                 journey_id: journeyId,
+                worktaskId: worktaskId,
                 journey_step_code: stepCode && String(stepCode).trim() ? String(stepCode).trim() : undefined,
                 files: mappedFiles,
                 published_at: values.published_at?.toISOString?.() ?? undefined,
                 is_published: values.is_published !== false,
             };
 
-            await journeyDocumentService.createJourneyDocument(docData as any);
-            message.success(`Đã thêm tài liệu: ${DOC_TYPE_LABELS[spec.doc_type] || spec.doc_type}`);
-            form.resetFields();
-            form.setFieldsValue({
-                is_published: true,
-                published_at: dayjs(),
-            });
-            setFileList([]);
+            let resDoc: IJourneyDocument;
+            if (currentDocId) {
+                resDoc = await journeyDocumentService.updateJourneyDocument(currentDocId, docData);
+                message.success(`Đã cập nhật tài liệu: ${DOC_TYPE_LABELS[spec.doc_type] || spec.doc_type}`);
+            } else {
+                resDoc = await journeyDocumentService.createJourneyDocument(docData);
+                message.success(`Đã thêm tài liệu: ${DOC_TYPE_LABELS[spec.doc_type] || spec.doc_type}`);
+                if (resDoc._id) setCurrentDocId(resDoc._id);
+            }
+
             window.dispatchEvent(new CustomEvent('journey-documents-updated'));
             await onSaved();
         } catch (e: unknown) {
@@ -241,8 +298,12 @@ const DocumentPanel: React.FC<{
                         headers={uploadConfig.headers}
                         onChange={handleUploadChange}
                         multiple
+                        listType="picture"
                         iconRender={uploadIconRender}
-                        showUploadList={{ showRemoveIcon: true }}
+                        showUploadList={{
+                            showRemoveIcon: true,
+                            showPreviewIcon: true,
+                        }}
                     >
                         <Button icon={<UploadOutlined />}>Chọn file</Button>
                     </Upload>
@@ -259,6 +320,7 @@ export const WorkTaskDocumentGroupModal: React.FC<WorkTaskDocumentGroupModalProp
     open,
     onCancel,
     journeyId,
+    worktaskId,
     stepCode,
     actions,
     onDocumentsChanged,
@@ -299,6 +361,7 @@ export const WorkTaskDocumentGroupModal: React.FC<WorkTaskDocumentGroupModalProp
                         <DocumentPanel
                             spec={spec}
                             journeyId={journeyId}
+                            worktaskId={worktaskId}
                             stepCode={stepCode}
                             onSaved={handleAfterSave}
                         />
