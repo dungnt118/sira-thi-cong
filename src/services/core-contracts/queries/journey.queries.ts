@@ -83,6 +83,9 @@ export const FIND_JOURNEY_DTO = gql`
         journey_kind
         origin_journey_id
         idx_origin_journey_id
+        execution_days
+        area_m2
+        complexity_level
       }
     }
   }
@@ -171,6 +174,9 @@ export const QUERY_JOURNEYS_DTO = gql`
         journey_kind
         origin_journey_id
         idx_origin_journey_id
+        execution_days
+        area_m2
+        complexity_level
       }
     }
   }

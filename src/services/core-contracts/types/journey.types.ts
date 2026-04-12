@@ -77,6 +77,9 @@ export interface IJourney {
   journey_kind?: JourneyJourneyKindEnum;
   origin_journey_id?: string;
   idx_origin_journey_id?: IndexedContentItem;
+  execution_days?: number;
+  area_m2?: number;
+  complexity_level?: JourneyComplexityLevelEnum;
 }
 
 export interface ICreateJourneyInput {
@@ -141,6 +144,9 @@ export interface ICreateJourneyInput {
   customer_ward?: string;
   journey_kind?: JourneyJourneyKindEnum2;
   origin_journey_id?: string;
+  execution_days?: number;
+  area_m2?: number;
+  complexity_level?: JourneyComplexityLevelEnum2;
 }
 
 export type IJourneyListResponse = ApiListResponse<IJourney>
@@ -157,6 +163,7 @@ export type JourneyProjectStatusEnum = 'not_started' | 'active' | 'completed' | 
 export type JourneyCurrentStepEnum = 'lead_new' | 'consult_contact' | 'site_survey' | 'solution_design' | 'quotation' | 'contract' | 'execution' | 'final_acceptance' | 'payment' | 'maintenance' | 'warranty' | 'after_sales';
 export type JourneyMaterialNeedStatusEnum = 'enough' | 'partial' | 'waiting';
 export type JourneyJourneyKindEnum = 'main' | 'maintenance' | 'warranty';
+export type JourneyComplexityLevelEnum = 'standard' | 'difficult' | 'very_difficult';
 export type JourneyPriorityEnum2 = 'low' | 'medium' | 'high' | 'critical';
 export type JourneyGoNoGoStatusEnum2 = 'draft' | 'go' | 'no_go' | 'on_hold' | 'pending';
 export type JourneySlaStatusEnum2 = 'on_time' | 'at_risk' | 'overdue';
@@ -168,3 +175,4 @@ export type JourneyProjectStatusEnum2 = 'not_started' | 'active' | 'completed' |
 export type JourneyCurrentStepEnum2 = 'lead_new' | 'consult_contact' | 'site_survey' | 'solution_design' | 'quotation' | 'contract' | 'execution' | 'final_acceptance' | 'payment' | 'maintenance' | 'warranty' | 'after_sales';
 export type JourneyMaterialNeedStatusEnum2 = 'enough' | 'partial' | 'waiting';
 export type JourneyJourneyKindEnum2 = 'main' | 'maintenance' | 'warranty';
+export type JourneyComplexityLevelEnum2 = 'standard' | 'difficult' | 'very_difficult';
