@@ -8,8 +8,7 @@ import type { HeadlessFileUpload } from 'types/apis/HeadlessFileUpload';
  */
 export interface IMasterDataItem {
   _id: string;
-  categoryId?: string;
-  idx_categoryId?: IndexedContentItem;
+  category?: MasterDataItemCategoryEnum;
   label?: string;
   value?: string;
   shortLabel?: string;
@@ -23,7 +22,7 @@ export interface IMasterDataItem {
 }
 
 export interface ICreateMasterDataItemInput {
-  categoryId?: string;
+  category?: MasterDataItemCategoryEnum2;
   label?: string;
   value?: string;
   shortLabel?: string;
@@ -37,3 +36,7 @@ export interface ICreateMasterDataItemInput {
 }
 
 export type IMasterDataItemListResponse = ApiListResponse<IMasterDataItem>
+
+// Union types generated from value_options
+export type MasterDataItemCategoryEnum = 'service_type' | 'source_channel' | 'construction_type' | 'priority_level' | 'go_no_go_status' | 'sla_status' | 'portal_publish_status' | 'survey_status' | 'quote_status' | 'project_status';
+export type MasterDataItemCategoryEnum2 = 'service_type' | 'source_channel' | 'construction_type' | 'priority_level' | 'go_no_go_status' | 'sla_status' | 'portal_publish_status' | 'survey_status' | 'quote_status' | 'project_status';

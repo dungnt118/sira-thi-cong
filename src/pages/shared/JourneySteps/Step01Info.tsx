@@ -9,8 +9,9 @@ import {
     SaveOutlined, EditOutlined, EyeOutlined, UserOutlined, HomeOutlined,
     LoadingOutlined, InfoCircleOutlined, EnvironmentOutlined, FlagOutlined, RocketOutlined, TeamOutlined,
     CheckCircleOutlined, ClockCircleOutlined, CloseCircleOutlined, UnorderedListOutlined,
-    CalendarOutlined,
+    CalendarOutlined, DashboardOutlined, FieldNumberOutlined, HourglassOutlined,
 } from '@ant-design/icons';
+import { MasterDataSelect } from '../../../components/common/MasterDataSelect';
 import { journeyService } from '../../../services/core-contracts/services/journey.service';
 import { customerService } from '../../../services/core-contracts/services/customer.service';
 import { workTaskService } from '../../../services/core-contracts/services/workTask.service';
@@ -63,6 +64,12 @@ const PROJECT_STATUS_CONFIG: Record<string, { label: string; color: string }> = 
     active: { label: 'Đang triển khai', color: 'processing' },
     completed: { label: 'Hoàn thành', color: 'success' },
     cancelled: { label: 'Đã hủy', color: 'error' },
+};
+
+const COMPLEXITY_LEVEL_CONFIG: Record<string, { label: string; color: string }> = {
+    standard: { label: 'Tiêu chuẩn', color: 'blue' },
+    difficult: { label: 'Khó', color: 'orange' },
+    very_difficult: { label: 'Rất khó', color: 'red' },
 };
 
 const SLA_STATUS_CONFIG: Record<string, { label: string; color: string }> = {
@@ -255,6 +262,9 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                 project_status: values.project_status,
                 planned_start_date: values.planned_start_date ? (typeof values.planned_start_date === 'string' ? values.planned_start_date : values.planned_start_date.toISOString()) : null,
                 planned_end_date: values.planned_end_date ? (typeof values.planned_end_date === 'string' ? values.planned_end_date : values.planned_end_date.toISOString()) : null,
+                area_m2: values.area_m2,
+                execution_days: values.execution_days,
+                complexity_level: values.complexity_level,
             };
 
             await journeyService.updateJourney(journeyId, journeyUpdate);
@@ -333,8 +343,8 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                             </Form.Item>
                             <Row gutter={12}>
                                 <Col span={12}>
-                                    <Form.Item label="Dịch vụ" name="serviceTypeId">
-                                        <Input placeholder="Service ID..." />
+                                    <Form.Item label="Loại dịch vụ" name="serviceTypeId">
+                                        <MasterDataSelect categoryCode="service_type" placeholder="Chọn dịch vụ" />
                                     </Form.Item>
                                 </Col>
                                 <Col span={12}>
@@ -343,9 +353,30 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                                     </Form.Item>
                                 </Col>
                             </Row>
-                            <Form.Item label="Ưu tiên" name="priority">
-                                <Select options={Object.entries(PRIORITY_CONFIG).map(([k, v]) => ({ value: k, label: v.label }))} />
-                            </Form.Item>
+                            <Row gutter={12}>
+                                <Col span={12}>
+                                    <Form.Item label="Ưu tiên" name="priority">
+                                        <Select options={Object.entries(PRIORITY_CONFIG).map(([k, v]) => ({ value: k, label: v.label }))} />
+                                    </Form.Item>
+                                </Col>
+                                <Col span={12}>
+                                    <Form.Item label="Độ phức tạp" name="complexity_level">
+                                        <Select options={Object.entries(COMPLEXITY_LEVEL_CONFIG).map(([k, v]) => ({ value: k, label: v.label }))} />
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+                            <Row gutter={12}>
+                                <Col span={12}>
+                                    <Form.Item label="Diện tích (m2)" name="area_m2">
+                                        <Input type="number" prefix={<FieldNumberOutlined />} />
+                                    </Form.Item>
+                                </Col>
+                                <Col span={12}>
+                                    <Form.Item label="Ngày thi công dự kiến" name="execution_days">
+                                        <Input type="number" prefix={<HourglassOutlined />} />
+                                    </Form.Item>
+                                </Col>
+                            </Row>
                             <Row gutter={12}>
                                 <Col span={12}>
                                     <Form.Item label="Ngày bắt đầu (Dự kiến)" name="planned_start_date">
@@ -477,6 +508,15 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                                     <Descriptions.Item label="Thi công">{journeyData.site_address || '—'}</Descriptions.Item>
                                     <Descriptions.Item label="Kênh">{SOURCE_CHANNEL_CONFIG[journeyData.source_channel || ''] || journeyData.source_channel || '—'}</Descriptions.Item>
                                     <Descriptions.Item label="Ưu tiên"><Tag color={priorityCfg.color}>{priorityCfg.label}</Tag></Descriptions.Item>
+                                    <Descriptions.Item label="Diện tích (m2)">{journeyData.area_m2 || '0'} m2</Descriptions.Item>
+                                    <Descriptions.Item label="Ngày thi công">{journeyData.execution_days || '0'} ngày</Descriptions.Item>
+                                    <Descriptions.Item label="Độ phức tạp">
+                                        {journeyData.complexity_level ? (
+                                            <Tag color={COMPLEXITY_LEVEL_CONFIG[journeyData.complexity_level]?.color}>
+                                                {COMPLEXITY_LEVEL_CONFIG[journeyData.complexity_level]?.label}
+                                            </Tag>
+                                        ) : '—'}
+                                    </Descriptions.Item>
                                     <Descriptions.Item label="Go/No-Go">
                                         <Tag color={GO_NO_GO_CONFIG[journeyData.go_no_go_status || '']?.color}>{GO_NO_GO_CONFIG[journeyData.go_no_go_status || '']?.label || '—'}</Tag>
                                     </Descriptions.Item>

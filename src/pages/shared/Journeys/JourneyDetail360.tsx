@@ -24,7 +24,9 @@ import {
     ShopOutlined,
     TeamOutlined,
     ToolOutlined,
-    UserOutlined
+    UserOutlined,
+    MenuOutlined,
+    DownOutlined
 } from '@ant-design/icons';
 import {
     Alert,
@@ -35,10 +37,12 @@ import {
     Col,
     DatePicker,
     Drawer,
+    Dropdown,
     Empty,
     Form,
     Grid,
     Input,
+    Menu,
     message,
     Modal,
     Row,
@@ -72,7 +76,7 @@ import {
     IStepsItem,
 } from '../../../services/core-contracts/types/customerJourneySetting.types';
 import { IJourney } from '../../../services/core-contracts/types/journey.types';
-import { JourneyStepRenderer, StepLabor, StepMaterials } from '../JourneySteps';
+import { JourneyStepRenderer, StepLabor, StepMaterials, Step04SolutionOrchestration } from '../JourneySteps';
 
 import { AuthorizedUserSelect } from '../../../components/authorizedusers/AuthorizedUser';
 import { JourneyDocumentsTab } from '../../../components/journey/JourneyDocumentsTab';
@@ -385,15 +389,15 @@ const JOURNEY_TAB_ACCESS_RULES: JourneyTabAccessRule[] = [
     { key: 'GRP_01_INFO', minStepCode: 'lead_new', currentStepCode: 'lead_new', roleGroupCode: 'GRP_01_INFO', alwaysVisible: true },
     { key: 'GRP_02_CONTACT', minStepCode: 'lead_new', currentStepCode: 'consult_contact', roleGroupCode: 'GRP_02_CONTACT', alwaysVisible: true },
     { key: 'GRP_DOCUMENTS', minStepCode: 'lead_new', alwaysVisible: true },
-    { key: 'GRP_08_CONSTRUCT', minStepCode: 'lead_new', alwaysVisible: true },
+    { key: 'GRP_08_CONSTRUCT', minStepCode: 'lead_new', alwaysVisible: true, currentStepCode: 'execution', roleGroupCode: 'GRP_08_CONSTRUCT' },
     { key: 'GRP_03_SURVEY', minStepCode: 'site_survey', currentStepCode: 'site_survey', roleGroupCode: 'GRP_03_SURVEY' },
     { key: 'GRP_04_SOLUTION', minStepCode: 'solution_design', currentStepCode: 'solution_design', roleGroupCode: 'GRP_04_SOLUTION' },
+    { key: 'GRP_ESTIMATE', minStepCode: 'solution_design', roleGroupCode: 'GRP_05_QUOTE', alwaysVisible: true },
     { key: 'GRP_LABOR', minStepCode: 'quotation', roleGroupCode: 'GRP_05_QUOTE' },
     { key: 'GRP_MATERIALS', minStepCode: 'quotation', roleGroupCode: 'GRP_05_QUOTE' },
     { key: 'GRP_05_QUOTE', minStepCode: 'quotation', currentStepCode: 'quotation', roleGroupCode: 'GRP_05_QUOTE' },
     { key: 'GRP_06_CONTRACT', minStepCode: 'contract', currentStepCode: 'contract', roleGroupCode: 'GRP_06_CONTRACT' },
     { key: 'GRP_07_DEPOSIT', minStepCode: 'contract', roleGroupCode: 'GRP_07_DEPOSIT' },
-    { key: 'GRP_08_CONSTRUCT', minStepCode: 'execution', currentStepCode: 'execution', roleGroupCode: 'GRP_08_CONSTRUCT' },
     { key: 'GRP_ACCEPTANCE', minStepCode: 'final_acceptance', currentStepCode: 'final_acceptance', roleGroupCode: 'GRP_09_ACCEPTANCE', alternateRoleGroupCodes: ['GRP_08_CONSTRUCT'] },
     { key: 'GRP_10_PAYMENT', minStepCode: 'payment', currentStepCode: 'payment', roleGroupCode: 'GRP_10_PAYMENT' },
     { key: 'GRP_11_MAINTAIN', minStepCode: 'maintenance', currentStepCode: 'maintenance', roleGroupCode: 'GRP_11_MAINTAIN' },
@@ -1491,8 +1495,14 @@ const JourneyDetail360: React.FC = () => {
                 case 'GRP_04_SOLUTION':
                     return {
                         key: rule.key,
-                        label: <span><CalculatorOutlined /> Dự toán</span>,
+                        label: <span><CalculatorOutlined /> Giải pháp</span>, // Renaming from Dự toán to Giải pháp
                         children: renderTabContent('GRP_04_SOLUTION', 'S04_SOLUTION', 'solution_design'),
+                    };
+                case 'GRP_ESTIMATE':
+                    return {
+                        key: rule.key,
+                        label: <span><CalculatorOutlined /> Dự toán & Chào thầu</span>,
+                        children: <Step04SolutionOrchestration journeyId={journey._id} />,
                     };
                 case 'GRP_LABOR':
                     return {
@@ -2188,15 +2198,76 @@ const JourneyDetail360: React.FC = () => {
                 />
             </Drawer>
 
-            {/* 360 Tabs */}
-            <Card style={{ borderRadius: 10 }}>
-                <Tabs
-                    activeKey={resolvedActiveTab}
-                    onChange={(key) => setSearchParams({ tab: key })}
-                    items={stagedTabItems}
-                    size="small"
-                />
+            {/* 360 Tabs Header - Replaced standard Antd Tabs with custom buttons */}
+            <Card 
+                variant="borderless" 
+                style={{ 
+                    marginBottom: 16, 
+                    borderRadius: 12, 
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+                }}
+                styles={{ body: { padding: isMobile ? '12px' : '20px' }}}
+            >
+                {!isMobile ? (
+                    <Space wrap size={[8, 12]}>
+                        {stagedTabItems.map((item) => (
+                            <Button
+                                key={item.key}
+                                type={resolvedActiveTab === item.key ? 'primary' : 'default'}
+                                onClick={() => setSearchParams({ tab: item.key })}
+                                style={{ 
+                                    borderRadius: 8,
+                                    height: 38,
+                                    fontWeight: resolvedActiveTab === item.key ? 600 : 400,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 6
+                                }}
+                            >
+                                {item.label}
+                            </Button>
+                        ))}
+                    </Space>
+                ) : (
+                    <Dropdown
+                        menu={{
+                            items: stagedTabItems.map((item) => ({
+                                key: item.key,
+                                label: item.label,
+                                onClick: () => setSearchParams({ tab: item.key }),
+                                style: { padding: '10px 16px' }
+                            })),
+                            selectedKeys: [resolvedActiveTab],
+                        }}
+                        trigger={['click']}
+                        placement="bottom"
+                    >
+                        <Button 
+                            block 
+                            type="primary" 
+                            size="large"
+                            style={{ 
+                                borderRadius: 8, 
+                                display: 'flex', 
+                                justifyContent: 'space-between', 
+                                alignItems: 'center',
+                                height: 44
+                            }}
+                        >
+                            <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                <MenuOutlined />
+                                {stagedTabItems.find((t) => t.key === resolvedActiveTab)?.label || 'Chọn giai đoạn'}
+                            </span>
+                            <DownOutlined style={{ fontSize: 12 }} />
+                        </Button>
+                    </Dropdown>
+                )}
             </Card>
+
+            {/* Stage Content Panel */}
+            <div style={{ marginBottom: 32 }}>
+                {stagedTabItems.find((item) => item.key === resolvedActiveTab)?.children}
+            </div>
 
             <style>{`
                 .journey-dark-steps .ant-steps-item-wait .ant-steps-item-icon { background-color: rgba(255,255,255,0.1) !important; border-color: rgba(255,255,255,0.2) !important; }

@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import {
     Form, Input, Select, DatePicker, Row, Col,
-    Divider, Typography, Space, Button, message, Spin, AutoComplete
+    Divider, Typography, Space, Button, message, Spin, AutoComplete, InputNumber
 } from 'antd';
 import {
     UserOutlined, HomeOutlined, CustomerServiceOutlined,
-    CalendarOutlined, InfoCircleOutlined, PhoneOutlined, MailOutlined
+    CalendarOutlined, InfoCircleOutlined, PhoneOutlined, MailOutlined,
+    FieldNumberOutlined, HourglassOutlined, DashboardOutlined
 } from '@ant-design/icons';
+import { MasterDataSelect } from '../common/MasterDataSelect';
 import dayjs from 'dayjs';
 import type { IJourney, ICreateJourneyInput } from '../../services/core-contracts/types/journey.types';
 import { customerService } from '../../services/core-contracts/services/customer.service';
@@ -31,6 +33,12 @@ const PRIORITY_OPTIONS = [
     { value: 'medium', label: 'Trung bình' },
     { value: 'high', label: 'Cao' },
     { value: 'critical', label: 'Khẩn cấp' },
+];
+
+const COMPLEXITY_LEVEL_OPTIONS = [
+    { label: 'Tiêu chuẩn', value: 'standard' },
+    { label: 'Khó', value: 'difficult' },
+    { label: 'Rất khó', value: 'very_difficult' },
 ];
 
 const SOURCE_CHANNEL_OPTIONS = [
@@ -400,10 +408,13 @@ const JourneyForm: React.FC<JourneyFormProps> = ({
                 <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item
-                            label="Dịch vụ yêu cầu"
+                            label="Loại dịch vụ"
                             name="serviceTypeId"
                         >
-                            <Input placeholder="VD: Chống thấm, Cải tạo, ..." />
+                            <MasterDataSelect 
+                                categoryCode="service_type" 
+                                placeholder="Chọn loại dịch vụ (Xây mới, Cải tạo...)" 
+                            />
                         </Form.Item>
                     </Col>
                     <Col span={6}>
@@ -425,9 +436,50 @@ const JourneyForm: React.FC<JourneyFormProps> = ({
                 </Row>
 
                 <Row gutter={16}>
+                    <Col span={8}>
+                        <Form.Item
+                            label="Diện tích (m2)"
+                            name="area_m2"
+                        >
+                            <InputNumber 
+                                style={{ width: '100%' }} 
+                                placeholder="0" 
+                                min={0}
+                                prefix={<FieldNumberOutlined />} 
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item
+                            label="Ngày thi công (Dự kiến)"
+                            name="execution_days"
+                        >
+                            <InputNumber 
+                                style={{ width: '100%' }} 
+                                placeholder="0" 
+                                min={0}
+                                prefix={<HourglassOutlined />} 
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item
+                            label="Độ phức tạp"
+                            name="complexity_level"
+                        >
+                            <Select 
+                                placeholder="Chọn độ khó" 
+                                options={COMPLEXITY_LEVEL_OPTIONS}
+                                suffixIcon={<DashboardOutlined />}
+                            />
+                        </Form.Item>
+                    </Col>
+                </Row>
+
+                <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item
-                            label="Ngày bắt đầu (dự kiến)"
+                            label="Ngày khởi công (dự kiến)"
                             name="planned_start_date"
                         >
                             <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" prefix={<CalendarOutlined />} />

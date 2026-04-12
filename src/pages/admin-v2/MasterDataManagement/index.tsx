@@ -34,23 +34,14 @@ import {
     StopOutlined,
     InfoCircleOutlined,
     OrderedListOutlined,
-    SettingOutlined,
-    MenuOutlined,
-    MenuFoldOutlined,
-    MenuUnfoldOutlined,
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 
-import masterDataCategoryService from 'services/core-contracts/services/masterDataCategory.service';
 import masterDataItemService from 'services/core-contracts/services/masterDataItem.service';
-import type {
-    IMasterDataCategory,
-    ICreateMasterDataCategoryInput,
-    MasterDataCategoryModuleEnum,
-} from 'services/core-contracts/types/masterDataCategory.types';
 import type {
     IMasterDataItem,
     ICreateMasterDataItemInput,
+    MasterDataItemCategoryEnum,
 } from 'services/core-contracts/types/masterDataItem.types';
 
 const { Title, Text } = Typography;
@@ -58,32 +49,34 @@ const { Search } = Input;
 const { Option } = Select;
 const { useBreakpoint } = Grid;
 
-const MODULE_OPTIONS: { label: string; value: MasterDataCategoryModuleEnum }[] = [
-    { label: 'Cơ bản (Foundation)', value: 'foundation' },
-    { label: 'CRM', value: 'crm' },
-    { label: 'Dự án (Project)', value: 'project' },
-    { label: 'Thi công (Execution)', value: 'execution' },
-    { label: 'Kho (Inventory)', value: 'inventory' },
-    { label: 'Tài chính (Finance)', value: 'finance' },
-    { label: 'Tài liệu (Document)', value: 'document' },
+interface IStaticCategory {
+    name: string;
+    value: MasterDataItemCategoryEnum;
+    description: string;
+    icon?: React.ReactNode;
+}
+
+const STATIC_CATEGORIES: IStaticCategory[] = [
+    { name: 'Loại dịch vụ', value: 'service_type', description: 'Các loại dịch vụ chính cung cấp cho khách hàng' },
+    { name: 'Kênh nguồn', value: 'source_channel', description: 'Nguồn khách hàng đến từ đâu' },
+    { name: 'Loại công trình', value: 'construction_type', description: 'Phân loại các dự án thi công' },
+    { name: 'Mức độ ưu tiên', value: 'priority_level', description: 'Độ ưu tiên của công việc/yêu cầu' },
+    { name: 'Trạng thái Go/No-Go', value: 'go_no_go_status', description: 'Trạng thái đánh giá khả thi dự án' },
+    { name: 'Trạng thái SLA', value: 'sla_status', description: 'Tình trạng cam kết chất lượng dịch vụ' },
+    { name: 'Trạng thái Portal', value: 'portal_publish_status', description: 'Trạng thái hiển thị trên cổng thông tin' },
+    { name: 'Trạng thái khảo sát', value: 'survey_status', description: 'Tiến độ thực hiện khảo sát' },
+    { name: 'Trạng thái báo giá', value: 'quote_status', description: 'Các giai đoạn của báo giá' },
+    { name: 'Trạng thái dự án', value: 'project_status', description: 'Vòng đời của một dự án' },
 ];
 
 const MasterDataManagement: React.FC = () => {
     // Categories State
-    const [categories, setCategories] = useState<IMasterDataCategory[]>([]);
-    const [catLoading, setCatLoading] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState<IStaticCategory | null>(STATIC_CATEGORIES[0]);
     const [catSearch, setCatSearch] = useState('');
-    const [selectedCategory, setSelectedCategory] = useState<IMasterDataCategory | null>(null);
 
     // Items State
     const [items, setItems] = useState<IMasterDataItem[]>([]);
     const [itemLoading, setItemLoading] = useState(false);
-
-    // Modal State - Category
-    const [isCatModalOpen, setIsCatModalOpen] = useState(false);
-    const [editingCat, setEditingCat] = useState<IMasterDataCategory | null>(null);
-    const [catSubmitting, setCatSubmitting] = useState(false);
-    const [catForm] = Form.useForm();
 
     // Modal State - Item
     const [isItemModalOpen, setIsItemModalOpen] = useState(false);
@@ -96,33 +89,26 @@ const MasterDataManagement: React.FC = () => {
     const isMobile = !screens.lg;
     const [isDrawerVisible, setIsDrawerVisible] = useState(false);
 
-    // Fetch Categories
-    const fetchCategories = useCallback(async () => {
-        setCatLoading(true);
-        try {
-            const response = await masterDataCategoryService.queryContent({
-                text: catSearch || undefined,
-                sorted: [{ id: 'sortOrder', desc: false }, { id: 'name', desc: false }]
-            });
-            setCategories(response.data || []);
-        } catch (error) {
-            console.error('Fetch categories error:', error);
-            message.error('Không thể tải danh sách danh mục.');
-        } finally {
-            setCatLoading(false);
-        }
-    }, [catSearch]);
+    // Filtered static categories
+    const filteredCategories = STATIC_CATEGORIES.filter(c => 
+        c.name.toLowerCase().includes(catSearch.toLowerCase()) || 
+        c.value.toLowerCase().includes(catSearch.toLowerCase())
+    );
 
     // Fetch Items for Selected Category
-    const fetchItems = useCallback(async (categoryId: string) => {
+    const fetchItems = useCallback(async (categoryValue: MasterDataItemCategoryEnum) => {
         setItemLoading(true);
         try {
             const response = await masterDataItemService.queryContent({
                 group: {
-                    id: 'categoryId',
-                    operation: '==',
-                    value: categoryId,
-                    children: []
+                    op: 'AND',
+                    children: [
+                        {
+                            id: 'category',
+                            operation: '==',
+                            value: categoryValue,
+                        }
+                    ]
                 } as any,
                 sorted: [{ id: 'sortOrder', desc: false }, { id: 'label', desc: false }]
             });
@@ -136,65 +122,12 @@ const MasterDataManagement: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        fetchCategories();
-    }, [fetchCategories]);
-
-    useEffect(() => {
         if (selectedCategory) {
-            fetchItems(selectedCategory._id);
+            fetchItems(selectedCategory.value);
         } else {
             setItems([]);
         }
     }, [selectedCategory, fetchItems]);
-
-    // Handler - Category CRUD
-    const handleAddCategory = () => {
-        setEditingCat(null);
-        catForm.resetFields();
-        catForm.setFieldsValue({ isActive: true, sortOrder: 0, module: 'foundation' });
-        setIsCatModalOpen(true);
-    };
-
-    const handleEditCategory = (cat: IMasterDataCategory) => {
-        setEditingCat(cat);
-        catForm.setFieldsValue({ ...cat });
-        setIsCatModalOpen(true);
-    };
-
-    const handleSaveCategory = async () => {
-        try {
-            const values = await catForm.validateFields();
-            setCatSubmitting(true);
-
-            if (editingCat) {
-                await masterDataCategoryService.updateMasterDataCategory(editingCat._id, values);
-                message.success('Cập nhật danh mục thành công.');
-            } else {
-                await masterDataCategoryService.createMasterDataCategory(values);
-                message.success('Tạo danh mục mới thành công.');
-            }
-
-            setIsCatModalOpen(false);
-            fetchCategories();
-        } catch (error: any) {
-            message.error(error.message || 'Thao tác thất bại.');
-        } finally {
-            setCatSubmitting(false);
-        }
-    };
-
-    const handleDeleteCategory = async (id: string) => {
-        try {
-            await masterDataCategoryService.deleteMasterDataCategory(id);
-            message.success('Đã xóa danh mục.');
-            if (selectedCategory?._id === id) {
-                setSelectedCategory(null);
-            }
-            fetchCategories();
-        } catch (error: any) {
-            message.error(error.message || 'Không thể xóa danh mục.');
-        }
-    };
 
     // Handler - Item CRUD
     const handleAddItem = () => {
@@ -205,7 +138,7 @@ const MasterDataManagement: React.FC = () => {
         setEditingItem(null);
         itemForm.resetFields();
         itemForm.setFieldsValue({ 
-            categoryId: selectedCategory._id, 
+            category: selectedCategory.value, 
             isActive: true, 
             sortOrder: 0 
         });
@@ -232,7 +165,7 @@ const MasterDataManagement: React.FC = () => {
             }
 
             setIsItemModalOpen(false);
-            if (selectedCategory) fetchItems(selectedCategory._id);
+            if (selectedCategory) fetchItems(selectedCategory.value);
         } catch (error: any) {
             message.error(error.message || 'Thao tác thất bại.');
         } finally {
@@ -244,14 +177,14 @@ const MasterDataManagement: React.FC = () => {
         try {
             await masterDataItemService.deleteMasterDataItem(id);
             message.success('Đã xóa mục dữ liệu.');
-            if (selectedCategory) fetchItems(selectedCategory._id);
+            if (selectedCategory) fetchItems(selectedCategory.value);
         } catch (error: any) {
             message.error(error.message || 'Không thể xóa mục dữ liệu.');
         }
     };
 
     // Columns - Category
-    const catColumns: ColumnsType<IMasterDataCategory> = [
+    const catColumns: ColumnsType<IStaticCategory> = [
         {
             title: 'Danh mục',
             key: 'name',
@@ -263,36 +196,11 @@ const MasterDataManagement: React.FC = () => {
                         if (isMobile) setIsDrawerVisible(false);
                     }}
                 >
-                    <div style={{ fontWeight: selectedCategory?._id === record._id ? 'bold' : 'normal', color: selectedCategory?._id === record._id ? '#1890ff' : 'inherit' }}>
+                    <div style={{ fontWeight: selectedCategory?.value === record.value ? 'bold' : 'normal', color: selectedCategory?.value === record.value ? '#1890ff' : 'inherit' }}>
                         {record.name}
                     </div>
-                    <div style={{ fontSize: '11px', color: '#8c8c8c' }}>{record.code}</div>
+                    <div style={{ fontSize: '11px', color: '#8c8c8c' }}>{record.value}</div>
                 </div>
-            ),
-        },
-        {
-            title: 'Module',
-            dataIndex: 'module',
-            key: 'module',
-            width: 100,
-            responsive: ['md'],
-            render: (val: MasterDataCategoryModuleEnum) => (
-                <Tag color="cyan">{val}</Tag>
-            )
-        },
-        {
-            title: 'Hành động',
-            key: 'actions',
-            width: 80,
-            render: (_, record) => (
-                <Space size="small" onClick={(e) => e.stopPropagation()}>
-                    <Tooltip title="Sửa">
-                        <Button type="text" size="small" icon={<EditOutlined />} onClick={(e) => { e.stopPropagation(); handleEditCategory(record); }} />
-                    </Tooltip>
-                    <Popconfirm title="Xóa danh mục này?" onConfirm={(e) => { e?.stopPropagation(); handleDeleteCategory(record._id); }} okText="Xóa" cancelText="Hủy">
-                        <Button type="text" size="small" danger icon={<DeleteOutlined />} onClick={(e) => e.stopPropagation()} />
-                    </Popconfirm>
-                </Space>
             ),
         }
     ];
@@ -353,11 +261,10 @@ const MasterDataManagement: React.FC = () => {
     const categoryView = (
         <Table
             columns={catColumns}
-            dataSource={categories}
-            rowKey="_id"
-            loading={catLoading}
-            pagination={{ pageSize: 10, simple: true }}
-            rowClassName={(record) => selectedCategory?._id === record._id ? 'ant-table-row-selected' : ''}
+            dataSource={filteredCategories}
+            rowKey="value"
+            pagination={{ pageSize: 12, simple: true }}
+            rowClassName={(record) => selectedCategory?.value === record.value ? 'ant-table-row-selected' : ''}
             showHeader={!isMobile}
         />
     );
@@ -371,23 +278,20 @@ const MasterDataManagement: React.FC = () => {
                             <DatabaseOutlined /> Master Data
                         </Title>
                         <Text style={{ color: 'rgba(255,255,255,0.85)', fontSize: isMobile ? '12px' : '14px' }}>
-                            Cấu hình danh mục dùng chung hệ thống
+                            Cấu hình danh mục hệ thống (Enum Based)
                         </Text>
                     </Col>
                     <Col xs={24} sm={12} style={{ textAlign: isMobile ? 'left' : 'right' }}>
                         <Space wrap>
                             {isMobile && (
                                 <Button 
-                                    icon={<MenuOutlined />} 
+                                    icon={<PlusOutlined />} 
                                     onClick={() => setIsDrawerVisible(true)}
                                     style={{ background: 'rgba(255,255,255,0.15)', color: 'white', borderColor: 'white' }}
                                 >
-                                    Danh mục ({selectedCategory?.name || 'Tất cả'})
+                                    Chọn danh mục ({selectedCategory?.name || 'Tất cả'})
                                 </Button>
                             )}
-                            <Button type="primary" icon={<PlusOutlined />} onClick={handleAddCategory} ghost style={{ color: 'white', borderColor: 'white' }}>
-                                Thêm danh mục
-                            </Button>
                         </Space>
                     </Col>
                 </Row>
@@ -399,7 +303,7 @@ const MasterDataManagement: React.FC = () => {
                     <Col xs={24} lg={8} xl={7}>
                         <Card 
                             title={<Space><AppstoreOutlined /> Danh sách danh mục</Space>}
-                            extra={<Search placeholder="Tìm..." onSearch={setCatSearch} style={{ width: 120 }} allowClear />}
+                            extra={<Search placeholder="Tìm..." onChange={e => setCatSearch(e.target.value)} style={{ width: 120 }} allowClear />}
                             bodyStyle={{ padding: 0 }}
                             className="glass-card"
                         >
@@ -498,65 +402,10 @@ const MasterDataManagement: React.FC = () => {
                 open={isDrawerVisible}
                 bodyStyle={{ padding: 0 }}
                 width="80%"
-                extra={<Search placeholder="Tìm..." onSearch={setCatSearch} style={{ width: 150 }} allowClear />}
+                extra={<Search placeholder="Tìm..." onChange={e => setCatSearch(e.target.value)} style={{ width: 150 }} allowClear />}
             >
                 {categoryView}
             </Drawer>
-
-            {/* Category Modal */}
-            <Modal
-                title={editingCat ? 'Cập nhật danh mục' : 'Thêm danh mục mới'}
-                open={isCatModalOpen}
-                onOk={handleSaveCategory}
-                onCancel={() => setIsCatModalOpen(false)}
-                confirmLoading={catSubmitting}
-                width={600}
-                destroyOnClose
-            >
-                <Form form={catForm} layout="vertical">
-                    <Row gutter={16}>
-                        <Col span={isMobile ? 24 : 12}>
-                            <Form.Item name="name" label="Tên danh mục" rules={[{ required: true, message: 'Vui lòng nhập tên danh mục' }]}>
-                                <Input placeholder="Ví dụ: Loại vật tư" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={isMobile ? 24 : 12}>
-                            <Form.Item name="code" label="Mã danh mục (Code)" rules={[{ required: true, message: 'Vui lòng nhập mã danh mục' }]}>
-                                <Input placeholder="Ví dụ: MATERIAL_TYPE" disabled={!!editingCat} />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                    <Row gutter={16}>
-                        <Col span={isMobile ? 24 : 12}>
-                            <Form.Item name="module" label="Module sử dụng" rules={[{ required: true }]}>
-                                <Select placeholder="Chọn module">
-                                    {MODULE_OPTIONS.map(opt => <Option key={opt.value} value={opt.value}>{opt.label}</Option>)}
-                                </Select>
-                            </Form.Item>
-                        </Col>
-                        <Col span={isMobile ? 24 : 12}>
-                            <Form.Item name="sortOrder" label="Thứ tự hiển thị">
-                                <InputNumber style={{ width: '100%' }} />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                    <Row gutter={16}>
-                        <Col span={isMobile ? 24 : 12}>
-                            <Form.Item name="isActive" label="Trạng thái hoạt động" valuePropName="checked">
-                                <Switch checkedChildren="Bật" unCheckedChildren="Tắt" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={isMobile ? 24 : 12}>
-                            <Form.Item name="allowCustomItem" label="Cho phép tạo Item tùy chỉnh" valuePropName="checked">
-                                <Switch checkedChildren="Cho phép" unCheckedChildren="Không" />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                    <Form.Item name="description" label="Mô tả">
-                        <Input.TextArea rows={3} placeholder="Mô tả về tác dụng của danh mục này..." />
-                    </Form.Item>
-                </Form>
-            </Modal>
 
             {/* Item Modal */}
             <Modal
@@ -569,7 +418,11 @@ const MasterDataManagement: React.FC = () => {
                 destroyOnClose
             >
                 <Form form={itemForm} layout="vertical">
-                    <Form.Item name="categoryId" hidden><Input /></Form.Item>
+                    <Form.Item name="category" label="Danh mục (Enum)" rules={[{ required: true }]}>
+                        <Select disabled>
+                            {STATIC_CATEGORIES.map(c => <Option key={c.value} value={c.value}>{c.name}</Option>)}
+                        </Select>
+                    </Form.Item>
                     <Row gutter={16}>
                         <Col span={isMobile ? 24 : 12}>
                             <Form.Item name="label" label="Nhãn hiển thị (Label)" rules={[{ required: true, message: 'Vui lòng nhập nhãn' }]}>
