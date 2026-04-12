@@ -891,9 +891,34 @@ export function UploadFilesView({ value, property }: { value: any, property: Pro
                 title={previewFile?.name || 'File Preview'}
                 open={previewModalOpen}
                 onCancel={() => setPreviewModalOpen(false)}
-                width={800}
+                width={getFileType(previewFile?.name) === 'pdf' ? 'min(1200px, 96vw)' : 800}
                 zIndex={1410}
-                footer={[
+                style={getFileType(previewFile?.name) === 'pdf' ? { top: 0, paddingBottom: 0, margin: '0 auto' } : undefined}
+                styles={{
+                    content: getFileType(previewFile?.name) === 'pdf' ? {
+                        height: '100dvh',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        padding: 0,
+                        borderRadius: 0,
+                        overflow: 'hidden',
+                    } : {},
+                    header: getFileType(previewFile?.name) === 'pdf' ? {
+                        padding: '12px 16px',
+                        marginBottom: 0,
+                        borderBottom: '1px solid #f0f0f0',
+                        flexShrink: 0,
+                    } : {},
+                    body: getFileType(previewFile?.name) === 'pdf' ? {
+                        flex: 1,
+                        padding: 0,
+                        overflow: 'hidden',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        minHeight: 0,
+                    } : { padding: '16px 24px' },
+                }}
+                footer={getFileType(previewFile?.name) === 'pdf' ? null : [
                     <Button key="download" onClick={() => handleDownload(previewFile)}>
                         Tải xuống
                     </Button>,
@@ -903,7 +928,7 @@ export function UploadFilesView({ value, property }: { value: any, property: Pro
                 ]}
             >
                 {previewFile && (
-                    <div className="text-center">
+                    <div className={getFileType(previewFile?.name) === 'pdf' ? "h-full flex flex-col" : "text-center"}>
                         {isImageFile(previewFile) ? (
                             <Image
                                 src={getFileLink(previewFile.file_id || previewFile.url)}
@@ -921,7 +946,7 @@ export function UploadFilesView({ value, property }: { value: any, property: Pro
                                 Your browser does not support the video tag.
                             </video>
                         ) : getFileType(previewFile.name) === 'pdf' ? (
-                            <div style={{ height: '72vh', width: '100%', overflow: 'hidden', borderRadius: '8px' }}>
+                            <div style={{ flex: 1, width: '100%', height: '100%', overflow: 'hidden' }}>
                                 <PdfViewer 
                                     url={getFileLink(previewFile.file_id || previewFile.url) || ''} 
                                     title={previewFile.name} 
