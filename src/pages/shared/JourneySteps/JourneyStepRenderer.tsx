@@ -5,9 +5,9 @@ import { confirmAdvanceJourneyStep, HEADER_STEP_KEY_TO_TEMPLATE_STEP_CODE } from
 import Step01Info from './Step01Info';
 import Step02Consult from './Step02Consult';
 import Step03Survey from './Step03Survey';
-import Step04Solution from './Step04Solution';
-import Step05Quote from './Step05Quote';
-import Step06Contract from './Step06Contract';
+import Step04SolutionOrchestration from './Step04SolutionOrchestration';
+import Step05QuoteOrchestration from './Step05QuoteOrchestration';
+import Step06SettlementOrchestration from './Step06SettlementOrchestration';
 import Step07Advance from './Step07Advance';
 import Step08Construct from './Step08Construct';
 import Step09Acceptance from './Step09Acceptance';
@@ -87,9 +87,9 @@ export const JourneyStepRenderer: React.FC<JourneyStepRendererProps> = ({
             case 'S01_INFO': return <Step01Info {...commonProps} />;
             case 'S02_CONSULT': return <Step02Consult {...commonProps} />;
             case 'S03_SURVEY': return <Step03Survey {...commonProps} />;
-            case 'S04_SOLUTION': return <Step04Solution {...commonProps} />;
-            case 'S05_QUOTE': return <Step05Quote {...commonProps} />;
-            case 'S06_CONTRACT': return <Step06Contract {...commonProps} />;
+            case 'S04_SOLUTION': return <Step04SolutionOrchestration {...commonProps} />;
+            case 'S05_QUOTE': return <Step05QuoteOrchestration {...commonProps} />;
+            case 'S06_CONTRACT': return <Step06SettlementOrchestration {...commonProps} />;
             case 'S07_ADVANCE': return <Step07Advance {...commonProps} />; // Keep for legacy potential but not in main sequence
             case 'S08_CONSTRUCT': return <Step08Construct {...commonProps} />;
             case 'S09_ACCEPTANCE': return <Step09Acceptance {...commonProps} />;
@@ -100,6 +100,7 @@ export const JourneyStepRenderer: React.FC<JourneyStepRendererProps> = ({
             default: return <Empty description={`Component cho bước ${resolvedStepCode} đang được phát triển`} />;
         }
     };
+
 
 
     return (

@@ -14,3 +14,4 @@ export { default as Step12Warranty } from './Step12Warranty';
 export { default as Step13Care } from './Step13Care';
 export { default as StepLabor } from './StepLabor';
 export { default as StepMaterials } from './StepMaterials';
+export { Step04EstimateOrchestration } from './Step04EstimateOrchestration';

@@ -76,7 +76,7 @@ import {
     IStepsItem,
 } from '../../../services/core-contracts/types/customerJourneySetting.types';
 import { IJourney } from '../../../services/core-contracts/types/journey.types';
-import { JourneyStepRenderer, StepLabor, StepMaterials } from '../JourneySteps';
+import { JourneyStepRenderer, StepLabor, StepMaterials, Step04EstimateOrchestration } from '../JourneySteps';
 
 import { AuthorizedUserSelect } from '../../../components/authorizedusers/AuthorizedUser';
 import { JourneyDocumentsTab } from '../../../components/journey/JourneyDocumentsTab';
@@ -392,6 +392,7 @@ const JOURNEY_TAB_ACCESS_RULES: JourneyTabAccessRule[] = [
     { key: 'GRP_08_CONSTRUCT', minStepCode: 'lead_new', alwaysVisible: true, currentStepCode: 'execution', roleGroupCode: 'GRP_08_CONSTRUCT' },
     { key: 'GRP_03_SURVEY', minStepCode: 'site_survey', currentStepCode: 'site_survey', roleGroupCode: 'GRP_03_SURVEY' },
     { key: 'GRP_04_SOLUTION', minStepCode: 'solution_design', currentStepCode: 'solution_design', roleGroupCode: 'GRP_04_SOLUTION' },
+    { key: 'GRP_ESTIMATE', minStepCode: 'solution_design', roleGroupCode: 'GRP_05_QUOTE', alwaysVisible: true },
     { key: 'GRP_LABOR', minStepCode: 'quotation', roleGroupCode: 'GRP_05_QUOTE' },
     { key: 'GRP_MATERIALS', minStepCode: 'quotation', roleGroupCode: 'GRP_05_QUOTE' },
     { key: 'GRP_05_QUOTE', minStepCode: 'quotation', currentStepCode: 'quotation', roleGroupCode: 'GRP_05_QUOTE' },
@@ -1494,8 +1495,14 @@ const JourneyDetail360: React.FC = () => {
                 case 'GRP_04_SOLUTION':
                     return {
                         key: rule.key,
-                        label: <span><CalculatorOutlined /> Dự toán</span>,
+                        label: <span><CalculatorOutlined /> Giải pháp</span>, // Renaming from Dự toán to Giải pháp
                         children: renderTabContent('GRP_04_SOLUTION', 'S04_SOLUTION', 'solution_design'),
+                    };
+                case 'GRP_ESTIMATE':
+                    return {
+                        key: rule.key,
+                        label: <span><CalculatorOutlined /> Dự toán & Chào thầu</span>,
+                        children: <Step04EstimateOrchestration journeyId={journey._id} />,
                     };
                 case 'GRP_LABOR':
                     return {
