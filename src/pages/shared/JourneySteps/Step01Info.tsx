@@ -22,7 +22,8 @@ import { StepWorkTaskList } from '../../../components/journey/StepWorkTaskList';
 import { CreateSiteReportModal } from '../../../components/journey/CreateSiteReportModal';
 import { useAuth } from '../../../hooks/useAuth';
 import { resolveJourneyTabForWorkTaskAction } from '../../../constants/workTaskActionUx';
-import type { IActionsItem } from '../../../services/core-contracts/types/workTask.types';
+import { WorkTaskActionModals, type WorkTaskActionDialogContext } from '../../../components/journey/WorkTaskActionModals';
+import type { TaskActionClickPayload } from '../../../utils/workTaskActionGroups';
 import { siteReportService } from '../../../services/core-contracts/services/siteReport.service';
 
 const { TextArea } = Input;
@@ -99,6 +100,7 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
     const [selectedTaskForReport, setSelectedTaskForReport] = useState<IWorkTask | null>(null);
     const [reportCountByTask, setReportCountByTask] = useState<Record<string, number>>({});
+    const [workTaskActionContext, setWorkTaskActionContext] = useState<WorkTaskActionDialogContext>(null);
 
     const fetchData = async () => {
         setIsLoading(true);
@@ -197,11 +199,25 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
         }
     };
 
-    const handleWorkTaskActionFromStep = (_task: IWorkTask, action: IActionsItem) => {
-        const tab = resolveJourneyTabForWorkTaskAction(action);
-        if (tab) {
-            window.dispatchEvent(new CustomEvent('switch-journey-tab', { detail: tab }));
+    const handleWorkTaskActionClick = (p: TaskActionClickPayload) => {
+        if (!journeyData?._id) {
+            message.warning('Chưa tải xong dữ liệu công trình.');
             return;
+        }
+        if (p.type === 'field_batch' && p.actions.length) {
+            setWorkTaskActionContext({ mode: 'field_batch', task: p.task, actions: p.actions });
+            return;
+        }
+        if (p.type === 'document_batch' && p.actions.length) {
+            setWorkTaskActionContext({ mode: 'document_batch', task: p.task, actions: p.actions });
+            return;
+        }
+        if (p.type === 'single') {
+            const tab = resolveJourneyTabForWorkTaskAction(p.action);
+            if (tab) {
+                window.dispatchEvent(new CustomEvent('switch-journey-tab', { detail: tab }));
+                return;
+            }
         }
         message.info('Chưa ánh xạ tab cho thao tác này — vui lòng thao tác thủ công trên lộ trình.');
     };
@@ -557,7 +573,7 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                                                     const event = new CustomEvent('switch-journey-tab', { detail: 'GRP_08_CONSTRUCT' });
                                                     window.dispatchEvent(event);
                                                 }}
-                                                onTaskActionClick={handleWorkTaskActionFromStep}
+                                                onTaskActionClick={handleWorkTaskActionClick}
                                             />
                                         </>
                                     );
@@ -568,7 +584,19 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                 )}
             </Form>
 
-
+            <WorkTaskActionModals
+                context={workTaskActionContext}
+                journey={journeyData}
+                onClose={() => setWorkTaskActionContext(null)}
+                onJourneyUpdated={async () => {
+                    await fetchData();
+                    fetchTasks();
+                    window.dispatchEvent(new CustomEvent('journey-tasks-updated'));
+                }}
+                onNavigateTab={(tab) => {
+                    window.dispatchEvent(new CustomEvent('switch-journey-tab', { detail: tab }));
+                }}
+            />
 
             <CreateSiteReportModal
                 open={isReportModalOpen}

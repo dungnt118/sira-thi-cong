@@ -5,6 +5,7 @@ import {
     CalculatorOutlined,
     CalendarOutlined,
     CarryOutOutlined,
+    CheckCircleOutlined,
     ClockCircleOutlined,
     DollarOutlined,
     EditOutlined,
@@ -42,6 +43,7 @@ import {
     Modal,
     Row,
     Select,
+    Switch,
     Space,
     Steps,
     Tabs, Tag,
@@ -76,6 +78,9 @@ import { AuthorizedUserSelect } from '../../../components/authorizedusers/Author
 import { JourneyDocumentsTab } from '../../../components/journey/JourneyDocumentsTab';
 import JourneyUpsertDrawer from '../../../components/journey/JourneyUpsertDrawer';
 import { StepWorkTaskList } from '../../../components/journey/StepWorkTaskList';
+import { WorkTaskActionModals, type WorkTaskActionDialogContext } from '../../../components/journey/WorkTaskActionModals';
+import type { TaskActionClickPayload } from '../../../utils/workTaskActionGroups';
+import { confirmAdvanceJourneyStep, headerStepKeyToStandardProcedureGroupCd } from '../../../utils/journeyStepConfirmation';
 import { mockJourneyTemplates } from '../../../data/journeyMockData';
 import { journeyDocumentService } from '../../../services/core-contracts/services/journeyDocument.service';
 import { IJourneyDocument } from '../../../services/core-contracts/types/journeyDocument.types';
@@ -297,6 +302,15 @@ const TASK_STATUS_CONFIG: Record<string, { label: string; color: string }> = {
     skipped: { label: 'Bỏ qua', color: 'error' }
 };
 
+/** QL / PM: activeRole hoặc danh sách role context BAC (`availableRoles`). */
+function hasRoleQlOrPm(role: string | null | undefined, availableRoles: string[] | undefined): boolean {
+    const tokens: string[] = [...(availableRoles ?? []).map((r) => String(r).trim().toUpperCase())];
+    if (role != null && String(role).trim()) {
+        tokens.push(String(role).trim().toUpperCase());
+    }
+    return tokens.some((c) => c === 'QL' || c === 'PM');
+}
+
 const toUserList = (value: unknown): string[] => {
     if (!value) {
         return [];
@@ -394,11 +408,12 @@ const JourneyDetail360: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const activeTab = searchParams.get('tab') || 'GRP_01_INFO';
     const navigate = useNavigate();
-    const { role, isAdmin, user } = useAuth();
-    /** PM trong app = mã QL (route /admin/ql); từng có nhầm `role === 'pm'` nên modal không mount. */
+    const { role, isAdmin, user, availableRoles } = useAuth();
+    /** PM trong app = mã QL (route /admin/ql); nhận thêm từ `availableRoles` khi `role` chưa sync. */
     const isPmManager =
         isAdmin ||
-        (typeof role === 'string' && ['QL', 'PM'].includes(role.toUpperCase()));
+        (typeof role === 'string' && ['QL', 'PM'].includes(role.trim().toUpperCase())) ||
+        hasRoleQlOrPm(typeof role === 'string' ? role : role != null ? String(role) : undefined, availableRoles);
 
     const [journey, setJourney] = useState<IJourney | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -411,6 +426,7 @@ const JourneyDetail360: React.FC = () => {
     const [isDocModalOpen, setIsDocModalOpen] = useState(false);
     const [editingDoc, setEditingDoc] = useState<any>(null);
     const [selectedTaskStepCode, setSelectedTaskStepCode] = useState<string | null>(null);
+    const [workTaskActionContext, setWorkTaskActionContext] = useState<WorkTaskActionDialogContext>(null);
     const [reportCountByTask, setReportCountByTask] = useState<Record<string, number>>({});
     const [journeyDocuments, setJourneyDocuments] = useState<IJourneyDocument[]>([]);
 
@@ -607,6 +623,9 @@ const JourneyDetail360: React.FC = () => {
     const [followUpForm] = Form.useForm();
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
     const [selectedTaskForReport, setSelectedTaskForReport] = useState<IWorkTask | null>(null);
+    const [isCreateWorkTaskModalOpen, setIsCreateWorkTaskModalOpen] = useState(false);
+    const [isCompletingStepFromModal, setIsCompletingStepFromModal] = useState(false);
+    const [createWorkTaskForm] = Form.useForm();
     const [modal, modalContextHolder] = Modal.useModal();
 
     const showBuildWorkTasksFailure = (built: BuildWorkTasksResult) => {
@@ -839,6 +858,43 @@ const JourneyDetail360: React.FC = () => {
         [selectedTaskStepCode, workTasks]
     );
 
+    const taskModalStepIndex = useMemo(
+        () => (selectedTaskStepCode ? HEADER_STEP_CONFIG.findIndex((s) => s.key === selectedTaskStepCode) : -1),
+        [selectedTaskStepCode]
+    );
+
+    const isTaskModalReadOnly = taskModalStepIndex > currentHeaderStepIndex;
+
+    /** Người đang đăng nhập là PM gán trên công trình — coi như quyền quản lý chốt bước. */
+    const isCurrentUserJourneyPm = useMemo(() => {
+        if (!user?._id || !journey?.pm_user) return false;
+        return toUserList(journey.pm_user).some((id) => String(id) === String(user._id));
+    }, [user, journey]);
+
+    const canFinalizeStepInTaskModal = useMemo(() => {
+        if (!journey?._id || !selectedTaskStepCode) return false;
+        const selectedKey = String(selectedTaskStepCode).trim();
+        const currentKey =
+            journey.current_step != null && String(journey.current_step).trim() !== ''
+                ? String(journey.current_step).trim()
+                : '';
+        if (!currentKey || selectedKey !== currentKey) return false;
+        if (taskModalStepIndex > currentHeaderStepIndex) return false;
+        const groupCd = headerStepKeyToStandardProcedureGroupCd(selectedKey, journeySteps);
+        if (isPmManager || isCurrentUserJourneyPm) return true;
+        if (groupCd && userRoleConfig.finalizableGroupCodes.includes(groupCd)) return true;
+        return false;
+    }, [
+        journey,
+        selectedTaskStepCode,
+        journeySteps,
+        isPmManager,
+        isCurrentUserJourneyPm,
+        userRoleConfig.finalizableGroupCodes,
+        taskModalStepIndex,
+        currentHeaderStepIndex,
+    ]);
+
     const assignedPeopleCount = useMemo(() => {
         if (!journey) return 0;
         const ids = new Set<string>();
@@ -884,7 +940,7 @@ const JourneyDetail360: React.FC = () => {
         setSelectedTaskStepCode(stepCode);
     };
 
-    /** Điều hướng tab theo action (UX) khi bấm nút thao tác gợi ý trên WorkTask. */
+    /** Điều hướng tab khi action không mở dialog (fallback). */
     const handleWorkTaskActionNavigate = useCallback(
         (_task: IWorkTask, action: IActionsItem) => {
             const tab = resolveJourneyTabForWorkTaskAction(action);
@@ -898,6 +954,92 @@ const JourneyDetail360: React.FC = () => {
         },
         [setSearchParams]
     );
+
+    /** Mở dialog theo nhóm action (field batch / document batch) hoặc điều hướng tab. */
+    const handleWorkTaskActionClick = useCallback(
+        (p: TaskActionClickPayload) => {
+            if (!journey?._id) {
+                message.warning('Chưa tải xong dữ liệu công trình.');
+                return;
+            }
+            if (p.type === 'field_batch' && p.actions.length) {
+                setWorkTaskActionContext({ mode: 'field_batch', task: p.task, actions: p.actions });
+                return;
+            }
+            if (p.type === 'document_batch' && p.actions.length) {
+                setWorkTaskActionContext({ mode: 'document_batch', task: p.task, actions: p.actions });
+                return;
+            }
+            if (p.type === 'single') {
+                handleWorkTaskActionNavigate(p.task, p.action);
+            }
+        },
+        [journey?._id, handleWorkTaskActionNavigate]
+    );
+
+    const handleDeleteWorkTaskFromModal = async (task: IWorkTask) => {
+        try {
+            const ok = await workTaskService.deleteWorkTask(task._id);
+            if (!ok) {
+                throw new Error('delete failed');
+            }
+            message.success('Đã xóa công việc');
+            await fetchWorkTasks();
+            window.dispatchEvent(new CustomEvent('journey-tasks-updated'));
+        } catch (error) {
+            console.error(error);
+            message.error('Không thể xóa công việc');
+        }
+    };
+
+    const handleSubmitNewWorkTask = async () => {
+        if (!journeyId || !selectedTaskStepCode) return;
+        try {
+            const v = await createWorkTaskForm.validateFields();
+            await workTaskService.createWorkTask({
+                journey_id: journeyId,
+                journey_step_code: selectedTaskStepCode as ICreateWorkTaskInput['journey_step_code'],
+                title: v.title,
+                description: v.description,
+                assignee_role: v.assignee_role,
+                is_required: Boolean(v.is_required),
+                status: 'pending',
+            });
+            message.success('Đã tạo công việc');
+            setIsCreateWorkTaskModalOpen(false);
+            createWorkTaskForm.resetFields();
+            await fetchWorkTasks();
+            window.dispatchEvent(new CustomEvent('journey-tasks-updated'));
+        } catch (error: unknown) {
+            if (error && typeof error === 'object' && 'errorFields' in error) return;
+            console.error(error);
+            message.error(error instanceof Error ? error.message : 'Không thể tạo công việc');
+        }
+    };
+
+    const handleCompleteStepFromTaskModal = async () => {
+        if (!journey?._id || !journey.current_step) return;
+        setIsCompletingStepFromModal(true);
+        try {
+            const r = await confirmAdvanceJourneyStep({
+                journeyId: journey._id,
+                actualStep: journey.current_step,
+                workTasks,
+                modalApi: modal,
+            });
+            if (r === 'advanced') {
+                await fetchJourney();
+                await fetchWorkTasks();
+                setSelectedTaskStepCode(null);
+                window.dispatchEvent(new CustomEvent('journey-tasks-updated'));
+            }
+        } catch (error) {
+            console.error(error);
+            message.error('Lỗi khi cập nhật trạng thái bước');
+        } finally {
+            setIsCompletingStepFromModal(false);
+        }
+    };
 
     const renderAssignmentTags = (users: string[], emptyText: string = 'Chưa gán') => {
         if (users.length === 0) {
@@ -1895,33 +2037,87 @@ const JourneyDetail360: React.FC = () => {
                 title={selectedStepMeta ? `Danh sách công việc: ${selectedStepMeta.label}` : 'Danh sách công việc'}
                 open={Boolean(selectedTaskStepCode)}
                 onCancel={() => setSelectedTaskStepCode(null)}
-                footer={null}
+                footer={
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', flexWrap: 'wrap', gap: 8 }}>
+                        {canFinalizeStepInTaskModal ? (
+                            <Button
+                                type="primary"
+                                icon={<CheckCircleOutlined />}
+                                loading={isCompletingStepFromModal}
+                                onClick={() => void handleCompleteStepFromTaskModal()}
+                                style={{ background: '#52c41a', borderColor: '#52c41a' }}
+                            >
+                                Xác nhận hoàn thành bước
+                            </Button>
+                        ) : null}
+                        <Button onClick={() => setSelectedTaskStepCode(null)}>Đóng</Button>
+                    </div>
+                }
                 width={720}
             >
-                {(() => {
-                    const selectedTaskStepIndex = HEADER_STEP_CONFIG.findIndex((s) => s.key === selectedTaskStepCode);
-                    const isTaskReadOnly = selectedTaskStepIndex > currentHeaderStepIndex;
-                    return (
-                        <StepWorkTaskList
-                            tasks={selectedStepTasks}
-                            loading={isLoadingTasks}
-                            reportCounts={reportCountByTask}
-                            currentUserId={user?._id}
-                            onStatusUpdate={handleStatusUpdate}
-                            onCreateReport={(task) => {
-                                setSelectedTaskForReport(task);
-                                setIsReportModalOpen(true);
-                            }}
-                            onViewReports={() => {
-                                setSearchParams({ tab: 'GRP_08_CONSTRUCT' });
-                                setSelectedTaskStepCode(null);
-                                setIsJourneyDrawerVisible(false);
-                            }}
-                            onTaskActionClick={handleWorkTaskActionNavigate}
-                            readOnly={isTaskReadOnly}
+                <StepWorkTaskList
+                    tasks={selectedStepTasks}
+                    loading={isLoadingTasks}
+                    reportCounts={reportCountByTask}
+                    currentUserId={user?._id}
+                    onStatusUpdate={handleStatusUpdate}
+                    onCreateReport={(task) => {
+                        setSelectedTaskForReport(task);
+                        setIsReportModalOpen(true);
+                    }}
+                    onViewReports={() => {
+                        setSearchParams({ tab: 'GRP_08_CONSTRUCT' });
+                        setSelectedTaskStepCode(null);
+                        setIsJourneyDrawerVisible(false);
+                    }}
+                    onTaskActionClick={handleWorkTaskActionClick}
+                    readOnly={isTaskModalReadOnly}
+                    canManageWorkTasks={isPmManager}
+                    onAddWorkTask={() => setIsCreateWorkTaskModalOpen(true)}
+                    onDeleteWorkTask={(task) => void handleDeleteWorkTaskFromModal(task)}
+                />
+            </Modal>
+
+            <Modal
+                title="Thêm công việc"
+                open={isCreateWorkTaskModalOpen}
+                onCancel={() => {
+                    setIsCreateWorkTaskModalOpen(false);
+                    createWorkTaskForm.resetFields();
+                }}
+                onOk={() => void handleSubmitNewWorkTask()}
+                okText="Tạo"
+                destroyOnClose
+                width={480}
+            >
+                <Form
+                    form={createWorkTaskForm}
+                    layout="vertical"
+                    preserve={false}
+                    initialValues={{ is_required: false, assignee_role: 'QL' as WorkTaskAssigneeRoleEnum2 }}
+                >
+                    <Form.Item name="title" label="Tiêu đề" rules={[{ required: true, message: 'Nhập tiêu đề' }]}>
+                        <Input placeholder="Tên công việc" />
+                    </Form.Item>
+                    <Form.Item name="description" label="Mô tả">
+                        <Input.TextArea rows={3} placeholder="Mô tả ngắn (tuỳ chọn)" />
+                    </Form.Item>
+                    <Form.Item
+                        name="assignee_role"
+                        label="Vai trò được giao"
+                        rules={[{ required: true, message: 'Chọn vai trò' }]}
+                    >
+                        <Select
+                            options={WORKTASK_ASSIGNEE_ROLES.map((r) => ({
+                                value: r,
+                                label: `${r} — ${JOURNEY_ASSIGNMENT_HINT_BY_ROLE[r] || r}`,
+                            }))}
                         />
-                    );
-                })()}
+                    </Form.Item>
+                    <Form.Item name="is_required" label="Công việc bắt buộc" valuePropName="checked">
+                        <Switch />
+                    </Form.Item>
+                </Form>
             </Modal>
 
             <CreateJourneyDocumentModal
@@ -1956,6 +2152,18 @@ const JourneyDetail360: React.FC = () => {
                 stepCode={selectedTaskForReport?.journey_step_code || selectedTaskStepCode || ''}
                 taskId={selectedTaskForReport?._id}
                 taskTitle={selectedTaskForReport?.title}
+            />
+
+            <WorkTaskActionModals
+                context={workTaskActionContext}
+                journey={journey}
+                onClose={() => setWorkTaskActionContext(null)}
+                onJourneyUpdated={async () => {
+                    await fetchJourney();
+                    fetchWorkTasks();
+                    window.dispatchEvent(new CustomEvent('journey-tasks-updated'));
+                }}
+                onNavigateTab={(tab) => setSearchParams({ tab })}
             />
 
             <JourneyHistoryModal

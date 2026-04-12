@@ -2,6 +2,35 @@
  * Nhãn + tab điều hướng cho WorkTask.actions (đồng bộ preset CustomerJourneySetting).
  */
 
+import type { IActionsItem } from '../services/core-contracts/types/workTask.types';
+
+/** Khi WorkTask lưu action thiếu `target_field`, suy ra từ `action_key` (đồng bộ CustomerJourneySetting ACTION_PRESETS). */
+export const ACTION_KEY_TO_TARGET_FIELD: Record<string, string> = {
+    fill_site_address: 'site_address',
+    assign_owner_user: 'owner_user',
+    link_origin_journey: 'origin_journey_id',
+    upload_survey_report: 'survey_status',
+    upload_site_photos: 'survey_status',
+    upload_solution_doc: 'project_status',
+    upload_business_plan: 'project_status',
+    upload_customer_quotation: 'quote_status',
+    upload_contract: 'project_status',
+    confirm_quote_approved: 'quote_status',
+    confirm_final_acceptance: 'project_status',
+    upload_payment_receipt: 'project_status',
+};
+
+export function resolveTargetFieldFromAction(action: IActionsItem | undefined | null): string {
+    if (!action) return '';
+    const fromConfig = typeof action.target_field === 'string' ? action.target_field.trim() : '';
+    if (fromConfig) return fromConfig;
+    const key = action.action_key != null ? String(action.action_key) : '';
+    if (key && ACTION_KEY_TO_TARGET_FIELD[key]) {
+        return ACTION_KEY_TO_TARGET_FIELD[key];
+    }
+    return '';
+}
+
 export const WORK_TASK_ACTION_KEY_LABELS: Record<string, string> = {
     fill_site_address: 'Điền địa chỉ công trình',
     assign_owner_user: 'Gán người phụ trách',

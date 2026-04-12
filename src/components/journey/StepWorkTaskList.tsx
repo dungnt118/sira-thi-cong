@@ -1,5 +1,5 @@
 import React from 'react';
-import { List, Typography, Space, Tag, Select, Badge, Empty, Button, Tooltip, message } from 'antd';
+import { List, Typography, Space, Tag, Select, Badge, Empty, Button, Tooltip, message, Popconfirm } from 'antd';
 import {
     CheckCircleOutlined,
     ClockCircleOutlined,
@@ -8,10 +8,13 @@ import {
     UserOutlined,
     FormOutlined,
     FileTextOutlined,
+    PlusOutlined,
+    DeleteOutlined,
 } from '@ant-design/icons';
 import { labelForWorkTaskActionKey } from '../../constants/workTaskActionUx';
 import type { IActionsItem } from '../../services/core-contracts/types/workTask.types';
 import { IWorkTask } from '../../services/core-contracts/types/workTask.types';
+import { splitTaskActionsForUi, type TaskActionClickPayload } from '../../utils/workTaskActionGroups';
 
 const { Text } = Typography;
 
@@ -86,9 +89,13 @@ export interface StepWorkTaskListProps {
     onStatusUpdate?: (taskId: string, status: string) => void;
     onCreateReport?: (task: IWorkTask) => void;
     onViewReports?: (task: IWorkTask) => void;
-    /** Bấm nút thao tác gợi ý (theo `actions` trên task) — ví dụ điều hướng tab Journey. */
-    onTaskActionClick?: (task: IWorkTask, action: IActionsItem, actionIndex: number) => void;
+    /** Bấm nút thao tác gợi ý (gom theo loại: field batch, document batch, hoặc single). */
+    onTaskActionClick?: (payload: TaskActionClickPayload) => void;
     readOnly?: boolean;
+    /** Quản lý (QL / PM theo app): thêm / xóa công việc tại bước đang xem. */
+    canManageWorkTasks?: boolean;
+    onAddWorkTask?: () => void;
+    onDeleteWorkTask?: (task: IWorkTask) => void;
 }
 
 export const StepWorkTaskList: React.FC<StepWorkTaskListProps> = ({
@@ -101,8 +108,19 @@ export const StepWorkTaskList: React.FC<StepWorkTaskListProps> = ({
     onViewReports,
     onTaskActionClick,
     readOnly = false,
+    canManageWorkTasks = false,
+    onAddWorkTask,
+    onDeleteWorkTask,
 }) => {
     return (
+        <>
+        {canManageWorkTasks && onAddWorkTask ? (
+            <div style={{ marginBottom: 12 }}>
+                <Button type="primary" size="small" icon={<PlusOutlined />} onClick={() => onAddWorkTask()}>
+                    Thêm công việc
+                </Button>
+            </div>
+        ) : null}
         <List
             loading={loading}
             dataSource={tasks}
@@ -149,7 +167,22 @@ export const StepWorkTaskList: React.FC<StepWorkTaskListProps> = ({
                             >
                                 Báo cáo
                             </Button>
-                        )
+                        ),
+                        canManageWorkTasks && onDeleteWorkTask ? (
+                            <Popconfirm
+                                key="delete"
+                                title="Xóa công việc này?"
+                                description={task.title || task._id}
+                                okText="Xóa"
+                                cancelText="Hủy"
+                                okButtonProps={{ danger: true }}
+                                onConfirm={() => onDeleteWorkTask(task)}
+                            >
+                                <Button type="link" danger size="small" icon={<DeleteOutlined />}>
+                                    Xóa
+                                </Button>
+                            </Popconfirm>
+                        ) : null,
                     ].filter(Boolean)}
                 >
                     <List.Item.Meta
@@ -214,7 +247,72 @@ export const StepWorkTaskList: React.FC<StepWorkTaskListProps> = ({
                                             Thao tác gợi ý
                                         </Text>
                                         <Space wrap size={[8, 8]}>
-                                            {task.actions.map((act, idx) => {
+                                            {splitTaskActionsForUi(task.actions).map((batch, idx) => {
+                                                if (batch.kind === 'field_batch') {
+                                                    const n = batch.actions.length;
+                                                    const tip = batch.actions
+                                                        .map(
+                                                            (a) =>
+                                                                a.note ||
+                                                                [a.action_key && labelForWorkTaskActionKey(a.action_key), a.target_field]
+                                                                    .filter(Boolean)
+                                                                    .join(' · ')
+                                                        )
+                                                        .filter(Boolean)
+                                                        .join('\n');
+                                                    const btn = (
+                                                        <Button
+                                                            size="small"
+                                                            type="default"
+                                                            icon={<FormOutlined />}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                if (onTaskActionClick) {
+                                                                    onTaskActionClick({ type: 'field_batch', task, actions: batch.actions });
+                                                                } else {
+                                                                    message.info('Chưa cấu hình điều hướng cho thao tác này.');
+                                                                }
+                                                            }}
+                                                        >
+                                                            Cập nhật công trình ({n})
+                                                        </Button>
+                                                    );
+                                                    return (
+                                                        <Tooltip key={`${task._id}-field-batch-${idx}`} title={tip || 'Cập nhật nhiều thuộc tính công trình'}>
+                                                            <span>{btn}</span>
+                                                        </Tooltip>
+                                                    );
+                                                }
+                                                if (batch.kind === 'document_batch') {
+                                                    const n = batch.actions.length;
+                                                    const tip = batch.actions
+                                                        .map((a) => a.note || [a.doc_type, a.min_count != null ? `tối thiểu ${a.min_count}` : ''].filter(Boolean).join(' · '))
+                                                        .filter(Boolean)
+                                                        .join('\n');
+                                                    const btn = (
+                                                        <Button
+                                                            size="small"
+                                                            type="default"
+                                                            icon={<FileTextOutlined />}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                if (onTaskActionClick) {
+                                                                    onTaskActionClick({ type: 'document_batch', task, actions: batch.actions });
+                                                                } else {
+                                                                    message.info('Chưa cấu hình điều hướng cho thao tác này.');
+                                                                }
+                                                            }}
+                                                        >
+                                                            Tài liệu ({n})
+                                                        </Button>
+                                                    );
+                                                    return (
+                                                        <Tooltip key={`${task._id}-doc-batch-${idx}`} title={tip || 'Tải tài liệu theo nhiều loại'}>
+                                                            <span>{btn}</span>
+                                                        </Tooltip>
+                                                    );
+                                                }
+                                                const act = batch.action;
                                                 const label =
                                                     (act.action_key && labelForWorkTaskActionKey(act.action_key)) ||
                                                     act.note ||
@@ -223,7 +321,7 @@ export const StepWorkTaskList: React.FC<StepWorkTaskListProps> = ({
                                                     'Thao tác';
                                                 const tip =
                                                     act.note ||
-                                                    [act.action_type, act.target_field, act.doc_type, act.expected_value]
+                                                    [act.action_type, act.target_field, act.doc_type]
                                                         .filter(Boolean)
                                                         .join(' · ') ||
                                                     label;
@@ -235,7 +333,7 @@ export const StepWorkTaskList: React.FC<StepWorkTaskListProps> = ({
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             if (onTaskActionClick) {
-                                                                onTaskActionClick(task, act, idx);
+                                                                onTaskActionClick({ type: 'single', task, action: act });
                                                             } else {
                                                                 message.info('Chưa cấu hình điều hướng cho thao tác này.');
                                                             }
@@ -245,7 +343,7 @@ export const StepWorkTaskList: React.FC<StepWorkTaskListProps> = ({
                                                     </Button>
                                                 );
                                                 return (
-                                                    <Tooltip key={`${task._id}-action-${idx}`} title={tip}>
+                                                    <Tooltip key={`${task._id}-action-single-${idx}`} title={tip}>
                                                         <span>{btn}</span>
                                                     </Tooltip>
                                                 );
@@ -260,5 +358,6 @@ export const StepWorkTaskList: React.FC<StepWorkTaskListProps> = ({
                 );
             }}
         />
+        </>
     );
 };
