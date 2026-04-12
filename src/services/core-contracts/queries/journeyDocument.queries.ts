@@ -17,6 +17,8 @@ export const FIND_JOURNEYDOCUMENT_DTO = gql`
         journey_id
         idx_journey_id
         journey_step_code
+        worktaskId
+        idx_worktaskId
         description
         files
         published_at
@@ -47,6 +49,8 @@ export const QUERY_JOURNEYDOCUMENTS_DTO = gql`
         journey_id
         idx_journey_id
         journey_step_code
+        worktaskId
+        idx_worktaskId
         description
         files
         published_at
