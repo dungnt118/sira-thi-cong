@@ -532,7 +532,13 @@ export const JourneyDocumentsTab: React.FC<JourneyDocumentsTabProps> = ({
                 footer={null}
             >
                 {filePreview && (
-                    <div className={filePreview?.kind === 'pdf' ? "flex-1 flex flex-col min-h-0" : ""}>
+                    <div style={filePreview?.kind === 'pdf' ? {
+                        flex: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        minHeight: 0,
+                        height: '100%',
+                    } : {}}>
                         {filePreview?.kind === 'pdf' && filePreview.url ? (
                             <PdfViewer url={filePreview.url} title={filePreview.name} height="100%" />
                         ) : null}
