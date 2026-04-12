@@ -1845,7 +1845,19 @@ const JourneyDetail360: React.FC = () => {
                                     outline: 'none',
                                 }}
                             >
-                                <Space style={{ marginBottom: 0, minWidth: 0 }} size={8}>
+                                <Space
+                                    style={{
+                                        marginBottom: 0,
+                                        minWidth: 0,
+                                        background: 'rgba(255,255,255,0.15)',
+                                        border: '1px solid rgba(255,255,255,0.25)',
+                                        padding: '4px 10px',
+                                        borderRadius: 6,
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                    }}
+                                    size={8}
+                                >
                                     <NodeIndexOutlined style={{ color: '#fff', flexShrink: 0 }} />
                                     <Text
                                         strong
