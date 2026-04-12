@@ -934,7 +934,13 @@ export function UploadFilesView({ value, property }: { value: any, property: Pro
                 ]}
             >
                 {previewFile && (
-                    <div className={getFileType(previewFile?.name) === 'pdf' ? "flex-1 flex flex-col min-h-0" : "text-center"}>
+                    <div style={getFileType(previewFile?.name) === 'pdf' ? {
+                        flex: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        minHeight: 0,
+                        height: '100%',
+                    } : { textAlign: 'center' }}>
                         {isImageFile(previewFile) ? (
                             <Image
                                 src={getFileLink(previewFile.file_id || previewFile.url)}
@@ -952,7 +958,14 @@ export function UploadFilesView({ value, property }: { value: any, property: Pro
                                 Your browser does not support the video tag.
                             </video>
                         ) : getFileType(previewFile.name) === 'pdf' ? (
-                            <div style={{ flex: 1, width: '100%', height: '100%', overflow: 'hidden' }}>
+                            <div style={{
+                                flex: 1,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                minHeight: 0,
+                                height: '100%',
+                                overflow: 'hidden',
+                            }}>
                                 <PdfViewer 
                                     url={getFileLink(previewFile.file_id || previewFile.url) || ''} 
                                     title={previewFile.name} 

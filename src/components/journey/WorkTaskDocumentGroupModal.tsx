@@ -135,7 +135,7 @@ const DocumentPanel: React.FC<{
         try {
             const values = await form.validateFields();
             const mappedFiles = (values.files || []) as HeadlessFileUpload[];
-            
+
             if (mappedFiles.length === 0) {
                 Modal.warning({
                     title: 'Thiếu tài liệu',
@@ -275,7 +275,7 @@ export const WorkTaskDocumentGroupModal: React.FC<WorkTaskDocumentGroupModalProp
                 </Button>,
             ]}
             width={720}
-            destroyOnClose
+            destroyOnHidden
         >
             <Paragraph type="secondary" style={{ marginTop: 0 }}>
                 Mỗi loại tài liệu một panel — lưu riêng từng loại. Sau khi lưu, hệ thống kiểm tra đủ điều kiện nhiệm vụ.
