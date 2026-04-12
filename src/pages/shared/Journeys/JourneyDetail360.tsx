@@ -203,10 +203,10 @@ const journeyStepLabel = (stepCode: string) => HEADER_STEP_CONFIG.find((s) => s.
 type BuildWorkTasksResult =
     | { ok: true; tasks: ICreateWorkTaskInput[] }
     | {
-          ok: false;
-          missingRoleOnChecklist: string[];
-          missingAssigneeByRole: Map<WorkTaskAssigneeRoleEnum2, string>;
-      }
+        ok: false;
+        missingRoleOnChecklist: string[];
+        missingAssigneeByRole: Map<WorkTaskAssigneeRoleEnum2, string>;
+    }
     | { ok: false; reason: 'no_setting' | 'no_tasks' };
 
 /** Clone mảng actions từ checklist (CustomerJourneySetting) → payload WorkTask. */
@@ -385,6 +385,7 @@ const JOURNEY_TAB_ACCESS_RULES: JourneyTabAccessRule[] = [
     { key: 'GRP_01_INFO', minStepCode: 'lead_new', currentStepCode: 'lead_new', roleGroupCode: 'GRP_01_INFO', alwaysVisible: true },
     { key: 'GRP_02_CONTACT', minStepCode: 'lead_new', currentStepCode: 'consult_contact', roleGroupCode: 'GRP_02_CONTACT', alwaysVisible: true },
     { key: 'GRP_DOCUMENTS', minStepCode: 'lead_new', alwaysVisible: true },
+    { key: 'GRP_08_CONSTRUCT', minStepCode: 'lead_new', alwaysVisible: true },
     { key: 'GRP_03_SURVEY', minStepCode: 'site_survey', currentStepCode: 'site_survey', roleGroupCode: 'GRP_03_SURVEY' },
     { key: 'GRP_04_SOLUTION', minStepCode: 'solution_design', currentStepCode: 'solution_design', roleGroupCode: 'GRP_04_SOLUTION' },
     { key: 'GRP_LABOR', minStepCode: 'quotation', roleGroupCode: 'GRP_05_QUOTE' },
@@ -433,7 +434,7 @@ const canJourneyTabPassRole = (
     currentRole: string | null | undefined,
     isPmManager: boolean
 ): boolean => {
-    if (rule.key === 'GRP_01_INFO' || rule.key === 'GRP_DOCUMENTS') return true;
+    if (rule.key === 'GRP_01_INFO' || rule.key === 'GRP_DOCUMENTS' || rule.key === 'GRP_08_CONSTRUCT') return true;
     if (isPmManager) return true;
 
     const activeRole = normalizeRoleKey(currentRole == null ? undefined : String(currentRole));
@@ -685,7 +686,7 @@ const JourneyDetail360: React.FC = () => {
             if (!cancelled && data) {
                 setCustomerJourneySetting(data);
             }
-        }).catch(() => {});
+        }).catch(() => { });
         return () => {
             cancelled = true;
         };
@@ -1016,11 +1017,11 @@ const JourneyDetail360: React.FC = () => {
         if (!currentKey || selectedKey !== currentKey) return false;
         if (taskModalStepIndex > currentHeaderStepIndex) return false;
         const groupCd = headerStepKeyToStandardProcedureGroupCd(selectedKey, journeySteps);
-        
+
         // Finalization allowed for PM/Admin or users with specific permissions for the step group
         if (isPmManager || isCurrentUserJourneyPm) return true;
         if (groupCd && userRoleConfig.finalizableGroupCodes.includes(groupCd)) return true;
-        
+
         return false;
     }, [
         journey,
@@ -1407,7 +1408,7 @@ const JourneyDetail360: React.FC = () => {
         // 11. Tab Phát sinh (GRP_08_CONSTRUCT)
         {
             key: 'GRP_08_CONSTRUCT',
-            label: <span><ExclamationCircleOutlined /> Nhật ký thi công</span>,
+            label: <span><ExclamationCircleOutlined /> Nhật ký</span>,
             children: renderTabContent('GRP_08_CONSTRUCT', 'S08_CONSTRUCT'),
         },
         // 12. Tab Tài liệu (GRP_09_ACCEPTANCE or GRP_08_CONSTRUCT)
@@ -1431,6 +1432,9 @@ const JourneyDetail360: React.FC = () => {
     ].filter(item => {
         // Tab Tổng quan (GRP_01_INFO) luôn hiển thị cho tất cả vai trò
         if (item.key === 'GRP_01_INFO') return true;
+
+        // Tab Nhật ký (GRP_08_CONSTRUCT) luôn hiển thị công khai cho tất cả vai trò
+        if (item.key === 'GRP_08_CONSTRUCT') return true;
 
         // Tab Tài liệu công trình luôn hiển thị công khai cho tất cả vai trò
         if (item.key === 'GRP_DOCUMENTS') return true;
@@ -1469,7 +1473,7 @@ const JourneyDetail360: React.FC = () => {
                 case 'GRP_DOCUMENTS':
                     return {
                         key: rule.key,
-                        label: <span><PaperClipOutlined /> Tài liệu công trình</span>,
+                        label: <span><PaperClipOutlined /> Tài liệu</span>,
                         children: (
                             <JourneyDocumentsTab
                                 journeyId={journey._id}
@@ -1523,7 +1527,7 @@ const JourneyDetail360: React.FC = () => {
                 case 'GRP_08_CONSTRUCT':
                     return {
                         key: rule.key,
-                        label: <span><ExclamationCircleOutlined /> Nhật ký thi công</span>,
+                        label: <span><ExclamationCircleOutlined /> Nhật ký</span>,
                         children: renderTabContent('GRP_08_CONSTRUCT', 'S08_CONSTRUCT', 'execution'),
                     };
                 case 'GRP_ACCEPTANCE':
@@ -1892,11 +1896,11 @@ const JourneyDetail360: React.FC = () => {
                                                 minWidth: 0,
                                                 ...(isMobile
                                                     ? {
-                                                          display: 'block',
-                                                          overflow: 'hidden',
-                                                          textOverflow: 'ellipsis',
-                                                          whiteSpace: 'nowrap',
-                                                      }
+                                                        display: 'block',
+                                                        overflow: 'hidden',
+                                                        textOverflow: 'ellipsis',
+                                                        whiteSpace: 'nowrap',
+                                                    }
                                                     : {}),
                                             }}
                                         >
@@ -2462,7 +2466,7 @@ const JourneyDetail360: React.FC = () => {
                         description={
                             <div style={{ marginTop: 8 }}>
                                 <Text style={{ display: 'block', marginBottom: 12, fontSize: 13, color: 'rgba(0, 0, 0, 0.45)' }}>
-                                    Bước hiện tại của hồ sơ có thể đang bị lỗi hoặc không khớp với dữ liệu quy chuẩn. 
+                                    Bước hiện tại của hồ sơ có thể đang bị lỗi hoặc không khớp với dữ liệu quy chuẩn.
                                     Quản lý có quyền thiết lập lại về một bước hợp lệ trong quy trình.
                                 </Text>
                                 <Space wrap>
@@ -2473,9 +2477,9 @@ const JourneyDetail360: React.FC = () => {
                                         onChange={setResetStepCode}
                                         options={HEADER_STEP_CONFIG.map(s => ({ label: s.label, value: s.key }))}
                                     />
-                                    <Button 
-                                        type="primary" 
-                                        danger 
+                                    <Button
+                                        type="primary"
+                                        danger
                                         onClick={handleResetJourneyStep}
                                         disabled={!resetStepCode}
                                         loading={isSubmitting}
@@ -2504,8 +2508,8 @@ const JourneyDetail360: React.FC = () => {
                         const targetTab = visibleJourneyTabKeys.includes('GRP_08_CONSTRUCT')
                             ? 'GRP_08_CONSTRUCT'
                             : visibleJourneyTabKeys.includes(primaryTaskTab)
-                              ? primaryTaskTab
-                              : (visibleJourneyTabKeys[0] || 'GRP_01_INFO');
+                                ? primaryTaskTab
+                                : (visibleJourneyTabKeys[0] || 'GRP_01_INFO');
                         setSearchParams(
                             targetTab === 'GRP_08_CONSTRUCT'
                                 ? { tab: targetTab, reportTaskId: task._id }

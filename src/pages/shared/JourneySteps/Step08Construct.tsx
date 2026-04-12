@@ -16,6 +16,7 @@ import { siteReportService } from '../../../services/core-contracts/services/sit
 import { ISiteReport } from '../../../services/core-contracts/types/siteReport.types';
 import { UploadFiles } from '../../../components/files/UploadFiles';
 import { getFileLink } from '@/services/storeService';
+import { HEADER_STEP_CONFIG } from '../Journeys/components/JourneyHistoryModal';
 
 const { TextArea } = Input;
 const { Text, Title, Paragraph } = Typography;
@@ -23,6 +24,7 @@ const { Text, Title, Paragraph } = Typography;
 export interface Step08ConstructProps {
     journeyId: string;
     isEditable?: boolean;
+    journeyCurrentStep?: string;
     onSave?: (data: any) => void;
     onEditStateChange?: (isEditing: boolean) => void;
 }
@@ -30,6 +32,7 @@ export interface Step08ConstructProps {
 export const Step08Construct: React.FC<Step08ConstructProps> = ({
     journeyId,
     isEditable = false,
+    journeyCurrentStep,
     onSave,
     onEditStateChange
 }) => {
@@ -47,8 +50,15 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
         () => (reportTaskId ? reports.filter((report) => report.worktaskId === reportTaskId) : reports),
         [reports, reportTaskId]
     );
-    const latestReport = visibleReports.length > 0 ? visibleReports[visibleReports.length - 1] : null;
-    const lastProgress = Number(latestReport?.progress_pct) || 0;
+
+    const isCurrentStepExecution = journeyCurrentStep === 'execution';
+
+    const lastProgress = useMemo(() => {
+        if (!isCurrentStepExecution) return 0;
+        const executionReports = reports.filter(r => r.journey_step_code === 'execution');
+        const last = executionReports[executionReports.length - 1];
+        return Number(last?.progress_pct) || 0;
+    }, [reports, isCurrentStepExecution]);
 
     // Sync form values when entering edit mode - Top level hook
     useEffect(() => {
@@ -88,11 +98,12 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
         if (!journeyId) return;
         setIsSubmitting(true);
         try {
+            const currentStepCode = journeyCurrentStep || 'execution';
             const response = await siteReportService.createSiteReport({
                 journey_id: journeyId,
-                journey_step_code: 'execution',
+                journey_step_code: currentStepCode as any,
                 content: values.notes,
-                progress_pct: Number(values.progress),
+                progress_pct: isCurrentStepExecution ? Number(values.progress) : 0,
                 title: `Nhật ký ngày ${new Date().toLocaleDateString('vi-VN')}`,
                 medias: values.medias || []
             });
@@ -119,86 +130,114 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
         }
     };
 
-    // Memoize timeline items for performance and safety
+    // Group reports by journey step for grouped timeline
     const timelineItems = useMemo(() => {
         try {
             if (!visibleReports || visibleReports.length === 0) return [];
 
-            return visibleReports.slice().reverse().map((report, idx) => {
-                if (!report) return null;
+            const groupedByStep: Record<string, ISiteReport[]> = {};
+            visibleReports.forEach(r => {
+                const step = r.journey_step_code || 'execution';
+                if (!groupedByStep[step]) groupedByStep[step] = [];
+                groupedByStep[step].push(r);
+            });
 
-                const reportId = typeof report._id === 'string' ? report._id : `report-${idx}-${Math.random()}`;
-                const dateObj = report.createdAt ? new Date(report.createdAt) : null;
-                const isValidDate = dateObj && !isNaN(dateObj.getTime());
-                const dateStr = isValidDate ? dateObj.toLocaleDateString('vi-VN') : 'N/A';
-                const timeStr = isValidDate ? dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : '';
+            const items: any[] = [];
+            
+            // Iterate through step order defined in HEADER_STEP_CONFIG
+            HEADER_STEP_CONFIG.forEach(stepCfg => {
+                const stepReports = groupedByStep[stepCfg.key];
+                if (stepReports && stepReports.length > 0) {
+                    // Add step header to timeline
+                    items.push({
+                        dot: <Tag color="blue" style={{ marginLeft: 6 }}>{stepCfg.label}</Tag>,
+                        children: <div style={{ marginBottom: 20 }} />
+                    });
 
-                // Extra defensive handling for complex fields
-                const creator = (report.createdBy && typeof report.createdBy === 'object') ? report.createdBy : null;
-                const creatorTitle = creator?.title || (typeof report.createdBy === 'string' ? report.createdBy : 'Thành viên BAC');
-                const progress = typeof report.progress_pct === 'number' ? report.progress_pct : (Number(report.progress_pct) || 0);
+                    // Add reports for this step (latest first)
+                    stepReports.slice().reverse().forEach((report, idx) => {
+                        const reportId = typeof report._id === 'string' ? report._id : `report-${stepCfg.key}-${idx}`;
+                        const dateObj = report.createdAt ? new Date(report.createdAt) : null;
+                        const isValidDate = dateObj && !isNaN(dateObj.getTime());
+                        const dateStr = isValidDate ? dateObj.toLocaleDateString('vi-VN') : 'N/A';
+                        const timeStr = isValidDate ? dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : '';
+                        
+                        const creator = (report.createdBy && typeof report.createdBy === 'object') ? report.createdBy : null;
+                        const creatorName = creator?.title || (typeof report.createdBy === 'string' ? report.createdBy : 'Thành viên BAC');
+                        const creatorPosition = creator?.position_name || 'chưa có thông tin';
+                        const progress = typeof report.progress_pct === 'number' ? report.progress_pct : (Number(report.progress_pct) || 0);
+                        const isExecution = report.journey_step_code === 'execution';
 
-                return {
-                    key: String(reportId),
-                    label: (
-                        <div style={{ textAlign: 'right', paddingRight: 8 }}>
-                            <Text strong>{dateStr}</Text>
-                            <br />
-                            <Text type="secondary" style={{ fontSize: 11 }}>{timeStr}</Text>
-                        </div>
-                    ),
-                    color: progress >= 100 ? 'green' : 'blue',
-                    children: (
-                        <Card
-                            size="small"
-                            style={{ borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.05)', marginBottom: 16 }}
-                            title={
-                                <Space>
-                                    <Avatar
-                                        size="small"
-                                        icon={<UserOutlined />}
-                                        src={typeof creator?.avatar === 'string' ? getFileLink(creator.avatar) : undefined}
-                                    />
-                                    <Text strong>{String(creatorTitle)}</Text>
-                                    <Tag color="cyan">{progress}%</Tag>
-                                </Space>
-                            }
-                        >
-                            <div style={{ padding: '4px 0' }}>
-                                <Paragraph style={{ margin: 0 }}>{String(report.content || 'Không có nội dung')}</Paragraph>
-                            </div>
-
-                            {report.medias && Array.isArray(report.medias) && report.medias.length > 0 && (
-                                <div style={{ marginTop: 12 }}>
-                                    <Space wrap>
-                                        {report.medias.filter(Boolean).map((img: any, i: number) => {
-                                            const imgSrc = getFileLink(img.file_path || img.url || img);
-                                            if (!imgSrc) return null;
-                                            return (
-                                                <Image
-                                                    key={`img-${i}`}
-                                                    width={80}
-                                                    height={60}
-                                                    src={imgSrc}
-                                                    fallback="https://via.placeholder.com/80x60?text=No+Image"
-                                                    style={{ borderRadius: 4, objectFit: 'cover', border: '1px solid #f0f0f0' }}
-                                                />
-                                            );
-                                        })}
-                                    </Space>
+                        items.push({
+                            key: String(reportId),
+                            label: (
+                                <div style={{ textAlign: 'right', paddingRight: 8 }}>
+                                    <Text strong>{dateStr}</Text>
+                                    <br />
+                                    <Text type="secondary" style={{ fontSize: 11 }}>{timeStr}</Text>
                                 </div>
-                            )}
-                        </Card>
-                    )
-                };
-            }).filter(Boolean);
+                            ),
+                            color: isExecution && progress >= 100 ? 'green' : 'blue',
+                            children: (
+                                <Card
+                                    size="small"
+                                    style={{ borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.05)', marginBottom: 16 }}
+                                    title={
+                                        <Space wrap>
+                                            <Avatar
+                                                size="small"
+                                                icon={<UserOutlined />}
+                                                src={typeof creator?.avatar === 'string' ? getFileLink(creator.avatar) : undefined}
+                                            />
+                                            <div style={{ display: 'flex', flexDirection: 'column', lineHeight: '1.2' }}>
+                                                <Text strong>{String(creatorName)}</Text>
+                                                <Text type="secondary" style={{ fontSize: 11 }}>{creatorPosition}</Text>
+                                            </div>
+                                            {isExecution && (
+                                                <Tag color="cyan">{progress}%</Tag>
+                                            )}
+                                        </Space>
+                                    }
+                                >
+                                    <div style={{ padding: '4px 0' }}>
+                                        <Paragraph style={{ margin: 0 }}>{String(report.content || 'Không có nội dung')}</Paragraph>
+                                    </div>
+
+                                    {report.medias && Array.isArray(report.medias) && report.medias.length > 0 && (
+                                        <div style={{ marginTop: 12 }}>
+                                            <Space wrap>
+                                                {report.medias.filter(Boolean).map((img: any, i: number) => {
+                                                    const imgSrc = getFileLink(img.file_path || img.url || img);
+                                                    if (!imgSrc) return null;
+                                                    return (
+                                                        <Image
+                                                            key={`img-${i}`}
+                                                            width={80}
+                                                            height={60}
+                                                            src={imgSrc}
+                                                            fallback="https://via.placeholder.com/80x60?text=No+Image"
+                                                            style={{ borderRadius: 4, objectFit: 'cover', border: '1px solid #f0f0f0' }}
+                                                        />
+                                                    );
+                                                })}
+                                            </Space>
+                                        </div>
+                                    )}
+                                </Card>
+                            )
+                        });
+                    });
+                }
+            });
+
+            return items;
         } catch (err) {
             console.error("Timeline render process error:", err);
             return [];
         }
     }, [visibleReports]);
 
-    const overallProgress = Number(latestReport?.progress_pct) || 0;
+    const overallProgress = lastProgress;
 
     const renderReadOnly = () => {
         if (isLoading) {
@@ -317,45 +356,47 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
                     <Title level={5} style={{ margin: 0 }}><PlusOutlined /> Ghi nhận nhật ký mới</Title>
                 </Divider>
 
-                <Row gutter={24}>
-                    <Col xs={24} sm={8}>
-                        <Form.Item
-                            label="Cập nhật tiến độ (%)"
-                            name="progress"
-                            rules={[
-                                { required: true, message: 'Nhập % tiến độ' },
-                                {
-                                    validator: async (_, value) => {
-                                        if (value !== undefined && value < lastProgress) {
-                                            throw new Error(`Tiến độ không được thấp hơn mức cũ (${lastProgress}%)`);
-                                        }
-                                        if (value > 100) {
-                                            throw new Error('Tiến độ không được vượt quá 100%');
+                {isCurrentStepExecution && (
+                    <Row gutter={24}>
+                        <Col xs={24} sm={8}>
+                            <Form.Item
+                                label="Cập nhật tiến độ (%)"
+                                name="progress"
+                                rules={[
+                                    { required: true, message: 'Nhập % tiến độ' },
+                                    {
+                                        validator: async (_, value) => {
+                                            if (value !== undefined && value < lastProgress) {
+                                                throw new Error(`Tiến độ không được thấp hơn mức cũ (${lastProgress}%)`);
+                                            }
+                                            if (value > 100) {
+                                                throw new Error('Tiến độ không được vượt quá 100%');
+                                            }
                                         }
                                     }
-                                }
-                            ]}
-                        >
-                            <InputNumber
-                                min={lastProgress}
-                                max={100}
-                                step={1}
-                                precision={0}
-                                style={{ width: '100%' }}
-                                addonAfter="%"
-                                placeholder={`Tiến độ hiện tại: ${lastProgress}%`}
+                                ]}
+                            >
+                                <InputNumber
+                                    min={lastProgress}
+                                    max={100}
+                                    step={1}
+                                    precision={0}
+                                    style={{ width: '100%' }}
+                                    addonAfter="%"
+                                    placeholder={`Tiến độ hiện tại: ${lastProgress}%`}
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} sm={16}>
+                            <Alert
+                                type="info"
+                                showIcon
+                                message={`Tiến độ hiện tại đang ở mức ${lastProgress}%. Vui lòng cập nhật con số mới sau ca thi công.`}
+                                style={{ marginBottom: 24 }}
                             />
-                        </Form.Item>
-                    </Col>
-                    <Col xs={24} sm={16}>
-                        <Alert
-                            type="info"
-                            showIcon
-                            message={`Tiến độ hiện tại đang ở mức ${lastProgress}%. Vui lòng cập nhật con số mới sau ca thi công.`}
-                            style={{ marginBottom: 24 }}
-                        />
-                    </Col>
-                </Row>
+                        </Col>
+                    </Row>
+                )}
 
                 <Form.Item label="Nội dung công việc hôm nay" name="notes" rules={[{ required: true, message: 'Vui lòng mô tả công việc' }]}>
                     <TextArea rows={5} placeholder="Ví dụ: Đã hoàn thành lắp đặt hệ khung xương, đi dây điện âm trần..." />
