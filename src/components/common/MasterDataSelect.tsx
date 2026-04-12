@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Select, SelectProps, Spin } from 'antd';
 import { masterDataItemService } from '../../services/core-contracts/services/masterDataItem.service';
-import { IMasterDataItem } from '../../services/core-contracts/types/masterDataItem.types';
+import { IMasterDataItem, MasterDataItemCategoryEnum } from '../../services/core-contracts/types/masterDataItem.types';
 
 export interface MasterDataSelectProps extends Omit<SelectProps, 'options'> {
+    category?: MasterDataItemCategoryEnum;
+    /** @deprecated Use category instead */
     categoryCode?: string;
+    /** @deprecated Use category instead */
     categoryId?: string;
 }
 
 export const MasterDataSelect: React.FC<MasterDataSelectProps> = ({ 
+    category,
     categoryCode, 
     categoryId, 
     placeholder = "Chọn...",
@@ -24,22 +28,28 @@ export const MasterDataSelect: React.FC<MasterDataSelectProps> = ({
                 const filter: any = {
                     group: {
                         op: 'AND',
-                        children: []
+                        children: [
+                            { id: 'isActive', operation: '==', value: true }
+                        ]
                     }
                 };
 
-                if (categoryCode) {
-                    filter.group.children.push({ id: 'categoryId.code', operation: '==', value: categoryCode });
-                }
-                if (categoryId) {
-                    filter.group.children.push({ id: 'categoryId', operation: '==', value: categoryId });
+                if (category) {
+                    filter.group.children.push({ id: 'category', operation: '==', value: category });
+                } else if (categoryCode) {
+                    // Backwards compatibility if needed, but since the contract changed to enum, 
+                    // we should probably just use the code as the enum value
+                    filter.group.children.push({ id: 'category', operation: '==', value: categoryCode });
+                } else if (categoryId) {
+                    // This might not work anymore if categoryId was removed from schema
+                    filter.group.children.push({ id: 'category', operation: '==', value: categoryId });
                 }
 
-                const res = await masterDataItemService.queryMasterDataItemsDto(filter);
+                const res = await masterDataItemService.queryContent(filter);
                 if (res.data) {
                     setOptions(res.data.map((item: IMasterDataItem) => ({
                         label: item.label || '',
-                        value: item._id
+                        value: item.value || item._id
                     })));
                 }
             } catch (error) {
@@ -49,10 +59,10 @@ export const MasterDataSelect: React.FC<MasterDataSelectProps> = ({
             }
         };
 
-        if (categoryCode || categoryId) {
+        if (category || categoryCode || categoryId) {
             fetchItems();
         }
-    }, [categoryCode, categoryId]);
+    }, [category, categoryCode, categoryId]);
 
     return (
         <Select
