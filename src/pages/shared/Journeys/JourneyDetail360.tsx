@@ -1070,6 +1070,28 @@ const JourneyDetail360: React.FC = () => {
         [currentStepCode]
     );
 
+    const currentStepCollaborators = useMemo(() => {
+        if (!journey) return [];
+        const result: { name: string; label: string }[] = [];
+        const add = (users: any, label: string) => {
+            toUserList(users).forEach((u) => {
+                if (u && !result.find(r => r.name === u)) {
+                    result.push({ name: u, label });
+                }
+            });
+        };
+        add(journey.pm_user, 'PM');
+        const phase = currentStepCode;
+        const isSales = ['lead_new', 'consult_contact', 'solution_design', 'quotation', 'contract'].includes(phase);
+        const isTechnic = ['site_survey', 'execution', 'final_acceptance'].includes(phase);
+        if (isSales) add(journey.sale_users, 'KD');
+        if (isTechnic) {
+            add(journey.supervisor_users, 'GS');
+            add(journey.technical_users, 'KT');
+        }
+        return result;
+    }, [journey, currentStepCode]);
+
     const chatToggleButton = (
         <Tooltip title="Trao đổi nhóm">
             <Badge count={journey?.unread_thread_count ?? 0} size="small" offset={[-6, 6]}>
@@ -1881,6 +1903,29 @@ const JourneyDetail360: React.FC = () => {
                                             {currentStepDisplayLabel}
                                         </Text>
                                     </Space>
+
+                                    {currentStepCollaborators.length > 0 && (
+                                        <Space size={6} wrap style={{ marginLeft: isMobile ? 0 : 4 }}>
+                                            {currentStepCollaborators.map((c) => (
+                                                <Tag
+                                                    key={c.name}
+                                                    style={{
+                                                        marginInlineEnd: 0,
+                                                        background: 'rgba(255,255,255,0.08)',
+                                                        borderColor: 'rgba(165, 243, 252, 0.3)',
+                                                        color: '#a5f3fc',
+                                                        borderRadius: 4,
+                                                        fontSize: 12,
+                                                        fontWeight: 500,
+                                                        padding: '0 8px',
+                                                    }}
+                                                >
+                                                    <span style={{ opacity: 0.7, fontSize: 10, marginRight: 4, color: 'rgba(255,255,255,0.85)' }}>{c.label}</span>
+                                                    {c.name}
+                                                </Tag>
+                                            ))}
+                                        </Space>
+                                    )}
                                 </Space>
                             </div>
                         </Tooltip>
