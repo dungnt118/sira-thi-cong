@@ -38,7 +38,7 @@ export const MasterDataSelect: React.FC<MasterDataSelectProps> = ({
                 const res = await masterDataItemService.queryMasterDataItemsDto(filter);
                 if (res.data) {
                     setOptions(res.data.map((item: IMasterDataItem) => ({
-                        label: item.title || '',
+                        label: item.label || '',
                         value: item._id
                     })));
                 }

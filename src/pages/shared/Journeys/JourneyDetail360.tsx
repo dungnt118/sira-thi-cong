@@ -76,7 +76,7 @@ import {
     IStepsItem,
 } from '../../../services/core-contracts/types/customerJourneySetting.types';
 import { IJourney } from '../../../services/core-contracts/types/journey.types';
-import { JourneyStepRenderer, StepLabor, StepMaterials, Step04EstimateOrchestration } from '../JourneySteps';
+import { JourneyStepRenderer, StepLabor, StepMaterials, Step04SolutionOrchestration } from '../JourneySteps';
 
 import { AuthorizedUserSelect } from '../../../components/authorizedusers/AuthorizedUser';
 import { JourneyDocumentsTab } from '../../../components/journey/JourneyDocumentsTab';
@@ -1502,7 +1502,7 @@ const JourneyDetail360: React.FC = () => {
                     return {
                         key: rule.key,
                         label: <span><CalculatorOutlined /> Dự toán & Chào thầu</span>,
-                        children: <Step04EstimateOrchestration journeyId={journey._id} />,
+                        children: <Step04SolutionOrchestration journeyId={journey._id} />,
                     };
                 case 'GRP_LABOR':
                     return {

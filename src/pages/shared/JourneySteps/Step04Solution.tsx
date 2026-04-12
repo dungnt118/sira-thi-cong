@@ -1,5 +1,4 @@
-import React from 'react';
-import { Step04EstimateOrchestration } from './Step04EstimateOrchestration';
+import Step04SolutionOrchestration from './Step04SolutionOrchestration';
 
 export interface Step04SolutionProps {
     journeyId: string;
@@ -9,7 +8,7 @@ export interface Step04SolutionProps {
 }
 
 export const Step04Solution: React.FC<Step04SolutionProps> = ({ journeyId }) => {
-    return <Step04EstimateOrchestration journeyId={journeyId} />;
+    return <Step04SolutionOrchestration journeyId={journeyId} />;
 };
 
 export default Step04Solution;
