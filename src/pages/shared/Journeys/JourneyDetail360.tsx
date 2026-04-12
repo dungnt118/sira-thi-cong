@@ -360,10 +360,87 @@ const CUSTOMER_JOURNEY_SETTING_STEP_CODES = [
     'after_sales'
 ] as const;
 
+type JourneyHeaderStepCode = (typeof CUSTOMER_JOURNEY_SETTING_STEP_CODES)[number];
+
+type JourneyTabAccessRule = {
+    key: string;
+    minStepCode: JourneyHeaderStepCode;
+    currentStepCode?: JourneyHeaderStepCode;
+    roleGroupCode?: string;
+    alternateRoleGroupCodes?: string[];
+    alwaysVisible?: boolean;
+};
+
+const JOURNEY_STEP_ORDER_INDEX = CUSTOMER_JOURNEY_SETTING_STEP_CODES.reduce<Record<string, number>>((acc, code, index) => {
+    acc[code] = index;
+    return acc;
+}, {});
+
+/** Quan hệ tích lũy giữa current_step của Journey và tab chức năng trên màn hình 360. */
+const JOURNEY_TAB_ACCESS_RULES: JourneyTabAccessRule[] = [
+    { key: 'GRP_01_INFO', minStepCode: 'lead_new', currentStepCode: 'lead_new', roleGroupCode: 'GRP_01_INFO', alwaysVisible: true },
+    { key: 'GRP_02_CONTACT', minStepCode: 'lead_new', currentStepCode: 'consult_contact', roleGroupCode: 'GRP_02_CONTACT', alwaysVisible: true },
+    { key: 'GRP_DOCUMENTS', minStepCode: 'lead_new', alwaysVisible: true },
+    { key: 'GRP_03_SURVEY', minStepCode: 'site_survey', currentStepCode: 'site_survey', roleGroupCode: 'GRP_03_SURVEY' },
+    { key: 'GRP_04_SOLUTION', minStepCode: 'solution_design', currentStepCode: 'solution_design', roleGroupCode: 'GRP_04_SOLUTION' },
+    { key: 'GRP_LABOR', minStepCode: 'quotation', roleGroupCode: 'GRP_05_QUOTE' },
+    { key: 'GRP_MATERIALS', minStepCode: 'quotation', roleGroupCode: 'GRP_05_QUOTE' },
+    { key: 'GRP_05_QUOTE', minStepCode: 'quotation', currentStepCode: 'quotation', roleGroupCode: 'GRP_05_QUOTE' },
+    { key: 'GRP_06_CONTRACT', minStepCode: 'contract', currentStepCode: 'contract', roleGroupCode: 'GRP_06_CONTRACT' },
+    { key: 'GRP_07_DEPOSIT', minStepCode: 'contract', roleGroupCode: 'GRP_07_DEPOSIT' },
+    { key: 'GRP_08_CONSTRUCT', minStepCode: 'execution', currentStepCode: 'execution', roleGroupCode: 'GRP_08_CONSTRUCT' },
+    { key: 'GRP_ACCEPTANCE', minStepCode: 'final_acceptance', currentStepCode: 'final_acceptance', roleGroupCode: 'GRP_09_ACCEPTANCE', alternateRoleGroupCodes: ['GRP_08_CONSTRUCT'] },
+    { key: 'GRP_10_PAYMENT', minStepCode: 'payment', currentStepCode: 'payment', roleGroupCode: 'GRP_10_PAYMENT' },
+    { key: 'GRP_11_MAINTAIN', minStepCode: 'maintenance', currentStepCode: 'maintenance', roleGroupCode: 'GRP_11_MAINTAIN' },
+    { key: 'GRP_12_WARRANTY', minStepCode: 'warranty', currentStepCode: 'warranty', roleGroupCode: 'GRP_12_WARRANTY' },
+    { key: 'GRP_13_CARE', minStepCode: 'after_sales', currentStepCode: 'after_sales', roleGroupCode: 'GRP_13_CARE' },
+];
+
+const getJourneyStepOrderIndex = (stepCode: string | null | undefined): number => {
+    if (!stepCode) return -1;
+    return JOURNEY_STEP_ORDER_INDEX[String(stepCode)] ?? -1;
+};
+
+const isJourneyTabUnlockedByStep = (rule: JourneyTabAccessRule, currentStepIndex: number): boolean => {
+    if (rule.alwaysVisible) return true;
+    if (currentStepIndex < 0) return false;
+    return getJourneyStepOrderIndex(rule.minStepCode) <= currentStepIndex;
+};
+
+const getPrimaryJourneyTabForStep = (stepCode: string | null | undefined): string => {
+    const rule = JOURNEY_TAB_ACCESS_RULES.find((item) => item.currentStepCode === stepCode);
+    return rule?.key || 'GRP_01_INFO';
+};
+
 
 const DOCUMENT_PERMISSION_VALUES = new Set(['edit', 'submit', 'commit']);
 
 const normalizeRoleKey = (value: string | undefined) => (value || '').trim().toUpperCase();
+
+type JourneyUserRoleConfig = {
+    allowedGroupCodes: string[];
+    editableGroupCodes: string[];
+    finalizableGroupCodes: string[];
+};
+
+const canJourneyTabPassRole = (
+    rule: JourneyTabAccessRule,
+    userRoleConfig: JourneyUserRoleConfig,
+    currentRole: string | null | undefined,
+    isPmManager: boolean
+): boolean => {
+    if (rule.key === 'GRP_01_INFO' || rule.key === 'GRP_DOCUMENTS') return true;
+    if (isPmManager) return true;
+
+    const activeRole = normalizeRoleKey(currentRole == null ? undefined : String(currentRole));
+    if ((rule.key === 'GRP_LABOR' || rule.key === 'GRP_MATERIALS') && activeRole === 'KD') {
+        return true;
+    }
+
+    const roleGroupCodes = [rule.roleGroupCode, ...(rule.alternateRoleGroupCodes ?? [])].filter((code): code is string => Boolean(code));
+    if (!roleGroupCodes.length) return true;
+    return roleGroupCodes.some((groupCode) => userRoleConfig.allowedGroupCodes.includes(groupCode));
+};
 
 const getSettingStepPayload = (setting: ICustomerJourneySetting | null, stepCode: string): IStepsItem | null => {
     if (!setting?.steps) {
@@ -568,12 +645,6 @@ const JourneyDetail360: React.FC = () => {
             window.removeEventListener('journey-site-reports-updated', handleTaskRefresh);
         };
     }, [journeyId]);
-
-    useEffect(() => {
-        if (activeTab === 'GRP_06_CONTRACT') {
-            setSearchParams({ tab: 'GRP_01_INFO' });
-        }
-    }, [activeTab, setSearchParams]);
 
     /** Step con (vd. Step01Info) yêu cầu đổi tab qua CustomEvent. */
     useEffect(() => {
@@ -819,6 +890,22 @@ const JourneyDetail360: React.FC = () => {
         };
     }, [role, isPmManager, journeySteps, customerJourneySetting]);
 
+    const visibleJourneyTabKeys = useMemo(
+        () =>
+            JOURNEY_TAB_ACCESS_RULES
+                .filter((rule) => isJourneyTabUnlockedByStep(rule, currentHeaderStepIndex))
+                .filter((rule) => canJourneyTabPassRole(rule, userRoleConfig, role, isPmManager))
+                .map((rule) => rule.key),
+        [currentHeaderStepIndex, userRoleConfig, role, isPmManager]
+    );
+
+    useEffect(() => {
+        if (!journey || visibleJourneyTabKeys.length === 0 || visibleJourneyTabKeys.includes(activeTab)) {
+            return;
+        }
+        setSearchParams({ tab: visibleJourneyTabKeys[0] });
+    }, [activeTab, journey, setSearchParams, visibleJourneyTabKeys]);
+
 
     const canCreateJourneyDocument = useMemo(
         () => isPmManager || userRoleConfig.editableGroupCodes.length > 0,
@@ -894,6 +981,12 @@ const JourneyDetail360: React.FC = () => {
         taskModalStepIndex,
         currentHeaderStepIndex,
     ]);
+
+    const canOverrideTaskStatusInModal = useMemo(() => {
+        if (!isPmManager || !selectedTaskStepCode || !journey?.current_step) return false;
+        if (isTaskModalReadOnly) return false;
+        return String(selectedTaskStepCode).trim() === String(journey.current_step).trim();
+    }, [isPmManager, selectedTaskStepCode, journey?.current_step, isTaskModalReadOnly]);
 
     const assignedPeopleCount = useMemo(() => {
         if (!journey) return 0;
@@ -1018,9 +1111,43 @@ const JourneyDetail360: React.FC = () => {
     };
 
     const handleCompleteStepFromTaskModal = async () => {
-        if (!journey?._id || !journey.current_step) return;
+        if (!journey?._id || !journey.current_step) {
+            message.warning('Chưa tải đủ thông tin công trình để xác nhận hoàn thành bước.');
+            return;
+        }
+        if (!selectedTaskStepCode || selectedTaskStepCode !== journey.current_step) {
+            message.warning('Chỉ có thể xác nhận hoàn thành tại bước hiện tại của công trình.');
+            return;
+        }
+
+        const unfinishedMandatoryTasks = workTasks.filter(
+            (task) => task.journey_step_code === journey.current_step && task.is_required && task.status !== 'finished'
+        );
+        if (unfinishedMandatoryTasks.length > 0) {
+            modal.warning({
+                title: 'Chưa thể hoàn thành bước',
+                content: (
+                    <div>
+                        <div>
+                            Còn <b>{unfinishedMandatoryTasks.length}</b> công việc bắt buộc chưa hoàn thành:
+                        </div>
+                        <ul style={{ marginTop: 8, paddingLeft: 20, maxHeight: 220, overflow: 'auto' }}>
+                            {unfinishedMandatoryTasks.map((task) => (
+                                <li key={task._id}>{task.title || 'Công việc chưa đặt tên'}</li>
+                            ))}
+                        </ul>
+                        <div style={{ fontSize: 12 }}>Cập nhật các công việc này sang trạng thái Xong rồi thử lại.</div>
+                    </div>
+                ),
+                okText: 'Đã hiểu',
+            });
+            return;
+        }
         setIsCompletingStepFromModal(true);
         try {
+            const completedStepLabel = HEADER_STEP_CONFIG.find((s) => s.key === journey.current_step)?.label || journey.current_step;
+            const completedStepIndex = HEADER_STEP_CONFIG.findIndex((s) => s.key === journey.current_step);
+            const nextStepMeta = HEADER_STEP_CONFIG[completedStepIndex + 1];
             const r = await confirmAdvanceJourneyStep({
                 journeyId: journey._id,
                 actualStep: journey.current_step,
@@ -1030,8 +1157,30 @@ const JourneyDetail360: React.FC = () => {
             if (r === 'advanced') {
                 await fetchJourney();
                 await fetchWorkTasks();
+                if (journeyId && nextStepMeta?.key) {
+                    await fetchCurrentStepLog(journeyId, nextStepMeta.key);
+                }
+                message.success(
+                    nextStepMeta
+                        ? `Đã hoàn thành bước ${completedStepLabel} và chuyển sang bước ${nextStepMeta.label}.`
+                        : `Đã hoàn thành bước ${completedStepLabel}.`
+                );
                 setSelectedTaskStepCode(null);
                 window.dispatchEvent(new CustomEvent('journey-tasks-updated'));
+                return;
+            }
+            if (r === 'blocked') {
+                message.warning('Chưa thể chuyển bước vì vẫn còn công việc bắt buộc chưa hoàn thành.');
+                return;
+            }
+            if (r === 'last') {
+                await fetchJourney();
+                await fetchWorkTasks();
+                message.info('Công trình đang ở bước cuối cùng, không còn bước tiếp theo để chuyển.');
+                return;
+            }
+            if (r === 'invalid') {
+                message.error('Không xác định được bước hiện tại trong quy trình. Vui lòng kiểm tra cấu hình lộ trình.');
             }
         } catch (error) {
             console.error(error);
@@ -1097,10 +1246,22 @@ const JourneyDetail360: React.FC = () => {
         );
     }
 
-    const renderTabContent = (groupCode: string, stepCode: string) => {
+    const renderTabContent = (
+        groupCode: string,
+        stepCode: string,
+        tabStepCode?: JourneyHeaderStepCode,
+        options?: { canFinalize?: boolean }
+    ) => {
         if (!journey) return null;
         const isEditable = userRoleConfig.editableGroupCodes.includes(groupCode);
-        const isFinalizable = userRoleConfig.finalizableGroupCodes.includes(groupCode);
+        const isCurrentStepTab = Boolean(tabStepCode && tabStepCode === currentStepCode);
+        const isFinalizable =
+            options?.canFinalize !== false &&
+            isCurrentStepTab &&
+            userRoleConfig.finalizableGroupCodes.includes(groupCode);
+        const stepLabel = tabStepCode
+            ? HEADER_STEP_CONFIG.find(s => s.key === tabStepCode)?.label
+            : HEADER_STEP_CONFIG.find(s => s.key === journey.current_step)?.label;
         return (
             <JourneyStepRenderer
                 stepCode={stepCode}
@@ -1109,7 +1270,7 @@ const JourneyDetail360: React.FC = () => {
                 canFinalize={isFinalizable}
                 journeyCurrentStep={journey.current_step}
                 workTasks={workTasks}
-                stepLabel={HEADER_STEP_CONFIG.find(s => s.key === journey.current_step)?.label}
+                stepLabel={stepLabel}
                 modalApi={modal}
                 onRefresh={() => {
                     fetchJourney();
@@ -1209,6 +1370,123 @@ const JourneyDetail360: React.FC = () => {
 
         return userRoleConfig.allowedGroupCodes.includes(item.key);
     });
+
+    const canEditQuoteResources = userRoleConfig.editableGroupCodes.includes('GRP_05_QUOTE') || isPmManager;
+    const stagedTabItems = JOURNEY_TAB_ACCESS_RULES
+        .map((rule) => {
+            if (!visibleJourneyTabKeys.includes(rule.key)) {
+                return null;
+            }
+
+            switch (rule.key) {
+                case 'GRP_01_INFO':
+                    return {
+                        key: rule.key,
+                        label: <span><FormOutlined /> Tổng quan</span>,
+                        children: renderTabContent('GRP_01_INFO', 'S01_INFO', 'lead_new'),
+                    };
+                case 'GRP_02_CONTACT':
+                    return {
+                        key: rule.key,
+                        label: <span><CalendarOutlined /> Lịch hẹn</span>,
+                        children: renderTabContent('GRP_02_CONTACT', 'S02_CONSULT', 'consult_contact'),
+                    };
+                case 'GRP_DOCUMENTS':
+                    return {
+                        key: rule.key,
+                        label: <span><PaperClipOutlined /> Tài liệu công trình</span>,
+                        children: (
+                            <JourneyDocumentsTab
+                                journeyId={journey._id}
+                                isEditable={canCreateJourneyDocument}
+                                journeyCurrentStep={journey.current_step}
+                            />
+                        ),
+                    };
+                case 'GRP_03_SURVEY':
+                    return {
+                        key: rule.key,
+                        label: <span><FileSearchOutlined /> Khảo sát</span>,
+                        children: renderTabContent('GRP_03_SURVEY', 'S03_SURVEY', 'site_survey'),
+                    };
+                case 'GRP_04_SOLUTION':
+                    return {
+                        key: rule.key,
+                        label: <span><CalculatorOutlined /> Dự toán</span>,
+                        children: renderTabContent('GRP_04_SOLUTION', 'S04_SOLUTION', 'solution_design'),
+                    };
+                case 'GRP_LABOR':
+                    return {
+                        key: rule.key,
+                        label: <span><TeamOutlined /> Nhân công</span>,
+                        children: <StepLabor journeyId={journey._id} isEditable={canEditQuoteResources} />,
+                    };
+                case 'GRP_MATERIALS':
+                    return {
+                        key: rule.key,
+                        label: <span><BoxPlotOutlined /> Vật tư</span>,
+                        children: <StepMaterials journeyId={journey._id} isEditable={canEditQuoteResources} />,
+                    };
+                case 'GRP_05_QUOTE':
+                    return {
+                        key: rule.key,
+                        label: <span><FileTextOutlined /> Báo giá</span>,
+                        children: renderTabContent('GRP_05_QUOTE', 'S05_QUOTE', 'quotation'),
+                    };
+                case 'GRP_06_CONTRACT':
+                    return {
+                        key: rule.key,
+                        label: <span><AuditOutlined /> Hợp đồng</span>,
+                        children: renderTabContent('GRP_06_CONTRACT', 'S06_CONTRACT', 'contract'),
+                    };
+                case 'GRP_07_DEPOSIT':
+                    return {
+                        key: rule.key,
+                        label: <span><DollarOutlined /> Tạm ứng</span>,
+                        children: renderTabContent('GRP_07_DEPOSIT', 'S07_ADVANCE', undefined, { canFinalize: false }),
+                    };
+                case 'GRP_08_CONSTRUCT':
+                    return {
+                        key: rule.key,
+                        label: <span><ExclamationCircleOutlined /> Nhật ký thi công</span>,
+                        children: renderTabContent('GRP_08_CONSTRUCT', 'S08_CONSTRUCT', 'execution'),
+                    };
+                case 'GRP_ACCEPTANCE':
+                    return {
+                        key: rule.key,
+                        label: <span><PaperClipOutlined /> Bàn giao</span>,
+                        children: renderTabContent('GRP_09_ACCEPTANCE', 'S09_ACCEPTANCE', 'final_acceptance'),
+                    };
+                case 'GRP_10_PAYMENT':
+                    return {
+                        key: rule.key,
+                        label: <span><DollarOutlined /> Thanh toán</span>,
+                        children: renderTabContent('GRP_10_PAYMENT', 'S10_PAYMENT', 'payment'),
+                    };
+                case 'GRP_11_MAINTAIN':
+                    return {
+                        key: rule.key,
+                        label: <span><ToolOutlined /> Bảo trì</span>,
+                        children: renderTabContent('GRP_11_MAINTAIN', 'S11_MAINTAIN', 'maintenance'),
+                    };
+                case 'GRP_12_WARRANTY':
+                    return {
+                        key: rule.key,
+                        label: <span><CarryOutOutlined /> Bảo hành</span>,
+                        children: renderTabContent('GRP_12_WARRANTY', 'S12_WARRANTY', 'warranty'),
+                    };
+                case 'GRP_13_CARE':
+                    return {
+                        key: rule.key,
+                        label: <span><UserOutlined /> Chăm sóc</span>,
+                        children: renderTabContent('GRP_13_CARE', 'S13_CARE', 'after_sales'),
+                    };
+                default:
+                    return null;
+            }
+        })
+        .filter((item): item is NonNullable<typeof item> => Boolean(item));
+    const resolvedActiveTab = visibleJourneyTabKeys.includes(activeTab) ? activeTab : (visibleJourneyTabKeys[0] || 'GRP_01_INFO');
 
     return (
         <div style={{ padding: isMobile ? '8px' : '24px', background: '#f5f7fa', minHeight: '100vh' }}>
@@ -1794,9 +2072,9 @@ const JourneyDetail360: React.FC = () => {
             {/* 360 Tabs */}
             <Card style={{ borderRadius: 10 }}>
                 <Tabs
-                    activeKey={activeTab}
+                    activeKey={resolvedActiveTab}
                     onChange={(key) => setSearchParams({ tab: key })}
-                    items={tabItems}
+                    items={stagedTabItems}
                     size="small"
                 />
             </Card>
@@ -2060,19 +2338,31 @@ const JourneyDetail360: React.FC = () => {
                     loading={isLoadingTasks}
                     reportCounts={reportCountByTask}
                     currentUserId={user?._id}
+                    currentUserRoles={[...(availableRoles ?? []), role].filter((item): item is string => Boolean(item))}
                     onStatusUpdate={handleStatusUpdate}
                     onCreateReport={(task) => {
                         setSelectedTaskForReport(task);
                         setIsReportModalOpen(true);
                     }}
-                    onViewReports={() => {
-                        setSearchParams({ tab: 'GRP_08_CONSTRUCT' });
+                    onViewReports={(task) => {
+                        const primaryTaskTab = getPrimaryJourneyTabForStep(task.journey_step_code || selectedTaskStepCode);
+                        const targetTab = visibleJourneyTabKeys.includes('GRP_08_CONSTRUCT')
+                            ? 'GRP_08_CONSTRUCT'
+                            : visibleJourneyTabKeys.includes(primaryTaskTab)
+                              ? primaryTaskTab
+                              : (visibleJourneyTabKeys[0] || 'GRP_01_INFO');
+                        setSearchParams(
+                            targetTab === 'GRP_08_CONSTRUCT'
+                                ? { tab: targetTab, reportTaskId: task._id }
+                                : { tab: targetTab }
+                        );
                         setSelectedTaskStepCode(null);
                         setIsJourneyDrawerVisible(false);
                     }}
                     onTaskActionClick={handleWorkTaskActionClick}
                     readOnly={isTaskModalReadOnly}
-                    canManageWorkTasks={isPmManager}
+                    canManageWorkTasks={isPmManager && !isTaskModalReadOnly}
+                    canOverrideStatusUpdate={canOverrideTaskStatusInModal}
                     onAddWorkTask={() => setIsCreateWorkTaskModalOpen(true)}
                     onDeleteWorkTask={(task) => void handleDeleteWorkTaskFromModal(task)}
                 />
@@ -2177,4 +2467,3 @@ const JourneyDetail360: React.FC = () => {
 };
 
 export default JourneyDetail360;
-

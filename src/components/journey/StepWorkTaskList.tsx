@@ -74,6 +74,16 @@ function isCurrentUserAssignee(currentUserId: string | undefined, assignee: unkn
     return String(currentUserId) === String(aid);
 }
 
+function normalizeRoleCode(value: unknown): string {
+    return value == null ? '' : String(value).trim().toUpperCase();
+}
+
+function isCurrentUserTaskRole(currentUserRoles: string[] | undefined, assigneeRole: unknown): boolean {
+    const targetRole = normalizeRoleCode(assigneeRole);
+    if (!targetRole || !currentUserRoles?.length) return false;
+    return currentUserRoles.map(normalizeRoleCode).some((role) => role === targetRole);
+}
+
 function actionButtonIcon(actionType?: string | null) {
     if (actionType === 'require_document') return <FileTextOutlined />;
     if (actionType === 'require_status_equals') return <CheckCircleOutlined />;
@@ -84,8 +94,10 @@ export interface StepWorkTaskListProps {
     tasks: IWorkTask[];
     loading?: boolean;
     reportCounts?: Record<string, number>;
-    /** `_id` user đăng nhập — dùng để chỉ cho phép đổi trạng thái khi trùng assignee */
+    /** `_id` user đăng nhập — chỉ giữ fallback cho dữ liệu cũ còn `assignee`. */
     currentUserId?: string;
+    /** Vai trò hiện tại của user — nguồn chính để đổi trạng thái theo `assignee_role`. */
+    currentUserRoles?: string[];
     onStatusUpdate?: (taskId: string, status: string) => void;
     onCreateReport?: (task: IWorkTask) => void;
     onViewReports?: (task: IWorkTask) => void;
@@ -94,6 +106,7 @@ export interface StepWorkTaskListProps {
     readOnly?: boolean;
     /** Quản lý (QL / PM theo app): thêm / xóa công việc tại bước đang xem. */
     canManageWorkTasks?: boolean;
+    canOverrideStatusUpdate?: boolean;
     onAddWorkTask?: () => void;
     onDeleteWorkTask?: (task: IWorkTask) => void;
 }
@@ -103,12 +116,14 @@ export const StepWorkTaskList: React.FC<StepWorkTaskListProps> = ({
     loading = false,
     reportCounts = {},
     currentUserId,
+    currentUserRoles,
     onStatusUpdate,
     onCreateReport,
     onViewReports,
     onTaskActionClick,
     readOnly = false,
     canManageWorkTasks = false,
+    canOverrideStatusUpdate = false,
     onAddWorkTask,
     onDeleteWorkTask,
 }) => {
@@ -127,9 +142,17 @@ export const StepWorkTaskList: React.FC<StepWorkTaskListProps> = ({
             locale={{ emptyText: <Empty description="Chưa có công việc nào ở bước này" /> }}
             renderItem={(task) => {
                 const isAssignee = isCurrentUserAssignee(currentUserId, task.assignee);
-                const statusLockedByAssignee = readOnly || !isAssignee;
+                const isRoleOwner = isCurrentUserTaskRole(currentUserRoles, task.assignee_role);
+                const canUpdateStatus = !readOnly && (isRoleOwner || isAssignee || canOverrideStatusUpdate);
+                const statusLockedByAssignee = !canUpdateStatus;
                 const statusTooltip = readOnly
                     ? 'Chỉ xem — không đổi trạng thái tại bước này.'
+                    : canOverrideStatusUpdate && !isRoleOwner && !isAssignee
+                      ? 'QL/PM được phép đổi trạng thái công việc của bước hiện tại.'
+                    : !task.assignee_role && !getAssigneeId(task.assignee)
+                      ? 'Công việc chưa có vai trò phụ trách.'
+                    : task.assignee_role && !isRoleOwner && !isAssignee
+                      ? 'Chỉ vai trò phụ trách công việc mới được đổi trạng thái.'
                     : !currentUserId
                       ? 'Đăng nhập để thao tác trạng thái.'
                       : !getAssigneeId(task.assignee)
@@ -157,7 +180,7 @@ export const StepWorkTaskList: React.FC<StepWorkTaskListProps> = ({
                 return (
                 <List.Item
                     actions={[
-                        onCreateReport && (
+                        !readOnly && onCreateReport && (
                             <Button 
                                 key="report"
                                 type="link" 
@@ -227,11 +250,15 @@ export const StepWorkTaskList: React.FC<StepWorkTaskListProps> = ({
                                 {(task.assignee != null && task.assignee !== '') || task.assignee_role ? (
                                     <Text type="secondary" style={{ fontSize: 12 }}>
                                         <UserOutlined style={{ marginRight: 6 }} />
-                                        Người được giao: <Text strong>{formatAssigneeDisplay(task.assignee)}</Text>
+                                        {task.assignee != null && task.assignee !== '' ? (
+                                            <>
+                                                Người được giao: <Text strong>{formatAssigneeDisplay(task.assignee)}</Text>
+                                                {task.assignee_role ? ' · ' : null}
+                                            </>
+                                        ) : null}
                                         {task.assignee_role ? (
                                             <>
-                                                {' '}
-                                                · Vai trò:{' '}
+                                                Vai trò phụ trách:{' '}
                                                 <Tag style={{ marginInlineEnd: 0 }}>
                                                     {ASSIGNEE_ROLE_LABELS[String(task.assignee_role)] || task.assignee_role}
                                                 </Tag>
@@ -241,7 +268,7 @@ export const StepWorkTaskList: React.FC<StepWorkTaskListProps> = ({
                                 ) : null}
                                 <Text type="secondary" style={{ fontSize: 13 }}>{task.description || 'Chưa có mô tả'}</Text>
                                 {task.note && <Text type="secondary" style={{ fontSize: 12, fontStyle: 'italic' }}>Ghi chú: {task.note}</Text>}
-                                {task.actions && task.actions.length > 0 ? (
+                                {!readOnly && task.actions && task.actions.length > 0 ? (
                                     <div style={{ marginTop: 6 }}>
                                         <Text type="secondary" style={{ fontSize: 11, display: 'block', marginBottom: 6 }}>
                                             Thao tác gợi ý

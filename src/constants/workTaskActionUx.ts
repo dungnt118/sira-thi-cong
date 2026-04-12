@@ -59,7 +59,7 @@ export const WORK_TASK_ACTION_KEY_TO_JOURNEY_TAB: Record<string, string> = {
     upload_contract: 'GRP_DOCUMENTS',
     confirm_quote_approved: 'GRP_05_QUOTE',
     confirm_final_acceptance: 'GRP_ACCEPTANCE',
-    upload_payment_receipt: 'GRP_07_DEPOSIT',
+    upload_payment_receipt: 'GRP_10_PAYMENT',
 };
 
 export function labelForWorkTaskActionKey(actionKey?: string | null): string {

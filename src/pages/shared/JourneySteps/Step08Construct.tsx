@@ -10,6 +10,7 @@ import {
     LoadingOutlined, UserOutlined, PlusOutlined, ClockCircleOutlined
 } from '@ant-design/icons';
 import { useAuth } from '@/hooks/useAuth';
+import { useSearchParams } from 'react-router-dom';
 
 import { siteReportService } from '../../../services/core-contracts/services/siteReport.service';
 import { ISiteReport } from '../../../services/core-contracts/types/siteReport.types';
@@ -34,13 +35,19 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
 }) => {
     const { isAdmin } = useAuth();
     const { message, notification } = App.useApp();
+    const [searchParams, setSearchParams] = useSearchParams();
     const [form] = Form.useForm();
     const [isEditing, setIsEditing] = useState(false);
     const [reports, setReports] = useState<ISiteReport[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const reportTaskId = searchParams.get('reportTaskId') || '';
 
-    const latestReport = reports.length > 0 ? reports[reports.length - 1] : null;
+    const visibleReports = useMemo(
+        () => (reportTaskId ? reports.filter((report) => report.worktaskId === reportTaskId) : reports),
+        [reports, reportTaskId]
+    );
+    const latestReport = visibleReports.length > 0 ? visibleReports[visibleReports.length - 1] : null;
     const lastProgress = Number(latestReport?.progress_pct) || 0;
 
     // Sync form values when entering edit mode - Top level hook
@@ -115,9 +122,9 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
     // Memoize timeline items for performance and safety
     const timelineItems = useMemo(() => {
         try {
-            if (!reports || reports.length === 0) return [];
+            if (!visibleReports || visibleReports.length === 0) return [];
 
-            return reports.slice().reverse().map((report, idx) => {
+            return visibleReports.slice().reverse().map((report, idx) => {
                 if (!report) return null;
 
                 const reportId = typeof report._id === 'string' ? report._id : `report-${idx}-${Math.random()}`;
@@ -189,7 +196,7 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
             console.error("Timeline render process error:", err);
             return [];
         }
-    }, [reports]);
+    }, [visibleReports]);
 
     const overallProgress = Number(latestReport?.progress_pct) || 0;
 
@@ -202,17 +209,29 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
             );
         }
 
-        if (reports.length === 0) {
+        if (visibleReports.length === 0) {
             return (
                 <Empty
                     image={Empty.PRESENTED_IMAGE_SIMPLE}
                     description={
                         <span>
-                            Chưa có nhật ký thi công nào được ghi nhận. <br />
-                            Quá trình thi công sẽ bắt đầu sau khi tạm ứng được xác nhận.
+                            {reportTaskId ? 'Chưa có nhật ký nào gắn với công việc này.' : 'Chưa có nhật ký thi công nào được ghi nhận.'} <br />
+                            {!reportTaskId ? 'Quá trình thi công sẽ bắt đầu sau khi tạm ứng được xác nhận.' : null}
                         </span>
                     }
                 >
+                    {reportTaskId && (
+                        <Button
+                            style={{ marginRight: 8 }}
+                            onClick={() => {
+                                const nextParams = new URLSearchParams(searchParams);
+                                nextParams.delete('reportTaskId');
+                                setSearchParams(nextParams);
+                            }}
+                        >
+                            Xem toàn bộ nhật ký
+                        </Button>
+                    )}
                     {isEditable && (
                         <Button type="primary" onClick={() => {
                             setIsEditing(true);
@@ -225,6 +244,26 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
 
         return (
             <div style={{ padding: '0 12px' }}>
+                {reportTaskId ? (
+                    <Alert
+                        type="info"
+                        showIcon
+                        style={{ marginBottom: 16 }}
+                        message="Đang lọc nhật ký theo công việc"
+                        action={
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    const nextParams = new URLSearchParams(searchParams);
+                                    nextParams.delete('reportTaskId');
+                                    setSearchParams(nextParams);
+                                }}
+                            >
+                                Xem tất cả
+                            </Button>
+                        }
+                    />
+                ) : null}
                 <div style={{ marginBottom: 24, padding: 16, background: '#f0f2f5', borderRadius: 12, border: '1px solid #e8e8e8' }}>
                     <Row align="middle" gutter={24}>
                         <Col xs={24} sm={4} style={{ textAlign: 'center' }}>
@@ -390,4 +429,3 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
 };
 
 export default Step08Construct;
-
