@@ -1845,37 +1845,42 @@ const JourneyDetail360: React.FC = () => {
                                     outline: 'none',
                                 }}
                             >
-                                <Space
-                                    style={{
-                                        marginBottom: 0,
-                                        minWidth: 0,
-                                        background: 'rgba(255,255,255,0.15)',
-                                        border: '1px solid rgba(255,255,255,0.25)',
-                                        padding: '4px 10px',
-                                        borderRadius: 6,
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                    }}
-                                    size={8}
-                                >
-                                    <NodeIndexOutlined style={{ color: '#fff', flexShrink: 0 }} />
-                                    <Text
-                                        strong
-                                        style={{
-                                            color: '#fff',
-                                            minWidth: 0,
-                                            ...(isMobile
-                                                ? {
-                                                      display: 'block',
-                                                      overflow: 'hidden',
-                                                      textOverflow: 'ellipsis',
-                                                      whiteSpace: 'nowrap',
-                                                  }
-                                                : {}),
-                                        }}
-                                    >
-                                        {currentStepDisplayLabel}
+                                <Space size={12} wrap style={{ minWidth: 0 }}>
+                                    <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, flexShrink: 0 }}>
+                                        Giai đoạn hiện tại:
                                     </Text>
+                                    <Space
+                                        style={{
+                                            marginBottom: 0,
+                                            minWidth: 0,
+                                            background: 'rgba(255,255,255,0.15)',
+                                            border: '1px solid rgba(255,255,255,0.25)',
+                                            padding: '4px 10px',
+                                            borderRadius: 6,
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                        }}
+                                        size={8}
+                                    >
+                                        <NodeIndexOutlined style={{ color: '#fff', flexShrink: 0 }} />
+                                        <Text
+                                            strong
+                                            style={{
+                                                color: '#fff',
+                                                minWidth: 0,
+                                                ...(isMobile
+                                                    ? {
+                                                          display: 'block',
+                                                          overflow: 'hidden',
+                                                          textOverflow: 'ellipsis',
+                                                          whiteSpace: 'nowrap',
+                                                      }
+                                                    : {}),
+                                            }}
+                                        >
+                                            {currentStepDisplayLabel}
+                                        </Text>
+                                    </Space>
                                 </Space>
                             </div>
                         </Tooltip>
