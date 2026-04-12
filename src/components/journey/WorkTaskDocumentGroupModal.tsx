@@ -7,28 +7,16 @@ import {
     Modal,
     Space,
     Typography,
-    Upload,
-    message,
     DatePicker,
     Switch,
     Row,
     Col,
 } from 'antd';
-import type { UploadFile } from 'antd/es/upload/interface';
-import type { UploadProps } from 'antd';
-import {
-    FileImageOutlined,
-    FileOutlined,
-    FilePdfOutlined,
-    UploadOutlined,
-    VideoCameraOutlined,
-} from '@ant-design/icons';
+import { UploadFiles } from '../files/UploadFiles';
 import dayjs from 'dayjs';
 import { journeyDocumentService } from '../../services/core-contracts/services/journeyDocument.service';
 import type { IJourneyDocument } from '../../services/core-contracts/types/journeyDocument.types';
 import type { IActionsItem } from '../../services/core-contracts/types/workTask.types';
-import { classifyJourneyFile, resolveJourneyFileHref } from '../../utils/journeyDocumentFileDisplay';
-import { useFileUpload } from '../files/useFileUpload';
 import type { HeadlessFileUpload } from 'types/apis/HeadlessFileUpload';
 
 const { TextArea } = Input;
@@ -94,25 +82,12 @@ const DocumentPanel: React.FC<{
     onSaved: () => void | Promise<void>;
 }> = ({ spec, journeyId, worktaskId, stepCode, onSaved }) => {
     const [form] = Form.useForm();
-    const [fileList, setFileList] = useState<UploadFile[]>([]);
     const [saving, setSaving] = useState(false);
     const [currentDocId, setCurrentDocId] = useState<string | null>(null);
-    const { getUploadConfig, parseUploadResponse } = useFileUpload();
-    const uploadConfig = getUploadConfig();
 
-    const withResolvedPreviewUrls = (list: UploadFile[]): UploadFile[] =>
-        list.map((f) => {
-            if (f.status === 'done' && f.response) {
-                const std = parseUploadResponse(f.response);
-                const href = resolveJourneyFileHref(std as HeadlessFileUpload);
-                return { ...f, url: href ?? f.url };
-            }
-            return f;
-        });
 
-    const handleUploadChange: UploadProps['onChange'] = ({ fileList: next }) => {
-        setFileList(withResolvedPreviewUrls(next));
-    };
+
+
 
     // Load existing document for this worktaskId + doc_type
     useEffect(() => {
@@ -141,18 +116,8 @@ const DocumentPanel: React.FC<{
                         description: latest.description,
                         published_at: latest.published_at ? dayjs(latest.published_at) : null,
                         is_published: latest.is_published !== false,
+                        files: latest.files || [],
                     });
-                    if (latest.files?.length) {
-                        setFileList(
-                            latest.files.map((f, i) => ({
-                                uid: String(f.file_id || `existing-${i}`),
-                                name: f.name || 'Tài liệu',
-                                status: 'done',
-                                url: resolveJourneyFileHref(f),
-                                response: f,
-                            }))
-                        );
-                    }
                 }
             } catch (err) {
                 console.error('Failed to load initial document:', err);
@@ -164,57 +129,30 @@ const DocumentPanel: React.FC<{
         };
     }, [journeyId, worktaskId, spec.doc_type, form]);
 
-    const uploadIconRender: UploadProps['iconRender'] = (file) => {
-        const kind = classifyJourneyFile({
-            name: file.name,
-            url: typeof file.url === 'string' ? file.url : undefined,
-            mime_type:
-                file.originFileObj && typeof (file.originFileObj as File).type === 'string'
-                    ? (file.originFileObj as File).type
-                    : undefined,
-        });
-        if (kind === 'pdf') return <FilePdfOutlined style={{ color: '#f5222d' }} />;
-        if (kind === 'image') return <FileImageOutlined style={{ color: '#52c41a' }} />;
-        if (kind === 'video') return <VideoCameraOutlined style={{ color: '#fa8c16' }} />;
-        return <FileOutlined style={{ color: '#1890ff' }} />;
-    };
+
 
     const handleSave = async () => {
         try {
             const values = await form.validateFields();
-            if (fileList.length === 0) {
-                message.error('Vui lòng đính kèm ít nhất một file.');
-                return;
-            }
-            if (fileList.some((f) => f.status === 'uploading')) {
-                message.warning('Vui lòng đợi file tải lên xong.');
-                return;
-            }
-            if (fileList.some((f) => f.status === 'error')) {
-                message.error('Có file tải lên thất bại.');
-                return;
-            }
-
-            const mappedFiles = fileList
-                .filter((f) => f.status === 'done')
-                .map((f) => {
-                    const std = f.response ? parseUploadResponse(f.response) : null;
-                    return {
-                        name: f.name || std?.name || 'Tài liệu',
-                        url: std?.url,
-                        file_id: std?.file_id,
-                        file_path: std?.file_path,
-                        file_type: std?.file_type,
-                        mime_type: std?.mime_type,
-                    };
+            const mappedFiles = (values.files || []) as HeadlessFileUpload[];
+            
+            if (mappedFiles.length === 0) {
+                Modal.warning({
+                    title: 'Thiếu tài liệu',
+                    content: 'Vui lòng đính kèm ít nhất một file.'
                 });
+                return;
+            }
 
             const hasInvalid = mappedFiles.some((m) => {
                 const u = m.url ? String(m.url) : '';
                 return !m.file_id && !m.file_path && (!u || u.startsWith('blob:'));
             });
             if (hasInvalid) {
-                message.error('Một số file chưa có định danh từ máy chủ.');
+                Modal.error({
+                    title: 'Lỗi định danh file',
+                    content: 'Một số file chưa có định danh từ máy chủ.'
+                });
                 return;
             }
 
@@ -233,10 +171,16 @@ const DocumentPanel: React.FC<{
             let resDoc: IJourneyDocument;
             if (currentDocId) {
                 resDoc = await journeyDocumentService.updateJourneyDocument(currentDocId, docData);
-                message.success(`Đã cập nhật tài liệu: ${DOC_TYPE_LABELS[spec.doc_type] || spec.doc_type}`);
+                Modal.success({
+                    title: 'Thành công',
+                    content: `Đã cập nhật tài liệu: ${DOC_TYPE_LABELS[spec.doc_type] || spec.doc_type}`
+                });
             } else {
                 resDoc = await journeyDocumentService.createJourneyDocument(docData);
-                message.success(`Đã thêm tài liệu: ${DOC_TYPE_LABELS[spec.doc_type] || spec.doc_type}`);
+                Modal.success({
+                    title: 'Thành công',
+                    content: `Đã thêm tài liệu: ${DOC_TYPE_LABELS[spec.doc_type] || spec.doc_type}`
+                });
                 if (resDoc._id) setCurrentDocId(resDoc._id);
             }
 
@@ -245,7 +189,10 @@ const DocumentPanel: React.FC<{
         } catch (e: unknown) {
             if (e && typeof e === 'object' && 'errorFields' in e) return;
             console.error(e);
-            message.error(e instanceof Error ? e.message : 'Lỗi khi lưu tài liệu');
+            Modal.error({
+                title: 'Lỗi',
+                content: e instanceof Error ? e.message : 'Lỗi khi lưu tài liệu'
+            });
         } finally {
             setSaving(false);
         }
@@ -291,22 +238,8 @@ const DocumentPanel: React.FC<{
                         </Form.Item>
                     </Col>
                 </Row>
-                <Form.Item label="Đính kèm file" required>
-                    <Upload
-                        fileList={fileList}
-                        action={uploadConfig.action}
-                        headers={uploadConfig.headers}
-                        onChange={handleUploadChange}
-                        multiple
-                        listType="picture"
-                        iconRender={uploadIconRender}
-                        showUploadList={{
-                            showRemoveIcon: true,
-                            showPreviewIcon: true,
-                        }}
-                    >
-                        <Button icon={<UploadOutlined />}>Chọn file</Button>
-                    </Upload>
+                <Form.Item label="Đính kèm file" name="files" required>
+                    <UploadFiles />
                 </Form.Item>
             </Form>
             <Button type="primary" loading={saving} onClick={() => void handleSave()}>
