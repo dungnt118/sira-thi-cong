@@ -49,7 +49,7 @@ import {
     Typography
 } from 'antd';
 import dayjs from 'dayjs';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { ContentConversationPanel, type ChatPanelLayoutMode } from '../../../components/chatbox';
 import { CreateJourneyDocumentModal } from '../../../components/journey/CreateJourneyDocumentModal';
@@ -80,7 +80,8 @@ import { mockJourneyTemplates } from '../../../data/journeyMockData';
 import { journeyDocumentService } from '../../../services/core-contracts/services/journeyDocument.service';
 import { IJourneyDocument } from '../../../services/core-contracts/types/journeyDocument.types';
 import { IJourneyStepLog } from '../../../services/core-contracts/types/journeyStepLog.types';
-import type { ICreateWorkTaskInput, WorkTaskAssigneeRoleEnum2 } from '../../../services/core-contracts/types/workTask.types';
+import { resolveJourneyTabForWorkTaskAction } from '../../../constants/workTaskActionUx';
+import type { IActionsItem, ICreateWorkTaskInput, WorkTaskAssigneeRoleEnum2 } from '../../../services/core-contracts/types/workTask.types';
 import { IWorkTask } from '../../../services/core-contracts/types/workTask.types';
 import type { GoNoGoStatus, PortalPublishStatus, SlaStatus } from '../../../types/journey';
 
@@ -199,6 +200,22 @@ type BuildWorkTasksResult =
       }
     | { ok: false; reason: 'no_setting' | 'no_tasks' };
 
+/** Clone mảng actions từ checklist (CustomerJourneySetting) → payload WorkTask. */
+const cloneChecklistActionsToWorkTaskPayload = (
+    actions?: IChecklistItem['actions']
+): ICreateWorkTaskInput['actions'] => {
+    if (!actions?.length) return undefined;
+    return actions.map((a) => ({
+        action_key: a.action_key,
+        action_type: a.action_type,
+        target_field: a.target_field,
+        expected_value: a.expected_value,
+        doc_type: a.doc_type,
+        min_count: a.min_count,
+        note: a.note,
+    }));
+};
+
 /** Dựng payload WorkTask từ CustomerJourneySetting + journey (đã gộp form phân công). */
 const buildWorkTasksFromSetting = (
     setting: ICustomerJourneySetting | null,
@@ -212,7 +229,6 @@ const buildWorkTasksFromSetting = (
     const tasksToCreate: ICreateWorkTaskInput[] = [];
     const missingRoleOnChecklist: string[] = [];
     const missingAssigneeByRole = new Map<WorkTaskAssigneeRoleEnum2, string>();
-    console.log('setting.steps', setting.steps);
     for (const stepConfig of setting.steps) {
         /** Cùng semantics với CustomerJourneySettingPage: thiếu field = coi như bật. */
         if (stepConfig.is_enabled === false || !stepConfig.checklist?.length) {
@@ -243,6 +259,7 @@ const buildWorkTasksFromSetting = (
                 status: 'pending',
                 assignee_role: assigneeRole,
                 assignee,
+                actions: cloneChecklistActionsToWorkTaskPayload(item.actions),
             });
         }
     }
@@ -541,6 +558,18 @@ const JourneyDetail360: React.FC = () => {
             setSearchParams({ tab: 'GRP_01_INFO' });
         }
     }, [activeTab, setSearchParams]);
+
+    /** Step con (vd. Step01Info) yêu cầu đổi tab qua CustomEvent. */
+    useEffect(() => {
+        const onSwitchJourneyTab = (ev: Event) => {
+            const tab = (ev as CustomEvent<string>).detail;
+            if (typeof tab === 'string' && tab.length > 0) {
+                setSearchParams({ tab });
+            }
+        };
+        window.addEventListener('switch-journey-tab', onSwitchJourneyTab);
+        return () => window.removeEventListener('switch-journey-tab', onSwitchJourneyTab);
+    }, [setSearchParams]);
 
     useEffect(() => {
         let cancelled = false;
@@ -854,6 +883,21 @@ const JourneyDetail360: React.FC = () => {
     const openTaskModal = (stepCode: string) => {
         setSelectedTaskStepCode(stepCode);
     };
+
+    /** Điều hướng tab theo action (UX) khi bấm nút thao tác gợi ý trên WorkTask. */
+    const handleWorkTaskActionNavigate = useCallback(
+        (_task: IWorkTask, action: IActionsItem) => {
+            const tab = resolveJourneyTabForWorkTaskAction(action);
+            if (tab) {
+                setSearchParams({ tab });
+                setSelectedTaskStepCode(null);
+                setIsJourneyDrawerVisible(false);
+                return;
+            }
+            message.info('Chưa ánh xạ tab cho thao tác này — vui lòng thao tác thủ công trên lộ trình.');
+        },
+        [setSearchParams]
+    );
 
     const renderAssignmentTags = (users: string[], emptyText: string = 'Chưa gán') => {
         if (users.length === 0) {
@@ -1873,6 +1917,7 @@ const JourneyDetail360: React.FC = () => {
                                 setSelectedTaskStepCode(null);
                                 setIsJourneyDrawerVisible(false);
                             }}
+                            onTaskActionClick={handleWorkTaskActionNavigate}
                             readOnly={isTaskReadOnly}
                         />
                     );

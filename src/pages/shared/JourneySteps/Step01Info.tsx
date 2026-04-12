@@ -21,6 +21,8 @@ import { AuthorizedUserSelect } from '../../../components/authorizedusers/Author
 import { StepWorkTaskList } from '../../../components/journey/StepWorkTaskList';
 import { CreateSiteReportModal } from '../../../components/journey/CreateSiteReportModal';
 import { useAuth } from '../../../hooks/useAuth';
+import { resolveJourneyTabForWorkTaskAction } from '../../../constants/workTaskActionUx';
+import type { IActionsItem } from '../../../services/core-contracts/types/workTask.types';
 import { siteReportService } from '../../../services/core-contracts/services/siteReport.service';
 
 const { TextArea } = Input;
@@ -193,6 +195,15 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
             console.error('Failed to update status:', error);
             message.error('Lỗi khi cập nhật trạng thái');
         }
+    };
+
+    const handleWorkTaskActionFromStep = (_task: IWorkTask, action: IActionsItem) => {
+        const tab = resolveJourneyTabForWorkTaskAction(action);
+        if (tab) {
+            window.dispatchEvent(new CustomEvent('switch-journey-tab', { detail: tab }));
+            return;
+        }
+        message.info('Chưa ánh xạ tab cho thao tác này — vui lòng thao tác thủ công trên lộ trình.');
     };
 
     useEffect(() => {
@@ -546,6 +557,7 @@ export const Step01Info: React.FC<Step01InfoProps> = ({ journeyId, isEditable = 
                                                     const event = new CustomEvent('switch-journey-tab', { detail: 'GRP_08_CONSTRUCT' });
                                                     window.dispatchEvent(event);
                                                 }}
+                                                onTaskActionClick={handleWorkTaskActionFromStep}
                                             />
                                         </>
                                     );

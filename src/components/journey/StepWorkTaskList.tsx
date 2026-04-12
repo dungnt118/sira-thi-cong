@@ -1,12 +1,16 @@
 import React from 'react';
-import { List, Typography, Space, Tag, Select, Badge, Empty, Button, Tooltip } from 'antd';
+import { List, Typography, Space, Tag, Select, Badge, Empty, Button, Tooltip, message } from 'antd';
 import {
     CheckCircleOutlined,
     ClockCircleOutlined,
     CloseCircleOutlined,
     AuditOutlined,
     UserOutlined,
+    FormOutlined,
+    FileTextOutlined,
 } from '@ant-design/icons';
+import { labelForWorkTaskActionKey } from '../../constants/workTaskActionUx';
+import type { IActionsItem } from '../../services/core-contracts/types/workTask.types';
 import { IWorkTask } from '../../services/core-contracts/types/workTask.types';
 
 const { Text } = Typography;
@@ -67,6 +71,12 @@ function isCurrentUserAssignee(currentUserId: string | undefined, assignee: unkn
     return String(currentUserId) === String(aid);
 }
 
+function actionButtonIcon(actionType?: string | null) {
+    if (actionType === 'require_document') return <FileTextOutlined />;
+    if (actionType === 'require_status_equals') return <CheckCircleOutlined />;
+    return <FormOutlined />;
+}
+
 export interface StepWorkTaskListProps {
     tasks: IWorkTask[];
     loading?: boolean;
@@ -76,6 +86,8 @@ export interface StepWorkTaskListProps {
     onStatusUpdate?: (taskId: string, status: string) => void;
     onCreateReport?: (task: IWorkTask) => void;
     onViewReports?: (task: IWorkTask) => void;
+    /** Bấm nút thao tác gợi ý (theo `actions` trên task) — ví dụ điều hướng tab Journey. */
+    onTaskActionClick?: (task: IWorkTask, action: IActionsItem, actionIndex: number) => void;
     readOnly?: boolean;
 }
 
@@ -87,6 +99,7 @@ export const StepWorkTaskList: React.FC<StepWorkTaskListProps> = ({
     onStatusUpdate,
     onCreateReport,
     onViewReports,
+    onTaskActionClick,
     readOnly = false,
 }) => {
     return (
@@ -195,6 +208,51 @@ export const StepWorkTaskList: React.FC<StepWorkTaskListProps> = ({
                                 ) : null}
                                 <Text type="secondary" style={{ fontSize: 13 }}>{task.description || 'Chưa có mô tả'}</Text>
                                 {task.note && <Text type="secondary" style={{ fontSize: 12, fontStyle: 'italic' }}>Ghi chú: {task.note}</Text>}
+                                {task.actions && task.actions.length > 0 ? (
+                                    <div style={{ marginTop: 6 }}>
+                                        <Text type="secondary" style={{ fontSize: 11, display: 'block', marginBottom: 6 }}>
+                                            Thao tác gợi ý
+                                        </Text>
+                                        <Space wrap size={[8, 8]}>
+                                            {task.actions.map((act, idx) => {
+                                                const label =
+                                                    (act.action_key && labelForWorkTaskActionKey(act.action_key)) ||
+                                                    act.note ||
+                                                    act.target_field ||
+                                                    act.doc_type ||
+                                                    'Thao tác';
+                                                const tip =
+                                                    act.note ||
+                                                    [act.action_type, act.target_field, act.doc_type, act.expected_value]
+                                                        .filter(Boolean)
+                                                        .join(' · ') ||
+                                                    label;
+                                                const btn = (
+                                                    <Button
+                                                        size="small"
+                                                        type="default"
+                                                        icon={actionButtonIcon(act.action_type)}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            if (onTaskActionClick) {
+                                                                onTaskActionClick(task, act, idx);
+                                                            } else {
+                                                                message.info('Chưa cấu hình điều hướng cho thao tác này.');
+                                                            }
+                                                        }}
+                                                    >
+                                                        {label}
+                                                    </Button>
+                                                );
+                                                return (
+                                                    <Tooltip key={`${task._id}-action-${idx}`} title={tip}>
+                                                        <span>{btn}</span>
+                                                    </Tooltip>
+                                                );
+                                            })}
+                                        </Space>
+                                    </div>
+                                ) : null}
                             </Space>
                         )}
                     />

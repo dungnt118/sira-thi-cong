@@ -1,21 +1,21 @@
 import { query, queryList } from 'app/services/graphqlService'; // TODO: Check path
+import { GeneralCollectionFilter } from 'types/filters/GeneralCollectionFilter';
 import {
-  count_content,
-  delete_content,
-  delete_multi_content,
   find_content,
-  lock_content,
   query_content,
+  count_content,
   save_content,
   save_many_content,
-  update_partial_content
+  update_partial_content,
+  delete_content,
+  delete_multi_content,
+  lock_content
 } from 'app/store/actions/data/data.action'; // TODO: Check path
-import { GeneralCollectionFilter } from 'types/filters/GeneralCollectionFilter';
 
 import { FIND_WORKTASK_DTO, QUERY_WORKTASKS_DTO } from '../queries/workTask.queries';
 import {
-  ICreateWorkTaskInput,
   IWorkTask,
+  ICreateWorkTaskInput,
   IWorkTaskListResponse
 } from '../types/workTask.types';
 
@@ -52,14 +52,14 @@ export const workTaskService = {
       data: data,
       update_if_duplicate: false
     });
-    if (response?.code !== 0) {
+    if (response?.code != null && response.code !== 0 && response.code !== 202) {
       throw new Error(response?.message || 'Không thể lưu hàng loạt WorkTask');
     }
-    const dataResponse = response?.data;
-    if (data == null) {
-      throw new Error('Không thể lưu hàng loạt WorkTask (thiếu dữ liệu trả về)');
+    const savedData = response?.data;
+    if (savedData == null) {
+      throw new Error(response?.message || 'Không thể lưu hàng loạt WorkTask (thiếu dữ liệu trả về)');
     }
-    return Array.isArray(dataResponse) ? dataResponse : [dataResponse];
+    return Array.isArray(savedData) ? savedData : [savedData];
   },
 
   async updateWorkTask(id: string, input: Partial<ICreateWorkTaskInput>): Promise<IWorkTask> {
