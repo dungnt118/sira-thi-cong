@@ -12,29 +12,35 @@ export interface IQuotation {
   version_no?: number;
   journey_id?: string;
   idx_journey_id?: IndexedContentItem;
+  worktaskId?: string;
+  idx_worktaskId?: IndexedContentItem;
   status?: QuotationStatusEnum;
   subtotal?: number;
   discount?: number;
   total?: number;
   approved_at?: string | Date;
   notes?: string;
-  //deprecated fields
-  // service_request_id?: string;
-  // idx_service_request_id?: IndexedContentItem;
+  createdAt?: string | Date;
+  createdBy?: any;
+  updatedBy?: any;
+  updatedAt?: string | Date;
 }
 
 export interface ICreateQuotationInput {
   code?: string;
   version_no?: number;
   journey_id?: string;
+  worktaskId?: string;
   status?: QuotationStatusEnum2;
   subtotal?: number;
   discount?: number;
   total?: number;
   approved_at?: string | Date;
   notes?: string;
-  //deprecated fields
-  // service_request_id?: string;
+  createdAt?: string | Date;
+  createdBy?: any;
+  updatedBy?: any;
+  updatedAt?: string | Date;
 }
 
 export type IQuotationListResponse = ApiListResponse<IQuotation>

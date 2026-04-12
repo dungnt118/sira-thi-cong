@@ -18,6 +18,8 @@ export const FIND_SURVEYAPPOINTMENT_DTO = gql`
         journey_id
         idx_journey_id
         journey_step_code
+        worktaskId
+        idx_worktaskId
         customer_id
         idx_customer_id
         scheduled_at
@@ -50,6 +52,8 @@ export const QUERY_SURVEYAPPOINTMENTS_DTO = gql`
         journey_id
         idx_journey_id
         journey_step_code
+        worktaskId
+        idx_worktaskId
         customer_id
         idx_customer_id
         scheduled_at
