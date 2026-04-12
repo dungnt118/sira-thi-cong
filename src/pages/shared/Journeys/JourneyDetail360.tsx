@@ -80,7 +80,11 @@ import JourneyUpsertDrawer from '../../../components/journey/JourneyUpsertDrawer
 import { StepWorkTaskList } from '../../../components/journey/StepWorkTaskList';
 import { WorkTaskActionModals, type WorkTaskActionDialogContext } from '../../../components/journey/WorkTaskActionModals';
 import type { TaskActionClickPayload } from '../../../utils/workTaskActionGroups';
-import { confirmAdvanceJourneyStep, headerStepKeyToStandardProcedureGroupCd } from '../../../utils/journeyStepConfirmation';
+import {
+    confirmAdvanceJourneyStep,
+    JOURNEY_STEP_SEQUENCE,
+    headerStepKeyToStandardProcedureGroupCd
+} from '../../../utils/journeyStepConfirmation';
 import { mockJourneyTemplates } from '../../../data/journeyMockData';
 import { journeyDocumentService } from '../../../services/core-contracts/services/journeyDocument.service';
 import { IJourneyDocument } from '../../../services/core-contracts/types/journeyDocument.types';
@@ -605,6 +609,23 @@ const JourneyDetail360: React.FC = () => {
         }
     };
 
+    const handleResetJourneyStep = async () => {
+        if (!journey?._id || !resetStepCode) return;
+        setIsSubmitting(true);
+        try {
+            await journeyService.updateJourney(journey._id, { current_step: resetStepCode as any });
+            message.success('Đã cập nhật lại bước cho công trình!');
+            setResetStepCode(null);
+            fetchJourney();
+            setSelectedTaskStepCode(null);
+        } catch (error) {
+            console.error('Failed to reset journey step:', error);
+            message.error('Lỗi khi cập nhật lại bước');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
     const handleStatusUpdate = async (taskId: string, newStatus: string) => {
         try {
             await workTaskService.updateWorkTask(taskId, { status: newStatus as any });
@@ -697,6 +718,7 @@ const JourneyDetail360: React.FC = () => {
     const [isCreateWorkTaskModalOpen, setIsCreateWorkTaskModalOpen] = useState(false);
     const [isCompletingStepFromModal, setIsCompletingStepFromModal] = useState(false);
     const [createWorkTaskForm] = Form.useForm();
+    const [resetStepCode, setResetStepCode] = useState<string | null>(null);
     const [modal, modalContextHolder] = Modal.useModal();
 
     const showBuildWorkTasksFailure = (built: BuildWorkTasksResult) => {
@@ -935,10 +957,29 @@ const JourneyDetail360: React.FC = () => {
         return counts;
     }, [taskStatsByStep]);
 
-    const selectedStepMeta = useMemo(
-        () => HEADER_STEP_CONFIG.find((step) => step.key === selectedTaskStepCode) || null,
-        [selectedTaskStepCode]
-    );
+    const selectedStepMeta = useMemo(() => {
+        if (!selectedTaskStepCode) return null;
+
+        // Strictly validate if the code is a standard step code
+        const isStandard = JOURNEY_STEP_SEQUENCE.includes(selectedTaskStepCode as any);
+        if (!isStandard) return null; // Treat S01_INFO and other non-standard codes as junk
+
+        // Find standard metadata
+        const staticMeta = HEADER_STEP_CONFIG.find((step) => step.key === selectedTaskStepCode);
+        if (staticMeta) return staticMeta;
+
+        // Fallback to dynamic steps only if they are confirmed standard
+        const dynamicStep = journeySteps.find((s) => s.step_code === selectedTaskStepCode);
+        if (dynamicStep) {
+            return {
+                key: dynamicStep.step_code,
+                label: dynamicStep.step_name,
+                icon: null,
+            };
+        }
+
+        return null;
+    }, [selectedTaskStepCode, journeySteps]);
 
     const selectedStepTasks = useMemo(
         () => workTasks.filter((task) => task.journey_step_code === selectedTaskStepCode),
@@ -958,6 +999,13 @@ const JourneyDetail360: React.FC = () => {
         return toUserList(journey.pm_user).some((id) => String(id) === String(user._id));
     }, [user, journey]);
 
+    const hasPendingTasksForSelectedStep = useMemo(() => {
+        if (!selectedTaskStepCode) return false;
+        return workTasks.some(
+            (task) => task.journey_step_code === selectedTaskStepCode && task.status === 'pending'
+        );
+    }, [workTasks, selectedTaskStepCode]);
+
     const canFinalizeStepInTaskModal = useMemo(() => {
         if (!journey?._id || !selectedTaskStepCode) return false;
         const selectedKey = String(selectedTaskStepCode).trim();
@@ -968,8 +1016,11 @@ const JourneyDetail360: React.FC = () => {
         if (!currentKey || selectedKey !== currentKey) return false;
         if (taskModalStepIndex > currentHeaderStepIndex) return false;
         const groupCd = headerStepKeyToStandardProcedureGroupCd(selectedKey, journeySteps);
+        
+        // Finalization allowed for PM/Admin or users with specific permissions for the step group
         if (isPmManager || isCurrentUserJourneyPm) return true;
         if (groupCd && userRoleConfig.finalizableGroupCodes.includes(groupCd)) return true;
+        
         return false;
     }, [
         journey,
@@ -1120,23 +1171,25 @@ const JourneyDetail360: React.FC = () => {
             return;
         }
 
-        const unfinishedMandatoryTasks = workTasks.filter(
-            (task) => task.journey_step_code === journey.current_step && task.is_required && task.status !== 'finished'
+        const unfinishedTasks = workTasks.filter(
+            (task) => task.journey_step_code === journey.current_step && task.status === 'pending'
         );
-        if (unfinishedMandatoryTasks.length > 0) {
+        if (unfinishedTasks.length > 0) {
             modal.warning({
                 title: 'Chưa thể hoàn thành bước',
                 content: (
                     <div>
                         <div>
-                            Còn <b>{unfinishedMandatoryTasks.length}</b> công việc bắt buộc chưa hoàn thành:
+                            Còn <b>{unfinishedTasks.length}</b> công việc đang ở trạng thái <b>Chờ</b>:
                         </div>
                         <ul style={{ marginTop: 8, paddingLeft: 20, maxHeight: 220, overflow: 'auto' }}>
-                            {unfinishedMandatoryTasks.map((task) => (
+                            {unfinishedTasks.map((task) => (
                                 <li key={task._id}>{task.title || 'Công việc chưa đặt tên'}</li>
                             ))}
                         </ul>
-                        <div style={{ fontSize: 12 }}>Cập nhật các công việc này sang trạng thái Xong rồi thử lại.</div>
+                        <div style={{ fontSize: 12 }}>
+                            Bạn cần chuyển các công việc này sang trạng thái <b>Xong</b> hoặc <b>Bỏ qua</b> (nếu không bắt buộc) để tiếp tục.
+                        </div>
                     </div>
                 ),
                 okText: 'Đã hiểu',
@@ -2322,8 +2375,13 @@ const JourneyDetail360: React.FC = () => {
                                 type="primary"
                                 icon={<CheckCircleOutlined />}
                                 loading={isCompletingStepFromModal}
+                                disabled={hasPendingTasksForSelectedStep}
                                 onClick={() => void handleCompleteStepFromTaskModal()}
-                                style={{ background: '#52c41a', borderColor: '#52c41a' }}
+                                style={
+                                    !hasPendingTasksForSelectedStep
+                                        ? { background: '#52c41a', borderColor: '#52c41a' }
+                                        : {}
+                                }
                             >
                                 Xác nhận hoàn thành bước
                             </Button>
@@ -2333,6 +2391,41 @@ const JourneyDetail360: React.FC = () => {
                 }
                 width={720}
             >
+                {isPmManager && (!selectedStepMeta || journey?.current_step !== selectedTaskStepCode) && (
+                    <Alert
+                        type="warning"
+                        showIcon
+                        icon={<ExclamationCircleOutlined />}
+                        message="Hỗ trợ xử lý thông tin bước"
+                        description={
+                            <div style={{ marginTop: 8 }}>
+                                <Text style={{ display: 'block', marginBottom: 12, fontSize: 13, color: 'rgba(0, 0, 0, 0.45)' }}>
+                                    Bước hiện tại của hồ sơ có thể đang bị lỗi hoặc không khớp với dữ liệu quy chuẩn. 
+                                    Quản lý có quyền thiết lập lại về một bước hợp lệ trong quy trình.
+                                </Text>
+                                <Space wrap>
+                                    <Select
+                                        style={{ width: 280 }}
+                                        placeholder="Chọn bước muốn chuyển đến..."
+                                        value={resetStepCode}
+                                        onChange={setResetStepCode}
+                                        options={HEADER_STEP_CONFIG.map(s => ({ label: s.label, value: s.key }))}
+                                    />
+                                    <Button 
+                                        type="primary" 
+                                        danger 
+                                        onClick={handleResetJourneyStep}
+                                        disabled={!resetStepCode}
+                                        loading={isSubmitting}
+                                    >
+                                        Cập nhật bước
+                                    </Button>
+                                </Space>
+                            </div>
+                        }
+                        style={{ marginBottom: 16 }}
+                    />
+                )}
                 <StepWorkTaskList
                     tasks={selectedStepTasks}
                     loading={isLoadingTasks}
