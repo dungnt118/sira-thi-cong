@@ -78,7 +78,7 @@ export const Execution: React.FC = () => {
                             onClick={() => navigate(buildJourneyDetailRoute('kyt', item._id))}
                             style={{ height: 40, borderRadius: 8 }}
                         >
-                            Cập nhật Nhật ký thi công <ArrowRightOutlined />
+                            Cập nhật Nhật ký <ArrowRightOutlined />
                         </Button>
                     </Card>
                 )}

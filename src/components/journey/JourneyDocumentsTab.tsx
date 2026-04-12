@@ -314,7 +314,7 @@ export const JourneyDocumentsTab: React.FC<JourneyDocumentsTabProps> = ({
                 <Space>
                     <PaperClipOutlined style={{ color: '#1890ff' }} />
                     <Text strong style={{ fontSize: 15 }}>
-                        Tài liệu công trình
+                        Tài liệu
                     </Text>
                     <Badge count={documents.length} style={{ backgroundColor: '#52c41a' }} />
                 </Space>
@@ -487,8 +487,14 @@ export const JourneyDocumentsTab: React.FC<JourneyDocumentsTabProps> = ({
                 open={!!filePreview}
                 title={filePreview?.name}
                 onCancel={() => setFilePreview(null)}
-                width={filePreview?.kind === 'pdf' ? 'min(1200px, 96vw)' : 720}
-                style={{ top: 0, paddingBottom: 0, margin: '0 auto' }}
+                width={filePreview?.kind === 'pdf' ? '100vw' : 720}
+                style={filePreview?.kind === 'pdf' ? {
+                    top: 0,
+                    margin: 0,
+                    maxWidth: '100vw',
+                    padding: 0,
+                    height: '100dvh'
+                } : { top: 0, paddingBottom: 0, margin: '0 auto' }}
                 styles={{
                     content:
                         filePreview?.kind === 'pdf'
@@ -525,9 +531,19 @@ export const JourneyDocumentsTab: React.FC<JourneyDocumentsTabProps> = ({
                 destroyOnHidden
                 footer={null}
             >
-                {filePreview?.kind === 'pdf' && filePreview.url ? (
-                    <PdfViewer url={filePreview.url} title={filePreview.name} height="100%" />
-                ) : null}
+                {filePreview && (
+                    <div style={filePreview?.kind === 'pdf' ? {
+                        flex: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        minHeight: 0,
+                        height: '100%',
+                    } : {}}>
+                        {filePreview?.kind === 'pdf' && filePreview.url ? (
+                            <PdfViewer url={filePreview.url} title={filePreview.name} height="100%" />
+                        ) : null}
+                    </div>
+                )}
                 {filePreview?.kind === 'image' && filePreview.url ? (
                     <div style={{ textAlign: 'center' }}>
                         <img

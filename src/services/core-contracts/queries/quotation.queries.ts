@@ -18,12 +18,18 @@ export const FIND_QUOTATION_DTO = gql`
         version_no
         journey_id
         idx_journey_id
+        worktaskId
+        idx_worktaskId
         status
         subtotal
         discount
         total
         approved_at
         notes
+        createdAt
+        createdBy
+        updatedBy
+        updatedAt
       }
     }
   }
@@ -47,12 +53,18 @@ export const QUERY_QUOTATIONS_DTO = gql`
         version_no
         journey_id
         idx_journey_id
+        worktaskId
+        idx_worktaskId
         status
         subtotal
         discount
         total
         approved_at
         notes
+        createdAt
+        createdBy
+        updatedBy
+        updatedAt
       }
     }
   }

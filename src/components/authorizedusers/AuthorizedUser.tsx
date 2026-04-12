@@ -742,10 +742,6 @@ export function AuthorizedUserSelect({
     }, [authorizedUserSearchPoliciesKey, authorizedUserSubjectSchemasKey, normalizedValues]);
 
     useEffect(() => {
-        setOptions((currentOptions) => currentOptions.filter((option) => normalizedValues.includes(option.username)));
-    }, [authorizedUserSearchPoliciesKey, authorizedUserSubjectSchemasKey, currentProperty?.id, normalizedValues]);
-
-    useEffect(() => {
         let active = true;
 
         const timeoutId = window.setTimeout(() => {
@@ -753,7 +749,7 @@ export function AuthorizedUserSelect({
             const requestId = searchRequestIdRef.current;
             setLoading(true);
 
-            searchBasicAuthorizedUsers(searchKeyword, 20, authorizedUserSearchRequestConfig)
+            searchBasicAuthorizedUsers(searchKeyword, 50, authorizedUserSearchRequestConfig)
                 .then((searchedUsers) => {
                     if (active && searchRequestIdRef.current === requestId) {
                         setOptions((currentOptions) => mergeUsers(currentOptions, searchedUsers));
@@ -800,6 +796,24 @@ export function AuthorizedUserSelect({
         mergedOptions.forEach((u) => map.set(u.username, u));
         return map;
     }, [mergedOptions]);
+
+    /** Lọc cục bộ theo từ khóa ô search: tên, username, email (bổ sung cho kết quả API). */
+    const filterUserOption = (input: string, option?: { value?: string | number }) => {
+        const username = option?.value != null ? String(option.value) : '';
+        const user = userByUsername.get(username);
+        const q = (input || '').trim().toLowerCase();
+        if (!q) {
+            return true;
+        }
+        if (!user) {
+            return username.toLowerCase().includes(q);
+        }
+        const name = (user.fullName || '').toLowerCase();
+        const un = (user.username || '').toLowerCase();
+        const em = (user.email || '').toLowerCase();
+        const phone = (user.phoneNumber || '').toLowerCase();
+        return name.includes(q) || un.includes(q) || em.includes(q) || phone.includes(q);
+    };
     const mergedClassName = [
         className,
         allowMultiple && size === 'large' ? 'authorized-user-select--comfortable' : null
@@ -845,7 +859,8 @@ export function AuthorizedUserSelect({
         <Select
             allowClear
             showSearch
-            filterOption={false}
+            optionFilterProp="value"
+            filterOption={filterUserOption}
             getPopupContainer={() => document.body}
             mode={allowMultiple ? 'multiple' : undefined}
             maxTagCount={allowMultiple ? 'responsive' : undefined}

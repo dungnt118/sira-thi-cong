@@ -1,7 +1,7 @@
 import React from 'react';
-import { Button, Card, Empty, Space, Typography, message, Grid, notification } from 'antd';
+import { Button, Card, Empty, Space, Typography, message, Grid } from 'antd';
 import { CheckCircleOutlined, LoadingOutlined } from '@ant-design/icons';
-import { journeyService } from '../../../services/core-contracts/services/journey.service';
+import { confirmAdvanceJourneyStep, HEADER_STEP_KEY_TO_TEMPLATE_STEP_CODE } from '../../../utils/journeyStepConfirmation';
 import Step01Info from './Step01Info';
 import Step02Consult from './Step02Consult';
 import Step03Survey from './Step03Survey';
@@ -30,26 +30,7 @@ export interface JourneyStepRendererProps {
     onRefresh?: () => void;
 }
 
-export const MAP_ENUM_TO_STEP_CODE: Record<string, string> = {
-    'lead_new': 'S01_INFO',
-    'consult_contact': 'S02_CONSULT',
-    'site_survey': 'S03_SURVEY',
-    'solution_design': 'S04_SOLUTION',
-    'quotation': 'S05_QUOTE',
-    'contract': 'S06_CONTRACT',
-    'execution': 'S08_CONSTRUCT',
-    'final_acceptance': 'S09_ACCEPTANCE',
-    'payment': 'S10_PAYMENT',
-    'maintenance': 'S11_MAINTAIN',
-    'warranty': 'S12_WARRANTY',
-    'after_sales': 'S13_CARE',
-};
-
-const JOURNEY_STEP_SEQUENCE = [
-    'lead_new', 'consult_contact', 'site_survey', 'solution_design', 'quotation', 'contract', 
-    'execution', 'final_acceptance', 'payment', 'maintenance', 'warranty', 'after_sales'
-];
-
+export const MAP_ENUM_TO_STEP_CODE = HEADER_STEP_KEY_TO_TEMPLATE_STEP_CODE;
 
 export const JourneyStepRenderer: React.FC<JourneyStepRendererProps> = ({
     stepCode,
@@ -71,75 +52,24 @@ export const JourneyStepRenderer: React.FC<JourneyStepRendererProps> = ({
     const resolvedStepCode = MAP_ENUM_TO_STEP_CODE[stepCode] || stepCode;
 
     const handleConfirmStep = async () => {
-        // We use journeyCurrentStep if provided (the actual progress), 
-        // fallback to mapping existing stepCode back to a sequence key if possible
-        const actualStep = journeyCurrentStep || (Object.keys(MAP_ENUM_TO_STEP_CODE).find(key => MAP_ENUM_TO_STEP_CODE[key] === stepCode) || stepCode);
+        const actualStep =
+            journeyCurrentStep ||
+            (Object.keys(MAP_ENUM_TO_STEP_CODE).find((key) => MAP_ENUM_TO_STEP_CODE[key] === stepCode) || stepCode);
 
-        console.log("handleConfirmStep triggered", { actualStep, stepCode, journeyCurrentStep });
-
-        const currentIndex = JOURNEY_STEP_SEQUENCE.indexOf(actualStep);
-        if (currentIndex === -1) {
-            const errorMsg = `Không xác định được bước '${actualStep}' trong quy trình`;
-            console.error(errorMsg);
-            message.error(errorMsg);
-            return;
-        }
-
-        // 1. Validation Logic: Check mandatory worktasks for this step
-        const stepTasks = workTasks.filter(t => t.journey_step_code === actualStep);
-        const unfinishedMandatoryTasks = stepTasks.filter(t => t.is_required && t.status !== 'finished');
-
-        console.log("Validation check:", {
-            stepTasksCount: stepTasks.length,
-            unfinishedMandatoryCount: unfinishedMandatoryTasks.length,
-            unfinishedMandatoryTasks
-        });
-
-        if (unfinishedMandatoryTasks.length > 0) {
-            const taskNames = unfinishedMandatoryTasks.map(t => t.title).join(', ');
-            console.warn("Validation failed: Unfinished mandatory tasks", unfinishedMandatoryTasks);
-
-            if (modalApi) {
-                modalApi.warning({
-                    title: 'Chưa thể Hoàn thành Bước',
-                    content: (
-                        <div>
-                            Còn <b>{unfinishedMandatoryTasks.length}</b> đầu việc bắt buộc chưa xong:
-                            <ul style={{ marginTop: 8, paddingLeft: 20 }}>
-                                {unfinishedMandatoryTasks.map((t, idx) => (
-                                    <li key={idx}>{t.title}</li>
-                                ))}
-                            </ul>
-                            <i style={{ fontSize: 12 }}>Vui lòng hoàn thành các việc này để tiếp tục.</i>
-                        </div>
-                    ),
-                    okText: 'Đã hiểu'
-                });
-            } else {
-                // Fallback for unexpected context issues
-                notification.warning({
-                    message: 'Chưa thể Hoàn thành Bước',
-                    description: `Còn ${unfinishedMandatoryTasks.length} đầu việc bắt buộc chưa xong.`,
-                    duration: 8
-                });
-            }
-            return;
-        }
-
-        if (currentIndex === JOURNEY_STEP_SEQUENCE.length - 1) {
-            message.info("Đây là bước cuối cùng của công trình!");
-            return;
-        }
-
-        const nextStep = JOURNEY_STEP_SEQUENCE[currentIndex + 1];
         setIsUpdating(true);
         try {
-            await journeyService.updateJourney(journeyId, { current_step: nextStep as any });
-            message.success(`Đã xác nhận hoàn thành. Chuyển sang bước kế tiếp!`);
-            if (onRefresh) onRefresh();
+            const result = await confirmAdvanceJourneyStep({
+                journeyId,
+                actualStep,
+                workTasks,
+                modalApi: modalApi ?? undefined,
+            });
+            if (result === 'advanced' && onRefresh) {
+                onRefresh();
+            }
         } catch (error) {
-            console.error("Failed to advance step:", error);
-            message.error("Lỗi khi cập nhật trạng thái bước");
+            console.error('Failed to advance step:', error);
+            message.error('Lỗi khi cập nhật trạng thái bước');
         } finally {
             setIsUpdating(false);
         }

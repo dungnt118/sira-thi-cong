@@ -11,6 +11,10 @@ export interface ISurveyRecord {
   journey_id?: string;
   idx_journey_id?: IndexedContentItem;
   journey_step_code?: SurveyRecordJourneyStepCodeEnum;
+  appointment_id?: string;
+  idx_appointment_id?: IndexedContentItem;
+  worktaskId?: string;
+  idx_worktaskId?: IndexedContentItem;
   scheduled_date?: string | Date;
   survey_date?: string | Date;
   survey_status?: SurveyRecordSurveyStatusEnum;
@@ -26,9 +30,6 @@ export interface ISurveyRecord {
   material_need_note?: string;
   review_status?: SurveyRecordReviewStatusEnum;
   media_files?: HeadlessFileUpload[];
-  //deprecated fields
-  // service_request_id?: string;
-  // idx_service_request_id?: IndexedContentItem;
 }
 
 export interface IConditionItemsItem {
@@ -48,6 +49,8 @@ export interface IProposedItemsItem {
 export interface ICreateSurveyRecordInput {
   journey_id?: string;
   journey_step_code?: SurveyRecordJourneyStepCodeEnum2;
+  appointment_id?: string;
+  worktaskId?: string;
   scheduled_date?: string | Date;
   survey_date?: string | Date;
   survey_status?: SurveyRecordSurveyStatusEnum2;
@@ -63,8 +66,6 @@ export interface ICreateSurveyRecordInput {
   material_need_note?: string;
   review_status?: SurveyRecordReviewStatusEnum2;
   media_files?: HeadlessFileUpload[];
-  //deprecated fields
-  // service_request_id?: string;
 }
 
 export type ISurveyRecordListResponse = ApiListResponse<ISurveyRecord>

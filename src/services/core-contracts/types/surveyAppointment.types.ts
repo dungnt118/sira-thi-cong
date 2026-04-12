@@ -12,6 +12,8 @@ export interface ISurveyAppointment {
   journey_id?: string;
   idx_journey_id?: IndexedContentItem;
   journey_step_code?: SurveyAppointmentJourneyStepCodeEnum;
+  worktaskId?: string;
+  idx_worktaskId?: IndexedContentItem;
   customer_id?: string;
   idx_customer_id?: IndexedContentItem;
   scheduled_at?: string | Date;
@@ -21,15 +23,13 @@ export interface ISurveyAppointment {
   confirmed_at?: string | Date;
   reschedule_reason?: string;
   note?: string;
-  //deprecated fields
-  // service_request_id?: string;
-  // idx_service_request_id?: IndexedContentItem;
 }
 
 export interface ICreateSurveyAppointmentInput {
   code?: string;
   journey_id?: string;
   journey_step_code?: SurveyAppointmentJourneyStepCodeEnum2;
+  worktaskId?: string;
   customer_id?: string;
   scheduled_at?: string | Date;
   appointment_status?: SurveyAppointmentAppointmentStatusEnum2;
@@ -38,8 +38,6 @@ export interface ICreateSurveyAppointmentInput {
   confirmed_at?: string | Date;
   reschedule_reason?: string;
   note?: string;
-  //deprecated fields
-  // service_request_id?: string;
 }
 
 export type ISurveyAppointmentListResponse = ApiListResponse<ISurveyAppointment>

@@ -9,6 +9,7 @@ import { useDispatch } from 'react-redux';
 import type { HeadlessFileUpload } from '@/types/apis';
 import { PropDefinition } from '@/types/schemas/PropDefinition';
 import { useFileUpload } from './useFileUpload';
+import { PdfViewer } from '../common/PdfViewer';
 
 /** Icon inline action: hỗ trợ class Font Awesome (chuỗi) khi không có @fortawesome trong project */
 function FaIconWrapper({
@@ -54,7 +55,10 @@ const getFileType = (fileName: string) => {
     }
 
     // Các định dạng văn bản
-    if (/^(txt|doc|docx|rtf|pdf|odt)$/.test(extension || '')) {
+    if (extension === 'pdf') {
+        return 'pdf';
+    }
+    if (/^(txt|doc|docx|rtf|odt)$/.test(extension || '')) {
         return 'document';
     }
 
@@ -852,21 +856,33 @@ export function UploadFilesView({ value, property }: { value: any, property: Pro
 
             {/* Hiển thị file thông thường dạng list */}
             {normalFiles.length > 0 && (
-                <div className="mt-2">
-                    <ul className="list-none p-0 m-0">
+                <div className="mt-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {normalFiles.map((file: any, index: number) => (
-                            <li key={index} className="mb-1 flex items-center">
-                                <span
-                                    onClick={() => handlePreview(file)}
-                                    className="text-blue-500 hover:text-blue-700 hover:underline cursor-pointer"
-                                    title={`Click để preview: ${file.name}`}
-                                >
-                                    {file.name || `file ${index}`}
-                                </span>
-                                {property?.inline_actions && property?.inline_actions?.length > 0 && renderActions(file)}
-                            </li>
+                            <div 
+                                key={index} 
+                                onClick={() => handlePreview(file)}
+                                className="flex items-center p-3 border border-gray-100 rounded-xl bg-gray-50/50 hover:bg-white hover:border-blue-400 hover:shadow-md transition-all cursor-pointer group"
+                            >
+                                <div className="mr-3 transform group-hover:scale-110 transition-transform">
+                                    <FileIcon fileName={file.name || ''} size="small" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <div className="text-sm font-medium text-gray-700 truncate group-hover:text-blue-600 transition-colors" title={file.name}>
+                                        {file.name || `file ${index}`}
+                                    </div>
+                                    <div className="text-xs text-gray-400">
+                                        {file.size ? `${(file.size / 1024 / 1024).toFixed(2)} MB` : 'Tài liệu'}
+                                    </div>
+                                </div>
+                                {property?.inline_actions && property?.inline_actions?.length > 0 && (
+                                    <div className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        {renderActions(file)}
+                                    </div>
+                                )}
+                            </div>
                         ))}
-                    </ul>
+                    </div>
                 </div>
             )}
 
@@ -875,9 +891,40 @@ export function UploadFilesView({ value, property }: { value: any, property: Pro
                 title={previewFile?.name || 'File Preview'}
                 open={previewModalOpen}
                 onCancel={() => setPreviewModalOpen(false)}
-                width={800}
+                width={getFileType(previewFile?.name) === 'pdf' ? '100vw' : 800}
                 zIndex={1410}
-                footer={[
+                style={getFileType(previewFile?.name) === 'pdf' ? { 
+                    top: 0, 
+                    margin: 0, 
+                    maxWidth: '100vw', 
+                    padding: 0,
+                    height: '100dvh' 
+                } : undefined}
+                styles={{
+                    content: getFileType(previewFile?.name) === 'pdf' ? {
+                        height: '100dvh',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        padding: 0,
+                        borderRadius: 0,
+                        overflow: 'hidden',
+                    } : {},
+                    header: getFileType(previewFile?.name) === 'pdf' ? {
+                        padding: '12px 16px',
+                        marginBottom: 0,
+                        borderBottom: '1px solid #f0f0f0',
+                        flexShrink: 0,
+                    } : {},
+                    body: getFileType(previewFile?.name) === 'pdf' ? {
+                        flex: 1,
+                        padding: 0,
+                        overflow: 'hidden',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        minHeight: 0,
+                    } : { padding: '16px 24px' },
+                }}
+                footer={getFileType(previewFile?.name) === 'pdf' ? null : [
                     <Button key="download" onClick={() => handleDownload(previewFile)}>
                         Tải xuống
                     </Button>,
@@ -887,7 +934,13 @@ export function UploadFilesView({ value, property }: { value: any, property: Pro
                 ]}
             >
                 {previewFile && (
-                    <div className="text-center">
+                    <div style={getFileType(previewFile?.name) === 'pdf' ? {
+                        flex: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        minHeight: 0,
+                        height: '100%',
+                    } : { textAlign: 'center' }}>
                         {isImageFile(previewFile) ? (
                             <Image
                                 src={getFileLink(previewFile.file_id || previewFile.url)}
@@ -904,14 +957,30 @@ export function UploadFilesView({ value, property }: { value: any, property: Pro
                             >
                                 Your browser does not support the video tag.
                             </video>
+                        ) : getFileType(previewFile.name) === 'pdf' ? (
+                            <div style={{
+                                flex: 1,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                minHeight: 0,
+                                height: '100%',
+                                overflow: 'hidden',
+                            }}>
+                                <PdfViewer 
+                                    url={getFileLink(previewFile.file_id || previewFile.url) || ''} 
+                                    title={previewFile.name} 
+                                    height="100%" 
+                                />
+                            </div>
                         ) : (
-                            <div className="p-8">
-                                <div className="text-6xl mb-4">
+                            <div className="p-8 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
+                                <div className="text-7xl mb-6">
                                     <FileIcon fileName={previewFile.name} />
                                 </div>
-                                <h3>{previewFile.name}</h3>
-                                <p className="text-gray-500">
-                                    File không thể preview trực tiếp. Click "Tải xuống" để mở file.
+                                <h3 className="text-xl font-semibold text-gray-800 mb-2">{previewFile.name}</h3>
+                                <p className="text-gray-500 max-w-md mx-auto">
+                                    Loại file này không hỗ trợ xem trực tiếp trên trình duyệt. 
+                                    Vui lòng nhấn <strong>"Tải xuống"</strong> để xem nội dung.
                                 </p>
                             </div>
                         )}
@@ -923,28 +992,47 @@ export function UploadFilesView({ value, property }: { value: any, property: Pro
 }
 
 // Helper component để hiển thị icon cho các loại file khác nhau
-const FileIcon = ({ fileName }: { fileName: string }) => {
+const FileIcon = ({ fileName, size = 'large' }: { fileName: string, size?: 'small' | 'large' }) => {
     const getFileExtension = (name: string) => {
         return name.split('.').pop()?.toLowerCase();
     };
 
     const extension = getFileExtension(fileName);
+    const isSmall = size === 'small';
+
+    const iconStyle: React.CSSProperties = {
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: isSmall ? '6px' : '12px',
+        fontWeight: 'bold',
+        fontSize: isSmall ? '10px' : '20px',
+        color: '#fff',
+        width: isSmall ? '32px' : '80px',
+        height: isSmall ? '32px' : '80px',
+        boxShadow: isSmall ? 'none' : '0 4px 12px rgba(0,0,0,0.1)',
+        textTransform: 'uppercase'
+    };
 
     // Hiển thị icon tùy theo loại file
     switch (extension) {
         case 'pdf':
-            return <span className="file-icon file-pdf">PDF</span>;
+            return <span style={{ ...iconStyle, backgroundColor: '#ff4d4f' }}>PDF</span>;
         case 'doc':
         case 'docx':
-            return <span className="file-icon file-doc">DOC</span>;
+            return <span style={{ ...iconStyle, backgroundColor: '#1890ff' }}>DOC</span>;
         case 'xls':
         case 'xlsx':
-            return <span className="file-icon file-xls">XLS</span>;
+            return <span style={{ ...iconStyle, backgroundColor: '#52c41a' }}>XLS</span>;
         case 'zip':
         case 'rar':
-            return <span className="file-icon file-zip">ZIP</span>;
+        case '7z':
+            return <span style={{ ...iconStyle, backgroundColor: '#faad14' }}>ZIP</span>;
+        case 'ppt':
+        case 'pptx':
+            return <span style={{ ...iconStyle, backgroundColor: '#fa541c' }}>PPT</span>;
         default:
-            return <span className="file-icon file-default">FILE</span>;
+            return <span style={{ ...iconStyle, backgroundColor: '#bfbfbf' }}>FILE</span>;
     }
 };
 

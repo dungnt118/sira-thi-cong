@@ -17,6 +17,10 @@ export const FIND_SURVEYRECORD_DTO = gql`
         journey_id
         idx_journey_id
         journey_step_code
+        appointment_id
+        idx_appointment_id
+        worktaskId
+        idx_worktaskId
         scheduled_date
         survey_date
         survey_status
@@ -64,6 +68,10 @@ export const QUERY_SURVEYRECORDS_DTO = gql`
         journey_id
         idx_journey_id
         journey_step_code
+        appointment_id
+        idx_appointment_id
+        worktaskId
+        idx_worktaskId
         scheduled_date
         survey_date
         survey_status
