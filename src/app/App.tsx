@@ -58,6 +58,8 @@ import JourneyDetail360 from '../pages/shared/Journeys/JourneyDetail360';
 import ActionCenter from '../pages/pm/Journeys/ActionCenter';
 import CustomerJourneySettingPage from '../pages/pm/Settings/CustomerJourneySettingPage';
 import EstimateTemplateList from '../pages/pm/Settings/EstimateTemplateList';
+import EstimatePricingPolicyList from '../pages/pm/Settings/EstimatePricingPolicyList';
+import JourneyEstimateList from '../pages/pm/Settings/JourneyEstimateList';
 
 // Sale Layout + Pages
 import { SaleLayout } from '../layouts/SaleLayout';
@@ -277,6 +279,8 @@ function App() {
                                             <Route path="settings">
                                                 <Route path="customer-journey" element={<CustomerJourneySettingPage />} />
                                                 <Route path="estimate-templates" element={<EstimateTemplateList />} />
+                                                <Route path="pricing-policies" element={<EstimatePricingPolicyList />} />
+                                                <Route path="journey-estimates" element={<JourneyEstimateList />} />
                                             </Route>
 
                                             {/* --- CRM Module --- */}
@@ -342,6 +346,7 @@ function App() {
 
                                             <Route path="financials/milestones" element={<Financials />} />
                                             <Route path="reports" element={<PMReports />} />
+                                            <Route path="master-data" element={<MasterDataManagement />} />
                                             <Route path="profile" element={<SharedProfilePage />} />
                                         </Route>
 

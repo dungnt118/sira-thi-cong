@@ -4,6 +4,7 @@ import { SET_JOURNEY_SETTING } from '@/store/reducers/schemas/schemas.reducer';
 import {
     BarChartOutlined,
     DashboardOutlined,
+    DatabaseOutlined,
     DollarOutlined,
     ExportOutlined,
     HistoryOutlined,
@@ -41,18 +42,14 @@ const menuItems: MenuItem[] = [
             { key: '/admin/ql/journeys', label: 'Danh sách yêu cầu', icon: <UnorderedListOutlined /> },
             { key: '/admin/ql/crm/customers', label: 'Danh sách Khách hàng', icon: <TeamOutlined /> },
             { key: '/admin/ql/crm/customers/new', label: 'Thêm Khách hàng mới', icon: <UserAddOutlined /> },
-            { key: '/admin/ql/settings/customer-journey', label: 'Cấu hình CustomerJourney', icon: <SettingOutlined /> },
         ],
     },
-    // Nhóm tính năng Thi công (Projects/Checklist cũ) đã gộp vào Journey
     {
         key: '/admin/ql/inventory',
         icon: <InboxOutlined />,
         label: 'Kho Vật tư',
         children: [
             { key: '/admin/ql/inventory/catalog', label: 'Danh mục Vật tư', icon: <InboxOutlined /> },
-            { key: '/admin/ql/settings/estimate-templates', label: 'Mẫu định mức Chuẩn', icon: <LayoutOutlined /> },
-            // { key: '/admin/ql/inventory/plan', label: '📐 Định mức Dự án' },
             { key: '/admin/ql/inventory/stock-out', label: 'Tạo phiếu xuất', icon: <ExportOutlined /> },
             { key: '/admin/ql/assets/allocation', label: 'Tạo phiếu mượn', icon: <ExportOutlined /> },
             { key: '/admin/ql/inventory/history', label: 'Lịch sử xuất/nhập', icon: <HistoryOutlined /> },
@@ -82,6 +79,18 @@ const menuItems: MenuItem[] = [
         key: '/admin/ql/reports',
         icon: <BarChartOutlined />,
         label: LABELS.PM.REPORTS,
+    },
+    {
+        key: '/admin/ql/settings',
+        icon: <SettingOutlined />,
+        label: 'Cấu hình',
+        children: [
+            { key: '/admin/ql/settings/customer-journey', label: 'Cấu hình CustomerJourney', icon: <SettingOutlined /> },
+            { key: '/admin/ql/settings/estimate-templates', label: 'Mẫu định mức (Template)', icon: <LayoutOutlined /> },
+            { key: '/admin/ql/settings/pricing-policies', label: 'Chính sách tính giá', icon: <DollarOutlined /> },
+            { key: '/admin/ql/settings/journey-estimates', label: 'Dự toán nội bộ', icon: <UnorderedListOutlined /> },
+            { key: '/admin/ql/master-data', label: 'Quản lý Master Data', icon: <DatabaseOutlined /> },
+        ],
     },
 ];
 

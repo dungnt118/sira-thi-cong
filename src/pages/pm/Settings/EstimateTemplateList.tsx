@@ -1,19 +1,68 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, Table, Button, Space, Typography, Modal, Form, Input, Select, InputNumber, Row, Col, Popconfirm, message } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import { mockEstimateTemplates, mockMaterials } from '../../../data/mockData';
-import { EstimateTemplate } from '../../../types/v3';
+import estimateTemplateService from '../../../services/core-contracts/services/estimateTemplate.service';
+import materialService from '../../../services/core-contracts/services/material.service';
+import { IEstimateTemplate } from '../../../services/core-contracts/types/estimateTemplate.types';
+import { IMaterial } from '../../../services/core-contracts/types/material.types';
+
+// Extended type to support components which might not be in the auto-generated types yet
+interface IEstimateTemplateExtended extends IEstimateTemplate {
+    components?: {
+        type: 'material' | 'labor' | 'other';
+        material_id?: string;
+        name?: string;
+        unit?: string;
+        quantity_per_unit?: number;
+        unit_price?: number;
+        calc_mode?: string;
+    }[];
+}
 
 const { Text } = Typography;
 const { Option } = Select;
 
 export const EstimateTemplateList: React.FC = () => {
-    const [templates, setTemplates] = useState<EstimateTemplate[]>(mockEstimateTemplates);
+    const [templates, setTemplates] = useState<IEstimateTemplateExtended[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [materials, setMaterials] = useState<IMaterial[]>([]);
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [editingTemplate, setEditingTemplate] = useState<EstimateTemplate | null>(null);
+    const [editingTemplate, setEditingTemplate] = useState<IEstimateTemplateExtended | null>(null);
+    const [submitting, setSubmitting] = useState(false);
     const [form] = Form.useForm();
 
-    const handleOpenModal = (record?: EstimateTemplate) => {
+    const fetchTemplates = useCallback(async () => {
+        setLoading(true);
+        try {
+            const res = await estimateTemplateService.queryContent({
+                sorted: [{ id: 'code', desc: false }]
+            });
+            setTemplates(res.data || []);
+        } catch (error) {
+            console.error('Fetch templates error:', error);
+            message.error('Không thể tải danh sách mẫu dự toán');
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    const fetchMaterials = useCallback(async () => {
+        try {
+            const res = await materialService.queryContent({
+                sorted: [{ id: 'name', desc: false }]
+            });
+            setMaterials(res.data || []);
+        } catch (error) {
+            console.error('Fetch materials error:', error);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchTemplates();
+        fetchMaterials();
+    }, [fetchTemplates, fetchMaterials]);
+
+    const handleOpenModal = (record?: IEstimateTemplate) => {
         if (record) {
             setEditingTemplate(record);
             form.setFieldsValue(record);
@@ -21,56 +70,70 @@ export const EstimateTemplateList: React.FC = () => {
             setEditingTemplate(null);
             form.resetFields();
             form.setFieldsValue({
-                components: [{ type: 'material' }]
+                components: []
             });
         }
         setIsModalVisible(true);
     };
 
-    const handleDelete = (id: string) => {
-        setTemplates(templates.filter(t => t.id !== id));
-        message.success('Đã xóa mẫu dự toán');
+    const handleDelete = async (id: string) => {
+        try {
+            await estimateTemplateService.deleteEstimateTemplate(id);
+            message.success('Đã xóa mẫu dự toán');
+            fetchTemplates();
+        } catch (error) {
+            message.error('Không thể xóa mẫu dự toán');
+        }
     };
 
-    const handleSave = () => {
-        form.validateFields().then(values => {
+    const handleFinish = async (values: any) => {
+        setSubmitting(true);
+        try {
             if (editingTemplate) {
-                setTemplates(templates.map(t => t.id === editingTemplate.id ? { ...t, ...values } : t));
+                await estimateTemplateService.updateEstimateTemplate(editingTemplate._id, values);
                 message.success('Cập nhật mẫu dự toán thành công');
             } else {
-                const newTemplate = {
-                    ...values,
-                    id: `EST-TMPL-${Date.now()}`
-                };
-                setTemplates([...templates, newTemplate]);
+                await estimateTemplateService.createEstimateTemplate(values);
                 message.success('Thêm mới mẫu dự toán thành công');
             }
             setIsModalVisible(false);
-        });
+            fetchTemplates();
+        } catch (error: any) {
+            message.error(error.message || 'Thao tác thất bại');
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     const handleComponentTypeChange = (type: string, index: number) => {
         const components = form.getFieldValue('components');
-        components[index] = { ...components[index], type, itemId: undefined, name: undefined, unit: undefined, unitPrice: undefined };
+        components[index] = { 
+            ...components[index], 
+            type, 
+            material_id: undefined, 
+            name: undefined, 
+            unit: undefined, 
+            unit_price: undefined 
+        };
         form.setFieldsValue({ components });
     };
 
     const handleMaterialChange = (materialId: string, index: number) => {
-        const mat = mockMaterials.find(m => m.id === materialId);
+        const mat = materials.find(m => m._id === materialId);
         if (mat) {
             const components = form.getFieldValue('components');
             components[index] = {
                 ...components[index],
-                itemId: mat.id,
+                material_id: mat._id,
                 name: mat.name,
                 unit: mat.unit,
-                unitPrice: mat.unitCost
+                unit_price: mat.unit_cost || 0
             };
             form.setFieldsValue({ components });
         }
     };
 
-    const formatVND = (val: number) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val);
+    const formatVND = (val?: number) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val || 0);
 
     const columns = [
         { title: 'Mã HM', dataIndex: 'code', key: 'code', width: 120 },
@@ -79,11 +142,11 @@ export const EstimateTemplateList: React.FC = () => {
         { 
             title: 'Thành phần', 
             key: 'components',
-            render: (_: any, record: EstimateTemplate) => (
+            render: (_: any, record: IEstimateTemplateExtended) => (
                 <Space direction="vertical" size="small">
-                    {record.components.map(c => (
-                        <Text key={c.id} style={{ fontSize: 13 }}>
-                            - {c.name}: {c.quantityPerUnit} {c.unit} ({formatVND(c.unitPrice)})
+                    {record.components?.map((c: any, idx: number) => (
+                        <Text key={idx} style={{ fontSize: 13 }}>
+                            - {c.name}: {c.quantity_per_unit} {c.unit} ({formatVND(c.unit_price)})
                         </Text>
                     ))}
                 </Space>
@@ -93,10 +156,10 @@ export const EstimateTemplateList: React.FC = () => {
             title: 'Hành động',
             key: 'action',
             width: 120,
-            render: (_: any, record: EstimateTemplate) => (
+            render: (_: any, record: IEstimateTemplate) => (
                 <Space>
                     <Button type="text" icon={<EditOutlined />} onClick={() => handleOpenModal(record)} />
-                    <Popconfirm title="Xóa mẫu này?" onConfirm={() => handleDelete(record.id)}>
+                    <Popconfirm title="Xóa mẫu này?" onConfirm={() => handleDelete(record._id)}>
                         <Button type="text" danger icon={<DeleteOutlined />} />
                     </Popconfirm>
                 </Space>
@@ -114,19 +177,21 @@ export const EstimateTemplateList: React.FC = () => {
             <Table 
                 columns={columns} 
                 dataSource={templates} 
-                rowKey="id" 
-                pagination={false} 
+                rowKey="_id" 
+                loading={loading}
+                pagination={{ pageSize: 15 }} 
             />
 
             <Modal
                 title={editingTemplate ? "Sửa Mẫu Dự toán" : "Thêm Nhanh Mẫu Dự toán"}
                 open={isModalVisible}
-                onOk={handleSave}
+                onOk={() => form.submit()}
                 onCancel={() => setIsModalVisible(false)}
+                confirmLoading={submitting}
                 width={900}
                 destroyOnClose
             >
-                <Form form={form} layout="vertical">
+                <Form form={form} layout="vertical" name="estimate_template_form" onFinish={handleFinish}>
                     <Row gutter={16}>
                         <Col span={6}>
                             <Form.Item label="Mã Hạng Mục" name="code" rules={[{ required: true }]}>
@@ -154,8 +219,8 @@ export const EstimateTemplateList: React.FC = () => {
                                         <Row gutter={8} style={{ fontWeight: 'bold', marginBottom: 8 }}>
                                             <Col span={4}>Loại chi phí</Col>
                                             <Col span={7}>Tên Vật tư / Nhân công</Col>
-                                            <Col span={3}>ĐVT Component</Col>
-                                            <Col span={4}>Hao phí (định mức/1 ĐVT)</Col>
+                                            <Col span={3}>ĐVT Comp</Col>
+                                            <Col span={4}>Định mức/1 ĐVT</Col>
                                             <Col span={5}>Đơn giá hệ thống</Col>
                                             <Col span={1}></Col>
                                         </Row>
@@ -177,17 +242,17 @@ export const EstimateTemplateList: React.FC = () => {
                                                         const type = form.getFieldValue(['components', name, 'type']);
                                                         if (type === 'material') {
                                                             return (
-                                                                <Form.Item {...restField} name={[name, 'itemId']} style={{ marginBottom: 0 }} rules={[{ required: true }]}>
+                                                                <Form.Item {...restField} name={[name, 'material_id']} style={{ marginBottom: 0 }} rules={[{ required: true }]}>
                                                                     <Select 
                                                                         showSearch 
                                                                         placeholder="Chọn vật tư..."
                                                                         onChange={(val) => handleMaterialChange(val, name)}
-                                                                        filterOption={(input, option) =>
-                                                                            (option?.children as unknown as string).toLowerCase().includes(input.toLowerCase())
+                                                                        filterOption={(input, option: any) =>
+                                                                            ((option?.children as any) || '').toLowerCase().includes(input.toLowerCase())
                                                                         }
                                                                     >
-                                                                        {mockMaterials.map(m => (
-                                                                            <Option key={m.id} value={m.id}>{m.name} ({m.code})</Option>
+                                                                        {materials.map(m => (
+                                                                            <Option key={m._id} value={m._id}>{m.name} ({m.code})</Option>
                                                                         ))}
                                                                     </Select>
                                                                 </Form.Item>
@@ -207,12 +272,12 @@ export const EstimateTemplateList: React.FC = () => {
                                                 </Form.Item>
                                             </Col>
                                             <Col span={4}>
-                                                <Form.Item {...restField} name={[name, 'quantityPerUnit']} style={{ marginBottom: 0 }} rules={[{ required: true }]}>
+                                                <Form.Item {...restField} name={[name, 'quantity_per_unit']} style={{ marginBottom: 0 }} rules={[{ required: true }]}>
                                                     <InputNumber min={0} step={0.1} style={{ width: '100%' }} />
                                                 </Form.Item>
                                             </Col>
                                             <Col span={5}>
-                                                <Form.Item {...restField} name={[name, 'unitPrice']} style={{ marginBottom: 0 }} rules={[{ required: true }]}>
+                                                <Form.Item {...restField} name={[name, 'unit_price']} style={{ marginBottom: 0 }} rules={[{ required: true }]}>
                                                     <InputNumber min={0} style={{ width: '100%' }} formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} />
                                                 </Form.Item>
                                             </Col>
@@ -222,7 +287,7 @@ export const EstimateTemplateList: React.FC = () => {
                                         </Row>
                                     ))}
                                     <Form.Item>
-                                        <Button type="dashed" onClick={() => add({ type: 'material', id: `C${Date.now()}` })} block icon={<PlusOutlined />}>
+                                        <Button type="dashed" onClick={() => add({ type: 'material', calc_mode: 'manual' })} block icon={<PlusOutlined />}>
                                             Thêm thành phần chi phí
                                         </Button>
                                     </Form.Item>
