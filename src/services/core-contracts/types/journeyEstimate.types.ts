@@ -24,6 +24,8 @@ export interface IJourneyEstimate {
   labor_breakdown?: ILaborBreakdownItem;
   direct_cost_groups?: IDirectCostGroupsItem[];
   validation_result?: IValidationResultItem;
+  role_cost_allocations?: IRoleCostAllocationsItem[];
+  journey_role_snapshot?: IJourneyRoleSnapshotItem;
 }
 
 export interface IJourneyInputSnapshotItem {
@@ -68,6 +70,9 @@ export interface ILaborBreakdownItem {
   supervisor_commission?: number;
   labor_total?: number;
   note?: string;
+  role_allocation_total?: number;
+  sale_related_excluded?: number;
+  management_related_excluded?: number;
 }
 
 export interface IDirectCostGroupsItem {
@@ -82,6 +87,9 @@ export interface IDirectCostGroupsItem {
   subtotal?: number;
   note?: string;
   components?: IComponentsItem[];
+  group_code?: string;
+  template_name_snapshot?: string;
+  cost_basis_note?: string;
 }
 
 export interface IComponentsItem {
@@ -98,6 +106,16 @@ export interface IComponentsItem {
   formula_code?: string;
   formula_snapshot?: string;
   note?: string;
+  item_code?: string;
+  item_name?: string;
+  item_spec?: string;
+  brand_name?: string;
+  source_type?: ComponentsSourceTypeEnum;
+  source_ref_label?: string;
+  quantity_per_unit?: number;
+  expanded_quantity?: number;
+  waste_pct?: number;
+  cost_note?: string;
 }
 
 export interface IValidationResultItem {
@@ -106,6 +124,28 @@ export interface IValidationResultItem {
   actual_profit_pct?: number;
   warning_codes?: string[];
   warning_note?: string;
+}
+
+export interface IRoleCostAllocationsItem {
+  bucket_code?: RoleCostAllocationsBucketCodeEnum;
+  role_code?: RoleCostAllocationsRoleCodeEnum;
+  usernames?: any;
+  headcount?: number;
+  work_days?: number;
+  calc_mode?: RoleCostAllocationsCalcModeEnum;
+  unit_rate?: number;
+  allocation_pct?: number;
+  amount?: number;
+  formula_snapshot?: string;
+  note?: string;
+}
+
+export interface IJourneyRoleSnapshotItem {
+  pm_user?: any;
+  owner_user?: any;
+  sale_users?: any;
+  supervisor_users?: any;
+  technical_users?: any;
 }
 
 export interface ICreateJourneyEstimateInput {
@@ -122,6 +162,8 @@ export interface ICreateJourneyEstimateInput {
   labor_breakdown?: ILaborBreakdownItem;
   direct_cost_groups?: IDirectCostGroupsItem[];
   validation_result?: IValidationResultItem;
+  role_cost_allocations?: IRoleCostAllocationsItem[];
+  journey_role_snapshot?: IJourneyRoleSnapshotItem;
 }
 
 export type IJourneyEstimateListResponse = ApiListResponse<IJourneyEstimate>
@@ -133,4 +175,8 @@ export type QuoteDerivationPricingModeEnum = 'policy_first' | 'target_quote_chec
 export type StandardizedBucketsBucketCodeEnum = '01_materials' | '02_labor_total' | '03_warranty_maintenance' | '04_risk' | '05_corporate_tax' | '06_sales_cost' | '07_management_cost' | '08_hidden_cost' | '09_profit';
 export type ComponentsTypeEnum = 'material' | 'labor' | 'other';
 export type ComponentsCalcModeEnum = 'manual' | 'package_m2' | 'daily_worker' | 'formula';
+export type ComponentsSourceTypeEnum = 'material_master' | 'labor_price_config' | 'manual' | 'policy' | 'survey';
+export type RoleCostAllocationsBucketCodeEnum = '02_labor_total' | '06_sales_cost' | '07_management_cost';
+export type RoleCostAllocationsRoleCodeEnum = 'outsource' | 'technical' | 'supervisor' | 'sale' | 'pm' | 'owner_admin' | 'internal_support';
+export type RoleCostAllocationsCalcModeEnum = 'salary_allocation' | 'commission_pct' | 'daily_rate' | 'fixed_amount' | 'manual';
 export type JourneyEstimateStatusEnum2 = 'draft' | 'reviewing' | 'approved' | 'superseded';

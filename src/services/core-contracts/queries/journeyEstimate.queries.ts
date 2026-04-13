@@ -62,6 +62,9 @@ export const FIND_JOURNEYESTIMATE_DTO = gql`
           supervisor_commission
           labor_total
           note
+          role_allocation_total
+          sale_related_excluded
+          management_related_excluded
         }
         direct_cost_groups {
           template_id
@@ -85,7 +88,20 @@ export const FIND_JOURNEYESTIMATE_DTO = gql`
             formula_code
             formula_snapshot
             note
+            item_code
+            item_name
+            item_spec
+            brand_name
+            source_type
+            source_ref_label
+            quantity_per_unit
+            expanded_quantity
+            waste_pct
+            cost_note
           }
+          group_code
+          template_name_snapshot
+          cost_basis_note
         }
         validation_result {
           is_feasible
@@ -93,6 +109,26 @@ export const FIND_JOURNEYESTIMATE_DTO = gql`
           actual_profit_pct
           warning_codes
           warning_note
+        }
+        role_cost_allocations {
+          bucket_code
+          role_code
+          usernames
+          headcount
+          work_days
+          calc_mode
+          unit_rate
+          allocation_pct
+          amount
+          formula_snapshot
+          note
+        }
+        journey_role_snapshot {
+          pm_user
+          owner_user
+          sale_users
+          supervisor_users
+          technical_users
         }
       }
     }
@@ -161,6 +197,9 @@ export const QUERY_JOURNEYESTIMATES_DTO = gql`
           supervisor_commission
           labor_total
           note
+          role_allocation_total
+          sale_related_excluded
+          management_related_excluded
         }
         direct_cost_groups {
           template_id
@@ -184,7 +223,20 @@ export const QUERY_JOURNEYESTIMATES_DTO = gql`
             formula_code
             formula_snapshot
             note
+            item_code
+            item_name
+            item_spec
+            brand_name
+            source_type
+            source_ref_label
+            quantity_per_unit
+            expanded_quantity
+            waste_pct
+            cost_note
           }
+          group_code
+          template_name_snapshot
+          cost_basis_note
         }
         validation_result {
           is_feasible
@@ -192,6 +244,26 @@ export const QUERY_JOURNEYESTIMATES_DTO = gql`
           actual_profit_pct
           warning_codes
           warning_note
+        }
+        role_cost_allocations {
+          bucket_code
+          role_code
+          usernames
+          headcount
+          work_days
+          calc_mode
+          unit_rate
+          allocation_pct
+          amount
+          formula_snapshot
+          note
+        }
+        journey_role_snapshot {
+          pm_user
+          owner_user
+          sale_users
+          supervisor_users
+          technical_users
         }
       }
     }
