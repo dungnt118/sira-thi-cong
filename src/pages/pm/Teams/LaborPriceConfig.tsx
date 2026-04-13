@@ -36,12 +36,12 @@ const LaborPriceConfig: React.FC = () => {
     }, []);
 
     const showModal = (item?: ILaborPriceConfig) => {
+        form.resetFields();
         if (item) {
             setEditingItem(item);
             form.setFieldsValue(item);
         } else {
             setEditingItem(null);
-            form.resetFields();
             form.setFieldsValue({ pricePerDay: 300000 });
         }
         setIsModalVisible(true);
