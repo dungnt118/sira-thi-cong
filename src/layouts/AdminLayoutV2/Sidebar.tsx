@@ -41,11 +41,6 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ collapsed, onCollapse, isDr
             label: 'Quản lý người dùng',
         },
         {
-            key: '/admin/master-data',
-            icon: <DatabaseOutlined />,
-            label: 'Quản lý Master Data',
-        },
-        {
             key: '/admin/audit',
             icon: <FileTextOutlined />,
             label: 'Nhật ký hệ thống',
