@@ -118,7 +118,333 @@ function recomputeLabor(lb: ILaborBreakdownItem): ILaborBreakdownItem {
   return { ...lb, labor_total: total };
 }
 
+const ROLE_LABELS: Record<string, string> = {
+  outsource: "Outsource",
+  technical: "Kỹ thuật",
+  supervisor: "Giám sát",
+  sale: "Kinh doanh",
+  pm: "PM",
+  owner_admin: "Chủ sở hữu / Admin",
+  internal_support: "Hỗ trợ nội bộ",
+};
+
+const ROLE_CALC_MODE_LABELS: Record<string, string> = {
+  salary_allocation: "Phân bổ lương",
+  commission_pct: "Hoa hồng %",
+  daily_rate: "Đơn giá ngày công",
+  fixed_amount: "Khoán cố định",
+  manual: "Thủ công",
+};
+
+const COMPONENT_TYPE_LABELS: Record<string, string> = {
+  material: "Vật tư",
+  labor: "Nhân công",
+  other: "Khác",
+};
+
+const COMPONENT_SOURCE_LABELS: Record<string, string> = {
+  material_master: "Danh mục vật tư",
+  labor_price_config: "Bảng giá nhân công",
+  manual: "Thủ công",
+  policy: "Policy",
+  survey: "Khảo sát",
+};
+
+const COMPONENT_CALC_MODE_LABELS: Record<string, string> = {
+  manual: "Nhập tay",
+  package_m2: "Theo m²",
+  daily_worker: "Theo ngày công",
+  formula: "Theo công thức",
+};
+
+const toDisplayUsers = (value: unknown): string[] => {
+  if (!value) return [];
+
+  const pick = (item: unknown): string | null => {
+    if (item == null || item === "") return null;
+    if (typeof item === "string" || typeof item === "number") {
+      const s = String(item).trim();
+      return s || null;
+    }
+    if (typeof item === "object") {
+      const obj = item as Record<string, unknown>;
+      const candidates = [
+        obj.fullName,
+        obj.displayName,
+        obj.name,
+        obj.title,
+        obj.username,
+        obj.userName,
+        obj.code,
+        obj._id,
+        obj.id,
+      ];
+      for (const candidate of candidates) {
+        if (candidate == null || candidate === "") continue;
+        const s = String(candidate).trim();
+        if (s) return s;
+      }
+    }
+    return null;
+  };
+
+  if (Array.isArray(value)) {
+    return value.map(pick).filter((item): item is string => Boolean(item));
+  }
+
+  const single = pick(value);
+  return single ? [single] : [];
+};
+
+const getSnapshotUsersByRole = (
+  roleCode?: IRoleCostAllocationsItem["role_code"],
+  snapshot?: IJourneyRoleSnapshotItem | null,
+): string[] => {
+  if (!snapshot || !roleCode) return [];
+  switch (roleCode) {
+    case "pm":
+      return toDisplayUsers(snapshot.pm_user);
+    case "sale":
+      return toDisplayUsers(snapshot.sale_users);
+    case "supervisor":
+      return toDisplayUsers(snapshot.supervisor_users);
+    case "technical":
+      return toDisplayUsers(snapshot.technical_users);
+    case "owner_admin":
+    case "internal_support":
+      return toDisplayUsers(snapshot.owner_user);
+    default:
+      return [];
+  }
+};
+
+const getAllocationUsers = (
+  allocation: IRoleCostAllocationsItem,
+  snapshot?: IJourneyRoleSnapshotItem | null,
+): string[] => {
+  const explicitUsers = toDisplayUsers(allocation.usernames);
+  if (explicitUsers.length) return explicitUsers;
+  return getSnapshotUsersByRole(allocation.role_code, snapshot);
+};
+
+const renderUserTags = (users: string[]) => {
+  if (!users.length) return <Text type="secondary">Chưa gán</Text>;
+  return (
+    <Space size={[4, 4]} wrap>
+      {users.map((user) => (
+        <Tag key={user}>{user}</Tag>
+      ))}
+    </Space>
+  );
+};
+
+const LaborAllocationTable: React.FC<{
+  allocations?: IRoleCostAllocationsItem[] | null;
+  roleSnapshot?: IJourneyRoleSnapshotItem | null;
+  infoMessage?: string;
+}> = ({ allocations, roleSnapshot, infoMessage }) => {
+  const rows = allocations ?? [];
+
+  return (
+    <Space direction="vertical" style={{ width: "100%" }} size={10}>
+      {infoMessage ? <Alert type="info" showIcon message={infoMessage} /> : null}
+      {!rows.length ? (
+        <Alert
+          type="info"
+          showIcon
+          message="Chưa có phân bổ nhân sự chi tiết. Hãy chạy Tự động tính để tạo snapshot phân bổ mới."
+        />
+      ) : (
+        <Table
+          dataSource={rows}
+          rowKey={(_, idx) => String(idx)}
+          size="small"
+          bordered
+          pagination={false}
+          columns={[
+            {
+              title: "Vai trò",
+              dataIndex: "role_code",
+              width: 150,
+              render: (value: string, row: IRoleCostAllocationsItem) => (
+                <Space direction="vertical" size={0}>
+                  <Text strong>{ROLE_LABELS[value] ?? value ?? "Khác"}</Text>
+                  {row.bucket_code ? <Text type="secondary" style={{ fontSize: 11 }}>{row.bucket_code}</Text> : null}
+                </Space>
+              ),
+            },
+            {
+              title: "Nhân sự được gán",
+              render: (_: unknown, row: IRoleCostAllocationsItem) => renderUserTags(getAllocationUsers(row, roleSnapshot)),
+            },
+            {
+              title: "Headcount",
+              width: 90,
+              align: "right" as const,
+              render: (_: unknown, row: IRoleCostAllocationsItem) => {
+                const users = getAllocationUsers(row, roleSnapshot);
+                return row.headcount ?? users.length ?? 0;
+              },
+            },
+            {
+              title: "Work days",
+              dataIndex: "work_days",
+              width: 100,
+              align: "right" as const,
+              render: (value: number) => value ?? "—",
+            },
+            {
+              title: "Calc mode",
+              dataIndex: "calc_mode",
+              width: 130,
+              render: (value: string) => value ? <Tag color="blue">{ROLE_CALC_MODE_LABELS[value] ?? value}</Tag> : "—",
+            },
+            {
+              title: "Đơn giá / % phân bổ",
+              width: 160,
+              render: (_: unknown, row: IRoleCostAllocationsItem) => {
+                if (row.unit_rate != null && row.unit_rate > 0) return <Text>{fmt(row.unit_rate)}</Text>;
+                if (row.allocation_pct != null) return <Text>{row.allocation_pct}%</Text>;
+                return <Text type="secondary">—</Text>;
+              },
+            },
+            {
+              title: "Số tiền",
+              dataIndex: "amount",
+              width: 140,
+              align: "right" as const,
+              render: (value: number) => <Text strong>{fmt(value ?? 0)}</Text>,
+            },
+            {
+              title: "Formula / ghi chú",
+              render: (_: unknown, row: IRoleCostAllocationsItem) => (
+                <Space direction="vertical" size={0}>
+                  <Text style={{ fontSize: 12 }}>{row.formula_snapshot || "—"}</Text>
+                  {row.note ? <Text type="secondary" style={{ fontSize: 11 }}>{row.note}</Text> : null}
+                </Space>
+              ),
+            },
+          ]}
+        />
+      )}
+    </Space>
+  );
+};
+
 // ������ Calculation engine ��������������������������������������������������������������������������������������������������������������
+
+const getComponentDisplayName = (component: NonNullable<IDirectCostGroupsItem["components"]>[number]) => {
+  const materialLabel = (component.idx_material_id as any)?.title;
+  const laborLabel = (component.idx_labor_price_config_id as any)?.title;
+  return component.item_name || materialLabel || laborLabel || component.item_code || "—";
+};
+
+const DirectCostComponentsTable: React.FC<{ group: IDirectCostGroupsItem }> = ({ group }) => {
+  const components = group.components ?? [];
+
+  return (
+    <Space direction="vertical" style={{ width: "100%" }} size={8}>
+      {group.cost_basis_note ? <Alert type="info" showIcon message={group.cost_basis_note} /> : null}
+      {!components.length ? (
+        <Text type="secondary">Chưa có dòng chi tiết cấu phần. Hãy chạy tự động tính để lấy vật tư và nhân công chi tiết.</Text>
+      ) : (
+        <Table
+          dataSource={components}
+          rowKey={(_, idx) => String(idx)}
+          size="small"
+          bordered
+          pagination={false}
+          columns={[
+            {
+              title: "Loại",
+              dataIndex: "type",
+              width: 90,
+              render: (value: string) => <Tag>{COMPONENT_TYPE_LABELS[value] ?? value ?? "Khác"}</Tag>,
+            },
+            {
+              title: "Tên vật tư / nhân công",
+              render: (_: unknown, row: NonNullable<IDirectCostGroupsItem["components"]>[number]) => (
+                <Space direction="vertical" size={0}>
+                  <Text strong>{getComponentDisplayName(row)}</Text>
+                  {row.item_spec ? <Text type="secondary" style={{ fontSize: 11 }}>{row.item_spec}</Text> : null}
+                </Space>
+              ),
+            },
+            {
+              title: "Nguồn",
+              width: 150,
+              render: (_: unknown, row: NonNullable<IDirectCostGroupsItem["components"]>[number]) => (
+                <Space direction="vertical" size={0}>
+                  <Text>{row.source_ref_label || COMPONENT_SOURCE_LABELS[row.source_type ?? ""] || "—"}</Text>
+                  {row.brand_name ? <Text type="secondary" style={{ fontSize: 11 }}>{row.brand_name}</Text> : null}
+                </Space>
+              ),
+            },
+            {
+              title: "Cơ sở số lượng",
+              width: 160,
+              render: (_: unknown, row: NonNullable<IDirectCostGroupsItem["components"]>[number]) => (
+                <Space direction="vertical" size={0}>
+                  <Text>{COMPONENT_CALC_MODE_LABELS[row.calc_mode ?? ""] || row.calc_mode || "—"}</Text>
+                  {row.quantity_per_unit != null ? (
+                    <Text type="secondary" style={{ fontSize: 11 }}>
+                      {row.quantity_per_unit}/{row.unit || "đv"}
+                    </Text>
+                  ) : null}
+                </Space>
+              ),
+            },
+            {
+              title: "Số lượng",
+              width: 110,
+              align: "right" as const,
+              render: (_: unknown, row: NonNullable<IDirectCostGroupsItem["components"]>[number]) => row.expanded_quantity ?? row.quantity ?? "—",
+            },
+            {
+              title: "Đơn vị",
+              dataIndex: "unit",
+              width: 80,
+              render: (value: string) => value || "—",
+            },
+            {
+              title: "Đơn giá",
+              dataIndex: "unit_price",
+              width: 130,
+              align: "right" as const,
+              render: (value: number) => fmt(value ?? 0),
+            },
+            {
+              title: "Thành tiền",
+              dataIndex: "line_total",
+              width: 140,
+              align: "right" as const,
+              render: (value: number) => <Text strong>{fmt(value ?? 0)}</Text>,
+            },
+            {
+              title: "Formula",
+              width: 190,
+              render: (_: unknown, row: NonNullable<IDirectCostGroupsItem["components"]>[number]) => (
+                <Text style={{ fontSize: 12 }}>{row.formula_snapshot || row.formula_code || "—"}</Text>
+              ),
+            },
+            {
+              title: "Ghi chú",
+              width: 180,
+              render: (_: unknown, row: NonNullable<IDirectCostGroupsItem["components"]>[number]) => (
+                <Space direction="vertical" size={0}>
+                  <Text type="secondary" style={{ fontSize: 11 }}>{row.cost_note || row.note || "—"}</Text>
+                  {row.waste_pct != null ? (
+                    <Text type="secondary" style={{ fontSize: 11 }}>Hao hụt: {row.waste_pct}%</Text>
+                  ) : null}
+                </Space>
+              ),
+            },
+          ]}
+        />
+      )}
+    </Space>
+  );
+};
 
 interface ComputeResult {
   buckets: IStandardizedBucketsItem[];
@@ -482,77 +808,265 @@ const BucketsEditTable: React.FC<{
   );
 };
 
-const LaborView: React.FC<{ lb: ILaborBreakdownItem }> = ({ lb }) => (
-  <Row gutter={[16, 8]}>
-    {[
-      { label: 'Nhân công outsource',     value: lb.outsource_labor },
-      { label: 'Lương nội bộ (cố định)',  value: lb.internal_fixed_salary },
-      { label: 'Hoa hồng Kỹ thuật',       value: lb.technical_commission },
-      { label: 'Hoa hồng Giám sát',       value: lb.supervisor_commission },
-    ].map(row => (
-      <Col span={12} key={row.label}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', borderBottom: '1px solid #f0f0f0' }}>
-          <Text type="secondary" style={{ fontSize: 13 }}>{row.label}</Text>
-          <Text strong>{fmt(row.value ?? 0)}</Text>
-        </div>
-      </Col>
-    ))}
-    <Col span={24}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px', background: '#fafafa', borderRadius: 6, marginTop: 4 }}>
-        <Text strong style={{ fontSize: 14 }}>Tổng nhân công (tự tính)</Text>
-        <Text strong style={{ fontSize: 15, color: '#1890ff' }}>{fmt(lb.labor_total ?? 0)}</Text>
-      </div>
-    </Col>
-    {lb.note && <Col span={24}><Text type="secondary" style={{ fontSize: 12 }}>Ghi chú: {lb.note}</Text></Col>}
-  </Row>
-);
+const LaborView: React.FC<{
+  lb: ILaborBreakdownItem;
+  allocations?: IRoleCostAllocationsItem[] | null;
+  roleSnapshot?: IJourneyRoleSnapshotItem | null;
+}> = ({ lb, allocations, roleSnapshot }) => {
+  const roleLabels: Record<string, string> = {
+    outsource: 'Outsource',
+    technical: 'Kỹ thuật',
+    supervisor: 'Giám sát',
+    sale: 'Kinh doanh',
+    pm: 'PM',
+    owner_admin: 'Chủ trì/Điều phối',
+    internal_support: 'Hỗ trợ nội bộ',
+  };
+  const calcModeLabels: Record<string, string> = {
+    salary_allocation: 'Phân bổ lương',
+    commission_pct: 'Theo % hoa hồng',
+    daily_rate: 'Theo ngày công',
+    fixed_amount: 'Khoán cố định',
+    manual: 'Nhập tay',
+  };
+  const getUsers = (value: any): string[] => {
+    if (Array.isArray(value)) {
+      return value.map(item => {
+        if (!item) return '';
+        if (typeof item === 'string') return item;
+        if (typeof item === 'object') return String(item.userName ?? item.username ?? item.email ?? item._id ?? '');
+        return String(item);
+      }).filter(Boolean);
+    }
+    if (!value) return [];
+    if (typeof value === 'string') return [value];
+    if (typeof value === 'object') {
+      const candidate = value.userName ?? value.username ?? value.email ?? value._id;
+      return candidate ? [String(candidate)] : [];
+    }
+    return [String(value)];
+  };
+  const resolveUsers = (row: IRoleCostAllocationsItem) => {
+    const directUsers = getUsers(row.usernames);
+    if (directUsers.length > 0) return directUsers;
+    switch (row.role_code) {
+      case 'technical': return getUsers(roleSnapshot?.technical_users);
+      case 'supervisor': return getUsers(roleSnapshot?.supervisor_users);
+      case 'sale': return getUsers(roleSnapshot?.sale_users);
+      case 'pm': return getUsers(roleSnapshot?.pm_user);
+      case 'owner_admin': return getUsers(roleSnapshot?.owner_user);
+      case 'internal_support': return getUsers(roleSnapshot?.pm_user);
+      default: return [];
+    }
+  };
+  return (
+    <Space direction='vertical' size={12} style={{ width: '100%' }}>
+      <Row gutter={[16, 8]}>
+        {[
+          { label: 'Nhân công outsource', value: lb.outsource_labor },
+          { label: 'Lương nội bộ (cố định)', value: lb.internal_fixed_salary },
+          { label: 'Hoa hồng Kỹ thuật', value: lb.technical_commission },
+          { label: 'Hoa hồng Giám sát', value: lb.supervisor_commission },
+        ].map(row => (
+          <Col span={12} key={row.label}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', borderBottom: '1px solid #f0f0f0' }}>
+              <Text type='secondary' style={{ fontSize: 13 }}>{row.label}</Text>
+              <Text strong>{fmt(row.value ?? 0)}</Text>
+            </div>
+          </Col>
+        ))}
+        <Col span={24}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px', background: '#fafafa', borderRadius: 6, marginTop: 4 }}>
+            <Text strong style={{ fontSize: 14 }}>Tổng nhân công (tự tính)</Text>
+            <Text strong style={{ fontSize: 15, color: '#1890ff' }}>{fmt(lb.labor_total ?? 0)}</Text>
+          </div>
+        </Col>
+        {lb.note && <Col span={24}><Text type='secondary' style={{ fontSize: 12 }}>Ghi chú: {lb.note}</Text></Col>}
+      </Row>
+      <Card size='small' type='inner' title={<Space><TeamOutlined /><Text strong>Bảng phân bổ nhân công theo vai trò</Text></Space>}>
+        {!(allocations?.length ?? 0) ? (
+          <Alert type='info' showIcon message='Chưa có bảng phân bổ nhân công chi tiết. Hãy chạy Tự động tính để sinh phân rã theo vai trò.' />
+        ) : (
+          <Table
+            size='small'
+            pagination={false}
+            rowKey={(_, index) => String(index)}
+            dataSource={allocations ?? undefined}
+            columns={[
+              { title: 'Vai trò', dataIndex: 'role_code', width: 140, render: (value: string) => <Tag color='blue'>{roleLabels[value] ?? value ?? 'N/A'}</Tag> },
+              { title: 'Người phụ trách', render: (_: unknown, row: IRoleCostAllocationsItem) => {
+                const usernames = resolveUsers(row);
+                if (!usernames.length) return <Text type='secondary'>Chưa gán</Text>;
+                return <Space size={[4, 4]} wrap>{usernames.map(name => <Tag key={name}>{name}</Tag>)}</Space>;
+              } },
+              { title: 'Headcount', dataIndex: 'headcount', width: 90, align: 'right' as const, render: (value: number) => value ?? '-' },
+              { title: 'Ngày công', dataIndex: 'work_days', width: 90, align: 'right' as const, render: (value: number) => value ?? '-' },
+              { title: 'Cách tính', dataIndex: 'calc_mode', width: 130, render: (value: string) => <Text type='secondary'>{calcModeLabels[value] ?? value ?? '-'}</Text> },
+              { title: 'Đơn giá / %', width: 120, align: 'right' as const, render: (_: unknown, row: IRoleCostAllocationsItem) => row.unit_rate != null ? fmt(row.unit_rate) : row.allocation_pct != null ? `${row.allocation_pct}%` : '-' },
+              { title: 'Thành tiền', dataIndex: 'amount', width: 140, align: 'right' as const, render: (value: number) => <Text strong>{fmt(value ?? 0)}</Text> },
+              { title: 'Công thức / Ghi chú', render: (_: unknown, row: IRoleCostAllocationsItem) => <Space direction='vertical' size={0}>{row.formula_snapshot ? <Text style={{ fontSize: 12 }}>{row.formula_snapshot}</Text> : null}{row.note ? <Text type='secondary' style={{ fontSize: 11 }}>{row.note}</Text> : null}</Space> },
+            ]}
+            summary={rows => (
+              <Table.Summary.Row>
+                <Table.Summary.Cell index={0} colSpan={6}><Text strong>Tổng phân bổ theo vai trò</Text></Table.Summary.Cell>
+                <Table.Summary.Cell index={1} align='right'><Text strong style={{ color: '#1890ff' }}>{fmt(rows.reduce((sum, row) => sum + (row.amount ?? 0), 0))}</Text></Table.Summary.Cell>
+                <Table.Summary.Cell index={2} />
+              </Table.Summary.Row>
+            )}
+          />
+        )}
+      </Card>
+    </Space>
+  );
+};
 
 const LaborEdit: React.FC<{
   lb: ILaborBreakdownItem;
   onChange: (lb: ILaborBreakdownItem) => void;
-}> = ({ lb, onChange }) => {
+  allocations?: IRoleCostAllocationsItem[] | null;
+  roleSnapshot?: IJourneyRoleSnapshotItem | null;
+}> = ({ lb, onChange, allocations, roleSnapshot }) => {
+  const roleLabels: Record<string, string> = {
+    outsource: 'Outsource',
+    technical: 'Kỹ thuật',
+    supervisor: 'Giám sát',
+    sale: 'Kinh doanh',
+    pm: 'PM',
+    owner_admin: 'Chủ trì/Điều phối',
+    internal_support: 'Hỗ trợ nội bộ',
+  };
+  const calcModeLabels: Record<string, string> = {
+    salary_allocation: 'Phân bổ lương',
+    commission_pct: 'Theo % hoa hồng',
+    daily_rate: 'Theo ngày công',
+    fixed_amount: 'Khoán cố định',
+    manual: 'Nhập tay',
+  };
+  const getUsers = (value: any): string[] => {
+    if (Array.isArray(value)) {
+      return value.map(item => {
+        if (!item) return '';
+        if (typeof item === 'string') return item;
+        if (typeof item === 'object') return String(item.userName ?? item.username ?? item.email ?? item._id ?? '');
+        return String(item);
+      }).filter(Boolean);
+    }
+    if (!value) return [];
+    if (typeof value === 'string') return [value];
+    if (typeof value === 'object') {
+      const candidate = value.userName ?? value.username ?? value.email ?? value._id;
+      return candidate ? [String(candidate)] : [];
+    }
+    return [String(value)];
+  };
+  const resolveUsers = (row: IRoleCostAllocationsItem) => {
+    const directUsers = getUsers(row.usernames);
+    if (directUsers.length > 0) return directUsers;
+    switch (row.role_code) {
+      case 'technical': return getUsers(roleSnapshot?.technical_users);
+      case 'supervisor': return getUsers(roleSnapshot?.supervisor_users);
+      case 'sale': return getUsers(roleSnapshot?.sale_users);
+      case 'pm': return getUsers(roleSnapshot?.pm_user);
+      case 'owner_admin': return getUsers(roleSnapshot?.owner_user);
+      case 'internal_support': return getUsers(roleSnapshot?.pm_user);
+      default: return [];
+    }
+  };
   const set = (field: keyof ILaborBreakdownItem, val: number | string | null) => {
     const next = { ...lb, [field]: val ?? 0 };
     onChange(recomputeLabor(next));
   };
   const rows: { label: string; field: keyof ILaborBreakdownItem }[] = [
-    { label: 'Nhân công outsource',    field: 'outsource_labor' },
+    { label: 'Nhân công outsource', field: 'outsource_labor' },
     { label: 'Lương nội bộ (cố định)', field: 'internal_fixed_salary' },
-    { label: 'Hoa hồng Kỹ thuật',      field: 'technical_commission' },
-    { label: 'Hoa hồng Giám sát',      field: 'supervisor_commission' },
+    { label: 'Hoa hồng Kỹ thuật', field: 'technical_commission' },
+    { label: 'Hoa hồng Giám sát', field: 'supervisor_commission' },
   ];
   return (
-    <div>
-      <Row gutter={[16, 0]}>
-        {rows.map(r => (
-          <Col span={12} key={r.field}>
-            <Form.Item label={r.label} style={{ marginBottom: 12 }}>
-              <InputNumber
-                value={lb[r.field] as number}
-                min={0} style={{ width: '100%' }} size="small"
-                formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                parser={v => Number(v?.replace(/,/g, '') || 0)}
-                onChange={v => set(r.field, v)}
-              />
-            </Form.Item>
-          </Col>
-        ))}
-      </Row>
-      <div style={{ display: 'flex', justifyContent: 'space-between', background: '#e6f7ff', borderRadius: 6, padding: '8px 12px', marginBottom: 8 }}>
-        <Text strong>Tổng nhân công (tự tính)</Text>
-        <Text strong style={{ color: '#1890ff', fontSize: 14 }}>{fmt(lb.labor_total ?? 0)}</Text>
+    <Space direction='vertical' size={12} style={{ width: '100%' }}>
+      <div>
+        <Row gutter={[16, 0]}>
+          {rows.map(r => (
+            <Col span={12} key={r.field}>
+              <Form.Item label={r.label} style={{ marginBottom: 12 }}>
+                <InputNumber
+                  value={lb[r.field] as number}
+                  min={0} style={{ width: '100%' }} size='small'
+                  formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                  parser={v => Number(v?.replace(/,/g, '') || 0)}
+                  onChange={v => set(r.field, v)}
+                />
+              </Form.Item>
+            </Col>
+          ))}
+        </Row>
+        <div style={{ display: 'flex', justifyContent: 'space-between', background: '#e6f7ff', borderRadius: 6, padding: '8px 12px', marginBottom: 8 }}>
+          <Text strong>Tổng nhân công (tự tính)</Text>
+          <Text strong style={{ color: '#1890ff', fontSize: 14 }}>{fmt(lb.labor_total ?? 0)}</Text>
+        </div>
+        <Form.Item label='Ghi chú' style={{ marginBottom: 0 }}>
+          <Input value={lb.note} size='small' onChange={e => onChange({ ...lb, note: e.target.value })} />
+        </Form.Item>
       </div>
-      <Form.Item label="Ghi chú" style={{ marginBottom: 0 }}>
-        <Input value={lb.note} size="small" onChange={e => onChange({ ...lb, note: e.target.value })} />
-      </Form.Item>
-    </div>
+      <Card size='small' type='inner' title={<Space><TeamOutlined /><Text strong>Bảng phân bổ nhân công theo vai trò</Text></Space>}>
+        <Alert
+          type='info'
+          showIcon
+          style={{ marginBottom: 12 }}
+          message='Bảng dưới đây phản ánh snapshot sinh từ lần tự động tính gần nhất. Nếu bạn chỉnh tay chi phí nhân công tổng hợp ở trên, hãy chạy lại Tự động tính để đồng bộ phân bổ chi tiết.'
+        />
+        {!(allocations?.length ?? 0) ? (
+          <Alert type='info' showIcon message='Chưa có bảng phân bổ nhân công chi tiết. Hãy chạy Tự động tính để sinh phân rã theo vai trò.' />
+        ) : (
+          <Table
+            size='small'
+            pagination={false}
+            rowKey={(_, index) => String(index)}
+            dataSource={allocations ?? undefined}
+            columns={[
+              { title: 'Vai trò', dataIndex: 'role_code', width: 140, render: (value: string) => <Tag color='blue'>{roleLabels[value] ?? value ?? 'N/A'}</Tag> },
+              { title: 'Người phụ trách', render: (_: unknown, row: IRoleCostAllocationsItem) => {
+                const usernames = resolveUsers(row);
+                if (!usernames.length) return <Text type='secondary'>Chưa gán</Text>;
+                return <Space size={[4, 4]} wrap>{usernames.map(name => <Tag key={name}>{name}</Tag>)}</Space>;
+              } },
+              { title: 'Headcount', dataIndex: 'headcount', width: 90, align: 'right' as const, render: (value: number) => value ?? '-' },
+              { title: 'Ngày công', dataIndex: 'work_days', width: 90, align: 'right' as const, render: (value: number) => value ?? '-' },
+              { title: 'Cách tính', dataIndex: 'calc_mode', width: 130, render: (value: string) => <Text type='secondary'>{calcModeLabels[value] ?? value ?? '-'}</Text> },
+              { title: 'Đơn giá / %', width: 120, align: 'right' as const, render: (_: unknown, row: IRoleCostAllocationsItem) => row.unit_rate != null ? fmt(row.unit_rate) : row.allocation_pct != null ? `${row.allocation_pct}%` : '-' },
+              { title: 'Thành tiền', dataIndex: 'amount', width: 140, align: 'right' as const, render: (value: number) => <Text strong>{fmt(value ?? 0)}</Text> },
+              { title: 'Công thức / Ghi chú', render: (_: unknown, row: IRoleCostAllocationsItem) => <Space direction='vertical' size={0}>{row.formula_snapshot ? <Text style={{ fontSize: 12 }}>{row.formula_snapshot}</Text> : null}{row.note ? <Text type='secondary' style={{ fontSize: 11 }}>{row.note}</Text> : null}</Space> },
+            ]}
+            summary={rows => (
+              <Table.Summary.Row>
+                <Table.Summary.Cell index={0} colSpan={6}><Text strong>Tổng phân bổ theo vai trò</Text></Table.Summary.Cell>
+                <Table.Summary.Cell index={1} align='right'><Text strong style={{ color: '#1890ff' }}>{fmt(rows.reduce((sum, row) => sum + (row.amount ?? 0), 0))}</Text></Table.Summary.Cell>
+                <Table.Summary.Cell index={2} />
+              </Table.Summary.Row>
+            )}
+          />
+        )}
+      </Card>
+    </Space>
   );
 };
 
 const DirectCostView: React.FC<{ groups: IDirectCostGroupsItem[] }> = ({ groups }) => {
-  if (!groups.length) return <Text type="secondary">Chưa có hạng mục vật tư nào.</Text>;
+  if (!groups.length) return <Text type='secondary'>Chưa có hạng mục vật tư nào.</Text>;
+  const sourceLabels: Record<string, string> = {
+    material_master: 'Material master',
+    labor_price_config: 'Labor config',
+    manual: 'Manual',
+    policy: 'Policy',
+    survey: 'Survey',
+  };
+  const typeColors: Record<string, string> = {
+    material: 'green',
+    labor: 'blue',
+    other: 'orange',
+  };
   return (
-    <Collapse size="small" ghost>
+    <Collapse size='small' ghost>
       {groups.map((g, i) => (
         <Panel
           key={i}
@@ -560,15 +1074,15 @@ const DirectCostView: React.FC<{ groups: IDirectCostGroupsItem[] }> = ({ groups 
             <Space>
               <Text strong>{g.name || `Hạng mục ${i + 1}`}</Text>
               <Text type='secondary' style={{ fontSize: 12 }}>×{g.quantity ?? 1} {g.unit}</Text>
-              <Tag color="blue">{fmt(g.subtotal ?? 0)}</Tag>
+              <Tag color='blue'>{fmt(g.subtotal ?? 0)}</Tag>
             </Space>
           }
         >
           <Row gutter={[12, 4]} style={{ marginBottom: 8 }}>
             {[
-              { label: 'Vật tư',        value: g.material_amount },
-              { label: 'Nhân công',     value: g.labor_amount },
-              { label: 'Chi phí khác',  value: g.other_amount },
+              { label: 'Vật tư', value: g.material_amount },
+              { label: 'Nhân công', value: g.labor_amount },
+              { label: 'Chi phí khác', value: g.other_amount },
             ].map(row => (
               <Col span={8} key={row.label}>
                 <div style={{ textAlign: 'center', background: '#fafafa', borderRadius: 6, padding: '6px 8px' }}>
@@ -578,23 +1092,31 @@ const DirectCostView: React.FC<{ groups: IDirectCostGroupsItem[] }> = ({ groups 
               </Col>
             ))}
           </Row>
-          {(g.components?.length ?? 0) > 0 && (
+          {g.cost_basis_note ? <Alert type='info' showIcon style={{ marginBottom: 8 }} message={g.cost_basis_note} /> : null}
+          {!(g.components?.length ?? 0) ? (
+            <Text type='secondary'>Chưa có dòng vật tư/nhân công chi tiết cho hạng mục này.</Text>
+          ) : (
             <Table
-              dataSource={g.components}
+              dataSource={g.components ?? undefined}
               rowKey={(_, idx) => String(idx)}
               pagination={false}
-              size="small"
+              size='small'
+              scroll={{ x: 1120 }}
               columns={[
-                { title: 'Loại', dataIndex: 'type', width: 80, render: (v: string) => <Tag>{v}</Tag> },
-                { title: 'SL', dataIndex: 'quantity', width: 60, align: 'right' as const },
-                { title: 'ĐVT', dataIndex: 'unit', width: 60 },
-                { title: 'Đơn giá', dataIndex: 'unit_price', align: 'right' as const, render: (v: number) => fmt(v) },
-                { title: 'Thành tiền', dataIndex: 'line_total', align: 'right' as const, render: (v: number) => <Text strong>{fmt(v)}</Text> },
-                { title: 'Ghi chú', dataIndex: 'note', render: (v: string) => <Text type="secondary" style={{ fontSize: 11 }}>{v}</Text> },
+                { title: 'Loại', dataIndex: 'type', width: 90, render: (value: string) => <Tag color={typeColors[value] ?? 'default'}>{value ?? 'N/A'}</Tag> },
+                { title: 'Tên vật tư / nhân công', width: 240, render: (_: unknown, row: NonNullable<IDirectCostGroupsItem['components']>[number]) => <Space direction='vertical' size={0}><Text strong>{row.item_name ?? row.note ?? 'Chưa có tên dòng chi phí'}</Text><Text type='secondary' style={{ fontSize: 11 }}>{[row.item_code, row.item_spec, row.brand_name].filter(Boolean).join(' | ') || 'Không có mã/spec'}</Text></Space> },
+                { title: 'Nguồn', width: 170, render: (_: unknown, row: NonNullable<IDirectCostGroupsItem['components']>[number]) => <Space direction='vertical' size={0}><Tag>{sourceLabels[row.source_type ?? ''] ?? row.source_type ?? 'N/A'}</Tag><Text type='secondary' style={{ fontSize: 11 }}>{row.source_ref_label ?? '-'}</Text></Space> },
+                { title: 'Định mức', width: 140, render: (_: unknown, row: NonNullable<IDirectCostGroupsItem['components']>[number]) => <Space direction='vertical' size={0}><Text>{row.quantity_per_unit ?? 1} / đơn vị</Text><Text type='secondary' style={{ fontSize: 11 }}>Quy mô áp dụng: {row.expanded_quantity ?? row.quantity ?? 0}</Text></Space> },
+                { title: 'SL', dataIndex: 'quantity', width: 90, align: 'right' as const },
+                { title: 'ĐVT', dataIndex: 'unit', width: 80 },
+                { title: 'Đơn giá', dataIndex: 'unit_price', width: 130, align: 'right' as const, render: (value: number) => fmt(value ?? 0) },
+                { title: 'Thành tiền', dataIndex: 'line_total', width: 130, align: 'right' as const, render: (value: number) => <Text strong>{fmt(value ?? 0)}</Text> },
+                { title: 'Công thức tính', width: 220, render: (_: unknown, row: NonNullable<IDirectCostGroupsItem['components']>[number]) => <Space direction='vertical' size={0}>{row.formula_code ? <Text code>{row.formula_code}</Text> : null}{row.formula_snapshot ? <Text type='secondary' style={{ fontSize: 11 }}>{row.formula_snapshot}</Text> : null}</Space> },
+                { title: 'Ghi chú', width: 180, render: (_: unknown, row: NonNullable<IDirectCostGroupsItem['components']>[number]) => <Space direction='vertical' size={0}>{row.note ? <Text style={{ fontSize: 12 }}>{row.note}</Text> : null}{row.cost_note ? <Text type='secondary' style={{ fontSize: 11 }}>{row.cost_note}</Text> : null}</Space> },
               ]}
             />
           )}
-          {g.note && <div style={{ marginTop: 6 }}><Text type="secondary" style={{ fontSize: 12 }}>Ghi chú hạng mục: {g.note}</Text></div>}
+          {g.note && <div style={{ marginTop: 6 }}><Text type='secondary' style={{ fontSize: 12 }}>Ghi chú hạng mục: {g.note}</Text></div>}
         </Panel>
       ))}
     </Collapse>
@@ -605,11 +1127,23 @@ const DirectCostEdit: React.FC<{
   groups: IDirectCostGroupsItem[];
   onChange: (groups: IDirectCostGroupsItem[]) => void;
 }> = ({ groups, onChange }) => {
+  const sourceLabels: Record<string, string> = {
+    material_master: 'Material master',
+    labor_price_config: 'Labor config',
+    manual: 'Manual',
+    policy: 'Policy',
+    survey: 'Survey',
+  };
+  const typeColors: Record<string, string> = {
+    material: 'green',
+    labor: 'blue',
+    other: 'orange',
+  };
   const setGroup = (idx: number, patch: Partial<IDirectCostGroupsItem>) => {
     const next = groups.map((g, i) => i === idx ? recomputeGroup({ ...g, ...patch }) : g);
     onChange(next);
   };
-  const addGroup    = () => onChange([...groups, newGroup()]);
+  const addGroup = () => onChange([...groups, newGroup()]);
   const removeGroup = (idx: number) => onChange(groups.filter((_, i) => i !== idx));
 
   return (
@@ -617,77 +1151,93 @@ const DirectCostEdit: React.FC<{
       {groups.map((g, i) => (
         <Card
           key={i}
-          size="small"
+          size='small'
           style={{ marginBottom: 10, border: '1px solid #e8e8e8' }}
           title={
             <Space>
               <Text strong style={{ fontSize: 13 }}>{g.name || `Hạng mục ${i + 1}`}</Text>
-              <Tag color="blue">{fmt(g.subtotal ?? 0)}</Tag>
+              <Tag color='blue'>{fmt(g.subtotal ?? 0)}</Tag>
             </Space>
           }
           extra={
-            <Popconfirm title="Xóa hạng mục này?" onConfirm={() => removeGroup(i)} okText="Xóa" cancelText="Hủy">
-              <Button type="text" danger icon={<DeleteOutlined />} size="small" />
+            <Popconfirm title='Xóa hạng mục này?' onConfirm={() => removeGroup(i)} okText='Xóa' cancelText='Hủy'>
+              <Button type='text' danger icon={<DeleteOutlined />} size='small' />
             </Popconfirm>
           }
         >
           <Row gutter={[12, 0]}>
             <Col span={10}>
-              <Form.Item label="Tên hạng mục" style={{ marginBottom: 8 }}>
-                <Input value={g.name} size="small" onChange={e => setGroup(i, { name: e.target.value })} />
+              <Form.Item label='Tên hạng mục' style={{ marginBottom: 8 }}>
+                <Input value={g.name} size='small' onChange={e => setGroup(i, { name: e.target.value })} />
               </Form.Item>
             </Col>
             <Col span={7}>
               <Form.Item label='Số lượng' style={{ marginBottom: 8 }}>
-                <InputNumber value={g.quantity} min={0} size="small" style={{ width: '100%' }}
-                  onChange={v => setGroup(i, { quantity: v ?? 0 })} />
+                <InputNumber value={g.quantity} min={0} size='small' style={{ width: '100%' }} onChange={v => setGroup(i, { quantity: v ?? 0 })} />
               </Form.Item>
             </Col>
             <Col span={7}>
               <Form.Item label='Đơn vị' style={{ marginBottom: 8 }}>
-                <Input value={g.unit} size="small" onChange={e => setGroup(i, { unit: e.target.value })} />
+                <Input value={g.unit} size='small' onChange={e => setGroup(i, { unit: e.target.value })} />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item label="Chi phí Vật tư" style={{ marginBottom: 8 }}>
-                <InputNumber value={g.material_amount} min={0} size="small" style={{ width: '100%' }}
-                  formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                  parser={v => Number(v?.replace(/,/g, '') || 0)}
-                  onChange={v => setGroup(i, { material_amount: v ?? 0 })} />
+              <Form.Item label='Chi phí Vật tư' style={{ marginBottom: 8 }}>
+                <InputNumber value={g.material_amount} min={0} size='small' style={{ width: '100%' }} formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} parser={v => Number(v?.replace(/,/g, '') || 0)} onChange={v => setGroup(i, { material_amount: v ?? 0 })} />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item label="Chi phí Nhân công" style={{ marginBottom: 8 }}>
-                <InputNumber value={g.labor_amount} min={0} size="small" style={{ width: '100%' }}
-                  formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                  parser={v => Number(v?.replace(/,/g, '') || 0)}
-                  onChange={v => setGroup(i, { labor_amount: v ?? 0 })} />
+              <Form.Item label='Chi phí Nhân công' style={{ marginBottom: 8 }}>
+                <InputNumber value={g.labor_amount} min={0} size='small' style={{ width: '100%' }} formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} parser={v => Number(v?.replace(/,/g, '') || 0)} onChange={v => setGroup(i, { labor_amount: v ?? 0 })} />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item label="Chi phí khác" style={{ marginBottom: 8 }}>
-                <InputNumber value={g.other_amount} min={0} size="small" style={{ width: '100%' }}
-                  formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                  parser={v => Number(v?.replace(/,/g, '') || 0)}
-                  onChange={v => setGroup(i, { other_amount: v ?? 0 })} />
+              <Form.Item label='Chi phí khác' style={{ marginBottom: 8 }}>
+                <InputNumber value={g.other_amount} min={0} size='small' style={{ width: '100%' }} formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} parser={v => Number(v?.replace(/,/g, '') || 0)} onChange={v => setGroup(i, { other_amount: v ?? 0 })} />
               </Form.Item>
             </Col>
             <Col span={24}>
-              <Form.Item label="Ghi chú" style={{ marginBottom: 0 }}>
-                <Input value={g.note} size="small" onChange={e => setGroup(i, { note: e.target.value })} />
+              <Form.Item label='Ghi chú' style={{ marginBottom: 0 }}>
+                <Input value={g.note} size='small' onChange={e => setGroup(i, { note: e.target.value })} />
               </Form.Item>
             </Col>
           </Row>
+          <Divider style={{ margin: '12px 0' }} />
+          <Space direction='vertical' size={8} style={{ width: '100%' }}>
+            <Text strong>Bảng vật tư / nhân công chi tiết</Text>
+            {g.cost_basis_note ? <Alert type='info' showIcon message={g.cost_basis_note} /> : null}
+            {!(g.components?.length ?? 0) ? (
+              <Text type='secondary'>Chưa có dòng vật tư/nhân công chi tiết cho hạng mục này.</Text>
+            ) : (
+              <Table
+                dataSource={g.components ?? undefined}
+                rowKey={(_, idx) => String(idx)}
+                pagination={false}
+                size='small'
+                scroll={{ x: 1120 }}
+                columns={[
+                  { title: 'Loại', dataIndex: 'type', width: 90, render: (value: string) => <Tag color={typeColors[value] ?? 'default'}>{value ?? 'N/A'}</Tag> },
+                  { title: 'Tên vật tư / nhân công', width: 240, render: (_: unknown, row: NonNullable<IDirectCostGroupsItem['components']>[number]) => <Space direction='vertical' size={0}><Text strong>{row.item_name ?? row.note ?? 'Chưa có tên dòng chi phí'}</Text><Text type='secondary' style={{ fontSize: 11 }}>{[row.item_code, row.item_spec, row.brand_name].filter(Boolean).join(' | ') || 'Không có mã/spec'}</Text></Space> },
+                  { title: 'Nguồn', width: 170, render: (_: unknown, row: NonNullable<IDirectCostGroupsItem['components']>[number]) => <Space direction='vertical' size={0}><Tag>{sourceLabels[row.source_type ?? ''] ?? row.source_type ?? 'N/A'}</Tag><Text type='secondary' style={{ fontSize: 11 }}>{row.source_ref_label ?? '-'}</Text></Space> },
+                  { title: 'Định mức', width: 140, render: (_: unknown, row: NonNullable<IDirectCostGroupsItem['components']>[number]) => <Space direction='vertical' size={0}><Text>{row.quantity_per_unit ?? 1} / đơn vị</Text><Text type='secondary' style={{ fontSize: 11 }}>Quy mô áp dụng: {row.expanded_quantity ?? row.quantity ?? 0}</Text></Space> },
+                  { title: 'SL', dataIndex: 'quantity', width: 90, align: 'right' as const },
+                  { title: 'ĐVT', dataIndex: 'unit', width: 80 },
+                  { title: 'Đơn giá', dataIndex: 'unit_price', width: 130, align: 'right' as const, render: (value: number) => fmt(value ?? 0) },
+                  { title: 'Thành tiền', dataIndex: 'line_total', width: 130, align: 'right' as const, render: (value: number) => <Text strong>{fmt(value ?? 0)}</Text> },
+                  { title: 'Công thức tính', width: 220, render: (_: unknown, row: NonNullable<IDirectCostGroupsItem['components']>[number]) => <Space direction='vertical' size={0}>{row.formula_code ? <Text code>{row.formula_code}</Text> : null}{row.formula_snapshot ? <Text type='secondary' style={{ fontSize: 11 }}>{row.formula_snapshot}</Text> : null}</Space> },
+                  { title: 'Ghi chú', width: 180, render: (_: unknown, row: NonNullable<IDirectCostGroupsItem['components']>[number]) => <Space direction='vertical' size={0}>{row.note ? <Text style={{ fontSize: 12 }}>{row.note}</Text> : null}{row.cost_note ? <Text type='secondary' style={{ fontSize: 11 }}>{row.cost_note}</Text> : null}</Space> },
+                ]}
+              />
+            )}
+          </Space>
         </Card>
       ))}
-      <Button type="dashed" block icon={<PlusOutlined />} onClick={addGroup}>
+      <Button type='dashed' block icon={<PlusOutlined />} onClick={addGroup}>
         Thêm hạng mục
       </Button>
     </div>
   );
 };
-
-// ������ Main component ����������������������������������������������������������������������������������������������������������������������
 
 export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ journeyId }) => {
   const { journey, estimate, loading, saveEstimate, readinessScore, refresh } = useJourneyEstimateFlow(journeyId);
@@ -739,17 +1289,40 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
       .finally(() => setPolicyOptLoading(false));
   }, [isEditing]);
 
-  // Total = saved total_estimate_cost, or sum of buckets
-  const totalCost = estimate?.applied_quote_value
-    ?? estimate?.standardized_buckets?.reduce((a, b) => a + (b.amount || 0), 0)
-    ?? 0;
-  // Internal cost = everything except profit
-  const internalCost = estimate?.standardized_buckets
-    ?.filter(b => b.bucket_code !== '09_profit')
-    .reduce((s, b) => s + (b.amount || 0), 0)
-    ?? 0;
+  const currentBuckets = isEditing ? editBuckets : (estimate?.standardized_buckets ?? []);
+  const currentLabor = isEditing ? editLabor : estimate?.labor_breakdown;
+  const currentGroups = isEditing ? editGroups : (estimate?.direct_cost_groups ?? []);
+  const currentValidationResult = isEditing
+    ? (savedValidationResult ?? estimate?.validation_result ?? null)
+    : (estimate?.validation_result ?? null);
+  const currentQuoteDerivation = isEditing
+    ? (savedQuoteDerivation ?? estimate?.quote_derivation ?? null)
+    : (estimate?.quote_derivation ?? null);
+  const currentPolicyId = isEditing ? (editPolicyId ?? estimate?.pricing_policy_id ?? null) : (estimate?.pricing_policy_id ?? null);
+  const currentPolicyLabel = policyOptions.find(option => option.value === currentPolicyId)?.label
+    ?? (estimate as any)?.idx_pricing_policy_id?.title
+    ?? currentPolicyId
+    ?? null;
 
-  // ���� Edit lifecycle ��������������������������������������������������������������������������������������������������������������
+  const totalCost = isEditing
+    ? (editTotalCost ?? currentBuckets.reduce((sum, bucket) => sum + (bucket.amount || 0), 0))
+    : (estimate?.applied_quote_value
+      ?? estimate?.standardized_buckets?.reduce((a, b) => a + (b.amount || 0), 0)
+      ?? 0);
+
+  const internalCost = currentBuckets
+    .filter(bucket => bucket.bucket_code !== '09_profit')
+    .reduce((sum, bucket) => sum + (bucket.amount || 0), 0);
+
+  const currentProfitAmount = Math.max(0, totalCost - internalCost);
+  const readinessItems = [
+    { label: 'Thông tin mặt bằng', ok: !!journey?.area_m2 },
+    { label: 'Cấu trúc chi phí (Buckets)', ok: currentBuckets.length > 0 },
+    { label: 'Nhân công chi tiết', ok: !!currentLabor?.labor_total },
+    { label: 'Hạng mục vật tư', ok: currentGroups.length > 0 },
+  ];
+  const currentReadinessScore = Math.round((readinessItems.filter(item => item.ok).length / readinessItems.length) * 100);
+
   const handleStartEdit = () => {
     const existingBuckets = estimate?.standardized_buckets ?? [];
     setEditBuckets(
@@ -1054,9 +1627,9 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
         title={<Space><TeamOutlined /><Text strong>Nhân công chi tiết</Text></Space>}
       >
         {isEditing
-          ? <LaborEdit lb={editLabor} onChange={setEditLabor} />
+          ? <LaborEdit lb={editLabor} onChange={setEditLabor} allocations={savedRoleCostAllocations} roleSnapshot={savedJourneyRoleSnapshot} />
           : estimate?.labor_breakdown
-            ? <LaborView lb={estimate.labor_breakdown} />
+            ? <LaborView lb={estimate.labor_breakdown} allocations={estimate?.role_cost_allocations} roleSnapshot={estimate?.journey_role_snapshot} />
             : <Text type='secondary'>Chưa có dữ liệu nhân công. Nhấn Tiến hành dự toán để nhập.</Text>
         }
       </Card>
@@ -1083,8 +1656,8 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
       </Card>
 
       {/* 4. Summary + Readiness */}
-      <Row gutter={16}>
-        <Col span={12}>
+      <Row gutter={[16, 16]}>
+        <Col xs={24} lg={12}>
           <Card size="small"
             title={<Space><SafetyCertificateOutlined /><Text strong>Financial Bound</Text></Space>}
             style={{ height: '100%' }}>
@@ -1104,59 +1677,54 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Text type="secondary">Lợi nhuận (phần dư):</Text>
-                <Text strong style={{ color: (totalCost - internalCost) > 0 ? '#52c41a' : '#cf1322' }}>
-                  {fmt(Math.max(0, totalCost - internalCost))}
+                <Text strong style={{ color: currentProfitAmount > 0 ? '#52c41a' : '#cf1322' }}>
+                  {fmt(currentProfitAmount)}
                 </Text>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Text type="secondary">LN% thực tế:</Text>
-                <Text strong style={{ color: (estimate?.validation_result?.actual_profit_pct ?? 0) >= (estimate?.validation_result?.target_profit_pct_min ?? 15) ? '#52c41a' : '#cf1322' }}>
-                  {estimate?.validation_result?.actual_profit_pct ?? '-'}%
+                <Text strong style={{ color: (currentValidationResult?.actual_profit_pct ?? 0) >= (currentValidationResult?.target_profit_pct_min ?? 15) ? '#52c41a' : '#cf1322' }}>
+                  {currentValidationResult?.actual_profit_pct ?? '-'}%
                   <Text type="secondary" style={{ fontSize: 11, marginLeft: 4 }}>
-                    (mục tiêu: {estimate?.validation_result?.target_profit_pct_min ?? 15}%)
+                    (mục tiêu: {currentValidationResult?.target_profit_pct_min ?? 15}%)
                   </Text>
                 </Text>
               </div>
-              {estimate?.quote_derivation?.recommended_quote_value_initial != null
-                && estimate.quote_derivation.recommended_quote_value_initial !== totalCost && (
+              {currentQuoteDerivation?.recommended_quote_value_initial != null
+                && currentQuoteDerivation?.recommended_quote_value_initial !== totalCost && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 4, borderTop: '1px dashed #f0f0f0' }}>
                   <Text type='secondary' style={{ fontSize: 11 }}>Policy đề xuất:</Text>
                   <Text type="secondary" style={{ fontSize: 11 }}>
-                    {fmt(estimate.quote_derivation.recommended_quote_value_initial)}
+                    {fmt(currentQuoteDerivation?.recommended_quote_value_initial ?? 0)}
                   </Text>
                 </div>
               )}
-              {estimate?.pricing_policy_id && (
+              {currentPolicyId && (
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <Text type="secondary" style={{ fontSize: 11 }}>Policy:</Text>
                   <Tag color="geekblue" style={{ fontSize: 11 }}>
-                    {(estimate as any)?.idx_pricing_policy_id?.title ?? estimate.pricing_policy_id}
+                    {currentPolicyLabel}
                   </Tag>
                 </div>
               )}
-              {estimate?.validation_result?.warning_note && (
+              {currentValidationResult?.warning_note && (
                 <Alert type="warning" showIcon
-                  message={estimate.validation_result.warning_note}
+                  message={currentValidationResult?.warning_note}
                   style={{ marginTop: 4, fontSize: 11 }} />
               )}
             </Space>
           </Card>
         </Col>
-        <Col span={12}>
+        <Col xs={24} lg={12}>
           <Card size="small"
             title={<Space><CheckCircleOutlined /><Text strong>Readiness Score</Text></Space>}
             style={{ height: '100%' }}>
             <div style={{ textAlign: 'center', padding: '10px 0' }}>
-              <Progress type="dashboard" percent={readinessScore}
+              <Progress type="dashboard" percent={currentReadinessScore}
                 strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }} />
             </div>
             <List size="small" split={false}>
-              {[
-                { label: 'Thông tin mặt bằng',          ok: !!journey?.area_m2 },
-                { label: 'Cấu trúc chi phí (Buckets)',   ok: !!(estimate?.standardized_buckets?.length) },
-                { label: 'Nhân công chi tiết',           ok: !!(estimate?.labor_breakdown?.labor_total) },
-                { label: 'Hạng mục vật tư',              ok: !!(estimate?.direct_cost_groups?.length) },
-              ].map(row => (
+              {readinessItems.map(row => (
                 <List.Item key={row.label}>
                   <Space>
                     <CheckCircleOutlined style={{ color: row.ok ? '#52c41a' : '#d9d9d9' }} />
@@ -1171,7 +1739,7 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
 
       {/* 5. Audit */}
       <Card size="small" title={<Space><AuditOutlined /><Text strong>Audit Trail</Text></Space>}>
-        <Row gutter={16}>
+        <Row gutter={[16, 16]}>
           <Col span={12}>
             <Text type="secondary" style={{ fontSize: 12 }}>
               Cập nhật lần cuối: {(estimate as any)?.updatedTime
@@ -1192,6 +1760,15 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
 };
 
 export default Step04SolutionOrchestration;
+
+
+
+
+
+
+
+
+
 
 
 
