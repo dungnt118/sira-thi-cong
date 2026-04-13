@@ -51,6 +51,7 @@ on:
 
 jobs:
   build-and-push:
+    if: false  # Tạm tắt workflow này (để tránh build nhầm khi push); kích hoạt lại khi cần dùng
     runs-on: ubuntu-latest
     permissions:
       contents: read
