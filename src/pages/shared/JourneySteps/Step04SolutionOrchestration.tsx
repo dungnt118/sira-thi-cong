@@ -1,21 +1,21 @@
-/**
+﻿/**
  * Step04SolutionOrchestration
  *
  * Internal estimate (JourneyEstimate) for a journey:
- *   0. Estimation Config — pricing_policy_id + total_estimate_cost (edit-mode header)
+ *   0. Estimation Config - pricing_policy_id + total_estimate_cost (edit-mode header)
  *   1. 9 standardized cost buckets  (summary)
  *   2. Labor breakdown               (Nhân công chi tiết)
  *   3. Direct-cost groups            (Vật tư & hạng mục trực tiếp)
  *
  * Auto-calc rules:
- *   - pricing_policy_id selected  → compute total_estimate_cost automatically
- *   - total_estimate_cost provided → use as contractValue override
- *   - neither                      → auto-find policy (by serviceTypeId → is_default)
+ *   - pricing_policy_id selected  -> compute total_estimate_cost automatically
+ *   - total_estimate_cost provided -> use as contractValue override
+ *   - neither                      -> auto-find policy (by serviceTypeId -> is_default)
  *
  * All IJourneyEstimate fields are saved on submit.
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Alert, Button, Card, Col, Collapse, Divider, Form, Input,
   InputNumber, List, Popconfirm, Progress, Row, Select,
@@ -43,23 +43,34 @@ import {
 } from '@ant-design/icons';
 
 import { useJourneyEstimateFlow } from '../../../hooks/journey/useJourneyEstimateFlow';
+import { computeJourneyEstimateSolution } from './step04AutoSolution';
 import { estimatePricingPolicyService } from '../../../services/core-contracts/services/estimatePricingPolicy.service';
+import { estimateTemplateService } from '../../../services/core-contracts/services/estimateTemplate.service';
+import { materialService } from '../../../services/core-contracts/services/material.service';
+import { laborPriceConfigService } from '../../../services/core-contracts/services/laborPriceConfig.service';
 import type {
   IDirectCostGroupsItem,
   IJourneyEstimate,
+  IJourneyRoleSnapshotItem,
   ILaborBreakdownItem,
+  IRoleCostAllocationsItem,
   IStandardizedBucketsItem,
 } from '../../../services/core-contracts/types/journeyEstimate.types';
 import type { StandardizedBucketsBucketCodeEnum } from '../../../services/core-contracts/types/journeyEstimate.types';
 import type {
   IEstimatePricingPolicy,
   IAllocationPolicyItem,
+  ITemplateRulesItem,
 } from '../../../services/core-contracts/types/estimatePricingPolicy.types';
+import type { IEstimateTemplate, IEstimateTemplateComponentsItem } from '../../../services/core-contracts/types/estimateTemplate.types';
+import type { IMaterial } from '../../../services/core-contracts/types/material.types';
+import type { ILaborPriceConfig } from '../../../services/core-contracts/types/laborPriceConfig.types';
+import type { IJourney } from '../../../services/core-contracts/types/journey.types';
 
 const { Text, Title } = Typography;
 const { Panel } = Collapse;
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// Helpers
 
 const fmt = (v: number) =>
   new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(v || 0);
@@ -107,7 +118,7 @@ function recomputeLabor(lb: ILaborBreakdownItem): ILaborBreakdownItem {
   return { ...lb, labor_total: total };
 }
 
-// ─── Calculation engine ───────────────────────────────────────────────────────
+// ������ Calculation engine ��������������������������������������������������������������������������������������������������������������
 
 interface ComputeResult {
   buckets: IStandardizedBucketsItem[];
@@ -123,14 +134,14 @@ interface ComputeResult {
 /**
  * CORRECT calculation chain:
  *
- * Step 1 — MATERIALS (01): base_rate_m2 × area_m2 × complexity  [FIXED, independent of total]
- * Step 2 — LABOR (02): salary from execution_days + commissions % of materials  [FIXED, independent of total]
- * Step 3 — ALLOCATIONS (03-08): each % of their calc_base (direct_cost / labor / material / contract_value)
- *   • For contract_value-based: solve algebraically to avoid circular dependency
- * Step 4 — RECOMMENDED QUOTE: solve T = (fixed_costs) / (1 - cv_alloc_pct - target_profit_pct)
- * Step 5 — CONTRACT VALUE: use user's targetTotal if provided, else recommendedQuote
- * Step 6 — PROFIT (09): ALWAYS = contractValue - sum(01-08)  [residual, NOT a fixed %]
- * Step 7 — AUTO-GENERATE direct_cost_groups from area + rates
+ * Step 1 � MATERIALS (01): base_rate_m2 � area_m2 � complexity  [FIXED, independent of total]
+ * Step 2 � LABOR (02): salary from execution_days + commissions % of materials  [FIXED, independent of total]
+ * Step 3 � ALLOCATIONS (03-08): each % of their calc_base (direct_cost / labor / material / contract_value)
+ *   ⬢ For contract_value-based: solve algebraically to avoid circular dependency
+ * Step 4 � RECOMMENDED QUOTE: solve T = (fixed_costs) / (1 - cv_alloc_pct - target_profit_pct)
+ * Step 5 � CONTRACT VALUE: use user's targetTotal if provided, else recommendedQuote
+ * Step 6 � PROFIT (09): ALWAYS = contractValue - sum(01-08)  [residual, NOT a fixed %]
+ * Step 7 � AUTO-GENERATE direct_cost_groups from area + rates
  *
  * @param targetTotal  User-supplied total_estimate_cost override (changes profit only)
  */
@@ -144,7 +155,7 @@ function computeFromPolicy(
   const qsr = policy.quote_suggestion_rule;
   const lp  = policy.labor_policy;
 
-  // ── Complexity multiplier (scale applies only at very_difficult) ───────────
+  // ���� Complexity multiplier (scale applies only at very_difficult) ����������������������
   const complexityFactor     = qsr?.complexity_factor ?? 1;
   const scaleFactor          = qsr?.scale_factor ?? 1;
   const complexityMultiplier =
@@ -152,12 +163,12 @@ function computeFromPolicy(
     : complexity_level === 'difficult'    ? complexityFactor
     : 1;
 
-  // ── Step 1: MATERIALS — independent of total ─────────────────────────────
+  // ���� Step 1: MATERIALS � independent of total ����������������������������������������������������������
   // base_quote_rate_m2 represents the direct material cost rate per m²
   const baseRate         = qsr?.base_quote_rate_m2 ?? 0;
   const materialsAmount  = Math.round(baseRate * area_m2 * complexityMultiplier);
 
-  // ── Step 2: LABOR — independent of total ─────────────────────────────────
+  // ���� Step 2: LABOR � independent of total ������������������������������������������������������������������
   const workingDays     = lp?.working_days_per_month ?? 26;
   // Internal salary: prorated to execution_days
   const internalSalary  = Math.round(
@@ -177,10 +188,10 @@ function computeFromPolicy(
     supervisor_commission: supComm,
     outsource_labor:       0,
     labor_total:           laborTotal,
-    note: `Lương ${execution_days}ng: ${internalSalary.toLocaleString('vi-VN')}đ | KT ${lp?.technical_commission_pct ?? 0}%: ${techComm.toLocaleString('vi-VN')}đ | GS ${lp?.supervisor_commission_pct ?? 0}%: ${supComm.toLocaleString('vi-VN')}đ`,
+    note: `Lương ${execution_days}ng: ${internalSalary.toLocaleString('vi-VN')}� | KT ${lp?.technical_commission_pct ?? 0}%: ${techComm.toLocaleString('vi-VN')}� | GS ${lp?.supervisor_commission_pct ?? 0}%: ${supComm.toLocaleString('vi-VN')}�`,
   };
 
-  // ── Step 3a: ALLOCATIONS with known bases (not contract_value) ────────────
+  // ���� Step 3a: ALLOCATIONS with known bases (not contract_value) ������������������������
   const directCost = materialsAmount + laborTotal;
 
   interface AllocEntry { amount: number; note: string; pct: number }
@@ -194,12 +205,12 @@ function computeFromPolicy(
       case 'material_cost': base = materialsAmount; break;
       case 'labor_cost':    base = laborTotal;      break;
       case 'direct_cost':   base = directCost;      break;
-      default:              base = null; // contract_value — defer to step 3b
+      default:              base = null; // contract_value � defer to step 3b
     }
     if (base !== null) {
       alloc[ap.bucket_code] = {
         amount: Math.round(base * pct),
-        note:   ap.note ? ap.note : `${ap.default_rate_pct}% × ${ap.calc_base ?? 'direct_cost'}`,
+        note:   ap.note ? ap.note : `${ap.default_rate_pct}% � ${ap.calc_base ?? 'direct_cost'}`,
         pct,
       };
     }
@@ -207,7 +218,7 @@ function computeFromPolicy(
 
   const fixedAllocSum = Object.values(alloc).reduce((s, v) => s + v.amount, 0);
 
-  // ── Step 4: Solve for RECOMMENDED QUOTE ──────────────────────────────────
+  // ���� Step 4: Solve for RECOMMENDED QUOTE ��������������������������������������������������������������������
   // Sum of pct for contract_value-based allocations
   const cvAllocPct = (policy.allocation_policy ?? [])
     .filter(ap => ap.calc_base === 'contract_value' || (!ap.calc_base && ap.bucket_code))
@@ -215,12 +226,12 @@ function computeFromPolicy(
 
   const targetProfitPct     = (policy.profit_policy?.target_profit_pct_min ?? 15) / 100;
   const denominator         = 1 - cvAllocPct - targetProfitPct;
-  // T × denominator = directCost + fixedAllocSum → T = (directCost + fixedAllocSum) / denominator
+  // T � denominator = directCost + fixedAllocSum �  T = (directCost + fixedAllocSum) / denominator
   const recommendedQuote    = denominator > 0.01
     ? Math.round((directCost + fixedAllocSum) / denominator)
     : Math.round(directCost * 1.35); // safety fallback: 35% markup
 
-  // ── Step 3b: ALLOCATIONS with contract_value base ────────────────────────
+  // ���� Step 3b: ALLOCATIONS with contract_value base ������������������������������������������������
   // Use recommendedQuote as proxy for contract_value (best estimate before total is decided)
   const quoteForAlloc = (targetTotal && targetTotal > 0) ? targetTotal : recommendedQuote;
 
@@ -230,7 +241,7 @@ function computeFromPolicy(
       const pct = (ap.default_rate_pct ?? 0) / 100;
       alloc[ap.bucket_code] = {
         amount: Math.round(quoteForAlloc * pct),
-        note:   ap.note ? ap.note : `${ap.default_rate_pct}% × tổng hợp đồng`,
+        note:   ap.note ? ap.note : `${ap.default_rate_pct}% � t�"ng hợp ��ng`,
         pct,
       };
     }
@@ -238,17 +249,17 @@ function computeFromPolicy(
 
   const totalAllocSum = Object.values(alloc).reduce((s, v) => s + v.amount, 0);
 
-  // ── Step 5: CONTRACT VALUE ────────────────────────────────────────────────
+  // ���� Step 5: CONTRACT VALUE ������������������������������������������������������������������������������������������������
   const contractValue   = (targetTotal && targetTotal > 0) ? targetTotal : recommendedQuote;
   const totalInternalCost = materialsAmount + laborTotal + totalAllocSum;
 
-  // ── Step 6: PROFIT — always RESIDUAL ─────────────────────────────────────
+  // ���� Step 6: PROFIT � always RESIDUAL ��������������������������������������������������������������������������
   const profitAmount    = Math.max(0, contractValue - totalInternalCost);
   const actualProfitPct = contractValue > 0
     ? Math.round((profitAmount / contractValue) * 1000) / 10
     : 0;
 
-  // ── Step 7: BUILD BUCKETS with formula notes ──────────────────────────────
+  // ���� Step 7: BUILD BUCKETS with formula notes ������������������������������������������������������������
   const buckets: IStandardizedBucketsItem[] = BUCKET_CONFIGS.map((cfg, idx) => {
     let amount = 0;
     let note   = '';
@@ -256,13 +267,13 @@ function computeFromPolicy(
 
     if (cfg.code === '01_materials') {
       amount = materialsAmount;
-      note   = `${baseRate.toLocaleString('vi-VN')} đ/m² × ${area_m2}m² × hệ số ${complexityMultiplier.toFixed(2)}`;
+      note   = `${baseRate.toLocaleString('vi-VN')} �/m² � ${area_m2}m² � h�! s� ${complexityMultiplier.toFixed(2)}`;
     } else if (cfg.code === '02_labor_total') {
       amount = laborTotal;
       note   = labor.note ?? '';
     } else if (cfg.code === '09_profit') {
       amount = profitAmount;
-      note   = `${fmt(contractValue)} − chi phí ${fmt(totalInternalCost)} = ${fmt(profitAmount)} (${actualProfitPct}%)`;
+      note   = `${fmt(contractValue)} �� chi phí ${fmt(totalInternalCost)} = ${fmt(profitAmount)} (${actualProfitPct}%)`;
       formulaSource = 'residual';
     } else {
       const entry = alloc[cfg.code];
@@ -282,18 +293,18 @@ function computeFromPolicy(
     };
   });
 
-  // ── Step 8: AUTO-GENERATE direct_cost_groups ──────────────────────────────
+  // ���� Step 8: AUTO-GENERATE direct_cost_groups ������������������������������������������������������������
   const laborPerM2     = area_m2 > 0 ? Math.round(laborTotal / area_m2) : 0;
   const directCostGroups: IDirectCostGroupsItem[] = [
     {
-      name:            `Thi công tổng thể (${area_m2}m² - ${complexity_level ?? 'standard'})`,
+      name:            `Thi công t�"ng thỒ (${area_m2}m² - ${complexity_level ?? 'standard'})`,
       quantity:        area_m2,
       unit:            'm²',
       material_amount: baseRate,                    // per-unit rate
       labor_amount:    laborPerM2,                  // per-unit rate
       other_amount:    0,
       subtotal:        materialsAmount + laborTotal,
-      note:            `Policy: ${policy.name ?? policy.code} | Base: ${baseRate.toLocaleString('vi-VN')}đ/m²`,
+      note:            `Policy: ${policy.name ?? policy.code} | Base: ${baseRate.toLocaleString('vi-VN')}�/m²`,
       components: [
         {
           type:         'material' as const,
@@ -302,8 +313,8 @@ function computeFromPolicy(
           unit:         'm²',
           unit_price:   Math.round(baseRate * complexityMultiplier),
           line_total:   materialsAmount,
-          formula_code: `base_rate_m2 × area × complexity(${complexityMultiplier.toFixed(2)})`,
-          note:         `Vật tư thi công theo diện tích`,
+          formula_code: `base_rate_m2 � area � complexity(${complexityMultiplier.toFixed(2)})`,
+          note:         `Vật tư thi công theo di�!n tích`,
         },
         {
           type:         'labor' as const,
@@ -312,8 +323,8 @@ function computeFromPolicy(
           unit:         'ngày',
           unit_price:   execution_days > 0 ? Math.round(internalSalary / execution_days) : 0,
           line_total:   internalSalary,
-          formula_code: `salary / working_days × execution_days × allocation_factor`,
-          note:         `Lương nội bộ ${execution_days} ngày`,
+          formula_code: `salary / working_days � execution_days � allocation_factor`,
+          note:         `Lương n�"i b�" ${execution_days} ngày`,
         },
         ...(techComm > 0 ? [{
           type:         'labor' as const,
@@ -322,8 +333,8 @@ function computeFromPolicy(
           unit:         'm²',
           unit_price:   area_m2 > 0 ? Math.round(techComm / area_m2) : 0,
           line_total:   techComm,
-          formula_code: `materials × ${lp?.technical_commission_pct ?? 0}%`,
-          note:         `Hoa hồng Kỹ thuật`,
+          formula_code: `materials � ${lp?.technical_commission_pct ?? 0}%`,
+          note:         `Hoa h�ng Kỹ thuật`,
         }] : []),
         ...(supComm > 0 ? [{
           type:         'labor' as const,
@@ -332,14 +343,14 @@ function computeFromPolicy(
           unit:         'm²',
           unit_price:   area_m2 > 0 ? Math.round(supComm / area_m2) : 0,
           line_total:   supComm,
-          formula_code: `materials × ${lp?.supervisor_commission_pct ?? 0}%`,
-          note:         `Hoa hồng Giám sát`,
+          formula_code: `materials � ${lp?.supervisor_commission_pct ?? 0}%`,
+          note:         `Hoa h�ng Giám sát`,
         }] : []),
       ],
     },
   ];
 
-  // ── Derivation record ─────────────────────────────────────────────────────
+  // ���� Derivation record ����������������������������������������������������������������������������������������������������������
   const quoteDerivation: IJourneyEstimate['quote_derivation'] = {
     recommended_quote_value_initial: recommendedQuote,
     final_quote_floor:               qsr?.min_quote_floor ?? 0,
@@ -349,8 +360,8 @@ function computeFromPolicy(
     complexity_factor:               complexityMultiplier,
     pricing_mode:                    targetTotal ? 'target_quote_check' : 'profit_target_optimize',
     note: targetTotal
-      ? `Tổng kỳ vọng: ${fmt(targetTotal)} | Policy đề xuất: ${fmt(recommendedQuote)} | LN thực: ${actualProfitPct}%`
-      : `Policy: "${policy.name ?? policy.code}" | Đề xuất tối thiểu đạt LN ${(targetProfitPct * 100).toFixed(0)}%`,
+      ? `T�"ng kỳ vọng: ${fmt(targetTotal)} | Policy �ề xuất: ${fmt(recommendedQuote)} | LN thực: ${actualProfitPct}%`
+      : `Policy: "${policy.name ?? policy.code}" | Đề xuất t�i thiỒu �ạt LN ${(targetProfitPct * 100).toFixed(0)}%`,
   };
 
   const warningThreshold = policy.profit_policy?.warning_threshold_pct ?? (targetProfitPct * 100);
@@ -379,7 +390,7 @@ function computeFromPolicy(
   };
 }
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
+// ������ Sub-components ����������������������������������������������������������������������������������������������������������������������
 
 const BucketsViewGrid: React.FC<{ buckets: IStandardizedBucketsItem[] }> = ({ buckets }) => {
   const get = (code: string) => buckets.find(b => b.bucket_code === code);
@@ -548,7 +559,7 @@ const DirectCostView: React.FC<{ groups: IDirectCostGroupsItem[] }> = ({ groups 
           header={
             <Space>
               <Text strong>{g.name || `Hạng mục ${i + 1}`}</Text>
-              <Text type="secondary" style={{ fontSize: 12 }}>×{g.quantity ?? 1} {g.unit}</Text>
+              <Text type='secondary' style={{ fontSize: 12 }}>×{g.quantity ?? 1} {g.unit}</Text>
               <Tag color="blue">{fmt(g.subtotal ?? 0)}</Tag>
             </Space>
           }
@@ -627,13 +638,13 @@ const DirectCostEdit: React.FC<{
               </Form.Item>
             </Col>
             <Col span={7}>
-              <Form.Item label="Số lượng" style={{ marginBottom: 8 }}>
+              <Form.Item label='Số lượng' style={{ marginBottom: 8 }}>
                 <InputNumber value={g.quantity} min={0} size="small" style={{ width: '100%' }}
                   onChange={v => setGroup(i, { quantity: v ?? 0 })} />
               </Form.Item>
             </Col>
             <Col span={7}>
-              <Form.Item label="Đơn vị" style={{ marginBottom: 8 }}>
+              <Form.Item label='Đơn vị' style={{ marginBottom: 8 }}>
                 <Input value={g.unit} size="small" onChange={e => setGroup(i, { unit: e.target.value })} />
               </Form.Item>
             </Col>
@@ -676,24 +687,28 @@ const DirectCostEdit: React.FC<{
   );
 };
 
-// ─── Main component ───────────────────────────────────────────────────────────
+// ������ Main component ����������������������������������������������������������������������������������������������������������������������
 
 export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ journeyId }) => {
   const { journey, estimate, loading, saveEstimate, readinessScore, refresh } = useJourneyEstimateFlow(journeyId);
 
-  // ── Edit state ───────────────────────────────────────────────────────────
+  // ���� Edit state ����������������������������������������������������������������������������������������������������������������������
   const [isEditing,          setIsEditing]          = useState(false);
   const [editBuckets,        setEditBuckets]         = useState<IStandardizedBucketsItem[]>([]);
   const [editLabor,          setEditLabor]           = useState<ILaborBreakdownItem>(EMPTY_LABOR);
   const [editGroups,         setEditGroups]          = useState<IDirectCostGroupsItem[]>([]);
 
-  // Estimation Config — top section
+  // Estimation Config � top section
   const [editPolicyId,       setEditPolicyId]        = useState<string | null>(null);
   const [editTotalCost,      setEditTotalCost]        = useState<number | null>(null);
 
   // Computed metadata preserved for save
   const [savedQuoteDerivation,  setSavedQuoteDerivation]  = useState<IJourneyEstimate['quote_derivation'] | null>(null);
   const [savedValidationResult, setSavedValidationResult] = useState<IJourneyEstimate['validation_result'] | null>(null);
+  const [savedJourneyInputSnapshot, setSavedJourneyInputSnapshot] = useState<IJourneyEstimate['journey_input_snapshot'] | null>(null);
+  const [savedJourneyRoleSnapshot, setSavedJourneyRoleSnapshot] = useState<IJourneyEstimate['journey_role_snapshot'] | null>(null);
+  const [savedRoleCostAllocations, setSavedRoleCostAllocations] = useState<IRoleCostAllocationsItem[] | null>(null);
+  const [savedSolutionResolution, setSavedSolutionResolution] = useState<IJourneyEstimate['solution_resolution'] | null>(null);
 
   const [isAutoCalcing,      setIsAutoCalcing]        = useState(false);
   const [autoCalcNote,       setAutoCalcNote]         = useState<string | null>(null);
@@ -702,7 +717,7 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
   const [policyOptions,      setPolicyOptions]        = useState<{ label: string; value: string }[]>([]);
   const [policyOptLoading,   setPolicyOptLoading]     = useState(false);
 
-  // ── Load policy options ──────────────────────────────────────────────────
+  // ���� Load policy options ����������������������������������������������������������������������������������������������������
   useEffect(() => {
     if (!isEditing) return;
     setPolicyOptLoading(true);
@@ -725,7 +740,7 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
   }, [isEditing]);
 
   // Total = saved total_estimate_cost, or sum of buckets
-  const totalCost = estimate?.total_estimate_cost
+  const totalCost = estimate?.applied_quote_value
     ?? estimate?.standardized_buckets?.reduce((a, b) => a + (b.amount || 0), 0)
     ?? 0;
   // Internal cost = everything except profit
@@ -734,7 +749,7 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
     .reduce((s, b) => s + (b.amount || 0), 0)
     ?? 0;
 
-  // ── Edit lifecycle ───────────────────────────────────────────────────────
+  // ���� Edit lifecycle ��������������������������������������������������������������������������������������������������������������
   const handleStartEdit = () => {
     const existingBuckets = estimate?.standardized_buckets ?? [];
     setEditBuckets(
@@ -746,9 +761,13 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
     setEditLabor(estimate?.labor_breakdown ? { ...estimate.labor_breakdown } : { ...EMPTY_LABOR });
     setEditGroups(estimate?.direct_cost_groups ? estimate.direct_cost_groups.map(g => ({ ...g })) : []);
     setEditPolicyId(estimate?.pricing_policy_id ?? null);
-    setEditTotalCost(estimate?.total_estimate_cost ?? null);
+    setEditTotalCost(estimate?.applied_quote_value ?? null);
     setSavedQuoteDerivation(estimate?.quote_derivation ?? null);
     setSavedValidationResult(estimate?.validation_result ?? null);
+    setSavedJourneyInputSnapshot(estimate?.journey_input_snapshot ?? null);
+    setSavedJourneyRoleSnapshot(estimate?.journey_role_snapshot ?? null);
+    setSavedRoleCostAllocations(estimate?.role_cost_allocations ? estimate.role_cost_allocations.map(item => ({ ...item })) : null);
+    setSavedSolutionResolution(estimate?.solution_resolution ?? null);
     setAutoCalcNote(null);
     setIsEditing(true);
   };
@@ -762,137 +781,138 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
     setEditTotalCost(null);
     setSavedQuoteDerivation(null);
     setSavedValidationResult(null);
+    setSavedJourneyInputSnapshot(null);
+    setSavedJourneyRoleSnapshot(null);
+    setSavedRoleCostAllocations(null);
+    setSavedSolutionResolution(null);
     setAutoCalcNote(null);
   };
 
   const handleSave = async () => {
     const computedTotal = editBuckets.reduce((s, b) => s + (b.amount || 0), 0);
-
-    // Build journey_input_snapshot from current journey fields
-    const journeyInputSnapshot: IJourneyEstimate['journey_input_snapshot'] = {
-      service_type_id:          journey?.serviceTypeId,
-      area_m2:                  journey?.area_m2,
-      execution_days:           journey?.execution_days,
-      project_complexity_factor:
-        journey?.complexity_level === 'very_difficult' ? 1.5
-        : journey?.complexity_level === 'difficult'    ? 1.2
-        : 1,
-    };
-
+    const computedInternalCost = editBuckets
+      .filter(b => b.bucket_code !== '09_profit')
+      .reduce((s, b) => s + (b.amount || 0), 0);
     const payload: Partial<IJourneyEstimate> = {
-      pricing_policy_id:    editPolicyId ?? undefined,
-      total_estimate_cost:  editTotalCost ?? computedTotal,
-      journey_input_snapshot: journeyInputSnapshot,
-      quote_derivation:     savedQuoteDerivation ?? undefined,
-      validation_result:    savedValidationResult ?? {
-        is_feasible:           true,
+      pricing_policy_id: editPolicyId ?? undefined,
+      total_estimate_cost: computedInternalCost,
+      applied_quote_value: editTotalCost ?? computedTotal,
+      journey_input_snapshot: savedJourneyInputSnapshot ?? estimate?.journey_input_snapshot ?? undefined,
+      journey_role_snapshot: savedJourneyRoleSnapshot ?? estimate?.journey_role_snapshot ?? undefined,
+      role_cost_allocations: savedRoleCostAllocations ?? estimate?.role_cost_allocations ?? undefined,
+      solution_resolution: savedSolutionResolution ?? estimate?.solution_resolution ?? undefined,
+      quote_derivation: savedQuoteDerivation ?? estimate?.quote_derivation ?? undefined,
+      validation_result: savedValidationResult ?? estimate?.validation_result ?? {
+        is_feasible: true,
         target_profit_pct_min: 15,
-        actual_profit_pct:     0,
-        warning_codes:         [],
+        actual_profit_pct: 0,
+        warning_codes: [],
       },
       standardized_buckets: editBuckets,
-      labor_breakdown:      editLabor,
-      direct_cost_groups:   editGroups,
+      labor_breakdown: editLabor,
+      direct_cost_groups: editGroups,
     };
 
     await saveEstimate(payload);
     setIsEditing(false);
   };
 
-  // ── Auto-calc engine ─────────────────────────────────────────────────────
+  // ���� Auto-calc engine ����������������������������������������������������������������������������������������������������������
   /**
    * Fetches the right policy then runs computeFromPolicy.
-   * Respects the priority: editPolicyId → serviceTypeId → is_default.
+   * Respects the priority: editPolicyId �  serviceTypeId �  is_default.
    * If editTotalCost is set, passes it as targetTotal override.
    */
   const runAutoCalc = useCallback(async (policyIdOverride?: string | null, totalOverride?: number | null) => {
     if (!journey?.area_m2 || !journey?.execution_days) {
-      antMessage.warning('Cần nhập Diện tích và Số ngày thi công trước khi tính tự động.');
+      antMessage.warning('Can nhap Dien tich va So ngay thi cong truoc khi tinh tu dong.');
       return;
     }
     setIsAutoCalcing(true);
     try {
       let policy: IEstimatePricingPolicy | null = null;
+      let resolvedPolicyMode: NonNullable<IJourneyEstimate['solution_resolution']>['policy_resolution_mode'] = 'global_default';
       const resolvedPolicyId = policyIdOverride ?? editPolicyId;
 
       if (resolvedPolicyId) {
-        // Fetch by explicit policy id
         try {
           policy = await estimatePricingPolicyService.findContent(resolvedPolicyId);
+          resolvedPolicyMode = 'explicit_policy';
         } catch {
           policy = null;
         }
       }
 
       if (!policy && journey.serviceTypeId) {
-        const r = await estimatePricingPolicyService.queryContent({
+        const response = await estimatePricingPolicyService.queryContent({
           group: { op: 'AND', children: [
             { id: 'service_type_id', operation: '==', value: journey.serviceTypeId, children: [] },
-            { id: 'status',         operation: '==', value: 'active',              children: [] },
+            { id: 'status', operation: '==', value: 'active', children: [] },
           ]},
-          sorted: [{ id: 'createdTime', desc: true }], limit: 1,
+          sorted: [{ id: 'createdTime', desc: true }],
+          limit: 1,
         } as any);
-        policy = r?.data?.[0] ?? null;
-        if (policy && !resolvedPolicyId) {
-          setEditPolicyId(policy._id);
+        policy = response?.data?.[0] ?? null;
+        if (policy) {
+          resolvedPolicyMode = 'service_default';
+          if (!resolvedPolicyId) setEditPolicyId(policy._id);
         }
       }
 
       if (!policy) {
-        const r = await estimatePricingPolicyService.queryContent({
+        const response = await estimatePricingPolicyService.queryContent({
           group: { op: 'AND', children: [
-            { id: 'is_default', operation: '==', value: true,     children: [] },
-            { id: 'status',     operation: '==', value: 'active', children: [] },
-          ]}, limit: 1,
+            { id: 'is_default', operation: '==', value: true, children: [] },
+            { id: 'status', operation: '==', value: 'active', children: [] },
+          ]},
+          limit: 1,
         } as any);
-        policy = r?.data?.[0] ?? null;
+        policy = response?.data?.[0] ?? null;
         if (policy && !resolvedPolicyId) {
           setEditPolicyId(policy._id);
         }
       }
 
       if (!policy) {
-        antMessage.error('Không tìm thấy chính sách giá. Kiểm tra Cấu hình → Chính sách giá.');
+        antMessage.error('Khong tim thay chinh sach gia. Kiem tra Cau hinh > Chinh sach gia.');
         return;
       }
 
-      const resolvedTotal = totalOverride ?? editTotalCost ?? undefined;
-      const result = computeFromPolicy(
+      const overrideQuoteValue = totalOverride ?? editTotalCost ?? undefined;
+      const result = await computeJourneyEstimateSolution({
+        journey,
         policy,
-        journey.area_m2,
-        journey.execution_days,
-        journey.complexity_level,
-        resolvedTotal && resolvedTotal > 0 ? resolvedTotal : undefined,
-      );
+        currentEstimate: estimate,
+        appliedQuoteValueOverride: overrideQuoteValue && overrideQuoteValue > 0 ? overrideQuoteValue : undefined,
+        policyResolutionMode: resolvedPolicyMode,
+      });
 
-      setEditBuckets(result.buckets);
-      setEditLabor(result.labor);
-      // Auto-populate direct_cost_groups only if currently empty (don't overwrite user's manual entries)
-      setEditGroups(prev => prev.length === 0 ? result.directCostGroups : prev);
-      setSavedQuoteDerivation(result.quoteDerivation);
-      setSavedValidationResult(result.validationResult);
+      setEditBuckets(result.standardizedBuckets);
+      setEditLabor(result.laborBreakdown);
+      setEditGroups(result.directCostGroups);
+      setEditTotalCost(result.appliedQuoteValue);
+      setSavedQuoteDerivation(result.quoteDerivation ?? null);
+      setSavedValidationResult(result.validationResult ?? null);
+      setSavedJourneyInputSnapshot(result.journeyInputSnapshot ?? null);
+      setSavedJourneyRoleSnapshot(result.journeyRoleSnapshot ?? null);
+      setSavedRoleCostAllocations(result.roleCostAllocations ?? null);
+      setSavedSolutionResolution(result.solutionResolution ?? null);
 
-      // Sync total_estimate_cost from computation if not user-overridden
-      if (!resolvedTotal || resolvedTotal === 0) {
-        setEditTotalCost(result.contractValue);
-      }
-
-      const profitPct = result.validationResult?.actual_profit_pct ?? 0;
-      const profitAmt = result.buckets.find(b => b.bucket_code === '09_profit')?.amount ?? 0;
       const noteLines = [
-        `Tính từ policy "${result.policyName}"`,
-        `Đề xuất tối ưu: ${fmt(result.recommendedQuote)} | Tổng áp dụng: ${fmt(result.contractValue)}`,
-        `Vật tư: ${fmt(result.buckets.find(b => b.bucket_code === '01_materials')?.amount ?? 0)} | Nhân công: ${fmt(result.labor.labor_total ?? 0)} | Lợi nhuận: ${fmt(profitAmt)} (${profitPct}%)`,
+        'Policy: ' + String(policy.name ?? policy.code ?? policy._id),
+        'Resolved templates: ' + String(result.selectedTemplateCount),
+        'Internal cost: ' + fmt(result.internalCost) + ' | Applied quote: ' + fmt(result.appliedQuoteValue),
+        'Recommended quote: ' + fmt(result.recommendedQuote),
       ];
       setAutoCalcNote(noteLines.join('\n'));
     } catch (err) {
-      antMessage.error('Lỗi khi tính: ' + (err instanceof Error ? err.message : 'Unknown'));
+      antMessage.error('Loi khi tinh: ' + (err instanceof Error ? err.message : 'Unknown'));
     } finally {
       setIsAutoCalcing(false);
     }
-  }, [journey, editPolicyId, editTotalCost]);
+  }, [journey, editPolicyId, editTotalCost, estimate]);
 
-  // When policy is selected → auto-calc immediately
+  // When policy is selected �  auto-calc immediately
   const handlePolicyChange = (policyId: string | null) => {
     setEditPolicyId(policyId);
     if (policyId) {
@@ -900,14 +920,14 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
     }
   };
 
-  // When total cost is changed → re-run calc with new total as override
+  // When total cost is changed �  re-run calc with new total as override
   const handleTotalCostChange = (val: number | null) => {
     setEditTotalCost(val);
   };
 
   const isInputReady = !!(journey?.area_m2 && journey?.execution_days);
 
-  // ── Toolbar ──────────────────────────────────────────────────────────────
+  // ���� Toolbar ����������������������������������������������������������������������������������������������������������������������������
   const toolbar = !isEditing ? (
     <Space>
       <Button size="small" icon={<SyncOutlined spin={loading} />} onClick={refresh}>Refresh</Button>
@@ -930,11 +950,11 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
     </Space>
   );
 
-  // ── Render ───────────────────────────────────────────────────────────────
+  // Render
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-      {/* 0. Estimation Config — only shown in edit mode */}
+      {/* 0. Estimation Config - only shown in edit mode */}
       {isEditing && (
         <Card
           size="small"
@@ -952,7 +972,7 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
               <Form.Item
                 label={<Text strong>Chọn chính sách tính giá dự toán</Text>}
                 style={{ marginBottom: 0 }}
-                extra={<Text type="secondary" style={{ fontSize: 11 }}>Chọn policy → hệ thống tự động tính toán phân bổ chi phí</Text>}
+                extra={<Text type='secondary' style={{ fontSize: 11 }}>Chọn policy để hệ thống tự động tính toán phân bổ chi phí</Text>}
               >
                 <Select
                   allowClear
@@ -972,15 +992,15 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
             </Col>
             <Col span={8}>
               <Form.Item
-                label={<Text strong>Tổng giá dự toán kỳ vọng (VNĐ)</Text>}
+                label={<Text strong>Giá trị chào áp dụng (VND)</Text>}
                 style={{ marginBottom: 0 }}
-                extra={<Text type="secondary" style={{ fontSize: 11 }}>Nhập để ghi đè giá tự động tính từ policy</Text>}
+                extra={<Text type='secondary' style={{ fontSize: 11 }}>Nhập để ghi đè giá tự động tính từ policy</Text>}
               >
                 <InputNumber
                   value={editTotalCost ?? undefined}
                   min={0}
                   style={{ width: '100%' }}
-                  placeholder="Để trống → tự tính"
+                  placeholder='Để trống -> tự tính'
                   formatter={v => v ? `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : ''}
                   parser={v => Number(v?.replace(/,/g, '') || 0)}
                   onChange={handleTotalCostChange}
@@ -1016,7 +1036,7 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
         </Card>
       )}
 
-      {/* 1. Cost Partition — 9 Buckets */}
+      {/* 1. Cost Partition - 9 Buckets */}
       <Card
         size="small"
         title={<Space><BarChartOutlined /><Text strong>Cost Partition (9 Buckets)</Text></Space>}
@@ -1037,7 +1057,7 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
           ? <LaborEdit lb={editLabor} onChange={setEditLabor} />
           : estimate?.labor_breakdown
             ? <LaborView lb={estimate.labor_breakdown} />
-            : <Text type="secondary">Chưa có dữ liệu nhân công. Nhấn "Tiến hành dự toán" để nhập.</Text>
+            : <Text type='secondary'>Chưa có dữ liệu nhân công. Nhấn Tiến hành dự toán để nhập.</Text>
         }
       </Card>
 
@@ -1058,7 +1078,7 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
           ? <DirectCostEdit groups={editGroups} onChange={setEditGroups} />
           : estimate?.direct_cost_groups?.length
             ? <DirectCostView groups={estimate.direct_cost_groups} />
-            : <Text type="secondary">Chưa có hạng mục. Nhấn "Tiến hành dự toán" để nhập.</Text>
+            : <Text type='secondary'>Chưa có hạng mục. Nhấn Tiến hành dự toán để nhập.</Text>
         }
       </Card>
 
@@ -1069,7 +1089,7 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
             title={<Space><SafetyCertificateOutlined /><Text strong>Financial Bound</Text></Space>}
             style={{ height: '100%' }}>
             <Statistic
-              title="Tổng giá trị dự toán (Báo giá)"
+              title='Tổng giá trị dự toán (Báo giá)'
               value={totalCost}
               precision={0}
               valueStyle={{ color: '#cf1322' }}
@@ -1079,7 +1099,7 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
             <Divider style={{ margin: '10px 0' }} />
             <Space direction="vertical" style={{ width: '100%' }} size={6}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Text type="secondary">Chi phí nội bộ (01-08):</Text>
+                <Text type='secondary'>Chi phí nội bộ (01-08):</Text>
                 <Text strong>{fmt(internalCost)}</Text>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -1091,7 +1111,7 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Text type="secondary">LN% thực tế:</Text>
                 <Text strong style={{ color: (estimate?.validation_result?.actual_profit_pct ?? 0) >= (estimate?.validation_result?.target_profit_pct_min ?? 15) ? '#52c41a' : '#cf1322' }}>
-                  {estimate?.validation_result?.actual_profit_pct ?? '—'}%
+                  {estimate?.validation_result?.actual_profit_pct ?? '-'}%
                   <Text type="secondary" style={{ fontSize: 11, marginLeft: 4 }}>
                     (mục tiêu: {estimate?.validation_result?.target_profit_pct_min ?? 15}%)
                   </Text>
@@ -1100,7 +1120,7 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
               {estimate?.quote_derivation?.recommended_quote_value_initial != null
                 && estimate.quote_derivation.recommended_quote_value_initial !== totalCost && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 4, borderTop: '1px dashed #f0f0f0' }}>
-                  <Text type="secondary" style={{ fontSize: 11 }}>Policy đề xuất:</Text>
+                  <Text type='secondary' style={{ fontSize: 11 }}>Policy đề xuất:</Text>
                   <Text type="secondary" style={{ fontSize: 11 }}>
                     {fmt(estimate.quote_derivation.recommended_quote_value_initial)}
                   </Text>
@@ -1172,3 +1192,22 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
 };
 
 export default Step04SolutionOrchestration;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,4 +1,4 @@
-import type { HeadlessReferenceContent, IndexedContentItem } from 'types/apis';
+﻿import type { HeadlessReferenceContent, IndexedContentItem } from 'types/apis';
 import type { ApiListResponse, ApiResponse } from 'types/apis/ApiResponse';
 import type { HeadlessFileUpload } from 'types/apis/HeadlessFileUpload';
 
@@ -16,6 +16,7 @@ export interface IJourneyEstimate {
   pricing_policy_id?: string;
   idx_pricing_policy_id?: IndexedContentItem;
   total_estimate_cost?: number;
+  applied_quote_value?: number;
   version_no?: number;
   status?: JourneyEstimateStatusEnum;
   journey_input_snapshot?: IJourneyInputSnapshotItem;
@@ -26,6 +27,7 @@ export interface IJourneyEstimate {
   validation_result?: IValidationResultItem;
   role_cost_allocations?: IRoleCostAllocationsItem[];
   journey_role_snapshot?: IJourneyRoleSnapshotItem;
+  solution_resolution?: ISolutionResolutionItem;
 }
 
 export interface IJourneyInputSnapshotItem {
@@ -148,12 +150,22 @@ export interface IJourneyRoleSnapshotItem {
   technical_users?: any;
 }
 
+export interface ISolutionResolutionItem {
+  resolved_scale_type?: SolutionResolutionResolvedScaleTypeEnum;
+  policy_resolution_mode?: SolutionResolutionPolicyResolutionModeEnum;
+  policy_resolution_note?: string;
+  generation_status?: SolutionResolutionGenerationStatusEnum;
+  calc_engine_version?: string;
+  template_selection_note?: string;
+}
+
 export interface ICreateJourneyEstimateInput {
   code?: string;
   journey_id?: string;
   survey_record_id?: string;
   pricing_policy_id?: string;
   total_estimate_cost?: number;
+  applied_quote_value?: number;
   version_no?: number;
   status?: JourneyEstimateStatusEnum2;
   journey_input_snapshot?: IJourneyInputSnapshotItem;
@@ -164,6 +176,7 @@ export interface ICreateJourneyEstimateInput {
   validation_result?: IValidationResultItem;
   role_cost_allocations?: IRoleCostAllocationsItem[];
   journey_role_snapshot?: IJourneyRoleSnapshotItem;
+  solution_resolution?: ISolutionResolutionItem;
 }
 
 export type IJourneyEstimateListResponse = ApiListResponse<IJourneyEstimate>
@@ -179,4 +192,9 @@ export type ComponentsSourceTypeEnum = 'material_master' | 'labor_price_config' 
 export type RoleCostAllocationsBucketCodeEnum = '02_labor_total' | '06_sales_cost' | '07_management_cost';
 export type RoleCostAllocationsRoleCodeEnum = 'outsource' | 'technical' | 'supervisor' | 'sale' | 'pm' | 'owner_admin' | 'internal_support';
 export type RoleCostAllocationsCalcModeEnum = 'salary_allocation' | 'commission_pct' | 'daily_rate' | 'fixed_amount' | 'manual';
+export type SolutionResolutionResolvedScaleTypeEnum = 'small' | 'medium' | 'large' | 'custom';
+export type SolutionResolutionPolicyResolutionModeEnum = 'explicit_policy' | 'service_default' | 'global_default';
+export type SolutionResolutionGenerationStatusEnum = 'ready' | 'partial' | 'failed' | 'manual_adjusted';
 export type JourneyEstimateStatusEnum2 = 'draft' | 'reviewing' | 'approved' | 'superseded';
+
+
