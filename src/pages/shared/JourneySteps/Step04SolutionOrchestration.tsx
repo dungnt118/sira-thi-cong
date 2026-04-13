@@ -132,7 +132,7 @@ const ROLE_CALC_MODE_LABELS: Record<string, string> = {
   salary_allocation: "Phân bổ lương",
   commission_pct: "Hoa hồng %",
   daily_rate: "Đơn giá ngày công",
-  fixed_amount: "Khoán cố định",
+  fixed_amount: "Khoản cố định",
   manual: "Thủ công",
 };
 
@@ -261,6 +261,7 @@ const LaborAllocationTable: React.FC<{
           size="small"
           bordered
           pagination={false}
+          scroll={{ x: 980 }}
           columns={[
             {
               title: "Vai trò",
@@ -331,7 +332,7 @@ const LaborAllocationTable: React.FC<{
   );
 };
 
-// ������ Calculation engine ��������������������������������������������������������������������������������������������������������������
+// Direct-cost components
 
 const getComponentDisplayName = (component: NonNullable<IDirectCostGroupsItem["components"]>[number]) => {
   const materialLabel = (component.idx_material_id as any)?.title;
@@ -354,6 +355,7 @@ const DirectCostComponentsTable: React.FC<{ group: IDirectCostGroupsItem }> = ({
           size="small"
           bordered
           pagination={false}
+          scroll={{ x: 1180 }}
           columns={[
             {
               title: "Loại",
@@ -460,14 +462,14 @@ interface ComputeResult {
 /**
  * CORRECT calculation chain:
  *
- * Step 1 � MATERIALS (01): base_rate_m2 � area_m2 � complexity  [FIXED, independent of total]
- * Step 2 � LABOR (02): salary from execution_days + commissions % of materials  [FIXED, independent of total]
- * Step 3 � ALLOCATIONS (03-08): each % of their calc_base (direct_cost / labor / material / contract_value)
+ * Step 1 — MATERIALS (01): base_rate_m2 � area_m2 � complexity  [FIXED, independent of total]
+ * Step 2 — LABOR (02): salary from execution_days + commissions % of materials  [FIXED, independent of total]
+ * Step 3 — ALLOCATIONS (03-08): each % of their calc_base (direct_cost / labor / material / contract_value)
  *   ⬢ For contract_value-based: solve algebraically to avoid circular dependency
- * Step 4 � RECOMMENDED QUOTE: solve T = (fixed_costs) / (1 - cv_alloc_pct - target_profit_pct)
- * Step 5 � CONTRACT VALUE: use user's targetTotal if provided, else recommendedQuote
- * Step 6 � PROFIT (09): ALWAYS = contractValue - sum(01-08)  [residual, NOT a fixed %]
- * Step 7 � AUTO-GENERATE direct_cost_groups from area + rates
+ * Step 4 — RECOMMENDED QUOTE: solve T = (fixed_costs) / (1 - cv_alloc_pct - target_profit_pct)
+ * Step 5 — CONTRACT VALUE: use user's targetTotal if provided, else recommendedQuote
+ * Step 6 — PROFIT (09): ALWAYS = contractValue - sum(01-08)  [residual, NOT a fixed %]
+ * Step 7 — AUTO-GENERATE direct_cost_groups from area + rates
  *
  * @param targetTotal  User-supplied total_estimate_cost override (changes profit only)
  */
@@ -481,7 +483,7 @@ function computeFromPolicy(
   const qsr = policy.quote_suggestion_rule;
   const lp  = policy.labor_policy;
 
-  // ���� Complexity multiplier (scale applies only at very_difficult) ����������������������
+  // —�—� Complexity multiplier (scale applies only at very_difficult) —�—�—�—�—�—�—�—�—�—�—�
   const complexityFactor     = qsr?.complexity_factor ?? 1;
   const scaleFactor          = qsr?.scale_factor ?? 1;
   const complexityMultiplier =
@@ -489,12 +491,12 @@ function computeFromPolicy(
     : complexity_level === 'difficult'    ? complexityFactor
     : 1;
 
-  // ���� Step 1: MATERIALS � independent of total ����������������������������������������������������������
+  // —�—� Step 1: MATERIALS — independent of total —�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�
   // base_quote_rate_m2 represents the direct material cost rate per m²
   const baseRate         = qsr?.base_quote_rate_m2 ?? 0;
   const materialsAmount  = Math.round(baseRate * area_m2 * complexityMultiplier);
 
-  // ���� Step 2: LABOR � independent of total ������������������������������������������������������������������
+  // —�—� Step 2: LABOR — independent of total —�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�
   const workingDays     = lp?.working_days_per_month ?? 26;
   // Internal salary: prorated to execution_days
   const internalSalary  = Math.round(
@@ -514,10 +516,10 @@ function computeFromPolicy(
     supervisor_commission: supComm,
     outsource_labor:       0,
     labor_total:           laborTotal,
-    note: `Lương ${execution_days}ng: ${internalSalary.toLocaleString('vi-VN')}� | KT ${lp?.technical_commission_pct ?? 0}%: ${techComm.toLocaleString('vi-VN')}� | GS ${lp?.supervisor_commission_pct ?? 0}%: ${supComm.toLocaleString('vi-VN')}�`,
+    note: `Lương ${execution_days} ngày: ${internalSalary.toLocaleString('vi-VN')}đ | KT ${lp?.technical_commission_pct ?? 0}%: ${techComm.toLocaleString('vi-VN')}đ | GS ${lp?.supervisor_commission_pct ?? 0}%: ${supComm.toLocaleString('vi-VN')}đ`,
   };
 
-  // ���� Step 3a: ALLOCATIONS with known bases (not contract_value) ������������������������
+  // —�—� Step 3a: ALLOCATIONS with known bases (not contract_value) —�—�—�—�—�—�—�—�—�—�—�—�
   const directCost = materialsAmount + laborTotal;
 
   interface AllocEntry { amount: number; note: string; pct: number }
@@ -531,12 +533,12 @@ function computeFromPolicy(
       case 'material_cost': base = materialsAmount; break;
       case 'labor_cost':    base = laborTotal;      break;
       case 'direct_cost':   base = directCost;      break;
-      default:              base = null; // contract_value � defer to step 3b
+      default:              base = null; // contract_value — defer to step 3b
     }
     if (base !== null) {
       alloc[ap.bucket_code] = {
         amount: Math.round(base * pct),
-        note:   ap.note ? ap.note : `${ap.default_rate_pct}% � ${ap.calc_base ?? 'direct_cost'}`,
+        note:   ap.note ? ap.note : `${ap.default_rate_pct}% × ${ap.calc_base ?? 'direct_cost'}`,
         pct,
       };
     }
@@ -544,7 +546,7 @@ function computeFromPolicy(
 
   const fixedAllocSum = Object.values(alloc).reduce((s, v) => s + v.amount, 0);
 
-  // ���� Step 4: Solve for RECOMMENDED QUOTE ��������������������������������������������������������������������
+  // —�—� Step 4: Solve for RECOMMENDED QUOTE —�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�
   // Sum of pct for contract_value-based allocations
   const cvAllocPct = (policy.allocation_policy ?? [])
     .filter(ap => ap.calc_base === 'contract_value' || (!ap.calc_base && ap.bucket_code))
@@ -557,7 +559,7 @@ function computeFromPolicy(
     ? Math.round((directCost + fixedAllocSum) / denominator)
     : Math.round(directCost * 1.35); // safety fallback: 35% markup
 
-  // ���� Step 3b: ALLOCATIONS with contract_value base ������������������������������������������������
+  // —�—� Step 3b: ALLOCATIONS with contract_value base —�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�
   // Use recommendedQuote as proxy for contract_value (best estimate before total is decided)
   const quoteForAlloc = (targetTotal && targetTotal > 0) ? targetTotal : recommendedQuote;
 
@@ -567,7 +569,7 @@ function computeFromPolicy(
       const pct = (ap.default_rate_pct ?? 0) / 100;
       alloc[ap.bucket_code] = {
         amount: Math.round(quoteForAlloc * pct),
-        note:   ap.note ? ap.note : `${ap.default_rate_pct}% � t�"ng hợp ��ng`,
+        note:   ap.note ? ap.note : `${ap.default_rate_pct}% × tổng hợp hợp đồng`,
         pct,
       };
     }
@@ -575,17 +577,17 @@ function computeFromPolicy(
 
   const totalAllocSum = Object.values(alloc).reduce((s, v) => s + v.amount, 0);
 
-  // ���� Step 5: CONTRACT VALUE ������������������������������������������������������������������������������������������������
+  // —�—� Step 5: CONTRACT VALUE —�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�
   const contractValue   = (targetTotal && targetTotal > 0) ? targetTotal : recommendedQuote;
   const totalInternalCost = materialsAmount + laborTotal + totalAllocSum;
 
-  // ���� Step 6: PROFIT � always RESIDUAL ��������������������������������������������������������������������������
+  // —�—� Step 6: PROFIT — always RESIDUAL —�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�
   const profitAmount    = Math.max(0, contractValue - totalInternalCost);
   const actualProfitPct = contractValue > 0
     ? Math.round((profitAmount / contractValue) * 1000) / 10
     : 0;
 
-  // ���� Step 7: BUILD BUCKETS with formula notes ������������������������������������������������������������
+  // —�—� Step 7: BUILD BUCKETS with formula notes —�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�
   const buckets: IStandardizedBucketsItem[] = BUCKET_CONFIGS.map((cfg, idx) => {
     let amount = 0;
     let note   = '';
@@ -593,13 +595,13 @@ function computeFromPolicy(
 
     if (cfg.code === '01_materials') {
       amount = materialsAmount;
-      note   = `${baseRate.toLocaleString('vi-VN')} �/m² � ${area_m2}m² � h�! s� ${complexityMultiplier.toFixed(2)}`;
+      note   = `${baseRate.toLocaleString('vi-VN')} đ/m² × ${area_m2}m² × hệ số ${complexityMultiplier.toFixed(2)}`;
     } else if (cfg.code === '02_labor_total') {
       amount = laborTotal;
       note   = labor.note ?? '';
     } else if (cfg.code === '09_profit') {
       amount = profitAmount;
-      note   = `${fmt(contractValue)} �� chi phí ${fmt(totalInternalCost)} = ${fmt(profitAmount)} (${actualProfitPct}%)`;
+      note   = `${fmt(contractValue)} - chi phí ${fmt(totalInternalCost)} = ${fmt(profitAmount)} (${actualProfitPct}%)`;
       formulaSource = 'residual';
     } else {
       const entry = alloc[cfg.code];
@@ -619,18 +621,18 @@ function computeFromPolicy(
     };
   });
 
-  // ���� Step 8: AUTO-GENERATE direct_cost_groups ������������������������������������������������������������
+  // —�—� Step 8: AUTO-GENERATE direct_cost_groups —�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�
   const laborPerM2     = area_m2 > 0 ? Math.round(laborTotal / area_m2) : 0;
   const directCostGroups: IDirectCostGroupsItem[] = [
     {
-      name:            `Thi công t�"ng thỒ (${area_m2}m² - ${complexity_level ?? 'standard'})`,
+      name:            `Thi công tổng thể (${area_m2}m² - ${complexity_level ?? 'standard'})`,
       quantity:        area_m2,
       unit:            'm²',
       material_amount: baseRate,                    // per-unit rate
       labor_amount:    laborPerM2,                  // per-unit rate
       other_amount:    0,
       subtotal:        materialsAmount + laborTotal,
-      note:            `Policy: ${policy.name ?? policy.code} | Base: ${baseRate.toLocaleString('vi-VN')}�/m²`,
+      note:            `Policy: ${policy.name ?? policy.code} | Base: ${baseRate.toLocaleString('vi-VN')}đ/m²`,
       components: [
         {
           type:         'material' as const,
@@ -639,8 +641,8 @@ function computeFromPolicy(
           unit:         'm²',
           unit_price:   Math.round(baseRate * complexityMultiplier),
           line_total:   materialsAmount,
-          formula_code: `base_rate_m2 � area � complexity(${complexityMultiplier.toFixed(2)})`,
-          note:         `Vật tư thi công theo di�!n tích`,
+          formula_code: `base_rate_m2 × area × complexity(${complexityMultiplier.toFixed(2)})`,
+          note:         `Vật tư thi công theo diện tích`,
         },
         {
           type:         'labor' as const,
@@ -649,8 +651,8 @@ function computeFromPolicy(
           unit:         'ngày',
           unit_price:   execution_days > 0 ? Math.round(internalSalary / execution_days) : 0,
           line_total:   internalSalary,
-          formula_code: `salary / working_days � execution_days � allocation_factor`,
-          note:         `Lương n�"i b�" ${execution_days} ngày`,
+          formula_code: `salary / working_days × execution_days × allocation_factor`,
+          note:         `Lương nội bộ ${execution_days} ngày`,
         },
         ...(techComm > 0 ? [{
           type:         'labor' as const,
@@ -659,8 +661,8 @@ function computeFromPolicy(
           unit:         'm²',
           unit_price:   area_m2 > 0 ? Math.round(techComm / area_m2) : 0,
           line_total:   techComm,
-          formula_code: `materials � ${lp?.technical_commission_pct ?? 0}%`,
-          note:         `Hoa h�ng Kỹ thuật`,
+          formula_code: `materials × ${lp?.technical_commission_pct ?? 0}%`,
+          note:         `Hoa hồng Kỹ thuật`,
         }] : []),
         ...(supComm > 0 ? [{
           type:         'labor' as const,
@@ -669,14 +671,14 @@ function computeFromPolicy(
           unit:         'm²',
           unit_price:   area_m2 > 0 ? Math.round(supComm / area_m2) : 0,
           line_total:   supComm,
-          formula_code: `materials � ${lp?.supervisor_commission_pct ?? 0}%`,
-          note:         `Hoa h�ng Giám sát`,
+          formula_code: `materials × ${lp?.supervisor_commission_pct ?? 0}%`,
+          note:         `Hoa hồng Giám sát`,
         }] : []),
       ],
     },
   ];
 
-  // ���� Derivation record ����������������������������������������������������������������������������������������������������������
+  // —�—� Derivation record —�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�
   const quoteDerivation: IJourneyEstimate['quote_derivation'] = {
     recommended_quote_value_initial: recommendedQuote,
     final_quote_floor:               qsr?.min_quote_floor ?? 0,
@@ -685,9 +687,9 @@ function computeFromPolicy(
     scale_factor:                    scaleFactor,
     complexity_factor:               complexityMultiplier,
     pricing_mode:                    targetTotal ? 'target_quote_check' : 'profit_target_optimize',
-    note: targetTotal
-      ? `T�"ng kỳ vọng: ${fmt(targetTotal)} | Policy �ề xuất: ${fmt(recommendedQuote)} | LN thực: ${actualProfitPct}%`
-      : `Policy: "${policy.name ?? policy.code}" | Đề xuất t�i thiỒu �ạt LN ${(targetProfitPct * 100).toFixed(0)}%`,
+    note:                            targetTotal
+      ? `Tổng kỳ vọng: ${fmt(targetTotal)} | Policy đề xuất: ${fmt(recommendedQuote)} | LN thực: ${actualProfitPct}%`
+      : `Policy: ${policy.name ?? policy.code} | Đề xuất tối thiểu đạt LN ${(targetProfitPct * 100).toFixed(0)}%`,
   };
 
   const warningThreshold = policy.profit_policy?.warning_threshold_pct ?? (targetProfitPct * 100);
@@ -716,7 +718,7 @@ function computeFromPolicy(
   };
 }
 
-// ������ Sub-components ����������������������������������������������������������������������������������������������������������������������
+// —�—�—� Sub-components —�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�—�
 
 const BucketsViewGrid: React.FC<{ buckets: IStandardizedBucketsItem[] }> = ({ buckets }) => {
   const get = (code: string) => buckets.find(b => b.bucket_code === code);
@@ -813,52 +815,6 @@ const LaborView: React.FC<{
   allocations?: IRoleCostAllocationsItem[] | null;
   roleSnapshot?: IJourneyRoleSnapshotItem | null;
 }> = ({ lb, allocations, roleSnapshot }) => {
-  const roleLabels: Record<string, string> = {
-    outsource: 'Outsource',
-    technical: 'Kỹ thuật',
-    supervisor: 'Giám sát',
-    sale: 'Kinh doanh',
-    pm: 'PM',
-    owner_admin: 'Chủ trì/Điều phối',
-    internal_support: 'Hỗ trợ nội bộ',
-  };
-  const calcModeLabels: Record<string, string> = {
-    salary_allocation: 'Phân bổ lương',
-    commission_pct: 'Theo % hoa hồng',
-    daily_rate: 'Theo ngày công',
-    fixed_amount: 'Khoán cố định',
-    manual: 'Nhập tay',
-  };
-  const getUsers = (value: any): string[] => {
-    if (Array.isArray(value)) {
-      return value.map(item => {
-        if (!item) return '';
-        if (typeof item === 'string') return item;
-        if (typeof item === 'object') return String(item.userName ?? item.username ?? item.email ?? item._id ?? '');
-        return String(item);
-      }).filter(Boolean);
-    }
-    if (!value) return [];
-    if (typeof value === 'string') return [value];
-    if (typeof value === 'object') {
-      const candidate = value.userName ?? value.username ?? value.email ?? value._id;
-      return candidate ? [String(candidate)] : [];
-    }
-    return [String(value)];
-  };
-  const resolveUsers = (row: IRoleCostAllocationsItem) => {
-    const directUsers = getUsers(row.usernames);
-    if (directUsers.length > 0) return directUsers;
-    switch (row.role_code) {
-      case 'technical': return getUsers(roleSnapshot?.technical_users);
-      case 'supervisor': return getUsers(roleSnapshot?.supervisor_users);
-      case 'sale': return getUsers(roleSnapshot?.sale_users);
-      case 'pm': return getUsers(roleSnapshot?.pm_user);
-      case 'owner_admin': return getUsers(roleSnapshot?.owner_user);
-      case 'internal_support': return getUsers(roleSnapshot?.pm_user);
-      default: return [];
-    }
-  };
   return (
     <Space direction='vertical' size={12} style={{ width: '100%' }}>
       <Row gutter={[16, 8]}>
@@ -884,37 +840,7 @@ const LaborView: React.FC<{
         {lb.note && <Col span={24}><Text type='secondary' style={{ fontSize: 12 }}>Ghi chú: {lb.note}</Text></Col>}
       </Row>
       <Card size='small' type='inner' title={<Space><TeamOutlined /><Text strong>Bảng phân bổ nhân công theo vai trò</Text></Space>}>
-        {!(allocations?.length ?? 0) ? (
-          <Alert type='info' showIcon message='Chưa có bảng phân bổ nhân công chi tiết. Hãy chạy Tự động tính để sinh phân rã theo vai trò.' />
-        ) : (
-          <Table
-            size='small'
-            pagination={false}
-            rowKey={(_, index) => String(index)}
-            dataSource={allocations ?? undefined}
-            columns={[
-              { title: 'Vai trò', dataIndex: 'role_code', width: 140, render: (value: string) => <Tag color='blue'>{roleLabels[value] ?? value ?? 'N/A'}</Tag> },
-              { title: 'Người phụ trách', render: (_: unknown, row: IRoleCostAllocationsItem) => {
-                const usernames = resolveUsers(row);
-                if (!usernames.length) return <Text type='secondary'>Chưa gán</Text>;
-                return <Space size={[4, 4]} wrap>{usernames.map(name => <Tag key={name}>{name}</Tag>)}</Space>;
-              } },
-              { title: 'Headcount', dataIndex: 'headcount', width: 90, align: 'right' as const, render: (value: number) => value ?? '-' },
-              { title: 'Ngày công', dataIndex: 'work_days', width: 90, align: 'right' as const, render: (value: number) => value ?? '-' },
-              { title: 'Cách tính', dataIndex: 'calc_mode', width: 130, render: (value: string) => <Text type='secondary'>{calcModeLabels[value] ?? value ?? '-'}</Text> },
-              { title: 'Đơn giá / %', width: 120, align: 'right' as const, render: (_: unknown, row: IRoleCostAllocationsItem) => row.unit_rate != null ? fmt(row.unit_rate) : row.allocation_pct != null ? `${row.allocation_pct}%` : '-' },
-              { title: 'Thành tiền', dataIndex: 'amount', width: 140, align: 'right' as const, render: (value: number) => <Text strong>{fmt(value ?? 0)}</Text> },
-              { title: 'Công thức / Ghi chú', render: (_: unknown, row: IRoleCostAllocationsItem) => <Space direction='vertical' size={0}>{row.formula_snapshot ? <Text style={{ fontSize: 12 }}>{row.formula_snapshot}</Text> : null}{row.note ? <Text type='secondary' style={{ fontSize: 11 }}>{row.note}</Text> : null}</Space> },
-            ]}
-            summary={rows => (
-              <Table.Summary.Row>
-                <Table.Summary.Cell index={0} colSpan={6}><Text strong>Tổng phân bổ theo vai trò</Text></Table.Summary.Cell>
-                <Table.Summary.Cell index={1} align='right'><Text strong style={{ color: '#1890ff' }}>{fmt(rows.reduce((sum, row) => sum + (row.amount ?? 0), 0))}</Text></Table.Summary.Cell>
-                <Table.Summary.Cell index={2} />
-              </Table.Summary.Row>
-            )}
-          />
-        )}
+        <LaborAllocationTable allocations={allocations} roleSnapshot={roleSnapshot} />
       </Card>
     </Space>
   );
@@ -926,52 +852,6 @@ const LaborEdit: React.FC<{
   allocations?: IRoleCostAllocationsItem[] | null;
   roleSnapshot?: IJourneyRoleSnapshotItem | null;
 }> = ({ lb, onChange, allocations, roleSnapshot }) => {
-  const roleLabels: Record<string, string> = {
-    outsource: 'Outsource',
-    technical: 'Kỹ thuật',
-    supervisor: 'Giám sát',
-    sale: 'Kinh doanh',
-    pm: 'PM',
-    owner_admin: 'Chủ trì/Điều phối',
-    internal_support: 'Hỗ trợ nội bộ',
-  };
-  const calcModeLabels: Record<string, string> = {
-    salary_allocation: 'Phân bổ lương',
-    commission_pct: 'Theo % hoa hồng',
-    daily_rate: 'Theo ngày công',
-    fixed_amount: 'Khoán cố định',
-    manual: 'Nhập tay',
-  };
-  const getUsers = (value: any): string[] => {
-    if (Array.isArray(value)) {
-      return value.map(item => {
-        if (!item) return '';
-        if (typeof item === 'string') return item;
-        if (typeof item === 'object') return String(item.userName ?? item.username ?? item.email ?? item._id ?? '');
-        return String(item);
-      }).filter(Boolean);
-    }
-    if (!value) return [];
-    if (typeof value === 'string') return [value];
-    if (typeof value === 'object') {
-      const candidate = value.userName ?? value.username ?? value.email ?? value._id;
-      return candidate ? [String(candidate)] : [];
-    }
-    return [String(value)];
-  };
-  const resolveUsers = (row: IRoleCostAllocationsItem) => {
-    const directUsers = getUsers(row.usernames);
-    if (directUsers.length > 0) return directUsers;
-    switch (row.role_code) {
-      case 'technical': return getUsers(roleSnapshot?.technical_users);
-      case 'supervisor': return getUsers(roleSnapshot?.supervisor_users);
-      case 'sale': return getUsers(roleSnapshot?.sale_users);
-      case 'pm': return getUsers(roleSnapshot?.pm_user);
-      case 'owner_admin': return getUsers(roleSnapshot?.owner_user);
-      case 'internal_support': return getUsers(roleSnapshot?.pm_user);
-      default: return [];
-    }
-  };
   const set = (field: keyof ILaborBreakdownItem, val: number | string | null) => {
     const next = { ...lb, [field]: val ?? 0 };
     onChange(recomputeLabor(next));
@@ -1009,43 +889,11 @@ const LaborEdit: React.FC<{
         </Form.Item>
       </div>
       <Card size='small' type='inner' title={<Space><TeamOutlined /><Text strong>Bảng phân bổ nhân công theo vai trò</Text></Space>}>
-        <Alert
-          type='info'
-          showIcon
-          style={{ marginBottom: 12 }}
-          message='Bảng dưới đây phản ánh snapshot sinh từ lần tự động tính gần nhất. Nếu bạn chỉnh tay chi phí nhân công tổng hợp ở trên, hãy chạy lại Tự động tính để đồng bộ phân bổ chi tiết.'
+        <LaborAllocationTable
+          allocations={allocations}
+          roleSnapshot={roleSnapshot}
+          infoMessage='Bảng dưới đây phản ánh snapshot sinh từ lần tự động tính gần nhất. Nếu bạn chỉnh tay chi phí nhân công tổng hợp ở trên, hãy chạy lại Tự động tính để đồng bộ phân bổ chi tiết.'
         />
-        {!(allocations?.length ?? 0) ? (
-          <Alert type='info' showIcon message='Chưa có bảng phân bổ nhân công chi tiết. Hãy chạy Tự động tính để sinh phân rã theo vai trò.' />
-        ) : (
-          <Table
-            size='small'
-            pagination={false}
-            rowKey={(_, index) => String(index)}
-            dataSource={allocations ?? undefined}
-            columns={[
-              { title: 'Vai trò', dataIndex: 'role_code', width: 140, render: (value: string) => <Tag color='blue'>{roleLabels[value] ?? value ?? 'N/A'}</Tag> },
-              { title: 'Người phụ trách', render: (_: unknown, row: IRoleCostAllocationsItem) => {
-                const usernames = resolveUsers(row);
-                if (!usernames.length) return <Text type='secondary'>Chưa gán</Text>;
-                return <Space size={[4, 4]} wrap>{usernames.map(name => <Tag key={name}>{name}</Tag>)}</Space>;
-              } },
-              { title: 'Headcount', dataIndex: 'headcount', width: 90, align: 'right' as const, render: (value: number) => value ?? '-' },
-              { title: 'Ngày công', dataIndex: 'work_days', width: 90, align: 'right' as const, render: (value: number) => value ?? '-' },
-              { title: 'Cách tính', dataIndex: 'calc_mode', width: 130, render: (value: string) => <Text type='secondary'>{calcModeLabels[value] ?? value ?? '-'}</Text> },
-              { title: 'Đơn giá / %', width: 120, align: 'right' as const, render: (_: unknown, row: IRoleCostAllocationsItem) => row.unit_rate != null ? fmt(row.unit_rate) : row.allocation_pct != null ? `${row.allocation_pct}%` : '-' },
-              { title: 'Thành tiền', dataIndex: 'amount', width: 140, align: 'right' as const, render: (value: number) => <Text strong>{fmt(value ?? 0)}</Text> },
-              { title: 'Công thức / Ghi chú', render: (_: unknown, row: IRoleCostAllocationsItem) => <Space direction='vertical' size={0}>{row.formula_snapshot ? <Text style={{ fontSize: 12 }}>{row.formula_snapshot}</Text> : null}{row.note ? <Text type='secondary' style={{ fontSize: 11 }}>{row.note}</Text> : null}</Space> },
-            ]}
-            summary={rows => (
-              <Table.Summary.Row>
-                <Table.Summary.Cell index={0} colSpan={6}><Text strong>Tổng phân bổ theo vai trò</Text></Table.Summary.Cell>
-                <Table.Summary.Cell index={1} align='right'><Text strong style={{ color: '#1890ff' }}>{fmt(rows.reduce((sum, row) => sum + (row.amount ?? 0), 0))}</Text></Table.Summary.Cell>
-                <Table.Summary.Cell index={2} />
-              </Table.Summary.Row>
-            )}
-          />
-        )}
       </Card>
     </Space>
   );
@@ -1053,18 +901,6 @@ const LaborEdit: React.FC<{
 
 const DirectCostView: React.FC<{ groups: IDirectCostGroupsItem[] }> = ({ groups }) => {
   if (!groups.length) return <Text type='secondary'>Chưa có hạng mục vật tư nào.</Text>;
-  const sourceLabels: Record<string, string> = {
-    material_master: 'Material master',
-    labor_price_config: 'Labor config',
-    manual: 'Manual',
-    policy: 'Policy',
-    survey: 'Survey',
-  };
-  const typeColors: Record<string, string> = {
-    material: 'green',
-    labor: 'blue',
-    other: 'orange',
-  };
   return (
     <Collapse size='small' ghost>
       {groups.map((g, i) => (
@@ -1092,30 +928,7 @@ const DirectCostView: React.FC<{ groups: IDirectCostGroupsItem[] }> = ({ groups 
               </Col>
             ))}
           </Row>
-          {g.cost_basis_note ? <Alert type='info' showIcon style={{ marginBottom: 8 }} message={g.cost_basis_note} /> : null}
-          {!(g.components?.length ?? 0) ? (
-            <Text type='secondary'>Chưa có dòng vật tư/nhân công chi tiết cho hạng mục này.</Text>
-          ) : (
-            <Table
-              dataSource={g.components ?? undefined}
-              rowKey={(_, idx) => String(idx)}
-              pagination={false}
-              size='small'
-              scroll={{ x: 1120 }}
-              columns={[
-                { title: 'Loại', dataIndex: 'type', width: 90, render: (value: string) => <Tag color={typeColors[value] ?? 'default'}>{value ?? 'N/A'}</Tag> },
-                { title: 'Tên vật tư / nhân công', width: 240, render: (_: unknown, row: NonNullable<IDirectCostGroupsItem['components']>[number]) => <Space direction='vertical' size={0}><Text strong>{row.item_name ?? row.note ?? 'Chưa có tên dòng chi phí'}</Text><Text type='secondary' style={{ fontSize: 11 }}>{[row.item_code, row.item_spec, row.brand_name].filter(Boolean).join(' | ') || 'Không có mã/spec'}</Text></Space> },
-                { title: 'Nguồn', width: 170, render: (_: unknown, row: NonNullable<IDirectCostGroupsItem['components']>[number]) => <Space direction='vertical' size={0}><Tag>{sourceLabels[row.source_type ?? ''] ?? row.source_type ?? 'N/A'}</Tag><Text type='secondary' style={{ fontSize: 11 }}>{row.source_ref_label ?? '-'}</Text></Space> },
-                { title: 'Định mức', width: 140, render: (_: unknown, row: NonNullable<IDirectCostGroupsItem['components']>[number]) => <Space direction='vertical' size={0}><Text>{row.quantity_per_unit ?? 1} / đơn vị</Text><Text type='secondary' style={{ fontSize: 11 }}>Quy mô áp dụng: {row.expanded_quantity ?? row.quantity ?? 0}</Text></Space> },
-                { title: 'SL', dataIndex: 'quantity', width: 90, align: 'right' as const },
-                { title: 'ĐVT', dataIndex: 'unit', width: 80 },
-                { title: 'Đơn giá', dataIndex: 'unit_price', width: 130, align: 'right' as const, render: (value: number) => fmt(value ?? 0) },
-                { title: 'Thành tiền', dataIndex: 'line_total', width: 130, align: 'right' as const, render: (value: number) => <Text strong>{fmt(value ?? 0)}</Text> },
-                { title: 'Công thức tính', width: 220, render: (_: unknown, row: NonNullable<IDirectCostGroupsItem['components']>[number]) => <Space direction='vertical' size={0}>{row.formula_code ? <Text code>{row.formula_code}</Text> : null}{row.formula_snapshot ? <Text type='secondary' style={{ fontSize: 11 }}>{row.formula_snapshot}</Text> : null}</Space> },
-                { title: 'Ghi chú', width: 180, render: (_: unknown, row: NonNullable<IDirectCostGroupsItem['components']>[number]) => <Space direction='vertical' size={0}>{row.note ? <Text style={{ fontSize: 12 }}>{row.note}</Text> : null}{row.cost_note ? <Text type='secondary' style={{ fontSize: 11 }}>{row.cost_note}</Text> : null}</Space> },
-              ]}
-            />
-          )}
+          <DirectCostComponentsTable group={g} />
           {g.note && <div style={{ marginTop: 6 }}><Text type='secondary' style={{ fontSize: 12 }}>Ghi chú hạng mục: {g.note}</Text></div>}
         </Panel>
       ))}
@@ -1127,18 +940,6 @@ const DirectCostEdit: React.FC<{
   groups: IDirectCostGroupsItem[];
   onChange: (groups: IDirectCostGroupsItem[]) => void;
 }> = ({ groups, onChange }) => {
-  const sourceLabels: Record<string, string> = {
-    material_master: 'Material master',
-    labor_price_config: 'Labor config',
-    manual: 'Manual',
-    policy: 'Policy',
-    survey: 'Survey',
-  };
-  const typeColors: Record<string, string> = {
-    material: 'green',
-    labor: 'blue',
-    other: 'orange',
-  };
   const setGroup = (idx: number, patch: Partial<IDirectCostGroupsItem>) => {
     const next = groups.map((g, i) => i === idx ? recomputeGroup({ ...g, ...patch }) : g);
     onChange(next);
@@ -1205,30 +1006,7 @@ const DirectCostEdit: React.FC<{
           <Divider style={{ margin: '12px 0' }} />
           <Space direction='vertical' size={8} style={{ width: '100%' }}>
             <Text strong>Bảng vật tư / nhân công chi tiết</Text>
-            {g.cost_basis_note ? <Alert type='info' showIcon message={g.cost_basis_note} /> : null}
-            {!(g.components?.length ?? 0) ? (
-              <Text type='secondary'>Chưa có dòng vật tư/nhân công chi tiết cho hạng mục này.</Text>
-            ) : (
-              <Table
-                dataSource={g.components ?? undefined}
-                rowKey={(_, idx) => String(idx)}
-                pagination={false}
-                size='small'
-                scroll={{ x: 1120 }}
-                columns={[
-                  { title: 'Loại', dataIndex: 'type', width: 90, render: (value: string) => <Tag color={typeColors[value] ?? 'default'}>{value ?? 'N/A'}</Tag> },
-                  { title: 'Tên vật tư / nhân công', width: 240, render: (_: unknown, row: NonNullable<IDirectCostGroupsItem['components']>[number]) => <Space direction='vertical' size={0}><Text strong>{row.item_name ?? row.note ?? 'Chưa có tên dòng chi phí'}</Text><Text type='secondary' style={{ fontSize: 11 }}>{[row.item_code, row.item_spec, row.brand_name].filter(Boolean).join(' | ') || 'Không có mã/spec'}</Text></Space> },
-                  { title: 'Nguồn', width: 170, render: (_: unknown, row: NonNullable<IDirectCostGroupsItem['components']>[number]) => <Space direction='vertical' size={0}><Tag>{sourceLabels[row.source_type ?? ''] ?? row.source_type ?? 'N/A'}</Tag><Text type='secondary' style={{ fontSize: 11 }}>{row.source_ref_label ?? '-'}</Text></Space> },
-                  { title: 'Định mức', width: 140, render: (_: unknown, row: NonNullable<IDirectCostGroupsItem['components']>[number]) => <Space direction='vertical' size={0}><Text>{row.quantity_per_unit ?? 1} / đơn vị</Text><Text type='secondary' style={{ fontSize: 11 }}>Quy mô áp dụng: {row.expanded_quantity ?? row.quantity ?? 0}</Text></Space> },
-                  { title: 'SL', dataIndex: 'quantity', width: 90, align: 'right' as const },
-                  { title: 'ĐVT', dataIndex: 'unit', width: 80 },
-                  { title: 'Đơn giá', dataIndex: 'unit_price', width: 130, align: 'right' as const, render: (value: number) => fmt(value ?? 0) },
-                  { title: 'Thành tiền', dataIndex: 'line_total', width: 130, align: 'right' as const, render: (value: number) => <Text strong>{fmt(value ?? 0)}</Text> },
-                  { title: 'Công thức tính', width: 220, render: (_: unknown, row: NonNullable<IDirectCostGroupsItem['components']>[number]) => <Space direction='vertical' size={0}>{row.formula_code ? <Text code>{row.formula_code}</Text> : null}{row.formula_snapshot ? <Text type='secondary' style={{ fontSize: 11 }}>{row.formula_snapshot}</Text> : null}</Space> },
-                  { title: 'Ghi chú', width: 180, render: (_: unknown, row: NonNullable<IDirectCostGroupsItem['components']>[number]) => <Space direction='vertical' size={0}>{row.note ? <Text style={{ fontSize: 12 }}>{row.note}</Text> : null}{row.cost_note ? <Text type='secondary' style={{ fontSize: 11 }}>{row.cost_note}</Text> : null}</Space> },
-                ]}
-              />
-            )}
+            <DirectCostComponentsTable group={g} />
           </Space>
         </Card>
       ))}
@@ -1240,15 +1018,15 @@ const DirectCostEdit: React.FC<{
 };
 
 export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ journeyId }) => {
-  const { journey, estimate, loading, saveEstimate, readinessScore, refresh } = useJourneyEstimateFlow(journeyId);
+  const { journey, estimate, loading, saveEstimate, refresh } = useJourneyEstimateFlow(journeyId);
 
-  // ���� Edit state ����������������������������������������������������������������������������������������������������������������������
+  // Edit state
   const [isEditing,          setIsEditing]          = useState(false);
   const [editBuckets,        setEditBuckets]         = useState<IStandardizedBucketsItem[]>([]);
   const [editLabor,          setEditLabor]           = useState<ILaborBreakdownItem>(EMPTY_LABOR);
   const [editGroups,         setEditGroups]          = useState<IDirectCostGroupsItem[]>([]);
 
-  // Estimation Config � top section
+  // Estimation config
   const [editPolicyId,       setEditPolicyId]        = useState<string | null>(null);
   const [editTotalCost,      setEditTotalCost]        = useState<number | null>(null);
 
@@ -1267,7 +1045,7 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
   const [policyOptions,      setPolicyOptions]        = useState<{ label: string; value: string }[]>([]);
   const [policyOptLoading,   setPolicyOptLoading]     = useState(false);
 
-  // ���� Load policy options ����������������������������������������������������������������������������������������������������
+  // Load policy options
   useEffect(() => {
     if (!isEditing) return;
     setPolicyOptLoading(true);
@@ -1390,7 +1168,7 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
     setIsEditing(false);
   };
 
-  // ���� Auto-calc engine ����������������������������������������������������������������������������������������������������������
+  // Auto-calc engine
   /**
    * Fetches the right policy then runs computeFromPolicy.
    * Respects the priority: editPolicyId �  serviceTypeId �  is_default.
@@ -1447,7 +1225,7 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
       }
 
       if (!policy) {
-        antMessage.error('Khong tim thay chinh sach gia. Kiem tra Cau hinh > Chinh sach gia.');
+        antMessage.error('Không tìm thấy chính sách giá. Kiểm tra Cấu hình > Chính sách giá.');
         return;
       }
 
@@ -1485,7 +1263,7 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
     }
   }, [journey, editPolicyId, editTotalCost, estimate]);
 
-  // When policy is selected �  auto-calc immediately
+  // Re-run when policy changes.
   const handlePolicyChange = (policyId: string | null) => {
     setEditPolicyId(policyId);
     if (policyId) {
@@ -1493,14 +1271,14 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
     }
   };
 
-  // When total cost is changed �  re-run calc with new total as override
+  // Track manual total override.
   const handleTotalCostChange = (val: number | null) => {
     setEditTotalCost(val);
   };
 
   const isInputReady = !!(journey?.area_m2 && journey?.execution_days);
 
-  // ���� Toolbar ����������������������������������������������������������������������������������������������������������������������������
+  // Toolbar.
   const toolbar = !isEditing ? (
     <Space>
       <Button size="small" icon={<SyncOutlined spin={loading} />} onClick={refresh}>Refresh</Button>
@@ -1760,6 +1538,11 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
 };
 
 export default Step04SolutionOrchestration;
+
+
+
+
+
 
 
 
