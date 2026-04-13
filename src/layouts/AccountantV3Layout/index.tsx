@@ -85,10 +85,10 @@ const AccountantSidebar: React.FC = () => {
     const location = useLocation();
 
     return (
-        <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div
                 style={{
-                    height: 64, display: 'flex', alignItems: 'center',
+                    height: 64, flexShrink: 0, display: 'flex', alignItems: 'center',
                     justifyContent: 'center', gap: 10, color: '#fff', fontSize: 15, fontWeight: 700,
                     borderBottom: '1px solid rgba(255,255,255,0.1)',
                     padding: '0 8px',
@@ -97,14 +97,16 @@ const AccountantSidebar: React.FC = () => {
                 <AppBrandLogo size="sm" variant="onDark" />
                 <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Kế toán</span>
             </div>
-            <Menu
-                theme="dark"
-                mode="inline"
-                selectedKeys={[location.pathname]}
-                defaultOpenKeys={['/admin/kt/inventory', '/admin/kt/assets', '/admin/kt/finance', '/admin/kt/warranty', '/admin/kt/expenditures']}
-                items={menuItems}
-                onClick={e => navigate(e.key)}
-            />
+            <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
+                <Menu
+                    theme="dark"
+                    mode="inline"
+                    selectedKeys={[location.pathname]}
+                    defaultOpenKeys={['/admin/kt/inventory', '/admin/kt/assets', '/admin/kt/finance', '/admin/kt/warranty', '/admin/kt/expenditures']}
+                    items={menuItems}
+                    onClick={e => navigate(e.key)}
+                />
+            </div>
         </div>
     );
 };

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Card, Table, Button, Space, Typography, Modal, Form, Input, Select, InputNumber, Row, Col, Popconfirm, message, Tag, Tabs, Divider, Switch } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, SettingOutlined, DollarOutlined, ExperimentOutlined } from '@ant-design/icons';
+import { Card, Table, Button, Space, Typography, Modal, Form, Input, Select, InputNumber, Row, Col, Popconfirm, message, Tag, Tabs, Divider, Switch, Popover } from 'antd';
+import { PlusOutlined, EditOutlined, DeleteOutlined, SettingOutlined, DollarOutlined, ExperimentOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import estimatePricingPolicyService from '../../../services/core-contracts/services/estimatePricingPolicy.service';
 import masterDataItemService from '../../../services/core-contracts/services/masterDataItem.service';
 import { IEstimatePricingPolicy } from '../../../services/core-contracts/types/estimatePricingPolicy.types';
@@ -159,31 +159,33 @@ export const EstimatePricingPolicyList: React.FC = () => {
                 onOk={() => form.submit()}
                 onCancel={() => setIsModalVisible(false)}
                 confirmLoading={submitting}
+                width="min(740px, 96vw)"
+                style={{ top: 20 }}
             >
                 <Form form={form} layout="vertical" name="pricing_policy_form" onFinish={handleFinish}>
                     <Tabs defaultActiveKey="basic">
                         <Tabs.TabPane tab={<span><SettingOutlined /> Thông tin chung</span>} key="basic">
-                            <Row gutter={16}>
-                                <Col span={6}>
+                            <Row gutter={[16, 0]}>
+                                <Col xs={24} sm={8}>
                                     <Form.Item label="Mã Chính sách" name="code" rules={[{ required: true }]}>
                                         <Input placeholder="vd: PP-2026-01" />
                                     </Form.Item>
                                 </Col>
-                                <Col span={12}>
+                                <Col xs={24} sm={16}>
                                     <Form.Item label="Tên Chính sách" name="name" rules={[{ required: true }]}>
                                         <Input placeholder="vd: Chính sách chuẩn 2026" />
                                     </Form.Item>
                                 </Col>
-                                <Col span={6}>
+                            </Row>
+                            <Row gutter={[16, 0]}>
+                                <Col xs={24} sm={12}>
                                     <Form.Item label="Loại dịch vụ" name="service_type_id" rules={[{ required: true }]}>
                                         <Select placeholder="Chọn dịch vụ...">
                                             {serviceTypes.map(s => <Option key={s._id} value={s._id}>{s.label}</Option>)}
                                         </Select>
                                     </Form.Item>
                                 </Col>
-                            </Row>
-                            <Row gutter={16}>
-                                <Col span={6}>
+                                <Col xs={24} sm={8}>
                                     <Form.Item label="Phân loại Quy mô" name="scale_type">
                                         <Select>
                                             <Option value="small">Nhỏ (Dưới 100m²)</Option>
@@ -193,7 +195,7 @@ export const EstimatePricingPolicyList: React.FC = () => {
                                         </Select>
                                     </Form.Item>
                                 </Col>
-                                <Col span={6}>
+                                <Col xs={12} sm={4}>
                                     <Form.Item label="Trạng thái" name="status">
                                         <Select>
                                             <Option value="active">Hoạt động</Option>
@@ -201,21 +203,23 @@ export const EstimatePricingPolicyList: React.FC = () => {
                                         </Select>
                                     </Form.Item>
                                 </Col>
-                                <Col span={6}>
-                                    <Form.Item label="Đặt làm mặc định" name="is_default" valuePropName="checked">
-                                        <Switch />
+                            </Row>
+                            <Row gutter={[16, 0]}>
+                                <Col xs={24}>
+                                    <Form.Item label="Ghi chú" name="note">
+                                        <Input.TextArea rows={2} />
                                     </Form.Item>
                                 </Col>
                             </Row>
-                            <Form.Item label="Ghi chú" name="note">
-                                <Input.TextArea rows={2} />
+                            <Form.Item label="Đặt làm mặc định" name="is_default" valuePropName="checked">
+                                <Switch />
                             </Form.Item>
                         </Tabs.TabPane>
 
                         <Tabs.TabPane tab={<span><DollarOutlined /> Quy tắc Chào thầu</span>} key="quote">
                             <Title level={5}>Gợi ý đơn giá chào thầu (m²)</Title>
-                            <Row gutter={16}>
-                                <Col span={8}>
+                            <Row gutter={[16, 0]}>
+                                <Col xs={24} sm={8}>
                                     <Form.Item label="Chiến lược tính" name={['quote_suggestion_rule', 'pricing_strategy']}>
                                         <Select>
                                             <Option value="rate_factor">Dựa trên Hệ số (%)</Option>
@@ -224,29 +228,29 @@ export const EstimatePricingPolicyList: React.FC = () => {
                                         </Select>
                                     </Form.Item>
                                 </Col>
-                                <Col span={8}>
+                                <Col xs={24} sm={8}>
                                     <Form.Item label="Đơn giá m² cơ sở" name={['quote_suggestion_rule', 'base_quote_rate_m2']}>
                                         <InputNumber style={{ width: '100%' }} formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} />
                                     </Form.Item>
                                 </Col>
-                                <Col span={8}>
+                                <Col xs={24} sm={8}>
                                     <Form.Item label="Sàn chào thầu tối thiểu" name={['quote_suggestion_rule', 'min_quote_floor']}>
                                         <InputNumber style={{ width: '100%' }} formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} />
                                     </Form.Item>
                                 </Col>
                             </Row>
-                            <Row gutter={16}>
-                                <Col span={6}>
+                            <Row gutter={[16, 0]}>
+                                <Col xs={24} sm={8}>
                                     <Form.Item label="Hệ số Quy mô" name={['quote_suggestion_rule', 'scale_factor']}>
                                         <InputNumber step={0.01} style={{ width: '100%' }} />
                                     </Form.Item>
                                 </Col>
-                                <Col span={6}>
+                                <Col xs={24} sm={8}>
                                     <Form.Item label="Hệ số Phức tạp" name={['quote_suggestion_rule', 'complexity_factor']}>
                                         <InputNumber step={0.01} style={{ width: '100%' }} />
                                     </Form.Item>
                                 </Col>
-                                <Col span={6}>
+                                <Col xs={24} sm={8}>
                                     <Form.Item label="Hệ số Tiến độ" name={['quote_suggestion_rule', 'duration_factor']}>
                                         <InputNumber step={0.01} style={{ width: '100%' }} />
                                     </Form.Item>
@@ -256,18 +260,18 @@ export const EstimatePricingPolicyList: React.FC = () => {
 
                         <Tabs.TabPane tab={<span><DollarOutlined /> Lợi nhuận & Hoa hồng</span>} key="profit">
                             <Title level={5}>Chính sách Lợi nhuận Gộp</Title>
-                            <Row gutter={16}>
-                                <Col span={8}>
+                            <Row gutter={[16, 0]}>
+                                <Col xs={24} sm={8}>
                                     <Form.Item label="Lợi nhuận mục tiêu Min (%)" name={['profit_policy', 'target_profit_pct_min']}>
                                         <InputNumber min={0} max={100} style={{ width: '100%' }} />
                                     </Form.Item>
                                 </Col>
-                                <Col span={8}>
+                                <Col xs={24} sm={8}>
                                     <Form.Item label="Lợi nhuận mục tiêu Max (%)" name={['profit_policy', 'target_profit_pct_max']}>
                                         <InputNumber min={0} max={100} style={{ width: '100%' }} />
                                     </Form.Item>
                                 </Col>
-                                <Col span={8}>
+                                <Col xs={24} sm={8}>
                                     <Form.Item label="Ngưỡng cảnh báo (%)" name={['profit_policy', 'warning_threshold_pct']}>
                                         <InputNumber min={0} max={100} style={{ width: '100%' }} />
                                     </Form.Item>
@@ -275,18 +279,18 @@ export const EstimatePricingPolicyList: React.FC = () => {
                             </Row>
                             <Divider />
                             <Title level={5}>Chính sách Nhân công & Hoa hồng</Title>
-                            <Row gutter={16}>
-                                <Col span={8}>
+                            <Row gutter={[16, 0]}>
+                                <Col xs={24} sm={8}>
                                     <Form.Item label="Lương nội bộ TB/tháng" name={['labor_policy', 'internal_salary_monthly']}>
                                         <InputNumber style={{ width: '100%' }} formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} />
                                     </Form.Item>
                                 </Col>
-                                <Col span={8}>
+                                <Col xs={24} sm={8}>
                                     <Form.Item label="Commission Kỹ thuật (%)" name={['labor_policy', 'technical_commission_pct']}>
                                         <InputNumber min={0} max={100} step={0.1} style={{ width: '100%' }} />
                                     </Form.Item>
                                 </Col>
-                                <Col span={8}>
+                                <Col xs={24} sm={8}>
                                     <Form.Item label="Commission Giám sát (%)" name={['labor_policy', 'supervisor_commission_pct']}>
                                         <InputNumber min={0} max={100} step={0.1} style={{ width: '100%' }} />
                                     </Form.Item>
@@ -302,13 +306,13 @@ export const EstimatePricingPolicyList: React.FC = () => {
                                         <>
                                             {fields.map(({ key, name, ...restField }) => (
                                                 <Card size="small" style={{ marginBottom: 12 }} key={key} extra={<Button type="link" danger onClick={() => remove(name)}>Xóa</Button>}>
-                                                    <Row gutter={8}>
-                                                        <Col span={6}>
+                                                    <Row gutter={[8, 0]}>
+                                                        <Col xs={24} sm={10}>
                                                             <Form.Item {...restField} name={[name, 'trigger_key']} label="Điều kiện kích hoạt" rules={[{ required: true }]}>
                                                                 <Input placeholder="ví dụ: region_code" />
                                                             </Form.Item>
                                                         </Col>
-                                                        <Col span={4}>
+                                                        <Col xs={12} sm={6}>
                                                             <Form.Item {...restField} name={[name, 'operator']} label="Toán tử">
                                                                 <Select>
                                                                     <Option value="==">Bằng</Option>
@@ -317,14 +321,14 @@ export const EstimatePricingPolicyList: React.FC = () => {
                                                                 </Select>
                                                             </Form.Item>
                                                         </Col>
-                                                        <Col span={6}>
+                                                        <Col xs={12} sm={8}>
                                                             <Form.Item {...restField} name={[name, 'compare_value']} label="Giá trị so sánh">
                                                                 <Input />
                                                             </Form.Item>
                                                         </Col>
                                                     </Row>
-                                                    <Row gutter={8}>
-                                                        <Col span={8}>
+                                                    <Row gutter={[8, 0]}>
+                                                        <Col xs={24} sm={8}>
                                                             <Form.Item {...restField} name={[name, 'effect_type']} label="Loại ảnh hưởng">
                                                                 <Select>
                                                                     <Option value="increase_pct">Tăng (%)</Option>
@@ -333,12 +337,12 @@ export const EstimatePricingPolicyList: React.FC = () => {
                                                                 </Select>
                                                             </Form.Item>
                                                         </Col>
-                                                        <Col span={6}>
+                                                        <Col xs={12} sm={6}>
                                                             <Form.Item {...restField} name={[name, 'effect_value']} label="Giá trị ảnh hưởng">
                                                                 <InputNumber style={{ width: '100%' }} />
                                                             </Form.Item>
                                                         </Col>
-                                                        <Col span={10}>
+                                                        <Col xs={24} sm={10}>
                                                             <Form.Item {...restField} name={[name, 'note']} label="Ghi chú giải trình">
                                                                 <Input placeholder="vd: Phụ phí thi công ngoại tỉnh" />
                                                             </Form.Item>
