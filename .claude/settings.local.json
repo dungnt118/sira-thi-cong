@@ -9,7 +9,9 @@
       "mcp__5bbc2204-2890-416e-86c3-4a48b3a79009__schema-list",
       "Bash(python -c \"import sys,json; data=json.load\\(sys.stdin\\); schemas=[json.loads\\(x[''''text'''']\\) if isinstance\\(x,dict\\) else x for x in data]; flat=[s for sub in schemas for s in \\(sub if isinstance\\(sub,list\\) else [sub]\\)]; matches=[s for s in flat if any\\(k in s.get\\(''''name'''',''''''''\\).lower\\(\\) for k in [''''estimate'''',''''pricing'''',''''template'''',''''masterdata'''',''''journey'''',''''quotation'''']\\)]; print\\(json.dumps\\([{''''name'''':s.get\\(''''name''''\\),''''label'''':s.get\\(''''label''''\\),''''collection'''':s.get\\(''''collection''''\\)} for s in matches], ensure_ascii=False, indent=2\\)\\)\")",
       "Bash(python -c \":*)",
-      "mcp__5bbc2204-2890-416e-86c3-4a48b3a79009__content-search"
+      "mcp__5bbc2204-2890-416e-86c3-4a48b3a79009__content-search",
+      "Bash(npx tsc:*)",
+      "Bash(node -e \"const p = require\\(''./package.json''\\); console.log\\(p.dependencies.antd\\)\")"
     ]
   }
 }

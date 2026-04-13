@@ -21,6 +21,7 @@ export const FIND_JOURNEYESTIMATE_DTO = gql`
         idx_survey_record_id
         pricing_policy_id
         idx_pricing_policy_id
+        total_estimate_cost
         version_no
         status
         journey_input_snapshot {
@@ -119,6 +120,7 @@ export const QUERY_JOURNEYESTIMATES_DTO = gql`
         idx_survey_record_id
         pricing_policy_id
         idx_pricing_policy_id
+        total_estimate_cost
         version_no
         status
         journey_input_snapshot {

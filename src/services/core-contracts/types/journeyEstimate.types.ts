@@ -15,6 +15,7 @@ export interface IJourneyEstimate {
   idx_survey_record_id?: IndexedContentItem;
   pricing_policy_id?: string;
   idx_pricing_policy_id?: IndexedContentItem;
+  total_estimate_cost?: number;
   version_no?: number;
   status?: JourneyEstimateStatusEnum;
   journey_input_snapshot?: IJourneyInputSnapshotItem;
@@ -23,13 +24,6 @@ export interface IJourneyEstimate {
   labor_breakdown?: ILaborBreakdownItem;
   direct_cost_groups?: IDirectCostGroupsItem[];
   validation_result?: IValidationResultItem;
-  //deprecated fields
-  // tax_rate?: number;
-  // subtotal?: number;
-  // tax_amount?: number;
-  // grand_total?: number;
-  // notes?: string;
-  // groups?: IGroupsItem[];
 }
 
 export interface IJourneyInputSnapshotItem {
@@ -114,38 +108,12 @@ export interface IValidationResultItem {
   warning_note?: string;
 }
 
-export interface IGroupsItem {
-  //deprecated fields
-  // template_id?: string;
-  // idx_template_id?: IndexedContentItem;
-  // name?: string;
-  // quantity?: number;
-  // unit?: string;
-  // group_total?: number;
-  // notes?: string;
-  // components?: IComponentsItem[];
-}
-
-export interface IComponentsItem {
-  //deprecated fields
-  // type?: ComponentsTypeEnum2;
-  // item_id?: string;
-  // idx_item_id?: IndexedContentItem;
-  // labor_price_config_id?: string;
-  // idx_labor_price_config_id?: IndexedContentItem;
-  // name?: string;
-  // unit?: string;
-  // quantity?: number;
-  // unit_price?: number;
-  // line_total?: number;
-  // note?: string;
-}
-
 export interface ICreateJourneyEstimateInput {
   code?: string;
   journey_id?: string;
   survey_record_id?: string;
   pricing_policy_id?: string;
+  total_estimate_cost?: number;
   version_no?: number;
   status?: JourneyEstimateStatusEnum2;
   journey_input_snapshot?: IJourneyInputSnapshotItem;
@@ -154,13 +122,6 @@ export interface ICreateJourneyEstimateInput {
   labor_breakdown?: ILaborBreakdownItem;
   direct_cost_groups?: IDirectCostGroupsItem[];
   validation_result?: IValidationResultItem;
-  //deprecated fields
-  // tax_rate?: number;
-  // subtotal?: number;
-  // tax_amount?: number;
-  // grand_total?: number;
-  // notes?: string;
-  // groups?: IGroupsItem[];
 }
 
 export type IJourneyEstimateListResponse = ApiListResponse<IJourneyEstimate>
@@ -172,5 +133,4 @@ export type QuoteDerivationPricingModeEnum = 'policy_first' | 'target_quote_chec
 export type StandardizedBucketsBucketCodeEnum = '01_materials' | '02_labor_total' | '03_warranty_maintenance' | '04_risk' | '05_corporate_tax' | '06_sales_cost' | '07_management_cost' | '08_hidden_cost' | '09_profit';
 export type ComponentsTypeEnum = 'material' | 'labor' | 'other';
 export type ComponentsCalcModeEnum = 'manual' | 'package_m2' | 'daily_worker' | 'formula';
-export type ComponentsTypeEnum2 = 'material' | 'labor' | 'other';
 export type JourneyEstimateStatusEnum2 = 'draft' | 'reviewing' | 'approved' | 'superseded';

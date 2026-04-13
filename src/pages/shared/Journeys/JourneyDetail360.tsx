@@ -42,6 +42,7 @@ import {
     Form,
     Grid,
     Input,
+    InputNumber,
     Menu,
     message,
     Modal,
@@ -79,6 +80,7 @@ import { IJourney } from '../../../services/core-contracts/types/journey.types';
 import { JourneyStepRenderer, StepLabor, StepMaterials, Step04SolutionOrchestration } from '../JourneySteps';
 
 import { AuthorizedUserSelect } from '../../../components/authorizedusers/AuthorizedUser';
+import { MasterDataSelect } from '../../../components/common/MasterDataSelect';
 import { JourneyDocumentsTab } from '../../../components/journey/JourneyDocumentsTab';
 import JourneyUpsertDrawer from '../../../components/journey/JourneyUpsertDrawer';
 import { StepWorkTaskList } from '../../../components/journey/StepWorkTaskList';
@@ -205,7 +207,7 @@ const getPrimaryJourneyAssigneeForRole = (journey: IJourney, assigneeRole: WorkT
 const journeyStepLabel = (stepCode: string) => HEADER_STEP_CONFIG.find((s) => s.key === stepCode)?.label || stepCode;
 
 type BuildWorkTasksResult =
-    | { ok: true; tasks: ICreateWorkTaskInput[] }
+    | { ok: true; tasks: ICreateWorkTaskInput[]; skippedRoles?: WorkTaskAssigneeRoleEnum2[] }
     | {
         ok: false;
         missingRoleOnChecklist: string[];
@@ -280,13 +282,15 @@ const buildWorkTasksFromSetting = (
     if (missingRoleOnChecklist.length > 0) {
         return { ok: false, missingRoleOnChecklist, missingAssigneeByRole: new Map() };
     }
-    if (missingAssigneeByRole.size > 0) {
-        return { ok: false, missingRoleOnChecklist: [], missingAssigneeByRole };
-    }
     if (tasksToCreate.length === 0) {
         return { ok: false, reason: 'no_tasks' };
     }
-    return { ok: true, tasks: tasksToCreate };
+    // Proceed even when some roles have no assignee — skip those tasks and warn.
+    return {
+        ok: true,
+        tasks: tasksToCreate,
+        skippedRoles: missingAssigneeByRole.size > 0 ? [...missingAssigneeByRole.keys()] : undefined,
+    };
 };
 
 const GO_NO_GO_CONFIG: Record<GoNoGoStatus, { label: string; color: string }> = {
@@ -714,6 +718,10 @@ const JourneyDetail360: React.FC = () => {
     const [chatDrawerLayoutMode, setChatDrawerLayoutMode] = useState<ChatPanelLayoutMode>('expanded');
     const [customerJourneySetting, setCustomerJourneySetting] = useState<ICustomerJourneySetting | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [dispatchWorkError, setDispatchWorkError] = useState<string | null>(null);
+    const [showEstimateInputModal, setShowEstimateInputModal] = useState(false);
+    const [estimateInputForm] = Form.useForm();
+    const [isSavingEstimateInput, setIsSavingEstimateInput] = useState(false);
     const [publishTab, setPublishTab] = useState('settings');
     const [dispatchWorkForm] = Form.useForm();
     const [priorityForm] = Form.useForm();
@@ -726,59 +734,6 @@ const JourneyDetail360: React.FC = () => {
     const [resetStepCode, setResetStepCode] = useState<string | null>(null);
     const [modal, modalContextHolder] = Modal.useModal();
 
-    const showBuildWorkTasksFailure = (built: BuildWorkTasksResult) => {
-        if (built.ok) return;
-        if ('reason' in built) {
-            if (built.reason === 'no_setting') {
-                message.error('Không tìm thấy cấu hình các bước (CustomerJourneySetting.steps)');
-            } else {
-                message.warning('Không có nhiệm vụ checklist nào được bật trong cấu hình.');
-            }
-            return;
-        }
-        if (built.missingRoleOnChecklist.length > 0) {
-            message.error({
-                content: (
-                    <div>
-                        <div style={{ marginBottom: 8 }}>Cấu hình checklist chưa đủ vai trò:</div>
-                        <ul style={{ margin: 0, paddingLeft: 18, maxHeight: 220, overflow: 'auto' }}>
-                            {built.missingRoleOnChecklist.slice(0, 12).map((line: string, i: number) => (
-                                <li key={i} style={{ fontSize: 12 }}>{line}</li>
-                            ))}
-                        </ul>
-                        {built.missingRoleOnChecklist.length > 12 && (
-                            <div style={{ fontSize: 12, marginTop: 6 }}>
-                                … và thêm {built.missingRoleOnChecklist.length - 12} mục.
-                            </div>
-                        )}
-                    </div>
-                ),
-                duration: 10,
-            });
-            return;
-        }
-        if (built.missingAssigneeByRole.size > 0) {
-            message.error({
-                content: (
-                    <div>
-                        <div style={{ marginBottom: 8 }}>
-                            Chưa gán đủ người theo vai trò — không thể tạo WorkTask (bắt buộc assignee + assignee_role).
-                            Điền đủ phân công bên dưới hoặc kiểm tra cấu hình checklist:
-                        </div>
-                        <ul style={{ margin: 0, paddingLeft: 18 }}>
-                            {[...built.missingAssigneeByRole.entries()].map(([role, hint]) => (
-                                <li key={role} style={{ fontSize: 12 }}>
-                                    <strong>{role}</strong>: {hint}
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                ),
-                duration: 12,
-            });
-        }
-    };
-
     const openDispatchWorkModal = () => {
         if (!journey) return;
         dispatchWorkForm.setFieldsValue({
@@ -788,6 +743,7 @@ const JourneyDetail360: React.FC = () => {
             sale_users: journey.sale_users,
             delivery_note: journey.delivery_note,
         });
+        setDispatchWorkError(null);
         setShowDispatchWorkModal(true);
     };
 
@@ -812,12 +768,23 @@ const JourneyDetail360: React.FC = () => {
             delivery_note: values.delivery_note,
         };
 
+        setDispatchWorkError(null);
         setIsSubmitting(true);
         try {
             const setting = await customerJourneySettingService.findSetting();
             const built = buildWorkTasksFromSetting(setting, journeyId, mergedJourney);
             if (!built.ok) {
-                showBuildWorkTasksFailure(built);
+                if ('reason' in built) {
+                    setDispatchWorkError(
+                        built.reason === 'no_setting'
+                            ? 'Không tìm thấy cấu hình bước công việc (CustomerJourneySetting). Vui lòng kiểm tra mục Cài đặt.'
+                            : 'Không có nhiệm vụ checklist nào được bật trong cấu hình. Vui lòng kiểm tra mục Cài đặt.'
+                    );
+                } else if (built.missingRoleOnChecklist.length > 0) {
+                    setDispatchWorkError(
+                        `Cấu hình checklist chưa đủ vai trò:\n• ${built.missingRoleOnChecklist.slice(0, 5).join('\n• ')}${built.missingRoleOnChecklist.length > 5 ? `\n… và ${built.missingRoleOnChecklist.length - 5} mục khác.` : ''}`
+                    );
+                }
                 return;
             }
 
@@ -839,16 +806,17 @@ const JourneyDetail360: React.FC = () => {
 
             await workTaskService.saveManyWorkTasks(built.tasks);
 
-            message.success(
-                `Đã cập nhật phân công và giao ${built.tasks.length} nhiệm vụ (assignee + assignee_role theo cấu hình).`
-            );
+            const skippedMsg = built.skippedRoles?.length
+                ? ` (bỏ qua vai trò chưa gán: ${built.skippedRoles.join(', ')})`
+                : '';
+            message.success(`Đã cập nhật phân công và giao ${built.tasks.length} nhiệm vụ${skippedMsg}.`);
             setShowDispatchWorkModal(false);
             fetchJourney();
             await fetchWorkTasks();
             window.dispatchEvent(new CustomEvent('journey-tasks-updated'));
         } catch (error) {
             console.error('Dispatch work error:', error);
-            message.error('Lỗi khi giao việc: ' + (error instanceof Error ? error.message : 'Unknown error'));
+            setDispatchWorkError('Lỗi khi giao việc: ' + (error instanceof Error ? error.message : 'Unknown error'));
         } finally {
             setIsSubmitting(false);
         }
@@ -2089,6 +2057,50 @@ const JourneyDetail360: React.FC = () => {
                         </Row>
                     )}
                 </div>
+
+                {/* Project Snapshot — estimate input fields */}
+                {(journey.area_m2 || journey.execution_days || journey.complexity_level) && (
+                    <div
+                        style={{
+                            marginTop: 10,
+                            padding: isMobile ? '6px 10px' : '10px 16px',
+                            borderRadius: 8,
+                            background: 'rgba(255,255,255,0.06)',
+                            border: '1px solid rgba(255,255,255,0.10)',
+                            display: 'flex',
+                            flexWrap: 'wrap',
+                            gap: isMobile ? 12 : 24,
+                            alignItems: 'center',
+                        }}
+                    >
+                        {journey.area_m2 != null && (
+                            <div>
+                                <Text style={{ color: 'rgba(255,255,255,0.65)', fontSize: 11 }}>Diện tích</Text>
+                                <div>
+                                    <Text strong style={{ color: '#fff', fontSize: 14 }}>{journey.area_m2} m²</Text>
+                                </div>
+                            </div>
+                        )}
+                        {journey.execution_days != null && (
+                            <div>
+                                <Text style={{ color: 'rgba(255,255,255,0.65)', fontSize: 11 }}>Thời gian thi công</Text>
+                                <div>
+                                    <Text strong style={{ color: '#fff', fontSize: 14 }}>{journey.execution_days} ngày</Text>
+                                </div>
+                            </div>
+                        )}
+                        {journey.complexity_level && (
+                            <div>
+                                <Text style={{ color: 'rgba(255,255,255,0.65)', fontSize: 11 }}>Mức độ phức tạp</Text>
+                                <div>
+                                    <Tag color={journey.complexity_level === 'standard' ? 'blue' : journey.complexity_level === 'difficult' ? 'orange' : 'purple'} style={{ marginTop: 2 }}>
+                                        {journey.complexity_level.toUpperCase()}
+                                    </Tag>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
             </Card>
 
             <Drawer
@@ -2198,15 +2210,52 @@ const JourneyDetail360: React.FC = () => {
                 />
             </Drawer>
 
+            {/* Estimate readiness warning — shown globally below header */}
+            {!(journey.serviceTypeId && journey.area_m2 && journey.execution_days) && (
+                <Alert
+                    type="warning"
+                    showIcon
+                    style={{ marginBottom: 12, borderRadius: 10 }}
+                    message="Hồ sơ chưa đủ dữ liệu để tính dự toán tự động"
+                    description={
+                        <Space size={4} wrap>
+                            <span>
+                                Cần có:{' '}
+                                {[
+                                    !journey.serviceTypeId && 'Dịch vụ yêu cầu',
+                                    !journey.area_m2 && 'Diện tích (m²)',
+                                    !journey.execution_days && 'Số ngày thi công',
+                                ].filter(Boolean).join(', ')}.
+                            </span>
+                            <Button
+                                size="small"
+                                type="primary"
+                                onClick={() => {
+                                    estimateInputForm.setFieldsValue({
+                                        serviceTypeId: journey.serviceTypeId,
+                                        area_m2: journey.area_m2,
+                                        execution_days: journey.execution_days,
+                                        complexity_level: journey.complexity_level || 'standard',
+                                    });
+                                    setShowEstimateInputModal(true);
+                                }}
+                            >
+                                Bổ sung ngay
+                            </Button>
+                        </Space>
+                    }
+                />
+            )}
+
             {/* 360 Tabs Header - Replaced standard Antd Tabs with custom buttons */}
-            <Card 
-                variant="borderless" 
-                style={{ 
-                    marginBottom: 16, 
-                    borderRadius: 12, 
+            <Card
+                variant="borderless"
+                style={{
+                    marginBottom: 16,
+                    borderRadius: 12,
                     boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
                 }}
-                styles={{ body: { padding: isMobile ? '12px' : '20px' }}}
+                styles={{ body: { padding: isMobile ? '12px' : '20px' } }}
             >
                 {!isMobile ? (
                     <Space wrap size={[8, 12]}>
@@ -2215,7 +2264,7 @@ const JourneyDetail360: React.FC = () => {
                                 key={item.key}
                                 type={resolvedActiveTab === item.key ? 'primary' : 'default'}
                                 onClick={() => setSearchParams({ tab: item.key })}
-                                style={{ 
+                                style={{
                                     borderRadius: 8,
                                     height: 38,
                                     fontWeight: resolvedActiveTab === item.key ? 600 : 400,
@@ -2242,14 +2291,14 @@ const JourneyDetail360: React.FC = () => {
                         trigger={['click']}
                         placement="bottom"
                     >
-                        <Button 
-                            block 
-                            type="primary" 
+                        <Button
+                            block
+                            type="primary"
                             size="large"
-                            style={{ 
-                                borderRadius: 8, 
-                                display: 'flex', 
-                                justifyContent: 'space-between', 
+                            style={{
+                                borderRadius: 8,
+                                display: 'flex',
+                                justifyContent: 'space-between',
                                 alignItems: 'center',
                                 height: 44
                             }}
@@ -2268,6 +2317,89 @@ const JourneyDetail360: React.FC = () => {
             <div style={{ marginBottom: 32 }}>
                 {stagedTabItems.find((item) => item.key === resolvedActiveTab)?.children}
             </div>
+
+            {/* Quick-edit modal for estimate input fields */}
+            <Modal
+                title={<Space><ExclamationCircleOutlined style={{ color: '#faad14' }} /> Bổ sung thông tin dự toán</Space>}
+                open={showEstimateInputModal}
+                onCancel={() => setShowEstimateInputModal(false)}
+                confirmLoading={isSavingEstimateInput}
+                okText="Lưu"
+                cancelText="Hủy"
+                onOk={async () => {
+                    try {
+                        await estimateInputForm.validateFields();
+                    } catch {
+                        return;
+                    }
+                    const vals = estimateInputForm.getFieldsValue();
+                    setIsSavingEstimateInput(true);
+                    try {
+                        await journeyService.updateJourney(journey._id, {
+                            serviceTypeId: vals.serviceTypeId,
+                            area_m2: vals.area_m2,
+                            execution_days: vals.execution_days,
+                            complexity_level: vals.complexity_level,
+                        });
+                        message.success('Đã cập nhật thông tin dự toán.');
+                        setShowEstimateInputModal(false);
+                        fetchJourney();
+                    } catch (err) {
+                        message.error('Lỗi khi lưu: ' + (err instanceof Error ? err.message : 'Unknown'));
+                    } finally {
+                        setIsSavingEstimateInput(false);
+                    }
+                }}
+                width={480}
+                destroyOnHidden
+            >
+                <Alert
+                    type="info"
+                    showIcon
+                    style={{ marginBottom: 16 }}
+                    message="3 trường bắt buộc để hệ thống tự động tính dự toán: Dịch vụ, Diện tích, Số ngày thi công."
+                />
+                <Form form={estimateInputForm} layout="vertical">
+                    <Form.Item
+                        label="Dịch vụ yêu cầu"
+                        name="serviceTypeId"
+                        rules={[{ required: true, message: 'Vui lòng chọn dịch vụ' }]}
+                    >
+                        <MasterDataSelect
+                            category="service_type"
+                            placeholder="Chọn loại dịch vụ..."
+                            style={{ width: '100%' }}
+                        />
+                    </Form.Item>
+                    <Row gutter={12}>
+                        <Col span={12}>
+                            <Form.Item
+                                label="Diện tích (m²)"
+                                name="area_m2"
+                                rules={[{ required: true, message: 'Bắt buộc' }, { type: 'number', min: 1, message: '> 0' }]}
+                            >
+                                <InputNumber style={{ width: '100%' }} min={1} placeholder="VD: 50" />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item
+                                label="Số ngày thi công"
+                                name="execution_days"
+                                rules={[{ required: true, message: 'Bắt buộc' }, { type: 'number', min: 1, message: '> 0' }]}
+                            >
+                                <InputNumber style={{ width: '100%' }} min={1} placeholder="VD: 30" />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                    <Form.Item label="Mức độ phức tạp" name="complexity_level">
+                        <Select>
+                            <Select.Option value="standard">Standard — Tiêu chuẩn</Select.Option>
+                            <Select.Option value="difficult">Difficult — Phức tạp</Select.Option>
+                            <Select.Option value="very_difficult">Very Difficult — Rất phức tạp</Select.Option>
+                        </Select>
+                    </Form.Item>
+                </Form>
+            </Modal>
 
             <style>{`
                 .journey-dark-steps .ant-steps-item-wait .ant-steps-item-icon { background-color: rgba(255,255,255,0.1) !important; border-color: rgba(255,255,255,0.2) !important; }
@@ -2335,7 +2467,7 @@ const JourneyDetail360: React.FC = () => {
                         cancelText="Hủy"
                         confirmLoading={isSubmitting}
                         width={560}
-                        destroyOnClose
+                        destroyOnHidden
                     >
                         <Alert
                             type="info"
@@ -2343,6 +2475,17 @@ const JourneyDetail360: React.FC = () => {
                             style={{ marginBottom: 16 }}
                             message="Cập nhật phân công trên công trình, sau đó tạo lại danh sách WorkTask từ checklist (xóa toàn bộ nhiệm vụ hiện tại của công trình). Mỗi mục checklist cần khớp người phụ trách theo vai trò (assignee + assignee_role)."
                         />
+                        {dispatchWorkError && (
+                            <Alert
+                                type="error"
+                                showIcon
+                                style={{ marginBottom: 16, whiteSpace: 'pre-line' }}
+                                message="Không thể giao việc"
+                                description={dispatchWorkError}
+                                closable
+                                onClose={() => setDispatchWorkError(null)}
+                            />
+                        )}
                         <Form form={dispatchWorkForm} layout="vertical">
                             <Form.Item label="Quản lý dự án — QL (PM)" name="pm_user">
                                 <AuthorizedUserSelect allowMultiple={false} placeholder="Chọn PM" />
