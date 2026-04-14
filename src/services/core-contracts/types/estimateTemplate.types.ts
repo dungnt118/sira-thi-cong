@@ -30,6 +30,7 @@ export interface IComponentsItem {
   quantity_per_unit?: number;
   unit_price?: number;
   note?: string;
+  price?: number;
 }
 
 export interface ICreateEstimateTemplateInput {

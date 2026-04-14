@@ -30,6 +30,7 @@ export const FIND_ESTIMATETEMPLATE_DTO = gql`
           quantity_per_unit
           unit_price
           note
+          price
         }
         total_cost_per_unit
       }
@@ -67,6 +68,7 @@ export const QUERY_ESTIMATETEMPLATES_DTO = gql`
           quantity_per_unit
           unit_price
           note
+          price
         }
         total_cost_per_unit
       }
