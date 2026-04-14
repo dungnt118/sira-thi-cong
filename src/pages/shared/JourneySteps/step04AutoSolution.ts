@@ -33,6 +33,14 @@ export interface ComputeJourneyEstimateSolutionResult {
   selectedTemplateCount: number;
 }
 
+export interface ComputeJourneyEstimateSolutionInput {
+  journey: IJourney;
+  policy: IEstimatePricingPolicy;
+  currentEstimate?: IJourneyEstimate | null;
+  appliedQuoteValueOverride?: number;
+  policyResolutionMode?: IJourneyEstimate['solution_resolution']['policy_resolution_mode'];
+}
+
 const roundMoney = (value: number) => Math.round(value || 0);
 
 const sum = (values: number[]) => values.reduce((total, value) => total + (value || 0), 0);
@@ -130,9 +138,41 @@ const inferAppliedQuantity = (
   return multiplier;
 };
 
+const matchesTemplateScale = (templateScaleType: string | undefined, resolvedScaleType: string): boolean => {
+  if (!templateScaleType || templateScaleType === 'custom') return true;
+  return templateScaleType === resolvedScaleType;
+};
+
+const describeAllocationBase = (calcBase: string | undefined): string => {
+  switch (calcBase) {
+    case 'material_cost':
+      return 'chi phí vật tư';
+    case 'labor_cost':
+      return 'chi phí nhân công';
+    case 'direct_cost':
+      return 'chi phí trực tiếp';
+    case 'contract_value':
+      return 'giá trị báo giá';
+    default:
+      return 'custom base';
+  }
+};
+
+const sharePct = (amount: number, total: number): number => {
+  if (!total || total <= 0) return 0;
+  return Math.round(((amount || 0) / total) * 10000) / 100;
+};
+
+const bucketNoteFromAllocation = (allocation: IAllocationPolicyItem | undefined): string => {
+  if (!allocation) return 'Chưa cấu hình tỷ lệ phân bổ.';
+  if (allocation.note) return allocation.note;
+  return 'Tỷ lệ ' + (allocation.default_rate_pct ?? 0) + '% trên ' + describeAllocationBase(allocation.calc_base) + '.';
+};
+
 const buildFallbackDirectCostGroups = (
   policy: IEstimatePricingPolicy,
   snapshot: InputSnapshot,
+  fallbackReason: string,
 ): IDirectCostGroupsItem[] => {
   const area = snapshot?.area_m2 ?? 0;
   const baseRate = policy.quote_suggestion_rule?.base_quote_rate_m2 ?? 0;
@@ -148,7 +188,7 @@ const buildFallbackDirectCostGroups = (
       labor_amount: 0,
       other_amount: 0,
       subtotal: materialAmount,
-      cost_basis_note: 'Fallback from pricing policy because no matching template rule was resolved.',
+      cost_basis_note: fallbackReason,
       note: policy.name ?? policy.code,
       components: [
         {
@@ -165,7 +205,7 @@ const buildFallbackDirectCostGroups = (
           source_ref_label: policy.name ?? policy.code,
           formula_code: 'policy_base_rate',
           formula_snapshot: 'base_quote_rate_m2 x area x complexity',
-          cost_note: 'Generated from pricing policy fallback',
+          cost_note: fallbackReason,
         },
       ],
     },
@@ -253,13 +293,25 @@ const buildSimpleRoleAllocations = (roleSnapshot: RoleSnapshot, laborBreakdown: 
   return allocations;
 };
 
-export const computeJourneyEstimateSolution = async (input: ComputeJourneyEstimateSolutionInput): Promise<ComputeJourneyEstimateSolutionResult> => {
-  const { journey, policy, currentEstimate, appliedQuoteValueOverride, policyResolutionMode } = input;
-  const journeyInputSnapshot = buildJourneyInputSnapshot(journey, currentEstimate?.journey_input_snapshot);
-  const journeyRoleSnapshot = buildJourneyRoleSnapshot(journey, currentEstimate?.journey_role_snapshot);
-  const resolvedScaleType = resolveScaleType(policy, journeyInputSnapshot);
-  const matchedRules = (policy.template_rules ?? []).filter((rule) => !!rule.template_id && matchesTemplateRule(rule, journeyInputSnapshot, journey.complexity_level));
-  const templates = await Promise.all(matchedRules.map(async (rule) => { try { return rule.template_id ? await estimateTemplateService.findContent(rule.template_id) as IEstimateTemplate : null; } catch { return null; } }));
+const fetchTemplatesByServiceType = async (serviceTypeId: string): Promise<IEstimateTemplate[]> => {
+  if (!serviceTypeId) return [];
+  try {
+    const response = await estimateTemplateService.queryContent({
+      group: {
+        op: 'AND',
+        children: [
+          { id: 'service_type_id', operation: '==', value: serviceTypeId, children: [] },
+        ],
+      },
+      sorted: [{ id: 'createdTime', desc: true }],
+    } as any);
+    return response?.data ?? [];
+  } catch {
+    return [];
+  }
+};
+
+const buildTemplateDependencyCaches = async (templates: Array<IEstimateTemplate | null>) => {
   const materialIds = new Set<string>();
   const laborIds = new Set<string>();
   templates.forEach((template) => {
@@ -282,17 +334,129 @@ export const computeJourneyEstimateSolution = async (input: ComputeJourneyEstima
       return [id, null] as const;
     }
   }));
-  const materialCache = new Map(materialEntries);
-  const laborCache = new Map(laborEntries);
-  const directCostGroups = [];
-  for (let index = 0; index < matchedRules.length; index += 1) {
-    const template = templates[index];
-    const rule = matchedRules[index];
-    if (!template) continue;
-    if (template.scale_type && template.scale_type !== resolvedScaleType && template.scale_type !== 'custom') continue;
-    directCostGroups.push(await buildGroupFromTemplate(template, rule, journeyInputSnapshot, materialCache, laborCache));
+  return {
+    materialCache: new Map(materialEntries),
+    laborCache: new Map(laborEntries),
+  };
+};
+
+const resolveAllocationBaseAmount = (
+  calcBase: IAllocationPolicyItem['calc_base'],
+  materialsAmount: number,
+  laborTotal: number,
+  directCost: number,
+  appliedQuoteValue: number,
+): number => {
+  switch (calcBase) {
+    case 'material_cost':
+      return materialsAmount;
+    case 'labor_cost':
+      return laborTotal;
+    case 'direct_cost':
+      return directCost;
+    case 'contract_value':
+      return appliedQuoteValue;
+    default:
+      return 0;
   }
-  const resolvedGroups = directCostGroups.length > 0 ? directCostGroups : buildFallbackDirectCostGroups(policy, journeyInputSnapshot);
+};
+
+export const computeJourneyEstimateSolution = async (input: ComputeJourneyEstimateSolutionInput): Promise<ComputeJourneyEstimateSolutionResult> => {
+  const { journey, policy, currentEstimate, appliedQuoteValueOverride, policyResolutionMode } = input;
+  const journeyInputSnapshot = buildJourneyInputSnapshot(journey, currentEstimate?.journey_input_snapshot);
+  const journeyRoleSnapshot = buildJourneyRoleSnapshot(journey, currentEstimate?.journey_role_snapshot);
+  const resolvedScaleType = resolveScaleType(policy, journeyInputSnapshot);
+  const templateRules = policy.template_rules ?? [];
+  const matchedRules = templateRules.filter((rule) => !!rule.template_id && matchesTemplateRule(rule, journeyInputSnapshot, journey.complexity_level));
+  let policy_has_no_template_rules = false;
+  let template_rules_present_but_no_rule_matched = false;
+  let rule_matched_but_template_filtered_or_missing = false;
+  let auto_matched_single_template = false;
+  let matched_template_rules = false;
+  let ambiguous_template_candidates = false;
+  let templateSelectionNote = '';
+  let fallbackReason = '';
+  let selectedTemplatePairs: Array<{ rule: ITemplateRulesItem; template: IEstimateTemplate }> = [];
+
+  if (templateRules.length === 0) {
+    policy_has_no_template_rules = true;
+    if (journey.serviceTypeId) {
+      const serviceTypeTemplates = await fetchTemplatesByServiceType(journey.serviceTypeId);
+      const exactScaleCandidates = serviceTypeTemplates.filter((template) => matchesTemplateScale(template.scale_type, resolvedScaleType) && template.scale_type === resolvedScaleType);
+      if (exactScaleCandidates.length === 1) {
+        const template = exactScaleCandidates[0];
+        auto_matched_single_template = true;
+        selectedTemplatePairs = [{
+          template,
+          rule: {
+            template_id: template._id,
+            default_multiplier: 1,
+            note: 'Auto-matched because policy has no template rules and exactly one service-type template matched the resolved scale.',
+          },
+        }];
+        templateSelectionNote = 'Auto-matched single template because policy has no template rules and exactly one service-type template matched scale ' + resolvedScaleType + '.';
+      } else {
+        const genericScaleCandidates = exactScaleCandidates.length === 0
+          ? serviceTypeTemplates.filter((template) => matchesTemplateScale(template.scale_type, resolvedScaleType) && (!template.scale_type || template.scale_type === 'custom'))
+          : [];
+        if (genericScaleCandidates.length === 1) {
+          const template = genericScaleCandidates[0];
+          auto_matched_single_template = true;
+          selectedTemplatePairs = [{
+            template,
+            rule: {
+              template_id: template._id,
+              default_multiplier: 1,
+              note: 'Auto-matched because policy has no template rules and exactly one generic/custom-scale template remained for the service type.',
+            },
+          }];
+          templateSelectionNote = 'Auto-matched single template because policy has no template rules, no exact scale template existed, and one generic/custom candidate remained.';
+        } else if (exactScaleCandidates.length > 1 || genericScaleCandidates.length > 1) {
+          ambiguous_template_candidates = true;
+          const candidateCount = exactScaleCandidates.length > 1 ? exactScaleCandidates.length : genericScaleCandidates.length;
+          fallbackReason = 'Fallback used because policy has no template rules and ' + String(candidateCount) + ' EstimateTemplate candidates were found for service type ' + journey.serviceTypeId + ' at scale ' + resolvedScaleType + ', so no single template could be auto-selected.';
+          templateSelectionNote = fallbackReason;
+        } else {
+          fallbackReason = 'Fallback used because policy has no template rules and no usable EstimateTemplate was found for service type ' + journey.serviceTypeId + ' at scale ' + resolvedScaleType + '.';
+          templateSelectionNote = fallbackReason;
+        }
+      }
+    } else {
+      fallbackReason = 'Fallback used because policy has no template rules and journey.serviceTypeId is empty, so EstimateTemplate auto-matching could not run.';
+      templateSelectionNote = fallbackReason;
+    }
+  } else if (matchedRules.length === 0) {
+    template_rules_present_but_no_rule_matched = true;
+    fallbackReason = 'Fallback used because policy template rules exist but none matched the current journey area, execution days, and complexity.';
+    templateSelectionNote = fallbackReason;
+  } else {
+    const explicitPairs = await Promise.all(matchedRules.map(async (rule) => {
+      try {
+        const template = rule.template_id ? await estimateTemplateService.findContent(rule.template_id) as IEstimateTemplate : null;
+        return { rule, template };
+      } catch {
+        return { rule, template: null };
+      }
+    }));
+    selectedTemplatePairs = explicitPairs.filter((pair): pair is { rule: ITemplateRulesItem; template: IEstimateTemplate } => !!pair.template && matchesTemplateScale(pair.template.scale_type, resolvedScaleType));
+    if (selectedTemplatePairs.length > 0) {
+      matched_template_rules = true;
+      templateSelectionNote = 'Matched ' + String(selectedTemplatePairs.length) + ' template rule(s) and expanded the usable templates into direct-cost groups.';
+    } else {
+      rule_matched_but_template_filtered_or_missing = true;
+      fallbackReason = 'Fallback used because policy template rules matched, but every referenced template was missing or filtered out by scale ' + resolvedScaleType + '.';
+      templateSelectionNote = fallbackReason;
+    }
+  }
+
+  const { materialCache, laborCache } = await buildTemplateDependencyCaches(selectedTemplatePairs.map((pair) => pair.template));
+  const directCostGroups: IDirectCostGroupsItem[] = [];
+  for (const pair of selectedTemplatePairs) {
+    directCostGroups.push(await buildGroupFromTemplate(pair.template, pair.rule, journeyInputSnapshot, materialCache, laborCache));
+  }
+  const usedTemplates = directCostGroups.length > 0;
+  const finalFallbackReason = fallbackReason || 'Fallback used because no usable template-based solution could be resolved.';
+  const resolvedGroups = usedTemplates ? directCostGroups : buildFallbackDirectCostGroups(policy, journeyInputSnapshot, finalFallbackReason);
   const materialsAmount = sum(resolvedGroups.map((group) => group.material_amount ?? 0));
   const templateLabor = sum(resolvedGroups.map((group) => group.labor_amount ?? 0));
   const workingDays = policy.labor_policy?.working_days_per_month ?? 26;
@@ -305,14 +469,25 @@ export const computeJourneyEstimateSolution = async (input: ComputeJourneyEstima
     technical_commission: technicalCommission,
     supervisor_commission: supervisorCommission,
     labor_total: templateLabor + internalFixedSalary + technicalCommission + supervisorCommission,
-    note: directCostGroups.length > 0 ? 'Generated from templates.' : 'Generated from policy fallback.',
+    note: usedTemplates
+      ? (auto_matched_single_template ? 'Generated from auto-matched template.' : 'Generated from matched template rules.')
+      : 'Generated from policy fallback. ' + finalFallbackReason,
   };
   const otherDirectCost = sum(resolvedGroups.map((group) => group.other_amount ?? 0));
   const directCost = materialsAmount + (laborBreakdown.labor_total ?? 0) + otherDirectCost;
   const profitPct = (policy.profit_policy?.target_profit_pct_min ?? 0) / 100;
   const recommendedQuote = roundMoney(directCost / Math.max(0.01, 1 - profitPct));
   const appliedQuoteValue = roundMoney(appliedQuoteValueOverride && appliedQuoteValueOverride > 0 ? appliedQuoteValueOverride : recommendedQuote);
+  const allocationPolicyMap = new Map((policy.allocation_policy ?? []).map((allocation) => [allocation.bucket_code, allocation]));
   const allocationAmounts: Record<string, number> = {
+    '03_warranty_maintenance': 0,
+    '04_risk': 0,
+    '05_corporate_tax': 0,
+    '06_sales_cost': 0,
+    '07_management_cost': 0,
+    '08_hidden_cost': 0,
+  };
+  const allocationBaseAmounts: Record<string, number> = {
     '03_warranty_maintenance': 0,
     '04_risk': 0,
     '05_corporate_tax': 0,
@@ -323,23 +498,8 @@ export const computeJourneyEstimateSolution = async (input: ComputeJourneyEstima
   (policy.allocation_policy ?? []).forEach((allocation) => {
     if (!allocation.bucket_code || !(allocation.bucket_code in allocationAmounts)) return;
     const pct = (allocation.default_rate_pct ?? 0) / 100;
-    let base = 0;
-    switch (allocation.calc_base) {
-      case 'material_cost':
-        base = materialsAmount;
-        break;
-      case 'labor_cost':
-        base = laborBreakdown.labor_total ?? 0;
-        break;
-      case 'direct_cost':
-        base = directCost;
-        break;
-      case 'contract_value':
-        base = appliedQuoteValue;
-        break;
-      default:
-        base = 0;
-    }
+    const base = resolveAllocationBaseAmount(allocation.calc_base, materialsAmount, laborBreakdown.labor_total ?? 0, directCost, appliedQuoteValue);
+    allocationBaseAmounts[allocation.bucket_code] = base;
     allocationAmounts[allocation.bucket_code] = roundMoney(base * pct);
   });
   const internalCost = directCost + Object.values(allocationAmounts).reduce((total, value) => total + value, 0);
@@ -348,17 +508,97 @@ export const computeJourneyEstimateSolution = async (input: ComputeJourneyEstima
   laborBreakdown.role_allocation_total = sum(roleCostAllocations.map((item) => item.amount ?? 0));
   laborBreakdown.sale_related_excluded = allocationAmounts['06_sales_cost'];
   laborBreakdown.management_related_excluded = allocationAmounts['07_management_cost'];
+  const baseRate = policy.quote_suggestion_rule?.base_quote_rate_m2 ?? 0;
+  const area = journeyInputSnapshot?.area_m2 ?? 0;
+  const complexity = journeyInputSnapshot?.project_complexity_factor ?? 1;
   const standardizedBuckets: IStandardizedBucketsItem[] = [
-    { bucket_code: '01_materials', bucket_name: 'Materials', amount: materialsAmount },
-    { bucket_code: '02_labor_total', bucket_name: 'Labor', amount: laborBreakdown.labor_total ?? 0 },
-    { bucket_code: '03_warranty_maintenance', bucket_name: 'Warranty & Maintenance', amount: allocationAmounts['03_warranty_maintenance'] },
-    { bucket_code: '04_risk', bucket_name: 'Risk', amount: allocationAmounts['04_risk'] },
-    { bucket_code: '05_corporate_tax', bucket_name: 'Corporate Tax', amount: allocationAmounts['05_corporate_tax'] },
-    { bucket_code: '06_sales_cost', bucket_name: 'Sales Cost', amount: allocationAmounts['06_sales_cost'] },
-    { bucket_code: '07_management_cost', bucket_name: 'Management Cost', amount: allocationAmounts['07_management_cost'] },
-    { bucket_code: '08_hidden_cost', bucket_name: 'Hidden Cost', amount: allocationAmounts['08_hidden_cost'] },
-    { bucket_code: '09_profit', bucket_name: 'Profit', amount: profitAmount },
+    {
+      bucket_code: '01_materials',
+      bucket_name: 'Materials',
+      rate_pct: sharePct(materialsAmount, appliedQuoteValue),
+      base_amount: materialsAmount,
+      amount: materialsAmount,
+      formula_source: usedTemplates ? 'sum(template material components)' : 'base_quote_rate_m2 x area_m2 x project_complexity_factor',
+      note: usedTemplates
+        ? 'Materials aggregated from template-generated component lines across ' + String(directCostGroups.length) + ' direct-cost group(s).'
+        : 'Fallback materials derived from quote_suggestion_rule base rate ' + String(baseRate) + ' x area ' + String(area) + ' x complexity ' + String(complexity) + '.',
+    },
+    {
+      bucket_code: '02_labor_total',
+      bucket_name: 'Labor',
+      rate_pct: sharePct(laborBreakdown.labor_total ?? 0, appliedQuoteValue),
+      base_amount: laborBreakdown.labor_total ?? 0,
+      amount: laborBreakdown.labor_total ?? 0,
+      formula_source: 'template labor + internal salary allocation + technical commission + supervisor commission',
+      note: 'Outsource/template labor ' + String(templateLabor) + ', internal salary ' + String(internalFixedSalary) + ', technical commission ' + String(technicalCommission) + ', supervisor commission ' + String(supervisorCommission) + '.',
+    },
+    {
+      bucket_code: '03_warranty_maintenance',
+      bucket_name: 'Warranty & Maintenance',
+      rate_pct: sharePct(allocationAmounts['03_warranty_maintenance'], appliedQuoteValue),
+      base_amount: allocationBaseAmounts['03_warranty_maintenance'],
+      amount: allocationAmounts['03_warranty_maintenance'],
+      formula_source: allocationPolicyMap.get('03_warranty_maintenance')?.formula_code ?? ((allocationPolicyMap.get('03_warranty_maintenance')?.default_rate_pct ?? 0) + '% x ' + describeAllocationBase(allocationPolicyMap.get('03_warranty_maintenance')?.calc_base)),
+      note: bucketNoteFromAllocation(allocationPolicyMap.get('03_warranty_maintenance')),
+    },
+    {
+      bucket_code: '04_risk',
+      bucket_name: 'Risk',
+      rate_pct: sharePct(allocationAmounts['04_risk'], appliedQuoteValue),
+      base_amount: allocationBaseAmounts['04_risk'],
+      amount: allocationAmounts['04_risk'],
+      formula_source: allocationPolicyMap.get('04_risk')?.formula_code ?? ((allocationPolicyMap.get('04_risk')?.default_rate_pct ?? 0) + '% x ' + describeAllocationBase(allocationPolicyMap.get('04_risk')?.calc_base)),
+      note: bucketNoteFromAllocation(allocationPolicyMap.get('04_risk')),
+    },
+    {
+      bucket_code: '05_corporate_tax',
+      bucket_name: 'Corporate Tax',
+      rate_pct: sharePct(allocationAmounts['05_corporate_tax'], appliedQuoteValue),
+      base_amount: allocationBaseAmounts['05_corporate_tax'],
+      amount: allocationAmounts['05_corporate_tax'],
+      formula_source: allocationPolicyMap.get('05_corporate_tax')?.formula_code ?? ((allocationPolicyMap.get('05_corporate_tax')?.default_rate_pct ?? 0) + '% x ' + describeAllocationBase(allocationPolicyMap.get('05_corporate_tax')?.calc_base)),
+      note: bucketNoteFromAllocation(allocationPolicyMap.get('05_corporate_tax')),
+    },
+    {
+      bucket_code: '06_sales_cost',
+      bucket_name: 'Sales Cost',
+      rate_pct: sharePct(allocationAmounts['06_sales_cost'], appliedQuoteValue),
+      base_amount: allocationBaseAmounts['06_sales_cost'],
+      amount: allocationAmounts['06_sales_cost'],
+      formula_source: allocationPolicyMap.get('06_sales_cost')?.formula_code ?? ((allocationPolicyMap.get('06_sales_cost')?.default_rate_pct ?? 0) + '% x ' + describeAllocationBase(allocationPolicyMap.get('06_sales_cost')?.calc_base)),
+      note: bucketNoteFromAllocation(allocationPolicyMap.get('06_sales_cost')),
+    },
+    {
+      bucket_code: '07_management_cost',
+      bucket_name: 'Management Cost',
+      rate_pct: sharePct(allocationAmounts['07_management_cost'], appliedQuoteValue),
+      base_amount: allocationBaseAmounts['07_management_cost'],
+      amount: allocationAmounts['07_management_cost'],
+      formula_source: allocationPolicyMap.get('07_management_cost')?.formula_code ?? ((allocationPolicyMap.get('07_management_cost')?.default_rate_pct ?? 0) + '% x ' + describeAllocationBase(allocationPolicyMap.get('07_management_cost')?.calc_base)),
+      note: bucketNoteFromAllocation(allocationPolicyMap.get('07_management_cost')),
+    },
+    {
+      bucket_code: '08_hidden_cost',
+      bucket_name: 'Hidden Cost',
+      rate_pct: sharePct(allocationAmounts['08_hidden_cost'], appliedQuoteValue),
+      base_amount: allocationBaseAmounts['08_hidden_cost'],
+      amount: allocationAmounts['08_hidden_cost'],
+      formula_source: allocationPolicyMap.get('08_hidden_cost')?.formula_code ?? ((allocationPolicyMap.get('08_hidden_cost')?.default_rate_pct ?? 0) + '% x ' + describeAllocationBase(allocationPolicyMap.get('08_hidden_cost')?.calc_base)),
+      note: bucketNoteFromAllocation(allocationPolicyMap.get('08_hidden_cost')),
+    },
+    {
+      bucket_code: '09_profit',
+      bucket_name: 'Profit',
+      rate_pct: sharePct(profitAmount, appliedQuoteValue),
+      base_amount: appliedQuoteValue,
+      amount: profitAmount,
+      formula_source: 'applied_quote_value - internal_cost',
+      note: 'Residual profit after subtracting direct cost and all configured allocations from the applied quote value.',
+    },
   ];
+  const quoteDerivationNote = usedTemplates
+    ? (auto_matched_single_template ? templateSelectionNote : 'Generated from matched template rules. ' + templateSelectionNote)
+    : finalFallbackReason;
   return {
     journeyInputSnapshot,
     journeyRoleSnapshot,
@@ -366,12 +606,34 @@ export const computeJourneyEstimateSolution = async (input: ComputeJourneyEstima
     directCostGroups: resolvedGroups,
     laborBreakdown,
     standardizedBuckets,
-    quoteDerivation: { recommended_quote_value_initial: recommendedQuote, pricing_mode: appliedQuoteValueOverride ? 'target_quote_check' : 'policy_first', note: directCostGroups.length > 0 ? 'Generated from template rules.' : 'Generated from policy fallback.' },
-    validationResult: { is_feasible: profitAmount >= 0, target_profit_pct_min: policy.profit_policy?.target_profit_pct_min ?? 0, actual_profit_pct: appliedQuoteValue > 0 ? roundMoney((profitAmount / appliedQuoteValue) * 10000) / 100 : 0, warning_codes: directCostGroups.length > 0 ? [] : ['template_fallback'] },
-    solutionResolution: { resolved_scale_type: resolvedScaleType as any, policy_resolution_mode: (policyResolutionMode ?? (policy.service_type_id ? 'service_default' : 'global_default')) as any, policy_resolution_note: policy.name ?? policy.code, generation_status: (directCostGroups.length > 0 ? 'ready' : 'partial') as any, calc_engine_version: 'step04-auto-solution-v1', template_selection_note: directCostGroups.length > 0 ? 'Matched template rules were expanded to direct-cost groups.' : 'No template rule matched, fallback group used.' },
+    quoteDerivation: {
+      recommended_quote_value_initial: recommendedQuote,
+      pricing_mode: appliedQuoteValueOverride ? 'target_quote_check' : 'policy_first',
+      note: quoteDerivationNote,
+    },
+    validationResult: {
+      is_feasible: profitAmount >= 0,
+      target_profit_pct_min: policy.profit_policy?.target_profit_pct_min ?? 0,
+      actual_profit_pct: appliedQuoteValue > 0 ? roundMoney((profitAmount / appliedQuoteValue) * 10000) / 100 : 0,
+      warning_codes: usedTemplates ? [] : ['template_fallback'],
+      warning_note: usedTemplates ? undefined : finalFallbackReason,
+    },
+    solutionResolution: {
+      resolved_scale_type: resolvedScaleType as any,
+      policy_resolution_mode: (policyResolutionMode ?? (policy.service_type_id ? 'service_default' : 'global_default')) as any,
+      policy_resolution_note: policy.name ?? policy.code,
+      generation_status: (usedTemplates ? 'ready' : 'partial') as any,
+      calc_engine_version: 'step04-auto-solution-v1',
+      template_selection_note: templateSelectionNote || (usedTemplates ? 'Template-based direct-cost groups were generated.' : finalFallbackReason),
+    },
     internalCost,
     appliedQuoteValue,
     recommendedQuote,
     selectedTemplateCount: directCostGroups.length,
   };
 };
+
+
+
+
+
