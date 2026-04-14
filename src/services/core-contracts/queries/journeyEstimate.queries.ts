@@ -1,4 +1,4 @@
-﻿import { gql } from 'graphql-tag';
+import { gql } from 'graphql-tag';
 
 /**
  * Find JourneyEstimate DTO with typed data
@@ -22,12 +22,10 @@ export const FIND_JOURNEYESTIMATE_DTO = gql`
         pricing_policy_id
         idx_pricing_policy_id
         total_estimate_cost
-        applied_quote_value
         version_no
         status
         journey_input_snapshot {
           service_type_id
-          idx_service_type_id
           area_m2
           execution_days
           worker_count
@@ -70,7 +68,6 @@ export const FIND_JOURNEYESTIMATE_DTO = gql`
         }
         direct_cost_groups {
           template_id
-          idx_template_id
           name
           quantity
           unit
@@ -82,9 +79,7 @@ export const FIND_JOURNEYESTIMATE_DTO = gql`
           components {
             type
             material_id
-            idx_material_id
             labor_price_config_id
-            idx_labor_price_config_id
             calc_mode
             quantity
             unit
@@ -135,6 +130,7 @@ export const FIND_JOURNEYESTIMATE_DTO = gql`
           supervisor_users
           technical_users
         }
+        applied_quote_value
         solution_resolution {
           resolved_scale_type
           policy_resolution_mode
@@ -170,12 +166,10 @@ export const QUERY_JOURNEYESTIMATES_DTO = gql`
         pricing_policy_id
         idx_pricing_policy_id
         total_estimate_cost
-        applied_quote_value
         version_no
         status
         journey_input_snapshot {
           service_type_id
-          idx_service_type_id
           area_m2
           execution_days
           worker_count
@@ -218,7 +212,6 @@ export const QUERY_JOURNEYESTIMATES_DTO = gql`
         }
         direct_cost_groups {
           template_id
-          idx_template_id
           name
           quantity
           unit
@@ -230,9 +223,7 @@ export const QUERY_JOURNEYESTIMATES_DTO = gql`
           components {
             type
             material_id
-            idx_material_id
             labor_price_config_id
-            idx_labor_price_config_id
             calc_mode
             quantity
             unit
@@ -283,6 +274,7 @@ export const QUERY_JOURNEYESTIMATES_DTO = gql`
           supervisor_users
           technical_users
         }
+        applied_quote_value
         solution_resolution {
           resolved_scale_type
           policy_resolution_mode
@@ -295,8 +287,3 @@ export const QUERY_JOURNEYESTIMATES_DTO = gql`
     }
   }
 `;
-
-
-
-
-

@@ -1,4 +1,4 @@
-﻿import type { HeadlessReferenceContent, IndexedContentItem } from 'types/apis';
+import type { HeadlessReferenceContent, IndexedContentItem } from 'types/apis';
 import type { ApiListResponse, ApiResponse } from 'types/apis/ApiResponse';
 import type { HeadlessFileUpload } from 'types/apis/HeadlessFileUpload';
 
@@ -16,7 +16,6 @@ export interface IJourneyEstimate {
   pricing_policy_id?: string;
   idx_pricing_policy_id?: IndexedContentItem;
   total_estimate_cost?: number;
-  applied_quote_value?: number;
   version_no?: number;
   status?: JourneyEstimateStatusEnum;
   journey_input_snapshot?: IJourneyInputSnapshotItem;
@@ -27,6 +26,7 @@ export interface IJourneyEstimate {
   validation_result?: IValidationResultItem;
   role_cost_allocations?: IRoleCostAllocationsItem[];
   journey_role_snapshot?: IJourneyRoleSnapshotItem;
+  applied_quote_value?: number;
   solution_resolution?: ISolutionResolutionItem;
 }
 
@@ -165,7 +165,6 @@ export interface ICreateJourneyEstimateInput {
   survey_record_id?: string;
   pricing_policy_id?: string;
   total_estimate_cost?: number;
-  applied_quote_value?: number;
   version_no?: number;
   status?: JourneyEstimateStatusEnum2;
   journey_input_snapshot?: IJourneyInputSnapshotItem;
@@ -176,6 +175,7 @@ export interface ICreateJourneyEstimateInput {
   validation_result?: IValidationResultItem;
   role_cost_allocations?: IRoleCostAllocationsItem[];
   journey_role_snapshot?: IJourneyRoleSnapshotItem;
+  applied_quote_value?: number;
   solution_resolution?: ISolutionResolutionItem;
 }
 
@@ -196,5 +196,3 @@ export type SolutionResolutionResolvedScaleTypeEnum = 'small' | 'medium' | 'larg
 export type SolutionResolutionPolicyResolutionModeEnum = 'explicit_policy' | 'service_default' | 'global_default';
 export type SolutionResolutionGenerationStatusEnum = 'ready' | 'partial' | 'failed' | 'manual_adjusted';
 export type JourneyEstimateStatusEnum2 = 'draft' | 'reviewing' | 'approved' | 'superseded';
-
-

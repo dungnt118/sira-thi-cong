@@ -6,9 +6,10 @@ import { IJourneyEstimate } from 'services/core-contracts/types/journeyEstimate.
 import { message } from 'antd';
 
 export const useJourneyEstimateFlow = (journeyId: string) => {
-  const [journey, setJourney]   = useState<IJourney | null>(null);
-  const [estimate, setEstimate] = useState<IJourneyEstimate | null>(null);
-  const [loading, setLoading]   = useState(false);
+  const [journey, setJourney]                 = useState<IJourney | null>(null);
+  const [estimate, setEstimate]               = useState<IJourneyEstimate | null>(null);
+  const [estimateHistory, setEstimateHistory] = useState<IJourneyEstimate[]>([]);
+  const [loading, setLoading]                 = useState(false);
 
   const fetchData = useCallback(async () => {
     if (!journeyId) return;
@@ -26,10 +27,12 @@ export const useJourneyEstimateFlow = (journeyId: string) => {
           children: [{ id: 'journey_id', operation: '==', value: journeyId, children: [] }],
         },
         sorted: [{ id: 'createdTime', desc: true }],
-        limit: 1,
+        limit: 50,
       } as any);
 
-      setEstimate(eResponse?.data?.[0] ?? null);
+      const all = eResponse?.data ?? [];
+      setEstimateHistory(all);
+      setEstimate(all[0] ?? null);
     } catch (error) {
       console.error('Error fetching journey estimate data:', error);
       message.error('Không thể tải dữ liệu dự toán');
@@ -45,17 +48,26 @@ export const useJourneyEstimateFlow = (journeyId: string) => {
   const saveEstimate = async (data: Partial<IJourneyEstimate>) => {
     try {
       setLoading(true);
+      let saved: IJourneyEstimate;
       if (estimate?._id) {
-        const updated = await journeyEstimateService.updateJourneyEstimate(estimate._id, data);
-        setEstimate(updated);
+        saved = await journeyEstimateService.updateJourneyEstimate(estimate._id, data);
       } else {
-        const created = await journeyEstimateService.createJourneyEstimate({
+        saved = await journeyEstimateService.createJourneyEstimate({
           ...data,
           journey_id: journeyId,
           status: 'draft',
         });
-        setEstimate(created);
       }
+      setEstimate(saved);
+      setEstimateHistory(prev => {
+        const idx = prev.findIndex(e => e._id === saved._id);
+        if (idx >= 0) {
+          const next = [...prev];
+          next[idx] = saved;
+          return next;
+        }
+        return [saved, ...prev];
+      });
       message.success('Đã lưu dữ liệu dự toán');
     } catch (error) {
       console.error('Error saving estimate:', error);
@@ -77,6 +89,7 @@ export const useJourneyEstimateFlow = (journeyId: string) => {
   return {
     journey,
     estimate,
+    estimateHistory,
     loading,
     saveEstimate,
     refresh: fetchData,

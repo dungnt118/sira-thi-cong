@@ -19,7 +19,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
   Alert, Button, Card, Col, Collapse, Divider, Form, Input,
   InputNumber, List, Popconfirm, Progress, Row, Select,
-  Space, Spin, Statistic, Table, Tag, Tooltip, Typography,
+  Space, Spin, Statistic, Table, Tabs, Tag, Tooltip, Typography,
   message as antMessage,
 } from 'antd';
 import {
@@ -1018,7 +1018,7 @@ const DirectCostEdit: React.FC<{
 };
 
 export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ journeyId }) => {
-  const { journey, estimate, loading, saveEstimate, refresh } = useJourneyEstimateFlow(journeyId);
+  const { journey, estimate, estimateHistory, loading, saveEstimate, refresh } = useJourneyEstimateFlow(journeyId);
 
   // Edit state
   const [isEditing,          setIsEditing]          = useState(false);
@@ -1301,92 +1301,9 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
     </Space>
   );
 
-  // Render
-  return (
+  // Nội dung dự toán gần nhất (dùng chung cho cả view và edit mode)
+  const latestEstimateContent = (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-
-      {/* 0. Estimation Config - only shown in edit mode */}
-      {isEditing && (
-        <Card
-          size="small"
-          style={{ background: '#f0f5ff', border: '1px solid #adc6ff' }}
-          title={
-            <Space>
-              <SettingOutlined style={{ color: '#2f54eb' }} />
-              <Text strong style={{ color: '#2f54eb' }}>Cấu hình dự toán</Text>
-              <Tag color="blue">Đầu vào tính toán</Tag>
-            </Space>
-          }
-        >
-          <Row gutter={[16, 0]} align="bottom">
-            <Col span={10}>
-              <Form.Item
-                label={<Text strong>Chọn chính sách tính giá dự toán</Text>}
-                style={{ marginBottom: 0 }}
-                extra={<Text type='secondary' style={{ fontSize: 11 }}>Chọn policy để hệ thống tự động tính toán phân bổ chi phí</Text>}
-              >
-                <Select
-                  allowClear
-                  showSearch
-                  placeholder="Chọn chính sách giá..."
-                  style={{ width: '100%' }}
-                  value={editPolicyId ?? undefined}
-                  loading={policyOptLoading}
-                  options={policyOptions}
-                  filterOption={(input, opt) =>
-                    (opt?.label as string ?? '').toLowerCase().includes(input.toLowerCase())
-                  }
-                  onChange={handlePolicyChange}
-                  notFoundContent={policyOptLoading ? <Spin size="small" /> : 'Không có chính sách nào'}
-                />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item
-                label={<Text strong>Giá trị chào áp dụng (VND)</Text>}
-                style={{ marginBottom: 0 }}
-                extra={<Text type='secondary' style={{ fontSize: 11 }}>Nhập để ghi đè giá tự động tính từ policy</Text>}
-              >
-                <InputNumber
-                  value={editTotalCost ?? undefined}
-                  min={0}
-                  style={{ width: '100%' }}
-                  placeholder='Để trống -> tự tính'
-                  formatter={v => v ? `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : ''}
-                  parser={v => Number(v?.replace(/,/g, '') || 0)}
-                  onChange={handleTotalCostChange}
-                />
-              </Form.Item>
-            </Col>
-            <Col span={6}>
-              <Form.Item style={{ marginBottom: 0 }} label=" ">
-                <Tooltip title={!isInputReady ? 'Cần Diện tích và Số ngày thi công' : 'Tính lại từ policy + các thông tin đầu vào'}>
-                  <Button
-                    type="primary"
-                    block
-                    icon={<ThunderboltOutlined />}
-                    loading={isAutoCalcing}
-                    disabled={!isInputReady}
-                    onClick={() => runAutoCalc()}
-                  >
-                    Tính lại ngay
-                  </Button>
-                </Tooltip>
-              </Form.Item>
-            </Col>
-          </Row>
-
-          {autoCalcNote && (
-            <Alert
-              type="success" showIcon closable
-              message={<span style={{ whiteSpace: 'pre-line', fontSize: 12 }}>{autoCalcNote}</span>}
-              style={{ marginTop: 12 }}
-              onClose={() => setAutoCalcNote(null)}
-            />
-          )}
-        </Card>
-      )}
-
       {/* 1. Cost Partition - 9 Buckets */}
       <Card
         size="small"
@@ -1532,7 +1449,220 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
           </Col>
         </Row>
       </Card>
+    </div>
+  );
 
+  // Render
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+      {/* 0. Estimation Config - only shown in edit mode */}
+      {isEditing && (
+        <Card
+          size="small"
+          style={{ background: '#f0f5ff', border: '1px solid #adc6ff' }}
+          title={
+            <Space>
+              <SettingOutlined style={{ color: '#2f54eb' }} />
+              <Text strong style={{ color: '#2f54eb' }}>Cấu hình dự toán</Text>
+              <Tag color="blue">Đầu vào tính toán</Tag>
+            </Space>
+          }
+        >
+          <Row gutter={[16, 0]} align="bottom">
+            <Col span={10}>
+              <Form.Item
+                label={<Text strong>Chọn chính sách tính giá dự toán</Text>}
+                style={{ marginBottom: 0 }}
+                extra={<Text type='secondary' style={{ fontSize: 11 }}>Chọn policy để hệ thống tự động tính toán phân bổ chi phí</Text>}
+              >
+                <Select
+                  allowClear
+                  showSearch
+                  placeholder="Chọn chính sách giá..."
+                  style={{ width: '100%' }}
+                  value={editPolicyId ?? undefined}
+                  loading={policyOptLoading}
+                  options={policyOptions}
+                  filterOption={(input, opt) =>
+                    (opt?.label as string ?? '').toLowerCase().includes(input.toLowerCase())
+                  }
+                  onChange={handlePolicyChange}
+                  notFoundContent={policyOptLoading ? <Spin size="small" /> : 'Không có chính sách nào'}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item
+                label={<Text strong>Giá trị chào áp dụng (VND)</Text>}
+                style={{ marginBottom: 0 }}
+                extra={<Text type='secondary' style={{ fontSize: 11 }}>Nhập để ghi đè giá tự động tính từ policy</Text>}
+              >
+                <InputNumber
+                  value={editTotalCost ?? undefined}
+                  min={0}
+                  style={{ width: '100%' }}
+                  placeholder='Để trống -> tự tính'
+                  formatter={v => v ? `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : ''}
+                  parser={v => Number(v?.replace(/,/g, '') || 0)}
+                  onChange={handleTotalCostChange}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={6}>
+              <Form.Item style={{ marginBottom: 0 }} label=" ">
+                <Tooltip title={!isInputReady ? 'Cần Diện tích và Số ngày thi công' : 'Tính lại từ policy + các thông tin đầu vào'}>
+                  <Button
+                    type="primary"
+                    block
+                    icon={<ThunderboltOutlined />}
+                    loading={isAutoCalcing}
+                    disabled={!isInputReady}
+                    onClick={() => runAutoCalc()}
+                  >
+                    Tính lại ngay
+                  </Button>
+                </Tooltip>
+              </Form.Item>
+            </Col>
+          </Row>
+
+          {autoCalcNote && (
+            <Alert
+              type="success" showIcon closable
+              message={<span style={{ whiteSpace: 'pre-line', fontSize: 12 }}>{autoCalcNote}</span>}
+              style={{ marginTop: 12 }}
+              onClose={() => setAutoCalcNote(null)}
+            />
+          )}
+        </Card>
+      )}
+
+      {/* Edit mode: hiển thị trực tiếp, không có tabs */}
+      {isEditing ? latestEstimateContent : (
+        <Tabs
+          defaultActiveKey="latest"
+          size="small"
+          items={[
+            {
+              key: 'latest',
+              label: (
+                <Space size={4}>
+                  <DollarOutlined />
+                  <span>Dự toán gần nhất</span>
+                  {estimate?.code && <Tag style={{ marginLeft: 2 }}>{estimate.code}</Tag>}
+                </Space>
+              ),
+              children: latestEstimateContent,
+            },
+            {
+              key: 'history',
+              label: (
+                <Space size={4}>
+                  <AuditOutlined />
+                  <span>Lịch sử dự toán</span>
+                  {estimateHistory.length > 0 && (
+                    <Tag color="blue">{estimateHistory.length}</Tag>
+                  )}
+                </Space>
+              ),
+              children: (
+                <Table
+                  size="small"
+                  dataSource={estimateHistory}
+                  rowKey={r => r._id ?? r.code ?? String(Math.random())}
+                  pagination={{ pageSize: 10, showTotal: total => `${total} dự toán` }}
+                  columns={[
+                    {
+                      title: 'Mã dự toán',
+                      dataIndex: 'code',
+                      width: 180,
+                      render: (code: string, row) => (
+                        <Space direction="vertical" size={0}>
+                          <Text strong style={{ fontSize: 12 }}>{code || '—'}</Text>
+                          <Text type="secondary" style={{ fontSize: 11 }}>
+                            v{row.version_no ?? 1}
+                            {row._id === estimate?._id && (
+                              <Tag color="green" style={{ marginLeft: 4, fontSize: 10 }}>Gần nhất</Tag>
+                            )}
+                          </Text>
+                        </Space>
+                      ),
+                    },
+                    {
+                      title: 'Trạng thái',
+                      dataIndex: 'status',
+                      width: 100,
+                      render: (status: string) => (
+                        <Tag color={status === 'approved' ? 'green' : status === 'draft' ? 'default' : 'orange'}>
+                          {status ?? '—'}
+                        </Tag>
+                      ),
+                    },
+                    {
+                      title: 'Giá báo (VND)',
+                      dataIndex: 'applied_quote_value',
+                      width: 160,
+                      align: 'right' as const,
+                      render: (v: number) => <Text strong style={{ color: '#cf1322' }}>{fmt(v ?? 0)}</Text>,
+                    },
+                    {
+                      title: 'Chi phí nội bộ (VND)',
+                      dataIndex: 'total_estimate_cost',
+                      width: 160,
+                      align: 'right' as const,
+                      render: (v: number) => fmt(v ?? 0),
+                    },
+                    {
+                      title: 'LN%',
+                      width: 80,
+                      align: 'right' as const,
+                      render: (_: unknown, row: IJourneyEstimate) => {
+                        const pct = row.validation_result?.actual_profit_pct;
+                        const min = row.validation_result?.target_profit_pct_min ?? 15;
+                        if (pct == null) return '—';
+                        return (
+                          <Text style={{ color: pct >= min ? '#52c41a' : '#cf1322' }}>
+                            {pct}%
+                          </Text>
+                        );
+                      },
+                    },
+                    {
+                      title: 'Cảnh báo',
+                      width: 120,
+                      render: (_: unknown, row: IJourneyEstimate) => {
+                        const codes = row.validation_result?.warning_codes ?? [];
+                        if (!codes.length) return <Tag color="green">OK</Tag>;
+                        return codes.map(c => <Tag key={c} color="orange" style={{ fontSize: 10 }}>{c}</Tag>);
+                      },
+                    },
+                    {
+                      title: 'Ngày tạo',
+                      width: 140,
+                      render: (_: unknown, row: any) => (
+                        <Text type="secondary" style={{ fontSize: 12 }}>
+                          {row.createdTime
+                            ? new Date(row.createdTime).toLocaleString('vi-VN')
+                            : row.createdAt
+                            ? new Date(row.createdAt).toLocaleString('vi-VN')
+                            : '—'}
+                        </Text>
+                      ),
+                    },
+                    {
+                      title: 'Người tạo',
+                      dataIndex: 'createdBy',
+                      width: 160,
+                      render: (v: string) => <Text style={{ fontSize: 12 }}>{v || '—'}</Text>,
+                    },
+                  ]}
+                />
+              ),
+            },
+          ]}
+        />
+      )}
     </div>
   );
 };
