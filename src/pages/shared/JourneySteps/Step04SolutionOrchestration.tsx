@@ -1304,11 +1304,97 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
   // Nội dung dự toán gần nhất (dùng chung cho cả view và edit mode)
   const latestEstimateContent = (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+      {/* 0. Summary + Readiness — đưa lên đầu để quản lý review nhanh */}
+      {!isEditing && (
+        <Row gutter={[16, 16]}>
+          <Col xs={24} lg={12}>
+            <Card size="small"
+              title={<Space><SafetyCertificateOutlined /><Text strong>Financial Bound</Text></Space>}
+              style={{ height: '100%' }}>
+              <Statistic
+                title='Tổng giá trị dự toán (Báo giá)'
+                value={totalCost}
+                precision={0}
+                valueStyle={{ color: '#cf1322' }}
+                prefix={<DollarOutlined />}
+                formatter={v => fmt(Number(v))}
+              />
+              <Divider style={{ margin: '10px 0' }} />
+              <Space direction="vertical" style={{ width: '100%' }} size={6}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Text type='secondary'>Chi phí nội bộ (01-08):</Text>
+                  <Text strong>{fmt(internalCost)}</Text>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Text type="secondary">Lợi nhuận (phần dư):</Text>
+                  <Text strong style={{ color: currentProfitAmount > 0 ? '#52c41a' : '#cf1322' }}>
+                    {fmt(currentProfitAmount)}
+                  </Text>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Text type="secondary">LN% thực tế:</Text>
+                  <Text strong style={{ color: (currentValidationResult?.actual_profit_pct ?? 0) >= (currentValidationResult?.target_profit_pct_min ?? 15) ? '#52c41a' : '#cf1322' }}>
+                    {currentValidationResult?.actual_profit_pct ?? '-'}%
+                    <Text type="secondary" style={{ fontSize: 11, marginLeft: 4 }}>
+                      (mục tiêu: {currentValidationResult?.target_profit_pct_min ?? 15}%)
+                    </Text>
+                  </Text>
+                </div>
+                {currentQuoteDerivation?.recommended_quote_value_initial != null
+                  && currentQuoteDerivation?.recommended_quote_value_initial !== totalCost && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 4, borderTop: '1px dashed #f0f0f0' }}>
+                    <Text type='secondary' style={{ fontSize: 11 }}>Policy đề xuất:</Text>
+                    <Text type="secondary" style={{ fontSize: 11 }}>
+                      {fmt(currentQuoteDerivation?.recommended_quote_value_initial ?? 0)}
+                    </Text>
+                  </div>
+                )}
+                {currentPolicyId && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Text type="secondary" style={{ fontSize: 11 }}>Policy:</Text>
+                    <Tag color="geekblue" style={{ fontSize: 11 }}>
+                      {currentPolicyLabel}
+                    </Tag>
+                  </div>
+                )}
+                {currentValidationResult?.warning_note && (
+                  <Alert type="warning" showIcon
+                    message={currentValidationResult?.warning_note}
+                    style={{ marginTop: 4, fontSize: 11 }} />
+                )}
+              </Space>
+            </Card>
+          </Col>
+          <Col xs={24} lg={12}>
+            <Card size="small"
+              title={<Space><CheckCircleOutlined /><Text strong>Readiness Score</Text></Space>}
+              extra={toolbar}
+              style={{ height: '100%' }}>
+              <div style={{ textAlign: 'center', padding: '10px 0' }}>
+                <Progress type="dashboard" percent={currentReadinessScore}
+                  strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }} />
+              </div>
+              <List size="small" split={false}>
+                {readinessItems.map(row => (
+                  <List.Item key={row.label}>
+                    <Space>
+                      <CheckCircleOutlined style={{ color: row.ok ? '#52c41a' : '#d9d9d9' }} />
+                      <Text style={{ fontSize: 12 }}>{row.label}</Text>
+                    </Space>
+                  </List.Item>
+                ))}
+              </List>
+            </Card>
+          </Col>
+        </Row>
+      )}
+
       {/* 1. Cost Partition - 9 Buckets */}
       <Card
         size="small"
         title={<Space><BarChartOutlined /><Text strong>Cost Partition (9 Buckets)</Text></Space>}
-        extra={toolbar}
+        extra={isEditing ? toolbar : undefined}
       >
         {isEditing
           ? <BucketsEditTable buckets={editBuckets} onChange={setEditBuckets} />
@@ -1350,87 +1436,89 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
         }
       </Card>
 
-      {/* 4. Summary + Readiness */}
-      <Row gutter={[16, 16]}>
-        <Col xs={24} lg={12}>
-          <Card size="small"
-            title={<Space><SafetyCertificateOutlined /><Text strong>Financial Bound</Text></Space>}
-            style={{ height: '100%' }}>
-            <Statistic
-              title='Tổng giá trị dự toán (Báo giá)'
-              value={totalCost}
-              precision={0}
-              valueStyle={{ color: '#cf1322' }}
-              prefix={<DollarOutlined />}
-              formatter={v => fmt(Number(v))}
-            />
-            <Divider style={{ margin: '10px 0' }} />
-            <Space direction="vertical" style={{ width: '100%' }} size={6}>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Text type='secondary'>Chi phí nội bộ (01-08):</Text>
-                <Text strong>{fmt(internalCost)}</Text>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Text type="secondary">Lợi nhuận (phần dư):</Text>
-                <Text strong style={{ color: currentProfitAmount > 0 ? '#52c41a' : '#cf1322' }}>
-                  {fmt(currentProfitAmount)}
-                </Text>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Text type="secondary">LN% thực tế:</Text>
-                <Text strong style={{ color: (currentValidationResult?.actual_profit_pct ?? 0) >= (currentValidationResult?.target_profit_pct_min ?? 15) ? '#52c41a' : '#cf1322' }}>
-                  {currentValidationResult?.actual_profit_pct ?? '-'}%
-                  <Text type="secondary" style={{ fontSize: 11, marginLeft: 4 }}>
-                    (mục tiêu: {currentValidationResult?.target_profit_pct_min ?? 15}%)
-                  </Text>
-                </Text>
-              </div>
-              {currentQuoteDerivation?.recommended_quote_value_initial != null
-                && currentQuoteDerivation?.recommended_quote_value_initial !== totalCost && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 4, borderTop: '1px dashed #f0f0f0' }}>
-                  <Text type='secondary' style={{ fontSize: 11 }}>Policy đề xuất:</Text>
-                  <Text type="secondary" style={{ fontSize: 11 }}>
-                    {fmt(currentQuoteDerivation?.recommended_quote_value_initial ?? 0)}
-                  </Text>
-                </div>
-              )}
-              {currentPolicyId && (
+      {/* 4. Summary + Readiness — chỉ hiển thị trong edit mode (view mode đã có ở trên cùng) */}
+      {isEditing && (
+        <Row gutter={[16, 16]}>
+          <Col xs={24} lg={12}>
+            <Card size="small"
+              title={<Space><SafetyCertificateOutlined /><Text strong>Financial Bound</Text></Space>}
+              style={{ height: '100%' }}>
+              <Statistic
+                title='Tổng giá trị dự toán (Báo giá)'
+                value={totalCost}
+                precision={0}
+                valueStyle={{ color: '#cf1322' }}
+                prefix={<DollarOutlined />}
+                formatter={v => fmt(Number(v))}
+              />
+              <Divider style={{ margin: '10px 0' }} />
+              <Space direction="vertical" style={{ width: '100%' }} size={6}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Text type="secondary" style={{ fontSize: 11 }}>Policy:</Text>
-                  <Tag color="geekblue" style={{ fontSize: 11 }}>
-                    {currentPolicyLabel}
-                  </Tag>
+                  <Text type='secondary'>Chi phí nội bộ (01-08):</Text>
+                  <Text strong>{fmt(internalCost)}</Text>
                 </div>
-              )}
-              {currentValidationResult?.warning_note && (
-                <Alert type="warning" showIcon
-                  message={currentValidationResult?.warning_note}
-                  style={{ marginTop: 4, fontSize: 11 }} />
-              )}
-            </Space>
-          </Card>
-        </Col>
-        <Col xs={24} lg={12}>
-          <Card size="small"
-            title={<Space><CheckCircleOutlined /><Text strong>Readiness Score</Text></Space>}
-            style={{ height: '100%' }}>
-            <div style={{ textAlign: 'center', padding: '10px 0' }}>
-              <Progress type="dashboard" percent={currentReadinessScore}
-                strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }} />
-            </div>
-            <List size="small" split={false}>
-              {readinessItems.map(row => (
-                <List.Item key={row.label}>
-                  <Space>
-                    <CheckCircleOutlined style={{ color: row.ok ? '#52c41a' : '#d9d9d9' }} />
-                    <Text style={{ fontSize: 12 }}>{row.label}</Text>
-                  </Space>
-                </List.Item>
-              ))}
-            </List>
-          </Card>
-        </Col>
-      </Row>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Text type="secondary">Lợi nhuận (phần dư):</Text>
+                  <Text strong style={{ color: currentProfitAmount > 0 ? '#52c41a' : '#cf1322' }}>
+                    {fmt(currentProfitAmount)}
+                  </Text>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Text type="secondary">LN% thực tế:</Text>
+                  <Text strong style={{ color: (currentValidationResult?.actual_profit_pct ?? 0) >= (currentValidationResult?.target_profit_pct_min ?? 15) ? '#52c41a' : '#cf1322' }}>
+                    {currentValidationResult?.actual_profit_pct ?? '-'}%
+                    <Text type="secondary" style={{ fontSize: 11, marginLeft: 4 }}>
+                      (mục tiêu: {currentValidationResult?.target_profit_pct_min ?? 15}%)
+                    </Text>
+                  </Text>
+                </div>
+                {currentQuoteDerivation?.recommended_quote_value_initial != null
+                  && currentQuoteDerivation?.recommended_quote_value_initial !== totalCost && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 4, borderTop: '1px dashed #f0f0f0' }}>
+                    <Text type='secondary' style={{ fontSize: 11 }}>Policy đề xuất:</Text>
+                    <Text type="secondary" style={{ fontSize: 11 }}>
+                      {fmt(currentQuoteDerivation?.recommended_quote_value_initial ?? 0)}
+                    </Text>
+                  </div>
+                )}
+                {currentPolicyId && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Text type="secondary" style={{ fontSize: 11 }}>Policy:</Text>
+                    <Tag color="geekblue" style={{ fontSize: 11 }}>
+                      {currentPolicyLabel}
+                    </Tag>
+                  </div>
+                )}
+                {currentValidationResult?.warning_note && (
+                  <Alert type="warning" showIcon
+                    message={currentValidationResult?.warning_note}
+                    style={{ marginTop: 4, fontSize: 11 }} />
+                )}
+              </Space>
+            </Card>
+          </Col>
+          <Col xs={24} lg={12}>
+            <Card size="small"
+              title={<Space><CheckCircleOutlined /><Text strong>Readiness Score</Text></Space>}
+              style={{ height: '100%' }}>
+              <div style={{ textAlign: 'center', padding: '10px 0' }}>
+                <Progress type="dashboard" percent={currentReadinessScore}
+                  strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }} />
+              </div>
+              <List size="small" split={false}>
+                {readinessItems.map(row => (
+                  <List.Item key={row.label}>
+                    <Space>
+                      <CheckCircleOutlined style={{ color: row.ok ? '#52c41a' : '#d9d9d9' }} />
+                      <Text style={{ fontSize: 12 }}>{row.label}</Text>
+                    </Space>
+                  </List.Item>
+                ))}
+              </List>
+            </Card>
+          </Col>
+        </Row>
+      )}
 
       {/* 5. Audit */}
       <Card size="small" title={<Space><AuditOutlined /><Text strong>Audit Trail</Text></Space>}>
