@@ -16,7 +16,22 @@ export const FIND_ESTIMATETEMPLATE_DTO = gql`
         updatedBy
         code
         name
+        service_type_id
+        idx_service_type_id
+        scale_type
         unit
+        components {
+          type
+          material_id
+          labor_price_config_id
+          name
+          unit
+          calc_mode
+          quantity_per_unit
+          unit_price
+          note
+        }
+        total_cost_per_unit
       }
     }
   }
@@ -38,7 +53,22 @@ export const QUERY_ESTIMATETEMPLATES_DTO = gql`
         _id
         code
         name
+        service_type_id
+        idx_service_type_id
+        scale_type
         unit
+        components {
+          type
+          material_id
+          labor_price_config_id
+          name
+          unit
+          calc_mode
+          quantity_per_unit
+          unit_price
+          note
+        }
+        total_cost_per_unit
       }
     }
   }

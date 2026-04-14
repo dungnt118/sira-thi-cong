@@ -376,7 +376,8 @@ const getComponentDisplayName = (component: NonNullable<IDirectCostGroupsItem["c
 const DirectCostComponentsTable: React.FC<{
   group: IDirectCostGroupsItem;
   onQuickSetup?: () => void;
-}> = ({ group, onQuickSetup }) => {
+  resolveMsg?: (text: string | null | undefined) => string;
+}> = ({ group, onQuickSetup, resolveMsg = (t) => t ?? '' }) => {
   const screens = Grid.useBreakpoint();
   const isMobile = !screens.md;
   const components = group.components ?? [];
@@ -388,7 +389,7 @@ const DirectCostComponentsTable: React.FC<{
       showIcon
       message={
         <Space style={{ width: '100%', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-          <Text style={{ fontSize: 12, flex: 1 }}>{group.cost_basis_note}</Text>
+          <Text style={{ fontSize: 12, flex: 1 }}>{resolveMsg(group.cost_basis_note)}</Text>
           {isFallback && onQuickSetup && (
             <Button
               size="small"
@@ -1039,7 +1040,8 @@ const LaborEdit: React.FC<{
 const DirectCostView: React.FC<{
   groups: IDirectCostGroupsItem[];
   onQuickSetup?: () => void;
-}> = ({ groups, onQuickSetup }) => {
+  resolveMsg?: (text: string | null | undefined) => string;
+}> = ({ groups, onQuickSetup, resolveMsg }) => {
   if (!groups.length) return <Text type='secondary'>Chưa có hạng mục vật tư nào.</Text>;
   return (
     <Collapse size='small' ghost>
@@ -1068,7 +1070,7 @@ const DirectCostView: React.FC<{
               </Col>
             ))}
           </Row>
-          <DirectCostComponentsTable group={g} onQuickSetup={onQuickSetup} />
+          <DirectCostComponentsTable group={g} onQuickSetup={onQuickSetup} resolveMsg={resolveMsg} />
           {g.note && <div style={{ marginTop: 6 }}><Text type='secondary' style={{ fontSize: 12 }}>Ghi chú hạng mục: {g.note}</Text></div>}
         </Panel>
       ))}
@@ -1598,6 +1600,29 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
     ?? resolvedPolicyName
     ?? null;  // intentionally NOT falling back to raw ID
 
+  // Tên service type từ journey (được populate bởi backend khi load)
+  const currentServiceTypeId =
+    estimate?.journey_input_snapshot?.service_type_id ??
+    journey?.serviceTypeId ?? null;
+  const currentServiceTypeName =
+    journey?.idx_serviceTypeId?.title ?? null;
+
+  /**
+   * Thay thế các raw MongoDB _id trong text cảnh báo bằng tên hiển thị tương ứng.
+   * Backend generate warning text kèm raw ID — cần resolve ở client trước khi render.
+   */
+  const resolveMessage = (text: string | null | undefined): string => {
+    if (!text) return '';
+    let result = text;
+    if (currentServiceTypeId && currentServiceTypeName) {
+      result = result.replaceAll(currentServiceTypeId, currentServiceTypeName);
+    }
+    if (currentPolicyId && currentPolicyLabel) {
+      result = result.replaceAll(currentPolicyId, currentPolicyLabel);
+    }
+    return result;
+  };
+
   const totalCost = isEditing
     ? (editTotalCost ?? currentBuckets.reduce((sum, bucket) => sum + (bucket.amount || 0), 0))
     : (estimate?.applied_quote_value
@@ -1867,16 +1892,16 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
                   </div>
                 )}
                 {currentPolicyId && (
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Text type="secondary" style={{ fontSize: 11 }}>Policy:</Text>
                     <Tag color="geekblue" style={{ fontSize: 11 }}>
-                      {currentPolicyLabel}
+                      {currentPolicyLabel ?? <Spin size="small" />}
                     </Tag>
                   </div>
                 )}
                 {currentValidationResult?.warning_note && (
                   <Alert type="warning" showIcon
-                    message={currentValidationResult?.warning_note}
+                    message={resolveMessage(currentValidationResult.warning_note)}
                     style={{ marginTop: 4, fontSize: 11 }} />
                 )}
               </Space>
@@ -1947,7 +1972,7 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
         {isEditing
           ? <DirectCostEdit groups={editGroups} onChange={setEditGroups} />
           : estimate?.direct_cost_groups?.length
-            ? <DirectCostView groups={estimate.direct_cost_groups} onQuickSetup={() => setQuickSetupOpen(true)} />
+            ? <DirectCostView groups={estimate.direct_cost_groups} onQuickSetup={() => setQuickSetupOpen(true)} resolveMsg={resolveMessage} />
             : <Text type='secondary'>Chưa có hạng mục. Nhấn Tiến hành dự toán để nhập.</Text>
         }
       </Card>
@@ -1998,16 +2023,16 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
                   </div>
                 )}
                 {currentPolicyId && (
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Text type="secondary" style={{ fontSize: 11 }}>Policy:</Text>
                     <Tag color="geekblue" style={{ fontSize: 11 }}>
-                      {currentPolicyLabel}
+                      {currentPolicyLabel ?? <Spin size="small" />}
                     </Tag>
                   </div>
                 )}
                 {currentValidationResult?.warning_note && (
                   <Alert type="warning" showIcon
-                    message={currentValidationResult?.warning_note}
+                    message={resolveMessage(currentValidationResult.warning_note)}
                     style={{ marginTop: 4, fontSize: 11 }} />
                 )}
               </Space>
@@ -2280,8 +2305,9 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
           (journey as any)?.serviceTypeId ?? undefined
         }
         serviceTypeName={
+          journey?.idx_serviceTypeId?.title ??
           (estimate?.journey_input_snapshot as any)?.idx_service_type_id?.title ??
-          (journey as any)?.idx_serviceTypeId?.title ?? undefined
+          undefined
         }
         scaleType={estimate?.solution_resolution?.resolved_scale_type ?? undefined}
         policyId={estimate?.pricing_policy_id ?? undefined}

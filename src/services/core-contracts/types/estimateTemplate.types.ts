@@ -14,18 +14,19 @@ export interface IEstimateTemplate {
   idx_service_type_id?: IndexedContentItem;
   scale_type?: EstimateTemplateScaleTypeEnum;
   unit?: string;
-  components?: IEstimateTemplateComponentsItem[];
+  components?: IComponentsItem[];
+  total_cost_per_unit?: number;
 }
 
-export interface IEstimateTemplateComponentsItem {
-  type?: EstimateTemplateComponentsTypeEnum;
+export interface IComponentsItem {
+  type?: ComponentsTypeEnum;
   material_id?: string;
   idx_material_id?: IndexedContentItem;
   labor_price_config_id?: string;
   idx_labor_price_config_id?: IndexedContentItem;
   name?: string;
   unit?: string;
-  calc_mode?: EstimateTemplateComponentsCalcModeEnum;
+  calc_mode?: ComponentsCalcModeEnum;
   quantity_per_unit?: number;
   unit_price?: number;
   note?: string;
@@ -37,13 +38,14 @@ export interface ICreateEstimateTemplateInput {
   service_type_id?: string;
   scale_type?: EstimateTemplateScaleTypeEnum2;
   unit?: string;
-  components?: IEstimateTemplateComponentsItem[];
+  components?: IComponentsItem[];
+  total_cost_per_unit?: number;
 }
 
 export type IEstimateTemplateListResponse = ApiListResponse<IEstimateTemplate>
 
 // Union types generated from value_options
 export type EstimateTemplateScaleTypeEnum = 'small' | 'medium' | 'large' | 'custom';
-export type EstimateTemplateComponentsTypeEnum = 'material' | 'labor' | 'other';
-export type EstimateTemplateComponentsCalcModeEnum = 'manual' | 'package_m2' | 'daily_worker' | 'formula';
+export type ComponentsTypeEnum = 'material' | 'labor' | 'other';
+export type ComponentsCalcModeEnum = 'manual' | 'package_m2' | 'daily_worker' | 'formula';
 export type EstimateTemplateScaleTypeEnum2 = 'small' | 'medium' | 'large' | 'custom';
