@@ -1,1 +1,6 @@
-[]
+[
+  " > setup > setup\\auth.setup.ts > authenticate as supervisor",
+  " > setup > setup\\auth.setup.ts > authenticate as admin",
+  " > setup > setup\\auth.setup.ts > authenticate as manager (default)",
+  " > chromium > e2e\\admin-layout\\layout-responsive.spec.ts > Kiểm tra Responsive Layout Quản lý (AdminLayoutV2) > Màn hình: Mobile Small (375x667) > Module Dashboard - Hiển thị đúng trên Mobile Small"
+]

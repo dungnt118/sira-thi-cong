@@ -1,0 +1,70 @@
+{
+  "cookies": [],
+  "origins": [
+    {
+      "origin": "http://localhost:5173",
+      "localStorage": [
+        {
+          "name": "file_preview_url",
+          "value": "https://api.test.bacgroup.vn/api/file/preview"
+        },
+        {
+          "name": "graphql_endpoint",
+          "value": "https://api.test.bacgroup.vn/graphql"
+        },
+        {
+          "name": "userData",
+          "value": "{\"username\":\"dungnt118@gmail.com\",\"role\":\"ADMIN\",\"roles\":[\"ADMIN\",\"QL\",\"GS\",\"KYT\",\"KT\",\"KD\"]}"
+        },
+        {
+          "name": "export_excel_endpoint",
+          "value": "https://api.test.bacgroup.vn/headless"
+        },
+        {
+          "name": "auth_flow",
+          "value": "password"
+        },
+        {
+          "name": "base_url",
+          "value": "https://api.test.bacgroup.vn"
+        },
+        {
+          "name": "id_token",
+          "value": "eyJhbGciOiJSUzI1NiIsImtpZCI6IkU4REUzOUIyNjFEODE1NTBCM0RDNDk1RUVDRTlCNkJDMDE3MkRGOEMiLCJ4NXQiOiI2TjQ1c21IWUZWQ3ozRWxlN09tMnZBRnkzNHciLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FwaS50ZXN0LmJhY2dyb3VwLnZuL2lkZW50aXR5IiwiZXhwIjoxNzc2NTY4ODUzLCJpYXQiOjE3NzY1Njc2NTMsImF1ZCI6ImJhYy51c2VyIiwic3ViIjoiNjljNzg4ZTE3YTY3MWQ3NzdmOGU4MjZlIiwibmFtZSI6ImR1bmdudDExOEBnbWFpbC5jb20iLCJlbWFpbCI6ImR1bmdudDExOEBnbWFpbC5jb20iLCJnaXZlbl9uYW1lIjoiTmd1eeG7hW4gVHXhuqVuIETFqW5nIiwidXNlcm5hbWUiOiJkdW5nbnQxMThAZ21haWwuY29tIiwiZnVsbE5hbWUiOiJOZ3V54buFbiBUdeG6pW4gRMWpbmciLCJwaG9uZV9udW1iZXIiOiIwMzk0MDkzMzMzIiwiZW1haWxfdmVyaWZpZWQiOiJUcnVlIiwiY2xpZW50X2lkIjoiYmFjLnVzZXIiLCJsYW5nIjoiZW4tVVMiLCJyZWdjb2RlIjoidW5kZWZpbmVkIiwicG9saWN5IjoiYWRtaW4iLCJ1c2VyX3R5cGUiOiJlbXBsb3llZSIsInN1Yl9zY2hlbWEiOiJlbXBsb3llZSIsIm9pX2F1X2lkIjoiNjllNDQ1NjU0MjYzN2RhM2Y5NDNjZjEwIiwiYXpwIjoiYmFjLnVzZXIiLCJhdF9oYXNoIjoiVTJ0V3dBbnkwVWNaYjM4UE9FWm81ZyIsIm9pX3Rrbl9pZCI6IjY5ZTQ0NTY1NDI2MzdkYTNmOTQzY2YxMyJ9.QYDCRYgM_vQvBIzpWZW25_7YyAJNBHz1AKzho_ziOm3UsqY4ILpw1Zs3LWur9FdwwcFdVBOanqgHOyjz0daNfCBRNsXU2Z96Sn6Uuql9NPENfSul4FZfa7TOk6j8n77NTi2rn4HAxgm4fg-b-TWmH0V_F8ThOmGIWQOuq-Zxq9en4bRLxwGVlkcQa-QKs5u9MSDfA6euBh3NWXMyugg6bvxlO8jedXWzzl_UJiGjlOEVhdExuHFmn6aI45FOSUi8U9lCYSz9eL5r6lmTHKU41ORozNuWI3-rTj6yV4U6dspokMjhwvKrGcwt36L7pbkuatpFM155fil7yL4Cpfkf5g"
+        },
+        {
+          "name": "access_token",
+          "value": "eyJhbGciOiJSUzI1NiIsImtpZCI6IkU4REUzOUIyNjFEODE1NTBCM0RDNDk1RUVDRTlCNkJDMDE3MkRGOEMiLCJ4NXQiOiI2TjQ1c21IWUZWQ3ozRWxlN09tMnZBRnkzNHciLCJ0eXAiOiJhdCtqd3QifQ.eyJpc3MiOiJodHRwczovL2FwaS50ZXN0LmJhY2dyb3VwLnZuL2lkZW50aXR5IiwiZXhwIjoxNzc3MTcyNDUzLCJpYXQiOjE3NzY1Njc2NTMsInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgb2ZmbGluZV9hY2Nlc3MiLCJqdGkiOiI4YzE5MWM4MS1mYjdkLTRkMmUtYjE5Zi02ZmExODBhMTMyZTMiLCJzdWIiOiI2OWM3ODhlMTdhNjcxZDc3N2Y4ZTgyNmUiLCJuYW1lIjoiZHVuZ250MTE4QGdtYWlsLmNvbSIsImVtYWlsIjoiZHVuZ250MTE4QGdtYWlsLmNvbSIsImdpdmVuX25hbWUiOiJOZ3V54buFbiBUdeG6pW4gRMWpbmciLCJ1c2VybmFtZSI6ImR1bmdudDExOEBnbWFpbC5jb20iLCJmdWxsTmFtZSI6Ik5ndXnhu4VuIFR14bqlbiBExaluZyIsInBob25lX251bWJlciI6IjAzOTQwOTMzMzMiLCJlbWFpbF92ZXJpZmllZCI6IlRydWUiLCJhdWQiOiJiYWMudXNlciIsImxhbmciOiJlbi1VUyIsInJlZ2NvZGUiOiJ1bmRlZmluZWQiLCJwb2xpY3kiOiJhZG1pbiIsInVzZXJfdHlwZSI6ImVtcGxveWVlIiwic3ViX3NjaGVtYSI6ImVtcGxveWVlIiwib2lfcHJzdCI6ImJhYy51c2VyIiwib2lfYXVfaWQiOiI2OWU0NDU2NTQyNjM3ZGEzZjk0M2NmMTAiLCJjbGllbnRfaWQiOiJiYWMudXNlciIsIm9pX3Rrbl9pZCI6IjY5ZTQ0NTY1NDI2MzdkYTNmOTQzY2YxMSJ9.o6rXbur8s4XlkK1T7qE1bs7ANDh1GS8xLNJH0Qkn6K6kHNa4wyBxiLjV-buH9Zc35cPwXN_MjA5zk8x-rxlXKhoPDNQM6XtUckQA2geChbFLKpagJ621NpVxzw5h131L_Wc-gWNxJxXa4O9w_Jz_H5qLPGJNtnpPC8qw3AnX2n0qVFf2jd0pLuzJHUJAuPmcSSD3FWPonklEHJIGAatIL0LTjRjTL_RtcakGrtk5Evt0O-uYrE3TQCnnQo6IlRoSijPJs73E9L2kKGbd7k0rhyQMhFFrie1pQVb5VDerLYBfREyrZrhU0DPL6dl68hsmRViajbFgs2cgUFsGgYiTzw"
+        },
+        {
+          "name": "subscription_endpoint",
+          "value": "wss://api.test.bacgroup.vn/ws/graphql"
+        },
+        {
+          "name": "upload_url",
+          "value": "https://api.test.bacgroup.vn/api/file/upload"
+        },
+        {
+          "name": "auth_time",
+          "value": "1776567653.486"
+        },
+        {
+          "name": "clients",
+          "value": "[{\"client_id\":\"bac.user\",\"client_secret\":\"g2RAXgZenebyybWmmfyDWprGhxe5CLAJ\",\"scope\":\"openid profile offline_access\",\"title\":\"Nhân viên\"}]"
+        },
+        {
+          "name": "token_endpoint",
+          "value": "https://api.test.bacgroup.vn/identity/connect/token"
+        },
+        {
+          "name": "expires_at",
+          "value": "Sun Apr 26 2026 10:00:52 GMT+0700 (Indochina Time)"
+        },
+        {
+          "name": "refresh_token",
+          "value": "eyJhbGciOiJSU0EtT0FFUCIsImVuYyI6IkEyNTZDQkMtSFM1MTIiLCJraWQiOiJFOERFMzlCMjYxRDgxNTUwQjNEQzQ5NUVFQ0U5QjZCQzAxNzJERjhDIiwidHlwIjoib2lfcmVmdCtqd3QiLCJjdHkiOiJKV1QifQ.FGGroxxty7tWijaM1g0Dv7eWbKeL8xPM5Y7mSOyktYnnzwljsxvI_KF4Cb25WJRBOzoaAwy6plob5TA4h2pHD7Ov4aon-spGSCI8GQrzh_OdAHsqKWPJPZZYL65PFcx1wjX1RXJVBw34_OnFA8Z5niF-bAqZTqTpqpWzcdFsVQgtFxQMEam3UhzHlX9IU-TrVGN1D6clvONBwu18NRMuJtVxfX9O3z3HLtMBM47ww0njeRd0SGE5hQMPaiEAeE8z8kgrGwjB7f8ypQuqGZlrjdfthwTSXyOAaUiviApsA_eT9ZNS3A2E0_a4wSbT37jd_mTjpTc1NkyEDWn58XO1jA.SdHwvres7_MSdtqc0GGpOQ.xlWaDuY8Vfu-_NssWcSfo9Lel-nRZs5tjCH4JtpiSytEt9b7uA6xBqAGBkrm3GgXSLPyvAKfInUtz0m53-cgCWNHkRtNAcmWCUSXl0qXdNRhS6Cwki6-6m7JXgX2edVm5QlBLyVHDASk_-mcAwtP2mYpg2GmDD5npCevOykzYdmCSN-gwT3F6cLg_TYEeu1LCrhChSXncwE1tiLiQRKDCii8T3X5eK8Oovw8QDVigNtPRHFPupqB-izTtRmtL-ia8RP7ZW6pmteE8FWxZlyfTlNVFQ5tGkJEVhoOSN7-n5C7ieGsah8n0ENGXsDzFIlymQ5dBfRavegSFC0pysA1uugug0MrY0jpNW_B25AeuHgk2pko4scbh2PnOYkDdugfTn3656SiT236jzp9REWgzzBU2yI_-BzLaR-w41mpkE4HMiJakV0yKgg0SBewJR0BB2_MHhb9F0AtyqpQXuV9pSkAMYJL7AtCTQ0C62lLt3KauTi0gdh1ROiUi4c_ScZEwUClHDD5GByvZG49JMTA8X6L7mZW2kM-QCm2ywmbXdGyjpx6JmCPlp16ECSbK6TPEu7wkB18x_h_rU0DJ25lkuMLlQkTWMlRtjiG0oH2xgA0z8iZRvJMpmwMTgTAIoi4fI923ClE3fNRMdGwmulUZxV1CA5_mFVPELBaibC7BGmEt-DbHJ1uvawiopmbm75OChZl9ImDw3CAgji4ndJebgt6QH8jvu9y8skZJ26Yg0AgFk878F3qpPS_xIZFgy2hemf64Q7P5efZCPSUWIpy-81IzmQEf7_L9SZHZ7NIQ1JvfuKXNjWCzDibkHvjo7FKbjGOapNqptKwmkW6QqnYrGFm4sJG7LDELrk3tNoFRmckZJm1mj70WxXS6Hbbw1X5wifzvbS0O0gA60RAiMzlZAGcHSKBZrzTwr0Vpa4P5M9e1hFt6cKjqO5Nf9MorHZQshKacIcsLcYu7zXc1YJXNLo3OvyJ4Ipwwh5KaPp7ExyborrRUmVrYdPXP6s7JjGMD1dXwMONRmYwG29582xmVijihCv457h15bwE1HT9EZGefJ2yI0MKKi-PdKEZ39WLs6ZA7JXn7mSAjGykDvGFgu0Y7oUnlpV3ibEdI-87vwaJAdN2n0REAHdxyynej5omKnSlH30GLwciX7UBg0uFm5PVf1z33KCHkMV5fUN1_m1ldhR4NtC5C791KqunsUDyqGAZ9Yasy2EgYnvWRN_166AXyy8dPjCNirK3Q0gmTOMHlrjqH7LvaSmtd-6PayH4AXSte-5-UuVFvD--j43yoWwp5LxzMXQFd0Dap-ci6koiXlxg0BdVs_54yD0qDxEKCIoBeXsBGzJb6z0x5UEZhvh7dSY8i9_KQsY6alJHRG1DLhN1F8Ff-4Rfi2ON_0sPjxR0VRvcH2iTg7ksok0kolPEOVqdbwAzCWFXr_htiM66SoUULKRf4kay6EIL7rtuGcK4T6IXAg8WzTMcoh-y2UmXsSFKcKcXaY9bgRDdaXPa_GBKN-KmDkdIPxPrJgdR4KHh9nni1dmFumdCDSN5XtbdXx642vN5OLJyONtSXxUq2KCkrpURGXazXIzk2Oy6KAAPCkIpLma9xS5BR4KQXP-5DvV4AhKoZUm9ooiQP4MuMlEA1ZkmDPkP3gWeCgpPlWEdBcmH7pz1ICAimhntT6HnHXptJfvxkMG2CUs-6DiWHXbuVZgCKGXZqFQ08bGOTc5WF6rc5brAjUxs2EPhH0KzViX9UddxKqIypoYgff5WFhHre71uLblvB8pSZCXB5cOGK4ueem9i-3TbH6I0BO7kH3UAzqRAf26xp8vtJ8hE1N6sIz1Snr6gaJfQxWD0lQU_eIMh4OQ0CCya9k-ksntE4HeGhxWvwLCeBe5FYUoxX11hiQgtD48nQ5QoubrbM4ApUiSDVIFrNaJJut--3_wxtXXUZz4yOHZR8702X48cMSyLLZZ5z1z5iddE6Sfl2gF9du1tyDMuUtWf63CiHrkwMCtXbJpyCbdCoyoDxN_t4Pf50iPIa-F4KkZk7c9iaFpmAf_RNmaxLDgPUWqQCw16S6QSNhHgu4JNK2rVv9CMleLjkjwUe0FQsMunywmNCyyFP4uPSyJAGcWMOiF6fSWYFJXTyyVg07lI8L1oaPiZYF52VGEORYHoBY8F1_LakzpJlezUcmB53R_BQOAp8je37KgCm-JNHHSr7ohLE9suNtPsapjDOZAPT2dUqXlczj-Yw_0KhT6ebr7Kl0cwe-kQjE4O_UAt73utg2MSZ6MR_SFZvd5F-6JEG8TUabFkTlRs4xJXza9kDfDnLYDLuIpNc7r1B277xiodFOfhdQ1asqDB_wzjTZSQVWJFpqoy0VUJKDBtzI7LoHna69f_0iiyMSKHTYUTeKgUmgbeRQ2p6Ef2sj87tqmriqWS0MXtxKkNoyrdSnyE4slK9JSlBCHxWTT1rjgdXpfSVmYlL6kULCog_DVajBC26BTjQtLgXVvcRY9CRhOu6u6SSwLwGjrK0gzaPHkrPr3mkxl_sZSM8Yh3InCEPkCADFqjVaYNbP2_wJN3_ZMJz041RP574-m00WCqeNiZPs4JwrJlHN15kZxM6_KKULdfhaOhCzx_WUGkrPVmELXgUwnFSVfiMfZofz472nBfuxq1Wl5ClNkO07mhUx-6SCZdpwCcfOUwruKJrfSBBJK_w5tTh6FUp-egfLgCyRhFJ8aJMN0LEYLXcTrjGSkfkgf6pTJvS4vml3HO7QyWInT5MawWoVsRvy-KHs7oSy93T5uUDLIriCXVw7HsRB2tCfRnm11U9iTWRKx7GUDX6c_W79tB7dVmzCLXyQrXfYmZY3TrmuiZNMMEs3163QcT7FMpOJefy8DNkVoblcvEfLyiiJhVSPRLdQ.DxJ4zVslIH9ZvgZ6i9kL8GI7W412UgTmYDmzF9eGdfs"
+        }
+      ]
+    }
+  ]
+}

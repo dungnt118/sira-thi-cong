@@ -5,7 +5,7 @@ import path from 'path';
 dotenv.config();
 
 export default defineConfig({
-  testDir: './test/e2e',
+  testDir: './test',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: 0, // Theo yêu cầu phát hiện gap/fail, không nên retry quá nhiều
@@ -22,41 +22,36 @@ export default defineConfig({
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
-    
-    // Mặc định sử dụng tài khoản manager
-    storageState: 'playwright/.auth/manager.json',
   },
 
   projects: [
     // Project để chạy authenticate trước các test khác
     {
       name: 'setup',
-      testMatch: /.*\.setup\.ts/,
+      testMatch: /setup\/.*\.setup\.ts/,
+      use: { storageState: undefined },
     },
-
-    // Project chính: Chromium Desktop sử dụng quyền manager
     {
       name: 'chromium',
+      testMatch: /e2e\/.*\.spec\.ts/,
       use: { 
         ...devices['Desktop Chrome'],
         storageState: 'playwright/.auth/manager.json',
       },
       dependencies: ['setup'],
     },
-
-    // Project Admin: Chạy với quyền admin
     {
       name: 'admin-chromium',
+      testMatch: /e2e\/.*\.spec\.ts/,
       use: { 
         ...devices['Desktop Chrome'],
         storageState: 'playwright/.auth/admin.json',
       },
       dependencies: ['setup'],
     },
-
-    // Project Mobile
     {
       name: 'mobile-chrome',
+      testMatch: /e2e\/.*\.spec\.ts/,
       use: {
         ...devices['Pixel 5'],
         storageState: 'playwright/.auth/manager.json',
