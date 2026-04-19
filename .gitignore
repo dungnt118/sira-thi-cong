@@ -39,3 +39,10 @@ documents/**/*.avi
 scripts/exec_backup.bat
 scripts/exec_restore.bat
 scripts/BAC.gz
+ 
+ # Playwright
+ test-results/
+ playwright-report/
+ playwright/.auth/
+ test/constants/passed-tests.json
+
