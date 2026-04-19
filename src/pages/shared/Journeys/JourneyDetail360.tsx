@@ -1851,12 +1851,13 @@ const JourneyDetail360: React.FC = () => {
                                 }}
                             >
                                 <Space size={12} wrap style={{ minWidth: 0 }}>
-                                    <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, flexShrink: 0 }}>
-                                        Giai đoạn {currentHeaderStepIndex >= 0 && (
-                                            <span style={{ marginInline: '2px 4px' }}>
-                                                (<span style={{ color: '#ffec3d', fontWeight: 600 }}>{currentHeaderStepIndex + 1}</span>/{HEADER_STEP_CONFIG.length})
+                                    <Text style={{ color: 'rgba(255,255,255,0.85)', fontSize: 14, flexShrink: 0 }}>
+                                        Giai đoạn hiện tại:{' '}
+                                        {currentHeaderStepIndex >= 0 && (
+                                            <span style={{ fontWeight: 600 }}>
+                                                <span style={{ color: '#ffec3d' }}>{currentHeaderStepIndex + 1}</span>/{HEADER_STEP_CONFIG.length}
                                             </span>
-                                        )}:
+                                        )}
                                     </Text>
                                     <Space
                                         style={{
