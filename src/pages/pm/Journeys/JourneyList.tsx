@@ -59,6 +59,31 @@ const JourneyList: React.FC = () => {
     const isMobile = !screens.md;
     const { user } = useAuth();
 
+    const renderUserGroupNames = (users: any) => {
+        if (!users) return [];
+        const userList = Array.isArray(users) ? users : [users];
+        return userList.map(u => {
+            if (typeof u === 'string') return u;
+            return u.title || u.name || u.full_name || u.username || 'N/A';
+        }).filter(Boolean);
+    };
+
+    const renderPersonnelMobile = (j: IJourney) => {
+        const kd = renderUserGroupNames(j.sale_users);
+        const gs = renderUserGroupNames(j.supervisor_users);
+        const kt = renderUserGroupNames(j.technical_users);
+
+        if (kd.length === 0 && gs.length === 0 && kt.length === 0) return null;
+
+        return (
+            <div style={{ marginTop: 8, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                {kd.length > 0 && <Tag color="blue" style={{ fontSize: 10, margin: 0 }}>KD: {kd[0]}{kd.length > 1 ? '...' : ''}</Tag>}
+                {gs.length > 0 && <Tag color="orange" style={{ fontSize: 10, margin: 0 }}>GS: {gs[0]}{gs.length > 1 ? '...' : ''}</Tag>}
+                {kt.length > 0 && <Tag color="cyan" style={{ fontSize: 10, margin: 0 }}>KT: {kt[0]}{kt.length > 1 ? '...' : ''}</Tag>}
+            </div>
+        );
+    };
+
     const [journeys, setJourneys] = useState<IJourney[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [keyword, setKeyword] = useState('');
@@ -246,14 +271,40 @@ const JourneyList: React.FC = () => {
             ),
         },
         {
-            title: 'Phụ trách',
-            key: 'owner',
-            render: (_, j) => (
-                <Space>
-                    <Avatar size={22} style={{ background: '#52c41a' }} icon={<UserOutlined />} />
-                    <Text style={{ fontSize: 12 }}>{j.supervisor_name || 'Chưa gán'}</Text>
-                </Space>
-            ),
+            title: 'Nhân sự',
+            key: 'personnel',
+            width: 220,
+            render: (_, j) => {
+                const renderUserGroup = (label: string, users: any, color: string) => {
+                    const names = renderUserGroupNames(users);
+                    if (names.length === 0) return null;
+                    
+                    return (
+                        <div style={{ marginBottom: 2, display: 'flex', alignItems: 'flex-start', gap: 4 }}>
+                            <Tag color={color} style={{ margin: 0, fontSize: 9, padding: '0 4px', height: 16, lineHeight: '14px' }}>{label}</Tag>
+                            <Text style={{ fontSize: 11, lineHeight: '16px' }} ellipsis={{ tooltip: names.join(', ') }}>
+                                {names.join(', ')}
+                            </Text>
+                        </div>
+                    );
+                };
+
+                const hasPersonnel = j.sale_users || j.supervisor_users || j.technical_users;
+
+                return (
+                    <div style={{ minWidth: 150 }}>
+                        {renderUserGroup('KD', j.sale_users, 'blue')}
+                        {renderUserGroup('GS', j.supervisor_users, 'orange')}
+                        {renderUserGroup('KT', j.technical_users, 'cyan')}
+                        {!hasPersonnel && (
+                            <Space>
+                                <Avatar size={20} icon={<UserOutlined />} />
+                                <Text type="secondary" style={{ fontSize: 12 }}>Chưa gán</Text>
+                            </Space>
+                        )}
+                    </div>
+                );
+            },
         },
         {
             title: 'SLA',
@@ -270,14 +321,6 @@ const JourneyList: React.FC = () => {
                 const p = PRIORITY_CONFIG[j.priority || 'low'];
                 return <Tag color={p.color}>{p.label}</Tag>;
             },
-        },
-        {
-            title: 'Blocker',
-            key: 'blocker',
-            render: (_, j) => (j.blocked_task_count || 0) > 0
-                ? <Badge count={j.blocked_task_count} size="small" color="red"><StopOutlined style={{ color: '#ff4d4f' }} /></Badge>
-                : <StopOutlined style={{ color: '#ccc' }} />,
-            align: 'center',
         },
         {
             title: 'Cập nhật',
@@ -487,6 +530,7 @@ const JourneyList: React.FC = () => {
                                         </div>
                                     </div>
                                 </div>
+                                {renderPersonnelMobile(j)}
                             </Card>
                         ))}
                         {filtered.length === 0 && <Empty description="Không có công trình nào" />}
