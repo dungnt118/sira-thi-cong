@@ -53,7 +53,8 @@ import {
     Steps,
     Tabs, Tag,
     Tooltip,
-    Typography
+    Typography,
+    Progress
 } from 'antd';
 import dayjs from 'dayjs';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -1851,7 +1852,11 @@ const JourneyDetail360: React.FC = () => {
                             >
                                 <Space size={12} wrap style={{ minWidth: 0 }}>
                                     <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, flexShrink: 0 }}>
-                                        Giai đoạn hiện tại:
+                                        Giai đoạn {currentHeaderStepIndex >= 0 && (
+                                            <span style={{ marginInline: '2px 4px' }}>
+                                                (<span style={{ color: '#ffec3d', fontWeight: 600 }}>{currentHeaderStepIndex + 1}</span>/{HEADER_STEP_CONFIG.length})
+                                            </span>
+                                        )}:
                                     </Text>
                                     <Space
                                         style={{
@@ -1938,6 +1943,22 @@ const JourneyDetail360: React.FC = () => {
                             marginBottom: isMobile ? 8 : 12,
                         }}
                     >
+                        <Tooltip title="Tiến độ thi công dự án">
+                            <div style={{ minWidth: isMobile ? '100%' : 160, marginRight: isMobile ? 0 : 8 }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
+                                    <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11 }}>Tiến độ thi công</Text>
+                                    <Text strong style={{ color: '#fff', fontSize: 11 }}>{journey.progress_pct || 0}%</Text>
+                                </div>
+                                <Progress 
+                                    percent={journey.progress_pct || 0} 
+                                    size="small" 
+                                    showInfo={false} 
+                                    strokeColor="#52c41a"
+                                    trailColor="rgba(255,255,255,0.15)"
+                                    strokeWidth={6}
+                                />
+                            </div>
+                        </Tooltip>
                         <Tooltip title="Số người phụ trách (PM, Kinh doanh, Giám sát, Kỹ thuật)">
                             <Space size={6} style={{ color: '#fff' }}>
                                 <UserOutlined style={{ color: 'rgba(255,255,255,0.85)', fontSize: 15 }} />
