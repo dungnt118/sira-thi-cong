@@ -11,10 +11,12 @@ export class AdminLayoutPage {
   constructor(page: Page) {
     this.page = page;
     // Dựa trên Ant Design components dùng trong AdminLayoutV2
-    this.sidebarDesktop = page.locator('.ant-layout-sider');
+    this.sidebarDesktop = page.locator('aside');
     this.sidebarMobile = page.locator('.ant-drawer-content');
-    this.sidebarToggle = page.locator('header button.ant-btn-text'); // Nút MenuOutlined trên mobile
-    this.topBar = page.locator('header.ant-layout-header'); 
+    this.sidebarToggle = page.locator('header button').filter({ hasText: '' }).first(); // Nút chứa Menu icon
+    // Hoặc cụ thể hơn nếu Ant Design render aria-label hoặc dùng svg class
+    this.sidebarToggle = page.locator('header button').filter({ has: page.locator('.anticon-menu') });
+    this.topBar = page.locator('.ant-layout-header'); 
     this.contentArea = page.locator('.ant-layout-content');
   }
 

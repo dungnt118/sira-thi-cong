@@ -1,36 +1,35 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import { Layout } from 'antd';
+import { Layout, Drawer, Grid, theme } from 'antd';
 import AdminTopBar from './TopBar';
 import AdminSidebar from './Sidebar';
-import { Drawer } from 'antd';
 import './AdminLayoutV2.css';
 
 const { Content } = Layout;
+const { useBreakpoint } = Grid;
 
 /**
  * AdminLayoutV2 - Simplified admin layout for construction SME
  * Focus: User/Role Management, Audit Log, Reports, Settings
- * Platform: Desktop-only (no mobile)
  */
 const AdminLayoutV2: React.FC = () => {
     const [collapsed, setCollapsed] = React.useState(false);
     const [drawerVisible, setDrawerVisible] = React.useState(false);
-    const [isMobile, setIsMobile] = React.useState(window.innerWidth < 992);
-
-    React.useEffect(() => {
-        const mql = window.matchMedia('(max-width: 991px)');
-        const onChange = () => setIsMobile(mql.matches);
-        mql.addEventListener('change', onChange);
-        // Initial check
-        setIsMobile(mql.matches);
-        return () => mql.removeEventListener('change', onChange);
-    }, []);
+    const screens = useBreakpoint();
+    const { token: { colorBgContainer } } = theme.useToken();
+    
+    // isMobile if width < 992px (Ant Design lg breakpoint)
+    const isMobile = screens.md === true && screens.lg === false || screens.md === false;
 
     return (
-        <Layout className="admin-layout-v2" style={{ minHeight: '100vh' }}>
+        <Layout className="admin-layout-v2" style={{ minHeight: '100vh', background: colorBgContainer }}>
             {/* Top Bar: Logo, Search, Notifications, Profile */}
-            <AdminTopBar onMenuClick={() => setDrawerVisible(true)} isMobile={isMobile} />
+            <AdminTopBar 
+                onMenuClick={() => setDrawerVisible(true)} 
+                isMobile={isMobile} 
+                collapsed={collapsed}
+                onCollapse={setCollapsed}
+            />
 
             <Layout>
                 {/* Sidebar: Render as Sider on desktop, Drawer on mobile */}
@@ -39,7 +38,7 @@ const AdminLayoutV2: React.FC = () => {
                         placement="left"
                         onClose={() => setDrawerVisible(false)}
                         open={drawerVisible}
-                        bodyStyle={{ padding: 0 }}
+                        styles={{ body: { padding: 0 } }}
                         width={240}
                         closable={false}
                     >
@@ -63,6 +62,7 @@ const AdminLayoutV2: React.FC = () => {
                             minHeight: 280,
                             background: isMobile ? '#f0f2f5' : '#fff',
                             borderRadius: isMobile ? 0 : '8px',
+                            marginTop: isMobile ? 0 : 16,
                         }}
                     >
                         <Outlet context={{ isMobile }} />

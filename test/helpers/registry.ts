@@ -36,3 +36,14 @@ export function savePassedTests(tests: string[]) {
     console.error('Error saving passed tests registry:', error);
   }
 }
+
+/**
+ * Thêm một test vào danh sách đã pass
+ */
+export function savePassedTest(testName: string) {
+  const tests = getPassedTests();
+  if (!tests.includes(testName)) {
+    tests.push(testName);
+    savePassedTests(tests);
+  }
+}

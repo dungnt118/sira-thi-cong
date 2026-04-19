@@ -112,11 +112,12 @@ const Auth: React.FC<AuthProps> = ({ children, match }) => {
       });
   }, [isCloudEnabled]);
 
-  // 2) Init auth after tenant config is ready
+  const isAuthenInitializing = useRef(false);
+  // 2. Init auth after tenant config is ready
   useEffect(() => {
     const query = qs.parse(window.location.search, { ignoreQueryPrefix: true }) as Record<string, unknown>;
 
-    if (tenantReady && !userData?.user && !query.layoutStyle) {
+    if (tenantReady && !userData?.user && !query.layoutStyle && !isAuthenInitializing.current) {
       const token = (query.token as string) ?? matchToken;
       if (token) {
         updateToken(token);
@@ -127,7 +128,7 @@ const Auth: React.FC<AuthProps> = ({ children, match }) => {
       const currentPath = getCurrentPath();
 
       if (existingToken) {
-        console.log('Auth: existingToken found', existingToken);
+        isAuthenInitializing.current = true;
         authenCheck();
       } else {
         console.log('Auth: No token, checking path', currentPathname);
