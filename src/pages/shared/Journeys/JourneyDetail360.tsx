@@ -531,7 +531,7 @@ const JourneyDetail360: React.FC = () => {
                 fetchCurrentStepLog(journeyId, data.current_step);
             }
         } catch (error) {
-            console.error('Failed to fetch journey:', error);
+            console.error('[API] Failed to fetch journey:', error);
             message.error('Không thể tải thông tin công trình');
         } finally {
             setIsLoading(false);
@@ -1284,6 +1284,14 @@ const JourneyDetail360: React.FC = () => {
         </div>
     );
 
+    if (isLoading) {
+        return (
+            <div style={{ padding: 100, textAlign: 'center' }}>
+                <Spin size="large" tip="Đang tải thông tin công trình..." />
+            </div>
+        );
+    }
+
     if (!journey) {
         return (
             <div style={{ padding: 40, textAlign: 'center' }}>
@@ -1854,7 +1862,7 @@ const JourneyDetail360: React.FC = () => {
                                     <Text style={{ color: 'rgba(255,255,255,0.85)', fontSize: 14, flexShrink: 0 }}>
                                         Giai đoạn hiện tại:{' '}
                                         {currentHeaderStepIndex >= 0 && (
-                                            <span style={{ fontWeight: 600 }}>
+                                            <span style={{ fontWeight: 600 }} id="journey-step-indicator">
                                                 <span style={{ color: '#ffec3d' }}>{currentHeaderStepIndex + 1}</span>/{HEADER_STEP_CONFIG.length}
                                             </span>
                                         )}
@@ -2693,7 +2701,7 @@ const JourneyDetail360: React.FC = () => {
                 }
                 width={720}
             >
-                {isPmManager && (!selectedStepMeta || journey?.current_step !== selectedTaskStepCode) && (
+                {isPmManager && !isLoading && (!selectedStepMeta || journey?.current_step !== selectedTaskStepCode) && (
                     <Alert
                         type="warning"
                         showIcon
