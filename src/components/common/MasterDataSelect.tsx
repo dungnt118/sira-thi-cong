@@ -49,7 +49,7 @@ export const MasterDataSelect: React.FC<MasterDataSelectProps> = ({
                 if (res.data) {
                     setOptions(res.data.map((item: IMasterDataItem) => ({
                         label: item.label || '',
-                        value: item.value || item._id
+                        value: item._id
                     })));
                 }
             } catch (error) {

@@ -40,7 +40,12 @@ export const journeyService = {
       data: input,
       update_if_duplicate: false
     });
-    if (!response?.data) throw new Error('Không thể tạo Journey');
+    console.log('Backend Response createJourney:', response);
+    const res = response as any;
+    if (res.code !== 0 || !res.data) {
+      console.error('Backend Reject createJourney:', res);
+      throw new Error(res.message || 'Không thể tạo Journey');
+    }
     return response.data as IJourney;
   },
 
