@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import {
     Table, Card, Button, Tag, Input, Select, Space, Row, Col,
     Statistic, Badge, Avatar, Typography, Tooltip, Grid, Empty, Drawer,
-    Modal, message, Popconfirm, Dropdown, Menu
+    Modal, message, Popconfirm, Dropdown, Menu, Progress
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
@@ -209,13 +209,41 @@ const JourneyList: React.FC = () => {
             title: 'Bước hiện tại',
             key: 'step',
             render: (_, j) => {
-                const config = JOURNEY_STEPS_CONFIG.find(c => c.key === j.current_step);
+                const index = JOURNEY_STEPS_CONFIG.findIndex(c => c.key === j.current_step);
+                const config = JOURNEY_STEPS_CONFIG[index];
                 return (
-                    <Tag color={config?.color || 'default'}>
-                        {config?.label || j.current_step || 'Khởi tạo'}
-                    </Tag>
+                    <Space direction="vertical" size={0}>
+                        <Tag color={config?.color || 'default'} style={{ margin: 0 }}>
+                            {config?.label || j.current_step || 'Khởi tạo'}
+                        </Tag>
+                        {index >= 0 && (
+                            <Text type="secondary" style={{ fontSize: 11, marginLeft: 4 }}>
+                                Giai đoạn: <span style={{ color: '#1890ff', fontWeight: 600 }}>{index + 1}</span>/{JOURNEY_STEPS_CONFIG.length}
+                            </Text>
+                        )}
+                    </Space>
                 );
             },
+        },
+        {
+            title: 'Tiến độ',
+            key: 'progress',
+            width: 140,
+            render: (_, j) => (
+                <div style={{ width: 100 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
+                        <Text style={{ fontSize: 11 }}>Hoàn thành</Text>
+                        <Text strong style={{ fontSize: 11 }}>{j.progress_pct || 0}%</Text>
+                    </div>
+                    <Progress 
+                        percent={j.progress_pct || 0} 
+                        size="small" 
+                        showInfo={false} 
+                        strokeColor="#52c41a"
+                        strokeWidth={6}
+                    />
+                </div>
+            ),
         },
         {
             title: 'Phụ trách',
@@ -447,6 +475,13 @@ const JourneyList: React.FC = () => {
                                         <Tag color={JOURNEY_STEPS_CONFIG.find(c => c.key === j.current_step)?.color}>
                                             {JOURNEY_STEPS_CONFIG.find(c => c.key === j.current_step)?.label || j.current_step}
                                         </Tag>
+                                        <div style={{ marginTop: 4 }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
+                                                <Text style={{ fontSize: 10 }}>Tiến độ</Text>
+                                                <Text strong style={{ fontSize: 10 }}>{j.progress_pct || 0}%</Text>
+                                            </div>
+                                            <Progress percent={j.progress_pct || 0} size="small" showInfo={false} strokeColor="#52c41a" strokeWidth={4} />
+                                        </div>
                                         <div style={{ marginTop: 4 }}>
                                             <Badge status={SLA_CONFIG[j.sla_status || 'on_time'].color as any} text={SLA_CONFIG[j.sla_status || 'on_time'].label} />
                                         </div>

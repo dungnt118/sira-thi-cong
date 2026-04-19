@@ -312,9 +312,22 @@ const SupervisorDashboard: React.FC = () => {
                                             <Badge status={journey?.priority === 'critical' ? 'error' : 'processing'} />
                                             <Text strong style={{ color: '#fa8c16' }}>{t.title}</Text>
                                         </div>
-                                        <Text type="secondary" style={{ fontSize: 13, display: 'block', marginBottom: 8 }}>
+                                        <Text type="secondary" style={{ fontSize: 13, display: 'block', marginBottom: 4 }}>
                                             Công trình: {journey?.journey_code || 'N/A'} - {journey?.customer_full_name}
                                         </Text>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                                            <Tag color="orange" style={{ fontSize: 11, margin: 0 }}>Giai đoạn {
+                                                (() => {
+                                                    const steps = ['lead_new', 'consult_contact', 'site_survey', 'solution_design', 'quotation', 'contract', 'execution', 'final_acceptance', 'payment', 'maintenance', 'warranty', 'after_sales'];
+                                                    const idx = steps.indexOf(journey?.current_step || 'lead_new');
+                                                    return idx >= 0 ? idx + 1 : 1;
+                                                })()
+                                            }/12</Tag>
+                                            <div style={{ flex: 1, minWidth: 60 }}>
+                                                <Progress percent={journey?.progress_pct || 0} size="small" showInfo={false} strokeColor="#52c41a" strokeWidth={4} />
+                                            </div>
+                                            <Text strong style={{ fontSize: 10 }}>{journey?.progress_pct || 0}%</Text>
+                                        </div>
                                         <Space direction="vertical" size={2}>
                                             <Text type="secondary" style={{ fontSize: 12 }}>
                                                 <CalendarOutlined /> Hạn xử lý: {t.due_time ? dayjs(t.due_time).format('DD/MM/YYYY HH:mm') : 'N/A'}

@@ -64,6 +64,8 @@ export const Dashboard: React.FC = () => {
             address: j.site_address || 'Địa chỉ công trình',
             time: dateObj.toLocaleDateString('vi-VN') + ' ' + dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
             status: j.project_status === 'active' ? 'in-progress' : 'pending',
+            progress_pct: j.progress_pct || 0,
+            current_step: j.current_step || 'lead_new',
             route: buildJourneyDetailRoute('kyt', j._id)
         };
     });
@@ -120,9 +122,20 @@ export const Dashboard: React.FC = () => {
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
                             <Badge
                                 color={item.status === 'pending' ? 'orange' : 'blue'}
-                                text={<span style={{ fontWeight: 600 }}>{item.type}</span>}
+                                text={<span style={{ fontWeight: 600 }}>{
+                                    (() => {
+                                        const steps = ['lead_new', 'consult_contact', 'site_survey', 'solution_design', 'quotation', 'contract', 'execution', 'final_acceptance', 'payment', 'maintenance', 'warranty', 'after_sales'];
+                                        const idx = steps.indexOf(item.current_step);
+                                        const label = item.type.replace(/_/g, ' ').toUpperCase();
+                                        return `${label} (${idx >= 0 ? idx + 1 : 1}/12)`;
+                                    })()
+                                }</span>}
                             />
-                            <Text type="secondary">{item.id}</Text>
+                            <div style={{ flex: 1, marginLeft: 16, marginRight: 8 }}>
+                                <Progress percent={item.progress_pct} size="small" showInfo={false} strokeColor="#52c41a" strokeWidth={4} />
+                            </div>
+                            <Text type="secondary" style={{ fontSize: 11 }}>{item.progress_pct}%</Text>
+                            <Text type="secondary" style={{ marginLeft: 8 }}>{item.id}</Text>
                         </div>
 
                         <Title level={5} style={{ margin: '0 0 8px 0' }}>{item.customer}</Title>

@@ -175,6 +175,10 @@ export const SupervisorJourneyList: React.FC = () => {
                                 <Text strong style={{ fontSize: 13, color: '#8c8c8c' }}>{j.journey_code || j._id.slice(-8)}</Text>
                                 <Tag color={statusColor}>
                                     {stepConfig?.label || (j.current_step || 'Chưa xác định').replace(/_/g, ' ').toUpperCase()}
+                                    {(() => {
+                                        const index = JOURNEY_STEPS_CONFIG.findIndex(c => c.key === j.current_step);
+                                        return index >= 0 ? ` (${index + 1}/${JOURNEY_STEPS_CONFIG.length})` : '';
+                                    })()}
                                 </Tag>
                                 {isOwn && <Tag color="gold" icon={<UserOutlined />}>Phụ trách</Tag>}
                             </div>

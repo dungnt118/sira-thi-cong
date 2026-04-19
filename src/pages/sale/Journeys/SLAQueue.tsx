@@ -16,6 +16,8 @@ import {
     Typography,
     Grid,
     List,
+    Progress,
+    Badge
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
@@ -43,6 +45,12 @@ const SLAQueue: React.FC = () => {
     const [selectedJourney, setSelectedJourney] = useState<IJourney | null>(null);
     const [loading, setLoading] = useState(false);
     const [journeys, setJourneys] = useState<IJourney[]>([]);
+
+    const getStageIndex = (step: string) => {
+        const steps = ['lead_new', 'consult_contact', 'site_survey', 'solution_design', 'quotation', 'contract', 'execution', 'final_acceptance', 'payment', 'maintenance', 'warranty', 'after_sales'];
+        const index = steps.indexOf(step || 'lead_new');
+        return index >= 0 ? index + 1 : 1;
+    };
 
     useEffect(() => {
         const fetchJourneys = async () => {
@@ -117,6 +125,24 @@ const SLAQueue: React.FC = () => {
                         {journey.journey_code}
                     </Text>
                     <div style={{ fontSize: 11, color: '#8c8c8c' }}>{journey.request_title}</div>
+                </div>
+            ),
+        },
+        {
+            title: 'Tiến độ / Giai đoạn',
+            key: 'progress_step',
+            width: 180,
+            render: (_, journey) => (
+                <div style={{ width: 150 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
+                        <Text type="secondary" style={{ fontSize: 11 }}>Tiến độ: {journey.progress_pct || 0}%</Text>
+                    </div>
+                    <Progress percent={journey.progress_pct || 0} size="small" showInfo={false} strokeColor="#52c41a" strokeWidth={4} />
+                    <div style={{ marginTop: 4 }}>
+                        <Text type="secondary" style={{ fontSize: 11 }}>
+                            Giai đoạn: <span style={{ color: '#1890ff', fontWeight: 600 }}>{getStageIndex(journey.current_step || '')}</span>/12
+                        </Text>
+                    </div>
                 </div>
             ),
         },
@@ -376,7 +402,14 @@ const SLAQueue: React.FC = () => {
                                                 <Text type="secondary" style={{ fontSize: 12 }}>{resolveCustomerPhone(journey)}</Text>
                                                 <div style={{ marginTop: 4 }}>
                                                     <Text strong style={{ fontSize: 13 }}>{journey.journey_code}</Text>
-                                                    <div style={{ fontSize: 11, color: '#8c8c8c' }}>{journey.request_title}</div>
+                                                    <div style={{ fontSize: 11, color: '#8c8c8c', marginBottom: 4 }}>{journey.request_title}</div>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                                                        <Tag color="blue" style={{ fontSize: 11, margin: 0 }}>Giai đoạn {getStageIndex(journey.current_step || '')}/12</Tag>
+                                                        <div style={{ flex: 1, minWidth: 60 }}>
+                                                            <Progress percent={journey.progress_pct || 0} size="small" showInfo={false} strokeColor="#52c41a" strokeWidth={4} />
+                                                        </div>
+                                                        <Text strong style={{ fontSize: 10 }}>{journey.progress_pct || 0}%</Text>
+                                                    </div>
                                                 </div>
                                                 <div style={{ marginTop: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                                     <Tag color={isOverdue ? 'error' : 'warning'} style={{ borderRadius: 4 }}>

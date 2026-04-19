@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
     Card, Table, Tag, Badge, Select, Row, Col, Typography,
-    Space, Button, Statistic, Grid, message, Empty
+    Space, Button, Statistic, Grid, message, Empty, Progress
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
@@ -220,7 +220,8 @@ const ActionCenter: React.FC = () => {
                 start_at: j.planned_start_date?.toString(),
                 priority: (j.priority as PriorityLevel) || 'low',
                 owner_user: j.supervisor_name || 'Chưa gán',
-                source_tab: 'Công trình'
+                source_tab: 'Công trình',
+                progress_pct: j.progress_pct || 0
             });
         });
 
@@ -263,16 +264,47 @@ const ActionCenter: React.FC = () => {
             },
         },
         {
-            title: 'Bước hiện tại',
+            title: 'Bước / Giai đoạn',
             dataIndex: 'current_step',
             key: 'step',
             width: 150,
             render: (v) => {
-                const config = JOURNEY_STEPS_CONFIG.find(c => c.key === v) || JOURNEY_STEPS_CONFIG[0];
+                const index = JOURNEY_STEPS_CONFIG.findIndex(c => c.key === v);
+                const config = JOURNEY_STEPS_CONFIG[index] || JOURNEY_STEPS_CONFIG[0];
                 return (
-                    <Tag color={config.color}>
-                        {config.label}
-                    </Tag>
+                    <Space direction="vertical" size={0}>
+                        <Tag color={config.color} style={{ margin: 0 }}>
+                            {config.label}
+                        </Tag>
+                        {index >= 0 && (
+                            <Text type="secondary" style={{ fontSize: 11 }}>
+                                Giai đoạn: <span style={{ color: '#1890ff', fontWeight: 600 }}>{index + 1}</span>/{JOURNEY_STEPS_CONFIG.length}
+                            </Text>
+                        )}
+                    </Space>
+                );
+            }
+        },
+        {
+            title: 'Tiến độ',
+            key: 'progress',
+            width: 140,
+            render: (_, a) => {
+                const journey = journeys.find(j => j._id === a.journey_id);
+                const pct = journey?.progress_pct || 0;
+                return (
+                    <div style={{ width: 100 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
+                            <Text strong style={{ fontSize: 11 }}>{pct}%</Text>
+                        </div>
+                        <Progress 
+                            percent={pct} 
+                            size="small" 
+                            showInfo={false} 
+                            strokeColor="#52c41a"
+                            strokeWidth={4}
+                        />
+                    </div>
                 );
             }
         },

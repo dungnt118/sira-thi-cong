@@ -1949,10 +1949,10 @@ const JourneyDetail360: React.FC = () => {
                                     <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11 }}>Tiến độ thi công</Text>
                                     <Text strong style={{ color: '#fff', fontSize: 11 }}>{journey.progress_pct || 0}%</Text>
                                 </div>
-                                <Progress 
-                                    percent={journey.progress_pct || 0} 
-                                    size="small" 
-                                    showInfo={false} 
+                                <Progress
+                                    percent={journey.progress_pct || 0}
+                                    size="small"
+                                    showInfo={false}
                                     strokeColor="#52c41a"
                                     trailColor="rgba(255,255,255,0.15)"
                                     strokeWidth={6}
