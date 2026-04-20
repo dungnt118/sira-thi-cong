@@ -4,8 +4,8 @@
  * Internal estimate (JourneyEstimate) for a journey:
  *   0. Estimation Config - pricing_policy_id + total_estimate_cost (edit-mode header)
  *   1. 9 standardized cost buckets  (summary)
- *   2. Labor breakdown               (NhÃ¢n cÃ´ng chi tiáº¿t)
- *   3. Direct-cost groups            (Váº­t tÆ° & háº¡ng má»¥c trá»±c tiáº¿p)
+ *   2. Labor breakdown               (Nhân công chi tiết)
+ *   3. Direct-cost groups            (Vật tư & hạng mục trực tiếp)
  *
  * Auto-calc rules:
  *   - pricing_policy_id selected  -> compute total_estimate_cost automatically
@@ -81,15 +81,15 @@ const BUCKET_CONFIGS: {
   color: string;
   note?: string;
 }[] = [
-  { code: '01_materials',            label: 'Váº­t tÆ° (Materials)',       color: '#52c41a' },
-  { code: '02_labor_total',          label: 'NhÃ¢n cÃ´ng (Labor)',         color: '#1890ff' },
-  { code: '03_warranty_maintenance', label: 'Báº£o hÃ nh & Báº£o trÃ¬',       color: '#faad14', note: 'Háº­u dá»± Ã¡n' },
-  { code: '04_risk',                 label: 'Dá»± phÃ²ng rá»§i ro',           color: '#fa8c16' },
-  { code: '05_corporate_tax',        label: 'Thuáº¿ doanh nghiá»‡p',         color: '#722ed1' },
-  { code: '06_sales_cost',           label: 'Chi phÃ­ bÃ¡n hÃ ng',          color: '#eb2f96' },
-  { code: '07_management_cost',      label: 'Chi phÃ­ giÃ¡n tiáº¿p',         color: '#13c2c2', note: 'Quáº£n lÃ½ & váº­n hÃ nh' },
-  { code: '08_hidden_cost',          label: 'Chi phÃ­ áº©n',                color: '#f5222d' },
-  { code: '09_profit',               label: 'Lá»£i nhuáº­n (Profit)',         color: '#fa541c' },
+  { code: '01_materials',            label: 'Vật tư (Materials)',       color: '#52c41a' },
+  { code: '02_labor_total',          label: 'Nhân công (Labor)',         color: '#1890ff' },
+  { code: '03_warranty_maintenance', label: 'Bảo hành & Bảo trì',       color: '#faad14', note: 'Hậu dự án' },
+  { code: '04_risk',                 label: 'Dự phòng rủi ro',           color: '#fa8c16' },
+  { code: '05_corporate_tax',        label: 'Thuế doanh nghiệp',         color: '#722ed1' },
+  { code: '06_sales_cost',           label: 'Chi phí bán hàng',          color: '#eb2f96' },
+  { code: '07_management_cost',      label: 'Chi phí gián tiếp',         color: '#13c2c2', note: 'Quản lý & vận hành' },
+  { code: '08_hidden_cost',          label: 'Chi phí ẩn',                color: '#f5222d' },
+  { code: '09_profit',               label: 'Lợi nhuận (Profit)',         color: '#fa541c' },
 ];
 
 const EMPTY_LABOR: ILaborBreakdownItem = {
@@ -98,7 +98,7 @@ const EMPTY_LABOR: ILaborBreakdownItem = {
 };
 
 const newGroup = (): IDirectCostGroupsItem => ({
-  name: '', quantity: 1, unit: 'mÂ²',
+  name: '', quantity: 1, unit: 'm²',
   material_amount: 0, labor_amount: 0, other_amount: 0,
   subtotal: 0, note: '', components: [],
 });
@@ -120,41 +120,41 @@ function recomputeLabor(lb: ILaborBreakdownItem): ILaborBreakdownItem {
 
 const ROLE_LABELS: Record<string, string> = {
   outsource: "Outsource",
-  technical: "Ká»¹ thuáº­t",
-  supervisor: "GiÃ¡m sÃ¡t",
+  technical: "Kỹ thuật",
+  supervisor: "Giám sát",
   sale: "Kinh doanh",
   pm: "PM",
-  owner_admin: "Chá»§ sá»Ÿ há»¯u / Admin",
-  internal_support: "Há»— trá»£ ná»™i bá»™",
+  owner_admin: "Chủ sở hữu / Admin",
+  internal_support: "Hỗ trợ nội bộ",
 };
 
 const ROLE_CALC_MODE_LABELS: Record<string, string> = {
-  salary_allocation: "PhÃ¢n bá»• lÆ°Æ¡ng",
-  commission_pct: "Hoa há»“ng %",
-  daily_rate: "ÄÆ¡n giÃ¡ ngÃ y cÃ´ng",
-  fixed_amount: "Khoáº£n cá»‘ Ä‘á»‹nh",
-  manual: "Thá»§ cÃ´ng",
+  salary_allocation: "Phân bổ lương",
+  commission_pct: "Hoa hồng %",
+  daily_rate: "Đơn giá ngày công",
+  fixed_amount: "Khoản cố định",
+  manual: "Thủ công",
 };
 
 const COMPONENT_TYPE_LABELS: Record<string, string> = {
-  material: "Váº­t tÆ°",
-  labor: "NhÃ¢n cÃ´ng",
-  other: "KhÃ¡c",
+  material: "Vật tư",
+  labor: "Nhân công",
+  other: "Khác",
 };
 
 const COMPONENT_SOURCE_LABELS: Record<string, string> = {
-  material_master: "Danh má»¥c váº­t tÆ°",
-  labor_price_config: "Báº£ng giÃ¡ nhÃ¢n cÃ´ng",
-  manual: "Thá»§ cÃ´ng",
+  material_master: "Danh mục vật tư",
+  labor_price_config: "Bảng giá nhân công",
+  manual: "Thủ công",
   policy: "Policy",
-  survey: "Kháº£o sÃ¡t",
+  survey: "Khảo sát",
 };
 
 const COMPONENT_CALC_MODE_LABELS: Record<string, string> = {
-  manual: "Nháº­p tay",
-  package_m2: "Theo mÂ²",
-  daily_worker: "Theo ngÃ y cÃ´ng",
-  formula: "Theo cÃ´ng thá»©c",
+  manual: "Nhập tay",
+  package_m2: "Theo m²",
+  daily_worker: "Theo ngày công",
+  formula: "Theo công thức",
 };
 
 const toDisplayUsers = (value: unknown): string[] => {
@@ -228,7 +228,7 @@ const getAllocationUsers = (
 };
 
 const renderUserTags = (users: string[]) => {
-  if (!users.length) return <Text type="secondary">ChÆ°a gÃ¡n</Text>;
+  if (!users.length) return <Text type="secondary">Chưa gán</Text>;
   return (
     <Space size={[4, 4]} wrap>
       {users.map((user) => (
@@ -251,7 +251,7 @@ const LaborAllocationTable: React.FC<{
     return (
       <Space direction="vertical" style={{ width: '100%' }} size={8}>
         {infoMessage ? <Alert type="info" showIcon message={infoMessage} /> : null}
-        <Alert type="info" showIcon message="ChÆ°a cÃ³ phÃ¢n bá»• nhÃ¢n sá»± chi tiáº¿t. HÃ£y cháº¡y Tá»± Ä‘á»™ng tÃ­nh Ä‘á»ƒ táº¡o snapshot phÃ¢n bá»• má»›i." />
+        <Alert type="info" showIcon message="Chưa có phân bổ nhân sự chi tiết. Hãy chạy Tự động tính để tạo snapshot phân bổ mỔ›i." />
       </Space>
     );
   }
@@ -266,7 +266,7 @@ const LaborAllocationTable: React.FC<{
             <div key={idx} style={{ padding: '10px 12px', border: '1px solid #f0f0f0', borderRadius: 6, background: '#fafafa' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
                 <Space direction="vertical" size={0}>
-                  <Text strong>{ROLE_LABELS[row.role_code ?? ''] ?? row.role_code ?? 'â€”'}</Text>
+                  <Text strong>{ROLE_LABELS[row.role_code ?? ''] ?? row.role_code ?? '—'}</Text>
                   {row.bucket_code ? <Text type="secondary" style={{ fontSize: 11 }}>{row.bucket_code}</Text> : null}
                 </Space>
                 <Text strong style={{ color: '#1890ff', fontSize: 14 }}>{fmt(row.amount ?? 0)}</Text>
@@ -274,10 +274,10 @@ const LaborAllocationTable: React.FC<{
               <div style={{ marginBottom: 6 }}>{renderUserTags(users)}</div>
               <Space size={6} wrap>
                 {row.calc_mode && <Tag color="blue" style={{ fontSize: 11 }}>{ROLE_CALC_MODE_LABELS[row.calc_mode] ?? row.calc_mode}</Tag>}
-                {row.work_days != null && <Text type="secondary" style={{ fontSize: 11 }}>{row.work_days} ngÃ y</Text>}
+                {row.work_days != null && <Text type="secondary" style={{ fontSize: 11 }}>{row.work_days} ngày</Text>}
                 {row.headcount != null && <Text type="secondary" style={{ fontSize: 11 }}>HC: {row.headcount}</Text>}
-                {row.unit_rate != null && row.unit_rate > 0 && <Text type="secondary" style={{ fontSize: 11 }}>ÄÆ¡n giÃ¡: {fmt(row.unit_rate)}</Text>}
-                {row.allocation_pct != null && <Text type="secondary" style={{ fontSize: 11 }}>Tá»· lá»‡: {row.allocation_pct}%</Text>}
+                {row.unit_rate != null && row.unit_rate > 0 && <Text type="secondary" style={{ fontSize: 11 }}>Đơn giá: {fmt(row.unit_rate)}</Text>}
+                {row.allocation_pct != null && <Text type="secondary" style={{ fontSize: 11 }}>Tỷ lệ: {row.allocation_pct}%</Text>}
               </Space>
             </div>
           );
@@ -298,18 +298,18 @@ const LaborAllocationTable: React.FC<{
         scroll={{ x: 980 }}
         columns={[
           {
-            title: "Vai trÃ²",
+            title: "Vai trò",
             dataIndex: "role_code",
             width: 150,
             render: (value: string, row: IRoleCostAllocationsItem) => (
               <Space direction="vertical" size={0}>
-                <Text strong>{ROLE_LABELS[value] ?? value ?? "KhÃ¡c"}</Text>
+                <Text strong>{ROLE_LABELS[value] ?? value ?? "Khác"}</Text>
                 {row.bucket_code ? <Text type="secondary" style={{ fontSize: 11 }}>{row.bucket_code}</Text> : null}
               </Space>
             ),
           },
           {
-            title: "NhÃ¢n sá»± Ä‘Æ°á»£c gÃ¡n",
+            title: "Nhân sự được gán",
             render: (_: unknown, row: IRoleCostAllocationsItem) => renderUserTags(getAllocationUsers(row, roleSnapshot)),
           },
           {
@@ -326,35 +326,35 @@ const LaborAllocationTable: React.FC<{
             dataIndex: "work_days",
             width: 100,
             align: "right" as const,
-            render: (value: number) => value ?? "â€”",
+            render: (value: number) => value ?? "—",
           },
           {
             title: "Calc mode",
             dataIndex: "calc_mode",
             width: 130,
-            render: (value: string) => value ? <Tag color="blue">{ROLE_CALC_MODE_LABELS[value] ?? value}</Tag> : "â€”",
+            render: (value: string) => value ? <Tag color="blue">{ROLE_CALC_MODE_LABELS[value] ?? value}</Tag> : "—",
           },
           {
-            title: "ÄÆ¡n giÃ¡ / % phÃ¢n bá»•",
+            title: "Đơn giá / % phân bổ",
             width: 160,
             render: (_: unknown, row: IRoleCostAllocationsItem) => {
               if (row.unit_rate != null && row.unit_rate > 0) return <Text>{fmt(row.unit_rate)}</Text>;
               if (row.allocation_pct != null) return <Text>{row.allocation_pct}%</Text>;
-              return <Text type="secondary">â€”</Text>;
+              return <Text type="secondary">—</Text>;
             },
           },
           {
-            title: "Sá»‘ tiá»n",
+            title: "Số tiền",
             dataIndex: "amount",
             width: 140,
             align: "right" as const,
             render: (value: number) => <Text strong>{fmt(value ?? 0)}</Text>,
           },
           {
-            title: "Formula / ghi chÃº",
+            title: "Formula / ghi chú",
             render: (_: unknown, row: IRoleCostAllocationsItem) => (
               <Space direction="vertical" size={0}>
-                <Text style={{ fontSize: 12 }}>{row.formula_snapshot || "â€”"}</Text>
+                <Text style={{ fontSize: 12 }}>{row.formula_snapshot || "—"}</Text>
                 {row.note ? <Text type="secondary" style={{ fontSize: 11 }}>{row.note}</Text> : null}
               </Space>
             ),
@@ -370,7 +370,7 @@ const LaborAllocationTable: React.FC<{
 const getComponentDisplayName = (component: NonNullable<IDirectCostGroupsItem["components"]>[number]) => {
   const materialLabel = (component.idx_material_id as any)?.title;
   const laborLabel = (component.idx_labor_price_config_id as any)?.title;
-  return component.item_name || materialLabel || laborLabel || component.item_code || "â€”";
+  return component.item_name || materialLabel || laborLabel || component.item_code || "—";
 };
 
 const DirectCostComponentsTable: React.FC<{
@@ -410,7 +410,7 @@ const DirectCostComponentsTable: React.FC<{
     return (
       <Space direction="vertical" style={{ width: '100%' }} size={8}>
         {fallbackAlert}
-        <Text type="secondary">ChÆ°a cÃ³ dÃ²ng chi tiáº¿t cáº¥u pháº§n. HÃ£y cháº¡y tá»± Ä‘á»™ng tÃ­nh Ä‘á»ƒ láº¥y váº­t tÆ° vÃ  nhÃ¢n cÃ´ng chi tiáº¿t.</Text>
+        <Text type="secondary">Chưa có dòng chi tiết cấu phần. Hãy chạy tự động tính để lấy vật tư và nhân công chi tiết.</Text>
       </Space>
     );
   }
@@ -423,22 +423,22 @@ const DirectCostComponentsTable: React.FC<{
           <div key={idx} style={{ padding: '10px 12px', border: '1px solid #f0f0f0', borderRadius: 6, background: '#fafafa' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
               <Space size={4} style={{ flex: 1, flexWrap: 'wrap' }}>
-                <Tag style={{ margin: 0 }}>{COMPONENT_TYPE_LABELS[comp.type ?? ''] ?? comp.type ?? 'â€”'}</Tag>
+                <Tag style={{ margin: 0 }}>{COMPONENT_TYPE_LABELS[comp.type ?? ''] ?? comp.type ?? '—'}</Tag>
                 <Text strong style={{ fontSize: 13 }}>{getComponentDisplayName(comp)}</Text>
               </Space>
               <Text strong style={{ color: '#1890ff', fontSize: 14, marginLeft: 8, flexShrink: 0 }}>{fmt(comp.line_total ?? 0)}</Text>
             </div>
             <Space size={[6, 4]} wrap>
               <Text type="secondary" style={{ fontSize: 11 }}>
-                SL: {comp.expanded_quantity ?? comp.quantity ?? 'â€”'} {comp.unit}
+                SL: {comp.expanded_quantity ?? comp.quantity ?? '—'} {comp.unit}
               </Text>
               <Text type="secondary" style={{ fontSize: 11 }}>Ã—</Text>
-              <Text type="secondary" style={{ fontSize: 11 }}>ÄÆ¡n giÃ¡: {fmt(comp.unit_price ?? 0)}</Text>
+              <Text type="secondary" style={{ fontSize: 11 }}>Đơn giá: {fmt(comp.unit_price ?? 0)}</Text>
               {comp.source_ref_label && (
-                <Text type="secondary" style={{ fontSize: 11 }}>Nguá»“n: {comp.source_ref_label}</Text>
+                <Text type="secondary" style={{ fontSize: 11 }}>Nguồn: {comp.source_ref_label}</Text>
               )}
               {comp.waste_pct != null && (
-                <Text type="secondary" style={{ fontSize: 11 }}>Hao há»¥t: {comp.waste_pct}%</Text>
+                <Text type="secondary" style={{ fontSize: 11 }}>Hao hụt: {comp.waste_pct}%</Text>
               )}
             </Space>
             {(comp.cost_note || comp.note) && (
@@ -464,13 +464,13 @@ const DirectCostComponentsTable: React.FC<{
         scroll={{ x: 1180 }}
         columns={[
           {
-            title: "Loáº¡i",
+            title: "Loại",
             dataIndex: "type",
             width: 90,
-            render: (value: string) => <Tag>{COMPONENT_TYPE_LABELS[value] ?? value ?? "KhÃ¡c"}</Tag>,
+            render: (value: string) => <Tag>{COMPONENT_TYPE_LABELS[value] ?? value ?? "Khác"}</Tag>,
           },
           {
-            title: "TÃªn váº­t tÆ° / nhÃ¢n cÃ´ng",
+            title: "Tên vật tư / nhân công",
             render: (_: unknown, row: NonNullable<IDirectCostGroupsItem["components"]>[number]) => (
               <Space direction="vertical" size={0}>
                 <Text strong>{getComponentDisplayName(row)}</Text>
@@ -479,50 +479,50 @@ const DirectCostComponentsTable: React.FC<{
             ),
           },
           {
-            title: "Nguá»“n",
+            title: "Nguồn",
             width: 150,
             render: (_: unknown, row: NonNullable<IDirectCostGroupsItem["components"]>[number]) => (
               <Space direction="vertical" size={0}>
-                <Text>{row.source_ref_label || COMPONENT_SOURCE_LABELS[row.source_type ?? ""] || "â€”"}</Text>
+                <Text>{row.source_ref_label || COMPONENT_SOURCE_LABELS[row.source_type ?? ""] || "—"}</Text>
                 {row.brand_name ? <Text type="secondary" style={{ fontSize: 11 }}>{row.brand_name}</Text> : null}
               </Space>
             ),
           },
           {
-            title: "CÆ¡ sá»Ÿ sá»‘ lÆ°á»£ng",
+            title: "Cơ sở số lượng",
             width: 160,
             render: (_: unknown, row: NonNullable<IDirectCostGroupsItem["components"]>[number]) => (
               <Space direction="vertical" size={0}>
-                <Text>{COMPONENT_CALC_MODE_LABELS[row.calc_mode ?? ""] || row.calc_mode || "â€”"}</Text>
+                <Text>{COMPONENT_CALC_MODE_LABELS[row.calc_mode ?? ""] || row.calc_mode || "—"}</Text>
                 {row.quantity_per_unit != null ? (
                   <Text type="secondary" style={{ fontSize: 11 }}>
-                    {row.quantity_per_unit}/{row.unit || "Ä‘v"}
+                    {row.quantity_per_unit}/{row.unit || "đv"}
                   </Text>
                 ) : null}
               </Space>
             ),
           },
           {
-            title: "Sá»‘ lÆ°á»£ng",
+            title: "Số lượng",
             width: 110,
             align: "right" as const,
-            render: (_: unknown, row: NonNullable<IDirectCostGroupsItem["components"]>[number]) => row.expanded_quantity ?? row.quantity ?? "â€”",
+            render: (_: unknown, row: NonNullable<IDirectCostGroupsItem["components"]>[number]) => row.expanded_quantity ?? row.quantity ?? "—",
           },
           {
-            title: "ÄÆ¡n vá»‹",
+            title: "Đơn vị",
             dataIndex: "unit",
             width: 80,
-            render: (value: string) => value || "â€”",
+            render: (value: string) => value || "—",
           },
           {
-            title: "ÄÆ¡n giÃ¡",
+            title: "Đơn giá",
             dataIndex: "unit_price",
             width: 130,
             align: "right" as const,
             render: (value: number) => fmt(value ?? 0),
           },
           {
-            title: "ThÃ nh tiá»n",
+            title: "Thành tiền",
             dataIndex: "line_total",
             width: 140,
             align: "right" as const,
@@ -532,17 +532,17 @@ const DirectCostComponentsTable: React.FC<{
             title: "Formula",
             width: 190,
             render: (_: unknown, row: NonNullable<IDirectCostGroupsItem["components"]>[number]) => (
-              <Text style={{ fontSize: 12 }}>{row.formula_snapshot || row.formula_code || "â€”"}</Text>
+              <Text style={{ fontSize: 12 }}>{row.formula_snapshot || row.formula_code || "—"}</Text>
             ),
           },
           {
-            title: "Ghi chÃº",
+            title: "Ghi chú",
             width: 180,
             render: (_: unknown, row: NonNullable<IDirectCostGroupsItem["components"]>[number]) => (
               <Space direction="vertical" size={0}>
-                <Text type="secondary" style={{ fontSize: 11 }}>{row.cost_note || row.note || "â€”"}</Text>
+                <Text type="secondary" style={{ fontSize: 11 }}>{row.cost_note || row.note || "—"}</Text>
                 {row.waste_pct != null ? (
-                  <Text type="secondary" style={{ fontSize: 11 }}>Hao há»¥t: {row.waste_pct}%</Text>
+                  <Text type="secondary" style={{ fontSize: 11 }}>Hao hụt: {row.waste_pct}%</Text>
                 ) : null}
               </Space>
             ),
@@ -567,14 +567,14 @@ interface ComputeResult {
 /**
  * CORRECT calculation chain:
  *
- * Step 1 â€” MATERIALS (01): base_rate_m2 ï¿½ area_m2 ï¿½ complexity  [FIXED, independent of total]
- * Step 2 â€” LABOR (02): salary from execution_days + commissions % of materials  [FIXED, independent of total]
- * Step 3 â€” ALLOCATIONS (03-08): each % of their calc_base (direct_cost / labor / material / contract_value)
+ * Step 1 — MATERIALS (01): base_rate_m2 ï¿½ area_m2 ï¿½ complexity  [FIXED, independent of total]
+ * Step 2 — LABOR (02): salary from execution_days + commissions % of materials  [FIXED, independent of total]
+ * Step 3 — ALLOCATIONS (03-08): each % of their calc_base (direct_cost / labor / material / contract_value)
  *   â¬¢ For contract_value-based: solve algebraically to avoid circular dependency
- * Step 4 â€” RECOMMENDED QUOTE: solve T = (fixed_costs) / (1 - cv_alloc_pct - target_profit_pct)
- * Step 5 â€” CONTRACT VALUE: use user's targetTotal if provided, else recommendedQuote
- * Step 6 â€” PROFIT (09): ALWAYS = contractValue - sum(01-08)  [residual, NOT a fixed %]
- * Step 7 â€” AUTO-GENERATE direct_cost_groups from area + rates
+ * Step 4 — RECOMMENDED QUOTE: solve T = (fixed_costs) / (1 - cv_alloc_pct - target_profit_pct)
+ * Step 5 — CONTRACT VALUE: use user's targetTotal if provided, else recommendedQuote
+ * Step 6 — PROFIT (09): ALWAYS = contractValue - sum(01-08)  [residual, NOT a fixed %]
+ * Step 7 — AUTO-GENERATE direct_cost_groups from area + rates
  *
  * @param targetTotal  User-supplied total_estimate_cost override (changes profit only)
  */
@@ -588,7 +588,7 @@ function computeFromPolicy(
   const qsr = policy.quote_suggestion_rule;
   const lp  = policy.labor_policy;
 
-  // â€”ï¿½â€”ï¿½ Complexity multiplier (scale applies only at very_difficult) â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½
+  // —ï¿½—ï¿½ Complexity multiplier (scale applies only at very_difficult) —ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½
   const complexityFactor     = qsr?.complexity_factor ?? 1;
   const scaleFactor          = qsr?.scale_factor ?? 1;
   const complexityMultiplier =
@@ -596,12 +596,12 @@ function computeFromPolicy(
     : complexity_level === 'difficult'    ? complexityFactor
     : 1;
 
-  // â€”ï¿½â€”ï¿½ Step 1: MATERIALS â€” independent of total â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½
-  // base_quote_rate_m2 represents the direct material cost rate per mÂ²
+  // —ï¿½—ï¿½ Step 1: MATERIALS — independent of total —ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½
+  // base_quote_rate_m2 represents the direct material cost rate per m²
   const baseRate         = qsr?.base_quote_rate_m2 ?? 0;
   const materialsAmount  = Math.round(baseRate * area_m2 * complexityMultiplier);
 
-  // â€”ï¿½â€”ï¿½ Step 2: LABOR â€” independent of total â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½
+  // —ï¿½—ï¿½ Step 2: LABOR — independent of total —ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½
   const workingDays     = lp?.working_days_per_month ?? 26;
   // Internal salary: prorated to execution_days
   const internalSalary  = Math.round(
@@ -621,10 +621,10 @@ function computeFromPolicy(
     supervisor_commission: supComm,
     outsource_labor:       0,
     labor_total:           laborTotal,
-    note: `LÆ°Æ¡ng ${execution_days} ngÃ y: ${internalSalary.toLocaleString('vi-VN')}Ä‘ | KT ${lp?.technical_commission_pct ?? 0}%: ${techComm.toLocaleString('vi-VN')}Ä‘ | GS ${lp?.supervisor_commission_pct ?? 0}%: ${supComm.toLocaleString('vi-VN')}Ä‘`,
+    note: `Lương ${execution_days} ngày: ${internalSalary.toLocaleString('vi-VN')}đ | KT ${lp?.technical_commission_pct ?? 0}%: ${techComm.toLocaleString('vi-VN')}đ | GS ${lp?.supervisor_commission_pct ?? 0}%: ${supComm.toLocaleString('vi-VN')}đ`,
   };
 
-  // â€”ï¿½â€”ï¿½ Step 3a: ALLOCATIONS with known bases (not contract_value) â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½
+  // —ï¿½—ï¿½ Step 3a: ALLOCATIONS with known bases (not contract_value) —ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½
   const directCost = materialsAmount + laborTotal;
 
   interface AllocEntry { amount: number; note: string; pct: number }
@@ -638,7 +638,7 @@ function computeFromPolicy(
       case 'material_cost': base = materialsAmount; break;
       case 'labor_cost':    base = laborTotal;      break;
       case 'direct_cost':   base = directCost;      break;
-      default:              base = null; // contract_value â€” defer to step 3b
+      default:              base = null; // contract_value — defer to step 3b
     }
     if (base !== null) {
       alloc[ap.bucket_code] = {
@@ -651,7 +651,7 @@ function computeFromPolicy(
 
   const fixedAllocSum = Object.values(alloc).reduce((s, v) => s + v.amount, 0);
 
-  // â€”ï¿½â€”ï¿½ Step 4: Solve for RECOMMENDED QUOTE â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½
+  // —ï¿½—ï¿½ Step 4: Solve for RECOMMENDED QUOTE —ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½
   // Sum of pct for contract_value-based allocations
   const cvAllocPct = (policy.allocation_policy ?? [])
     .filter(ap => ap.calc_base === 'contract_value' || (!ap.calc_base && ap.bucket_code))
@@ -664,7 +664,7 @@ function computeFromPolicy(
     ? Math.round((directCost + fixedAllocSum) / denominator)
     : Math.round(directCost * 1.35); // safety fallback: 35% markup
 
-  // â€”ï¿½â€”ï¿½ Step 3b: ALLOCATIONS with contract_value base â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½
+  // —ï¿½—ï¿½ Step 3b: ALLOCATIONS with contract_value base —ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½
   // Use recommendedQuote as proxy for contract_value (best estimate before total is decided)
   const quoteForAlloc = (targetTotal && targetTotal > 0) ? targetTotal : recommendedQuote;
 
@@ -674,7 +674,7 @@ function computeFromPolicy(
       const pct = (ap.default_rate_pct ?? 0) / 100;
       alloc[ap.bucket_code] = {
         amount: Math.round(quoteForAlloc * pct),
-        note:   ap.note ? ap.note : `${ap.default_rate_pct}% Ã— tá»•ng há»£p há»£p Ä‘á»“ng`,
+        note:   ap.note ? ap.note : `${ap.default_rate_pct}% Ã— tổng hợp hợp đồng`,
         pct,
       };
     }
@@ -682,17 +682,17 @@ function computeFromPolicy(
 
   const totalAllocSum = Object.values(alloc).reduce((s, v) => s + v.amount, 0);
 
-  // â€”ï¿½â€”ï¿½ Step 5: CONTRACT VALUE â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½
+  // —ï¿½—ï¿½ Step 5: CONTRACT VALUE —ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½
   const contractValue   = (targetTotal && targetTotal > 0) ? targetTotal : recommendedQuote;
   const totalInternalCost = materialsAmount + laborTotal + totalAllocSum;
 
-  // â€”ï¿½â€”ï¿½ Step 6: PROFIT â€” always RESIDUAL â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½
+  // —ï¿½—ï¿½ Step 6: PROFIT — always RESIDUAL —ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½
   const profitAmount    = Math.max(0, contractValue - totalInternalCost);
   const actualProfitPct = contractValue > 0
     ? Math.round((profitAmount / contractValue) * 1000) / 10
     : 0;
 
-  // â€”ï¿½â€”ï¿½ Step 7: BUILD BUCKETS with formula notes â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½
+  // —ï¿½—ï¿½ Step 7: BUILD BUCKETS with formula notes —ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½
   const buckets: IStandardizedBucketsItem[] = BUCKET_CONFIGS.map((cfg, idx) => {
     let amount = 0;
     let note   = '';
@@ -700,13 +700,13 @@ function computeFromPolicy(
 
     if (cfg.code === '01_materials') {
       amount = materialsAmount;
-      note   = `${baseRate.toLocaleString('vi-VN')} Ä‘/mÂ² Ã— ${area_m2}mÂ² Ã— há»‡ sá»‘ ${complexityMultiplier.toFixed(2)}`;
+      note   = `${baseRate.toLocaleString('vi-VN')} đ/m² Ã— ${area_m2}m² Ã— hệ số ${complexityMultiplier.toFixed(2)}`;
     } else if (cfg.code === '02_labor_total') {
       amount = laborTotal;
       note   = labor.note ?? '';
     } else if (cfg.code === '09_profit') {
       amount = profitAmount;
-      note   = `${fmt(contractValue)} - chi phÃ­ ${fmt(totalInternalCost)} = ${fmt(profitAmount)} (${actualProfitPct}%)`;
+      note   = `${fmt(contractValue)} - chi phí ${fmt(totalInternalCost)} = ${fmt(profitAmount)} (${actualProfitPct}%)`;
       formulaSource = 'residual';
     } else {
       const entry = alloc[cfg.code];
@@ -726,64 +726,64 @@ function computeFromPolicy(
     };
   });
 
-  // â€”ï¿½â€”ï¿½ Step 8: AUTO-GENERATE direct_cost_groups â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½
+  // —ï¿½—ï¿½ Step 8: AUTO-GENERATE direct_cost_groups —ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½
   const laborPerM2     = area_m2 > 0 ? Math.round(laborTotal / area_m2) : 0;
   const directCostGroups: IDirectCostGroupsItem[] = [
     {
-      name:            `Thi cÃ´ng tá»•ng thá»ƒ (${area_m2}mÂ² - ${complexity_level ?? 'standard'})`,
+      name:            `Thi công tổng thể (${area_m2}m² - ${complexity_level ?? 'standard'})`,
       quantity:        area_m2,
-      unit:            'mÂ²',
+      unit:            'm²',
       material_amount: baseRate,                    // per-unit rate
       labor_amount:    laborPerM2,                  // per-unit rate
       other_amount:    0,
       subtotal:        materialsAmount + laborTotal,
-      note:            `Policy: ${policy.name ?? policy.code} | Base: ${baseRate.toLocaleString('vi-VN')}Ä‘/mÂ²`,
+      note:            `Policy: ${policy.name ?? policy.code} | Base: ${baseRate.toLocaleString('vi-VN')}đ/m²`,
       components: [
         {
           type:         'material' as const,
           calc_mode:    'package_m2' as const,
           quantity:     area_m2,
-          unit:         'mÂ²',
+          unit:         'm²',
           unit_price:   Math.round(baseRate * complexityMultiplier),
           line_total:   materialsAmount,
           formula_code: `base_rate_m2 Ã— area Ã— complexity(${complexityMultiplier.toFixed(2)})`,
-          note:         `Váº­t tÆ° thi cÃ´ng theo diá»‡n tÃ­ch`,
+          note:         `Vật tư thi công theo diện tích`,
         },
         {
           type:         'labor' as const,
           calc_mode:    'daily_worker' as const,
           quantity:     execution_days,
-          unit:         'ngÃ y',
+          unit:         'ngày',
           unit_price:   execution_days > 0 ? Math.round(internalSalary / execution_days) : 0,
           line_total:   internalSalary,
           formula_code: `salary / working_days Ã— execution_days Ã— allocation_factor`,
-          note:         `LÆ°Æ¡ng ná»™i bá»™ ${execution_days} ngÃ y`,
+          note:         `Lương nội bộ ${execution_days} ngày`,
         },
         ...(techComm > 0 ? [{
           type:         'labor' as const,
           calc_mode:    'package_m2' as const,
           quantity:     area_m2,
-          unit:         'mÂ²',
+          unit:         'm²',
           unit_price:   area_m2 > 0 ? Math.round(techComm / area_m2) : 0,
           line_total:   techComm,
           formula_code: `materials Ã— ${lp?.technical_commission_pct ?? 0}%`,
-          note:         `Hoa há»“ng Ká»¹ thuáº­t`,
+          note:         `Hoa hồng Kỹ thuật`,
         }] : []),
         ...(supComm > 0 ? [{
           type:         'labor' as const,
           calc_mode:    'package_m2' as const,
           quantity:     area_m2,
-          unit:         'mÂ²',
+          unit:         'm²',
           unit_price:   area_m2 > 0 ? Math.round(supComm / area_m2) : 0,
           line_total:   supComm,
           formula_code: `materials Ã— ${lp?.supervisor_commission_pct ?? 0}%`,
-          note:         `Hoa há»“ng GiÃ¡m sÃ¡t`,
+          note:         `Hoa hồng Giám sát`,
         }] : []),
       ],
     },
   ];
 
-  // â€”ï¿½â€”ï¿½ Derivation record â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½
+  // —ï¿½—ï¿½ Derivation record —ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½
   const quoteDerivation: IJourneyEstimate['quote_derivation'] = {
     recommended_quote_value_initial: recommendedQuote,
     final_quote_floor:               qsr?.min_quote_floor ?? 0,
@@ -793,8 +793,8 @@ function computeFromPolicy(
     complexity_factor:               complexityMultiplier,
     pricing_mode:                    targetTotal ? 'target_quote_check' : 'profit_target_optimize',
     note:                            targetTotal
-      ? `Tá»•ng ká»³ vá»ng: ${fmt(targetTotal)} | Policy Ä‘á» xuáº¥t: ${fmt(recommendedQuote)} | LN thá»±c: ${actualProfitPct}%`
-      : `Policy: ${policy.name ?? policy.code} | Äá» xuáº¥t tá»‘i thiá»ƒu Ä‘áº¡t LN ${(targetProfitPct * 100).toFixed(0)}%`,
+      ? `Tổng kỳ vọng: ${fmt(targetTotal)} | Policy đề xuất: ${fmt(recommendedQuote)} | LN thực: ${actualProfitPct}%`
+      : `Policy: ${policy.name ?? policy.code} | Đề xuất tối thiểu đạt LN ${(targetProfitPct * 100).toFixed(0)}%`,
   };
 
   const warningThreshold = policy.profit_policy?.warning_threshold_pct ?? (targetProfitPct * 100);
@@ -807,7 +807,7 @@ function computeFromPolicy(
       ...(targetTotal && targetTotal < totalInternalCost ? ['QUOTE_BELOW_COST'] : []),
     ],
     warning_note: actualProfitPct < warningThreshold
-      ? `LN thá»±c táº¿ ${actualProfitPct}% tháº¥p hÆ¡n má»¥c tiÃªu ${warningThreshold}%`
+      ? `LN thực tế ${actualProfitPct}% thấp hơn mục tiêu ${warningThreshold}%`
       : undefined,
   };
 
@@ -823,7 +823,7 @@ function computeFromPolicy(
   };
 }
 
-// â€”ï¿½â€”ï¿½â€”ï¿½ Sub-components â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½â€”ï¿½
+// —ï¿½—ï¿½—ï¿½ Sub-components —ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½—ï¿½
 
 const BucketsViewGrid: React.FC<{ buckets: IStandardizedBucketsItem[] }> = ({ buckets }) => {
   const screens = Grid.useBreakpoint();
@@ -853,7 +853,7 @@ const BucketsViewGrid: React.FC<{ buckets: IStandardizedBucketsItem[] }> = ({ bu
           );
         })}
         <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 10px', background: '#f0f5ff', borderRadius: 6, marginTop: 4 }}>
-          <Text strong>Tá»•ng cá»™ng</Text>
+          <Text strong>Tổng cộng</Text>
           <Text strong style={{ color: '#cf1322' }}>{fmt(total)}</Text>
         </div>
       </Space>
@@ -914,7 +914,7 @@ const BucketsEditTable: React.FC<{
           render: (v: number) => v ? <Text type="secondary" style={{ fontSize: 11 }}>{v}%</Text> : null,
         },
         {
-          title: 'Sá»‘ tiá»n (VNÄ)', dataIndex: 'amount',
+          title: 'Số tiền (VNĐ)', dataIndex: 'amount',
           render: (val: number, r: IStandardizedBucketsItem) =>
             <InputNumber value={val} min={0} size="small" style={{ width: '100%' }}
               formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
@@ -922,13 +922,13 @@ const BucketsEditTable: React.FC<{
               onChange={v => set(r.bucket_code!, 'amount', v)} />,
         },
         {
-          title: 'Ghi chÃº', dataIndex: 'note',
+          title: 'Ghi chú', dataIndex: 'note',
           render: (val: string, r: IStandardizedBucketsItem) =>
-            <Input value={val} size="small" placeholder="Ghi chÃº..."
+            <Input value={val} size="small" placeholder="Ghi chú..."
               onChange={e => set(r.bucket_code!, 'note', e.target.value)} />,
         },
         {
-          title: 'ThÃ nh tiá»n', align: 'right' as const, width: 130,
+          title: 'Thành tiền', align: 'right' as const, width: 130,
           render: (_: any, r: IStandardizedBucketsItem) =>
             <Text strong style={{ color: r.bucket_code === '09_profit' ? '#fa541c' : undefined }}>
               {fmt(r.amount || 0)}
@@ -938,7 +938,7 @@ const BucketsEditTable: React.FC<{
       summary={rows => {
         const total = rows.reduce((s, r) => s + (r.amount || 0), 0);
         return <Table.Summary.Row>
-          <Table.Summary.Cell index={0} colSpan={4}><Text strong>Tá»•ng cá»™ng</Text></Table.Summary.Cell>
+          <Table.Summary.Cell index={0} colSpan={4}><Text strong>Tổng cộng</Text></Table.Summary.Cell>
           <Table.Summary.Cell index={1} align="right">
             <Text strong style={{ color: '#cf1322', fontSize: 15 }}>{fmt(total)}</Text>
           </Table.Summary.Cell>
@@ -957,10 +957,10 @@ const LaborView: React.FC<{
     <Space direction='vertical' size={12} style={{ width: '100%' }}>
       <Row gutter={[16, 8]}>
         {[
-          { label: 'NhÃ¢n cÃ´ng outsource', value: lb.outsource_labor },
-          { label: 'LÆ°Æ¡ng ná»™i bá»™ (cá»‘ Ä‘á»‹nh)', value: lb.internal_fixed_salary },
-          { label: 'Hoa há»“ng Ká»¹ thuáº­t', value: lb.technical_commission },
-          { label: 'Hoa há»“ng GiÃ¡m sÃ¡t', value: lb.supervisor_commission },
+          { label: 'Nhân công outsource', value: lb.outsource_labor },
+          { label: 'Lương nội bộ (cố định)', value: lb.internal_fixed_salary },
+          { label: 'Hoa hồng Kỹ thuật', value: lb.technical_commission },
+          { label: 'Hoa hồng Giám sát', value: lb.supervisor_commission },
         ].map(row => (
           <Col xs={24} sm={12} key={row.label}>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', borderBottom: '1px solid #f0f0f0' }}>
@@ -971,13 +971,13 @@ const LaborView: React.FC<{
         ))}
         <Col span={24}>
           <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px', background: '#fafafa', borderRadius: 6, marginTop: 4 }}>
-            <Text strong style={{ fontSize: 14 }}>Tá»•ng nhÃ¢n cÃ´ng (tá»± tÃ­nh)</Text>
+            <Text strong style={{ fontSize: 14 }}>Tổng nhân công (tự tính)</Text>
             <Text strong style={{ fontSize: 15, color: '#1890ff' }}>{fmt(lb.labor_total ?? 0)}</Text>
           </div>
         </Col>
-        {lb.note && <Col span={24}><Text type='secondary' style={{ fontSize: 12 }}>Ghi chÃº: {lb.note}</Text></Col>}
+        {lb.note && <Col span={24}><Text type='secondary' style={{ fontSize: 12 }}>Ghi chú: {lb.note}</Text></Col>}
       </Row>
-      <Card size='small' type='inner' title={<Space><TeamOutlined /><Text strong>Báº£ng phÃ¢n bá»• nhÃ¢n cÃ´ng theo vai trÃ²</Text></Space>}>
+      <Card size='small' type='inner' title={<Space><TeamOutlined /><Text strong>Bảng phân bổ nhân công theo vai trò</Text></Space>}>
         <LaborAllocationTable allocations={allocations} roleSnapshot={roleSnapshot} />
       </Card>
     </Space>
@@ -995,10 +995,10 @@ const LaborEdit: React.FC<{
     onChange(recomputeLabor(next));
   };
   const rows: { label: string; field: keyof ILaborBreakdownItem }[] = [
-    { label: 'NhÃ¢n cÃ´ng outsource', field: 'outsource_labor' },
-    { label: 'LÆ°Æ¡ng ná»™i bá»™ (cá»‘ Ä‘á»‹nh)', field: 'internal_fixed_salary' },
-    { label: 'Hoa há»“ng Ká»¹ thuáº­t', field: 'technical_commission' },
-    { label: 'Hoa há»“ng GiÃ¡m sÃ¡t', field: 'supervisor_commission' },
+    { label: 'Nhân công outsource', field: 'outsource_labor' },
+    { label: 'Lương nội bộ (cố định)', field: 'internal_fixed_salary' },
+    { label: 'Hoa hồng Kỹ thuật', field: 'technical_commission' },
+    { label: 'Hoa hồng Giám sát', field: 'supervisor_commission' },
   ];
   return (
     <Space direction='vertical' size={12} style={{ width: '100%' }}>
@@ -1019,18 +1019,18 @@ const LaborEdit: React.FC<{
           ))}
         </Row>
         <div style={{ display: 'flex', justifyContent: 'space-between', background: '#e6f7ff', borderRadius: 6, padding: '8px 12px', marginBottom: 8 }}>
-          <Text strong>Tá»•ng nhÃ¢n cÃ´ng (tá»± tÃ­nh)</Text>
+          <Text strong>Tổng nhân công (tự tính)</Text>
           <Text strong style={{ color: '#1890ff', fontSize: 14 }}>{fmt(lb.labor_total ?? 0)}</Text>
         </div>
-        <Form.Item label='Ghi chÃº' style={{ marginBottom: 0 }}>
+        <Form.Item label='Ghi chú' style={{ marginBottom: 0 }}>
           <Input value={lb.note} size='small' onChange={e => onChange({ ...lb, note: e.target.value })} />
         </Form.Item>
       </div>
-      <Card size='small' type='inner' title={<Space><TeamOutlined /><Text strong>Báº£ng phÃ¢n bá»• nhÃ¢n cÃ´ng theo vai trÃ²</Text></Space>}>
+      <Card size='small' type='inner' title={<Space><TeamOutlined /><Text strong>Bảng phân bổ nhân công theo vai trò</Text></Space>}>
         <LaborAllocationTable
           allocations={allocations}
           roleSnapshot={roleSnapshot}
-          infoMessage='Báº£ng dÆ°á»›i Ä‘Ã¢y pháº£n Ã¡nh snapshot sinh tá»« láº§n tá»± Ä‘á»™ng tÃ­nh gáº§n nháº¥t. Náº¿u báº¡n chá»‰nh tay chi phÃ­ nhÃ¢n cÃ´ng tá»•ng há»£p á»Ÿ trÃªn, hÃ£y cháº¡y láº¡i Tá»± Ä‘á»™ng tÃ­nh Ä‘á»ƒ Ä‘á»“ng bá»™ phÃ¢n bá»• chi tiáº¿t.'
+          infoMessage='Bảng dưỔ›i đây phản ánh snapshot sinh từ lần tự động tính gần nhất. Nếu bạn chỉnh tay chi phí nhân công tổng hợp ở trên, hãy chạy lại Tự động tính để đồng bộ phân bổ chi tiết.'
         />
       </Card>
     </Space>
@@ -1042,7 +1042,7 @@ const DirectCostView: React.FC<{
   onQuickSetup?: () => void;
   resolveMsg?: (text: string | null | undefined) => string;
 }> = ({ groups, onQuickSetup, resolveMsg }) => {
-  if (!groups.length) return <Text type='secondary'>ChÆ°a cÃ³ háº¡ng má»¥c váº­t tÆ° nÃ o.</Text>;
+  if (!groups.length) return <Text type='secondary'>Chưa có hạng mục vật tư nào.</Text>;
   return (
     <Collapse size='small' ghost>
       {groups.map((g, i) => (
@@ -1050,7 +1050,7 @@ const DirectCostView: React.FC<{
           key={i}
           header={
             <Space>
-              <Text strong>{g.name || `Háº¡ng má»¥c ${i + 1}`}</Text>
+              <Text strong>{g.name || `Hạng mục ${i + 1}`}</Text>
               <Text type='secondary' style={{ fontSize: 12 }}>Ã—{g.quantity ?? 1} {g.unit}</Text>
               <Tag color='blue'>{fmt(g.subtotal ?? 0)}</Tag>
             </Space>
@@ -1058,9 +1058,9 @@ const DirectCostView: React.FC<{
         >
           <Row gutter={[12, 4]} style={{ marginBottom: 8 }}>
             {[
-              { label: 'Váº­t tÆ°', value: g.material_amount },
-              { label: 'NhÃ¢n cÃ´ng', value: g.labor_amount },
-              { label: 'Chi phÃ­ khÃ¡c', value: g.other_amount },
+              { label: 'Vật tư', value: g.material_amount },
+              { label: 'Nhân công', value: g.labor_amount },
+              { label: 'Chi phí khác', value: g.other_amount },
             ].map(row => (
               <Col xs={24} sm={8} key={row.label}>
                 <div style={{ textAlign: 'center', background: '#fafafa', borderRadius: 6, padding: '6px 8px' }}>
@@ -1071,7 +1071,7 @@ const DirectCostView: React.FC<{
             ))}
           </Row>
           <DirectCostComponentsTable group={g} onQuickSetup={onQuickSetup} resolveMsg={resolveMsg} />
-          {g.note && <div style={{ marginTop: 6 }}><Text type='secondary' style={{ fontSize: 12 }}>Ghi chÃº háº¡ng má»¥c: {g.note}</Text></div>}
+          {g.note && <div style={{ marginTop: 6 }}><Text type='secondary' style={{ fontSize: 12 }}>Ghi chú hạng mục: {g.note}</Text></div>}
         </Panel>
       ))}
     </Collapse>
@@ -1098,62 +1098,62 @@ const DirectCostEdit: React.FC<{
           style={{ marginBottom: 10, border: '1px solid #e8e8e8' }}
           title={
             <Space>
-              <Text strong style={{ fontSize: 13 }}>{g.name || `Háº¡ng má»¥c ${i + 1}`}</Text>
+              <Text strong style={{ fontSize: 13 }}>{g.name || `Hạng mục ${i + 1}`}</Text>
               <Tag color='blue'>{fmt(g.subtotal ?? 0)}</Tag>
             </Space>
           }
           extra={
-            <Popconfirm title='XÃ³a háº¡ng má»¥c nÃ y?' onConfirm={() => removeGroup(i)} okText='XÃ³a' cancelText='Há»§y'>
+            <Popconfirm title='Xóa hạng mục này?' onConfirm={() => removeGroup(i)} okText='Xóa' cancelText='Hủy'>
               <Button type='text' danger icon={<DeleteOutlined />} size='small' />
             </Popconfirm>
           }
         >
           <Row gutter={[12, 0]}>
             <Col span={10}>
-              <Form.Item label='TÃªn háº¡ng má»¥c' style={{ marginBottom: 8 }}>
+              <Form.Item label='Tên hạng mục' style={{ marginBottom: 8 }}>
                 <Input value={g.name} size='small' onChange={e => setGroup(i, { name: e.target.value })} />
               </Form.Item>
             </Col>
             <Col span={7}>
-              <Form.Item label='Sá»‘ lÆ°á»£ng' style={{ marginBottom: 8 }}>
+              <Form.Item label='Số lượng' style={{ marginBottom: 8 }}>
                 <InputNumber value={g.quantity} min={0} size='small' style={{ width: '100%' }} onChange={v => setGroup(i, { quantity: v ?? 0 })} />
               </Form.Item>
             </Col>
             <Col span={7}>
-              <Form.Item label='ÄÆ¡n vá»‹' style={{ marginBottom: 8 }}>
+              <Form.Item label='Đơn vị' style={{ marginBottom: 8 }}>
                 <Input value={g.unit} size='small' onChange={e => setGroup(i, { unit: e.target.value })} />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item label='Chi phÃ­ Váº­t tÆ°' style={{ marginBottom: 8 }}>
+              <Form.Item label='Chi phí Vật tư' style={{ marginBottom: 8 }}>
                 <InputNumber value={g.material_amount} min={0} size='small' style={{ width: '100%' }} formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} parser={v => Number(v?.replace(/,/g, '') || 0)} onChange={v => setGroup(i, { material_amount: v ?? 0 })} />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item label='Chi phÃ­ NhÃ¢n cÃ´ng' style={{ marginBottom: 8 }}>
+              <Form.Item label='Chi phí Nhân công' style={{ marginBottom: 8 }}>
                 <InputNumber value={g.labor_amount} min={0} size='small' style={{ width: '100%' }} formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} parser={v => Number(v?.replace(/,/g, '') || 0)} onChange={v => setGroup(i, { labor_amount: v ?? 0 })} />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item label='Chi phÃ­ khÃ¡c' style={{ marginBottom: 8 }}>
+              <Form.Item label='Chi phí khác' style={{ marginBottom: 8 }}>
                 <InputNumber value={g.other_amount} min={0} size='small' style={{ width: '100%' }} formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} parser={v => Number(v?.replace(/,/g, '') || 0)} onChange={v => setGroup(i, { other_amount: v ?? 0 })} />
               </Form.Item>
             </Col>
             <Col span={24}>
-              <Form.Item label='Ghi chÃº' style={{ marginBottom: 0 }}>
+              <Form.Item label='Ghi chú' style={{ marginBottom: 0 }}>
                 <Input value={g.note} size='small' onChange={e => setGroup(i, { note: e.target.value })} />
               </Form.Item>
             </Col>
           </Row>
           <Divider style={{ margin: '12px 0' }} />
           <Space direction='vertical' size={8} style={{ width: '100%' }}>
-            <Text strong>Báº£ng váº­t tÆ° / nhÃ¢n cÃ´ng chi tiáº¿t</Text>
+            <Text strong>Bảng vật tư / nhân công chi tiết</Text>
             <DirectCostComponentsTable group={g} />
           </Space>
         </Card>
       ))}
       <Button type='dashed' block icon={<PlusOutlined />} onClick={addGroup}>
-        ThÃªm háº¡ng má»¥c
+        Thêm hạng mục
       </Button>
     </div>
   );
@@ -1178,10 +1178,10 @@ interface QuickSetupProps {
 }
 
 const SCALE_LABELS: Record<string, string> = {
-  small: 'Nhá» (small)',
-  medium: 'Vá»«a (medium)',
-  large: 'Lá»›n (large)',
-  custom: 'TÃ¹y chá»‰nh (custom)',
+  small: 'Nhỏ (small)',
+  medium: 'Vừa (medium)',
+  large: 'LỔ›n (large)',
+  custom: 'Tùy chỉnh (custom)',
 };
 
 const QuickSetupTemplateModal: React.FC<QuickSetupProps> = ({
@@ -1200,23 +1200,23 @@ const QuickSetupTemplateModal: React.FC<QuickSetupProps> = ({
       .filter(c => (c as any).source_type !== 'policy' || (c as any).unit_price)
       .map(c => ({
         type: c.type as any,
-        name: c.item_name || 'Háº¡ng má»¥c váº­t tÆ°',
-        unit: c.unit || 'mÂ²',
+        name: c.item_name || 'Hạng mục vật tư',
+        unit: c.unit || 'm²',
         calc_mode: c.calc_mode as any,
         quantity_per_unit: c.quantity_per_unit ?? 1,
         unit_price: c.unit_price ?? 0,
       }));
     setComponents(seed.length ? seed : [{
       type: 'material' as any,
-      name: 'Váº­t tÆ° chÃ­nh',
-      unit: 'mÂ²',
+      name: 'Vật tư chính',
+      unit: 'm²',
       calc_mode: 'package_m2' as any,
       quantity_per_unit: 1,
       unit_price: 0,
     }]);
     form.setFieldsValue({
       name: `Template ${SCALE_LABELS[scaleType ?? ''] ?? scaleType ?? ''} - ${serviceTypeName ?? serviceTypeId ?? ''}`,
-      unit: 'mÂ²',
+      unit: 'm²',
       selection_mode: 'required',
       priority: 1,
     });
@@ -1226,7 +1226,7 @@ const QuickSetupTemplateModal: React.FC<QuickSetupProps> = ({
     setComponents(prev => prev.map((c, i) => i === idx ? { ...c, ...patch } : c));
 
   const addComp = () => setComponents(prev => [...prev, {
-    type: 'material' as any, name: '', unit: 'mÂ²',
+    type: 'material' as any, name: '', unit: 'm²',
     calc_mode: 'package_m2' as any, quantity_per_unit: 1, unit_price: 0,
   }]);
 
@@ -1246,7 +1246,7 @@ const QuickSetupTemplateModal: React.FC<QuickSetupProps> = ({
         code: values.code || undefined,
         service_type_id: serviceTypeId,
         scale_type: scaleType as any,
-        unit: values.unit || 'mÂ²',
+        unit: values.unit || 'm²',
         components,
       });
 
@@ -1267,20 +1267,20 @@ const QuickSetupTemplateModal: React.FC<QuickSetupProps> = ({
         });
       }
 
-      antMessage.success('ÄÃ£ táº¡o template vÃ  liÃªn káº¿t vá»›i policy thÃ nh cÃ´ng! HÃ£y cháº¡y láº¡i Tá»± Ä‘á»™ng tÃ­nh Ä‘á»ƒ Ã¡p dá»¥ng.');
+      antMessage.success('Đã tạo template và liên kết vỔ›i policy thành công! Hãy chạy lại Tự động tính để áp dụng.');
       onSuccess();
       onClose();
     } catch (err) {
-      antMessage.error('Lá»—i: ' + (err instanceof Error ? err.message : 'Unknown'));
+      antMessage.error('Lỗi: ' + (err instanceof Error ? err.message : 'Unknown'));
     } finally {
       setSaving(false);
     }
   };
 
   const stepItems = [
-    { title: 'ThÃ´ng tin Template' },
-    { title: 'Cáº¥u pháº§n chi phÃ­' },
-    { title: 'LiÃªn káº¿t Policy' },
+    { title: 'Thông tin Template' },
+    { title: 'Cấu phần chi phí' },
+    { title: 'Liên kết Policy' },
   ];
 
   const canNext = step < stepItems.length - 1;
@@ -1288,8 +1288,8 @@ const QuickSetupTemplateModal: React.FC<QuickSetupProps> = ({
 
   const footer = (
     <Space>
-      <Button onClick={onClose}>ÄÃ³ng</Button>
-      {canBack && <Button onClick={() => setStep(s => s - 1)}>Quay láº¡i</Button>}
+      <Button onClick={onClose}>Đóng</Button>
+      {canBack && <Button onClick={() => setStep(s => s - 1)}>Quay lại</Button>}
       {canNext && (
         <Button type="primary" onClick={async () => {
           if (step === 0) {
@@ -1297,12 +1297,12 @@ const QuickSetupTemplateModal: React.FC<QuickSetupProps> = ({
           }
           setStep(s => s + 1);
         }}>
-          Tiáº¿p theo
+          Tiếp theo
         </Button>
       )}
       {!canNext && (
         <Button type="primary" loading={saving} onClick={handleSave} icon={<SaveOutlined />}>
-          Táº¡o Template & LiÃªn káº¿t Policy
+          Tạo Template & Liên kết Policy
         </Button>
       )}
     </Space>
@@ -1315,7 +1315,7 @@ const QuickSetupTemplateModal: React.FC<QuickSetupProps> = ({
       title={
         <Space>
           <ThunderboltOutlined style={{ color: '#fa8c16' }} />
-          <span>Quick Setup â€” Táº¡o EstimateTemplate má»›i</span>
+          <span>Quick Setup — Tạo EstimateTemplate mỔ›i</span>
         </Space>
       }
       width={740}
@@ -1331,46 +1331,46 @@ const QuickSetupTemplateModal: React.FC<QuickSetupProps> = ({
             type="info" showIcon style={{ marginBottom: 16 }}
             message={
               <span>
-                Sáº½ táº¡o template cho <Tag color="blue">{SCALE_LABELS[scaleType ?? ''] ?? scaleType}</Tag>
-                cá»§a loáº¡i dá»‹ch vá»¥ <Tag color="geekblue">{serviceTypeName ?? serviceTypeId}</Tag>
-                {policyName && <>, liÃªn káº¿t vÃ o policy <Tag color="purple">{policyName}</Tag></>}.
+                Sẽ tạo template cho <Tag color="blue">{SCALE_LABELS[scaleType ?? ''] ?? scaleType}</Tag>
+                của loại dịch vụ <Tag color="geekblue">{serviceTypeName ?? serviceTypeId}</Tag>
+                {policyName && <>, liên kết vào policy <Tag color="purple">{policyName}</Tag></>}.
               </span>
             }
           />
           <Row gutter={[12, 0]}>
             <Col span={16}>
-              <Form.Item name="name" label="TÃªn Template" rules={[{ required: true, message: 'Nháº­p tÃªn template' }]}>
-                <Input placeholder="VD: Template chá»‘ng tháº¥m sÃ n - quy mÃ´ nhá»" />
+              <Form.Item name="name" label="Tên Template" rules={[{ required: true, message: 'Nhập tên template' }]}>
+                <Input placeholder="VD: Template chống thấm sàn - quy mô nhỏ" />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item name="code" label="MÃ£ (tÃ¹y chá»n)">
+              <Form.Item name="code" label="Mã (tùy chọn)">
                 <Input placeholder="VD: TPL-CTS-SMALL" />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item name="unit" label="ÄÆ¡n vá»‹ tÃ­nh" rules={[{ required: true }]}>
+              <Form.Item name="unit" label="Đơn vị tính" rules={[{ required: true }]}>
                 <Select options={[
-                  { value: 'mÂ²', label: 'mÂ²' },
+                  { value: 'm²', label: 'm²' },
                   { value: 'mÂ³', label: 'mÂ³' },
-                  { value: 'bá»™', label: 'Bá»™' },
-                  { value: 'cÃ¡i', label: 'CÃ¡i' },
-                  { value: 'gÃ³i', label: 'GÃ³i' },
-                  { value: 'láº§n', label: 'Láº§n' },
+                  { value: 'bộ', label: 'Bộ' },
+                  { value: 'cái', label: 'Cái' },
+                  { value: 'gói', label: 'Gói' },
+                  { value: 'lần', label: 'Lần' },
                 ]} />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item label="Quy mÃ´">
+              <Form.Item label="Quy mô">
                 <Tag color="orange" style={{ lineHeight: '30px', padding: '0 10px' }}>
-                  {SCALE_LABELS[scaleType ?? ''] ?? scaleType ?? 'â€”'}
+                  {SCALE_LABELS[scaleType ?? ''] ?? scaleType ?? '—'}
                 </Tag>
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item label="Loáº¡i dá»‹ch vá»¥">
+              <Form.Item label="Loại dịch vụ">
                 <Tag color="geekblue" style={{ lineHeight: '30px', padding: '0 10px' }}>
-                  {serviceTypeName ?? serviceTypeId ?? 'â€”'}
+                  {serviceTypeName ?? serviceTypeId ?? '—'}
                 </Tag>
               </Form.Item>
             </Col>
@@ -1383,7 +1383,7 @@ const QuickSetupTemplateModal: React.FC<QuickSetupProps> = ({
         <Space direction="vertical" style={{ width: '100%' }} size={8}>
           <Alert
             type="info" showIcon
-            message="Má»—i dÃ²ng lÃ  má»™t cáº¥u pháº§n chi phÃ­ trong template. Há»‡ thá»‘ng sáº½ nhÃ¢n quantity_per_unit vá»›i diá»‡n tÃ­ch thá»±c táº¿ khi tÃ­nh toÃ¡n."
+            message="Mỗi dòng là một cấu phần chi phí trong template. Hệ thống sẽ nhân quantity_per_unit vỔ›i diện tích thực tế khi tính toán."
           />
           {components.map((comp, idx) => (
             <Card
@@ -1394,29 +1394,29 @@ const QuickSetupTemplateModal: React.FC<QuickSetupProps> = ({
                   <Button type="text" danger icon={<DeleteOutlined />} size="small" onClick={() => removeComp(idx)} />
                 )
               }
-              title={<Text strong style={{ fontSize: 12 }}>Cáº¥u pháº§n {idx + 1}</Text>}
+              title={<Text strong style={{ fontSize: 12 }}>Cấu phần {idx + 1}</Text>}
             >
               <Row gutter={[8, 0]}>
                 <Col span={5}>
-                  <Form.Item label="Loáº¡i" style={{ marginBottom: 6 }}>
+                  <Form.Item label="Loại" style={{ marginBottom: 6 }}>
                     <Select size="small" value={comp.type}
                       onChange={v => setComp(idx, { type: v as any })}
                       options={[
-                        { value: 'material', label: 'Váº­t tÆ°' },
-                        { value: 'labor', label: 'NhÃ¢n cÃ´ng' },
-                        { value: 'other', label: 'KhÃ¡c' },
+                        { value: 'material', label: 'Vật tư' },
+                        { value: 'labor', label: 'Nhân công' },
+                        { value: 'other', label: 'Khác' },
                       ]}
                     />
                   </Form.Item>
                 </Col>
                 <Col span={11}>
-                  <Form.Item label="TÃªn háº¡ng má»¥c" style={{ marginBottom: 6 }}>
-                    <Input size="small" value={comp.name ?? ''} onChange={e => setComp(idx, { name: e.target.value })} placeholder="VD: SÆ¡n chá»‘ng tháº¥m" />
+                  <Form.Item label="Tên hạng mục" style={{ marginBottom: 6 }}>
+                    <Input size="small" value={comp.name ?? ''} onChange={e => setComp(idx, { name: e.target.value })} placeholder="VD: Sơn chống thấm" />
                   </Form.Item>
                 </Col>
                 <Col span={4}>
-                  <Form.Item label="ÄÆ¡n vá»‹" style={{ marginBottom: 6 }}>
-                    <Input size="small" value={comp.unit ?? ''} onChange={e => setComp(idx, { unit: e.target.value })} placeholder="mÂ²" />
+                  <Form.Item label="Đơn vị" style={{ marginBottom: 6 }}>
+                    <Input size="small" value={comp.unit ?? ''} onChange={e => setComp(idx, { unit: e.target.value })} placeholder="m²" />
                   </Form.Item>
                 </Col>
                 <Col span={4}>
@@ -1424,22 +1424,22 @@ const QuickSetupTemplateModal: React.FC<QuickSetupProps> = ({
                     <Select size="small" value={comp.calc_mode}
                       onChange={v => setComp(idx, { calc_mode: v as any })}
                       options={[
-                        { value: 'package_m2', label: 'Theo mÂ²' },
-                        { value: 'daily_worker', label: 'NgÃ y cÃ´ng' },
-                        { value: 'manual', label: 'Thá»§ cÃ´ng' },
+                        { value: 'package_m2', label: 'Theo m²' },
+                        { value: 'daily_worker', label: 'Ngày công' },
+                        { value: 'manual', label: 'Thủ công' },
                         { value: 'formula', label: 'Formula' },
                       ]}
                     />
                   </Form.Item>
                 </Col>
                 <Col span={8}>
-                  <Form.Item label="Qty / Ä‘Æ¡n vá»‹ diá»‡n tÃ­ch" style={{ marginBottom: 0 }}>
+                  <Form.Item label="Qty / đơn vị diện tích" style={{ marginBottom: 0 }}>
                     <InputNumber size="small" style={{ width: '100%' }} value={comp.quantity_per_unit ?? 1} min={0} step={0.01}
                       onChange={v => setComp(idx, { quantity_per_unit: v ?? 1 })} />
                   </Form.Item>
                 </Col>
                 <Col span={8}>
-                  <Form.Item label="ÄÆ¡n giÃ¡ (VND)" style={{ marginBottom: 0 }}>
+                  <Form.Item label="Đơn giá (VND)" style={{ marginBottom: 0 }}>
                     <InputNumber size="small" style={{ width: '100%' }} value={comp.unit_price ?? 0} min={0}
                       formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                       parser={v => Number(v?.replace(/,/g, '') || 0)}
@@ -1447,7 +1447,7 @@ const QuickSetupTemplateModal: React.FC<QuickSetupProps> = ({
                   </Form.Item>
                 </Col>
                 <Col span={8}>
-                  <Form.Item label="Ghi chÃº" style={{ marginBottom: 0 }}>
+                  <Form.Item label="Ghi chú" style={{ marginBottom: 0 }}>
                     <Input size="small" value={comp.note ?? ''} onChange={e => setComp(idx, { note: e.target.value })} />
                   </Form.Item>
                 </Col>
@@ -1455,7 +1455,7 @@ const QuickSetupTemplateModal: React.FC<QuickSetupProps> = ({
             </Card>
           ))}
           <Button block icon={<PlusOutlined />} size="small" onClick={addComp} style={{ borderStyle: 'dashed' }}>
-            ThÃªm cáº¥u pháº§n
+            Thêm cấu phần
           </Button>
         </Space>
       )}
@@ -1467,48 +1467,48 @@ const QuickSetupTemplateModal: React.FC<QuickSetupProps> = ({
             type="warning" showIcon style={{ marginBottom: 16 }}
             message={
               policyId
-                ? `Template má»›i sáº½ Ä‘Æ°á»£c thÃªm vÃ o template_rules cá»§a policy "${policyName ?? policyId}". CÃ¡c dá»± toÃ¡n tiáº¿p theo sáº½ dÃ¹ng template nÃ y thay vÃ¬ fallback.`
-                : 'KhÃ´ng cÃ³ policy Ä‘á»ƒ liÃªn káº¿t. Template váº«n sáº½ Ä‘Æ°á»£c táº¡o nhÆ°ng cáº§n liÃªn káº¿t thá»§ cÃ´ng sau.'
+                ? `Template mỔ›i sẽ được thêm vào template_rules của policy "${policyName ?? policyId}". Các dự toán tiếp theo sẽ dùng template này thay vì fallback.`
+                : 'Không có policy để liên kết. Template vẫn sẽ được tạo nhưng cần liên kết thủ công sau.'
             }
           />
           <Row gutter={[12, 0]}>
             <Col span={12}>
-              <Form.Item name="selection_mode" label="Selection mode" tooltip="required: báº¯t buá»™c dÃ¹ng; optional: tÃ¹y chá»n; conditional: theo Ä‘iá»u kiá»‡n">
+              <Form.Item name="selection_mode" label="Selection mode" tooltip="required: bắt buộc dùng; optional: tùy chọn; conditional: theo điều kiện">
                 <Select options={[
-                  { value: 'required', label: 'Required â€” Báº¯t buá»™c' },
-                  { value: 'optional', label: 'Optional â€” TÃ¹y chá»n' },
-                  { value: 'conditional', label: 'Conditional â€” Theo Ä‘iá»u kiá»‡n' },
+                  { value: 'required', label: 'Required — Bắt buộc' },
+                  { value: 'optional', label: 'Optional — Tùy chọn' },
+                  { value: 'conditional', label: 'Conditional — Theo điều kiện' },
                 ]} />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="priority" label="Æ¯u tiÃªn (nhá» hÆ¡n = cao hÆ¡n)" tooltip="Sá»‘ nhá» hÆ¡n Ä‘Æ°á»£c chá»n trÆ°á»›c khi cÃ³ nhiá»u template rules">
+              <Form.Item name="priority" label="Ưu tiên (nhỏ hơn = cao hơn)" tooltip="Số nhỏ hơn được chọn trưỔ›c khi có nhiều template rules">
                 <InputNumber style={{ width: '100%' }} min={1} max={99} />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="min_area_m2" label="Diá»‡n tÃ­ch tá»‘i thiá»ƒu (mÂ²) â€” tÃ¹y chá»n">
-                <InputNumber style={{ width: '100%' }} min={0} placeholder="Äá»ƒ trá»‘ng = khÃ´ng giá»›i háº¡n" />
+              <Form.Item name="min_area_m2" label="Diện tích tối thiểu (m²) — tùy chọn">
+                <InputNumber style={{ width: '100%' }} min={0} placeholder="Để trống = không giỔ›i hạn" />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="max_area_m2" label="Diá»‡n tÃ­ch tá»‘i Ä‘a (mÂ²) â€” tÃ¹y chá»n">
-                <InputNumber style={{ width: '100%' }} min={0} placeholder="Äá»ƒ trá»‘ng = khÃ´ng giá»›i háº¡n" />
+              <Form.Item name="max_area_m2" label="Diện tích tối đa (m²) — tùy chọn">
+                <InputNumber style={{ width: '100%' }} min={0} placeholder="Để trống = không giỔ›i hạn" />
               </Form.Item>
             </Col>
             <Col span={24}>
-              <Form.Item name="rule_note" label="Ghi chÃº rule">
-                <Input.TextArea rows={2} placeholder="VD: Ãp dá»¥ng cho dá»± Ã¡n chá»‘ng tháº¥m quy mÃ´ nhá» dÆ°á»›i 50mÂ²" />
+              <Form.Item name="rule_note" label="Ghi chú rule">
+                <Input.TextArea rows={2} placeholder="VD: Áp dụng cho dự án chống thấm quy mô nhỏ dưỔ›i 50m²" />
               </Form.Item>
             </Col>
           </Row>
           <Divider style={{ margin: '8px 0' }} />
           <div style={{ background: '#f6ffed', border: '1px solid #b7eb8f', borderRadius: 6, padding: '10px 14px' }}>
-            <Text strong style={{ fontSize: 12 }}>TÃ³m táº¯t sáº½ táº¡o:</Text>
+            <Text strong style={{ fontSize: 12 }}>Tóm tắt sẽ tạo:</Text>
             <ul style={{ margin: '6px 0 0', paddingLeft: 16, fontSize: 12 }}>
               <li>Template: <strong>{form.getFieldValue('name')}</strong> ({SCALE_LABELS[scaleType ?? ''] ?? scaleType})</li>
-              <li>{components.length} cáº¥u pháº§n chi phÃ­</li>
-              {policyId && <li>LiÃªn káº¿t vÃ o policy: <strong>{policyName ?? policyId}</strong></li>}
+              <li>{components.length} cấu phần chi phí</li>
+              {policyId && <li>Liên kết vào policy: <strong>{policyName ?? policyId}</strong></li>}
             </ul>
           </div>
         </Form>
@@ -1600,7 +1600,7 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
     ?? resolvedPolicyName
     ?? null;  // intentionally NOT falling back to raw ID
 
-  // TÃªn service type tá»« journey (Ä‘Æ°á»£c populate bá»Ÿi backend khi load)
+  // Tên service type từ journey (được populate bởi backend khi load)
   const currentServiceTypeId =
     estimate?.journey_input_snapshot?.service_type_id ??
     journey?.serviceTypeId ?? null;
@@ -1608,8 +1608,8 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
     journey?.idx_serviceTypeId?.title ?? null;
 
   /**
-   * Thay tháº¿ cÃ¡c raw MongoDB _id trong text cáº£nh bÃ¡o báº±ng tÃªn hiá»ƒn thá»‹ tÆ°Æ¡ng á»©ng.
-   * Backend generate warning text kÃ¨m raw ID â€” cáº§n resolve á»Ÿ client trÆ°á»›c khi render.
+   * Thay thế các raw MongoDB _id trong text cảnh báo bằng tên hiển thị tương ứng.
+   * Backend generate warning text kèm raw ID — cần resolve ở client trưỔ›c khi render.
    */
   const resolveMessage = (text: string | null | undefined): string => {
     if (!text) return '';
@@ -1635,10 +1635,10 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
 
   const currentProfitAmount = Math.max(0, totalCost - internalCost);
   const readinessItems = [
-    { label: 'ThÃ´ng tin máº·t báº±ng', ok: !!journey?.area_m2 },
-    { label: 'Cáº¥u trÃºc chi phÃ­ (Buckets)', ok: currentBuckets.length > 0 },
-    { label: 'NhÃ¢n cÃ´ng chi tiáº¿t', ok: !!currentLabor?.labor_total },
-    { label: 'Háº¡ng má»¥c váº­t tÆ°', ok: currentGroups.length > 0 },
+    { label: 'Thông tin mặt bằng', ok: !!journey?.area_m2 },
+    { label: 'Cấu trúc chi phí (Buckets)', ok: currentBuckets.length > 0 },
+    { label: 'Nhân công chi tiết', ok: !!currentLabor?.labor_total },
+    { label: 'Hạng mục vật tư', ok: currentGroups.length > 0 },
   ];
   const currentReadinessScore = Math.round((readinessItems.filter(item => item.ok).length / readinessItems.length) * 100);
 
@@ -1766,7 +1766,7 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
       }
 
       if (!policy) {
-        antMessage.error('KhÃ´ng tÃ¬m tháº¥y chÃ­nh sÃ¡ch giÃ¡. Kiá»ƒm tra Cáº¥u hÃ¬nh > ChÃ­nh sÃ¡ch giÃ¡.');
+        antMessage.error('Không tìm thấy chính sách giá. Kiểm tra Cấu hình > Chính sách giá.');
         return;
       }
 
@@ -1824,29 +1824,29 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
     <Space>
       <Button size="small" icon={<SyncOutlined spin={loading} />} onClick={refresh}>Refresh</Button>
       <Button size="small" type="primary" icon={<EditOutlined />} onClick={handleStartEdit}>
-        Tiáº¿n hÃ nh dá»± toÃ¡n
+        Tiến hành dự toán
       </Button>
     </Space>
   ) : (
     <Space>
-      <Tooltip title={!isInputReady ? 'Cáº§n Diá»‡n tÃ­ch vÃ  Sá»‘ ngÃ y thi cÃ´ng' : 'TÃ­nh láº¡i tá»± Ä‘á»™ng tá»« chÃ­nh sÃ¡ch giÃ¡'}>
+      <Tooltip title={!isInputReady ? 'Cần Diện tích và Số ngày thi công' : 'Tính lại tự động từ chính sách giá'}>
         <Button size="small" icon={<RocketOutlined />} loading={isAutoCalcing}
           disabled={!isInputReady} onClick={() => runAutoCalc()}>
-          Tá»± Ä‘á»™ng tÃ­nh
+          Tự động tính
         </Button>
       </Tooltip>
       <Button size="small" type="primary" icon={<SaveOutlined />} onClick={handleSave} loading={loading}>
-        LÆ°u dá»± toÃ¡n
+        Lưu dự toán
       </Button>
-      <Button size="small" icon={<RollbackOutlined />} onClick={handleCancelEdit}>Há»§y</Button>
+      <Button size="small" icon={<RollbackOutlined />} onClick={handleCancelEdit}>Hủy</Button>
     </Space>
   );
 
-  // Ná»™i dung dá»± toÃ¡n gáº§n nháº¥t (dÃ¹ng chung cho cáº£ view vÃ  edit mode)
+  // Nội dung dự toán gần nhất (dùng chung cho cả view và edit mode)
   const latestEstimateContent = (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-      {/* 0. Summary + Readiness â€” Ä‘Æ°a lÃªn Ä‘áº§u Ä‘á»ƒ quáº£n lÃ½ review nhanh */}
+      {/* 0. Summary + Readiness — đưa lên đầu để quản lý review nhanh */}
       {!isEditing && (
         <Row gutter={[16, 16]}>
           <Col xs={24} lg={12}>
@@ -1854,7 +1854,7 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
               title={<Space><SafetyCertificateOutlined /><Text strong>Financial Bound</Text></Space>}
               style={{ height: '100%' }}>
               <Statistic
-                title='Tá»•ng giÃ¡ trá»‹ dá»± toÃ¡n (BÃ¡o giÃ¡)'
+                title='Tổng giá trị dự toán (Báo giá)'
                 value={totalCost}
                 precision={0}
                 valueStyle={{ color: '#cf1322' }}
@@ -1864,28 +1864,28 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
               <Divider style={{ margin: '10px 0' }} />
               <Space direction="vertical" style={{ width: '100%' }} size={6}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Text type='secondary'>Chi phÃ­ ná»™i bá»™ (01-08):</Text>
+                  <Text type='secondary'>Chi phí nội bộ (01-08):</Text>
                   <Text strong>{fmt(internalCost)}</Text>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Text type="secondary">Lá»£i nhuáº­n (pháº§n dÆ°):</Text>
+                  <Text type="secondary">Lợi nhuận (phần dư):</Text>
                   <Text strong style={{ color: currentProfitAmount > 0 ? '#52c41a' : '#cf1322' }}>
                     {fmt(currentProfitAmount)}
                   </Text>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Text type="secondary">LN% thá»±c táº¿:</Text>
+                  <Text type="secondary">LN% thực tế:</Text>
                   <Text strong style={{ color: (currentValidationResult?.actual_profit_pct ?? 0) >= (currentValidationResult?.target_profit_pct_min ?? 15) ? '#52c41a' : '#cf1322' }}>
                     {currentValidationResult?.actual_profit_pct ?? '-'}%
                     <Text type="secondary" style={{ fontSize: 11, marginLeft: 4 }}>
-                      (má»¥c tiÃªu: {currentValidationResult?.target_profit_pct_min ?? 15}%)
+                      (mục tiêu: {currentValidationResult?.target_profit_pct_min ?? 15}%)
                     </Text>
                   </Text>
                 </div>
                 {currentQuoteDerivation?.recommended_quote_value_initial != null
                   && currentQuoteDerivation?.recommended_quote_value_initial !== totalCost && (
                   <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 4, borderTop: '1px dashed #f0f0f0' }}>
-                    <Text type='secondary' style={{ fontSize: 11 }}>Policy Ä‘á» xuáº¥t:</Text>
+                    <Text type='secondary' style={{ fontSize: 11 }}>Policy đề xuất:</Text>
                     <Text type="secondary" style={{ fontSize: 11 }}>
                       {fmt(currentQuoteDerivation?.recommended_quote_value_initial ?? 0)}
                     </Text>
@@ -1946,13 +1946,13 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
       {/* 2. Labor Breakdown */}
       <Card
         size="small"
-        title={<Space><TeamOutlined /><Text strong>NhÃ¢n cÃ´ng chi tiáº¿t</Text></Space>}
+        title={<Space><TeamOutlined /><Text strong>Nhân công chi tiết</Text></Space>}
       >
         {isEditing
           ? <LaborEdit lb={editLabor} onChange={setEditLabor} allocations={savedRoleCostAllocations} roleSnapshot={savedJourneyRoleSnapshot} />
           : estimate?.labor_breakdown
             ? <LaborView lb={estimate.labor_breakdown} allocations={estimate?.role_cost_allocations} roleSnapshot={estimate?.journey_role_snapshot} />
-            : <Text type='secondary'>ChÆ°a cÃ³ dá»¯ liá»‡u nhÃ¢n cÃ´ng. Nháº¥n Tiáº¿n hÃ nh dá»± toÃ¡n Ä‘á»ƒ nháº­p.</Text>
+            : <Text type='secondary'>Chưa có dữ liệu nhân công. Nhấn Tiến hành dự toán để nhập.</Text>
         }
       </Card>
 
@@ -1962,9 +1962,9 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
         title={
           <Space>
             <ToolOutlined />
-            <Text strong>Váº­t tÆ° & Háº¡ng má»¥c trá»±c tiáº¿p</Text>
+            <Text strong>Vật tư & Hạng mục trực tiếp</Text>
             {!isEditing && estimate?.direct_cost_groups?.length
-              ? <Tag>{estimate.direct_cost_groups.length} háº¡ng má»¥c</Tag>
+              ? <Tag>{estimate.direct_cost_groups.length} hạng mục</Tag>
               : null}
           </Space>
         }
@@ -1973,11 +1973,11 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
           ? <DirectCostEdit groups={editGroups} onChange={setEditGroups} />
           : estimate?.direct_cost_groups?.length
             ? <DirectCostView groups={estimate.direct_cost_groups} onQuickSetup={() => setQuickSetupOpen(true)} resolveMsg={resolveMessage} />
-            : <Text type='secondary'>ChÆ°a cÃ³ háº¡ng má»¥c. Nháº¥n Tiáº¿n hÃ nh dá»± toÃ¡n Ä‘á»ƒ nháº­p.</Text>
+            : <Text type='secondary'>Chưa có hạng mục. Nhấn Tiến hành dự toán để nhập.</Text>
         }
       </Card>
 
-      {/* 4. Summary + Readiness â€” chá»‰ hiá»ƒn thá»‹ trong edit mode (view mode Ä‘Ã£ cÃ³ á»Ÿ trÃªn cÃ¹ng) */}
+      {/* 4. Summary + Readiness — chỉ hiển thị trong edit mode (view mode đã có ở trên cùng) */}
       {isEditing && (
         <Row gutter={[16, 16]}>
           <Col xs={24} lg={12}>
@@ -1985,7 +1985,7 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
               title={<Space><SafetyCertificateOutlined /><Text strong>Financial Bound</Text></Space>}
               style={{ height: '100%' }}>
               <Statistic
-                title='Tá»•ng giÃ¡ trá»‹ dá»± toÃ¡n (BÃ¡o giÃ¡)'
+                title='Tổng giá trị dự toán (Báo giá)'
                 value={totalCost}
                 precision={0}
                 valueStyle={{ color: '#cf1322' }}
@@ -1995,28 +1995,28 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
               <Divider style={{ margin: '10px 0' }} />
               <Space direction="vertical" style={{ width: '100%' }} size={6}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Text type='secondary'>Chi phÃ­ ná»™i bá»™ (01-08):</Text>
+                  <Text type='secondary'>Chi phí nội bộ (01-08):</Text>
                   <Text strong>{fmt(internalCost)}</Text>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Text type="secondary">Lá»£i nhuáº­n (pháº§n dÆ°):</Text>
+                  <Text type="secondary">Lợi nhuận (phần dư):</Text>
                   <Text strong style={{ color: currentProfitAmount > 0 ? '#52c41a' : '#cf1322' }}>
                     {fmt(currentProfitAmount)}
                   </Text>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Text type="secondary">LN% thá»±c táº¿:</Text>
+                  <Text type="secondary">LN% thực tế:</Text>
                   <Text strong style={{ color: (currentValidationResult?.actual_profit_pct ?? 0) >= (currentValidationResult?.target_profit_pct_min ?? 15) ? '#52c41a' : '#cf1322' }}>
                     {currentValidationResult?.actual_profit_pct ?? '-'}%
                     <Text type="secondary" style={{ fontSize: 11, marginLeft: 4 }}>
-                      (má»¥c tiÃªu: {currentValidationResult?.target_profit_pct_min ?? 15}%)
+                      (mục tiêu: {currentValidationResult?.target_profit_pct_min ?? 15}%)
                     </Text>
                   </Text>
                 </div>
                 {currentQuoteDerivation?.recommended_quote_value_initial != null
                   && currentQuoteDerivation?.recommended_quote_value_initial !== totalCost && (
                   <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 4, borderTop: '1px dashed #f0f0f0' }}>
-                    <Text type='secondary' style={{ fontSize: 11 }}>Policy Ä‘á» xuáº¥t:</Text>
+                    <Text type='secondary' style={{ fontSize: 11 }}>Policy đề xuất:</Text>
                     <Text type="secondary" style={{ fontSize: 11 }}>
                       {fmt(currentQuoteDerivation?.recommended_quote_value_initial ?? 0)}
                     </Text>
@@ -2066,14 +2066,14 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
         <Row gutter={[16, 16]}>
           <Col span={12}>
             <Text type="secondary" style={{ fontSize: 12 }}>
-              Cáº­p nháº­t láº§n cuá»‘i: {(estimate as any)?.updatedTime
+              Cập nhật lần cuối: {(estimate as any)?.updatedTime
                 ? new Date((estimate as any).updatedTime).toLocaleString('vi-VN')
                 : 'N/A'}
             </Text>
           </Col>
           <Col span={12}>
             <Text type="secondary" style={{ fontSize: 12 }}>
-              Bá»Ÿi: {(estimate as any)?.updatedBy || 'System'}
+              Bởi: {(estimate as any)?.updatedBy || 'System'}
             </Text>
           </Col>
         </Row>
@@ -2093,22 +2093,22 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
           title={
             <Space>
               <SettingOutlined style={{ color: '#2f54eb' }} />
-              <Text strong style={{ color: '#2f54eb' }}>Cáº¥u hÃ¬nh dá»± toÃ¡n</Text>
-              <Tag color="blue">Äáº§u vÃ o tÃ­nh toÃ¡n</Tag>
+              <Text strong style={{ color: '#2f54eb' }}>Cấu hình dự toán</Text>
+              <Tag color="blue">Đầu vào tính toán</Tag>
             </Space>
           }
         >
           <Row gutter={[12, 8]}>
             <Col xs={24} md={12} lg={10}>
               <Form.Item
-                label={<Text strong>ChÃ­nh sÃ¡ch tÃ­nh giÃ¡</Text>}
+                label={<Text strong>Chính sách tính giá</Text>}
                 style={{ marginBottom: 0 }}
-                extra={<Text type='secondary' style={{ fontSize: 11 }}>Chá»n policy Ä‘á»ƒ há»‡ thá»‘ng tá»± Ä‘á»™ng tÃ­nh toÃ¡n phÃ¢n bá»• chi phÃ­</Text>}
+                extra={<Text type='secondary' style={{ fontSize: 11 }}>Chọn policy để hệ thống tự động tính toán phân bổ chi phí</Text>}
               >
                 <Select
                   allowClear
                   showSearch
-                  placeholder="Chá»n chÃ­nh sÃ¡ch giÃ¡..."
+                  placeholder="Chọn chính sách giá..."
                   style={{ width: '100%' }}
                   value={editPolicyId ?? undefined}
                   loading={policyOptLoading}
@@ -2117,21 +2117,21 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
                     (opt?.label as string ?? '').toLowerCase().includes(input.toLowerCase())
                   }
                   onChange={handlePolicyChange}
-                  notFoundContent={policyOptLoading ? <Spin size="small" /> : 'KhÃ´ng cÃ³ chÃ­nh sÃ¡ch nÃ o'}
+                  notFoundContent={policyOptLoading ? <Spin size="small" /> : 'Không có chính sách nào'}
                 />
               </Form.Item>
             </Col>
             <Col xs={24} md={12} lg={8}>
               <Form.Item
-                label={<Text strong>GiÃ¡ trá»‹ chÃ o Ã¡p dá»¥ng (VND)</Text>}
+                label={<Text strong>Giá trị chào áp dụng (VND)</Text>}
                 style={{ marginBottom: 0 }}
-                extra={<Text type='secondary' style={{ fontSize: 11 }}>Nháº­p Ä‘á»ƒ ghi Ä‘Ã¨ giÃ¡ tá»± Ä‘á»™ng tÃ­nh tá»« policy</Text>}
+                extra={<Text type='secondary' style={{ fontSize: 11 }}>Nhập để ghi đè giá tự động tính từ policy</Text>}
               >
                 <InputNumber
                   value={editTotalCost ?? undefined}
                   min={0}
                   style={{ width: '100%' }}
-                  placeholder='Äá»ƒ trá»‘ng â†’ tá»± tÃ­nh'
+                  placeholder='Để trống â†’ tự tính'
                   formatter={v => v ? `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : ''}
                   parser={v => Number(v?.replace(/,/g, '') || 0)}
                   onChange={handleTotalCostChange}
@@ -2139,7 +2139,7 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
               </Form.Item>
             </Col>
             <Col xs={24} md={24} lg={6} style={{ display: 'flex', alignItems: 'flex-end' }}>
-              <Tooltip title={!isInputReady ? 'Cáº§n Diá»‡n tÃ­ch vÃ  Sá»‘ ngÃ y thi cÃ´ng' : 'TÃ­nh láº¡i tá»« policy + cÃ¡c thÃ´ng tin Ä‘áº§u vÃ o'}>
+              <Tooltip title={!isInputReady ? 'Cần Diện tích và Số ngày thi công' : 'Tính lại từ policy + các thông tin đầu vào'}>
                 <Button
                   type="primary"
                   block
@@ -2148,7 +2148,7 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
                   disabled={!isInputReady}
                   onClick={() => runAutoCalc()}
                 >
-                  TÃ­nh láº¡i ngay
+                  Tính lại ngay
                 </Button>
               </Tooltip>
             </Col>
@@ -2165,7 +2165,7 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
         </Card>
       )}
 
-      {/* Edit mode: hiá»ƒn thá»‹ trá»±c tiáº¿p, khÃ´ng cÃ³ tabs */}
+      {/* Edit mode: hiển thị trực tiếp, không có tabs */}
       {isEditing ? latestEstimateContent : (
         <Tabs
           defaultActiveKey="latest"
@@ -2176,7 +2176,7 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
               label: (
                 <Space size={4}>
                   <DollarOutlined />
-                  <span>Dá»± toÃ¡n gáº§n nháº¥t</span>
+                  <span>Dự toán gần nhất</span>
                   {estimate?.code && <Tag style={{ marginLeft: 2 }}>{estimate.code}</Tag>}
                 </Space>
               ),
@@ -2187,7 +2187,7 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
               label: (
                 <Space size={4}>
                   <AuditOutlined />
-                  <span>Lá»‹ch sá»­ dá»± toÃ¡n</span>
+                  <span>Lịch sử dự toán</span>
                   {estimateHistory.length > 0 && (
                     <Tag color="blue">{estimateHistory.length}</Tag>
                   )}
@@ -2198,43 +2198,43 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
                   size="small"
                   dataSource={estimateHistory}
                   rowKey={r => r._id ?? r.code ?? String(Math.random())}
-                  pagination={{ pageSize: 10, showTotal: total => `${total} dá»± toÃ¡n` }}
+                  pagination={{ pageSize: 10, showTotal: total => `${total} dự toán` }}
                   columns={[
                     {
-                      title: 'MÃ£ dá»± toÃ¡n',
+                      title: 'Mã dự toán',
                       dataIndex: 'code',
                       width: 180,
                       render: (code: string, row) => (
                         <Space direction="vertical" size={0}>
-                          <Text strong style={{ fontSize: 12 }}>{code || 'â€”'}</Text>
+                          <Text strong style={{ fontSize: 12 }}>{code || '—'}</Text>
                           <Text type="secondary" style={{ fontSize: 11 }}>
                             v{row.version_no ?? 1}
                             {row._id === estimate?._id && (
-                              <Tag color="green" style={{ marginLeft: 4, fontSize: 10 }}>Gáº§n nháº¥t</Tag>
+                              <Tag color="green" style={{ marginLeft: 4, fontSize: 10 }}>Gần nhất</Tag>
                             )}
                           </Text>
                         </Space>
                       ),
                     },
                     {
-                      title: 'Tráº¡ng thÃ¡i',
+                      title: 'Trạng thái',
                       dataIndex: 'status',
                       width: 100,
                       render: (status: string) => (
                         <Tag color={status === 'approved' ? 'green' : status === 'draft' ? 'default' : 'orange'}>
-                          {status ?? 'â€”'}
+                          {status ?? '—'}
                         </Tag>
                       ),
                     },
                     {
-                      title: 'GiÃ¡ bÃ¡o (VND)',
+                      title: 'Giá báo (VND)',
                       dataIndex: 'applied_quote_value',
                       width: 160,
                       align: 'right' as const,
                       render: (v: number) => <Text strong style={{ color: '#cf1322' }}>{fmt(v ?? 0)}</Text>,
                     },
                     {
-                      title: 'Chi phÃ­ ná»™i bá»™ (VND)',
+                      title: 'Chi phí nội bộ (VND)',
                       dataIndex: 'total_estimate_cost',
                       width: 160,
                       align: 'right' as const,
@@ -2247,7 +2247,7 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
                       render: (_: unknown, row: IJourneyEstimate) => {
                         const pct = row.validation_result?.actual_profit_pct;
                         const min = row.validation_result?.target_profit_pct_min ?? 15;
-                        if (pct == null) return 'â€”';
+                        if (pct == null) return '—';
                         return (
                           <Text style={{ color: pct >= min ? '#52c41a' : '#cf1322' }}>
                             {pct}%
@@ -2256,7 +2256,7 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
                       },
                     },
                     {
-                      title: 'Cáº£nh bÃ¡o',
+                      title: 'Cảnh báo',
                       width: 120,
                       render: (_: unknown, row: IJourneyEstimate) => {
                         const codes = row.validation_result?.warning_codes ?? [];
@@ -2265,7 +2265,7 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
                       },
                     },
                     {
-                      title: 'NgÃ y táº¡o',
+                      title: 'Ngày tạo',
                       width: 140,
                       render: (_: unknown, row: any) => (
                         <Text type="secondary" style={{ fontSize: 12 }}>
@@ -2273,15 +2273,15 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
                             ? new Date(row.createdTime).toLocaleString('vi-VN')
                             : row.createdAt
                             ? new Date(row.createdAt).toLocaleString('vi-VN')
-                            : 'â€”'}
+                            : '—'}
                         </Text>
                       ),
                     },
                     {
-                      title: 'NgÆ°á»i táº¡o',
+                      title: 'Người tạo',
                       dataIndex: 'createdBy',
                       width: 160,
-                      render: (v: string) => <Text style={{ fontSize: 12 }}>{v || 'â€”'}</Text>,
+                      render: (v: string) => <Text style={{ fontSize: 12 }}>{v || '—'}</Text>,
                     },
                   ]}
                 />
@@ -2291,14 +2291,14 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
         />
       )}
 
-      {/* Quick Setup Template Modal â€” opens from fallback alert */}
+      {/* Quick Setup Template Modal — opens from fallback alert */}
       <QuickSetupTemplateModal
         open={quickSetupOpen}
         onClose={() => setQuickSetupOpen(false)}
         onSuccess={() => {
           setQuickSetupOpen(false);
           // Prompt user to re-run auto calc to pick up the new template
-          antMessage.info('HÃ£y nháº¥n "Tiáº¿n hÃ nh dá»± toÃ¡n" â†’ "Tá»± Ä‘á»™ng tÃ­nh" Ä‘á»ƒ Ã¡p dá»¥ng template má»›i.');
+          antMessage.info('Hãy nhấn "Tiến hành dự toán" â†’ "Tự động tính" để áp dụng template mỔ›i.');
         }}
         serviceTypeId={
           estimate?.journey_input_snapshot?.service_type_id ??
