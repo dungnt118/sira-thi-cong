@@ -1,6 +1,7 @@
 import { useAuth } from '@/hooks/useAuth';
 import { journeyService } from '@/services/core-contracts/services/journey.service';
 import { surveyRecordService } from '@/services/core-contracts/services/surveyRecord.service';
+import { surveyAppointmentService } from '@/services/core-contracts/services/surveyAppointment.service';
 import { IJourney } from '@/services/core-contracts/types/journey.types';
 import { ISurveyRecord } from '@/services/core-contracts/types/surveyRecord.types';
 import {
@@ -22,12 +23,15 @@ import {
     Form, message, Modal,
     Result,
     Row,
+    Select,
     Space,
     Spin,
     Steps,
+    Tag,
     Typography
 } from 'antd';
 import html2pdf from 'html2pdf.js';
+import dayjs from 'dayjs';
 import React, { useEffect, useRef, useState } from 'react';
 import DynamicSurveyForm from '../../shared/Surveys/DynamicSurveyForm';
 
@@ -54,6 +58,8 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({
 
     const [overallStatus, setOverallStatus] = useState<'in_progress' | 'completed'>('in_progress');
     const [formStep, setFormStep] = useState(0);
+    const [appointments, setAppointments] = useState<any[]>([]);
+    const [selectedAppointmentId, setSelectedAppointmentId] = useState<string | null>(null);
     const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
     const [surveyDataForm] = Form.useForm();
     const [isEditing, setIsEditing] = useState(false);
@@ -80,6 +86,7 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({
                 if (sRecords.data && sRecords.data.length > 0) {
                     const record = sRecords.data[0];
                     setSurveyRecord(record);
+                    setSelectedAppointmentId(record.appointment_id || null);
                     setOverallStatus(record.survey_status === 'completed' ? 'completed' : 'in_progress');
 
                     // Map back to DynamicSurveyForm structure
@@ -99,6 +106,15 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({
                         })) || []
                     };
                     surveyDataForm.setFieldsValue(mappedFormData);
+                }
+                // 3. Fetch Appointments for linking
+                const apptRes = await surveyAppointmentService.queryContent({
+                    group: { id: 'journey_id', operation: 'eq', value: journeyId, children: [] },
+                    limit: 100
+                });
+                
+                if (apptRes.data) {
+                    setAppointments(apptRes.data);
                 }
             } catch (error) {
                 console.error('Failed to fetch survey data:', error);
@@ -211,6 +227,7 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({
             const payload = {
                 journey_id: journeyId,
                 journey_step_code: 'site_survey' as any,
+                appointment_id: selectedAppointmentId || undefined,
                 survey_status: 'completed' as any,
                 customer_name: journey?.customer_full_name,
                 site_address: journey?.site_address,
@@ -365,6 +382,23 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({
                                 </Col>
                             ))}
                         </Row>
+                        <div style={{ marginTop: 24, marginBottom: 16 }}>
+                            <Text strong>Liên kết Lịch hẹn (Traceability)</Text>
+                            <Select
+                                style={{ width: '100%', marginTop: 8 }}
+                                placeholder="Chọn lịch hẹn khảo sát tương ứng..."
+                                value={selectedAppointmentId}
+                                onChange={setSelectedAppointmentId}
+                                allowClear
+                            >
+                                {appointments.map(a => (
+                                    <Select.Option key={a._id} value={a._id}>
+                                        {dayjs(a.scheduled_at).format('HH:mm DD/MM/YYYY')} - {a.note || 'Không có ghi chú'}
+                                    </Select.Option>
+                                ))}
+                            </Select>
+                            {!appointments.length && <Text type="secondary" style={{ fontSize: 12 }}>Chưa có lịch hẹn nào được ghi nhận. Bạn vẫn có thể khảo sát trực tiếp.</Text>}
+                        </div>
                         <div style={{ marginTop: 24 }}>
                             <Button type="primary" block size="large" disabled={!selectedTemplate} onClick={() => setFormStep(1)}>
                                 Bắt đầu nhập liệu
@@ -446,10 +480,15 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({
                             <ClockCircleOutlined style={{ color: '#1677ff', fontSize: 32 }} />
                         )}
                         <div>
-                            <Title level={5} style={{ margin: 0 }}>
+                             <Title level={5} style={{ margin: 0 }}>
                                 {overallStatus === 'completed' ? 'Hồ sơ khảo sát đã hoàn tất' : 'Hồ sơ khảo sát đang thực hiện'}
                             </Title>
                             <Text type="secondary">Mã hồ sơ: SUR-{journey?.journey_code || '---'}</Text>
+                            {selectedAppointmentId && (
+                                <div style={{ marginTop: 4 }}>
+                                    <Tag color="cyan">Link tới Lịch hẹn: {dayjs(appointments.find(a => a._id === selectedAppointmentId)?.scheduled_at).format('DD/MM/YYYY')}</Tag>
+                                </div>
+                            )}
                         </div>
                     </Space>
                 </Card>

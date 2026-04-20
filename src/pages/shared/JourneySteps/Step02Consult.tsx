@@ -304,6 +304,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import { AuthorizedUserSelect, AuthorizedUserView } from '../../../components/authorizedusers/AuthorizedUser';
 import { journeyService } from '../../../services/core-contracts/services/journey.service';
 import { surveyAppointmentService } from '../../../services/core-contracts/services/surveyAppointment.service';
+import { surveyRecordService } from '../../../services/core-contracts/services/surveyRecord.service';
 import type { IJourney } from '../../../services/core-contracts/types/journey.types';
 import type {
     ICreateSurveyAppointmentInput,
@@ -391,6 +392,7 @@ export const Step02Consult: React.FC<Step02ConsultProps> = ({
     const [selectedAppt, setSelectedAppt] = useState<ISurveyAppointment | null>(null);
     const [appointments, setAppointments] = useState<ISurveyAppointment[]>([]);
     const [journey, setJourney] = useState<IJourney | null>(null);
+    const [surveyRecords, setSurveyRecords] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -412,6 +414,19 @@ export const Step02Consult: React.FC<Step02ConsultProps> = ({
         }
     }, [journeyId]);
 
+    const fetchSurveyRecords = useCallback(async () => {
+        if (!journeyId) return;
+        try {
+            const res = await surveyRecordService.queryContent({
+                group: { id: 'journey_id', operation: 'eq', value: journeyId, children: [] },
+                limit: 100
+            });
+            if (res.data) setSurveyRecords(res.data);
+        } catch (error) {
+            console.error('Failed to fetch survey records for consult:', error);
+        }
+    }, [journeyId]);
+
     const fetchJourney = useCallback(async () => {
         if (!journeyId) return;
         try {
@@ -425,7 +440,8 @@ export const Step02Consult: React.FC<Step02ConsultProps> = ({
     useEffect(() => {
         void fetchJourney();
         void fetchAppointments();
-    }, [fetchJourney, fetchAppointments]);
+        void fetchSurveyRecords();
+    }, [fetchJourney, fetchAppointments, fetchSurveyRecords]);
 
     const activeAppointment = useMemo(
         () =>
@@ -590,6 +606,7 @@ export const Step02Consult: React.FC<Step02ConsultProps> = ({
                 <Space direction="vertical" size={2}>
                     {getAppointmentStatusTag(status)}
                     {record.confirmed_by_customer ? <Text type="secondary" style={{ fontSize: 12 }}>Khách đã xác nhận</Text> : null}
+                    {surveyRecords.find(s => s.appointment_id === record._id) ? <Tag color="success" icon={<CheckCircleOutlined />}>Đã có kết quả KS</Tag> : null}
                 </Space>
             )
         },

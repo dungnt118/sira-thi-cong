@@ -39,7 +39,10 @@ export const customerService = {
       data: input,
       update_if_duplicate: false
     });
-    if (!response?.data) throw new Error('Không thể tạo Customer');
+    if (!response?.data) {
+      console.error('Backend save_content failed for Customer:', response);
+      throw new Error(`Không thể tạo Customer: ${response?.message || 'Không có phản hồi'}`);
+    }
     return response.data as ICustomer;
   },
 

@@ -117,10 +117,42 @@ const JourneyForm: React.FC<JourneyFormProps> = ({
         });
     };
 
-    const handleFinish = (values: any) => {
+    const handleFinish = async (values: any) => {
+        let customerId = selectedCustomerId;
+
+        // If no customer selected, create a new one automatically
+        if (!customerId && !initialValues?._id) {
+            try {
+                setIsFetchingMetadata(true); // Reuse loading state or add a new one
+                const newCustomer = await customerService.createCustomer({
+                    code: `CUST-${Date.now()}`,
+                    full_name: values.customer_full_name,
+                    phone: values.customer_phone,
+                    email: values.customer_email,
+                    address: values.customer_address,
+                    city: values.customer_province,
+                    province: values.customer_province, // Send both to be safe
+                    ward: values.customer_ward,
+                });
+                if (newCustomer?._id) {
+                    customerId = newCustomer._id;
+                    setSelectedCustomerId(customerId);
+                } else {
+                    throw new Error('Không thể tạo khách hàng mới');
+                }
+            } catch (error: any) {
+                console.error('Failed to create customer:', error);
+                message.error('Lỗi khi tự động tạo khách hàng: ' + (error?.message || 'Unknown error'));
+                setIsFetchingMetadata(false);
+                return;
+            } finally {
+                setIsFetchingMetadata(false);
+            }
+        }
+
         const payload = {
             ...values,
-            customer_id: selectedCustomerId
+            customer_id: customerId
         };
         console.log('Final Submission Payload:', JSON.stringify(payload, null, 2));
         onSubmit(payload);
@@ -202,12 +234,20 @@ const JourneyForm: React.FC<JourneyFormProps> = ({
 
                 <Row gutter={16}>
                     <Col span={12}>
-                        <Form.Item label="Tỉnh/Thành" name="customer_province">
+                        <Form.Item 
+                            label="Tỉnh/Thành" 
+                            name="customer_province"
+                            rules={[{ required: true, message: 'Bắt buộc' }]}
+                        >
                             <Input placeholder="VD: Hà Nội" />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <Form.Item label="Phường/Xã" name="customer_ward">
+                        <Form.Item 
+                            label="Phường/Xã" 
+                            name="customer_ward"
+                            rules={[{ required: true, message: 'Bắt buộc' }]}
+                        >
                             <Input placeholder="VD: Phường Dịch Vọng" />
                         </Form.Item>
                     </Col>
