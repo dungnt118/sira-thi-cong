@@ -10,8 +10,8 @@ import {
     FieldNumberOutlined, HourglassOutlined, RocketOutlined
 } from '@ant-design/icons';
 import { MasterDataSelect } from '../common/MasterDataSelect';
-import { employeeService } from '../../services/core-contracts/services/employee.service';
 import { customerService } from '../../services/core-contracts/services/customer.service';
+import { AuthorizedUserSelect } from '../authorizedusers/AuthorizedUser';
 import { salesPipelineService } from '../../services/core-contracts/services/salesPipeline.service';
 import { pipelineStageService } from '../../services/core-contracts/services/pipelineStage.service';
 import { IJourney, ICreateJourneyInput } from '../../services/core-contracts/types/journey.types';
@@ -37,7 +37,6 @@ const JourneyForm: React.FC<JourneyFormProps> = ({
     currentUsername
 }) => {
     const [form] = Form.useForm();
-    const [employees, setEmployees] = useState<{ label: string; value: string }[]>([]);
     const [pipelines, setPipelines] = useState<{ label: string; value: string }[]>([]);
     const [stages, setStages] = useState<{ label: string; value: string; pipelineId: string }[]>([]);
     const [customerOptions, setCustomerOptions] = useState<{ value: string; label: string; customer: any }[]>([]);
@@ -50,18 +49,10 @@ const JourneyForm: React.FC<JourneyFormProps> = ({
         const fetchMetadata = async () => {
             setIsFetchingMetadata(true);
             try {
-                const [empRes, pipelineRes, stageRes] = await Promise.all([
-                    employeeService.queryContent({ limit: 100 }),
+                const [pipelineRes, stageRes] = await Promise.all([
                     mode === 'sale' ? salesPipelineService.queryContent({ limit: 100 }) : Promise.resolve({ data: [] }),
                     mode === 'sale' ? pipelineStageService.queryContent({ limit: 500 }) : Promise.resolve({ data: [] })
                 ]);
-
-                if (empRes.data) {
-                    setEmployees(empRes.data.map((u: any) => ({
-                        label: u.full_name || u.username,
-                        value: u._id
-                    })));
-                }
 
                 if (pipelineRes.data) {
                     setPipelines(pipelineRes.data.map(p => ({
@@ -148,7 +139,7 @@ const JourneyForm: React.FC<JourneyFormProps> = ({
                     current_step: 'lead_new',
                     area_m2: 0,
                     execution_days: 0,
-                    owner_user: currentUsername,
+                    pm_user: currentUsername,
                     ...initialValues
                 }}
                 validateTrigger="onBlur"
@@ -216,8 +207,8 @@ const JourneyForm: React.FC<JourneyFormProps> = ({
                         </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <Form.Item label="Quận/Huyện" name="customer_ward">
-                            <Input placeholder="VD: Cầu Giấy" />
+                        <Form.Item label="Phường/Xã" name="customer_ward">
+                            <Input placeholder="VD: Phường Dịch Vọng" />
                         </Form.Item>
                     </Col>
                 </Row>
@@ -303,13 +294,10 @@ const JourneyForm: React.FC<JourneyFormProps> = ({
                 </Row>
 
                 {mode === 'pm' && (
-                    <Form.Item label="PM Phụ trách" name="owner_user">
-                        <Select
-                            showSearch
-                            placeholder="Chọn nhân sự"
-                            options={employees}
-                            loading={isFetchingMetadata}
-                            filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
+                    <Form.Item label="PM Phụ trách" name="pm_user">
+                        <AuthorizedUserSelect 
+                            allowMultiple={false} 
+                            placeholder="Chọn PM phụ trách" 
                         />
                     </Form.Item>
                 )}
