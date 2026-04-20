@@ -288,6 +288,7 @@ function App() {
                                                 <Route index element={<Navigate to="/admin/ql/crm/service-requests" replace />} />
                                                 <Route path="customers" element={<CustomerList />} />
                                                 <Route path="customers/new" element={<CustomerCreate />} />
+                                                <Route path="customers/:id/edit" element={<CustomerCreate />} />
                                                 <Route path="customers/:id" element={<CustomerDetail />} />
 
                                                 <Route path="service-requests" element={<ServiceRequestList />} />

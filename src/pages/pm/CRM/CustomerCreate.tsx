@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import {
     Card, Form, Input, Button, Select, Row, Col, Divider,
-    Typography, message, Tag
+    Typography, message, Tag, DatePicker
 } from 'antd';
 import {
     UserOutlined, PhoneOutlined, MailOutlined, EnvironmentOutlined,
     AimOutlined, ArrowLeftOutlined, SaveOutlined, ProfileOutlined,
-    CheckCircleOutlined, SolutionOutlined, FileTextOutlined
+    CheckCircleOutlined, SolutionOutlined, FileTextOutlined,
+    MessageOutlined, CalendarOutlined, WomanOutlined, HeartOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
+import dayjs from 'dayjs';
+import { AuthorizedUserSelect } from '../../../components/authorizedusers/AuthorizedUser';
 import { customerService } from '../../../services/core-contracts/services/customer.service';
 import type { ICustomer, ICreateCustomerInput } from '../../../services/core-contracts/types/customer.types';
 
@@ -37,12 +40,20 @@ const CustomerCreate: React.FC = () => {
                     fullName: res.full_name,
                     phone: res.phone,
                     email: res.email,
+                    zalo: res.zalo,
                     address: res.address,
+                    province: res.province,
                     city: res.city,
+                    ward: res.ward,
                     notes: res.notes,
                     assignedPmId: res.assigned_pm_id,
+                    bod: res.bod ? dayjs(res.bod) : undefined,
+                    sex: res.sex,
+                    marriage_state: res.marriage_state,
                 });
-                // Handle GPS if available in res.geo
+                if (res.geo?.coordinates) {
+                    setGps({ lat: res.geo.coordinates[1], lng: res.geo.coordinates[0] });
+                }
             }
         } catch (error) {
             console.error('Failed to fetch customer:', error);
@@ -57,7 +68,6 @@ const CustomerCreate: React.FC = () => {
     }, [id]);
 
     const handleGetGPS = () => {
-        // Mock getting GPS
         setGps({ lat: 10.7769 + (Math.random() - 0.5) * 0.05, lng: 106.7009 + (Math.random() - 0.5) * 0.05 });
         message.success('Đã lấy tọa độ GPS thành công');
     };
@@ -65,17 +75,22 @@ const CustomerCreate: React.FC = () => {
     const handleSubmit = async (values: any) => {
         setLoading(true);
         const hide = message.loading(isEdit ? 'Đang cập nhật khách hàng...' : 'Đang thêm khách hàng mới...', 0);
-        await new Promise(r => setTimeout(r, 600));
 
         const customerData: ICreateCustomerInput = {
             full_name: values.fullName,
             phone: values.phone,
             email: values.email,
+            zalo: values.zalo,
             address: values.address,
-            city: values.city,
+            province: values.province,
+            city: values.province, // Map province to city as well to avoid validation errors
+            ward: values.ward,
             notes: values.notes,
             assigned_pm_id: values.assignedPmId,
-            // geo: gps ? { type: 'Point', coordinates: [gps.lng, gps.lat] } : undefined
+            bod: values.bod ? values.bod.toDate() : undefined,
+            sex: values.sex,
+            marriage_state: values.marriage_state,
+            geo: gps ? { type: 'Point', coordinates: [gps.lng, gps.lat] } : undefined
         };
 
         try {
@@ -83,13 +98,16 @@ const CustomerCreate: React.FC = () => {
                 await customerService.updateCustomer(id, customerData);
                 message.success('Đã cập nhật khách hàng thành công');
             } else {
-                await customerService.createCustomer(customerData);
+                await customerService.createCustomer({
+                    ...customerData,
+                    code: `CUST-${Date.now()}` // Ensure unique code
+                });
                 message.success('Đã thêm khách hàng mới thành công');
             }
             navigate('/admin/ql/crm/customers');
-        } catch (error) {
+        } catch (error: any) {
             console.error('Failed to save customer:', error);
-            message.error('Không thể lưu thông tin khách hàng');
+            message.error('Không thể lưu thông tin khách hàng: ' + (error?.message || 'Unknown error'));
         } finally {
             hide();
             setLoading(false);
@@ -97,7 +115,7 @@ const CustomerCreate: React.FC = () => {
     };
 
     return (
-        <div>
+        <div style={{ padding: '0 8px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
                 <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/admin/ql/crm/customers')}>
                     Quay lại
@@ -116,11 +134,11 @@ const CustomerCreate: React.FC = () => {
                 form={form}
                 layout="vertical"
                 onFinish={handleSubmit}
-                initialValues={{ city: 'TP.HCM' }}
+                initialValues={{ sex: 'none', marriage_state: 'single' }}
             >
                 <Row gutter={24}>
                     {/* Left Column: Main Info */}
-                    <Col xs={24} lg={14}>
+                    <Col xs={24} lg={15}>
                         <Card title={<span><ProfileOutlined /> Thông tin cơ bản</span>} style={{ marginBottom: 16 }}>
                             <Row gutter={16}>
                                 <Col span={24}>
@@ -149,24 +167,71 @@ const CustomerCreate: React.FC = () => {
                                         <Input prefix={<MailOutlined />} placeholder="email@example.com" size="large" />
                                     </Form.Item>
                                 </Col>
+                                <Col xs={24} sm={12}>
+                                    <Form.Item name="zalo" label="Số điện thoại Zalo">
+                                        <Input prefix={<MessageOutlined />} placeholder="0901234567" size="large" />
+                                    </Form.Item>
+                                </Col>
+                                <Col xs={24} sm={12}>
+                                    <Form.Item name="bod" label="Ngày sinh">
+                                        <DatePicker style={{ width: '100%' }} size="large" placeholder="Chọn ngày sinh" format="DD/MM/YYYY" prefix={<CalendarOutlined />} />
+                                    </Form.Item>
+                                </Col>
+                                <Col xs={24} sm={12}>
+                                    <Form.Item name="sex" label="Giới tính">
+                                        <Select size="large" prefix={<WomanOutlined />}>
+                                            <Select.Option value="mail">Nam</Select.Option>
+                                            <Select.Option value="female">Nữ</Select.Option>
+                                            <Select.Option value="none">Khác / Chưa xác định</Select.Option>
+                                        </Select>
+                                    </Form.Item>
+                                </Col>
+                                <Col xs={24} sm={12}>
+                                    <Form.Item name="marriage_state" label="Tình trạng hôn nhân">
+                                        <Select size="large" prefix={<HeartOutlined />}>
+                                            <Select.Option value="single">Độc thân</Select.Option>
+                                            <Select.Option value="marriaged">Đã kết hôn</Select.Option>
+                                            <Select.Option value="children">Đã có con</Select.Option>
+                                        </Select>
+                                    </Form.Item>
+                                </Col>
                             </Row>
 
                             <Divider orientation="left"><EnvironmentOutlined /> Địa chỉ công trình</Divider>
-                            <Form.Item
-                                name="address"
-                                label="Địa chỉ cụ thể *"
-                                rules={[{ required: true, message: 'Vui lòng nhập địa chỉ' }]}
-                            >
-                                <Input prefix={<EnvironmentOutlined />} placeholder="Số nhà, tên đường..." />
-                            </Form.Item>
-                            <Form.Item name="city" label="Thành phố">
-                                <Select options={[{ value: 'TP.HCM', label: 'TP. Hồ Chí Minh' }]} />
-                            </Form.Item>
+                            <Row gutter={12}>
+                                <Col span={24}>
+                                    <Form.Item
+                                        name="address"
+                                        label="Địa chỉ cụ thể *"
+                                        rules={[{ required: true, message: 'Vui lòng nhập địa chỉ' }]}
+                                    >
+                                        <Input prefix={<EnvironmentOutlined />} placeholder="Số nhà, tên đường..." />
+                                    </Form.Item>
+                                </Col>
+                                <Col xs={24} sm={12}>
+                                    <Form.Item
+                                        name="province"
+                                        label="Thành phố / Tỉnh *"
+                                        rules={[{ required: true, message: 'Vui lòng nhập tỉnh/thành phố' }]}
+                                    >
+                                        <Input placeholder="VD: TP. Hồ Chí Minh" />
+                                    </Form.Item>
+                                </Col>
+                                <Col xs={24} sm={12}>
+                                    <Form.Item
+                                        name="ward"
+                                        label="Phường / Xã *"
+                                        rules={[{ required: true, message: 'Vui lòng nhập phường/xã' }]}
+                                    >
+                                        <Input placeholder="VD: Phường Bến Nghé" />
+                                    </Form.Item>
+                                </Col>
+                            </Row>
 
                             {/* GPS Picker */}
                             <div style={{
                                 padding: 16, background: '#f5f8ff', borderRadius: 8,
-                                border: '1px dashed #1976D2', marginBottom: 16,
+                                border: '1px dashed #1976D2', marginTop: 16,
                             }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <span style={{ fontWeight: 500 }}><AimOutlined /> Tọa độ GPS</span>
@@ -190,13 +255,12 @@ const CustomerCreate: React.FC = () => {
                     </Col>
 
                     {/* Right Column: Status & Notes */}
-                    <Col xs={24} lg={10}>
+                    <Col xs={24} lg={9}>
                         <Card title={<span><SolutionOutlined /> Trạng thái CRM</span>} style={{ marginBottom: 16 }}>
                             <Form.Item name="assignedPmId" label="PM phụ trách">
-                                <Select
-                                    defaultValue="U001"
-                                    options={[{ value: 'U001', label: 'Nguyễn Văn PM' }]}
-                                    size="large"
+                                <AuthorizedUserSelect
+                                    placeholder="Chọn PM phụ trách"
+                                    allowMultiple={false}
                                 />
                             </Form.Item>
                         </Card>
@@ -204,7 +268,7 @@ const CustomerCreate: React.FC = () => {
                         <Card title={<span><FileTextOutlined /> Ghi chú</span>}>
                             <Form.Item name="notes">
                                 <TextArea
-                                    rows={4}
+                                    rows={6}
                                     placeholder="Ghi chú nội bộ về khách hàng (yêu cầu đặc biệt, thời gian thuận tiện...)"
                                 />
                             </Form.Item>

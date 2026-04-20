@@ -10,6 +10,7 @@ import {
     BuildOutlined, EditOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
+import { AuthorizedUserView } from '../../../components/authorizedusers/AuthorizedUser';
 import { customerService } from '../../../services/core-contracts/services/customer.service';
 import type { ICustomer } from '../../../services/core-contracts/types/customer.types';
 import type { ServiceRequest } from '../../../types/v3';
@@ -117,7 +118,7 @@ const CustomerDetail: React.FC = () => {
                                 { id: 'phone', label: <span><PhoneOutlined /> Điện thoại</span>, value: customer.phone },
                                 { id: 'email', label: <span><MailOutlined /> Email</span>, value: customer.email || '—' },
                                 { id: 'address', label: <span><EnvironmentOutlined /> Địa chỉ</span>, value: [customer.address, customer.ward, customer.province, customer.city].filter(Boolean).join(', ') || '—' },
-                                { id: 'pm', label: <span><UserOutlined /> Người phụ trách</span>, value: customer.assigned_pm_id || '—' },
+                                { id: 'pm', label: <span><UserOutlined /> Người phụ trách</span>, value: <AuthorizedUserView value={customer.assigned_pm_id} /> },
                                 { id: 'date', label: <span><CalendarOutlined /> Ngày tham gia</span>, value: String(customer.createdAt).split('T')[0] },
                             ].map(({ id: keyId, label, value }) => (
                                 <Row key={keyId} style={{ marginBottom: 12 }}>
