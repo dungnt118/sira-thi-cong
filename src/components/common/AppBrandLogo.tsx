@@ -1,4 +1,4 @@
-import React from 'react';
+import { Link } from 'react-router-dom';
 import { BRAND_LOGO_URL } from '@/constants/brand';
 
 const SIZE_PX = { xs: 24, sm: 32, md: 40, lg: 48, xl: 72 } as const;
@@ -10,6 +10,8 @@ export interface AppBrandLogoProps extends Omit<React.ImgHTMLAttributes<HTMLImag
     size?: AppBrandLogoSize;
     /** Nền trắng + bo góc — dùng trên header màu (cam, xanh…). */
     variant?: 'default' | 'onDark';
+    /** Link dẫn về khi nhấn vào logo. Mặc định: /portal */
+    to?: string;
 }
 
 /**
@@ -18,6 +20,7 @@ export interface AppBrandLogoProps extends Omit<React.ImgHTMLAttributes<HTMLImag
 export const AppBrandLogo: React.FC<AppBrandLogoProps> = ({
     size = 'md',
     variant = 'default',
+    to = '/portal',
     alt = 'Logo',
     style,
     className,
@@ -44,41 +47,53 @@ export const AppBrandLogo: React.FC<AppBrandLogoProps> = ({
         />
     );
 
-    if (variant !== 'onDark') {
-        return img;
+    const renderContent = () => {
+        if (variant !== 'onDark') {
+            return img;
+        }
+
+        const pad = Math.max(2, Math.round(px * 0.08));
+        const inner = px - pad * 2;
+
+        return (
+            <span
+                style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: px,
+                    height: px,
+                    background: '#fff',
+                    borderRadius: 8,
+                    flexShrink: 0,
+                    overflow: 'hidden',
+                    lineHeight: 0,
+                }}
+            >
+                <img
+                    src={BRAND_LOGO_URL}
+                    alt={alt}
+                    decoding="async"
+                    className={className}
+                    {...rest}
+                    style={{
+                        width: inner,
+                        height: inner,
+                        objectFit: 'contain',
+                        display: 'block',
+                    }}
+                />
+            </span>
+        );
+    };
+
+    if (to) {
+        return (
+            <Link to={to} style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none' }}>
+                {renderContent()}
+            </Link>
+        );
     }
 
-    const pad = Math.max(2, Math.round(px * 0.08));
-    const inner = px - pad * 2;
-
-    return (
-        <span
-            style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: px,
-                height: px,
-                background: '#fff',
-                borderRadius: 8,
-                flexShrink: 0,
-                overflow: 'hidden',
-                lineHeight: 0,
-            }}
-        >
-            <img
-                src={BRAND_LOGO_URL}
-                alt={alt}
-                decoding="async"
-                className={className}
-                {...rest}
-                style={{
-                    width: inner,
-                    height: inner,
-                    objectFit: 'contain',
-                    display: 'block',
-                }}
-            />
-        </span>
-    );
+    return renderContent();
 };

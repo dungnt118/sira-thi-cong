@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Button, Avatar, Space, Typography, Dropdown, MenuProps } from 'antd';
+import { Button, Avatar, Space, Typography, Dropdown, MenuProps, Grid } from 'antd';
 import {
     UserOutlined,
     HomeOutlined,
@@ -12,9 +12,13 @@ import { useAuth } from '@/hooks/useAuth';
 import { AppBrandLogo } from '../common/AppBrandLogo';
 
 const { Text } = Typography;
+const { useBreakpoint } = Grid;
 
 const PortalNavigation: React.FC = () => {
     const navigate = useNavigate();
+    const screens = useBreakpoint();
+    const isMobile = !screens.md;
+    const isSmall = !screens.sm;
     const { isAuthenticated, user, role, logout } = useAuth();
 
     const getDashboardPath = (userRole: string | null) => {
@@ -62,7 +66,7 @@ const PortalNavigation: React.FC = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '0 20px'
+            padding: isMobile ? '0 12px' : '0 20px'
         }}>
             <div style={{
                 maxWidth: '1200px',
@@ -72,36 +76,26 @@ const PortalNavigation: React.FC = () => {
                 justifyContent: 'space-between'
             }}>
                 {/* Brand Logo & Home Link */}
-                <Space size="large">
-                    <Link to="/portal" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <AppBrandLogo size={32} />
-                        <Text strong style={{ fontSize: 18, color: '#0f172a', letterSpacing: -0.5 }}>
+                <Space size={isMobile ? "small" : "large"}>
+                    <Link to="/portal" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <AppBrandLogo size={32} to="" />
+                        <Text strong style={{ fontSize: isMobile ? 15 : 18, color: '#0f172a', letterSpacing: -0.5, whiteSpace: 'nowrap' }}>
                             BAC GROUP
                         </Text>
                     </Link>
 
-                    <Space size="middle" className="nav-links" style={{ marginLeft: 24 }}>
-                        <Link to="/portal" style={{
-                            color: '#475569',
-                            fontWeight: 500,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 6
-                        }}>
-                            <HomeOutlined /> Trang chủ
-                        </Link>
-
-                        {isAuthenticated && (
-                            <>
-                                <Link to={getDashboardPath(role)} style={{
-                                    color: '#475569',
-                                    fontWeight: 500,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 6
-                                }}>
-                                    <DashboardOutlined /> Vào Dashboard
-                                </Link>
+                    {isAuthenticated && (
+                        <Space size={isMobile ? "middle" : "middle"} className="nav-links" style={{ marginLeft: isMobile ? 8 : 24 }}>
+                            <Link to={getDashboardPath(role)} style={{
+                                color: '#475569',
+                                fontWeight: 500,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 6
+                            }}>
+                                <DashboardOutlined /> {!isMobile && "Vào Dashboard"}
+                            </Link>
+                            {!isMobile && (
                                 <Link to={`/admin/${role?.toLowerCase()}/profile`} style={{
                                     color: '#475569',
                                     fontWeight: 500,
@@ -111,9 +105,9 @@ const PortalNavigation: React.FC = () => {
                                 }}>
                                     <UserOutlined /> Hồ sơ
                                 </Link>
-                            </>
-                        )}
-                    </Space>
+                            )}
+                        </Space>
+                    )}
                 </Space>
 
                 {/* Auth Section */}
@@ -125,7 +119,7 @@ const PortalNavigation: React.FC = () => {
                                 alignItems: 'center',
                                 gap: 12,
                                 cursor: 'pointer',
-                                padding: '4px 12px',
+                                padding: '4px 8px',
                                 borderRadius: '30px',
                                 background: '#f1f5f9',
                                 transition: 'all 0.2s'
@@ -134,12 +128,16 @@ const PortalNavigation: React.FC = () => {
                                     size="small"
                                     icon={<UserOutlined />}
                                     src={user?.avatar}
-                                    style={{ background: '#38bdf8' }}
+                                    style={{ background: '#38bdf8', flexShrink: 0 }}
                                 />
-                                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                    <Text strong style={{ fontSize: 13, lineHeight: 1 }}>{user?.displayName || user?.username}</Text>
-                                    <Text type="secondary" style={{ fontSize: 10 }}>{role?.toUpperCase()}</Text>
-                                </div>
+                                {!isMobile && (
+                                    <div style={{ display: 'flex', flexDirection: 'column', maxWidth: 120 }}>
+                                        <Text strong style={{ fontSize: 13, lineHeight: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                            {user?.displayName || user?.username}
+                                        </Text>
+                                        <Text type="secondary" style={{ fontSize: 10 }}>{role?.toUpperCase()}</Text>
+                                    </div>
+                                )}
                             </div>
                         </Dropdown>
                     ) : (
@@ -147,6 +145,7 @@ const PortalNavigation: React.FC = () => {
                             type="primary"
                             icon={<LoginOutlined />}
                             onClick={handleAction}
+                            size={isMobile ? 'small' : 'middle'}
                             style={{
                                 borderRadius: '8px',
                                 background: 'linear-gradient(90deg, #38bdf8, #818cf8)',
@@ -155,7 +154,7 @@ const PortalNavigation: React.FC = () => {
                                 boxShadow: '0 4px 6px -1px rgba(56, 189, 248, 0.3)'
                             }}
                         >
-                            Đăng nhập
+                            {!isMobile && "Đăng nhập"}
                         </Button>
                     )}
                 </div>

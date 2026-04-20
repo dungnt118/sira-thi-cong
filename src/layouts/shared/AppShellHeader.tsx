@@ -1,6 +1,6 @@
 import { SearchOutlined } from '@ant-design/icons';
 import { Grid, Input } from 'antd';
-import React from 'react';
+import { Link } from 'react-router-dom';
 import { AppBrandLogo } from '@/components/common/AppBrandLogo';
 import { UserMenu } from '@/components/common/Header/UserMenuWithDocs';
 import Notify from '@/components/notify';
