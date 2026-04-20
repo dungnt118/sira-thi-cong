@@ -561,7 +561,7 @@ const JourneyList: React.FC = () => {
                 open={isFormVisible}
                 mode="pm"
                 journey={editingJourney}
-                currentUsername={user?._id || undefined}
+                currentUsername={user?.username || undefined}
                 saving={isSubmitting}
                 onCancel={() => setIsFormVisible(false)}
                 onSubmit={handleFormSubmit}
