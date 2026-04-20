@@ -23,12 +23,15 @@ import {
     Form, message, Modal,
     Result,
     Row,
+    Select,
     Space,
     Spin,
     Steps,
+    Tag,
     Typography
 } from 'antd';
 import html2pdf from 'html2pdf.js';
+import dayjs from 'dayjs';
 import React, { useEffect, useRef, useState } from 'react';
 import DynamicSurveyForm from '../../shared/Surveys/DynamicSurveyForm';
 
@@ -106,7 +109,7 @@ export const Step03Survey: React.FC<Step03SurveyProps> = ({
                 }
                 // 3. Fetch Appointments for linking
                 const apptRes = await surveyAppointmentService.queryContent({
-                    group: { id: 'journey_id', operation: 'eq', value: journeyId },
+                    group: { id: 'journey_id', operation: 'eq', value: journeyId, children: [] },
                     limit: 100
                 });
                 

@@ -418,7 +418,7 @@ export const Step02Consult: React.FC<Step02ConsultProps> = ({
         if (!journeyId) return;
         try {
             const res = await surveyRecordService.queryContent({
-                group: { id: 'journey_id', operation: 'eq', value: journeyId },
+                group: { id: 'journey_id', operation: 'eq', value: journeyId, children: [] },
                 limit: 100
             });
             if (res.data) setSurveyRecords(res.data);
