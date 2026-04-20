@@ -6,10 +6,12 @@ import {
 import {
     UserOutlined, ProjectOutlined, ArrowLeftOutlined, EyeOutlined,
     IdcardOutlined, PhoneOutlined, MailOutlined, EnvironmentOutlined,
-    CalendarOutlined, FileTextOutlined, PlusCircleOutlined, SolutionOutlined,
-    BuildOutlined, EditOutlined
+    FileTextOutlined, PlusCircleOutlined, SolutionOutlined,
+    BuildOutlined, EditOutlined, MessageOutlined, CalendarOutlined,
+    WomanOutlined, HeartOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
+import dayjs from 'dayjs';
 import { AuthorizedUserView } from '../../../components/authorizedusers/AuthorizedUser';
 import { customerService } from '../../../services/core-contracts/services/customer.service';
 import type { ICustomer } from '../../../services/core-contracts/types/customer.types';
@@ -116,10 +118,14 @@ const CustomerDetail: React.FC = () => {
                             <Divider style={{ margin: '8px 0' }} />
                             {[
                                 { id: 'phone', label: <span><PhoneOutlined /> Điện thoại</span>, value: customer.phone },
+                                { id: 'zalo', label: <span><MessageOutlined /> Zalo</span>, value: customer.zalo || '—' },
                                 { id: 'email', label: <span><MailOutlined /> Email</span>, value: customer.email || '—' },
+                                { id: 'bod', label: <span><CalendarOutlined /> Ngày sinh</span>, value: customer.bod ? dayjs(customer.bod).format('DD/MM/YYYY') : '—' },
+                                { id: 'sex', label: <span><WomanOutlined /> Giới tính</span>, value: customer.sex === 'mail' ? 'Nam' : customer.sex === 'female' ? 'Nữ' : 'Khác' },
+                                { id: 'marriage', label: <span><HeartOutlined /> Hôn nhân</span>, value: customer.marriage_state === 'single' ? 'Độc thân' : customer.marriage_state === 'marriaged' ? 'Đã kết hôn' : customer.marriage_state === 'children' ? 'Đã có con' : '—' },
                                 { id: 'address', label: <span><EnvironmentOutlined /> Địa chỉ</span>, value: [customer.address, customer.ward, customer.province, customer.city].filter(Boolean).join(', ') || '—' },
                                 { id: 'pm', label: <span><UserOutlined /> Người phụ trách</span>, value: <AuthorizedUserView value={customer.assigned_pm_id} /> },
-                                { id: 'date', label: <span><CalendarOutlined /> Ngày tham gia</span>, value: String(customer.createdAt).split('T')[0] },
+                                { id: 'date', label: <span><CalendarOutlined /> Ngày tham gia</span>, value: dayjs(customer.createdAt).format('DD/MM/YYYY') },
                             ].map(({ id: keyId, label, value }) => (
                                 <Row key={keyId} style={{ marginBottom: 12 }}>
                                     <Col span={8}><Text type="secondary">{label}</Text></Col>

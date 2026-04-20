@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
     Card, Form, Input, Button, Select, Row, Col, Divider,
-    Typography, message, Tag, DatePicker
+    Typography, message, Tag, DatePicker, Space
 } from 'antd';
 import {
     UserOutlined, PhoneOutlined, MailOutlined, EnvironmentOutlined,
@@ -104,7 +104,7 @@ const CustomerCreate: React.FC = () => {
                 });
                 message.success('Đã thêm khách hàng mới thành công');
             }
-            navigate('/admin/ql/crm/customers');
+            navigate(isEdit ? `/admin/ql/crm/customers/${id}` : '/admin/ql/crm/customers');
         } catch (error: any) {
             console.error('Failed to save customer:', error);
             message.error('Không thể lưu thông tin khách hàng: ' + (error?.message || 'Unknown error'));
@@ -116,26 +116,49 @@ const CustomerCreate: React.FC = () => {
 
     return (
         <div style={{ padding: '0 8px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
-                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/admin/ql/crm/customers')}>
-                    Quay lại
-                </Button>
-                <div>
-                    <Title level={4} style={{ margin: 0 }}>
-                        {isEdit ? 'Chỉnh sửa Khách hàng' : 'Thêm Khách hàng mới'}
-                    </Title>
-                    <Text type="secondary">
-                        {isEdit ? `Đang sửa: ${existing?.full_name}` : 'Nhập thông tin khách hàng mới vào hệ thống'}
-                    </Text>
-                </div>
-            </div>
-
             <Form
                 form={form}
                 layout="vertical"
                 onFinish={handleSubmit}
                 initialValues={{ sex: 'none', marriage_state: 'single' }}
             >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                        <Button 
+                            icon={<ArrowLeftOutlined />} 
+                            onClick={() => navigate(isEdit ? `/admin/ql/crm/customers/${id}` : '/admin/ql/crm/customers')}
+                        >
+                            Quay lại
+                        </Button>
+                        <div>
+                            <Title level={4} style={{ margin: 0 }}>
+                                {isEdit ? 'Chỉnh sửa Khách hàng' : 'Thêm Khách hàng mới'}
+                            </Title>
+                            <Text type="secondary">
+                                {isEdit ? `Đang sửa: ${existing?.full_name}` : 'Nhập thông tin khách hàng mới vào hệ thống'}
+                            </Text>
+                        </div>
+                    </div>
+
+                    <Space size="middle">
+                        <Button 
+                            size="large" 
+                            onClick={() => navigate(isEdit ? `/admin/ql/crm/customers/${id}` : '/admin/ql/crm/customers')}
+                        >
+                            Hủy
+                        </Button>
+                        <Button 
+                            type="primary" 
+                            htmlType="submit" 
+                            size="large" 
+                            icon={<SaveOutlined />} 
+                            loading={loading}
+                        >
+                            {isEdit ? 'Lưu thay đổi' : 'Thêm Khách hàng'}
+                        </Button>
+                    </Space>
+                </div>
+
                 <Row gutter={24}>
                     {/* Left Column: Main Info */}
                     <Col xs={24} lg={15}>
@@ -275,13 +298,6 @@ const CustomerCreate: React.FC = () => {
                         </Card>
                     </Col>
                 </Row>
-
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 16 }}>
-                    <Button size="large" onClick={() => navigate('/admin/ql/crm/customers')}>Hủy</Button>
-                    <Button type="primary" htmlType="submit" size="large" icon={<SaveOutlined />} loading={loading}>
-                        {isEdit ? 'Lưu thay đổi' : 'Thêm Khách hàng'}
-                    </Button>
-                </div>
             </Form>
         </div>
     );
