@@ -106,7 +106,7 @@ export const useJourneyQuote = (journeyId: string) => {
   const syncFromEstimate = async () => {
     setLoading(true);
     try {
-        const eResponse = await journeyEstimateService.queryContent({
+        const eResponse = await journeyEstimateService.queryJourneyEstimatesDto({
             group: {
                 op: AND_OR.AND,
                 children: [{ id: 'journey_id', operation: '==', value: journeyId, children: [] }]
@@ -120,23 +120,24 @@ export const useJourneyQuote = (journeyId: string) => {
             return;
         }
 
-        // Logic: Group components by their parent group if needed, or just list all unique material groups
-        // Here we'll simplify: 1 group = 1 line item in quote
-        const newItems: ICreateQuotationLineItemInput[] = ((estimate as any).groups || []).map((g: any) => {
-            let total = 0;
-            (g.components || []).forEach((c: any) => total += (c.quantity || 0) * (c.unitPrice || 0));
-            
+        // 1. Lấy dữ liệu từ các hạng mục trực tiếp (Direct Cost Groups)
+        const newItems: any[] = (estimate.direct_cost_groups || []).map((g: any) => {
+            const total = g.subtotal || 0;
             return {
-                item_name: g.name,
+                item_name: g.name || 'Hạng mục không tên',
                 unit: g.unit || 'Lô',
                 quantity: g.quantity || 1,
                 unit_price: Math.round(total / (g.quantity || 1)),
                 line_total: total,
-                note: g.notes
+                note: g.note
             };
         });
 
-        setLineItems(newItems as any);
+        // 2. Nếu có chi phí nhân công tổng hợp (không nằm trong hạng mục nào)
+        // thì có thể thêm một dòng nhân công tổng hợp ở đây nếu cần.
+        // Tuy nhiên thường thì các hạng mục đã bao gồm nhân công riêng.
+
+        setLineItems(newItems);
         message.info('Đã tổng hợp dữ liệu từ dự toán. Hãy kiểm tra lại đơn giá bán.');
 
     } catch (error) {

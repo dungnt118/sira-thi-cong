@@ -159,7 +159,7 @@ const Step05QuoteOrchestration: React.FC<Step05QuoteOrchestrationProps> = ({
                       {(fields, { add, remove }) => (
                         <>
                           <Table
-                            dataSource={form.getFieldValue('items')}
+                            dataSource={fields}
                             pagination={false}
                             size="small"
                             bordered
@@ -236,7 +236,7 @@ const Step05QuoteOrchestration: React.FC<Step05QuoteOrchestrationProps> = ({
                     pagination={false} 
                     size="small" 
                     bordered
-                    rowKey="_id"
+                    rowKey={(record: any) => record._id || record.key || record.item_name}
                     footer={() => (
                       <div style={{ textAlign: 'right' }}>
                         <Text strong>Tạm tính hàng hóa: {formatVND(quotation?.subtotal || 0)}</Text>
