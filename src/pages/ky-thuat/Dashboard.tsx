@@ -10,6 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { journeyService } from '@/services/core-contracts/services/journey.service';
 import { IJourney } from '@/services/core-contracts/types/journey.types';
 import { buildJourneyDetailRoute } from '@/utils/adminRoutes';
+import { HEADER_STEP_CONFIG } from '../shared/Journeys/components/JourneyHistoryModal';
 
 const { Title, Text } = Typography;
 
@@ -58,7 +59,7 @@ export const Dashboard: React.FC = () => {
         const dateObj = j.last_activity_at ? new Date(j.last_activity_at) : new Date();
         return {
             id: j.journey_code || j._id.slice(-8),
-            type: j.current_step?.replace(/_/g, ' ').toUpperCase() || 'N/A',
+            type: HEADER_STEP_CONFIG.find(s => s.key === j.current_step)?.label || j.current_step?.replace(/_/g, ' ').toUpperCase() || 'N/A',
             customer: j.customer_full_name || 'Khách hàng',
             phone: j.customer_phone || 'N/A',
             address: j.site_address || 'Địa chỉ công trình',
@@ -124,9 +125,9 @@ export const Dashboard: React.FC = () => {
                                 color={item.status === 'pending' ? 'orange' : 'blue'}
                                 text={<span style={{ fontWeight: 600 }}>{
                                     (() => {
-                                        const steps = ['lead_new', 'consult_contact', 'site_survey', 'solution_design', 'quotation', 'contract', 'execution', 'final_acceptance', 'payment', 'maintenance', 'warranty', 'after_sales'];
+                                        const steps = HEADER_STEP_CONFIG.map(s => s.key);
                                         const idx = steps.indexOf(item.current_step);
-                                        const label = item.type.replace(/_/g, ' ').toUpperCase();
+                                        const label = item.type;
                                         return `${label} (${idx >= 0 ? idx + 1 : 1}/12)`;
                                     })()
                                 }</span>}

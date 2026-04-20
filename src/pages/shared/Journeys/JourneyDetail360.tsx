@@ -411,6 +411,22 @@ const JOURNEY_TAB_ACCESS_RULES: JourneyTabAccessRule[] = [
     { key: 'GRP_13_CARE', minStepCode: 'after_sales', currentStepCode: 'after_sales', roleGroupCode: 'GRP_13_CARE' },
 ];
 
+/** Ánh xạ các tab được ưu tiên (highlight) theo từng bước hiện tại của Journey. */
+const STEP_PRIORITY_TABS: Record<string, string[]> = {
+    lead_new: ['GRP_01_INFO'],
+    consult_contact: ['GRP_02_CONTACT'],
+    site_survey: ['GRP_03_SURVEY'],
+    solution_design: ['GRP_04_SOLUTION'],
+    quotation: ['GRP_ESTIMATE', 'GRP_05_QUOTE'],
+    contract: ['GRP_06_CONTRACT', 'GRP_07_DEPOSIT'],
+    execution: ['GRP_08_CONSTRUCT'],
+    final_acceptance: ['GRP_ACCEPTANCE'],
+    payment: ['GRP_10_PAYMENT'],
+    maintenance: ['GRP_11_MAINTAIN'],
+    warranty: ['GRP_12_WARRANTY'],
+    after_sales: ['GRP_13_CARE'],
+};
+
 const getJourneyStepOrderIndex = (stepCode: string | null | undefined): number => {
     if (!stepCode) return -1;
     return JOURNEY_STEP_ORDER_INDEX[String(stepCode)] ?? -1;
@@ -2290,33 +2306,63 @@ const JourneyDetail360: React.FC = () => {
             >
                 {!isMobile ? (
                     <Space wrap size={[8, 12]}>
-                        {stagedTabItems.map((item) => (
-                            <Button
-                                key={item.key}
-                                type={resolvedActiveTab === item.key ? 'primary' : 'default'}
-                                onClick={() => setSearchParams({ tab: item.key })}
-                                style={{
-                                    borderRadius: 8,
-                                    height: 38,
-                                    fontWeight: resolvedActiveTab === item.key ? 600 : 400,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 6
-                                }}
-                            >
-                                {item.label}
-                            </Button>
-                        ))}
+                        {stagedTabItems.map((item) => {
+                            const isPriority = (STEP_PRIORITY_TABS[currentStepCode] || []).includes(item.key);
+                            const isActive = resolvedActiveTab === item.key;
+
+                            return (
+                                <Button
+                                    key={item.key}
+                                    type={isActive ? 'primary' : 'default'}
+                                    onClick={() => setSearchParams({ tab: item.key })}
+                                    style={{
+                                        borderRadius: 8,
+                                        height: 38,
+                                        fontWeight: (isActive || isPriority) ? 600 : 400,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 6,
+                                        // Highlight style for priority items when not active
+                                        ...(isPriority && !isActive ? {
+                                            borderColor: '#fa8c16', // Orange-6
+                                            color: '#d46b08', // Orange-7
+                                            background: '#fff7e6', // Orange-1
+                                            boxShadow: '0 0 4px rgba(250, 140, 22, 0.2)'
+                                        } : {}),
+                                        // If priority AND active, maybe add a subtle badge or just keep primary?
+                                        // Keeping primary but maybe a border
+                                        ...(isPriority && isActive ? {
+                                            boxShadow: '0 0 0 2px rgba(250, 140, 22, 0.4)'
+                                        } : {})
+                                    }}
+                                >
+                                    {isPriority && !isActive && <RocketOutlined style={{ color: '#fa8c16' }} />}
+                                    {item.label}
+                                </Button>
+                            );
+                        })}
                     </Space>
                 ) : (
                     <Dropdown
                         menu={{
-                            items: stagedTabItems.map((item) => ({
-                                key: item.key,
-                                label: item.label,
-                                onClick: () => setSearchParams({ tab: item.key }),
-                                style: { padding: '10px 16px' }
-                            })),
+                            items: stagedTabItems.map((item) => {
+                                const isPriority = (STEP_PRIORITY_TABS[currentStepCode] || []).includes(item.key);
+                                return {
+                                    key: item.key,
+                                    label: (
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+                                            <span>{item.label}</span>
+                                            {isPriority && (
+                                                <Tag color="orange" bordered={false} style={{ fontSize: 10, margin: 0 }}>
+                                                    Ưu tiên
+                                                </Tag>
+                                            )}
+                                        </div>
+                                    ),
+                                    onClick: () => setSearchParams({ tab: item.key }),
+                                    style: { padding: '10px 16px' }
+                                };
+                            }),
                             selectedKeys: [resolvedActiveTab],
                         }}
                         trigger={['click']}
@@ -2331,7 +2377,9 @@ const JourneyDetail360: React.FC = () => {
                                 display: 'flex',
                                 justifyContent: 'space-between',
                                 alignItems: 'center',
-                                height: 44
+                                height: 44,
+                                // If the active step is not a priority, but there IS a priority step elsewhere
+                                // we might want to hint it here, but maybe it's too much.
                             }}
                         >
                             <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>

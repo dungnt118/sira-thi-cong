@@ -21,6 +21,7 @@ import { ISiteReport } from '@/services/core-contracts/types/siteReport.types';
 import { ICustomerJourneySetting } from '@/services/core-contracts/types/customerJourneySetting.types';
 import { FilterOperation } from '@/types/filters/GroupQueryFilter';
 import dayjs from 'dayjs';
+import { HEADER_STEP_CONFIG } from '../shared/Journeys/components/JourneyHistoryModal';
 
 const { Title, Text } = Typography;
 
@@ -316,13 +317,14 @@ const SupervisorDashboard: React.FC = () => {
                                             Công trình: {journey?.journey_code || 'N/A'} - {journey?.customer_full_name}
                                         </Text>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                                            <Tag color="orange" style={{ fontSize: 11, margin: 0 }}>Giai đoạn {
+                                            <Tag color="orange" style={{ fontSize: 11, margin: 0 }}>{
                                                 (() => {
-                                                    const steps = ['lead_new', 'consult_contact', 'site_survey', 'solution_design', 'quotation', 'contract', 'execution', 'final_acceptance', 'payment', 'maintenance', 'warranty', 'after_sales'];
-                                                    const idx = steps.indexOf(journey?.current_step || 'lead_new');
-                                                    return idx >= 0 ? idx + 1 : 1;
+                                                    const step = HEADER_STEP_CONFIG.find(s => s.key === journey?.current_step);
+                                                    const idx = HEADER_STEP_CONFIG.findIndex(s => s.key === journey?.current_step);
+                                                    const label = step?.label || journey?.current_step || 'N/A';
+                                                    return `${label} (${idx >= 0 ? idx + 1 : 1}/12)`;
                                                 })()
-                                            }/12</Tag>
+                                            }</Tag>
                                             <div style={{ flex: 1, minWidth: 60 }}>
                                                 <Progress percent={journey?.progress_pct || 0} size="small" showInfo={false} strokeColor="#52c41a" strokeWidth={4} />
                                             </div>
