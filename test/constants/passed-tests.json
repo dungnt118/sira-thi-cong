@@ -66,5 +66,8 @@
   "Kiểm tra Responsive Layout Quản lý (AdminLayoutV2) › Màn hình: Desktop Large › Module Cài đặt hệ thống - Hiển thị đúng trên Desktop Large",
   "Kiểm tra Responsive Layout Quản lý (AdminLayoutV2) › Màn hình: Tablet Portrait › Module Quản lý quyền - Hiển thị đúng trên Tablet Portrait",
   "Customer Journey Lifecycle - Create and Update Steps > P2: Cấu hình Customer Journey Step (Thêm checklist)",
-  "Customer Journey Lifecycle - Create and Update Steps > P1: Tạo mới Customer Journey từ danh sách"
+  "Customer Journey Lifecycle - Create and Update Steps > P1: Tạo mới Customer Journey từ danh sách",
+  " > setup > setup\\auth.setup.ts > authenticate as supervisor",
+  " > setup > setup\\auth.setup.ts > authenticate as admin",
+  " > setup > setup\\auth.setup.ts > authenticate as manager (default)"
 ]

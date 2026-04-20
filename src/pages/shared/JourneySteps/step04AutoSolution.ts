@@ -10,7 +10,7 @@ import type {
   IStandardizedBucketsItem,
 } from '../../../services/core-contracts/types/journeyEstimate.types';
 import type { IAllocationPolicyItem, IEstimatePricingPolicy, ITemplateRulesItem } from '../../../services/core-contracts/types/estimatePricingPolicy.types';
-import type { IEstimateTemplate, IEstimateTemplateComponentsItem } from '../../../services/core-contracts/types/estimateTemplate.types';
+import type { IEstimateTemplate, IComponentsItem } from '../../../services/core-contracts/types/estimateTemplate.types';
 import type { ILaborPriceConfig } from '../../../services/core-contracts/types/laborPriceConfig.types';
 import type { IMaterial } from '../../../services/core-contracts/types/material.types';
 
@@ -38,7 +38,7 @@ export interface ComputeJourneyEstimateSolutionInput {
   policy: IEstimatePricingPolicy;
   currentEstimate?: IJourneyEstimate | null;
   appliedQuoteValueOverride?: number;
-  policyResolutionMode?: IJourneyEstimate['solution_resolution']['policy_resolution_mode'];
+  policyResolutionMode?: NonNullable<IJourneyEstimate['solution_resolution']>['policy_resolution_mode'];
 }
 
 const roundMoney = (value: number) => Math.round(value || 0);
@@ -222,7 +222,7 @@ const buildGroupFromTemplate = async (
   laborCache: Map<string, ILaborPriceConfig | null>,
 ): Promise<IDirectCostGroupsItem> => {
   const appliedQuantity = inferAppliedQuantity(template, rule, snapshot);
-  const components = await Promise.all((template.components ?? []).map(async (component: IEstimateTemplateComponentsItem) => {
+  const components = await Promise.all((template.components ?? []).map(async (component: IComponentsItem) => {
     const material = component.material_id ? materialCache.get(component.material_id) ?? null : null;
     const labor = component.labor_price_config_id ? laborCache.get(component.labor_price_config_id) ?? null : null;
     const unitPrice = roundMoney(component.unit_price ?? material?.unit_cost ?? labor?.defaultPrice ?? 0);
@@ -315,7 +315,7 @@ const buildTemplateDependencyCaches = async (templates: Array<IEstimateTemplate 
   const materialIds = new Set<string>();
   const laborIds = new Set<string>();
   templates.forEach((template) => {
-    (template?.components ?? []).forEach((component: IEstimateTemplateComponentsItem) => {
+    (template?.components ?? []).forEach((component: IComponentsItem) => {
       if (component.material_id) materialIds.add(component.material_id);
       if (component.labor_price_config_id) laborIds.add(component.labor_price_config_id);
     });
@@ -632,6 +632,7 @@ export const computeJourneyEstimateSolution = async (input: ComputeJourneyEstima
     selectedTemplateCount: directCostGroups.length,
   };
 };
+
 
 
 

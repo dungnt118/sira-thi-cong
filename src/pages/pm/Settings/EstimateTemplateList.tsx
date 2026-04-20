@@ -403,7 +403,7 @@ export const EstimateTemplateList: React.FC = () => {
                                                         min={0}
                                                         style={{ width: '100%' }}
                                                         formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                                        parser={v => Number(v?.replace(/,/g, '') || 0)}
+                                                        parser={((v: any) => Number(v?.replace(/,/g, '') || 0)) as any}
                                                     />
                                                 </Form.Item>
                                             </Col>

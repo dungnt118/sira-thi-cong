@@ -27,8 +27,6 @@ const AdminLayoutV2: React.FC = () => {
             <AdminTopBar 
                 onMenuClick={() => setDrawerVisible(true)} 
                 isMobile={isMobile} 
-                collapsed={collapsed}
-                onCollapse={setCollapsed}
             />
 
             <Layout>
@@ -43,8 +41,8 @@ const AdminLayoutV2: React.FC = () => {
                         closable={false}
                     >
                         <AdminSidebar 
-                            collapsed={false} 
-                            onCollapse={() => {}} 
+                            collapsed={collapsed} 
+                            onCollapse={setCollapsed} 
                             isDrawer 
                             onItemClick={() => setDrawerVisible(false)}
                         />
