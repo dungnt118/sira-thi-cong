@@ -1,52 +1,32 @@
-import React, { useEffect, useState } from 'react';
-import {
-    Form, Input, Select, DatePicker, Row, Col,
-    Divider, Typography, Space, Button, message, Spin, AutoComplete, InputNumber
+import React, { useState, useEffect } from 'react';
+import { 
+    Form, Input, Button, Space, Typography, Row, Col, 
+    Divider, Select, message, Spin, Card, Badge, AutoComplete
 } from 'antd';
-import {
-    UserOutlined, HomeOutlined, CustomerServiceOutlined,
-    CalendarOutlined, InfoCircleOutlined, PhoneOutlined, MailOutlined,
-    FieldNumberOutlined, HourglassOutlined, DashboardOutlined
+import { 
+    UserOutlined, PhoneOutlined, HomeOutlined, 
+    ProjectOutlined, SettingOutlined, CheckCircleOutlined,
+    ClockCircleOutlined, InfoCircleOutlined, EnvironmentOutlined,
+    FieldNumberOutlined, HourglassOutlined, RocketOutlined
 } from '@ant-design/icons';
 import { MasterDataSelect } from '../common/MasterDataSelect';
-import dayjs from 'dayjs';
-import type { IJourney, ICreateJourneyInput } from '../../services/core-contracts/types/journey.types';
 import { customerService } from '../../services/core-contracts/services/customer.service';
-import { employeeService } from '../../services/core-contracts/services/employee.service';
+import { AuthorizedUserSelect } from '../authorizedusers/AuthorizedUser';
 import { salesPipelineService } from '../../services/core-contracts/services/salesPipeline.service';
 import { pipelineStageService } from '../../services/core-contracts/services/pipelineStage.service';
+import { IJourney, ICreateJourneyInput } from '../../services/core-contracts/types/journey.types';
 
+const { Text, Title } = Typography;
 const { TextArea } = Input;
-const { Text } = Typography;
 
-interface JourneyFormProps {
+export interface JourneyFormProps {
     initialValues?: Partial<IJourney>;
-    onSubmit: (values: ICreateJourneyInput) => Promise<void>;
+    onSubmit: (values: any) => void;
     onCancel: () => void;
     isLoading?: boolean;
     mode?: 'pm' | 'sale';
     currentUsername?: string;
 }
-
-const PRIORITY_OPTIONS = [
-    { value: 'low', label: 'Thấp' },
-    { value: 'medium', label: 'Trung bình' },
-    { value: 'high', label: 'Cao' },
-    { value: 'critical', label: 'Khẩn cấp' },
-];
-
-const COMPLEXITY_LEVEL_OPTIONS = [
-    { label: 'Tiêu chuẩn', value: 'standard' },
-    { label: 'Khó', value: 'difficult' },
-    { label: 'Rất khó', value: 'very_difficult' },
-];
-
-const SOURCE_CHANNEL_OPTIONS = [
-    { value: 'marketing', label: 'Marketing' },
-    { value: 'hotline', label: 'Hotline' },
-    { value: 'referral', label: 'Giới thiệu' },
-    { value: 'direct', label: 'Trực tiếp' },
-];
 
 const JourneyForm: React.FC<JourneyFormProps> = ({
     initialValues,
@@ -57,12 +37,10 @@ const JourneyForm: React.FC<JourneyFormProps> = ({
     currentUsername
 }) => {
     const [form] = Form.useForm();
-    const [employees, setEmployees] = useState<{ label: string; value: string }[]>([]);
     const [pipelines, setPipelines] = useState<{ label: string; value: string }[]>([]);
     const [stages, setStages] = useState<{ label: string; value: string; pipelineId: string }[]>([]);
     const [customerOptions, setCustomerOptions] = useState<{ value: string; label: string; customer: any }[]>([]);
     const [isFetchingMetadata, setIsFetchingMetadata] = useState(false);
-    const [isSavingCustomer, setIsSavingCustomer] = useState(false);
     const [selectedCustomerId, setSelectedCustomerId] = useState<string | undefined>(initialValues?.customer_id);
 
     const selectedPipelineId = Form.useWatch('sales_pipeline_id', form);
@@ -71,19 +49,10 @@ const JourneyForm: React.FC<JourneyFormProps> = ({
         const fetchMetadata = async () => {
             setIsFetchingMetadata(true);
             try {
-                // Pre-fetch employees as before
-                const [empRes, pipelineRes, stageRes] = await Promise.all([
-                    employeeService.queryContent({ limit: 100 }),
+                const [pipelineRes, stageRes] = await Promise.all([
                     mode === 'sale' ? salesPipelineService.queryContent({ limit: 100 }) : Promise.resolve({ data: [] }),
                     mode === 'sale' ? pipelineStageService.queryContent({ limit: 500 }) : Promise.resolve({ data: [] })
                 ]);
-
-                if (empRes.data) {
-                    setEmployees(empRes.data.map(e => ({
-                        label: e.name || 'N/A',
-                        value: e._id
-                    })));
-                }
 
                 if (pipelineRes.data) {
                     setPipelines(pipelineRes.data.map(p => ({
@@ -107,7 +76,7 @@ const JourneyForm: React.FC<JourneyFormProps> = ({
         };
 
         fetchMetadata();
-    }, []);
+    }, [mode]);
 
     const handleSearchPhone = async (value: string) => {
         if (!value || value.length < 3) {
@@ -143,58 +112,22 @@ const JourneyForm: React.FC<JourneyFormProps> = ({
             customer_full_name: c.full_name,
             customer_email: c.email,
             customer_address: c.address,
+            customer_province: c.city,
             site_address: c.address || form.getFieldValue('site_address')
         });
     };
 
-    useEffect(() => {
-        if (initialValues) {
-            form.setFieldsValue({
-                ...initialValues,
-                planned_start_date: initialValues.planned_start_date ? dayjs(initialValues.planned_start_date) : undefined,
-                planned_end_date: initialValues.planned_end_date ? dayjs(initialValues.planned_end_date) : undefined,
-            });
-        }
-    }, [initialValues, form]);
-
-    const handleFinish = async (values: any) => {
-        let customerId = selectedCustomerId;
-
-        // Step 1: Ensure customer exists if phone is provided
-        if (!customerId && values.customer_phone) {
-            setIsSavingCustomer(true);
-            try {
-                const newCustomer = await customerService.createCustomer({
-                    phone: values.customer_phone,
-                    full_name: values.customer_full_name,
-                    email: values.customer_email,
-                    address: values.customer_address,
-                    province: values.customer_province,
-                    ward: values.customer_ward
-                });
-                customerId = newCustomer._id;
-                message.success(`Đã tạo hồ sơ khách hàng mới: ${newCustomer.full_name}`);
-            } catch (error) {
-                message.error("Không thể tạo hồ sơ khách hàng mới (Thiếu thông tin bắt buộc?).");
-                setIsSavingCustomer(false);
-                return;
-            } finally {
-                setIsSavingCustomer(false);
-            }
-        }
-
-        // Step 2: Format and Submit Journey
-        const formattedValues: ICreateJourneyInput = {
+    const handleFinish = (values: any) => {
+        const payload = {
             ...values,
-            customer_id: customerId,
-            planned_start_date: values.planned_start_date ? values.planned_start_date.toISOString() : undefined,
-            planned_end_date: values.planned_end_date ? values.planned_end_date.toISOString() : undefined,
+            customer_id: selectedCustomerId
         };
-        onSubmit(formattedValues);
+        console.log('Final Submission Payload:', JSON.stringify(payload, null, 2));
+        onSubmit(payload);
     };
 
     return (
-        <Spin spinning={isFetchingMetadata || isSavingCustomer}>
+        <Card variant="borderless" className="premium-form-card" style={{ borderRadius: 12, overflow: 'hidden' }}>
             <Form
                 form={form}
                 layout="vertical"
@@ -202,27 +135,34 @@ const JourneyForm: React.FC<JourneyFormProps> = ({
                 initialValues={{
                     priority: 'medium',
                     source_channel: 'direct',
-                    owner_user: currentUsername,
-                    sale_users: mode === 'sale' ? currentUsername : undefined
+                    journey_kind: 'main',
+                    current_step: 'lead_new',
+                    area_m2: 0,
+                    execution_days: 0,
+                    pm_user: currentUsername,
+                    ...initialValues
                 }}
+                validateTrigger="onBlur"
             >
-                <Divider orientation="left" style={{ marginTop: 0 }}>
-                    <Space><UserOutlined /> <Text strong>Thông tin Khách hàng (Ưu tiên SĐT)</Text></Space>
-                </Divider>
+                {/* Hidden defaults */}
+                <Form.Item name="journey_kind" hidden><Input /></Form.Item>
+                <Form.Item name="current_step" hidden><Input /></Form.Item>
 
+                <Divider orientation="left" style={{ marginTop: 0 }}>
+                    <Space><UserOutlined /> <Text strong>Thông tin Khách hàng</Text></Space>
+                </Divider>
                 <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item
                             label="Số điện thoại"
                             name="customer_phone"
-                            rules={[{ required: true, message: 'Vui lòng nhập SĐT khách hàng' }]}
+                            rules={[{ required: true, message: 'Bắt buộc' }]}
                         >
                             <AutoComplete
+                                placeholder="Nhập SĐT để tìm hoặc thêm mới"
                                 onSearch={handleSearchPhone}
                                 onSelect={onSelectPhone}
                                 options={customerOptions}
-                                placeholder="Gõ số điện thoại để tìm..."
-                                onChange={() => setSelectedCustomerId(undefined)}
                             >
                                 <Input prefix={<PhoneOutlined />} />
                             </AutoComplete>
@@ -232,9 +172,9 @@ const JourneyForm: React.FC<JourneyFormProps> = ({
                         <Form.Item
                             label="Họ và tên"
                             name="customer_full_name"
-                            rules={[{ required: true, message: 'Vui lòng nhập tên khách hàng' }]}
+                            rules={[{ required: true, message: 'Bắt buộc' }]}
                         >
-                            <Input prefix={<UserOutlined />} placeholder="Tự động nhận diện hoặc nhập mới" />
+                            <Input prefix={<UserOutlined />} placeholder="Tên khách hàng" />
                         </Form.Item>
                     </Col>
                 </Row>
@@ -242,285 +182,146 @@ const JourneyForm: React.FC<JourneyFormProps> = ({
                 <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item label="Email" name="customer_email">
-                            <Input prefix={<MailOutlined />} placeholder="abc@gmail.com" />
+                            <Input prefix={<InfoCircleOutlined />} placeholder="example@gmail.com" />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
                         <Form.Item label="Địa chỉ liên hệ" name="customer_address">
-                            <Input prefix={<HomeOutlined />} placeholder="Số nhà, đường, phường..." />
+                            <Input 
+                                prefix={<HomeOutlined />} 
+                                placeholder="Số nhà, đường..." 
+                                onChange={(e) => {
+                                    if (!form.getFieldValue('site_address')) {
+                                        form.setFieldsValue({ site_address: e.target.value });
+                                    }
+                                }}
+                            />
                         </Form.Item>
                     </Col>
                 </Row>
 
                 <Row gutter={16}>
                     <Col span={12}>
-                        <Form.Item
-                            label="Tỉnh/Thành"
-                            name="customer_province"
-                            rules={[{ required: true, message: 'Bắt buộc' }]}
-                        >
+                        <Form.Item label="Tỉnh/Thành" name="customer_province">
                             <Input placeholder="VD: Hà Nội" />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <Form.Item
-                            label="Phường/Xã"
-                            name="customer_ward"
-                            rules={[{ required: true, message: 'Bắt buộc' }]}
-                        >
-                            <Input placeholder="VD: Dịch Vọng" />
+                        <Form.Item label="Phường/Xã" name="customer_ward">
+                            <Input placeholder="VD: Phường Dịch Vọng" />
                         </Form.Item>
                     </Col>
                 </Row>
 
                 <Divider orientation="left">
-                    <Space><InfoCircleOutlined /> <Text strong>Thông tin Công trình & Kỹ thuật</Text></Space>
+                    <Space><RocketOutlined /> <Text strong>Yêu cầu & Dự án</Text></Space>
                 </Divider>
 
-                <Row gutter={16}>
-                    <Col span={12}>
-                        <Form.Item
-                            label="Mã công trình"
-                            name="journey_code"
-                        >
-                            <Input placeholder="VD: HN-2024-001 (Để trống để tự động tạo)" />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item
-                            label="Tiêu đề yêu cầu"
-                            name="request_title"
-                            rules={[{ required: true, message: 'Vui lòng nhập tiêu đề' }]}
-                        >
-                            <Input placeholder="VD: Khảo sát chống thấm sân thượng" />
-                        </Form.Item>
-                    </Col>
-                </Row>
+                <Form.Item
+                    label="Tiêu đề yêu cầu"
+                    name="request_title"
+                    rules={[{ required: true, message: 'Bắt buộc' }]}
+                >
+                    <Input placeholder="VD: Cải tạo tầng 5, Chống thấm mái..." />
+                </Form.Item>
 
                 <Row gutter={16}>
                     <Col span={12}>
-                        <Form.Item
-                            label="Địa chỉ công trình"
-                            name="site_address"
-                        >
-                            <Input prefix={<HomeOutlined />} placeholder="Nếu khác địa chỉ liên hệ" />
+                        <Form.Item label="Mã hồ sơ" name="journey_code">
+                            <Input placeholder="Để trống để tự động tạo" />
                         </Form.Item>
                     </Col>
-                    <Col span={12}>
-                        <Form.Item
-                            label={mode === 'sale' ? "Chủ sở hữu công trình" : "Người phụ trách (PM)"}
-                            name="owner_user"
-                        >
-                            <Select
-                                showSearch
-                                placeholder="Chọn người phụ trách"
-                                options={employees}
-                                filterOption={(input, option) =>
-                                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                                }
-                                prefix={<UserOutlined />}
-                            />
-                        </Form.Item>
-                    </Col>
-                </Row>
-
-                {mode === 'sale' && (
-                    <>
-                        <Row gutter={16}>
-                            <Col span={12}>
-                                <Form.Item label="Quy trình bán hàng" name="sales_pipeline_id">
-                                    <Select
-                                        allowClear
-                                        showSearch
-                                        placeholder="Chọn quy trình bán hàng"
-                                        options={pipelines}
-                                    />
-                                </Form.Item>
-                            </Col>
-                            <Col span={12}>
-                                <Form.Item label="Giai đoạn bán hàng" name="sales_stage_id">
-                                    <Select
-                                        allowClear
-                                        showSearch
-                                        placeholder="Chọn giai đoạn bán hàng"
-                                        options={stages.filter(s => !selectedPipelineId || s.pipelineId === selectedPipelineId)}
-                                    />
-                                </Form.Item>
-                            </Col>
-                        </Row>
-                        <Row gutter={16}>
-                            <Col span={12}>
-                                <Form.Item label="Khách hàng nghi trùng" name="duplicate_customer_id">
-                                    <Select
-                                        allowClear
-                                        showSearch
-                                        placeholder="Chọn khách hàng nghi trùng"
-                                        options={customerOptions.map(c => ({ label: c.label, value: c.customer._id }))}
-                                    />
-                                </Form.Item>
-                            </Col>
-                            <Col span={12}>
-                                <Form.Item label="Phụ trách kinh doanh" name="sale_users">
-                                    <Select
-                                        showSearch
-                                        placeholder="Chọn sale phụ trách"
-                                        options={employees}
-                                        filterOption={(input, option) =>
-                                            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                                        }
-                                    />
-                                </Form.Item>
-                            </Col>
-                        </Row>
-                        <Row gutter={16}>
-                            <Col span={12}>
-                                <Form.Item label="PM triển khai" name="pm_user">
-                                    <Select
-                                        showSearch
-                                        placeholder="Chọn PM"
-                                        options={employees}
-                                        filterOption={(input, option) =>
-                                            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                                        }
-                                    />
-                                </Form.Item>
-                            </Col>
-                            <Col span={12}>
-                                <Form.Item label="Giám sát triển khai" name="supervisor_users">
-                                    <Select
-                                        showSearch
-                                        placeholder="Chọn giám sát"
-                                        options={employees}
-                                        filterOption={(input, option) =>
-                                            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                                        }
-                                    />
-                                </Form.Item>
-                            </Col>
-                        </Row>
-                    </>
-                )}
-
-                <Divider orientation="left">
-                    <Space><CustomerServiceOutlined /> <Text strong>Chi tiết dịch vụ</Text></Space>
-                </Divider>
-
-                <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item
                             label="Loại dịch vụ"
                             name="serviceTypeId"
+                            rules={[{ required: true, message: 'Bắt buộc' }]}
                         >
                             <MasterDataSelect 
                                 categoryCode="service_type" 
-                                placeholder="Chọn loại dịch vụ (Xây mới, Cải tạo...)" 
+                                placeholder="Chọn loại dịch vụ" 
                             />
-                        </Form.Item>
-                    </Col>
-                    <Col span={6}>
-                        <Form.Item
-                            label="Mức ưu tiên"
-                            name="priority"
-                        >
-                            <Select options={PRIORITY_OPTIONS} />
-                        </Form.Item>
-                    </Col>
-                    <Col span={6}>
-                        <Form.Item
-                            label="Kênh nguồn"
-                            name="source_channel"
-                        >
-                            <Select options={SOURCE_CHANNEL_OPTIONS} />
                         </Form.Item>
                     </Col>
                 </Row>
 
                 <Row gutter={16}>
-                    <Col span={8}>
+                    <Col span={12}>
                         <Form.Item
                             label="Diện tích (m2)"
                             name="area_m2"
+                            rules={[{ required: true, message: 'Bắt buộc' }]}
                         >
-                            <InputNumber 
-                                style={{ width: '100%' }} 
-                                placeholder="0" 
-                                min={0}
-                                prefix={<FieldNumberOutlined />} 
-                            />
+                            <Input type="number" prefix={<FieldNumberOutlined />} />
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
+                    <Col span={12}>
                         <Form.Item
-                            label="Ngày thi công (Dự kiến)"
+                            label="Ngày thi công dự kiến"
                             name="execution_days"
+                            rules={[{ required: true, message: 'Bắt buộc' }]}
                         >
-                            <InputNumber 
-                                style={{ width: '100%' }} 
-                                placeholder="0" 
-                                min={0}
-                                prefix={<HourglassOutlined />} 
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={8}>
-                        <Form.Item
-                            label="Độ phức tạp"
-                            name="complexity_level"
-                        >
-                            <Select 
-                                placeholder="Chọn độ khó" 
-                                options={COMPLEXITY_LEVEL_OPTIONS}
-                                suffixIcon={<DashboardOutlined />}
-                            />
+                            <Input type="number" prefix={<HourglassOutlined />} />
                         </Form.Item>
                     </Col>
                 </Row>
+
+                <Form.Item label="Địa chỉ thi công" name="site_address">
+                    <Input prefix={<EnvironmentOutlined />} placeholder="Địa chỉ nơi thực hiện" />
+                </Form.Item>
 
                 <Row gutter={16}>
                     <Col span={12}>
-                        <Form.Item
-                            label="Ngày khởi công (dự kiến)"
-                            name="planned_start_date"
-                        >
-                            <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" prefix={<CalendarOutlined />} />
+                        <Form.Item label="Kênh tiếp nhận" name="source_channel">
+                            <Select options={[
+                                { label: 'Trực tiếp', value: 'direct' },
+                                { label: 'Hotline', value: 'hotline' },
+                                { label: 'Marketing', value: 'marketing' },
+                                { label: 'Giới thiệu', value: 'referral' },
+                            ]} />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <Form.Item
-                            label="Ngày kết thúc (dự kiến)"
-                            name="planned_end_date"
-                        >
-                            <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" prefix={<CalendarOutlined />} />
+                        <Form.Item label="Mức độ ưu tiên" name="priority">
+                            <Select options={[
+                                { label: 'Thấp', value: 'low' },
+                                { label: 'Trung bình', value: 'medium' },
+                                { label: 'Cao', value: 'high' },
+                                { label: 'Khẩn cấp', value: 'critical' },
+                            ]} />
                         </Form.Item>
                     </Col>
                 </Row>
 
-                <Form.Item
-                    label="Mô tả chi tiết yêu cầu"
-                    name="request_description"
-                >
-                    <TextArea rows={3} placeholder="Nhập các ghi chú chi tiết từ khách hàng..." />
-                </Form.Item>
-
-                {mode === 'sale' && (
-                    <Form.Item
-                        label="Ghi chú triển khai"
-                        name="delivery_note"
-                    >
-                        <TextArea rows={3} placeholder="Ghi chú handoff, cam kết với khách hàng hoặc lưu ý cho delivery." />
+                {mode === 'pm' && (
+                    <Form.Item label="PM Phụ trách" name="pm_user">
+                        <AuthorizedUserSelect 
+                            allowMultiple={false} 
+                            placeholder="Chọn PM phụ trách" 
+                        />
                     </Form.Item>
                 )}
 
-                <div style={{ textAlign: 'right', marginTop: 24 }}>
-                    <Space>
-                        <Button onClick={onCancel}>Hủy</Button>
-                        <Button type="primary" htmlType="submit" loading={isLoading || isSavingCustomer}>
-                            {initialValues?._id ? 'Cập nhật' : 'Tạo mới'}
-                        </Button>
-                    </Space>
+                <Form.Item label="Ghi chú / Mô tả thêm" name="request_description">
+                    <TextArea rows={3} placeholder="Chi tiết yêu cầu của khách hàng..." />
+                </Form.Item>
+
+                <Divider style={{ margin: '12px 0' }} />
+
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
+                    <Button onClick={onCancel}>Hủy</Button>
+                    <Button 
+                        type="primary" 
+                        htmlType="submit" 
+                        loading={isLoading}
+                        icon={<CheckCircleOutlined />}
+                        style={{ minWidth: 120 }}
+                    >
+                        {initialValues?._id ? 'Cập nhật' : 'Tạo mới'}
+                    </Button>
                 </div>
             </Form>
-        </Spin>
+        </Card>
     );
 };
 

@@ -21,6 +21,7 @@ import { ISiteReport } from '@/services/core-contracts/types/siteReport.types';
 import { ICustomerJourneySetting } from '@/services/core-contracts/types/customerJourneySetting.types';
 import { FilterOperation } from '@/types/filters/GroupQueryFilter';
 import dayjs from 'dayjs';
+import { HEADER_STEP_CONFIG } from '../shared/Journeys/components/JourneyHistoryModal';
 
 const { Title, Text } = Typography;
 
@@ -308,13 +309,29 @@ const SupervisorDashboard: React.FC = () => {
                             >
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                     <div style={{ flex: 1 }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                                            <Badge status={journey?.priority === 'critical' ? 'error' : 'processing'} />
-                                            <Text strong style={{ color: '#fa8c16' }}>{t.title}</Text>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, justifyContent: 'space-between' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                <Badge status={journey?.priority === 'critical' ? 'error' : 'processing'} />
+                                                <Text strong style={{ color: '#fa8c16', fontSize: 16 }}>{
+                                                    (() => {
+                                                        const step = HEADER_STEP_CONFIG.find(s => s.key === journey?.current_step);
+                                                        const idx = HEADER_STEP_CONFIG.findIndex(s => s.key === journey?.current_step);
+                                                        const label = step?.label || journey?.current_step || 'N/A';
+                                                        return `${label} (${idx >= 0 ? idx + 1 : 1}/12)`;
+                                                    })()
+                                                }</Text>
+                                            </div>
+                                            <Text strong style={{ color: '#8c8c8c', fontSize: 12 }}>{journey?.journey_code}</Text>
                                         </div>
+                                        <Title level={5} style={{ margin: '0 0 4px 0' }}>{journey?.customer_full_name}</Title>
                                         <Text type="secondary" style={{ fontSize: 13, display: 'block', marginBottom: 8 }}>
-                                            Công trình: {journey?.journey_code || 'N/A'} - {journey?.customer_full_name}
+                                            {journey?.request_title || 'Yêu cầu dịch vụ'}
                                         </Text>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                                            <div style={{ flex: 1, minWidth: 60 }}>
+                                                <Progress percent={journey?.progress_pct || 0} size="small" showInfo={true} strokeColor="#52c41a" strokeWidth={4} />
+                                            </div>
+                                        </div>
                                         <Space direction="vertical" size={2}>
                                             <Text type="secondary" style={{ fontSize: 12 }}>
                                                 <CalendarOutlined /> Hạn xử lý: {t.due_time ? dayjs(t.due_time).format('DD/MM/YYYY HH:mm') : 'N/A'}

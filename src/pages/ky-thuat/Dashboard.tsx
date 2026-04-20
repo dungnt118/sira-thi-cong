@@ -10,6 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { journeyService } from '@/services/core-contracts/services/journey.service';
 import { IJourney } from '@/services/core-contracts/types/journey.types';
 import { buildJourneyDetailRoute } from '@/utils/adminRoutes';
+import { HEADER_STEP_CONFIG } from '../shared/Journeys/components/JourneyHistoryModal';
 
 const { Title, Text } = Typography;
 
@@ -58,12 +59,15 @@ export const Dashboard: React.FC = () => {
         const dateObj = j.last_activity_at ? new Date(j.last_activity_at) : new Date();
         return {
             id: j.journey_code || j._id.slice(-8),
-            type: j.current_step?.replace(/_/g, ' ').toUpperCase() || 'N/A',
+            type: HEADER_STEP_CONFIG.find(s => s.key === j.current_step)?.label || j.current_step?.replace(/_/g, ' ').toUpperCase() || 'N/A',
             customer: j.customer_full_name || 'Khách hàng',
             phone: j.customer_phone || 'N/A',
             address: j.site_address || 'Địa chỉ công trình',
             time: dateObj.toLocaleDateString('vi-VN') + ' ' + dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
             status: j.project_status === 'active' ? 'in-progress' : 'pending',
+            progress_pct: j.progress_pct || 0,
+            current_step: j.current_step || 'lead_new',
+            request_title: j.request_title || 'Yêu cầu dịch vụ',
             route: buildJourneyDetailRoute('kyt', j._id)
         };
     });
@@ -117,15 +121,29 @@ export const Dashboard: React.FC = () => {
                 dataSource={todayTasks}
                 renderItem={(item) => (
                     <Card className="ky-card" bodyStyle={{ padding: 16 }} onClick={() => navigate(item.route)} hoverable style={{ marginBottom: 12 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12, alignItems: 'center' }}>
                             <Badge
                                 color={item.status === 'pending' ? 'orange' : 'blue'}
-                                text={<span style={{ fontWeight: 600 }}>{item.type}</span>}
+                                text={<span style={{ fontWeight: 700, fontSize: 16, color: '#1890ff' }}>{
+                                    (() => {
+                                        const steps = HEADER_STEP_CONFIG.map(s => s.key);
+                                        const idx = steps.indexOf(item.current_step);
+                                        const label = item.type;
+                                        return `${label} (${idx >= 0 ? idx + 1 : 1}/12)`;
+                                    })()
+                                }</span>}
                             />
-                            <Text type="secondary">{item.id}</Text>
+                            <Text type="secondary" style={{ fontSize: 13, fontWeight: 600 }}>{item.id}</Text>
                         </div>
 
-                        <Title level={5} style={{ margin: '0 0 8px 0' }}>{item.customer}</Title>
+                        <div style={{ marginBottom: 12 }}>
+                            <div style={{ flex: 1 }}>
+                                <Progress percent={item.progress_pct} size="small" showInfo={true} strokeColor="#52c41a" strokeWidth={6} />
+                            </div>
+                        </div>
+
+                        <Title level={5} style={{ margin: '0 0 4px 0', color: '#434343' }}>{item.customer}</Title>
+                        <Text type="secondary" style={{ fontSize: 13, display: 'block', marginBottom: 12 }}>{item.request_title}</Text>
 
                         <Space direction="vertical" size={2} style={{ width: '100%', marginBottom: 16 }}>
                             <Text type="secondary"><CalendarOutlined style={{ marginRight: 8 }} /> {item.time}</Text>

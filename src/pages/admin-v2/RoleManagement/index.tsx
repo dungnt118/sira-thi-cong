@@ -372,7 +372,13 @@ const RoleManagement: React.FC = () => {
 
             {/* Roles Table */}
             <Card title={`Danh sách vai trò (${roles.length})`}>
-                <Table columns={columns} dataSource={roles} rowKey="_id" pagination={{ pageSize: 10 }} />
+                <Table 
+                    columns={columns} 
+                    dataSource={roles} 
+                    rowKey="_id" 
+                    pagination={{ pageSize: 10 }} 
+                    scroll={{ x: 'max-content' }}
+                />
             </Card>
 
             {/* Create/Edit Modal */}

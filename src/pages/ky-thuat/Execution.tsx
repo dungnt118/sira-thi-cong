@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Typography, Button, Tag, Space, List, Spin, Empty } from 'antd';
+import { Card, Typography, Button, Tag, Space, List, Spin, Empty, Progress } from 'antd';
 import { LoadingOutlined, RocketOutlined, ArrowRightOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -53,7 +53,7 @@ export const Execution: React.FC = () => {
                     <Card key={item._id} className="ky-card" bodyStyle={{ padding: 16 }} style={{ marginBottom: 16 }} hoverable>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, alignItems: 'flex-start' }}>
                             <Title level={5} style={{ margin: 0, flex: 1, paddingRight: 8 }}>{item.customer_full_name || 'Khách hàng'} - {item.request_title || 'N/A'}</Title>
-                            <Tag color="processing">Thi công</Tag>
+                            <Tag color="processing">Thi công (7/12)</Tag>
                         </div>
 
                         <Space direction="vertical" size={2} style={{ width: '100%', marginBottom: 16 }}>
@@ -63,12 +63,16 @@ export const Execution: React.FC = () => {
 
                         <div style={{ padding: '12px', background: '#f5f5f5', borderRadius: 8, marginBottom: 16 }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                                <Text type="secondary">Tiến độ hiện tại</Text>
-                                <Text strong style={{ color: '#1890ff' }}>{item.progress_pct || 0}%</Text>
+                                <Text type="secondary" style={{ fontSize: 12 }}>Tiến độ thi công</Text>
+                                <Text strong style={{ color: '#52c41a' }}>{item.progress_pct || 0}%</Text>
                             </div>
-                            <div style={{ height: 6, background: '#e8e8e8', borderRadius: 3, overflow: 'hidden' }}>
-                                <div style={{ width: `${item.progress_pct || 0}%`, height: '100%', background: '#1890ff', transition: 'width 0.3s ease' }}></div>
-                            </div>
+                            <Progress 
+                                percent={item.progress_pct || 0} 
+                                size="small" 
+                                showInfo={false} 
+                                strokeColor="#52c41a"
+                                strokeWidth={6}
+                            />
                         </div>
 
                         <Button

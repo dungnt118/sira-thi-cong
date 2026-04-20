@@ -8,6 +8,7 @@ on:
 
 jobs:
   call-deploy:
+    if: false  # Tạm tắt workflow này (để tránh build nhầm khi push); kích hoạt lại khi cần dùng
     uses: ./.github/workflows/reusable-docker-deploy.yml
     with:
       bootstrap_spec: 'deploy/portainer-container-bootstrap-dev.json'

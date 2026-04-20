@@ -59,10 +59,11 @@ const PartnerSidebar: React.FC = () => {
     };
 
     return (
-        <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div
                 style={{
                     height: 64,
+                    flexShrink: 0,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -76,13 +77,15 @@ const PartnerSidebar: React.FC = () => {
                 <AppBrandLogo size="sm" variant="onDark" />
                 <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>BACPartner</span>
             </div>
-            <Menu
-                theme="dark"
-                mode="inline"
-                selectedKeys={[location.pathname]}
-                items={menuItems}
-                onClick={handleMenuClick}
-            />
+            <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
+                <Menu
+                    theme="dark"
+                    mode="inline"
+                    selectedKeys={[location.pathname]}
+                    items={menuItems}
+                    onClick={handleMenuClick}
+                />
+            </div>
         </div>
     );
 };

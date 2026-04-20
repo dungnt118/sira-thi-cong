@@ -333,5 +333,6 @@ export interface ActionItem {
     owner_user: string;
     source_tab?: string;
     journey_id: string;
+    progress_pct?: number;
 }
 

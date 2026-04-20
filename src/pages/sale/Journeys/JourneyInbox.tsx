@@ -18,6 +18,7 @@ import {
     Grid,
     Modal,
     notification,
+    Progress
 } from 'antd';
 import {
     ClockCircleOutlined,
@@ -470,7 +471,26 @@ const JourneyInbox: React.FC = () => {
                                                         <Text strong style={{ color: '#1677ff', fontSize: 16 }}>
                                                             {journey.journey_code}
                                                         </Text>
-                                                        <Tag color={stepMeta.color}>{stepMeta.label}</Tag>
+                                                        <Tag color={stepMeta.color}>
+                                                            {stepMeta.label}
+                                                            {(() => {
+                                                                const index = JOURNEY_STEP_OPTIONS.findIndex(o => o.value === effectiveStep);
+                                                                return index >= 0 ? ` (${index + 1}/${JOURNEY_STEP_OPTIONS.length})` : '';
+                                                            })()}
+                                                        </Tag>
+                                                        <div style={{ minWidth: 100, marginLeft: 8 }}>
+                                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
+                                                                <Text style={{ fontSize: 10, color: 'rgba(0,0,0,0.45)' }}>Tiến độ</Text>
+                                                                <Text strong style={{ fontSize: 10 }}>{journey.progress_pct || 0}%</Text>
+                                                            </div>
+                                                            <Progress 
+                                                                percent={journey.progress_pct || 0} 
+                                                                size="small" 
+                                                                showInfo={false} 
+                                                                strokeColor="#52c41a" 
+                                                                strokeWidth={4} 
+                                                            />
+                                                        </div>
                                                         <Tag
                                                             style={{
                                                                 color: slaMeta.color,

@@ -15,6 +15,7 @@ export interface IJourneyEstimate {
   idx_survey_record_id?: IndexedContentItem;
   pricing_policy_id?: string;
   idx_pricing_policy_id?: IndexedContentItem;
+  total_estimate_cost?: number;
   version_no?: number;
   status?: JourneyEstimateStatusEnum;
   journey_input_snapshot?: IJourneyInputSnapshotItem;
@@ -23,13 +24,10 @@ export interface IJourneyEstimate {
   labor_breakdown?: ILaborBreakdownItem;
   direct_cost_groups?: IDirectCostGroupsItem[];
   validation_result?: IValidationResultItem;
-  //deprecated fields
-  // tax_rate?: number;
-  // subtotal?: number;
-  // tax_amount?: number;
-  // grand_total?: number;
-  // notes?: string;
-  // groups?: IGroupsItem[];
+  role_cost_allocations?: IRoleCostAllocationsItem[];
+  journey_role_snapshot?: IJourneyRoleSnapshotItem;
+  applied_quote_value?: number;
+  solution_resolution?: ISolutionResolutionItem;
 }
 
 export interface IJourneyInputSnapshotItem {
@@ -74,6 +72,9 @@ export interface ILaborBreakdownItem {
   supervisor_commission?: number;
   labor_total?: number;
   note?: string;
+  role_allocation_total?: number;
+  sale_related_excluded?: number;
+  management_related_excluded?: number;
 }
 
 export interface IDirectCostGroupsItem {
@@ -88,6 +89,9 @@ export interface IDirectCostGroupsItem {
   subtotal?: number;
   note?: string;
   components?: IComponentsItem[];
+  group_code?: string;
+  template_name_snapshot?: string;
+  cost_basis_note?: string;
 }
 
 export interface IComponentsItem {
@@ -104,6 +108,16 @@ export interface IComponentsItem {
   formula_code?: string;
   formula_snapshot?: string;
   note?: string;
+  item_code?: string;
+  item_name?: string;
+  item_spec?: string;
+  brand_name?: string;
+  source_type?: ComponentsSourceTypeEnum;
+  source_ref_label?: string;
+  quantity_per_unit?: number;
+  expanded_quantity?: number;
+  waste_pct?: number;
+  cost_note?: string;
 }
 
 export interface IValidationResultItem {
@@ -114,31 +128,35 @@ export interface IValidationResultItem {
   warning_note?: string;
 }
 
-export interface IGroupsItem {
-  //deprecated fields
-  // template_id?: string;
-  // idx_template_id?: IndexedContentItem;
-  // name?: string;
-  // quantity?: number;
-  // unit?: string;
-  // group_total?: number;
-  // notes?: string;
-  // components?: IComponentsItem[];
+export interface IRoleCostAllocationsItem {
+  bucket_code?: RoleCostAllocationsBucketCodeEnum;
+  role_code?: RoleCostAllocationsRoleCodeEnum;
+  usernames?: any;
+  headcount?: number;
+  work_days?: number;
+  calc_mode?: RoleCostAllocationsCalcModeEnum;
+  unit_rate?: number;
+  allocation_pct?: number;
+  amount?: number;
+  formula_snapshot?: string;
+  note?: string;
 }
 
-export interface IComponentsItem {
-  //deprecated fields
-  // type?: ComponentsTypeEnum2;
-  // item_id?: string;
-  // idx_item_id?: IndexedContentItem;
-  // labor_price_config_id?: string;
-  // idx_labor_price_config_id?: IndexedContentItem;
-  // name?: string;
-  // unit?: string;
-  // quantity?: number;
-  // unit_price?: number;
-  // line_total?: number;
-  // note?: string;
+export interface IJourneyRoleSnapshotItem {
+  pm_user?: any;
+  owner_user?: any;
+  sale_users?: any;
+  supervisor_users?: any;
+  technical_users?: any;
+}
+
+export interface ISolutionResolutionItem {
+  resolved_scale_type?: SolutionResolutionResolvedScaleTypeEnum;
+  policy_resolution_mode?: SolutionResolutionPolicyResolutionModeEnum;
+  policy_resolution_note?: string;
+  generation_status?: SolutionResolutionGenerationStatusEnum;
+  calc_engine_version?: string;
+  template_selection_note?: string;
 }
 
 export interface ICreateJourneyEstimateInput {
@@ -146,6 +164,7 @@ export interface ICreateJourneyEstimateInput {
   journey_id?: string;
   survey_record_id?: string;
   pricing_policy_id?: string;
+  total_estimate_cost?: number;
   version_no?: number;
   status?: JourneyEstimateStatusEnum2;
   journey_input_snapshot?: IJourneyInputSnapshotItem;
@@ -154,13 +173,10 @@ export interface ICreateJourneyEstimateInput {
   labor_breakdown?: ILaborBreakdownItem;
   direct_cost_groups?: IDirectCostGroupsItem[];
   validation_result?: IValidationResultItem;
-  //deprecated fields
-  // tax_rate?: number;
-  // subtotal?: number;
-  // tax_amount?: number;
-  // grand_total?: number;
-  // notes?: string;
-  // groups?: IGroupsItem[];
+  role_cost_allocations?: IRoleCostAllocationsItem[];
+  journey_role_snapshot?: IJourneyRoleSnapshotItem;
+  applied_quote_value?: number;
+  solution_resolution?: ISolutionResolutionItem;
 }
 
 export type IJourneyEstimateListResponse = ApiListResponse<IJourneyEstimate>
@@ -172,5 +188,11 @@ export type QuoteDerivationPricingModeEnum = 'policy_first' | 'target_quote_chec
 export type StandardizedBucketsBucketCodeEnum = '01_materials' | '02_labor_total' | '03_warranty_maintenance' | '04_risk' | '05_corporate_tax' | '06_sales_cost' | '07_management_cost' | '08_hidden_cost' | '09_profit';
 export type ComponentsTypeEnum = 'material' | 'labor' | 'other';
 export type ComponentsCalcModeEnum = 'manual' | 'package_m2' | 'daily_worker' | 'formula';
-export type ComponentsTypeEnum2 = 'material' | 'labor' | 'other';
+export type ComponentsSourceTypeEnum = 'material_master' | 'labor_price_config' | 'manual' | 'policy' | 'survey';
+export type RoleCostAllocationsBucketCodeEnum = '02_labor_total' | '06_sales_cost' | '07_management_cost';
+export type RoleCostAllocationsRoleCodeEnum = 'outsource' | 'technical' | 'supervisor' | 'sale' | 'pm' | 'owner_admin' | 'internal_support';
+export type RoleCostAllocationsCalcModeEnum = 'salary_allocation' | 'commission_pct' | 'daily_rate' | 'fixed_amount' | 'manual';
+export type SolutionResolutionResolvedScaleTypeEnum = 'small' | 'medium' | 'large' | 'custom';
+export type SolutionResolutionPolicyResolutionModeEnum = 'explicit_policy' | 'service_default' | 'global_default';
+export type SolutionResolutionGenerationStatusEnum = 'ready' | 'partial' | 'failed' | 'manual_adjusted';
 export type JourneyEstimateStatusEnum2 = 'draft' | 'reviewing' | 'approved' | 'superseded';

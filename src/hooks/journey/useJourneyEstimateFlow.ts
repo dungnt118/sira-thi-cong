@@ -2,37 +2,37 @@ import { useState, useEffect, useCallback } from 'react';
 import { journeyEstimateService } from 'services/core-contracts/services/journeyEstimate.service';
 import { journeyService } from 'services/core-contracts/services/journey.service';
 import { IJourney } from 'services/core-contracts/types/journey.types';
-import { IJourneyEstimate, IStandardizedBucketsItem } from 'services/core-contracts/types/journeyEstimate.types';
+import { IJourneyEstimate } from 'services/core-contracts/types/journeyEstimate.types';
 import { message } from 'antd';
 
 export const useJourneyEstimateFlow = (journeyId: string) => {
-  const [journey, setJourney] = useState<IJourney | null>(null);
-  const [estimate, setEstimate] = useState<IJourneyEstimate | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [journey, setJourney]                 = useState<IJourney | null>(null);
+  const [estimate, setEstimate]               = useState<IJourneyEstimate | null>(null);
+  const [estimateHistory, setEstimateHistory] = useState<IJourneyEstimate[]>([]);
+  const [loading, setLoading]                 = useState(false);
 
   const fetchData = useCallback(async () => {
     if (!journeyId) return;
     setLoading(true);
     try {
-      // 1. Fetch Journey Data
       const jData = await journeyService.findContent(journeyId);
       setJourney(jData);
 
-      // 2. Fetch Latest JourneyEstimate for this journey
-      const eResponse = await journeyEstimateService.queryContent({
+      // Use the DTO query so nested fields (labor_breakdown, direct_cost_groups,
+      // components, etc.) are returned with their full typed shape instead of
+      // the opaque Dictionary scalar returned by query_content.
+      const eResponse = await journeyEstimateService.queryJourneyEstimatesDto({
         group: {
           op: 'AND',
-          children: [{ id: 'journey_id', operation: '==', value: journeyId, children: [] }]
+          children: [{ id: 'journey_id', operation: '==', value: journeyId, children: [] }],
         },
         sorted: [{ id: 'createdTime', desc: true }],
-        limit: 1
-      });
+        limit: 50,
+      } as any);
 
-      if (eResponse.data && eResponse.data.length > 0) {
-        setEstimate(eResponse.data[0]);
-      } else {
-        setEstimate(null);
-      }
+      const all = eResponse?.data ?? [];
+      setEstimateHistory(all);
+      setEstimate(all[0] ?? null);
     } catch (error) {
       console.error('Error fetching journey estimate data:', error);
       message.error('Không thể tải dữ liệu dự toán');
@@ -48,17 +48,26 @@ export const useJourneyEstimateFlow = (journeyId: string) => {
   const saveEstimate = async (data: Partial<IJourneyEstimate>) => {
     try {
       setLoading(true);
+      let saved: IJourneyEstimate;
       if (estimate?._id) {
-        const updated = await journeyEstimateService.updateJourneyEstimate(estimate._id, data);
-        setEstimate(updated);
+        saved = await journeyEstimateService.updateJourneyEstimate(estimate._id, data);
       } else {
-        const created = await journeyEstimateService.createJourneyEstimate({
+        saved = await journeyEstimateService.createJourneyEstimate({
           ...data,
           journey_id: journeyId,
-          status: 'draft'
+          status: 'draft',
         });
-        setEstimate(created);
       }
+      setEstimate(saved);
+      setEstimateHistory(prev => {
+        const idx = prev.findIndex(e => e._id === saved._id);
+        if (idx >= 0) {
+          const next = [...prev];
+          next[idx] = saved;
+          return next;
+        }
+        return [saved, ...prev];
+      });
       message.success('Đã lưu dữ liệu dự toán');
     } catch (error) {
       console.error('Error saving estimate:', error);
@@ -70,19 +79,20 @@ export const useJourneyEstimateFlow = (journeyId: string) => {
 
   const getReadinessScore = () => {
     let score = 0;
-    if (journey?.area_m2) score += 20;
+    if (journey?.area_m2)        score += 20;
     if (journey?.execution_days) score += 20;
     if (journey?.complexity_level) score += 20;
-    if (estimate?.standardized_buckets && estimate.standardized_buckets.length > 0) score += 40;
+    if (estimate?.standardized_buckets?.length) score += 40;
     return score;
   };
 
   return {
     journey,
     estimate,
+    estimateHistory,
     loading,
     saveEstimate,
     refresh: fetchData,
-    readinessScore: getReadinessScore()
+    readinessScore: getReadinessScore(),
   };
 };

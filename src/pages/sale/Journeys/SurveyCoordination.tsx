@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
     Card, Button, Tag, Typography, Row, Col, Space, Modal,
     Form, Input, DatePicker, Select, Tabs, Spin, message, Tooltip,
-    Badge, Empty
+    Badge, Empty, Progress
 } from 'antd';
 import {
     CalendarOutlined, PlusOutlined, PhoneOutlined,
@@ -184,6 +184,13 @@ const SurveyCoordination: React.FC = () => {
                                                             <div>
                                                                 <Text strong style={{ color: '#fa8c16', fontSize: 12 }}>{j.journey_code}</Text>
                                                                 <Title level={5} style={{ margin: '2px 0' }}>{j.idx_customer_id?.primary_text || j.customer_name || 'Khách hàng ẩn'}</Title>
+                                                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                                                                    <Tag color="orange" style={{ fontSize: 11 }}>Khảo sát (3/12)</Tag>
+                                                                    <div style={{ flex: 1, minWidth: 60 }}>
+                                                                        <Progress percent={j.progress_pct || 0} size="small" showInfo={false} strokeColor="#52c41a" strokeWidth={4} />
+                                                                    </div>
+                                                                    <Text strong style={{ fontSize: 10 }}>{j.progress_pct || 0}%</Text>
+                                                                </div>
                                                                 <Text type="secondary" style={{ fontSize: 12 }}>{j.idx_serviceTypeId?.title}</Text>
                                                             </div>
                                                             <Button

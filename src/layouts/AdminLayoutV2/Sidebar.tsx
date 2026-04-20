@@ -4,7 +4,8 @@ import {
     DatabaseOutlined,
     FileTextOutlined,
     SettingOutlined,
-    UserOutlined
+    UserOutlined,
+    LockOutlined
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Layout, Menu } from 'antd';
@@ -22,7 +23,6 @@ interface AdminSidebarProps {
 
 /**
  * AdminSidebar - Simplified 6-item menu
- * Menu: Dashboard, Users, Roles, Audit Log, Reports, Settings
  */
 const AdminSidebar: React.FC<AdminSidebarProps> = ({ collapsed, onCollapse, isDrawer, onItemClick }) => {
     const navigate = useNavigate();
@@ -30,31 +30,12 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ collapsed, onCollapse, isDr
 
     // Menu items
     const menuItems: MenuProps['items'] = [
-        {
-            key: '/admin',
-            icon: <DashboardOutlined />,
-            label: 'Dashboard',
-        },
-        {
-            key: '/admin/users',
-            icon: <UserOutlined />,
-            label: 'Quản lý người dùng',
-        },
-        {
-            key: '/admin/audit',
-            icon: <FileTextOutlined />,
-            label: 'Nhật ký hệ thống',
-        },
-        {
-            key: '/admin/reports',
-            icon: <BarChartOutlined />,
-            label: 'Báo cáo',
-        },
-        {
-            key: '/admin/settings',
-            icon: <SettingOutlined />,
-            label: 'Cài đặt',
-        },
+        { key: '/admin', icon: <DashboardOutlined />, label: 'Dashboard' },
+        { key: '/admin/users', icon: <UserOutlined />, label: 'Quản lý người dùng' },
+        { key: '/admin/roles', icon: <LockOutlined />, label: 'Quản lý quyền' },
+        { key: '/admin/audit', icon: <FileTextOutlined />, label: 'Nhật ký hệ thống' },
+        { key: '/admin/reports', icon: <BarChartOutlined />, label: 'Báo cáo' },
+        { key: '/admin/settings', icon: <SettingOutlined />, label: 'Cài đặt' },
     ];
 
     const handleMenuClick: MenuProps['onClick'] = ({ key }) => {
@@ -64,7 +45,6 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ collapsed, onCollapse, isDr
         }
     };
 
-    // Get current selected key
     const selectedKey = location.pathname;
 
     const menu = (
@@ -73,11 +53,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ collapsed, onCollapse, isDr
             selectedKeys={[selectedKey]}
             onClick={handleMenuClick}
             items={menuItems}
-            style={{
-                height: '100%',
-                borderRight: 0,
-                paddingTop: 16,
-            }}
+            style={{ height: '100%', borderRight: 0, paddingTop: 16 }}
         />
     );
 
@@ -91,8 +67,8 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ collapsed, onCollapse, isDr
             collapsed={collapsed}
             onCollapse={onCollapse}
             width={240}
+            theme="light"
             style={{
-                background: '#fff',
                 borderRight: '1px solid #f0f0f0',
             }}
         >

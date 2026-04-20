@@ -13,6 +13,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useSearchParams } from 'react-router-dom';
 
 import { siteReportService } from '../../../services/core-contracts/services/siteReport.service';
+import { journeyService } from '../../../services/core-contracts/services/journey.service';
 import { ISiteReport } from '../../../services/core-contracts/types/siteReport.types';
 import { UploadFiles } from '../../../components/files/UploadFiles';
 import { getFileLink } from '@/services/storeService';
@@ -25,6 +26,7 @@ export interface Step08ConstructProps {
     journeyId: string;
     isEditable?: boolean;
     journeyCurrentStep?: string;
+    journeyProgress?: number;
     onSave?: (data: any) => void;
     onEditStateChange?: (isEditing: boolean) => void;
 }
@@ -33,6 +35,7 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
     journeyId,
     isEditable = false,
     journeyCurrentStep,
+    journeyProgress = 0,
     onSave,
     onEditStateChange
 }) => {
@@ -54,11 +57,11 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
     const isCurrentStepExecution = journeyCurrentStep === 'execution';
 
     const lastProgress = useMemo(() => {
-        if (!isCurrentStepExecution) return 0;
         const executionReports = reports.filter(r => r.journey_step_code === 'execution');
+        if (executionReports.length === 0) return journeyProgress || 0;
         const last = executionReports[executionReports.length - 1];
         return Number(last?.progress_pct) || 0;
-    }, [reports, isCurrentStepExecution]);
+    }, [reports, journeyProgress]);
 
     // Sync form values when entering edit mode - Top level hook
     useEffect(() => {
@@ -109,6 +112,16 @@ export const Step08Construct: React.FC<Step08ConstructProps> = ({
             });
 
             if (response) {
+                // Update journey progress if it's execution step
+                if (isCurrentStepExecution && values.progress !== undefined) {
+                    try {
+                        await journeyService.updateJourney(journeyId, { progress_pct: Number(values.progress) });
+                    } catch (err) {
+                        console.error('Failed to update journey progress:', err);
+                        // Don't block the site report success if journey update fails, but maybe log it
+                    }
+                }
+                
                 message.success('Đã lưu nhật ký mới thành công');
                 setIsEditing(false);
                 if (onEditStateChange) onEditStateChange(false);

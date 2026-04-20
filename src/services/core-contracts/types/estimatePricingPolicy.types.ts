@@ -1,4 +1,4 @@
-import type { HeadlessReferenceContent, IndexedContentItem } from 'types/apis';
+﻿import type { HeadlessReferenceContent, IndexedContentItem } from 'types/apis';
 import type { ApiListResponse, ApiResponse } from 'types/apis/ApiResponse';
 import type { HeadlessFileUpload } from 'types/apis/HeadlessFileUpload';
 
@@ -22,6 +22,7 @@ export interface IEstimatePricingPolicy {
   allocation_policy?: IAllocationPolicyItem[];
   profit_policy?: IProfitPolicyItem;
   scenario_rules?: IScenarioRulesItem[];
+  template_rules?: ITemplateRulesItem[];
 }
 
 export interface IQuoteSuggestionRuleItem {
@@ -82,6 +83,21 @@ export interface IScenarioRulesItem {
   note?: string;
 }
 
+export interface ITemplateRulesItem {
+  template_id?: string;
+  idx_template_id?: IndexedContentItem;
+  selection_mode?: TemplateRulesSelectionModeEnum;
+  priority?: number;
+  min_area_m2?: number;
+  max_area_m2?: number;
+  min_execution_days?: number;
+  max_execution_days?: number;
+  complexity_levels?: string[];
+  default_multiplier?: number;
+  quantity_formula?: string;
+  note?: string;
+}
+
 export interface ICreateEstimatePricingPolicyInput {
   code?: string;
   name?: string;
@@ -96,6 +112,7 @@ export interface ICreateEstimatePricingPolicyInput {
   allocation_policy?: IAllocationPolicyItem[];
   profit_policy?: IProfitPolicyItem;
   scenario_rules?: IScenarioRulesItem[];
+  template_rules?: ITemplateRulesItem[];
 }
 
 export type IEstimatePricingPolicyListResponse = ApiListResponse<IEstimatePricingPolicy>
@@ -110,5 +127,9 @@ export type AllocationPolicyCalcBaseEnum = 'contract_value' | 'direct_cost' | 'l
 export type ScenarioRulesOperatorEnum = '<' | '<=' | '>' | '>=' | '==';
 export type ScenarioRulesEffectBucketCodeEnum = '02_labor_total' | '03_warranty_maintenance' | '04_risk' | '05_corporate_tax' | '06_sales_cost' | '07_management_cost' | '08_hidden_cost' | '09_profit';
 export type ScenarioRulesEffectTypeEnum = 'increase_pct' | 'decrease_pct' | 'override_formula' | 'warning_only';
+export type TemplateRulesSelectionModeEnum = 'required' | 'optional' | 'conditional';
+export type TemplateRulesSelectionModeEnum2 = 'required' | 'optional' | 'conditional';
 export type EstimatePricingPolicyScaleTypeEnum2 = 'small' | 'medium' | 'large' | 'custom';
 export type EstimatePricingPolicyStatusEnum2 = 'active' | 'inactive';
+
+

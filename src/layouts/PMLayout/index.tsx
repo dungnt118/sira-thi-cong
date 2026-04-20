@@ -103,10 +103,11 @@ const PMSidebar: React.FC = () => {
     };
 
     return (
-        <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div
                 style={{
                     height: 64,
+                    flexShrink: 0,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -120,14 +121,16 @@ const PMSidebar: React.FC = () => {
                 <AppBrandLogo size="sm" variant="onDark" />
                 <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Quản lý dự án</span>
             </div>
-            <Menu
-                theme="dark"
-                mode="inline"
-                selectedKeys={[location.pathname]}
-                defaultOpenKeys={['/admin/ql/journeys', '/admin/ql/inventory', '/admin/ql/finance', '/admin/ql/teams']}
-                items={menuItems}
-                onClick={handleMenuClick}
-            />
+            <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
+                <Menu
+                    theme="dark"
+                    mode="inline"
+                    selectedKeys={[location.pathname]}
+                    defaultOpenKeys={['/admin/ql/journeys', '/admin/ql/inventory', '/admin/ql/finance', '/admin/ql/teams']}
+                    items={menuItems}
+                    onClick={handleMenuClick}
+                />
+            </div>
         </div>
     );
 };

@@ -529,20 +529,20 @@ const Reports: React.FC = () => {
                         </Row>
 
                         <Card title="Thu tiền theo Milestone">
-                            <Row gutter={16}>
-                                <Col span={8}>
+                            <Row gutter={[isMobile ? 8 : 16, isMobile ? 8 : 16]}>
+                                <Col xs={24} sm={8}>
                                     <Card
                                         hoverable
                                         onClick={() =>
                                             handleDrilldown('project_summary', { milestone: 'deposit' })
                                         }
-                                        style={{ background: '#f0f2f5', cursor: 'pointer' }}
+                                        style={{ background: '#f0f2f5', cursor: 'pointer', marginBottom: isMobile ? 8 : 0 }}
                                     >
                                         <h4>Đặt cọc (30%)</h4>
-                                        <div style={{ fontSize: 24, fontWeight: 600, color: '#1890ff' }}>
+                                        <div style={{ fontSize: isMobile ? 20 : 24, fontWeight: 600, color: '#1890ff' }}>
                                             {mockPaymentData.deposit.rate}%
                                         </div>
-                                        <div style={{ marginTop: 8, color: '#666' }}>
+                                        <div style={{ marginTop: 8, color: '#666', fontSize: isMobile ? 12 : 14 }}>
                                             {(mockPaymentData.deposit.collected / 1000000).toFixed(0)} /{' '}
                                             {(mockPaymentData.deposit.total / 1000000).toFixed(0)} triệu
                                         </div>
@@ -552,23 +552,23 @@ const Reports: React.FC = () => {
                                             style={{ marginTop: 8 }}
                                         />
                                         <div style={{ marginTop: 8, fontSize: 12, color: '#1890ff' }}>
-                                            <EyeOutlined /> Click để xem dự án
+                                            <EyeOutlined /> Click xem
                                         </div>
                                     </Card>
                                 </Col>
-                                <Col span={8}>
+                                <Col xs={24} sm={8}>
                                     <Card
                                         hoverable
                                         onClick={() =>
                                             handleDrilldown('project_summary', { milestone: 'advance' })
                                         }
-                                        style={{ background: '#f0f2f5', cursor: 'pointer' }}
+                                        style={{ background: '#f0f2f5', cursor: 'pointer', marginBottom: isMobile ? 8 : 0 }}
                                     >
                                         <h4>Tạm ứng (40%)</h4>
-                                        <div style={{ fontSize: 24, fontWeight: 600, color: '#52c41a' }}>
+                                        <div style={{ fontSize: isMobile ? 20 : 24, fontWeight: 600, color: '#52c41a' }}>
                                             {mockPaymentData.advance.rate}%
                                         </div>
-                                        <div style={{ marginTop: 8, color: '#666' }}>
+                                        <div style={{ marginTop: 8, color: '#666', fontSize: isMobile ? 12 : 14 }}>
                                             {(mockPaymentData.advance.collected / 1000000).toFixed(0)} /{' '}
                                             {(mockPaymentData.advance.total / 1000000).toFixed(0)} triệu
                                         </div>
@@ -578,11 +578,11 @@ const Reports: React.FC = () => {
                                             style={{ marginTop: 8 }}
                                         />
                                         <div style={{ marginTop: 8, fontSize: 12, color: '#52c41a' }}>
-                                            <EyeOutlined /> Click để xem dự án
+                                            <EyeOutlined /> Click xem
                                         </div>
                                     </Card>
                                 </Col>
-                                <Col span={8}>
+                                <Col xs={24} sm={8}>
                                     <Card
                                         hoverable
                                         onClick={() =>
@@ -591,10 +591,10 @@ const Reports: React.FC = () => {
                                         style={{ background: '#f0f2f5', cursor: 'pointer' }}
                                     >
                                         <h4>Nghiệm thu (30%)</h4>
-                                        <div style={{ fontSize: 24, fontWeight: 600, color: '#faad14' }}>
+                                        <div style={{ fontSize: isMobile ? 20 : 24, fontWeight: 600, color: '#faad14' }}>
                                             {mockPaymentData.acceptance.rate.toFixed(1)}%
                                         </div>
-                                        <div style={{ marginTop: 8, color: '#666' }}>
+                                        <div style={{ marginTop: 8, color: '#666', fontSize: isMobile ? 12 : 14 }}>
                                             {(mockPaymentData.acceptance.collected / 1000000).toFixed(0)} /{' '}
                                             {(mockPaymentData.acceptance.total / 1000000).toFixed(0)} triệu
                                         </div>
@@ -604,7 +604,7 @@ const Reports: React.FC = () => {
                                             style={{ marginTop: 8 }}
                                         />
                                         <div style={{ marginTop: 8, fontSize: 12, color: '#faad14' }}>
-                                            <EyeOutlined /> Click để xem dự án
+                                            <EyeOutlined /> Click xem
                                         </div>
                                     </Card>
                                 </Col>
@@ -852,39 +852,43 @@ const Reports: React.FC = () => {
 
                 return (
                     <>
-                        <Row gutter={16} style={{ marginBottom: 24 }}>
-                            <Col span={6}>
-                                <Card>
+                        <Row gutter={[isMobile ? 8 : 16, isMobile ? 8 : 16]} style={{ marginBottom: isMobile ? 16 : 24 }}>
+                            <Col xs={12} sm={6}>
+                                <Card size={isMobile ? "small" : "default"}>
                                     <Statistic
-                                        title="Tổng Lợi nhuận"
+                                        title={<span style={{ fontSize: isMobile ? 12 : 14 }}>Tổng Lợi nhuận</span>}
                                         value={70000000 / 1000000}
-                                        suffix="triệu"
-                                        valueStyle={{ color: '#3f8600' }}
+                                        suffix={<span style={{ fontSize: isMobile ? 12 : 14 }}>triệu</span>}
+                                        valueStyle={{ color: '#3f8600', fontSize: isMobile ? 18 : 24 }}
                                     />
                                 </Card>
                             </Col>
-                            <Col span={6}>
-                                <Card>
+                            <Col xs={12} sm={6}>
+                                <Card size={isMobile ? "small" : "default"}>
                                     <Statistic
-                                        title="Tỷ suất TB"
+                                        title={<span style={{ fontSize: isMobile ? 12 : 14 }}>Tỷ suất TB</span>}
                                         value={23.5}
-                                        suffix="%"
-                                        valueStyle={{ color: '#1890ff' }}
+                                        suffix={<span style={{ fontSize: isMobile ? 12 : 14 }}>%</span>}
+                                        valueStyle={{ color: '#1890ff', fontSize: isMobile ? 18 : 24 }}
                                     />
                                 </Card>
                             </Col>
-                            <Col span={6}>
-                                <Card>
-                                    <Statistic title="Dự án phân tích" value={mockProfitData.length} />
+                            <Col xs={12} sm={6}>
+                                <Card size={isMobile ? "small" : "default"}>
+                                    <Statistic 
+                                        title={<span style={{ fontSize: isMobile ? 12 : 14 }}>Dự án phân tích</span>} 
+                                        value={mockProfitData.length} 
+                                        valueStyle={{ fontSize: isMobile ? 18 : 24 }}
+                                    />
                                 </Card>
                             </Col>
-                            <Col span={6}>
-                                <Card>
+                            <Col xs={12} sm={6}>
+                                <Card size={isMobile ? "small" : "default"}>
                                     <Statistic
-                                        title="Tỷ suất Cao nhất"
+                                        title={<span style={{ fontSize: isMobile ? 12 : 14 }}>Tỷ suất Cao nhất</span>}
                                         value={25.9}
-                                        suffix="%"
-                                        valueStyle={{ color: '#52c41a' }}
+                                        suffix={<span style={{ fontSize: isMobile ? 12 : 14 }}>%</span>}
+                                        valueStyle={{ color: '#52c41a', fontSize: isMobile ? 18 : 24 }}
                                     />
                                 </Card>
                             </Col>
@@ -904,30 +908,45 @@ const Reports: React.FC = () => {
             case 'cost_tracking':
                 return (
                     <>
-                        <Row gutter={16} style={{ marginBottom: 24 }}>
-                            <Col span={6}>
-                                <Card>
+                        <Row gutter={[isMobile ? 8 : 16, isMobile ? 8 : 16]} style={{ marginBottom: isMobile ? 16 : 24 }}>
+                            <Col xs={12} sm={6}>
+                                <Card size={isMobile ? "small" : "default"}>
                                     <Statistic
-                                        title="Tổng Chi phí"
+                                        title={<span style={{ fontSize: isMobile ? 12 : 14 }}>Tổng Chi phí</span>}
                                         value={mockCostData.total / 1000000}
-                                        suffix="triệu"
-                                        valueStyle={{ color: '#cf1322' }}
+                                        suffix={<span style={{ fontSize: isMobile ? 12 : 14 }}>triệu</span>}
+                                        valueStyle={{ color: '#cf1322', fontSize: isMobile ? 18 : 24 }}
                                     />
                                 </Card>
                             </Col>
-                            <Col span={6}>
-                                <Card>
-                                    <Statistic title="Vật tư" value={mockCostData.material / 1000000} suffix="triệu" />
+                            <Col xs={12} sm={6}>
+                                <Card size={isMobile ? "small" : "default"}>
+                                    <Statistic 
+                                        title={<span style={{ fontSize: isMobile ? 12 : 14 }}>Vật tư</span>} 
+                                        value={mockCostData.material / 1000000} 
+                                        suffix={<span style={{ fontSize: isMobile ? 12 : 14 }}>triệu</span>} 
+                                        valueStyle={{ fontSize: isMobile ? 18 : 24 }}
+                                    />
                                 </Card>
                             </Col>
-                            <Col span={6}>
-                                <Card>
-                                    <Statistic title="Nhân công" value={mockCostData.labor / 1000000} suffix="triệu" />
+                            <Col xs={12} sm={6}>
+                                <Card size={isMobile ? "small" : "default"}>
+                                    <Statistic 
+                                        title={<span style={{ fontSize: isMobile ? 12 : 14 }}>Nhân công</span>} 
+                                        value={mockCostData.labor / 1000000} 
+                                        suffix={<span style={{ fontSize: isMobile ? 12 : 14 }}>triệu</span>} 
+                                        valueStyle={{ fontSize: isMobile ? 18 : 24 }}
+                                    />
                                 </Card>
                             </Col>
-                            <Col span={6}>
-                                <Card>
-                                    <Statistic title="Chi phí chung" value={mockCostData.overhead / 1000000} suffix="triệu" />
+                            <Col xs={12} sm={6}>
+                                <Card size={isMobile ? "small" : "default"}>
+                                    <Statistic 
+                                        title={<span style={{ fontSize: isMobile ? 12 : 14 }}>Chi phí chung</span>} 
+                                        value={mockCostData.overhead / 1000000} 
+                                        suffix={<span style={{ fontSize: isMobile ? 12 : 14 }}>triệu</span>} 
+                                        valueStyle={{ fontSize: isMobile ? 18 : 24 }}
+                                    />
                                 </Card>
                             </Col>
                         </Row>
@@ -1268,13 +1287,13 @@ const Reports: React.FC = () => {
                             </Col>
                         </Row>
 
-                        <Row gutter={16} style={{ marginBottom: 24 }}>
-                            <Col span={12}>
-                                <Card title="Phân loại Ảnh / Video">
-                                    <div style={{ padding: 20 }}>
+                        <Row gutter={[isMobile ? 8 : 16, isMobile ? 8 : 16]} style={{ marginBottom: isMobile ? 16 : 24 }}>
+                            <Col xs={24} md={12}>
+                                <Card title="Phân loại Ảnh / Video" size={isMobile ? "small" : "default"}>
+                                    <div style={{ padding: isMobile ? 8 : 20 }}>
                                         {mockEvidenceData.byType.map((item, index) => (
                                             <div key={index} style={{ marginBottom: 20 }}>
-                                                <div style={{ marginBottom: 4, display: 'flex', justifyContent: 'space-between' }}>
+                                                <div style={{ marginBottom: 4, display: 'flex', justifyContent: 'space-between', fontSize: isMobile ? 12 : 14 }}>
                                                     <strong>{item.type}</strong>
                                                     <span>{item.count} files ({item.sizeGB.toFixed(1)} GB)</span>
                                                 </div>
@@ -1290,11 +1309,11 @@ const Reports: React.FC = () => {
                                     </div>
                                 </Card>
                             </Col>
-                            <Col span={12}>
-                                <Card title="Theo Giai đoạn">
-                                    <div style={{ padding: 20 }}>
+                            <Col xs={24} md={12}>
+                                <Card title="Theo Giai đoạn" size={isMobile ? "small" : "default"}>
+                                    <div style={{ padding: isMobile ? 8 : 20 }}>
                                         <div style={{ marginBottom: 16 }}>
-                                            <div style={{ marginBottom: 4 }}>
+                                            <div style={{ marginBottom: 4, fontSize: isMobile ? 12 : 14 }}>
                                                 <strong>TRƯỚC (Before)</strong>: {mockEvidenceData.before}
                                             </div>
                                             <Progress
@@ -1303,7 +1322,7 @@ const Reports: React.FC = () => {
                                             />
                                         </div>
                                         <div style={{ marginBottom: 16 }}>
-                                            <div style={{ marginBottom: 4 }}>
+                                            <div style={{ marginBottom: 4, fontSize: isMobile ? 12 : 14 }}>
                                                 <strong>TRONG (During)</strong>: {mockEvidenceData.during}
                                             </div>
                                             <Progress
@@ -1312,7 +1331,7 @@ const Reports: React.FC = () => {
                                             />
                                         </div>
                                         <div>
-                                            <div style={{ marginBottom: 4 }}>
+                                            <div style={{ marginBottom: 4, fontSize: isMobile ? 12 : 14 }}>
                                                 <strong>SAU (After)</strong>: {mockEvidenceData.after}
                                             </div>
                                             <Progress
@@ -1468,7 +1487,7 @@ const Reports: React.FC = () => {
     const currentCategory = reportCategories.find((cat) => cat.key === selectedCategory);
 
     return (
-        <div style={{ padding: 0 }}>
+        <div style={{ padding: 0, overflowX: 'hidden' }}>
             <Card
                 title="Báo cáo Quản trị - Admin Reports"
                 extra={<BarChartOutlined style={{ fontSize: 20, color: '#1890ff' }} />}
@@ -1497,7 +1516,7 @@ const Reports: React.FC = () => {
 
                 {/* Report Selector + Filters */}
                 <Row gutter={[isMobile ? 8 : 16, isMobile ? 8 : 16]} style={{ marginBottom: isMobile ? 16 : 24 }}>
-                    <Col xs={24} sm={10}>
+                    <Col xs={24} sm={24} md={10}>
                         <Select
                             style={{ width: '100%' }}
                             placeholder="Chọn báo cáo"
@@ -1514,7 +1533,7 @@ const Reports: React.FC = () => {
                             ))}
                         </Select>
                     </Col>
-                    <Col xs={14} sm={8}>
+                    <Col xs={24} sm={14} md={8}>
                         <RangePicker
                             style={{ width: '100%' }}
                             value={dateRange}
@@ -1523,10 +1542,10 @@ const Reports: React.FC = () => {
                             size={isMobile ? "small" : undefined}
                         />
                     </Col>
-                    <Col xs={10} sm={6} style={{ textAlign: isMobile ? 'right' : 'right' }}>
-                        <Space size={isMobile ? 4 : 8}>
-                            <Button size={isMobile ? "small" : undefined} icon={<FilePdfOutlined />}>{isMobile ? "" : "Xuất PDF"}</Button>
-                            <Button size={isMobile ? "small" : undefined} icon={<FileExcelOutlined />}>{isMobile ? "" : "Xuất Excel"}</Button>
+                    <Col xs={24} sm={10} md={6} style={{ textAlign: isMobile ? 'left' : 'right' }}>
+                        <Space size={isMobile ? 4 : 8} style={{ width: isMobile ? '100%' : 'auto', justifyContent: isMobile ? 'flex-start' : 'flex-end' }}>
+                            <Button size={isMobile ? "small" : undefined} icon={<FilePdfOutlined />}>{isMobile ? "PDF" : "Xuất PDF"}</Button>
+                            <Button size={isMobile ? "small" : undefined} icon={<FileExcelOutlined />}>{isMobile ? "Excel" : "Xuất Excel"}</Button>
                         </Space>
                     </Col>
                 </Row>

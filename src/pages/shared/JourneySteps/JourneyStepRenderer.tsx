@@ -24,6 +24,7 @@ export interface JourneyStepRendererProps {
     isEditable?: boolean;
     canFinalize?: boolean;
     journeyCurrentStep?: string; // The actual current_step from the journey object
+    journeyProgress?: number; // The overall progress_pct
     workTasks?: any[]; // All worktasks for validation
     stepLabel?: string; // Human readable name for the current step
     modalApi?: any; // The Modal instance from parent context
@@ -38,6 +39,7 @@ export const JourneyStepRenderer: React.FC<JourneyStepRendererProps> = ({
     isEditable = false,
     canFinalize = false,
     journeyCurrentStep,
+    journeyProgress,
     workTasks = [],
     stepLabel = '',
     modalApi,
@@ -79,6 +81,8 @@ export const JourneyStepRenderer: React.FC<JourneyStepRendererProps> = ({
         const commonProps = {
             journeyId,
             isEditable: isEditable,
+            journeyCurrentStep,
+            journeyProgress,
             onEditStateChange: (editing: boolean) => setIsInternalEdit(editing),
             onSave: () => { if (onRefresh) onRefresh(); }
         };

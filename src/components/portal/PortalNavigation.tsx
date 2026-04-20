@@ -38,21 +38,6 @@ const PortalNavigation: React.FC = () => {
 
     const userMenuItems: MenuProps['items'] = [
         {
-            key: 'dashboard',
-            label: 'Vào Dashboard',
-            icon: <DashboardOutlined />,
-            onClick: () => navigate(getDashboardPath(role))
-        },
-        {
-            key: 'profile',
-            label: 'Trang cá nhân',
-            icon: <UserOutlined />,
-            onClick: () => navigate(`/admin/${role?.toLowerCase()}/profile`)
-        },
-        {
-            type: 'divider'
-        },
-        {
             key: 'logout',
             label: 'Đăng xuất',
             icon: <LogoutOutlined />,
@@ -105,6 +90,29 @@ const PortalNavigation: React.FC = () => {
                         }}>
                             <HomeOutlined /> Trang chủ
                         </Link>
+
+                        {isAuthenticated && (
+                            <>
+                                <Link to={getDashboardPath(role)} style={{
+                                    color: '#475569',
+                                    fontWeight: 500,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 6
+                                }}>
+                                    <DashboardOutlined /> Vào Dashboard
+                                </Link>
+                                <Link to={`/admin/${role?.toLowerCase()}/profile`} style={{
+                                    color: '#475569',
+                                    fontWeight: 500,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 6
+                                }}>
+                                    <UserOutlined /> Hồ sơ
+                                </Link>
+                            </>
+                        )}
                     </Space>
                 </Space>
 

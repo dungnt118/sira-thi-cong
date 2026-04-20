@@ -125,13 +125,21 @@ export const loadUserData = (roleOverride?: string): AppThunk<Promise<void>> => 
                           ? session.activeRole 
                           : (context?.defaultRole || roles[0] || 'guest');
                           
-      if (!derivedRole || derivedRole.toLowerCase() === 'guest') {
+      const roleLower = derivedRole?.toLowerCase() ?? '';
+      if (!derivedRole || roleLower === 'guest') {
           if (targetUrl === '/l/welcome' || targetUrl.toLowerCase().includes('guest')) {
               targetUrl = '/portal';
           }
       } else {
-          if (targetUrl === '/l/welcome' || targetUrl.toLowerCase().includes('guest')) {
-              targetUrl = `/${derivedRole.toLowerCase()}/dashboard`;
+          const needsFallback = !targetUrl || targetUrl === '/l/welcome' || targetUrl.toLowerCase().includes('guest');
+          if (needsFallback) {
+              // ADMIN role uses /admin/dashboard, all other roles use /admin/{role}/dashboard
+              targetUrl = roleLower === 'admin'
+                  ? '/admin/dashboard'
+                  : `/admin/${roleLower}/dashboard`;
+          } else if (!targetUrl.startsWith('/admin') && !targetUrl.startsWith('/portal')) {
+              // welcome_url from backend missing /admin prefix — add it
+              targetUrl = `/admin${targetUrl.startsWith('/') ? '' : '/'}${targetUrl}`;
           }
       }
 
