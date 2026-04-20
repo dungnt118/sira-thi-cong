@@ -1343,6 +1343,7 @@ const JourneyDetail360: React.FC = () => {
                 isEditable={isEditable}
                 canFinalize={isFinalizable}
                 journeyCurrentStep={journey.current_step}
+                journeyProgress={journey.progress_pct}
                 workTasks={workTasks}
                 stepLabel={stepLabel}
                 modalApi={modal}
