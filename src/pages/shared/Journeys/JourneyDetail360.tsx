@@ -51,6 +51,7 @@ import {
     Switch,
     Space,
     Steps,
+    Spin,
     Tabs, Tag,
     Tooltip,
     Typography,
