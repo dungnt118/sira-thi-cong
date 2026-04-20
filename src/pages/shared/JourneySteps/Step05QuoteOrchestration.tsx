@@ -113,8 +113,8 @@ const Step05QuoteOrchestration: React.FC<Step05QuoteOrchestrationProps> = ({
         title={
           <Space>
             <DollarOutlined />
-            <Text>DASHBOARD CHỐT GIÁ KHÁCH HÀNG</Text>
-            {quotation && <Tag color="blue">{quotation.status?.toUpperCase()}</Tag>}
+            <Text>BẢNG ĐIỀU KHIỂN CHỐT GIÁ KHÁCH HÀNG</Text>
+            {quotation && <Tag color="blue">{quotation.status === 'draft' ? 'NHÁP' : quotation.status?.toUpperCase()}</Tag>}
           </Space>
         }
         extra={isEditable && (

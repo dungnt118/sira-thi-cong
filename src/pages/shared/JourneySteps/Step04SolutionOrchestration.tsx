@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Step04SolutionOrchestration
  *
  * Internal estimate (JourneyEstimate) for a journey:
@@ -81,15 +81,15 @@ const BUCKET_CONFIGS: {
   color: string;
   note?: string;
 }[] = [
-  { code: '01_materials',            label: 'Vật tư (Materials)',       color: '#52c41a' },
-  { code: '02_labor_total',          label: 'Nhân công (Labor)',         color: '#1890ff' },
+  { code: '01_materials',            label: 'Vật tư',                   color: '#52c41a' },
+  { code: '02_labor_total',          label: 'Nhân công',                color: '#1890ff' },
   { code: '03_warranty_maintenance', label: 'Bảo hành & Bảo trì',       color: '#faad14', note: 'Hậu dự án' },
   { code: '04_risk',                 label: 'Dự phòng rủi ro',           color: '#fa8c16' },
   { code: '05_corporate_tax',        label: 'Thuế doanh nghiệp',         color: '#722ed1' },
   { code: '06_sales_cost',           label: 'Chi phí bán hàng',          color: '#eb2f96' },
   { code: '07_management_cost',      label: 'Chi phí gián tiếp',         color: '#13c2c2', note: 'Quản lý & vận hành' },
   { code: '08_hidden_cost',          label: 'Chi phí ẩn',                color: '#f5222d' },
-  { code: '09_profit',               label: 'Lợi nhuận (Profit)',         color: '#fa541c' },
+  { code: '09_profit',               label: 'Lợi nhuận',                color: '#fa541c' },
 ];
 
 const EMPTY_LABOR: ILaborBreakdownItem = {
@@ -119,11 +119,11 @@ function recomputeLabor(lb: ILaborBreakdownItem): ILaborBreakdownItem {
 }
 
 const ROLE_LABELS: Record<string, string> = {
-  outsource: "Outsource",
+  outsource: "Thầu phụ (Outsource)",
   technical: "Kỹ thuật",
   supervisor: "Giám sát",
   sale: "Kinh doanh",
-  pm: "PM",
+  pm: "Quản lý dự án (PM)",
   owner_admin: "Chủ sở hữu / Admin",
   internal_support: "Hỗ trợ nội bộ",
 };
@@ -313,8 +313,8 @@ const LaborAllocationTable: React.FC<{
             render: (_: unknown, row: IRoleCostAllocationsItem) => renderUserTags(getAllocationUsers(row, roleSnapshot)),
           },
           {
-            title: "Headcount",
-            width: 90,
+            title: "Số lượng nhân sự",
+            width: 110,
             align: "right" as const,
             render: (_: unknown, row: IRoleCostAllocationsItem) => {
               const users = getAllocationUsers(row, roleSnapshot);
@@ -322,7 +322,7 @@ const LaborAllocationTable: React.FC<{
             },
           },
           {
-            title: "Work days",
+            title: "Ngày công",
             dataIndex: "work_days",
             width: 100,
             align: "right" as const,
@@ -398,7 +398,7 @@ const DirectCostComponentsTable: React.FC<{
               onClick={onQuickSetup}
               style={{ flexShrink: 0 }}
             >
-              Quick Setup Template
+              Mẫu thiết lập nhanh (Template)
             </Button>
           )}
         </Space>
@@ -900,7 +900,7 @@ const BucketsEditTable: React.FC<{
       dataSource={buckets} rowKey="bucket_code" pagination={false} size="small" bordered
       columns={[
         {
-          title: 'Bucket', dataIndex: 'bucket_code', width: 190,
+          title: 'Nhóm chi phí', dataIndex: 'bucket_code', width: 190,
           render: (code: string) => {
             const c = BUCKET_CONFIGS.find(x => x.code === code);
             return <Space>
@@ -1030,7 +1030,7 @@ const LaborEdit: React.FC<{
         <LaborAllocationTable
           allocations={allocations}
           roleSnapshot={roleSnapshot}
-          infoMessage='Bảng dưỔ›i đây phản ánh snapshot sinh từ lần tự động tính gần nhất. Nếu bạn chỉnh tay chi phí nhân công tổng hợp ở trên, hãy chạy lại Tự động tính để đồng bộ phân bổ chi tiết.'
+          infoMessage='Bảng dưới đây phản ánh snapshot sinh từ lần tự động tính gần nhất. Nếu bạn chỉnh tay chi phí nhân công tổng hợp ở trên, hãy chạy lại Tự động tính để đồng bộ phân bổ chi tiết.'
         />
       </Card>
     </Space>
@@ -1051,7 +1051,7 @@ const DirectCostView: React.FC<{
           header={
             <Space>
               <Text strong>{g.name || `Hạng mục ${i + 1}`}</Text>
-              <Text type='secondary' style={{ fontSize: 12 }}>Ã—{g.quantity ?? 1} {g.unit}</Text>
+              <Text type='secondary' style={{ fontSize: 12 }}>×{g.quantity ?? 1} {g.unit}</Text>
               <Tag color='blue'>{fmt(g.subtotal ?? 0)}</Tag>
             </Space>
           }
@@ -1791,14 +1791,14 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
       setSavedSolutionResolution(result.solutionResolution ?? null);
 
       const noteLines = [
-        'Policy: ' + String(policy.name ?? policy.code ?? policy._id),
-        'Resolved templates: ' + String(result.selectedTemplateCount),
-        'Internal cost: ' + fmt(result.internalCost) + ' | Applied quote: ' + fmt(result.appliedQuoteValue),
-        'Recommended quote: ' + fmt(result.recommendedQuote),
+        'Chính sách: ' + String(policy.name ?? policy.code ?? policy._id),
+        'Số mẫu (template) áp dụng: ' + String(result.selectedTemplateCount),
+        'Chi phí nội bộ: ' + fmt(result.internalCost) + ' | Giá chào thầu áp dụng: ' + fmt(result.appliedQuoteValue),
+        'Giá chào thầu đề xuất: ' + fmt(result.recommendedQuote),
       ];
       setAutoCalcNote(noteLines.join('\n'));
     } catch (err) {
-      antMessage.error('Loi khi tinh: ' + (err instanceof Error ? err.message : 'Unknown'));
+      antMessage.error('Lỗi khi tính: ' + (err instanceof Error ? err.message : 'Unknown'));
     } finally {
       setIsAutoCalcing(false);
     }
@@ -1822,7 +1822,7 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
   // Toolbar.
   const toolbar = !isEditing ? (
     <Space>
-      <Button size="small" icon={<SyncOutlined spin={loading} />} onClick={refresh}>Refresh</Button>
+      <Button size="small" icon={<SyncOutlined spin={loading} />} onClick={refresh}>Làm mới</Button>
       <Button size="small" type="primary" icon={<EditOutlined />} onClick={handleStartEdit}>
         Tiến hành dự toán
       </Button>
@@ -1851,7 +1851,7 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
         <Row gutter={[16, 16]}>
           <Col xs={24} lg={12}>
             <Card size="small"
-              title={<Space><SafetyCertificateOutlined /><Text strong>Financial Bound</Text></Space>}
+              title={<Space><SafetyCertificateOutlined /><Text strong>Ràng buộc tài chính</Text></Space>}
               style={{ height: '100%' }}>
               <Statistic
                 title='Tổng giá trị dự toán (Báo giá)'
@@ -1893,7 +1893,7 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
                 )}
                 {currentPolicyId && (
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Text type="secondary" style={{ fontSize: 11 }}>Policy:</Text>
+                    <Text type="secondary" style={{ fontSize: 11 }}>Chính sách:</Text>
                     <Tag color="geekblue" style={{ fontSize: 11 }}>
                       {currentPolicyLabel ?? <Spin size="small" />}
                     </Tag>
@@ -1909,7 +1909,7 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
           </Col>
           <Col xs={24} lg={12}>
             <Card size="small"
-              title={<Space><CheckCircleOutlined /><Text strong>Readiness Score</Text></Space>}
+              title={<Space><CheckCircleOutlined /><Text strong>Điểm sẵn sàng</Text></Space>}
               extra={toolbar}
               style={{ height: '100%' }}>
               <div style={{ textAlign: 'center', padding: '10px 0' }}>
@@ -1934,7 +1934,7 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
       {/* 1. Cost Partition - 9 Buckets */}
       <Card
         size="small"
-        title={<Space><BarChartOutlined /><Text strong>Cost Partition (9 Buckets)</Text></Space>}
+        title={<Space><BarChartOutlined /><Text strong>Phân bổ chi phí (9 Nhóm)</Text></Space>}
         extra={isEditing ? toolbar : undefined}
       >
         {isEditing
@@ -1982,7 +1982,7 @@ export const Step04SolutionOrchestration: React.FC<{ journeyId: string }> = ({ j
         <Row gutter={[16, 16]}>
           <Col xs={24} lg={12}>
             <Card size="small"
-              title={<Space><SafetyCertificateOutlined /><Text strong>Financial Bound</Text></Space>}
+              title={<Space><SafetyCertificateOutlined /><Text strong>Ràng buộc tài chính</Text></Space>}
               style={{ height: '100%' }}>
               <Statistic
                 title='Tổng giá trị dự toán (Báo giá)'

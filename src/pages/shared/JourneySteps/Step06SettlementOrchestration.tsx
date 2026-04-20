@@ -116,7 +116,7 @@ export const Step06SettlementOrchestration: React.FC<Step06SettlementOrchestrati
 
     return (
         <Card 
-            title={<span><DashboardOutlined /> Settlement Orchestration</span>}
+            title={<span><DashboardOutlined /> Điều hành Quyết toán</span>}
             variant="borderless" 
             className="ky-card orchestration-card"
         >
