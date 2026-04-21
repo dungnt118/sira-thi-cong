@@ -24,6 +24,8 @@ export interface IComponentsItem {
   idx_material_id?: IndexedContentItem;
   labor_price_config_id?: string;
   idx_labor_price_config_id?: IndexedContentItem;
+  quote_category_id?: string;
+  idx_quote_category_id?: IndexedContentItem;
   name?: string;
   unit?: string;
   calc_mode?: ComponentsCalcModeEnum;

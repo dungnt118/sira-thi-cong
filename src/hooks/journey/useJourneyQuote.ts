@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { masterDataItemService } from '../../services/core-contracts/services/masterDataItem.service';
 import { message } from 'antd';
 import { quotationService } from '../../services/core-contracts/services/quotation.service';
 import { quotationLineItemService } from '../../services/core-contracts/services/quotationLineItem.service';
@@ -103,9 +104,11 @@ export const useJourneyQuote = (journeyId: string) => {
     }
   };
 
+
   const syncFromEstimate = async () => {
     setLoading(true);
     try {
+        // 1. Fetch the JourneyEstimate
         const eResponse = await journeyEstimateService.queryJourneyEstimatesDto({
             group: {
                 op: AND_OR.AND,
@@ -123,51 +126,106 @@ export const useJourneyQuote = (journeyId: string) => {
         const targetTotal = estimate.applied_quote_value || estimate.total_estimate_cost || 0;
         const groups = estimate.direct_cost_groups || [];
         
-        // Tính tổng chi phí trực tiếp (Base Total) để phân bổ tỷ lệ
-        const baseTotal = groups.reduce((sum: number, g: any) => sum + (g.subtotal || 0), 0);
-        
-        let newItems: any[] = [];
+        // 2. Group components by quote_category_id and sum costs
+        const categoryMap: Record<string, number> = {};
+        let uncategorizedTotal = 0;
 
-        if (groups.length > 0 && baseTotal > 0) {
-            // Tính tỷ lệ phân bổ (để tổng báo giá khớp với targetTotal bao gồm cả lợi nhuận/phí quản lý)
-            const ratio = targetTotal / baseTotal;
-
-            newItems = groups.map((g: any) => {
-                const allocatedTotal = Math.round((g.subtotal || 0) * ratio);
-                return {
-                    item_name: g.name || 'Hạng mục không tên',
-                    unit: g.unit || 'Lô',
-                    quantity: g.quantity || 1,
-                    unit_price: Math.round(allocatedTotal / (g.quantity || 1)),
-                    line_total: allocatedTotal,
-                    note: g.note
-                };
+        groups.forEach((group: any) => {
+            const components = group.components || [];
+            components.forEach((comp: any) => {
+                const cost = comp.line_total || 0;
+                const catId = comp.quote_category_id;
+                if (catId) {
+                    categoryMap[catId] = (categoryMap[catId] || 0) + cost;
+                } else {
+                    uncategorizedTotal += cost;
+                }
             });
+        });
 
-            // Xử lý sai số làm tròn cho dòng cuối cùng
-            const currentSum = newItems.reduce((sum, item) => sum + item.line_total, 0);
-            const diff = targetTotal - currentSum;
-            if (diff !== 0 && newItems.length > 0) {
-                newItems[newItems.length - 1].line_total += diff;
-                newItems[newItems.length - 1].unit_price = Math.round(newItems[newItems.length - 1].line_total / (newItems[newItems.length - 1].quantity || 1));
-            }
-        } else if (targetTotal > 0) {
-            // Trường hợp không có hạng mục chi tiết nhưng có tổng tiền dự toán
-            newItems = [{
+        const baseTotal = Object.values(categoryMap).reduce((a, b) => a + b, 0) + uncategorizedTotal;
+        
+        if (baseTotal === 0 && targetTotal > 0) {
+             setLineItems([{
                 item_name: 'Gói thầu thi công cải tạo (Tổng hợp)',
                 unit: 'Gói',
                 quantity: 1,
                 unit_price: targetTotal,
                 line_total: targetTotal,
                 note: 'Tổng hợp từ dự toán kỹ thuật'
-            }];
+            }]);
+            return;
+        }
+
+        if (baseTotal === 0) {
+            message.warning('Dự toán chưa có dữ liệu chi phí chi tiết');
+            return;
+        }
+
+        // 3. Fetch MasterDataItem details for categories
+        const categoryIds = Object.keys(categoryMap);
+        let categories: Record<string, string> = {};
+        
+        if (categoryIds.length > 0) {
+            const catResponse = await masterDataItemService.queryContent({
+                filter: {
+                    group: {
+                        op: AND_OR.AND,
+                        children: [
+                            { id: '_id', operation: 'in', value: categoryIds, children: [] }
+                        ]
+                    }
+                }
+            });
+            catResponse.data?.forEach(item => {
+                categories[item._id] = item.label;
+            });
+        }
+
+        // 4. Calculate ratio and generate newItems
+        const ratio = targetTotal / baseTotal;
+        let newItems: any[] = [];
+
+        // Add categorized items
+        categoryIds.forEach(catId => {
+            const allocatedTotal = Math.round(categoryMap[catId] * ratio);
+            newItems.push({
+                item_name: categories[catId] || 'Hạng mục không tên',
+                unit: 'Lô',
+                quantity: 1,
+                unit_price: allocatedTotal,
+                line_total: allocatedTotal,
+                note: `Tổng hợp từ dự toán kỹ thuật - ${categories[catId] || catId}`
+            });
+        });
+
+        // Add uncategorized item if exists
+        if (uncategorizedTotal > 0) {
+            const allocatedTotal = Math.round(uncategorizedTotal * ratio);
+            newItems.push({
+                item_name: 'Các hạng mục khác',
+                unit: 'Lô',
+                quantity: 1,
+                unit_price: allocatedTotal,
+                line_total: allocatedTotal,
+                note: 'Các chi phí chưa được phân loại hạng mục báo giá'
+            });
+        }
+
+        // 5. Handle rounding correction
+        const currentSum = newItems.reduce((sum, item) => sum + (item.line_total || 0), 0);
+        const diff = targetTotal - currentSum;
+        if (diff !== 0 && newItems.length > 0) {
+            newItems[newItems.length - 1].line_total += diff;
+            newItems[newItems.length - 1].unit_price = newItems[newItems.length - 1].line_total;
         }
 
         setLineItems(newItems);
-        message.info(`Đã tổng hợp ${newItems.length} hạng mục. Tổng giá trị: ${new Intl.NumberFormat('vi-VN').format(targetTotal)}đ`);
+        message.info(`Đã tổng hợp ${newItems.length} hạng mục báo giá. Tổng: ${new Intl.NumberFormat('vi-VN').format(targetTotal)}đ`);
 
     } catch (error) {
         console.error('Error syncing estimate:', error);
+        message.error('Lỗi khi đồng bộ từ dự toán');
     } finally {
         setLoading(false);
     }
