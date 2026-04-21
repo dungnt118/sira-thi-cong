@@ -31,10 +31,14 @@ type AuthProps = PropsWithChildren<{
 }>;
 
 const isPublicPath = (pathname: string) =>
+  pathname === '/' ||
   pathname.startsWith('/login') ||
   pathname.startsWith('/documents') ||
   pathname.startsWith('/portal') ||
-  pathname === '/portal';
+  pathname.startsWith('/du-an') ||
+  pathname.startsWith('/chinh-sach') ||
+  pathname.startsWith('/gioi-thieu') ||
+  pathname.startsWith('/san-pham');
 
 const getCurrentPathname = () => window.location.pathname;
 

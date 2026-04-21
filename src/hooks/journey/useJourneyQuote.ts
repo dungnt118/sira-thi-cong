@@ -146,7 +146,8 @@ export const useJourneyQuote = (journeyId: string) => {
         const baseTotal = Object.values(categoryMap).reduce((a, b) => a + b, 0) + uncategorizedTotal;
         
         if (baseTotal === 0 && targetTotal > 0) {
-             setLineItems([{
+            setLineItems([{
+                _id: 'temp-' + Date.now(),
                 item_name: 'Gói thầu thi công cải tạo (Tổng hợp)',
                 unit: 'Gói',
                 quantity: 1,
@@ -168,17 +169,15 @@ export const useJourneyQuote = (journeyId: string) => {
         
         if (categoryIds.length > 0) {
             const catResponse = await masterDataItemService.queryContent({
-                filter: {
-                    group: {
-                        op: AND_OR.AND,
-                        children: [
-                            { id: '_id', operation: 'in', value: categoryIds, children: [] }
-                        ]
-                    }
+                group: {
+                    op: AND_OR.AND,
+                    children: [
+                        { id: '_id', operation: 'in', value: categoryIds, children: [] }
+                    ]
                 }
             });
             catResponse.data?.forEach(item => {
-                categories[item._id] = item.label;
+                categories[item._id] = item.label || '';
             });
         }
 

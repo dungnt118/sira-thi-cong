@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { ConfigProvider, App as AntApp } from 'antd';
 import viVN from 'antd/locale/vi_VN';
 
@@ -121,6 +121,8 @@ import {
 
 // V3 Public Pages
 import CustomerPortal from '../pages/public/CustomerPortal';
+import LandingPage from '../pages/public/LandingPage';
+import ArticleDetail from '../pages/public/ArticleDetail';
 const DocumentationPage = lazy(() => import('../pages/public/DocumentationCenterPage'));
 
 // Layouts
@@ -241,7 +243,13 @@ function App() {
                                     <Route path="/portal/:token/documents" element={<PortalDocuments />} />
                                     <Route path="/portal/:token/threads" element={<ThreadInbox />} />
                                     <Route path="/portal/:token/threads/:threadId" element={<ThreadDetail />} />
-                                    <Route path="/" element={<CustomerPortal />} />
+                                    
+                                    <Route path="/" element={<LandingPage />} />
+                                    <Route path="/du-an/:slug" element={<ArticleDetail />} />
+                                    <Route path="/chinh-sach/:slug" element={<ArticleDetail />} />
+                                    <Route path="/gioi-thieu" element={<ArticleDetail />} />
+                                    <Route path="/san-pham" element={<ArticleDetail />} />
+
                                     <Route path="/:token" element={<CustomerPortal />} />
                                     <Route path="/:token/timeline" element={<PublishedTimeline />} />
                                     <Route path="/:token/documents" element={<PortalDocuments />} />
