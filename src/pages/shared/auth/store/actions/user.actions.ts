@@ -17,7 +17,7 @@ import gql from 'graphql-tag';
 import { ApiResponseCode } from 'types/apis/ApiResponse';
 import type { UserSessionContext } from 'types/auth/UserSessionContext';
 import { BAC_USER_CLIENT_ID } from 'app/services/users/user.constants';
-import { getCurrentRole, setUserData as persistUserData } from '@/utils/authUtils';
+import { getCurrentRole, setUserData as persistUserData, getRolePathPrefix } from '@/utils/authUtils';
 
 export const SET_USER_DATA = '[USER] SET DATA' as const;
 export const REMOVE_USER_DATA = '[USER] REMOVE DATA' as const;
@@ -125,7 +125,9 @@ export const loadUserData = (roleOverride?: string): AppThunk<Promise<void>> => 
                           ? session.activeRole 
                           : (context?.defaultRole || roles[0] || 'guest');
                           
+      const rolePrefix = getRolePathPrefix(derivedRole);
       const roleLower = derivedRole?.toLowerCase() ?? '';
+      
       if (!derivedRole || roleLower === 'guest') {
           if (targetUrl === '/l/welcome' || targetUrl.toLowerCase().includes('guest')) {
               targetUrl = '/portal';
@@ -133,10 +135,10 @@ export const loadUserData = (roleOverride?: string): AppThunk<Promise<void>> => 
       } else {
           const needsFallback = !targetUrl || targetUrl === '/l/welcome' || targetUrl.toLowerCase().includes('guest');
           if (needsFallback) {
-              // ADMIN role uses /admin/dashboard, all other roles use /admin/{role}/dashboard
-              targetUrl = roleLower === 'admin'
+              // Use prefix mapping for fallback URL
+              targetUrl = rolePrefix === ''
                   ? '/admin/dashboard'
-                  : `/admin/${roleLower}/dashboard`;
+                  : `/admin/${rolePrefix}/dashboard`;
           } else if (!targetUrl.startsWith('/admin') && !targetUrl.startsWith('/portal')) {
               // welcome_url from backend missing /admin prefix — add it
               targetUrl = `/admin${targetUrl.startsWith('/') ? '' : '/'}${targetUrl}`;
@@ -146,7 +148,13 @@ export const loadUserData = (roleOverride?: string): AppThunk<Promise<void>> => 
       if (pathname.startsWith('/login')) {
         const searchParams = new URLSearchParams(history.location.search);
         const redirectTarget = searchParams.get('redirect');
-        if (redirectTarget && !redirectTarget.startsWith('/login')) {
+        
+        // Final sanity check on targetUrl - avoid any /personal/profile or guest-like urls
+        if (targetUrl.includes('/personal/') || targetUrl.includes('/l/welcome') || targetUrl.includes('/guest/')) {
+            targetUrl = rolePrefix === '' ? '/admin/dashboard' : `/admin/${rolePrefix}/dashboard`;
+        }
+
+        if (redirectTarget && !redirectTarget.startsWith('/login') && !redirectTarget.includes('notfound')) {
           history.push(redirectTarget);
         } else {
           history.push(targetUrl);

@@ -80,7 +80,7 @@ export const Login: React.FC = () => {
                                 type="link"
                                 icon={<GlobalOutlined />}
                                 className="login-portal-link"
-                                onClick={() => navigate('/portal')}
+                                onClick={() => navigate('/')}
                             >
                                 Dành cho Khách hàng
                             </Button>
