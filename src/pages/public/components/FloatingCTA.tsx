@@ -5,7 +5,7 @@ const FloatingCTA: React.FC = () => {
   return (
     <div className="floating-cta-container">
       <a href="https://zalo.me/0362555167" target="_blank" rel="noreferrer" className="floating-button zalo">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Icon_of_Zalo.svg" alt="Zalo" style={{ width: '35px' }} />
+        <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Icon_of_Zalo.svg" alt="Zalo" style={{ width: '30px' }} />
         <span className="btn-label">Chat Zalo</span>
       </a>
       <a href="https://m.me/bacgroup" target="_blank" rel="noreferrer" className="floating-button messenger">
