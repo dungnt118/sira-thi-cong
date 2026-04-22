@@ -2,6 +2,9 @@ import React, { useEffect } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import './LandingPage.css';
 import { ArrowLeftOutlined, PhoneOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
+import PublicHeader from './components/PublicHeader';
+import PublicFooter from './components/PublicFooter';
+import FloatingCTA from './components/FloatingCTA';
 
 const ArticleDetail: React.FC = () => {
     const { slug: paramSlug } = useParams<{ slug: string }>();
@@ -12,7 +15,7 @@ const ArticleDetail: React.FC = () => {
 
     useEffect(() => {
         window.scrollTo(0, 0);
-        document.title = `Chi tiết: ${slug?.replace(/-/g, ' ')} | BAC Group`;
+        document.title = `${slug?.replace(/-/g, ' ').toUpperCase()} | BAC Group`;
     }, [slug]);
 
     const getArticleContent = (slug: string | undefined) => {
@@ -42,21 +45,7 @@ const ArticleDetail: React.FC = () => {
 
     return (
         <div className="landing-page">
-            <header className="landing-header">
-                <div className="header-container">
-                    <div className="logo">
-                        <Link to="/"><img src="/logo.png" alt="BAC Group Logo" /></Link>
-                    </div>
-                    <nav className="nav-menu">
-                        <Link to="/" className="nav-link">Trang chủ</Link>
-                        <Link to="/san-pham" className="nav-link">Sản phẩm</Link>
-                        <Link to="/gioi-thieu" className="nav-link">Giới thiệu</Link>
-                        <Link to="/du-an" className="nav-link">Dự án</Link>
-                        <Link to="/chinh-sach" className="nav-link">Chính sách</Link>
-                    </nav>
-                    <a href="tel:0362555167" className="cta-button">Hotline: 0362555167</a>
-                </div>
-            </header>
+            <PublicHeader />
 
             <main className="section" style={{ background: 'var(--bg-soft)', minHeight: '100vh', paddingTop: 'calc(var(--header-height) + 4rem)' }}>
                 <div className="container" style={{ maxWidth: '900px' }}>
@@ -108,16 +97,11 @@ const ArticleDetail: React.FC = () => {
                 </div>
             </main>
 
-            <footer className="landing-footer">
-                <div className="footer-content">
-                    <div>
-                        <img src="/logo.png" alt="BAC Group" className="footer-logo" />
-                        <p style={{ opacity: 0.6, maxWidth: '350px' }}>Kiến tạo sự vững bền cho mọi công trình.</p>
-                    </div>
-                </div>
-            </footer>
+            <PublicFooter />
+            <FloatingCTA />
         </div>
     );
 };
 
 export default ArticleDetail;
+

@@ -123,6 +123,10 @@ import {
 import CustomerPortal from '../pages/public/CustomerPortal';
 import LandingPage from '../pages/public/LandingPage';
 import ArticleDetail from '../pages/public/ArticleDetail';
+import ProductListing from '../pages/public/ProductListing';
+import ProjectListing from '../pages/public/ProjectListing';
+import PolicyPage from '../pages/public/PolicyPage';
+import ContactPage from '../pages/public/ContactPage';
 const DocumentationPage = lazy(() => import('../pages/public/DocumentationCenterPage'));
 
 // Layouts
@@ -245,10 +249,15 @@ function App() {
                                     <Route path="/portal/:token/threads/:threadId" element={<ThreadDetail />} />
                                     
                                     <Route path="/" element={<LandingPage />} />
+                                    <Route path="/article/:slug" element={<ArticleDetail />} />
+                                    <Route path="/du-an" element={<ProjectListing />} />
                                     <Route path="/du-an/:slug" element={<ArticleDetail />} />
+                                    <Route path="/chinh-sach" element={<PolicyPage />} />
                                     <Route path="/chinh-sach/:slug" element={<ArticleDetail />} />
                                     <Route path="/gioi-thieu" element={<ArticleDetail />} />
-                                    <Route path="/san-pham" element={<ArticleDetail />} />
+                                    <Route path="/san-pham" element={<ProductListing />} />
+                                    <Route path="/lien-he" element={<ContactPage />} />
+
 
                                     <Route path="/:token" element={<CustomerPortal />} />
                                     <Route path="/:token/timeline" element={<PublishedTimeline />} />

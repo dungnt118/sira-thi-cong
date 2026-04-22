@@ -12,50 +12,39 @@ import {
   CustomerServiceOutlined,
   SearchOutlined,
   EditOutlined,
-  CheckOutlined
+  CheckOutlined,
+  HomeOutlined
 } from '@ant-design/icons';
+import { message } from 'antd';
+
+import PublicHeader from './components/PublicHeader';
+import PublicFooter from './components/PublicFooter';
+import FloatingCTA from './components/FloatingCTA';
 
 const LandingPage: React.FC = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-    window.addEventListener('scroll', handleScroll);
     document.title = "BAC Group | Chuyên gia Xử lý Sự cố Công trình Hàng đầu";
-    return () => window.removeEventListener('scroll', handleScroll);
+    const meta = document.querySelector('meta[name="description"]') || document.createElement('meta');
+    meta.setAttribute('name', 'description');
+    meta.setAttribute('content', 'BAC Group - Chuyên gia hàng đầu trong lĩnh vực xử lý sự cố công trình, chống thấm chuyên nghiệp với công nghệ hiện đại và bảo hành dài hạn.');
+    if (!document.querySelector('meta[name="description"]')) {
+      document.head.appendChild(meta);
+    }
+    window.scrollTo(0, 0);
   }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setFormSubmitted(true);
+    message.success('Yêu cầu của bạn đã được tiếp nhận. Chúng tôi sẽ liên hệ lại ngay!');
   };
 
   return (
     <div className="landing-page">
-      {/* Navigation */}
-      <header className={`landing-header ${isScrolled ? 'scrolled' : ''}`}>
-        <div className="container header-container">
-          <div className="logo">
-            <Link to="/"><img src="/logo.png" alt="BAC Group Logo" /></Link>
-          </div>
-          <nav className="nav-menu">
-            <Link to="/" className="nav-link">Trang chủ</Link>
-            <Link to="/gioi-thieu" className="nav-link">Giới thiệu</Link>
-            <Link to="/dich-vu" className="nav-link">Dịch vụ</Link>
-            <Link to="/du-an" className="nav-link">Dự án</Link>
-            <Link to="/chinh-sach" className="nav-link">Chính sách</Link>
-          </nav>
-          <div className="header-actions">
-            <a href="tel:0362555167" className="phone-link">
-              <PhoneOutlined /> 0362555167
-            </a>
-            <a href="#consultation" className="cta-button">Tư vấn ngay</a>
-          </div>
-        </div>
-      </header>
+      <PublicHeader />
+      <FloatingCTA />
 
       <main>
         {/* Hero Section */}
@@ -76,7 +65,7 @@ const LandingPage: React.FC = () => {
               </p>
               <div className="hero-btns animate-up" style={{ animationDelay: '0.6s' }}>
                 <a href="#consultation" className="cta-button">Nhận tư vấn miễn phí</a>
-                <a href="#projects" className="cta-button btn-secondary">Khám phá dự án</a>
+                <Link to="/du-an" className="cta-button btn-secondary">Khám phá dự án</Link>
               </div>
               <div className="hero-stats animate-up" style={{ animationDelay: '0.8s' }}>
                 <div className="stat-item">
@@ -309,38 +298,7 @@ const LandingPage: React.FC = () => {
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="landing-footer">
-        <div className="container">
-          <div className="footer-content">
-            <div className="footer-brand">
-              <img src="/logo.png" alt="BAC Group" className="footer-logo" />
-              <p style={{ opacity: 0.6 }}>Công ty Chống thấm BAC tự hào mang đến cho quý khách hàng dịch vụ chống thấm chuyên nghiệp và hoàn hảo nhất với hơn 20 năm kinh nghiệm.</p>
-            </div>
-            <div className="footer-links">
-              <h4>Dịch vụ</h4>
-              <ul>
-                <li><Link to="/article/chong-tham-san-thuong">Chống thấm sân thượng</Link></li>
-                <li><Link to="/article/chong-tham-nha-ve-sinh">Chống thấm nhà vệ sinh</Link></li>
-                <li><Link to="/article/chong-tham-tang-ham">Chống thấm tầng hầm</Link></li>
-                <li><Link to="/article/chong-tham-mai-ton">Chống thấm mái tôn</Link></li>
-              </ul>
-            </div>
-            <div className="footer-links">
-              <h4>Liên kết</h4>
-              <ul>
-                <li><Link to="/gioi-thieu">Giới thiệu</Link></li>
-                <li><Link to="/du-an">Dự án thi công</Link></li>
-                <li><Link to="/chinh-sach">Chính sách bảo hành</Link></li>
-                <li><Link to="/lien-he">Liên hệ</Link></li>
-              </ul>
-            </div>
-          </div>
-          <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '2rem', textAlign: 'center' }}>
-            <p style={{ opacity: 0.4, fontSize: '0.8rem' }}>&copy; 2026 BAC Group. All rights reserved. Designed for excellence.</p>
-          </div>
-        </div>
-      </footer>
+      <PublicFooter />
     </div>
   );
 };

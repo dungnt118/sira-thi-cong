@@ -35,10 +35,12 @@ const isPublicPath = (pathname: string) =>
   pathname.startsWith('/login') ||
   pathname.startsWith('/documents') ||
   pathname.startsWith('/portal') ||
+  pathname.startsWith('/article') ||
   pathname.startsWith('/du-an') ||
   pathname.startsWith('/chinh-sach') ||
   pathname.startsWith('/gioi-thieu') ||
-  pathname.startsWith('/san-pham');
+  pathname.startsWith('/san-pham') ||
+  pathname.startsWith('/lien-he');
 
 const getCurrentPathname = () => window.location.pathname;
 
