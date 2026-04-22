@@ -378,15 +378,15 @@ h1, h2, h3, h4, .logo {
 }
 
 .hero-content h1 {
-  font-size: clamp(3rem, 8vw, 5.5rem);
+  font-size: clamp(2.5rem, 5vw, 4rem);
   font-weight: 900;
-  line-height: 1.05;
+  line-height: 1.1;
   margin-bottom: 2rem;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.02em;
 }
 
 .hero-content p {
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   color: rgba(255, 255, 255, 0.8);
   margin-bottom: 3.5rem;
   max-width: 650px;
@@ -425,9 +425,9 @@ h1, h2, h3, h4, .logo {
 /* Service Card */
 .services-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 2.5rem;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
@@ -764,8 +764,37 @@ h1, h2, h3, h4, .logo {
 
 /* Buttons */
 .cta-button {
-  padding: 1.25rem 2.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 2.5rem;
   border-radius: 14px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  transition: var(--transition-normal);
+  text-decoration: none;
+  background: var(--accent);
+  color: white;
+  box-shadow: var(--shadow-accent);
+}
+
+.cta-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 25px rgba(59, 130, 246, 0.5);
+  color: white;
+}
+
+.cta-button.btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: none;
+  backdrop-filter: blur(10px);
+}
+
+.cta-button.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: white;
 }
 
 /* Footer Styles */

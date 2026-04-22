@@ -35,7 +35,7 @@ const AboutPage: React.FC = () => {
         }}>
           <div className="container">
             <span className="section-subtitle" style={{ color: 'var(--accent)' }}>Về BAC Group</span>
-            <h1 style={{ fontSize: 'clamp(2.5rem, 5vw, 4.5rem)', fontWeight: 800, marginBottom: '1.5rem', lineHeight: 1.1 }}>
+            <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 800, marginBottom: '1.5rem', lineHeight: 1.1 }}>
               Kiến Tạo Sự <span className="text-gradient">Bền Vững</span><br />Cho Mọi Công Trình
             </h1>
             <p style={{ fontSize: '1.25rem', opacity: 0.9, maxWidth: '800px', margin: '0 auto', lineHeight: 1.6 }}>

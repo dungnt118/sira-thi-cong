@@ -12,7 +12,8 @@ import {
   FileProtectOutlined,
   AuditOutlined,
   HistoryOutlined,
-  QuestionCircleOutlined
+  QuestionCircleOutlined,
+  CheckCircleOutlined
 } from '@ant-design/icons';
 import './LandingPage.css';
 import PublicHeader from './components/PublicHeader';
@@ -51,10 +52,13 @@ const PolicyPage: React.FC = () => {
       <main style={{ paddingTop: '120px', backgroundColor: 'var(--bg-soft)', minHeight: '100vh' }}>
         <div className="container" style={{ paddingBottom: '120px' }}>
           <div style={{ margin: '1rem 0 3rem' }}>
-            <Breadcrumb separator=">">
-              <Breadcrumb.Item><Link to="/">Trang chủ</Link></Breadcrumb.Item>
-              <Breadcrumb.Item>Chính sách bảo hành</Breadcrumb.Item>
-            </Breadcrumb>
+            <Breadcrumb 
+              separator=">"
+              items={[
+                { title: <Link to="/">Trang chủ</Link> },
+                { title: 'Chính sách bảo hành' }
+              ]}
+            />
           </div>
 
           <div className="section-header" style={{ textAlign: 'center', marginBottom: '5rem', maxWidth: '800px', margin: '0 auto 5rem' }}>
