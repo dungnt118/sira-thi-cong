@@ -20,7 +20,7 @@ export interface AppBrandLogoProps extends Omit<React.ImgHTMLAttributes<HTMLImag
 export const AppBrandLogo: React.FC<AppBrandLogoProps> = ({
     size = 'md',
     variant = 'default',
-    to = '/portal',
+    to = '/',
     alt = 'Logo',
     style,
     className,
