@@ -123,6 +123,7 @@ import {
 import CustomerPortal from '../pages/public/CustomerPortal';
 import LandingPage from '../pages/public/LandingPage';
 import ArticleDetail from '../pages/public/ArticleDetail';
+import AboutPage from '../pages/public/AboutPage';
 import ProductListing from '../pages/public/ProductListing';
 import ProjectListing from '../pages/public/ProjectListing';
 import PolicyPage from '../pages/public/PolicyPage';
@@ -254,7 +255,7 @@ function App() {
                                     <Route path="/du-an/:slug" element={<ArticleDetail />} />
                                     <Route path="/chinh-sach" element={<PolicyPage />} />
                                     <Route path="/chinh-sach/:slug" element={<ArticleDetail />} />
-                                    <Route path="/gioi-thieu" element={<ArticleDetail />} />
+                                    <Route path="/gioi-thieu" element={<AboutPage />} />
                                     <Route path="/san-pham" element={<ProductListing />} />
                                     <Route path="/lien-he" element={<ContactPage />} />
 
