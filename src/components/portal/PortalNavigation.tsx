@@ -77,7 +77,7 @@ const PortalNavigation: React.FC = () => {
             }}>
                 {/* Brand Logo & Home Link */}
                 <Space size={isMobile ? "small" : "large"}>
-                    <Link to="/portal" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <AppBrandLogo size={32} to="" />
                         <Text strong style={{ fontSize: isMobile ? 15 : 18, color: '#0f172a', letterSpacing: -0.5, whiteSpace: 'nowrap' }}>
                             BAC GROUP
