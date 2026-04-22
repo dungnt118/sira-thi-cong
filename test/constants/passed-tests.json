@@ -69,5 +69,7 @@
   "Customer Journey Lifecycle - Create and Update Steps > P1: Tạo mới Customer Journey từ danh sách",
   " > setup > setup\\auth.setup.ts > authenticate as supervisor",
   " > setup > setup\\auth.setup.ts > authenticate as admin",
-  " > setup > setup\\auth.setup.ts > authenticate as manager (default)"
+  " > setup > setup\\auth.setup.ts > authenticate as manager (default)",
+  " > public > e2e\\landing-page.spec.ts > BAC Waterproofing Landing Page > Responsive: should adapt to mobile view",
+  " > public > e2e\\landing-page.spec.ts > BAC Waterproofing Landing Page > SEO: should have correct title and meta description"
 ]

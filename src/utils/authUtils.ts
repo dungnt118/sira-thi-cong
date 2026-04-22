@@ -70,3 +70,31 @@ export const resetCurrentRole = () => {
         clearManualRoleOverride();
     }
 };
+
+export const getRolePathPrefix = (role: string | undefined | null): string => {
+    if (!role) return 'guest';
+    const r = role.toUpperCase();
+    switch (r) {
+        case 'ADMIN':
+            return '';
+        case 'QL':
+        case 'PM':
+            return 'ql';
+        case 'KD':
+        case 'SALE':
+            return 'kd';
+        case 'GS':
+        case 'GIAM-SAT':
+            return 'gs';
+        case 'KT':
+        case 'KE-TOAN':
+            return 'kt';
+        case 'KYT':
+        case 'KY-THUAT':
+            return 'kyt';
+        case 'PARTNER':
+            return 'partner';
+        default:
+            return role.toLowerCase();
+    }
+};

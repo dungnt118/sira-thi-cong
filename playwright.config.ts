@@ -18,13 +18,21 @@ export default defineConfig({
   ],
 
   use: {
-    baseURL: 'http://localhost:5173',
+    baseURL: 'http://localhost:5174',
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
   },
 
   projects: [
+    {
+      name: 'public',
+      testMatch: /e2e\/landing-page\.spec\.ts/,
+      use: { 
+        ...devices['Desktop Chrome'],
+        storageState: { cookies: [], origins: [] }, // No auth
+      },
+    },
     // Project để chạy authenticate trước các test khác
     {
       name: 'setup',

@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { masterDataItemService } from '../../services/core-contracts/services/masterDataItem.service';
 import { message } from 'antd';
 import { quotationService } from '../../services/core-contracts/services/quotation.service';
 import { quotationLineItemService } from '../../services/core-contracts/services/quotationLineItem.service';
@@ -103,10 +104,12 @@ export const useJourneyQuote = (journeyId: string) => {
     }
   };
 
+
   const syncFromEstimate = async () => {
     setLoading(true);
     try {
-        const eResponse = await journeyEstimateService.queryContent({
+        // 1. Fetch the JourneyEstimate
+        const eResponse = await journeyEstimateService.queryJourneyEstimatesDto({
             group: {
                 op: AND_OR.AND,
                 children: [{ id: 'journey_id', operation: '==', value: journeyId, children: [] }]
@@ -120,27 +123,108 @@ export const useJourneyQuote = (journeyId: string) => {
             return;
         }
 
-        // Logic: Group components by their parent group if needed, or just list all unique material groups
-        // Here we'll simplify: 1 group = 1 line item in quote
-        const newItems: ICreateQuotationLineItemInput[] = ((estimate as any).groups || []).map((g: any) => {
-            let total = 0;
-            (g.components || []).forEach((c: any) => total += (c.quantity || 0) * (c.unitPrice || 0));
-            
-            return {
-                item_name: g.name,
-                unit: g.unit || 'Lô',
-                quantity: g.quantity || 1,
-                unit_price: Math.round(total / (g.quantity || 1)),
-                line_total: total,
-                note: g.notes
-            };
+        const targetTotal = estimate.applied_quote_value || estimate.total_estimate_cost || 0;
+        const groups = estimate.direct_cost_groups || [];
+        
+        // 2. Group components by quote_category_id and sum costs
+        const categoryMap: Record<string, number> = {};
+        let uncategorizedTotal = 0;
+
+        groups.forEach((group: any) => {
+            const components = group.components || [];
+            components.forEach((comp: any) => {
+                const cost = comp.line_total || 0;
+                const catId = comp.quote_category_id;
+                if (catId) {
+                    categoryMap[catId] = (categoryMap[catId] || 0) + cost;
+                } else {
+                    uncategorizedTotal += cost;
+                }
+            });
         });
 
-        setLineItems(newItems as any);
-        message.info('Đã tổng hợp dữ liệu từ dự toán. Hãy kiểm tra lại đơn giá bán.');
+        const baseTotal = Object.values(categoryMap).reduce((a, b) => a + b, 0) + uncategorizedTotal;
+        
+        if (baseTotal === 0 && targetTotal > 0) {
+            setLineItems([{
+                _id: 'temp-' + Date.now(),
+                item_name: 'Gói thầu thi công cải tạo (Tổng hợp)',
+                unit: 'Gói',
+                quantity: 1,
+                unit_price: targetTotal,
+                line_total: targetTotal,
+                note: 'Tổng hợp từ dự toán kỹ thuật'
+            }]);
+            return;
+        }
+
+        if (baseTotal === 0) {
+            message.warning('Dự toán chưa có dữ liệu chi phí chi tiết');
+            return;
+        }
+
+        // 3. Fetch MasterDataItem details for categories
+        const categoryIds = Object.keys(categoryMap);
+        let categories: Record<string, string> = {};
+        
+        if (categoryIds.length > 0) {
+            const catResponse = await masterDataItemService.queryContent({
+                group: {
+                    op: AND_OR.AND,
+                    children: [
+                        { id: '_id', operation: 'in', value: categoryIds, children: [] }
+                    ]
+                }
+            });
+            catResponse.data?.forEach(item => {
+                categories[item._id] = item.label || '';
+            });
+        }
+
+        // 4. Calculate ratio and generate newItems
+        const ratio = targetTotal / baseTotal;
+        let newItems: any[] = [];
+
+        // Add categorized items
+        categoryIds.forEach(catId => {
+            const allocatedTotal = Math.round(categoryMap[catId] * ratio);
+            newItems.push({
+                item_name: categories[catId] || 'Hạng mục không tên',
+                unit: 'Lô',
+                quantity: 1,
+                unit_price: allocatedTotal,
+                line_total: allocatedTotal,
+                note: `Tổng hợp từ dự toán kỹ thuật - ${categories[catId] || catId}`
+            });
+        });
+
+        // Add uncategorized item if exists
+        if (uncategorizedTotal > 0) {
+            const allocatedTotal = Math.round(uncategorizedTotal * ratio);
+            newItems.push({
+                item_name: 'Các hạng mục khác',
+                unit: 'Lô',
+                quantity: 1,
+                unit_price: allocatedTotal,
+                line_total: allocatedTotal,
+                note: 'Các chi phí chưa được phân loại hạng mục báo giá'
+            });
+        }
+
+        // 5. Handle rounding correction
+        const currentSum = newItems.reduce((sum, item) => sum + (item.line_total || 0), 0);
+        const diff = targetTotal - currentSum;
+        if (diff !== 0 && newItems.length > 0) {
+            newItems[newItems.length - 1].line_total += diff;
+            newItems[newItems.length - 1].unit_price = newItems[newItems.length - 1].line_total;
+        }
+
+        setLineItems(newItems);
+        message.info(`Đã tổng hợp ${newItems.length} hạng mục báo giá. Tổng: ${new Intl.NumberFormat('vi-VN').format(targetTotal)}đ`);
 
     } catch (error) {
         console.error('Error syncing estimate:', error);
+        message.error('Lỗi khi đồng bộ từ dự toán');
     } finally {
         setLoading(false);
     }

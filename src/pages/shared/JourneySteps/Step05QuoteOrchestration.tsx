@@ -35,6 +35,18 @@ const Step05QuoteOrchestration: React.FC<Step05QuoteOrchestrationProps> = ({
 
   const [isEditing, setIsEditing] = useState(false);
   const [form] = Form.useForm();
+  
+  // Watch values for real-time total calculation
+  const watchedItems = Form.useWatch('items', form);
+  const watchedDiscount = Form.useWatch('discount', form);
+
+  const calcCurrentSubtotal = () => {
+    if (!watchedItems) return 0;
+    return watchedItems.reduce((sum: number, item: any) => sum + ((item?.quantity || 0) * (item?.unit_price || 0)), 0);
+  };
+  
+  const currentSubtotal = isEditing ? calcCurrentSubtotal() : (quotation?.subtotal || 0);
+  const currentTotal = isEditing ? (currentSubtotal - (watchedDiscount || 0)) : (quotation?.total || 0);
 
   useEffect(() => {
     if (quotation || lineItems.length > 0) {
@@ -113,8 +125,8 @@ const Step05QuoteOrchestration: React.FC<Step05QuoteOrchestrationProps> = ({
         title={
           <Space>
             <DollarOutlined />
-            <Text>DASHBOARD CHỐT GIÁ KHÁCH HÀNG</Text>
-            {quotation && <Tag color="blue">{quotation.status?.toUpperCase()}</Tag>}
+            <Text>BẢNG ĐIỀU KHIỂN CHỐT GIÁ KHÁCH HÀNG</Text>
+            {quotation && <Tag color="blue">{quotation.status === 'draft' ? 'NHÁP' : quotation.status?.toUpperCase()}</Tag>}
           </Space>
         }
         extra={isEditable && (
@@ -159,7 +171,7 @@ const Step05QuoteOrchestration: React.FC<Step05QuoteOrchestrationProps> = ({
                       {(fields, { add, remove }) => (
                         <>
                           <Table
-                            dataSource={form.getFieldValue('items')}
+                            dataSource={fields}
                             pagination={false}
                             size="small"
                             bordered
@@ -236,7 +248,7 @@ const Step05QuoteOrchestration: React.FC<Step05QuoteOrchestrationProps> = ({
                     pagination={false} 
                     size="small" 
                     bordered
-                    rowKey="_id"
+                    rowKey={(record: any) => record._id || record.key || record.item_name}
                     footer={() => (
                       <div style={{ textAlign: 'right' }}>
                         <Text strong>Tạm tính hàng hóa: {formatVND(quotation?.subtotal || 0)}</Text>
@@ -255,8 +267,8 @@ const Step05QuoteOrchestration: React.FC<Step05QuoteOrchestrationProps> = ({
                 <Card size="small" title="Tổng kết tài chính">
                   <Statistic 
                     title="Cộng tiền hàng" 
-                    value={isEditing ? '...' : (quotation?.subtotal || 0)} 
-                    formatter={(v: any) => typeof v === 'number' ? formatVND(v) : v}
+                    value={currentSubtotal} 
+                    formatter={(v: any) => formatVND(Number(v))}
                   />
                   <Divider style={{ margin: '12px 0' }} />
                   {isEditing ? (
@@ -274,9 +286,9 @@ const Step05QuoteOrchestration: React.FC<Step05QuoteOrchestrationProps> = ({
                   <Divider style={{ margin: '12px 0' }} />
                   <Statistic 
                     title="TỔNG THANH TOÁN" 
-                    value={isEditing ? '...' : (quotation?.total || 0)} 
+                    value={currentTotal} 
                     valueStyle={{ color: '#3f8600', fontWeight: 'bold' }}
-                    formatter={(v: any) => typeof v === 'number' ? formatVND(v) : v}
+                    formatter={(v: any) => formatVND(Number(v))}
                   />
 
                   {isEditing && (

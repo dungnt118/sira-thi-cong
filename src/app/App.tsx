@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { ConfigProvider, App as AntApp } from 'antd';
 import viVN from 'antd/locale/vi_VN';
 
@@ -121,6 +121,13 @@ import {
 
 // V3 Public Pages
 import CustomerPortal from '../pages/public/CustomerPortal';
+import LandingPage from '../pages/public/LandingPage';
+import ArticleDetail from '../pages/public/ArticleDetail';
+import AboutPage from '../pages/public/AboutPage';
+import ProductListing from '../pages/public/ProductListing';
+import ProjectListing from '../pages/public/ProjectListing';
+import PolicyPage from '../pages/public/PolicyPage';
+import ContactPage from '../pages/public/ContactPage';
 const DocumentationPage = lazy(() => import('../pages/public/DocumentationCenterPage'));
 
 // Layouts
@@ -147,7 +154,7 @@ import store from '@/store';
 import { useAuth } from '@/hooks/useAuth';
 import Auth from '@/pages/shared/auth/Auth';
 import elsagaService from '@/services/authenticationService';
-import { getCurrentRole } from '@/utils/authUtils';
+import { getCurrentRole, getRolePathPrefix } from '@/utils/authUtils';
 import { buildAdminRoleRoute, LEGACY_ADMIN_PREFIXES } from '@/utils/adminRoutes';
 
 const RootRedirect = () => {
@@ -164,7 +171,8 @@ const RootRedirect = () => {
 
         // If we have a valid role, and targetUrl is a guest URL or undefined, correct it
         if (!targetUrl || targetUrl === '/l/welcome' || targetUrl.toLowerCase().includes('guest')) {
-            targetUrl = `/admin/${role.toLowerCase()}/dashboard`;
+            const rolePrefix = getRolePathPrefix(role);
+            targetUrl = rolePrefix === '' ? '/admin/dashboard' : `/admin/${rolePrefix}/dashboard`;
         } else if (!targetUrl.startsWith('/admin')) {
             // Ensure any role-based targetUrl starts with /admin
             targetUrl = `/admin${targetUrl.startsWith('/') ? '' : '/'}${targetUrl}`;
@@ -184,19 +192,16 @@ const PersonalProfileRedirect = () => {
         getCurrentRole() ||
         null;
 
-    if (resolvedRole) {
-        return <Navigate to={`/admin/${resolvedRole.toLowerCase()}/profile`} replace />;
+    if (resolvedRole && resolvedRole.toLowerCase() !== 'guest') {
+        const rolePrefix = getRolePathPrefix(resolvedRole);
+        return <Navigate to={rolePrefix === '' ? '/admin/profile' : `/admin/${rolePrefix}/profile`} replace />;
     }
 
     if (isAuthenticated || elsagaService.getAccessToken()) {
-        return null;
+        return <Navigate to="/" replace />;
     }
 
-    if (!isAuthenticated) {
-        return <Navigate to="/login" replace />;
-    }
-
-    return null;
+    return <Navigate to="/login" replace />;
 };
 
 const LegacyAdminPrefixRedirect = () => {
@@ -241,7 +246,18 @@ function App() {
                                     <Route path="/portal/:token/documents" element={<PortalDocuments />} />
                                     <Route path="/portal/:token/threads" element={<ThreadInbox />} />
                                     <Route path="/portal/:token/threads/:threadId" element={<ThreadDetail />} />
-                                    <Route path="/" element={<CustomerPortal />} />
+                                    
+                                    <Route path="/" element={elsagaService.getAccessToken() ? <RootRedirect /> : <LandingPage />} />
+                                    <Route path="/article/:slug" element={<ArticleDetail />} />
+                                    <Route path="/du-an" element={<ProjectListing />} />
+                                    <Route path="/du-an/:slug" element={<ArticleDetail />} />
+                                    <Route path="/chinh-sach" element={<PolicyPage />} />
+                                    <Route path="/chinh-sach/:slug" element={<ArticleDetail />} />
+                                    <Route path="/gioi-thieu" element={<AboutPage />} />
+                                    <Route path="/san-pham" element={<ProductListing />} />
+                                    <Route path="/lien-he" element={<ContactPage />} />
+
+
                                     <Route path="/:token" element={<CustomerPortal />} />
                                     <Route path="/:token/timeline" element={<PublishedTimeline />} />
                                     <Route path="/:token/documents" element={<PortalDocuments />} />
