@@ -47,8 +47,9 @@ export const useAuth = () => {
         availableRoles = [role.toUpperCase()];
     }
 
-    const logout = () => {
-        dispatch(logoutUser());
+    const logout = async () => {
+        await dispatch(logoutUser());
+        window.location.href = '/login';
     };
 
     return {

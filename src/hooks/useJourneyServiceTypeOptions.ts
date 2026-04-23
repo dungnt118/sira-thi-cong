@@ -1,15 +1,11 @@
-import masterDataItemService from '@/services/core-contracts/services/masterDataItem.service';
-import type { IMasterDataItem } from '@/services/core-contracts/types/masterDataItem.types';
-import { AND_OR, ConditionPropType, FilterOperation } from '@/types/filters/GroupQueryFilter';
 import { useEffect, useState } from 'react';
+import { get, BASE_URL, REGCODE } from '@/services/storeService';
 
 export interface JourneyServiceTypeOption {
   label: string;
   value: string;
-  item: IMasterDataItem;
+  item: any;
 }
-
-const SERVICE_TYPE_CATEGORY = 'service_type';
 
 export const useJourneyServiceTypeOptions = () => {
   const [serviceTypeOptions, setServiceTypeOptions] = useState<JourneyServiceTypeOption[]>([]);
@@ -21,37 +17,48 @@ export const useJourneyServiceTypeOptions = () => {
     const load = async () => {
       setIsLoading(true);
       try {
-        const itemResponse = await masterDataItemService.queryContent({
-          limit: 100,
-          sorted: [{ id: 'sortOrder', desc: false }],
-          group: {
-            op: AND_OR.AND,
-            children: [
-              {
-                id: 'category',
-                operation: FilterOperation.EQUAL,
-                value: SERVICE_TYPE_CATEGORY,
-                propType: ConditionPropType.PROPTYPE_TEXT,
-                children: [],
-              },
-              {
-                id: 'isActive',
-                operation: FilterOperation.EQUAL,
-                value: true,
-                propType: ConditionPropType.PROPTYPE_BOOLEAN,
-                children: [],
-              },
-            ],
-          },
+        const baseUrl = get(BASE_URL);
+        const resolvedBaseUrl = typeof baseUrl === 'string' && baseUrl ? baseUrl : window.location.origin;
+        
+        let url: URL;
+        try {
+            url = new URL('/api/apimodel/masterdata.get_service_types', resolvedBaseUrl);
+        } catch {
+            url = new URL('/api/apimodel/masterdata.get_service_types', window.location.origin);
+        }
+        
+        const regCode = get(REGCODE);
+        if (regCode) {
+            url.searchParams.set('regCode', String(regCode));
+        }
+
+        const response = await fetch(url.toString(), {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
         });
 
+        if (!response.ok) {
+            throw new Error(`API error: ${response.status}`);
+        }
+
+        const result = await response.json();
+        
         if (!isMounted) return;
 
-        setServiceTypeOptions((itemResponse.data || []).map((item) => ({
-          value: item.value || item._id,
-          label: item.label || item.shortLabel || item.value || item._id,
-          item,
-        })));
+        if (result.code === 0 && Array.isArray(result.data)) {
+            setServiceTypeOptions(result.data.map((item: any) => ({
+              value: item.value,
+              label: item.label,
+              item: {
+                  ...item,
+                  _id: item.value // Mapping _id so CustomerPortalLanding gets it for serviceTypeId
+              },
+            })));
+        } else {
+             setServiceTypeOptions([]);
+        }
       } catch (error) {
         console.error('Failed to load Journey service type options', error);
         if (isMounted) setServiceTypeOptions([]);

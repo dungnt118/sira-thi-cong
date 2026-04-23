@@ -10,6 +10,7 @@ import type { MenuProps } from 'antd';
 import { Avatar, Badge, Drawer, Dropdown, Layout, Space } from 'antd';
 import React, { useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
 import { AppBrandLogo } from '../../components/common/AppBrandLogo';
 
 const { Header, Content, Footer } = Layout;
@@ -25,6 +26,7 @@ const navTabs = [
 export const SupervisorLayout: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const { logout } = useAuth();
     const [drawerOpen, setDrawerOpen] = useState(false);
 
     const activeTab = navTabs.find(t =>
@@ -34,7 +36,7 @@ export const SupervisorLayout: React.FC = () => {
     const userMenuItems: MenuProps['items'] = [
         { key: 'profile', icon: <UserOutlined />, label: 'Hồ sơ của tôi', onClick: () => navigate('/personal/profile') },
         { type: 'divider' },
-        { key: 'logout', icon: <LogoutOutlined />, label: 'Đăng xuất', onClick: () => navigate('/login') },
+        { key: 'logout', icon: <LogoutOutlined />, label: 'Đăng xuất', onClick: () => logout() },
     ];
 
     return (

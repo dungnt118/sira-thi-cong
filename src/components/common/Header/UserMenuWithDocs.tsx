@@ -108,7 +108,6 @@ export const UserMenu: React.FC<UserMenuProps> = ({
             danger: true,
             onClick: () => {
                 logout();
-                navigate('/login');
             }
         }
     ];

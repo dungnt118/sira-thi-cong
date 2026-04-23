@@ -48,7 +48,6 @@ const PortalNavigation: React.FC = () => {
             danger: true,
             onClick: () => {
                 logout();
-                navigate('/portal');
             }
         }
     ];
