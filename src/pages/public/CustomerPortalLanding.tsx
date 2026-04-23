@@ -297,8 +297,9 @@ const CustomerPortalLanding: React.FC = () => {
                                 rules={[{ required: true, message: 'Vui lòng chọn loại dịch vụ' }]}
                             >
                                 <Select
+                                    size="large"
                                     placeholder="Chọn loại dịch vụ"
-                                    style={{ width: '100%' }}
+                                    style={{ width: '100%', height: 45 }}
                                     dropdownStyle={{ background: '#fff' }}
                                     loading={isLoadingServiceTypes}
                                     options={portalServiceTypeOptions.map((option) => ({
