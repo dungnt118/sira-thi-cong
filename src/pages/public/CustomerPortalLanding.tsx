@@ -32,23 +32,8 @@ interface PortalServiceTypeOption {
     value: string;
     label: string;
     slug: string;
-    serviceTypeId?: string;
+    serviceTypeId: string;
 }
-
-const FALLBACK_SERVICE_TYPE_OPTIONS: PortalServiceTypeOption[] = [
-    { value: 'chong-tham', label: 'Chống thấm chuyên sâu', slug: 'chong-tham' },
-    { value: 'son-nu', label: 'Sơn nước & Trang trí', slug: 'son-nu' },
-    { value: 'dien-nuoc', label: 'Hệ thống Điện - Nước', slug: 'dien-nuoc' },
-    { value: 'cai-tao', label: 'Cải tạo trọn gói', slug: 'cai-tao' },
-];
-
-const normalizeServiceTypeKey = (value: string) =>
-    value
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '') || 'dich-vu';
 
 const getPortalSubmitErrorMessage = (error: unknown): string => {
     if (error instanceof Error && error.message.trim()) {
@@ -80,14 +65,12 @@ const CustomerPortalLanding: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const { serviceTypeOptions, isLoading: isLoadingServiceTypes } = useJourneyServiceTypeOptions();
 
-    const portalServiceTypeOptions: PortalServiceTypeOption[] = serviceTypeOptions.length > 0
-        ? serviceTypeOptions.map((option) => ({
-            value: normalizeServiceTypeKey(option.item.value || option.label),
-            label: option.label,
-            slug: normalizeServiceTypeKey(option.item.value || option.label),
-            serviceTypeId: option.item._id,
-        }))
-        : FALLBACK_SERVICE_TYPE_OPTIONS;
+    const portalServiceTypeOptions: PortalServiceTypeOption[] = serviceTypeOptions.map((option) => ({
+        value: option.value,
+        label: option.label,
+        slug: option.value,
+        serviceTypeId: option.item._id,
+    }));
 
     const onFinish = async (values: any) => {
         setLoading(true);
