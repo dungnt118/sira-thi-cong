@@ -15,6 +15,10 @@ import { useAuth } from '@/hooks/useAuth';
 import { UploadFilesEdit } from '@/components/files/UploadFiles';
 import { paymentRequestService } from '@/services/core-contracts/services/paymentRequest.service';
 import { beneficiaryBankContactService } from '@/services/core-contracts/services/beneficiaryBankContact.service';
+// UX-12 (Wave 3.5): journey selector cho create-from-menu flow
+import { journeyService } from '@/services/core-contracts/services/journey.service';
+import type { IJourney } from '@/services/core-contracts/types/journey.types';
+import { buildFilter } from '@/utils/filterBuilder';
 import { getFileLink } from '@/services/storeService';
 import type { IPaymentRequest, ICreatePaymentRequestInput } from '@/services/core-contracts/types/paymentRequest.types';
 import type { ICompanyBankAccount } from '@/services/core-contracts/types/companyBankAccount.types';
@@ -58,6 +62,10 @@ const PaymentRequestDetailModal: React.FC<PaymentRequestDetailModalProps> = ({
     const [isRejecting, setIsRejecting] = useState(false);
     const [isConfirmingPay, setIsConfirmingPay] = useState(false);
 
+    // UX-12 (Wave 3.5): journey list để KT chọn dự án khi tạo phiếu chi từ menu trực tiếp
+    const [journeys, setJourneys] = useState<IJourney[]>([]);
+    const [loadingJourneys, setLoadingJourneys] = useState(false);
+
     const { user, role, isAdmin } = useAuth();
     
     // Roles extraction
@@ -73,6 +81,21 @@ const PaymentRequestDetailModal: React.FC<PaymentRequestDetailModalProps> = ({
     const isDetailMode = !!request && !canEdit;
 
     const selectedContactId = Form.useWatch('beneficiary_bank_contact_id', form);
+
+    // UX-12 (Wave 3.5): fetch journey list khi modal mở (chỉ cho create mode hoặc edit không có journey).
+    useEffect(() => {
+        if (!isOpen) return;
+        let cancelled = false;
+        setLoadingJourneys(true);
+        journeyService.queryJourneysDto(buildFilter({
+            sortBy: [{ id: 'createdAt', desc: true }],
+            limit: 200,
+        }))
+            .then(res => { if (!cancelled) setJourneys(res?.data || []); })
+            .catch(() => { /* silent — journey selector là optional UX */ })
+            .finally(() => { if (!cancelled) setLoadingJourneys(false); });
+        return () => { cancelled = true; };
+    }, [isOpen]);
 
     useEffect(() => {
         if (isOpen) {
@@ -464,6 +487,18 @@ const PaymentRequestDetailModal: React.FC<PaymentRequestDetailModalProps> = ({
                                 request.request_type === 'tax_payment' ? 'Nộp thuế' :
                                 request.request_type === 'internal_transfer' ? 'Chuyển khoản nội bộ' : 'Khác'
                             }</Descriptions.Item>
+                            <Descriptions.Item label="Người tạo">
+                                <Text>{request.requested_by?.display_name || request.requested_by || '—'}</Text>
+                                <br />
+                                <Text type="secondary" style={{ fontSize: 11 }}>{moment(request.request_date).format('DD/MM/YYYY')}</Text>
+                            </Descriptions.Item>
+                            {request.approved_at && (
+                                <Descriptions.Item label="Người duyệt">
+                                    <Text>{request.approved_by?.display_name || request.approved_by || '—'}</Text>
+                                    <br />
+                                    <Text type="secondary" style={{ fontSize: 11 }}>{moment(request.approved_at).format('DD/MM/YYYY HH:mm')}</Text>
+                                </Descriptions.Item>
+                            )}
                             <Descriptions.Item label="Ghi chú thêm">{request.request_note || '-'}</Descriptions.Item>
                             <Descriptions.Item label="Nội dung chi tiết" span={2}>{request.payment_content}</Descriptions.Item>
                         </Descriptions>
@@ -544,56 +579,72 @@ const PaymentRequestDetailModal: React.FC<PaymentRequestDetailModalProps> = ({
             destroyOnClose
         >
             {request && (
-                <div style={{ marginBottom: 24, padding: '0 12px' }}>
-                    <Steps current={getStepConfig(request.status).current} status={getStepConfig(request.status).stepStatus} size="small">
-                        <Step 
-                            title="Khởi tạo" 
-                            description={
-                                <div style={{ fontSize: 11 }}>
-                                    <div>{request.requested_by?.display_name || request.requested_by || 'Khách'}</div>
-                                    <div>{moment(request.request_date).format('DD/MM/YYYY')}</div>
-                                </div>
-                            } 
-                        />
-                        <Step 
-                            title={request.status === 'rejected' ? 'Từ chối' : 'Phê duyệt'} 
-                            description={
-                                request.approved_at ? (
-                                    <div style={{ fontSize: 11 }}>
-                                        <div>{request.approved_by?.display_name || request.approved_by}</div>
-                                        <div>{moment(request.approved_at).format('DD/MM/YYYY HH:mm')}</div>
-                                    </div>
-                                ) : request.status === 'rejected' ? (
-                                    <div style={{ fontSize: 11, color: '#ff4d4f' }}>
-                                        <div>{request.rejected_by?.display_name || request.rejected_by}</div>
-                                        <div>{request.rejected_at ? moment(request.rejected_at).format('DD/MM/YYYY HH:mm') : ''}</div>
-                                        {request.rejection_reason && <Text type="danger" style={{ fontSize: 11 }}>Lý do: {request.rejection_reason}</Text>}
-                                    </div>
-                                ) : 'Đang chờ...'
-                            } 
-                        />
-                        <Step 
-                            title="Thanh toán" 
-                            description={
-                                request.paid_at ? (
-                                    <div style={{ fontSize: 11 }}>
-                                        <div>{request.paid_by?.display_name || request.paid_by}</div>
-                                        <div>{moment(request.paid_at).format('DD/MM/YYYY HH:mm')}</div>
-                                    </div>
-                                ) : '—'
-                            } 
-                        />
+                <div style={{ marginBottom: 16, padding: '0 12px' }}>
+                    {/* UX-09 (Wave 3.5): Steps chỉ hiển thị title (compact). Chi tiết người + ngày
+                        đã hiển thị trong renderReadOnlyView Descriptions phía dưới — tránh duplicate. */}
+                    <Steps
+                        current={getStepConfig(request.status).current}
+                        status={getStepConfig(request.status).stepStatus}
+                        size="small"
+                    >
+                        <Step title="Khởi tạo" />
+                        <Step title={request.status === 'rejected' ? 'Từ chối' : 'Phê duyệt'} />
+                        <Step title="Thanh toán" />
                     </Steps>
+                    {request.status === 'rejected' && request.rejection_reason && (
+                        <div style={{ marginTop: 8, padding: '8px 12px', background: '#fff2f0', border: '1px solid #ffccc7', borderRadius: 4 }}>
+                            <Text type="danger" style={{ fontSize: 12 }}>
+                                <strong>Lý do từ chối:</strong> {request.rejection_reason}
+                            </Text>
+                        </div>
+                    )}
                 </div>
             )}
 
             {isDetailMode ? renderReadOnlyView() : (
-                <Form form={form} layout="vertical">
+                <Form form={form} layout="vertical" scrollToFirstError>
                     <Row gutter={16}>
                         {isAccountant && (
                             <Col xs={24} sm={24}>
                                 <Form.Item name="code" label="Mã yêu cầu">
                                     <Input placeholder="VD: YCC-2026-001" />
+                                </Form.Item>
+                            </Col>
+                        )}
+                        {/* UX-12 (Wave 3.5): journey selector cho create flow từ menu KT trực tiếp.
+                            PaymentRequest schema chưa có field `journey_id` riêng → dùng `reference_code`
+                            (chuẩn chung khi tạo từ Journey CTA — xem CreatePaymentRequestModal:94).
+                            Hidden cho edit mode khi đã có reference_code. */}
+                        {(!request || !request.reference_code) && (
+                            <Col xs={24} sm={24}>
+                                <Form.Item
+                                    name="reference_code"
+                                    label="Công trình liên quan"
+                                    extra="Gắn phiếu chi với công trình cụ thể để KT/PM dễ đối soát. Để trống nếu là khoản chi nội bộ không gắn dự án."
+                                >
+                                    <Select
+                                        placeholder="Chọn công trình..."
+                                        showSearch
+                                        allowClear
+                                        loading={loadingJourneys}
+                                        optionFilterProp="children"
+                                        style={{ width: '100%' }}
+                                        filterOption={(input, option) =>
+                                            String(option?.children ?? '').toLowerCase().includes(input.toLowerCase())
+                                        }
+                                    >
+                                        {journeys.map(j => {
+                                            const value = j.journey_code || j._id;
+                                            return (
+                                                <Option key={j._id} value={value}>
+                                                    {(j.journey_code || j._id.slice(-6).toUpperCase())}
+                                                    {' — '}
+                                                    {j.customer_full_name || j.idx_customer_id?.title || 'KH ẩn danh'}
+                                                    {j.request_title ? ` — ${j.request_title}` : ''}
+                                                </Option>
+                                            );
+                                        })}
+                                    </Select>
                                 </Form.Item>
                             </Col>
                         )}

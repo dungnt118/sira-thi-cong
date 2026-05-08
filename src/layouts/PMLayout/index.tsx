@@ -173,16 +173,24 @@ export const PMLayout: React.FC = () => {
         }
     }, [dispatch, journeySetting]);
 
+    /**
+     * UX-08 (Wave 3.5) — chỉ redirect 1 lần khi role thay đổi (mount/login).
+     * Trước đây useEffect re-trigger trên mỗi render do navigate trong deps,
+     * có thể gây bounce sang dashboard của role khác khi user navigate nội bộ.
+     * Dùng `redirectedRole` ref để chỉ redirect khi role THỰC SỰ đổi.
+     */
+    const redirectedRole = React.useRef<string | null>(null);
     React.useEffect(() => {
-        if (role && role !== 'QL' && !isAdmin) {
-            navigate(`/admin/${role.toLowerCase()}/dashboard`);
-            return;
-        }
-
         if (!role) {
             navigate('/login');
+            return;
         }
-    }, [role, isAdmin, navigate]);
+        if (role !== 'QL' && !isAdmin && redirectedRole.current !== role) {
+            redirectedRole.current = role;
+            navigate(`/admin/${role.toLowerCase()}/dashboard`);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [role, isAdmin]);
 
     return <BaseLayout sidebar={<PMSidebar />} topBar={<PMTopBar />} />;
 };

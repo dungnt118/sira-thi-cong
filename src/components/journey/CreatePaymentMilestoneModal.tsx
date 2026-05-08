@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Alert, DatePicker, Form, Input, InputNumber, message, Modal, Select } from 'antd';
 import dayjs from 'dayjs';
 import { paymentMilestoneService } from '../../services/core-contracts/services/paymentMilestone.service';
+import { buildFilter } from '../../utils/filterBuilder';
 import {
     PaymentMilestoneJourneyStepCodeEnum,
     PaymentMilestoneKindEnum,
@@ -80,12 +81,11 @@ export const CreatePaymentMilestoneModal: React.FC<CreatePaymentMilestoneModalPr
         let cancelled = false;
         setLoading(true);
         paymentMilestoneService
-            .queryPaymentMilestonesDto({
-                fields: [{ field: 'journey_id', op: 'eq', value: journeyId }],
-                sortFields: [{ field: 'round', sortType: 'desc' }],
-                pageNumber: 1,
-                pageSize: 1,
-            } as any)
+            .queryPaymentMilestonesDto(buildFilter({
+                where: { id: 'journey_id', value: journeyId },
+                sortBy: [{ id: 'round', desc: true }],
+                limit: 1,
+            }))
             .then((res) => {
                 if (cancelled) return;
                 const top = res?.data?.[0];

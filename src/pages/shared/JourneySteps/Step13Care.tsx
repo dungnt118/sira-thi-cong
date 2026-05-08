@@ -42,6 +42,7 @@ import {
     IWarrantyReminder,
     WarrantyReminderChannelEnum2,
 } from '../../../services/core-contracts/types/warrantyReminder.types';
+import { buildFilter } from '@/utils/filterBuilder';
 
 const { TextArea } = Input;
 const { Text } = Typography;
@@ -109,23 +110,19 @@ export const Step13Care: React.FC<Step13CareProps> = ({
         setLoading(true);
         try {
             const [tasksRes, remindersRes] = await Promise.all([
-                workTaskService.queryWorkTasksDto({
-                    fields: [
-                        { field: 'journey_id', op: 'eq', value: journeyId },
-                        { field: 'journey_step_code', op: 'eq', value: 'after_sales' },
+                workTaskService.queryWorkTasksDto(buildFilter({
+                    where: [
+                        { id: 'journey_id', value: journeyId },
+                        { id: 'journey_step_code', value: 'after_sales' },
                     ],
-                    sortFields: [{ field: 'due_time', sortType: 'asc' }],
-                    pageNumber: 1,
-                    pageSize: 50,
-                } as any),
-                warrantyReminderService.queryWarrantyRemindersDto({
-                    fields: [
-                        { field: 'journey_id', op: 'eq', value: journeyId },
-                    ],
-                    sortFields: [{ field: 'scheduled_at', sortType: 'desc' }],
-                    pageNumber: 1,
-                    pageSize: 50,
-                } as any),
+                    sortBy: [{ id: 'due_time', desc: false }],
+                    limit: 50,
+                })),
+                warrantyReminderService.queryWarrantyRemindersDto(buildFilter({
+                    where: { id: 'journey_id', value: journeyId },
+                    sortBy: [{ id: 'scheduled_at', desc: true }],
+                    limit: 50,
+                })),
             ]);
             setTasks(tasksRes?.data || []);
             setReminders(remindersRes?.data || []);

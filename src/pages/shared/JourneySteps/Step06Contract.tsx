@@ -38,6 +38,7 @@ import {
 } from '@ant-design/icons';
 
 import { quotationService } from '../../../services/core-contracts/services/quotation.service';
+import { buildFilter } from '@/utils/filterBuilder';
 import {
     ICreateQuotationInput,
     IQuotation,
@@ -117,12 +118,11 @@ export const Step06Contract: React.FC<Step06ContractProps> = ({
         setLoading(true);
         setError(null);
         try {
-            const res = await quotationService.queryQuotationsDto({
-                fields: [{ field: 'journey_id', op: 'eq', value: journeyId }],
-                sortFields: [{ field: 'version_no', sortType: 'desc' }],
-                pageNumber: 1,
-                pageSize: 50,
-            } as any);
+            const res = await quotationService.queryQuotationsDto(buildFilter({
+                where: { id: 'journey_id', value: journeyId },
+                sortBy: [{ id: 'version_no', desc: true }],
+                limit: 50,
+            }));
             setQuotations(res?.data || []);
         } catch (e: any) {
             setError(e?.message || 'Không tải được hợp đồng / báo giá.');

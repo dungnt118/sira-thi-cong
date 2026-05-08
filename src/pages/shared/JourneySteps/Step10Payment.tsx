@@ -44,6 +44,7 @@ import {
 } from '../../../services/core-contracts/types/paymentMilestone.types';
 import { IPaymentReceipt } from '../../../services/core-contracts/types/paymentReceipt.types';
 import { RecordReceiptModal } from '../../../components/journey/RecordReceiptModal';
+import { buildFilter } from '@/utils/filterBuilder';
 
 const { TextArea } = Input;
 const { Text, Title } = Typography;
@@ -153,12 +154,11 @@ export const Step10Payment: React.FC<Step10PaymentProps> = ({
         if (receiptsMap[milestoneId] !== undefined) return; // already loaded
         setReceiptsLoading((prev) => ({ ...prev, [milestoneId]: true }));
         try {
-            const res = await paymentReceiptService.queryPaymentReceiptsDto({
-                fields: [{ field: 'payment_milestone_id', op: 'eq', value: milestoneId }],
-                sortFields: [{ field: 'receipt_date', sortType: 'desc' }],
-                pageNumber: 1,
-                pageSize: 50,
-            } as any);
+            const res = await paymentReceiptService.queryPaymentReceiptsDto(buildFilter({
+                where: { id: 'payment_milestone_id', value: milestoneId },
+                sortBy: [{ id: 'receipt_date', desc: true }],
+                limit: 50,
+            }));
             setReceiptsMap((prev) => ({ ...prev, [milestoneId]: res?.data || [] }));
         } catch {
             setReceiptsMap((prev) => ({ ...prev, [milestoneId]: [] }));
@@ -192,12 +192,11 @@ export const Step10Payment: React.FC<Step10PaymentProps> = ({
         setLoading(true);
         setError(null);
         try {
-            const response = await paymentMilestoneService.queryPaymentMilestonesDto({
-                fields: [{ field: 'journey_id', op: 'eq', value: journeyId }],
-                sortFields: [{ field: 'round', sortType: 'asc' }],
-                pageNumber: 1,
-                pageSize: 200,
-            } as any);
+            const response = await paymentMilestoneService.queryPaymentMilestonesDto(buildFilter({
+                where: { id: 'journey_id', value: journeyId },
+                sortBy: [{ id: 'round', desc: false }],
+                limit: 200,
+            }));
             setMilestones(response?.data || []);
         } catch (e: any) {
             setError(e?.message || 'Không tải được danh sách đợt thanh toán.');

@@ -19,6 +19,7 @@ import { journeyService } from '../../../services/core-contracts/services/journe
 import { useAuth } from '../../../hooks/useAuth';
 import JourneyUpsertDrawer from '../../../components/journey/JourneyUpsertDrawer';
 import { buildJourneyBoardRoute, buildJourneyDetailRoute } from '@/utils/adminRoutes';
+import { buildFilter } from '@/utils/filterBuilder';
 
 const { Text } = Typography;
 const { useBreakpoint } = Grid;
@@ -99,14 +100,23 @@ const JourneyList: React.FC = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Fetch journeys from real backend
+    // UX-06 (Wave 3.5): build proper GeneralCollectionFilter qua buildFilter helper.
     const fetchJourneys = async () => {
         setIsLoading(true);
         try {
-            const filter: any = {};
-            if (keyword) filter.keyword = keyword;
-            if (filterSla !== 'ALL') filter.sla_status = filterSla;
-            if (filterPriority !== 'ALL') filter.priority = filterPriority;
-            if (filterStep !== 'ALL') filter.current_step = filterStep;
+            const conditions: any[] = [];
+            if (filterStep !== 'ALL') conditions.push({ id: 'current_step', value: filterStep });
+            if (filterSla !== 'ALL') conditions.push({ id: 'sla_status', value: filterSla });
+            if (filterPriority !== 'ALL') conditions.push({ id: 'priority', value: filterPriority });
+
+            const filter = buildFilter({
+                where: conditions.length > 0 ? conditions : undefined,
+                op: 'AND',
+                sortBy: [{ id: 'createdAt', desc: true }],
+                limit: 200,
+                // Keyword search dùng `text` field — backend xử lý fuzzy/contains tự động.
+                text: keyword || undefined,
+            });
 
             const res = await journeyService.queryJourneysDto(filter);
 
@@ -121,9 +131,11 @@ const JourneyList: React.FC = () => {
         }
     };
 
+    // UX-06 (Wave 3.5): refetch khi BẤT KỲ filter nào thay đổi (trước đây chỉ depend keyword).
     useEffect(() => {
         fetchJourneys();
-    }, [keyword]); // Refetch on keyword change (can debounced later if needed)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [keyword, filterStep, filterSla, filterPriority]);
 
     const handleRefresh = () => {
         fetchJourneys();
@@ -176,12 +188,20 @@ const JourneyList: React.FC = () => {
             if (editingJourney) {
                 await journeyService.updateJourney(editingJourney._id, values);
                 message.success('Đã cập nhật công trình');
+                setIsFormVisible(false);
+                fetchJourneys();
             } else {
-                await journeyService.createJourney(values);
+                const created = await journeyService.createJourney(values);
                 message.success('Đã tạo công trình mới');
+                setIsFormVisible(false);
+                // UX-11 (Wave 3.5): tự động điều hướng vào trang detail của journey vừa tạo
+                // để user tiếp tục thao tác (thêm khảo sát, gán đội, ...) thay vì phải tự tìm.
+                if (created?._id) {
+                    navigate(buildJourneyDetailRoute('ql', created._id));
+                } else {
+                    fetchJourneys();
+                }
             }
-            setIsFormVisible(false);
-            fetchJourneys();
         } catch (error) {
             console.error('Submit error:', error);
             message.error(editingJourney ? 'Lỗi khi cập nhật' : 'Lỗi khi tạo mới');

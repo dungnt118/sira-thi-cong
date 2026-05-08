@@ -34,6 +34,7 @@ import { IPaymentRequest } from '../../../services/core-contracts/types/paymentR
 import { IStockOrder } from '../../../services/core-contracts/types/stockOrder.types';
 import { IWorkTask } from '../../../services/core-contracts/types/workTask.types';
 import { useAuth } from '../../../hooks/useAuth';
+import { buildFilter } from '../../../utils/filterBuilder';
 
 const { Title, Text } = Typography;
 
@@ -188,12 +189,11 @@ export const ApprovalInbox: React.FC = () => {
     const fetchPaymentRequests = async () => {
         setPaymentSection({ ...initialSection() });
         try {
-            const res = await paymentRequestService.queryPaymentRequestsDto({
-                fields: [{ field: 'status', op: 'eq', value: 'pending_approval' }],
-                sortFields: [{ field: 'submitted_at', sortType: 'asc' }],
-                pageNumber: 1,
-                pageSize: 100,
-            } as any);
+            const res = await paymentRequestService.queryPaymentRequestsDto(buildFilter({
+                where: { id: 'status', value: 'pending_approval' },
+                sortBy: [{ id: 'submitted_at', desc: false }],
+                limit: 100,
+            }));
             const filtered = (res?.data || []).filter((p: IPaymentRequest) => (p.amount ?? 0) > APPROVAL_TIER_THRESHOLD_VND);
             const items: InboxItem[] = filtered.map((p) => ({
                 id: p._id,
@@ -214,12 +214,11 @@ export const ApprovalInbox: React.FC = () => {
     const fetchStockOrders = async () => {
         setStockSection({ ...initialSection() });
         try {
-            const res = await stockOrderService.queryStockOrdersDto({
-                fields: [{ field: 'status', op: 'eq', value: 'requested' }],
-                sortFields: [{ field: 'createdAt', sortType: 'asc' }],
-                pageNumber: 1,
-                pageSize: 100,
-            } as any);
+            const res = await stockOrderService.queryStockOrdersDto(buildFilter({
+                where: { id: 'status', value: 'requested' },
+                sortBy: [{ id: 'createdAt', desc: false }],
+                limit: 100,
+            }));
             const all: IStockOrder[] = res?.data || [];
             // Lọc: phiếu chưa có PM signature ở step_order=1.
             const unsigned = all.filter((o) => {
@@ -245,15 +244,14 @@ export const ApprovalInbox: React.FC = () => {
     const fetchWorkTasks = async () => {
         setTaskSection({ ...initialSection() });
         try {
-            const res = await workTaskService.queryWorkTasksDto({
-                fields: [
-                    { field: 'status', op: 'eq', value: 'pending' },
-                    { field: 'assignee_role', op: 'eq', value: 'QL' },
+            const res = await workTaskService.queryWorkTasksDto(buildFilter({
+                where: [
+                    { id: 'status', value: 'pending' },
+                    { id: 'assignee_role', value: 'QL' },
                 ],
-                sortFields: [{ field: 'due_time', sortType: 'asc' }],
-                pageNumber: 1,
-                pageSize: 100,
-            } as any);
+                sortBy: [{ id: 'due_time', desc: false }],
+                limit: 100,
+            }));
             const all: IWorkTask[] = res?.data || [];
             const items: InboxItem[] = all.map((t) => ({
                 id: t._id,

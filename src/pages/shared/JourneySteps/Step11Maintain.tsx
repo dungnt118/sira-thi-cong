@@ -44,6 +44,7 @@ import {
     IWarrantyVisit,
     WarrantyVisitVisitStatusEnum2,
 } from '../../../services/core-contracts/types/warrantyVisit.types';
+import { buildFilter } from '@/utils/filterBuilder';
 
 const { TextArea } = Input;
 const { Text } = Typography;
@@ -116,24 +117,22 @@ export const Step11Maintain: React.FC<Step11MaintainProps> = ({
         setLoading(true);
         try {
             const [casesRes, visitsRes] = await Promise.all([
-                warrantyCaseService.queryWarrantyCasesDto({
-                    fields: [
-                        { field: 'journey_id', op: 'eq', value: journeyId },
-                        { field: 'journey_step_code', op: 'eq', value: 'maintenance' },
+                warrantyCaseService.queryWarrantyCasesDto(buildFilter({
+                    where: [
+                        { id: 'journey_id', value: journeyId },
+                        { id: 'journey_step_code', value: 'maintenance' },
                     ],
-                    sortFields: [{ field: 'reported_at', sortType: 'desc' }],
-                    pageNumber: 1,
-                    pageSize: 50,
-                } as any),
-                warrantyVisitService.queryWarrantyVisitsDto({
-                    fields: [
-                        { field: 'journey_id', op: 'eq', value: journeyId },
-                        { field: 'journey_step_code', op: 'eq', value: 'maintenance' },
+                    sortBy: [{ id: 'reported_at', desc: true }],
+                    limit: 50,
+                })),
+                warrantyVisitService.queryWarrantyVisitsDto(buildFilter({
+                    where: [
+                        { id: 'journey_id', value: journeyId },
+                        { id: 'journey_step_code', value: 'maintenance' },
                     ],
-                    sortFields: [{ field: 'scheduled_at', sortType: 'desc' }],
-                    pageNumber: 1,
-                    pageSize: 50,
-                } as any),
+                    sortBy: [{ id: 'scheduled_at', desc: true }],
+                    limit: 50,
+                })),
             ]);
             setCases(casesRes?.data || []);
             setVisits(visitsRes?.data || []);

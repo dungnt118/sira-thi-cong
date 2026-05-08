@@ -2795,12 +2795,35 @@ const JourneyDetail360: React.FC = () => {
                 }
                 width={720}
             >
+                {/* UX-02 (Wave 3.5) — Banner cảnh báo khi user xem bước KHÁC current_step.
+                    Hiển thị cho mọi role để tránh nhầm tưởng "đã chuyển bước". */}
+                {!isLoading && selectedTaskStepCode && journey?.current_step && selectedTaskStepCode !== journey.current_step && (() => {
+                    const selectedIdx = HEADER_STEP_CONFIG.findIndex(s => s.key === selectedTaskStepCode);
+                    const currentIdx = HEADER_STEP_CONFIG.findIndex(s => s.key === journey.current_step);
+                    const currentLabel = HEADER_STEP_CONFIG[currentIdx]?.label || journey.current_step;
+                    const direction = selectedIdx > currentIdx ? 'tương lai' : 'đã qua';
+                    return (
+                        <Alert
+                            type="info"
+                            showIcon
+                            icon={<ExclamationCircleOutlined />}
+                            message={`Bạn đang xem bước ${direction} (chỉ tham khảo)`}
+                            description={
+                                <Text style={{ fontSize: 13 }}>
+                                    Công trình đang ở bước hiện tại: <strong>{currentLabel}</strong>.
+                                    Việc cập nhật trạng thái bước (Xác nhận hoàn thành) chỉ có thể thực hiện tại bước hiện tại.
+                                </Text>
+                            }
+                            style={{ marginBottom: 16 }}
+                        />
+                    );
+                })()}
                 {isPmManager && !isLoading && (!selectedStepMeta || journey?.current_step !== selectedTaskStepCode) && (
                     <Alert
                         type="warning"
                         showIcon
                         icon={<ExclamationCircleOutlined />}
-                        message="Hỗ trợ xử lý thông tin bước"
+                        message="Hỗ trợ xử lý thông tin bước (Quản lý dự án)"
                         description={
                             <div style={{ marginTop: 8 }}>
                                 <Text style={{ display: 'block', marginBottom: 12, fontSize: 13, color: 'rgba(0, 0, 0, 0.45)' }}>

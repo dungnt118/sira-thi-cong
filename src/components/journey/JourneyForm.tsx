@@ -175,6 +175,9 @@ const JourneyForm: React.FC<JourneyFormProps> = ({
                     ...initialValues
                 }}
                 validateTrigger="onBlur"
+                /* UX-13 (Wave 3.5): scroll vào field lỗi đầu tiên để user thấy validation message
+                   thay vì nghĩ rằng "form đã save trống". */
+                scrollToFirstError
             >
                 {/* Hidden defaults */}
                 <Form.Item name="journey_kind" hidden><Input /></Form.Item>

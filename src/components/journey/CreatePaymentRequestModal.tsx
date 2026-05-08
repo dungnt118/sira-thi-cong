@@ -8,6 +8,7 @@ import {
 } from '../../services/core-contracts/types/paymentRequest.types';
 import { IPaymentMilestone } from '../../services/core-contracts/types/paymentMilestone.types';
 import { UploadFiles } from '../files/UploadFiles';
+import { buildFilter } from '../../utils/filterBuilder';
 
 const { TextArea } = Input;
 
@@ -57,12 +58,11 @@ export const CreatePaymentRequestModal: React.FC<CreatePaymentRequestModalProps>
         let cancelled = false;
         setLoadingMilestones(true);
         paymentMilestoneService
-            .queryPaymentMilestonesDto({
-                fields: [{ field: 'journey_id', op: 'eq', value: journeyId }],
-                sortFields: [{ field: 'round', sortType: 'asc' }],
-                pageNumber: 1,
-                pageSize: 100,
-            } as any)
+            .queryPaymentMilestonesDto(buildFilter({
+                where: { id: 'journey_id', value: journeyId },
+                sortBy: [{ id: 'round', desc: false }],
+                limit: 100,
+            }))
             .then((res) => {
                 if (!cancelled) setMilestones(res?.data || []);
             })

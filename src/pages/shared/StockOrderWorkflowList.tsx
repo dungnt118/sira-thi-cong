@@ -36,6 +36,7 @@ import {
     StockOrderStatusEnum,
 } from '../../services/core-contracts/types/stockOrder.types';
 import { useAuth } from '../../hooks/useAuth';
+import { buildFilter } from '../../utils/filterBuilder';
 
 const { Title, Text } = Typography;
 
@@ -134,11 +135,10 @@ export const StockOrderWorkflowList: React.FC<StockOrderWorkflowListProps> = ({ 
         try {
             // Pull tất cả status; filter client-side để có count theo tab.
             // Wave 3 sẽ chuyển sang query có pagination + server filter để scale.
-            const res = await stockOrderService.queryStockOrdersDto({
-                sortFields: [{ field: 'createdAt', sortType: 'desc' }],
-                pageNumber: 1,
-                pageSize: 200,
-            } as any);
+            const res = await stockOrderService.queryStockOrdersDto(buildFilter({
+                sortBy: [{ id: 'createdAt', desc: true }],
+                limit: 200,
+            }));
             const all = res?.data || [];
             // GS/KYT: lọc về phiếu thuộc journey mà user là supervisor (tương tự pattern WorkTask).
             // Vì shape supervisor_users đa hình, ta chỉ filter mềm: hiện tất cả phiếu, tab đã limit theo status.

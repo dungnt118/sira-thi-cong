@@ -38,6 +38,7 @@ import dayjs from 'dayjs';
 import { handoverAcceptanceService } from '../../../services/core-contracts/services/handoverAcceptance.service';
 import { handoverIssueService } from '../../../services/core-contracts/services/handoverIssue.service';
 import { warrantyCardService } from '../../../services/core-contracts/services/warrantyCard.service';
+import { workTaskService } from '../../../services/core-contracts/services/workTask.service';
 import {
     HandoverAcceptanceAcceptanceStatusEnum,
     ICreateHandoverAcceptanceInput,
@@ -49,6 +50,8 @@ import {
     ICreateHandoverIssueInput,
     IHandoverIssue,
 } from '../../../services/core-contracts/types/handoverIssue.types';
+import { IWorkTask } from '../../../services/core-contracts/types/workTask.types';
+import { buildFilter } from '@/utils/filterBuilder';
 
 const { Text, Title } = Typography;
 const { TextArea } = Input;
@@ -132,17 +135,20 @@ export const Step09Acceptance: React.FC<Step09AcceptanceProps> = ({
     const [warrantyCard, setWarrantyCard] = useState<any>(null);
     const [creatingWarranty, setCreatingWarranty] = useState(false);
 
+    // UX-01 (Wave 3.5) — block status='accepted' until all required WorkTasks for
+    // step 'final_acceptance' are finished (biên bản, ảnh thực tế, …).
+    const [stepWorkTasks, setStepWorkTasks] = useState<IWorkTask[]>([]);
+
     const fetchAcceptance = async () => {
         if (!journeyId) { setLoading(false); return; }
         setLoading(true);
         setError(null);
         try {
-            const res = await handoverAcceptanceService.queryHandoverAcceptancesDto({
-                fields: [{ field: 'journey_id', op: 'eq', value: journeyId }],
-                sortFields: [{ field: 'createdAt', sortType: 'desc' }],
-                pageNumber: 1,
-                pageSize: 10,
-            } as any);
+            const res = await handoverAcceptanceService.queryHandoverAcceptancesDto(buildFilter({
+                where: { id: 'journey_id', value: journeyId },
+                sortBy: [{ id: 'createdAt', desc: true }],
+                limit: 10,
+            }));
             const list: IHandoverAcceptance[] = res?.data || [];
             const latest = list[0] ?? null;
             setAcceptance(latest);
@@ -158,12 +164,11 @@ export const Step09Acceptance: React.FC<Step09AcceptanceProps> = ({
 
     const fetchIssues = async (acceptanceId: string) => {
         try {
-            const res = await handoverIssueService.queryHandoverIssuesDto({
-                fields: [{ field: 'handover_acceptance_id', op: 'eq', value: acceptanceId }],
-                sortFields: [{ field: 'createdAt', sortType: 'asc' }],
-                pageNumber: 1,
-                pageSize: 100,
-            } as any);
+            const res = await handoverIssueService.queryHandoverIssuesDto(buildFilter({
+                where: { id: 'handover_acceptance_id', value: acceptanceId },
+                sortBy: [{ id: 'createdAt', desc: false }],
+                limit: 100,
+            }));
             setIssues(res?.data || []);
         } catch {
             setIssues([]);
@@ -172,25 +177,92 @@ export const Step09Acceptance: React.FC<Step09AcceptanceProps> = ({
 
     const fetchWarrantyCard = async () => {
         try {
-            const res = await warrantyCardService.queryWarrantyCardsDto({
-                fields: [{ field: 'journey_id', op: 'eq', value: journeyId }],
-                pageNumber: 1,
-                pageSize: 1,
-            } as any);
+            const res = await warrantyCardService.queryWarrantyCardsDto(buildFilter({
+                where: { id: 'journey_id', value: journeyId },
+                limit: 1,
+            }));
             setWarrantyCard((res?.data || [])[0] ?? null);
         } catch {
             setWarrantyCard(null);
         }
     };
 
+    // UX-01 (Wave 3.5) — fetch WorkTask của step `final_acceptance` để validate gating.
+    const fetchStepWorkTasks = async () => {
+        if (!journeyId) return;
+        try {
+            const res = await workTaskService.queryWorkTasksDto(buildFilter({
+                where: [
+                    { id: 'journey_id', value: journeyId },
+                    { id: 'journey_step_code', value: 'final_acceptance' },
+                ],
+                limit: 100,
+            }));
+            setStepWorkTasks(res?.data || []);
+        } catch {
+            setStepWorkTasks([]);
+        }
+    };
+
     useEffect(() => {
         void fetchAcceptance();
         void fetchWarrantyCard();
+        void fetchStepWorkTasks();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [journeyId]);
 
+    /**
+     * UX-01 (Wave 3.5) — Validation gate trước khi chấp nhận nghiệm thu.
+     * Block status='accepted' nếu:
+     *   1. Còn WorkTask `is_required && status !== 'finished'` cho step `final_acceptance`.
+     *   2. Còn HandoverIssue ở severity 'critical' chưa đóng.
+     */
+    const validateAcceptedTransition = (): { allowed: boolean; blockers: string[] } => {
+        const blockers: string[] = [];
+
+        const requiredUnfinished = stepWorkTasks.filter(
+            t => t.is_required && t.status !== 'finished',
+        );
+        requiredUnfinished.forEach(t => {
+            blockers.push(`Việc bắt buộc chưa hoàn thành: ${t.title || '(không tên)'}`);
+        });
+
+        const criticalOpen = issues.filter(
+            i => i.severity === 'critical' && !['resolved', 'closed'].includes(i.status ?? ''),
+        );
+        criticalOpen.forEach(i => {
+            blockers.push(`Tồn đọng nghiêm trọng chưa xử lý: ${i.issue_title || '(không tiêu đề)'}`);
+        });
+
+        return { allowed: blockers.length === 0, blockers };
+    };
+
     const handleStatusChange = async (next: HandoverAcceptanceAcceptanceStatusEnum) => {
         if (!acceptance?._id) return;
+
+        // UX-01 (Wave 3.5) — Gate validation cho status='accepted'.
+        if (next === 'accepted') {
+            const { allowed, blockers } = validateAcceptedTransition();
+            if (!allowed) {
+                Modal.warning({
+                    title: 'Chưa thể chấp nhận nghiệm thu',
+                    content: (
+                        <div>
+                            <p>Vui lòng hoàn thành các điều kiện sau trước khi đánh dấu đã nghiệm thu:</p>
+                            <ul style={{ marginTop: 8, paddingLeft: 20 }}>
+                                {blockers.map((b, idx) => <li key={idx}>{b}</li>)}
+                            </ul>
+                            <p style={{ marginTop: 12, fontSize: 12, color: '#8c8c8c' }}>
+                                Đảm bảo Biên bản nghiệm thu, ảnh hiện trường và xử lý mọi tồn đọng nghiêm trọng được ghi nhận đầy đủ.
+                            </p>
+                        </div>
+                    ),
+                    okText: 'Đã hiểu',
+                });
+                return;
+            }
+        }
+
         setSavingStatus(true);
         try {
             const updated = await handoverAcceptanceService.updateHandoverAcceptance(acceptance._id, {

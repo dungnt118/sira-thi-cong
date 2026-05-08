@@ -23,6 +23,7 @@ import {
 import dayjs from 'dayjs';
 import { workTaskService } from '../../../../services/core-contracts/services/workTask.service';
 import { IWorkTask, WorkTaskStatusEnum } from '../../../../services/core-contracts/types/workTask.types';
+import { buildFilter } from '../../../../utils/filterBuilder';
 
 const { Text, Title } = Typography;
 
@@ -106,12 +107,11 @@ export const MyTasksTab: React.FC<MyTasksTabProps> = ({
         setLoading(true);
         setError(null);
         try {
-            const res = await workTaskService.queryWorkTasksDto({
-                fields: [{ field: 'journey_id', op: 'eq', value: journeyId }],
-                sortFields: [{ field: 'due_time', sortType: 'asc' }],
-                pageNumber: 1,
-                pageSize: 200,
-            } as any);
+            const res = await workTaskService.queryWorkTasksDto(buildFilter({
+                where: { id: 'journey_id', value: journeyId },
+                sortBy: [{ id: 'due_time', desc: false }],
+                limit: 200,
+            }));
             setTasks(res?.data || []);
         } catch (e: any) {
             setError(e?.message || 'Không tải được danh sách công việc.');

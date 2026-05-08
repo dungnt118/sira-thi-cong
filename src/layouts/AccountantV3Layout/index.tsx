@@ -123,18 +123,24 @@ const AccountantTopBar: React.FC = () => (
 
 export const AccountantV3Layout: React.FC = () => {
     const navigate = useNavigate();
-    const { role } = useAuth();
+    const { role, isAdmin } = useAuth();
 
+    /**
+     * UX-08 (Wave 3.5) — chỉ redirect 1 lần khi role thay đổi.
+     * Tránh bouncing khi user navigate nội bộ (re-render trigger redirect).
+     */
+    const redirectedRole = React.useRef<string | null>(null);
     React.useEffect(() => {
-        if (role && role !== 'KT') {
-            navigate(`/admin/${role.toLowerCase()}/dashboard`);
-            return;
-        }
-
         if (!role) {
             navigate('/login');
+            return;
         }
-    }, [navigate, role]);
+        if (role !== 'KT' && !isAdmin && redirectedRole.current !== role) {
+            redirectedRole.current = role;
+            navigate(`/admin/${role.toLowerCase()}/dashboard`);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [role, isAdmin]);
 
     return <BaseLayout sidebar={<AccountantSidebar />} topBar={<AccountantTopBar />} />;
 };

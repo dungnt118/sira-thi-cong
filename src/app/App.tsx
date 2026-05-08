@@ -138,6 +138,7 @@ import { NotFound } from '../pages/shared/NotFound';
 import './App.css';
 
 import { BuildOutlined } from '@ant-design/icons';
+import ErrorBoundary from '../components/common/ErrorBoundary';
 
 // Simple stub component for pages in progress
 const ComingSoon = ({ title, description }: { title: string; description?: string }) => (
@@ -325,7 +326,9 @@ function App() {
                                         {/* PM ROUTES (V3) */}
                                         <Route path="ql" element={<PMLayout />}>
                                             <Route index element={<Navigate to="/admin/ql/dashboard" replace />} />
-                                            <Route path="dashboard" element={<ActionCenter />} />
+                                            {/* UX-03 (Wave 3.5) — Wrap ActionCenter trong ErrorBoundary để tránh
+                                                crash khiến trang trắng (user nhầm là 404). */}
+                                            <Route path="dashboard" element={<ErrorBoundary fallbackTitle="Không thể tải Dashboard PM"><ActionCenter /></ErrorBoundary>} />
                                             {/* W2-03 — PM Approval Inbox tổng hợp. */}
                                             <Route path="inbox" element={<Suspense fallback={<div style={{ padding: 24 }}>Đang tải hộp duyệt...</div>}><PMApprovalInbox /></Suspense>} />
 

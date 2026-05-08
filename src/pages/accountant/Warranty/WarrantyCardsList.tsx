@@ -24,6 +24,7 @@ import dayjs from 'dayjs';
 
 import { warrantyCardService } from '../../../services/core-contracts/services/warrantyCard.service';
 import { IWarrantyCard } from '../../../services/core-contracts/types/warrantyCard.types';
+import { buildFilter } from '@/utils/filterBuilder';
 
 const { Text } = Typography;
 
@@ -52,12 +53,10 @@ const WarrantyCardsList: React.FC = () => {
     const fetchCards = useCallback(async () => {
         setLoading(true);
         try {
-            const res = await warrantyCardService.queryWarrantyCardsDto({
-                fields: [],
-                sortFields: [{ field: 'issued_at', sortType: 'desc' }],
-                pageNumber: 1,
-                pageSize: 200,
-            } as any);
+            const res = await warrantyCardService.queryWarrantyCardsDto(buildFilter({
+                sortBy: [{ id: 'issued_at', desc: true }],
+                limit: 200,
+            }));
             setAllCards(res?.data || []);
         } catch {
             message.error('Không thể tải danh sách thẻ bảo hành.');

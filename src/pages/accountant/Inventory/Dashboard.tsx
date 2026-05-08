@@ -16,6 +16,7 @@ import { materialGroupService } from '../../../services/core-contracts/services/
 import type { IMaterial } from '../../../services/core-contracts/types/material.types';
 import type { IMaterialGroup } from '../../../services/core-contracts/types/materialGroup.types';
 import { MATERIAL_GROUP_CATEGORY_LABELS, type MaterialGroupCategory } from '../../../types/v3';
+import { buildFilter } from '@/utils/filterBuilder';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -41,13 +42,19 @@ const InventoryDashboard: React.FC = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
+            // UX-04 (Wave 3.5) — dùng buildFilter với shape GeneralCollectionFilter chuẩn.
+            const filter = buildFilter({
+                sortBy: [{ id: 'createdAt', desc: true }],
+                limit: 200,
+            });
             const [groupRes, materialRes] = await Promise.all([
-                materialGroupService.queryMaterialGroupsDto({}),
-                materialService.queryMaterialsDto({})
+                materialGroupService.queryMaterialGroupsDto(filter),
+                materialService.queryMaterialsDto(filter),
             ]);
             if (groupRes.data) setGroups(groupRes.data);
             if (materialRes.data) setMaterials(materialRes.data);
         } catch (error) {
+            console.error('[InventoryDashboard] fetchData failed:', error);
             message.error('Không thể tải dữ liệu vật tư');
         } finally {
             setLoading(false);

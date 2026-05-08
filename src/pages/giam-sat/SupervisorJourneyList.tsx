@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
     Card, Input, Tag, Typography, Row, Col, Space, Button,
-    Progress, Spin, Empty, message, Badge, Divider
+    Progress, Spin, Empty, message, Badge, Divider, Switch
 } from 'antd';
 import {
     SearchOutlined, EnvironmentOutlined,
@@ -92,6 +92,26 @@ const TAB_CONFIG: { key: FilterType; label: string; filter: any }[] = [
     }
 ];
 
+/**
+ * UX-07 (Wave 3.5) — Helper kiểm tra journey có thuộc supervisor hiện tại không.
+ * `supervisor_users` có thể là array hoặc single value, mỗi element có thể là string ID
+ * hoặc object có `_id` / `username`.
+ */
+const isJourneyAssignedToUser = (j: IJourney, userId?: string, username?: string): boolean => {
+    if (!userId && !username) return false;
+    const matchOne = (u: any): boolean => {
+        if (!u) return false;
+        if (typeof u === 'string') return u === userId || u === username;
+        return (u._id && u._id === userId) || (u.username && u.username === username);
+    };
+    const supervisorUsers: any = (j as any).supervisor_users;
+    const ownerUser: any = (j as any).owner_user;
+    if (Array.isArray(supervisorUsers) && supervisorUsers.some(matchOne)) return true;
+    if (matchOne(supervisorUsers)) return true;
+    if (matchOne(ownerUser)) return true;
+    return false;
+};
+
 export const SupervisorJourneyList: React.FC = () => {
     const navigate = useNavigate();
     const { user } = useAuth();
@@ -100,6 +120,8 @@ export const SupervisorJourneyList: React.FC = () => {
     const [journeys, setJourneys] = useState<IJourney[]>([]);
     const [counts, setCounts] = useState<Record<string, number>>({});
     const [isLoading, setIsLoading] = useState(true);
+    // UX-07 (Wave 3.5): GS mặc định chỉ thấy công trình mình phụ trách. Có thể tắt để xem hết.
+    const [myOnly, setMyOnly] = useState<boolean>(true);
 
     const fetchCounts = useCallback(async () => {
         try {
@@ -147,8 +169,14 @@ export const SupervisorJourneyList: React.FC = () => {
         fetchJourneys(value);
     };
 
+    // UX-07 (Wave 3.5): áp dụng filter client-side khi `myOnly` ON.
+    // (Filter API ở backend cho array contains chưa chuẩn → làm client-side cho an toàn.)
+    const visibleJourneys = myOnly
+        ? journeys.filter(j => isJourneyAssignedToUser(j, user?._id, user?.username))
+        : journeys;
+
     const renderJourneyCard = (j: IJourney) => {
-        const isOwn = j.supervisor_users === user?._id || j.owner_user === user?._id;
+        const isOwn = isJourneyAssignedToUser(j, user?._id, user?.username);
         const progress = j.progress_pct || 0;
         const stepConfig = JOURNEY_STEPS_CONFIG.find(c => c.key === j.current_step);
         const statusColor = j.project_status === 'completed' ? 'green' : (j.project_status === 'active' ? (stepConfig?.color || 'orange') : 'default');
@@ -271,6 +299,23 @@ export const SupervisorJourneyList: React.FC = () => {
                             </Badge>
                         ))}
                     </div>
+
+                    {/* UX-07 (Wave 3.5): toggle "Chỉ của tôi" — mặc định ON */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 4px' }}>
+                        <Switch
+                            checked={myOnly}
+                            onChange={setMyOnly}
+                            size="small"
+                        />
+                        <Text style={{ fontSize: 13 }}>
+                            {myOnly ? 'Chỉ công trình của tôi' : 'Tất cả công trình'}
+                        </Text>
+                        {myOnly && journeys.length > visibleJourneys.length && (
+                            <Text type="secondary" style={{ fontSize: 12 }}>
+                                ({journeys.length - visibleJourneys.length} công trình khác đã bị ẩn)
+                            </Text>
+                        )}
+                    </div>
                 </Space>
             </div>
 
@@ -280,20 +325,28 @@ export const SupervisorJourneyList: React.FC = () => {
                 </div>
             ) : (
                 <div style={{ minHeight: '400px' }}>
-                    {journeys.length > 0 ? (
+                    {visibleJourneys.length > 0 ? (
                         <>
                             <Divider orientation="left" style={{ margin: '0 0 16px 0' }}>
-                                <Text strong style={{ color: '#fa8c16' }}>DANH SÁCH ({journeys.length})</Text>
+                                <Text strong style={{ color: '#fa8c16' }}>DANH SÁCH ({visibleJourneys.length})</Text>
                             </Divider>
-                            {journeys.map(j => renderJourneyCard(j))}
+                            {visibleJourneys.map(j => renderJourneyCard(j))}
                         </>
                     ) : (
                         <Empty
                             image={Empty.PRESENTED_IMAGE_SIMPLE}
                             description={
                                 <Space direction="vertical">
-                                    <Text type="secondary">Không tìm thấy công trình nào</Text>
-                                    <Button type="link" onClick={() => { setSearchTerm(''); setStatusFilter('ACTIVE'); }}>Xem tất cả đang mở</Button>
+                                    <Text type="secondary">
+                                        {myOnly && journeys.length > 0
+                                            ? 'Bạn chưa được phân công công trình nào ở tab này.'
+                                            : 'Không tìm thấy công trình nào.'}
+                                    </Text>
+                                    {myOnly && journeys.length > 0 ? (
+                                        <Button type="link" onClick={() => setMyOnly(false)}>Xem tất cả công trình</Button>
+                                    ) : (
+                                        <Button type="link" onClick={() => { setSearchTerm(''); setStatusFilter('ACTIVE'); }}>Xem tất cả đang mở</Button>
+                                    )}
                                 </Space>
                             }
                         />

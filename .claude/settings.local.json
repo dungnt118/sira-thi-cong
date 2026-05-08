@@ -11,7 +11,9 @@
       "Bash(python -c \":*)",
       "mcp__5bbc2204-2890-416e-86c3-4a48b3a79009__content-search",
       "Bash(npx tsc:*)",
-      "Bash(node -e \"const p = require\\(''./package.json''\\); console.log\\(p.dependencies.antd\\)\")"
+      "Bash(node -e \"const p = require\\(''./package.json''\\); console.log\\(p.dependencies.antd\\)\")",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "mcp__Claude_in_Chrome__computer"
     ]
   }
 }

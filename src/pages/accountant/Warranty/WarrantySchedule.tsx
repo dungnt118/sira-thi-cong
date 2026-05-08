@@ -35,6 +35,7 @@ import {
     IWarrantyReminder,
     WarrantyReminderStatusEnum,
 } from '../../../services/core-contracts/types/warrantyReminder.types';
+import { buildFilter } from '@/utils/filterBuilder';
 
 const { Text, Title } = Typography;
 
@@ -77,18 +78,14 @@ const WarrantySchedule: React.FC = () => {
         setLoading(true);
         try {
             const [visitsRes, remindersRes] = await Promise.all([
-                warrantyVisitService.queryWarrantyVisitsDto({
-                    fields: [],
-                    sortFields: [{ field: 'scheduled_at', sortType: 'asc' }],
-                    pageNumber: 1,
-                    pageSize: 100,
-                } as any),
-                warrantyReminderService.queryWarrantyRemindersDto({
-                    fields: [],
-                    sortFields: [{ field: 'scheduled_at', sortType: 'asc' }],
-                    pageNumber: 1,
-                    pageSize: 100,
-                } as any),
+                warrantyVisitService.queryWarrantyVisitsDto(buildFilter({
+                    sortBy: [{ id: 'scheduled_at', desc: false }],
+                    limit: 100,
+                })),
+                warrantyReminderService.queryWarrantyRemindersDto(buildFilter({
+                    sortBy: [{ id: 'scheduled_at', desc: false }],
+                    limit: 100,
+                })),
             ]);
             setVisits(visitsRes?.data || []);
             setReminders(remindersRes?.data || []);

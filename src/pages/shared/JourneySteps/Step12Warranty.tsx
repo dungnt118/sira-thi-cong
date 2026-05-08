@@ -38,6 +38,7 @@ import {
     WarrantyCaseStatusEnum2,
 } from '../../../services/core-contracts/types/warrantyCase.types';
 import { IWarrantyCard } from '../../../services/core-contracts/types/warrantyCard.types';
+import { buildFilter } from '@/utils/filterBuilder';
 
 const { TextArea } = Input;
 const { Text } = Typography;
@@ -93,21 +94,19 @@ export const Step12Warranty: React.FC<Step12WarrantyProps> = ({
         setLoading(true);
         try {
             const [cardRes, casesRes] = await Promise.all([
-                warrantyCardService.queryWarrantyCardsDto({
-                    fields: [{ field: 'journey_id', op: 'eq', value: journeyId }],
-                    sortFields: [{ field: 'issued_at', sortType: 'desc' }],
-                    pageNumber: 1,
-                    pageSize: 1,
-                } as any),
-                warrantyCaseService.queryWarrantyCasesDto({
-                    fields: [
-                        { field: 'journey_id', op: 'eq', value: journeyId },
-                        { field: 'journey_step_code', op: 'eq', value: 'warranty' },
+                warrantyCardService.queryWarrantyCardsDto(buildFilter({
+                    where: { id: 'journey_id', value: journeyId },
+                    sortBy: [{ id: 'issued_at', desc: true }],
+                    limit: 1,
+                })),
+                warrantyCaseService.queryWarrantyCasesDto(buildFilter({
+                    where: [
+                        { id: 'journey_id', value: journeyId },
+                        { id: 'journey_step_code', value: 'warranty' },
                     ],
-                    sortFields: [{ field: 'reported_at', sortType: 'desc' }],
-                    pageNumber: 1,
-                    pageSize: 50,
-                } as any),
+                    sortBy: [{ id: 'reported_at', desc: true }],
+                    limit: 50,
+                })),
             ]);
             setWarrantyCard(cardRes?.data?.[0] ?? null);
             setCases(casesRes?.data || []);
