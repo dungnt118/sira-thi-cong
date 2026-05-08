@@ -108,6 +108,8 @@ import AssetDetail from '../pages/accountant/Assets/AssetDetail';
 import PaymentRequestList from '../pages/shared/Expenditures/PaymentRequestList';
 import CompanyBankAccountList from '../pages/accountant/Expenditures/CompanyBankAccountList';
 import BeneficiaryContactList from '../pages/accountant/Expenditures/BeneficiaryContactList';
+import WarrantyCardsList from '../pages/accountant/Warranty/WarrantyCardsList';
+import WarrantySchedule from '../pages/accountant/Warranty/WarrantySchedule';
 
 // V4 Ky Thuat Pages
 import KyThuatLayout from '../layouts/KyThuatLayout';
@@ -474,8 +476,8 @@ function App() {
                                                 <Route path="report" element={<ComingSoon title="Báo cáo Tài chính" />} />
                                             </Route>
                                             <Route path="warranty">
-                                                <Route path="cards" element={<ComingSoon title="Phiếu Bảo hành" />} />
-                                                <Route path="schedule" element={<ComingSoon title="Lịch Bảo hành" />} />
+                                                <Route path="cards" element={<WarrantyCardsList />} />
+                                                <Route path="schedule" element={<WarrantySchedule />} />
                                             </Route>
                                             <Route path="reports" element={<ComingSoon title="Báo cáo Tổng hợp" />} />
                                             <Route path="expenditures">

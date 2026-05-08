@@ -28,17 +28,22 @@ import {
     EditOutlined,
     EyeOutlined,
     InfoCircleOutlined,
+    PlusOutlined,
     SaveOutlined,
     TagOutlined,
+    UnorderedListOutlined,
     WalletOutlined,
 } from '@ant-design/icons';
 
 import { paymentMilestoneService } from '../../../services/core-contracts/services/paymentMilestone.service';
+import { paymentReceiptService } from '../../../services/core-contracts/services/paymentReceipt.service';
 import {
     IPaymentMilestone,
     PaymentMilestoneKindEnum,
     PaymentMilestoneStatusEnum,
 } from '../../../services/core-contracts/types/paymentMilestone.types';
+import { IPaymentReceipt } from '../../../services/core-contracts/types/paymentReceipt.types';
+import { RecordReceiptModal } from '../../../components/journey/RecordReceiptModal';
 
 const { TextArea } = Input;
 const { Text, Title } = Typography;
@@ -136,6 +141,48 @@ export const Step10Payment: React.FC<Step10PaymentProps> = ({
     const [error, setError] = useState<string | null>(null);
     const [kindFilter, setKindFilter] = useState<KindFilter>(initialKindFilter);
     const [reTaggingId, setReTaggingId] = useState<string | null>(null);
+
+    // W3-03 — Receipt state
+    const [receiptModalMilestone, setReceiptModalMilestone] = useState<IPaymentMilestone | null>(null);
+    /** Receipts per milestone _id — lazy loaded when row is expanded */
+    const [receiptsMap, setReceiptsMap] = useState<Record<string, IPaymentReceipt[]>>({});
+    const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
+    const [receiptsLoading, setReceiptsLoading] = useState<Record<string, boolean>>({});
+
+    const fetchReceiptsForMilestone = async (milestoneId: string) => {
+        if (receiptsMap[milestoneId] !== undefined) return; // already loaded
+        setReceiptsLoading((prev) => ({ ...prev, [milestoneId]: true }));
+        try {
+            const res = await paymentReceiptService.queryPaymentReceiptsDto({
+                fields: [{ field: 'payment_milestone_id', op: 'eq', value: milestoneId }],
+                sortFields: [{ field: 'receipt_date', sortType: 'desc' }],
+                pageNumber: 1,
+                pageSize: 50,
+            } as any);
+            setReceiptsMap((prev) => ({ ...prev, [milestoneId]: res?.data || [] }));
+        } catch {
+            setReceiptsMap((prev) => ({ ...prev, [milestoneId]: [] }));
+        } finally {
+            setReceiptsLoading((prev) => ({ ...prev, [milestoneId]: false }));
+        }
+    };
+
+    const handleReceiptSuccess = (milestoneId: string, patch: Partial<IPaymentMilestone>) => {
+        // Optimistic update of the milestone row
+        setMilestones((prev) =>
+            prev.map((m) => (m._id === milestoneId ? { ...m, ...patch } : m)),
+        );
+        // Invalidate the receipt cache so the row-expand re-fetches
+        setReceiptsMap((prev) => {
+            const next = { ...prev };
+            delete next[milestoneId];
+            return next;
+        });
+        // If row is expanded, re-fetch immediately
+        if (expandedRowKeys.includes(milestoneId)) {
+            void fetchReceiptsForMilestone(milestoneId);
+        }
+    };
 
     const fetchMilestones = async () => {
         if (!journeyId) {
@@ -287,6 +334,34 @@ export const Step10Payment: React.FC<Step10PaymentProps> = ({
             key: 'status',
             render: (s: PaymentMilestoneStatusEnum | undefined) => renderStatusTag(s),
         },
+        ...(isEditable
+            ? [
+                  {
+                      title: '',
+                      key: 'actions',
+                      width: 130,
+                      render: (_: any, record: IPaymentMilestone) => (
+                          <Space size={4}>
+                              <Tooltip title="Ghi nhận thu tiền cho đợt này">
+                                  <Button
+                                      size="small"
+                                      type="primary"
+                                      ghost
+                                      icon={<PlusOutlined />}
+                                      onClick={(e) => {
+                                          e.stopPropagation();
+                                          setReceiptModalMilestone(record);
+                                      }}
+                                      disabled={record.status === 'paid'}
+                                  >
+                                      Ghi nhận thu
+                                  </Button>
+                              </Tooltip>
+                          </Space>
+                      ),
+                  },
+              ]
+            : []),
     ];
 
     const renderEmpty = () => (
@@ -376,6 +451,96 @@ export const Step10Payment: React.FC<Step10PaymentProps> = ({
                         size="small"
                         bordered
                         rowKey="_id"
+                        expandable={{
+                            expandedRowKeys,
+                            onExpand: (expanded, record) => {
+                                if (!record._id) return;
+                                if (expanded) {
+                                    setExpandedRowKeys((prev) => [...prev, record._id]);
+                                    void fetchReceiptsForMilestone(record._id);
+                                } else {
+                                    setExpandedRowKeys((prev) => prev.filter((k) => k !== record._id));
+                                }
+                            },
+                            expandIcon: ({ expanded, onExpand, record }) => (
+                                <Tooltip title={expanded ? 'Ẩn phiếu thu' : 'Xem phiếu thu'}>
+                                    <Button
+                                        type="text"
+                                        size="small"
+                                        icon={<UnorderedListOutlined />}
+                                        onClick={(e) => onExpand(record, e)}
+                                        style={{ color: expanded ? '#1890ff' : undefined }}
+                                    />
+                                </Tooltip>
+                            ),
+                            expandedRowRender: (record) => {
+                                const id = record._id;
+                                const receipts = receiptsMap[id] ?? [];
+                                const isLoadingReceipts = receiptsLoading[id] ?? false;
+                                if (isLoadingReceipts) {
+                                    return <Spin style={{ padding: 16 }} />;
+                                }
+                                if (receipts.length === 0) {
+                                    return (
+                                        <Empty
+                                            description="Chưa có phiếu thu nào cho đợt này."
+                                            image={Empty.PRESENTED_IMAGE_SIMPLE}
+                                            style={{ margin: '8px 0' }}
+                                        />
+                                    );
+                                }
+                                return (
+                                    <Table
+                                        dataSource={receipts}
+                                        rowKey="_id"
+                                        size="small"
+                                        pagination={false}
+                                        style={{ margin: '4px 0' }}
+                                        columns={[
+                                            {
+                                                title: 'Ngày thu',
+                                                dataIndex: 'receipt_date',
+                                                key: 'receipt_date',
+                                                render: (v) => formatDate(v),
+                                            },
+                                            {
+                                                title: 'Số tiền',
+                                                dataIndex: 'amount_received',
+                                                key: 'amount_received',
+                                                align: 'right' as const,
+                                                render: (v) => formatVND(v),
+                                            },
+                                            {
+                                                title: 'Hình thức',
+                                                dataIndex: 'receipt_method',
+                                                key: 'receipt_method',
+                                                render: (v: string) => {
+                                                    const map: Record<string, string> = {
+                                                        bank_transfer: 'Chuyển khoản',
+                                                        cash: 'Tiền mặt',
+                                                        card: 'Thẻ',
+                                                        other: 'Khác',
+                                                    };
+                                                    return map[v] ?? v;
+                                                },
+                                            },
+                                            {
+                                                title: 'Mã giao dịch',
+                                                dataIndex: 'transaction_ref',
+                                                key: 'transaction_ref',
+                                                render: (v) => v || <Text type="secondary">—</Text>,
+                                            },
+                                            {
+                                                title: 'Ghi chú',
+                                                dataIndex: 'note',
+                                                key: 'note',
+                                                render: (v) => v || <Text type="secondary">—</Text>,
+                                            },
+                                        ]}
+                                    />
+                                );
+                            },
+                        }}
                     />
                 )}
 
@@ -450,6 +615,17 @@ export const Step10Payment: React.FC<Step10PaymentProps> = ({
             )}
             <Divider />
             {isEditing ? renderEditable() : renderReadOnly()}
+
+            {/* W3-03 — Ghi nhận thu modal */}
+            {receiptModalMilestone && (
+                <RecordReceiptModal
+                    open={receiptModalMilestone !== null}
+                    milestone={receiptModalMilestone}
+                    journeyId={journeyId}
+                    onClose={() => setReceiptModalMilestone(null)}
+                    onSuccess={handleReceiptSuccess}
+                />
+            )}
         </Card>
     );
 };
