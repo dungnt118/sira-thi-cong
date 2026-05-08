@@ -183,7 +183,7 @@ const ProjectCreate: React.FC = () => {
         message.success('Dự án đã được tạo thành công!');
 
         setTimeout(() => {
-            navigate('/admin/ql/construction/projects');
+            navigate('/admin/ql/journeys');
         }, 1000);
     };
 

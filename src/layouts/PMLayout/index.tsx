@@ -35,6 +35,12 @@ const menuItems: MenuItem[] = [
         label: 'Dashboard',
     },
     {
+        // W2-03 — Hộp duyệt tổng hợp
+        key: '/admin/ql/inbox',
+        icon: <UnorderedListOutlined />,
+        label: 'Hộp duyệt',
+    },
+    {
         key: '/admin/ql/journeys',
         icon: <NodeIndexOutlined />,
         label: 'Công trình Khách hàng',

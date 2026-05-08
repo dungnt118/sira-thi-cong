@@ -310,7 +310,7 @@ const PMProjectDetail: React.FC = () => {
         <div>
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
-                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/admin/ql/construction/projects')}>Quay lại</Button>
+                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/admin/ql/journeys')}>Quay lại</Button>
                 <div style={{ flex: 1 }}>
                     <Title level={4} style={{ margin: 0 }}>{project.code}</Title>
                     <Space>

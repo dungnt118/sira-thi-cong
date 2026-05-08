@@ -237,7 +237,7 @@ const ProjectCreate: React.FC = () => {
 
             // Navigate after 1s to allow user to see success message
             setTimeout(() => {
-                navigate('/admin/ql/construction/projects');
+                navigate('/admin/ql/journeys');
             }, 1000);
 
         } catch (err) {
@@ -254,7 +254,7 @@ const ProjectCreate: React.FC = () => {
                 <Button icon={<ArrowLeftOutlined />}
                     onClick={() => customer
                         ? navigate(`/ql/crm/customers/${customer.id}`)
-                        : navigate('/admin/ql/construction/projects')}>
+                        : navigate('/admin/ql/journeys')}>
                     Quay lại
                 </Button>
                 <div>

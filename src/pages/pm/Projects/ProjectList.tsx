@@ -91,7 +91,7 @@ const ProjectList: React.FC = () => {
     const columns: ColumnsType<any> = [
         {
             title: 'Mã DA', dataIndex: 'code', key: 'code', width: 130, fixed: 'left' as const,
-            render: (code: string) => <a onClick={() => navigate(`/admin/ql/construction/projects/${code}`)} style={{ fontWeight: 600 }}>{code}</a>,
+            render: (code: string) => <a onClick={() => navigate(`/admin/ql/journeys/${code}`)} style={{ fontWeight: 600 }}>{code}</a>,
         },
         { title: 'Tên dự án', dataIndex: 'name', key: 'name', width: 250, ellipsis: true },
         {
@@ -127,8 +127,8 @@ const ProjectList: React.FC = () => {
             title: '', key: 'actions', width: 60, fixed: 'right' as const,
             render: (_: any, record: any) => {
                 const items: MenuProps['items'] = [
-                    { key: 'view', icon: <EyeOutlined />, label: 'Xem chi tiết', onClick: () => navigate(`/admin/ql/construction/projects/${record.code}`) },
-                    { key: 'edit', icon: <EditOutlined />, label: 'Chỉnh sửa', onClick: () => navigate(`/admin/ql/construction/projects/${record.id}/edit`) },
+                    { key: 'view', icon: <EyeOutlined />, label: 'Xem chi tiết', onClick: () => navigate(`/admin/ql/journeys/${record.code}`) },
+                    { key: 'edit', icon: <EditOutlined />, label: 'Chỉnh sửa', onClick: () => navigate(`/admin/ql/journeys/${record.id}`) },
                     { type: 'divider' },
                     {
                         key: 'cancel',
@@ -154,7 +154,7 @@ const ProjectList: React.FC = () => {
                 <h2 style={{ margin: 0 }}>Danh Sách Dự Án</h2>
                 <Space>
                     <Button icon={<ExportOutlined />}>Xuất Excel</Button>
-                    <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/admin/ql/construction/projects/create')}>
+                    <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/admin/ql/journeys')}>
                         Tạo Dự án
                     </Button>
                 </Space>

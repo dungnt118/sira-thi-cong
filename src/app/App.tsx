@@ -100,6 +100,8 @@ import AssetAllocationHistory from '../pages/accountant/Assets/AllocationHistory
 import AllocationForm from '../pages/shared/AllocationForm';
 import AssetAllocationDetail from '../pages/accountant/Assets/AssetAllocationDetail';
 import StockOrderDetail from '@pages/accountant/Inventory/StockOrderDetail';
+import StockOrderWorkflowList from '../pages/shared/StockOrderWorkflowList';
+const PMApprovalInbox = lazy(() => import('../pages/pm/Inbox/ApprovalInbox'));
 import InventoryHistory from '../pages/accountant/Inventory/History';
 import MaintenanceHistory from '../pages/accountant/Assets/MaintenanceHistory';
 import AssetDetail from '../pages/accountant/Assets/AssetDetail';
@@ -322,6 +324,8 @@ function App() {
                                         <Route path="ql" element={<PMLayout />}>
                                             <Route index element={<Navigate to="/admin/ql/dashboard" replace />} />
                                             <Route path="dashboard" element={<ActionCenter />} />
+                                            {/* W2-03 — PM Approval Inbox tổng hợp. */}
+                                            <Route path="inbox" element={<Suspense fallback={<div style={{ padding: 24 }}>Đang tải hộp duyệt...</div>}><PMApprovalInbox /></Suspense>} />
 
                                             {/* --- Journey Module (PM) --- */}
                                             <Route path="journeys">
@@ -371,6 +375,8 @@ function App() {
                                                 <Route path="stock-out" element={<OutboundForm />} />
                                                 <Route path="history" element={<InventoryHistory />} />
                                                 <Route path="order/:id" element={<StockOrderDetail />} />
+                                                {/* W2-01b — PM oversight phiếu kho (toàn bộ pipeline). */}
+                                                <Route path="stock-orders" element={<StockOrderWorkflowList mode="pm" rolePathPrefix="ql" />} />
                                             </Route>
                                             <Route path="assets">
                                                 <Route path="allocation" element={<AllocationForm />} />
@@ -435,6 +441,8 @@ function App() {
                                             <Route path="inventory/stock-in" element={<InboundForm />} />
                                             <Route path="inventory/history" element={<InventoryHistory />} />
                                             <Route path="inventory/order/:id" element={<StockOrderDetail />} />
+                                            {/* W2-01b — GS Stock Order workflow queue (chờ nhận, đã nhận, hoàn tất). */}
+                                            <Route path="inventory/stock-orders" element={<StockOrderWorkflowList mode="gs" rolePathPrefix="gs" />} />
                                             <Route path="assets/allocation" element={<AllocationForm />} />
                                             <Route path="expenditures/payment-requests" element={<PaymentRequestList />} />
                                         </Route>
@@ -450,6 +458,8 @@ function App() {
                                             <Route path="inventory/distributors" element={<DistributorList />} />
                                             <Route path="inventory/order/:id" element={<StockOrderDetail />} />
                                             <Route path="inventory/history" element={<InventoryHistory />} />
+                                            {/* W2-01b — KT pipeline duyệt phiếu kho (Chờ duyệt → Đã duyệt → Đang giao → Lệch → Hoàn tất). */}
+                                            <Route path="inventory/stock-orders" element={<StockOrderWorkflowList mode="kt" rolePathPrefix="kt" />} />
 
                                             <Route path="assets" element={<Navigate to="/admin/kt/assets/list" replace />} />
                                             <Route path="assets/list" element={<AssetsDashboard />} />
@@ -489,6 +499,9 @@ function App() {
                                             <Route path="profile" element={<SharedProfilePage />} />
                                             {/* Wave 1 trim — removed inventory/stock-out, inventory/history, inventory/order/:id,
                                                 assets/allocation, expenditures/payment-requests (over-scope for KYT, gap-analysis ROLE-KYT-03). */}
+                                            {/* W2-01b — re-add inventory/stock-orders cho KYT vì đề xuất nhập/xuất kho là quyền nghiệp vụ KYT. */}
+                                            <Route path="inventory/stock-orders" element={<StockOrderWorkflowList mode="kyt" rolePathPrefix="kyt" />} />
+                                            <Route path="inventory/order/:id" element={<StockOrderDetail />} />
                                         </Route>
 
                                         {/* PARTNER ROUTES — disabled in Wave 1 (gap-analysis 2026-05-08, ROLE-PA-01/02) */}

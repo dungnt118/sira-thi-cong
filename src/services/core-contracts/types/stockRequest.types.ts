@@ -1,69 +1,51 @@
-import type { HeadlessReferenceContent, IndexedContentItem } from 'types/apis';
-import type { ApiListResponse, ApiResponse } from 'types/apis/ApiResponse';
-import type { HeadlessFileUpload } from 'types/apis/HeadlessFileUpload';
-
 /**
- * StockRequest interface
- * Auto-generated from Schema: StockRequest
+ * @deprecated Wave 2 — W2-01a (gap-analysis 2026-05-08).
+ *
+ * Backend đã chủ ý gộp `StockRequest` vào `StockOrder` (xem hint
+ * `requested_by` của StockOrder: "thay thế tách schema StockRequest").
+ *
+ * File này giữ lại CHỈ làm re-export cho code legacy còn lỡ import — code mới
+ * KHÔNG được dùng. Mọi thao tác đề-xuất / duyệt / xuất-nhập kho đều xoay quanh
+ * StockOrder với status `draft → requested → approved → dispatched → received
+ * → completed | discrepancy | cancelled`.
+ *
+ * Mapping status legacy:
+ *   StockRequest.pending     → StockOrder.requested
+ *   StockRequest.approved    → StockOrder.approved
+ *   StockRequest.rejected    → StockOrder.cancelled (kèm review_note)
+ *   StockRequest.converted   → bỏ — bản thân StockOrder là phiếu thực thi
  */
-export interface IStockRequest {
-  _id: string;
-  code?: string;
-  type?: StockRequestTypeEnum;
-  requested_by?: any;
-  journey_id?: string;
-  idx_journey_id?: IndexedContentItem;
-  journey_step_code?: StockRequestJourneyStepCodeEnum;
-  project_id?: string;
-  idx_project_id?: IndexedContentItem;
-  project_name?: string;
-  items?: IItemsItem[];
-  reason?: string;
-  status?: StockRequestStatusEnum;
-  reviewed_by?: any;
-  reviewed_at?: string | Date;
-  review_note?: string;
-  converted_order_id?: string;
-  idx_converted_order_id?: IndexedContentItem;
-  created_at?: string | Date;
-  journey_name?: string;
-}
 
-export interface IItemsItem {
-  material_id?: string;
-  idx_material_id?: IndexedContentItem;
-  material_name?: string;
-  unit?: ItemsUnitEnum;
-  requested?: number;
-  note?: string;
-}
+import type {
+    IStockOrder,
+    ICreateStockOrderInput,
+    IStockOrderListResponse,
+    StockOrderJourneyStepCodeEnum,
+    StockOrderJourneyStepCodeEnum2,
+    StockOrderTypeEnum,
+    StockOrderTypeEnum2,
+} from './stockOrder.types';
 
-export interface ICreateStockRequestInput {
-  code?: string;
-  type?: StockRequestTypeEnum2;
-  requested_by?: any;
-  journey_id?: string;
-  journey_step_code?: StockRequestJourneyStepCodeEnum2;
-  project_id?: string;
-  project_name?: string;
-  items?: IItemsItem[];
-  reason?: string;
-  status?: StockRequestStatusEnum2;
-  reviewed_by?: any;
-  reviewed_at?: string | Date;
-  review_note?: string;
-  converted_order_id?: string;
-  created_at?: string | Date;
-  journey_name?: string;
-}
+/** @deprecated Use `IStockOrder` instead. */
+export type IStockRequest = IStockOrder;
 
-export type IStockRequestListResponse = ApiListResponse<IStockRequest>
+/** @deprecated Use `ICreateStockOrderInput` instead. */
+export type ICreateStockRequestInput = ICreateStockOrderInput;
 
-// Union types generated from value_options
-export type StockRequestTypeEnum = 'request_out' | 'request_in';
-export type StockRequestJourneyStepCodeEnum = 'lead_new' | 'consult_contact' | 'site_survey' | 'solution_design' | 'quotation' | 'contract' | 'execution' | 'final_acceptance' | 'payment' | 'maintenance' | 'warranty' | 'after_sales';
+/** @deprecated Use `IStockOrderListResponse` instead. */
+export type IStockRequestListResponse = IStockOrderListResponse;
+
+/** @deprecated Use `StockOrderTypeEnum` (`'in' | 'out'`) instead. The legacy values `'request_in' / 'request_out'` are no longer recognized by the backend. */
+export type StockRequestTypeEnum = StockOrderTypeEnum;
+/** @deprecated */
+export type StockRequestTypeEnum2 = StockOrderTypeEnum2;
+
+/** @deprecated Use `StockOrderJourneyStepCodeEnum` instead. */
+export type StockRequestJourneyStepCodeEnum = StockOrderJourneyStepCodeEnum;
+/** @deprecated */
+export type StockRequestJourneyStepCodeEnum2 = StockOrderJourneyStepCodeEnum2;
+
+/** @deprecated The 4-status enum is replaced by StockOrder's 8-status flow. */
 export type StockRequestStatusEnum = 'pending' | 'approved' | 'rejected' | 'converted';
-export type ItemsUnitEnum = 'kg' | 'lit' | 'm2' | 'thung' | 'cuon' | 'cai';
-export type StockRequestTypeEnum2 = 'request_out' | 'request_in';
-export type StockRequestJourneyStepCodeEnum2 = 'lead_new' | 'consult_contact' | 'site_survey' | 'solution_design' | 'quotation' | 'contract' | 'execution' | 'final_acceptance' | 'payment' | 'maintenance' | 'warranty' | 'after_sales';
+/** @deprecated */
 export type StockRequestStatusEnum2 = 'pending' | 'approved' | 'rejected' | 'converted';

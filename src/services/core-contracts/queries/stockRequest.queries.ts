@@ -1,89 +1,18 @@
-import { gql } from 'graphql-tag';
-
 /**
- * Find StockRequest DTO with typed data
+ * @deprecated Wave 2 — W2-01a (gap-analysis 2026-05-08).
+ *
+ * `StockRequest` GraphQL operations no longer exist on the backend
+ * (schema gộp vào `StockOrder`). Code mới phải dùng
+ * `FIND_STOCKORDER_DTO` / `QUERY_STOCKORDERS_DTO` từ `stockOrder.queries`.
  */
-export const FIND_STOCKREQUEST_DTO = gql`
-  query FindStockRequestDto($_id: String!, $custominput: Dictionary) {
-    response: find_StockRequest_dto(_id: $_id, custominput: $custominput) {
-      code
-      message
-      data {
-        _id
-        createdAt
-        updatedAt
-        createdBy
-        updatedBy
-        code
-        type
-        requested_by
-        journey_id
-        idx_journey_id
-        journey_step_code
-        project_id
-        idx_project_id
-        project_name
-        items {
-          material_id
-          material_name
-          unit
-          requested
-          note
-        }
-        reason
-        status
-        reviewed_by
-        reviewed_at
-        review_note
-        converted_order_id
-        idx_converted_order_id
-        created_at
-        journey_name
-      }
-    }
-  }
-`;
 
-/**
- * Query StockRequests DTO list
- */
-export const QUERY_STOCKREQUESTS_DTO = gql`
-  query QueryStockRequestsDto(
-    $filter: GeneralCollectionFilterInput,
-    $custominput: Dictionary
-  ) {
-    response: query_StockRequests_dto(filter: $filter, custominput: $custominput) {
-      code
-      message
-      records
-      data {
-        _id
-        code
-        type
-        requested_by
-        journey_id
-        idx_journey_id
-        journey_step_code
-        project_id
-        idx_project_id
-        project_name
-        items {
-          material_id
-          material_name
-          unit
-          requested
-          note
-        }
-        reason
-        status
-        reviewed_by
-        reviewed_at
-        review_note
-        converted_order_id
-        idx_converted_order_id
-        created_at
-        journey_name
-      }
-    }
-  }
-`;
+import {
+    FIND_STOCKORDER_DTO,
+    QUERY_STOCKORDERS_DTO,
+} from './stockOrder.queries';
+
+/** @deprecated Use `FIND_STOCKORDER_DTO` instead. */
+export const FIND_STOCKREQUEST_DTO = FIND_STOCKORDER_DTO;
+
+/** @deprecated Use `QUERY_STOCKORDERS_DTO` instead. */
+export const QUERY_STOCKREQUESTS_DTO = QUERY_STOCKORDERS_DTO;

@@ -30,6 +30,37 @@ import type { IBeneficiaryBankContact } from '@/services/core-contracts/types/be
 const { Title, Text } = Typography;
 const { Option } = Select;
 
+/**
+ * Wave 2 — W2-02. Per-tier approval threshold.
+ * - amount ≤ 50_000_000 VND → KT có thể duyệt trực tiếp (tier 1).
+ * - amount > 50_000_000 VND → cần PM duyệt (tier 2).
+ * Wave 3 sẽ chuyển sang Setting schema.
+ */
+const APPROVAL_TIER_THRESHOLD_VND = 50_000_000;
+
+type ApprovalTier = 'tier_kt' | 'tier_pm_required';
+
+const getApprovalTier = (amount: number | undefined): ApprovalTier => {
+    if (!amount) return 'tier_kt';
+    return amount > APPROVAL_TIER_THRESHOLD_VND ? 'tier_pm_required' : 'tier_kt';
+};
+
+const renderTierBadge = (amount: number | undefined): React.ReactNode => {
+    const tier = getApprovalTier(amount);
+    if (tier === 'tier_pm_required') {
+        return (
+            <Tooltip title={`Số tiền > ${APPROVAL_TIER_THRESHOLD_VND.toLocaleString('vi-VN')}đ — cần PM duyệt`}>
+                <Tag color="purple" style={{ marginTop: 4, fontSize: 10 }}>Cần PM duyệt</Tag>
+            </Tooltip>
+        );
+    }
+    return (
+        <Tooltip title={`Số tiền ≤ ${APPROVAL_TIER_THRESHOLD_VND.toLocaleString('vi-VN')}đ — KT duyệt được`}>
+            <Tag color="blue" style={{ marginTop: 4, fontSize: 10 }}>KT duyệt</Tag>
+        </Tooltip>
+    );
+};
+
 const PaymentRequestList: React.FC = () => {
     const [form] = Form.useForm();
     const [data, setData] = useState<IPaymentRequest[]>([]);
@@ -315,7 +346,7 @@ const PaymentRequestList: React.FC = () => {
             dataIndex: 'amount',
             key: 'amount',
             align: 'right',
-            width: 140,
+            width: 160,
             render: (amount, record) => (
                 <div style={{ textAlign: 'right' }}>
                     <Tooltip title="Số tiền">
@@ -324,6 +355,8 @@ const PaymentRequestList: React.FC = () => {
                         </div>
                         <Text type="secondary" style={{ fontSize: 11 }}>{record.currency?.toUpperCase() || 'VND'}</Text>
                     </Tooltip>
+                    {/* W2-02 — tier badge */}
+                    {renderTierBadge(amount)}
                 </div>
             )
         },

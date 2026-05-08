@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
     Modal, Form, Input, Select, Button, Space, Typography,
     Row, Col, InputNumber, Divider, Descriptions, Badge,
-    Tag, message, Upload, Steps, Image, Card
+    Tag, message, Upload, Steps, Image, Card, Tooltip
 } from 'antd';
 import {
     SaveOutlined, SendOutlined, CheckCircleOutlined,
@@ -367,7 +367,15 @@ const PaymentRequestDetailModal: React.FC<PaymentRequestDetailModalProps> = ({
         }
 
         if (request) {
-            if (request.status === 'pending_approval' && isPM) {
+            // W2-02 — per-tier approval threshold: 50M VND.
+            // Amount ≤ 50M: KT có quyền duyệt trực tiếp (không cần PM).
+            // Amount > 50M: PM bắt buộc duyệt; KT bị disable approve.
+            const APPROVAL_TIER_THRESHOLD_VND = 50_000_000;
+            const requiresPmApproval = (request.amount ?? 0) > APPROVAL_TIER_THRESHOLD_VND;
+            const ktCanApprove = !requiresPmApproval && isAccountant;
+            const canApproveAtPending = isPM || ktCanApprove;
+
+            if (request.status === 'pending_approval' && canApproveAtPending) {
                 actions.push(
                     <Button key="reject" danger icon={<CloseCircleOutlined />} onClick={() => {
                         rejectForm.resetFields();
@@ -376,8 +384,15 @@ const PaymentRequestDetailModal: React.FC<PaymentRequestDetailModalProps> = ({
                 );
                 actions.push(
                     <Button key="approve" type="primary" icon={<CheckCircleOutlined />} onClick={handleApprove} loading={saving}>
-                        Duyệt chi
+                        {requiresPmApproval ? 'Duyệt chi (PM)' : 'Duyệt chi'}
                     </Button>
+                );
+            } else if (request.status === 'pending_approval' && isAccountant && requiresPmApproval) {
+                // KT không đủ quyền — chỉ thông báo lý do.
+                actions.push(
+                    <Tooltip key="kt_blocked" title={`Số tiền ${(request.amount ?? 0).toLocaleString('vi-VN')}đ > ${APPROVAL_TIER_THRESHOLD_VND.toLocaleString('vi-VN')}đ — vượt quyền KT, cần PM duyệt.`}>
+                        <Button disabled icon={<CloseCircleOutlined />}>Vượt quyền duyệt</Button>
+                    </Tooltip>
                 );
             }
 

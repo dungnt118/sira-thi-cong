@@ -10,11 +10,13 @@ import {
     DollarOutlined,
     EditOutlined,
     ExclamationCircleOutlined,
+    ExportOutlined,
     FileSearchOutlined,
     FileTextOutlined,
     FlagOutlined,
     FormOutlined,
     HistoryOutlined,
+    InboxOutlined,
     MessageOutlined,
     NodeIndexOutlined,
     PaperClipOutlined,
@@ -25,6 +27,7 @@ import {
     TeamOutlined,
     ToolOutlined,
     UserOutlined,
+    WalletOutlined,
     MenuOutlined,
     DownOutlined
 } from '@ant-design/icons';
@@ -62,7 +65,10 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { ContentConversationPanel, type ChatPanelLayoutMode } from '../../../components/chatbox';
 import { CreateJourneyDocumentModal } from '../../../components/journey/CreateJourneyDocumentModal';
+import { CreatePaymentMilestoneModal } from '../../../components/journey/CreatePaymentMilestoneModal';
+import { CreatePaymentRequestModal } from '../../../components/journey/CreatePaymentRequestModal';
 import { CreateSiteReportModal } from '../../../components/journey/CreateSiteReportModal';
+import { CreateStockOrderRequestModal } from '../../../components/journey/CreateStockOrderRequestModal';
 import { ConsultationLogForm } from '../../../components/journey/SharedModals';
 import PortalDashboard from '../../../components/portal/PortalDashboard';
 import { useAuth } from '../../../hooks/useAuth';
@@ -80,6 +86,7 @@ import {
 } from '../../../services/core-contracts/types/customerJourneySetting.types';
 import { IJourney } from '../../../services/core-contracts/types/journey.types';
 import { JourneyStepRenderer, StepLabor, StepMaterials, Step04SolutionOrchestration } from '../JourneySteps';
+import { MyTasksTab } from './components/MyTasksTab';
 
 import { AuthorizedUserSelect } from '../../../components/authorizedusers/AuthorizedUser';
 import { MasterDataSelect } from '../../../components/common/MasterDataSelect';
@@ -452,6 +459,8 @@ const deriveJourneyStepsFromSetting = (
 /** Quan hệ tích lũy giữa current_step của Journey và tab chức năng trên màn hình 360. */
 const JOURNEY_TAB_ACCESS_RULES: JourneyTabAccessRule[] = [
     { key: 'GRP_01_INFO', minStepCode: 'lead_new', currentStepCode: 'lead_new', roleGroupCode: 'GRP_01_INFO', alwaysVisible: true },
+    // W2-05 — "Việc của tôi": tab chéo, không gắn với 1 step cụ thể, hiển thị mọi lúc.
+    { key: 'MY_TASKS', minStepCode: 'lead_new', alwaysVisible: true },
     { key: 'GRP_02_CONTACT', minStepCode: 'lead_new', currentStepCode: 'consult_contact', roleGroupCode: 'GRP_02_CONTACT', alwaysVisible: true },
     { key: 'GRP_DOCUMENTS', minStepCode: 'lead_new', alwaysVisible: true },
     { key: 'GRP_08_CONSTRUCT', minStepCode: 'lead_new', alwaysVisible: true, currentStepCode: 'execution', roleGroupCode: 'GRP_08_CONSTRUCT' },
@@ -811,6 +820,12 @@ const JourneyDetail360: React.FC = () => {
     const [createWorkTaskForm] = Form.useForm();
     const [resetStepCode, setResetStepCode] = useState<string | null>(null);
     const [modal, modalContextHolder] = Modal.useModal();
+
+    // W2-04 — Header CTAs theo role: state cho 3 modal mới
+    const [showCreatePaymentRequestModal, setShowCreatePaymentRequestModal] = useState(false);
+    const [showCreatePaymentMilestoneModal, setShowCreatePaymentMilestoneModal] = useState(false);
+    const [stockOrderRequestType, setStockOrderRequestType] = useState<'in' | 'out' | null>(null);
+    const [showHeaderSiteReportModal, setShowHeaderSiteReportModal] = useState(false);
 
     /**
      * Derive `journeySteps` (with `standardProcedureGroupCd` + `roleConfigurations`)
@@ -1443,6 +1458,19 @@ const JourneyDetail360: React.FC = () => {
                         label: <span><FormOutlined /> Tổng quan</span>,
                         children: renderTabContent('GRP_01_INFO', 'S01_INFO', 'lead_new'),
                     };
+                case 'MY_TASKS':
+                    return {
+                        key: rule.key,
+                        label: <span><UserOutlined /> Việc của tôi</span>,
+                        children: (
+                            <MyTasksTab
+                                journeyId={journey._id}
+                                currentUserId={user?._id}
+                                currentUsername={user?.username || user?.userName || user?.code}
+                                currentRole={role}
+                            />
+                        ),
+                    };
                 case 'GRP_02_CONTACT':
                     return {
                         key: rule.key,
@@ -1606,7 +1634,47 @@ const JourneyDetail360: React.FC = () => {
                         </Space>
                     </div>
                 )}
-                {role !== 'QL' && !isAdmin && role !== 'KD' && (
+                {/* W2-04 — KT (Kế toán) header CTAs */}
+                {role === 'KT' && !isAdmin && (
+                    <div style={isMobile ? { maxWidth: '100%', overflowX: 'auto', paddingBottom: 4 } : undefined}>
+                        <Space size={isMobile ? 4 : 8} wrap={!isMobile}>
+                            <Button icon={<DollarOutlined />} onClick={() => setShowCreatePaymentRequestModal(true)}>
+                                {isMobile ? '' : 'Đề nghị chi'}
+                            </Button>
+                            <Button icon={<WalletOutlined />} onClick={() => setShowCreatePaymentMilestoneModal(true)}>
+                                {isMobile ? '' : 'Tạo đợt thu'}
+                            </Button>
+                            {canCreateJourneyDocument && (
+                                <Button icon={<FileTextOutlined />} onClick={() => { setEditingDoc(null); setShowCreateDocModal(true); }}>{isMobile ? '' : 'Tạo tài liệu'}</Button>
+                            )}
+                            {chatToggleButton}
+                        </Space>
+                    </div>
+                )}
+
+                {/* W2-04 — GS / KYT (field roles) header CTAs */}
+                {(role === 'GS' || role === 'KYT') && !isAdmin && (
+                    <div style={isMobile ? { maxWidth: '100%', overflowX: 'auto', paddingBottom: 4 } : undefined}>
+                        <Space size={isMobile ? 4 : 8} wrap={!isMobile}>
+                            <Button icon={<InboxOutlined />} onClick={() => setStockOrderRequestType('in')}>
+                                {isMobile ? '' : 'Đề xuất nhập kho'}
+                            </Button>
+                            <Button icon={<ExportOutlined />} onClick={() => setStockOrderRequestType('out')}>
+                                {isMobile ? '' : 'Đề xuất xuất kho'}
+                            </Button>
+                            <Button icon={<FileTextOutlined />} onClick={() => setShowHeaderSiteReportModal(true)}>
+                                {isMobile ? '' : 'Báo cáo tiến độ'}
+                            </Button>
+                            {canCreateJourneyDocument && (
+                                <Button icon={<FileTextOutlined />} onClick={() => { setEditingDoc(null); setShowCreateDocModal(true); }}>{isMobile ? '' : 'Tạo tài liệu'}</Button>
+                            )}
+                            {chatToggleButton}
+                        </Space>
+                    </div>
+                )}
+
+                {/* Fallback cho các role còn lại (vd. portal, custom roles) */}
+                {role !== 'QL' && !isAdmin && role !== 'KD' && role !== 'KT' && role !== 'GS' && role !== 'KYT' && (
                     <div style={isMobile ? { maxWidth: '100%', overflowX: 'auto', paddingBottom: 4 } : undefined}>
                         <Space size={isMobile ? 4 : 8} wrap={!isMobile}>
                             {canCreateJourneyDocument && (
@@ -2871,6 +2939,54 @@ const JourneyDetail360: React.FC = () => {
                 stepCode={selectedTaskForReport?.journey_step_code || selectedTaskStepCode || ''}
                 taskId={selectedTaskForReport?._id}
                 taskTitle={selectedTaskForReport?.title}
+            />
+
+            {/* W2-04 — Header CTA modals cho KT/GS/KYT */}
+            <CreateSiteReportModal
+                open={showHeaderSiteReportModal}
+                onCancel={() => setShowHeaderSiteReportModal(false)}
+                onSuccess={() => {
+                    setShowHeaderSiteReportModal(false);
+                    window.dispatchEvent(new CustomEvent('journey-site-reports-updated'));
+                }}
+                journeyId={journeyId!}
+                stepCode={journey?.current_step || 'execution'}
+            />
+
+            <CreatePaymentRequestModal
+                open={showCreatePaymentRequestModal}
+                onCancel={() => setShowCreatePaymentRequestModal(false)}
+                onSuccess={() => {
+                    setShowCreatePaymentRequestModal(false);
+                    message.success('Đề nghị chi đã được gửi vào pipeline duyệt.');
+                }}
+                journeyId={journeyId!}
+                journeyName={journey?.request_title}
+                journeyCode={journey?.journey_code}
+            />
+
+            <CreatePaymentMilestoneModal
+                open={showCreatePaymentMilestoneModal}
+                onCancel={() => setShowCreatePaymentMilestoneModal(false)}
+                onSuccess={() => {
+                    setShowCreatePaymentMilestoneModal(false);
+                    fetchJourney();
+                }}
+                journeyId={journeyId!}
+                journeyName={journey?.request_title}
+                journeyCode={journey?.journey_code}
+                journeyCurrentStep={journey?.current_step as any}
+            />
+
+            <CreateStockOrderRequestModal
+                open={stockOrderRequestType !== null}
+                onCancel={() => setStockOrderRequestType(null)}
+                onSuccess={() => setStockOrderRequestType(null)}
+                journeyId={journeyId!}
+                journeyName={journey?.request_title}
+                journeyCode={journey?.journey_code}
+                journeyCurrentStep={journey?.current_step as any}
+                type={stockOrderRequestType ?? 'in'}
             />
 
             <WorkTaskActionModals
