@@ -53,14 +53,7 @@ export const Breadcrumbs: React.FC = () => {
         '/admin/kt/payment-tracking': LABELS.ACCOUNTANT.PAYMENT_TRACKING,
         '/admin/kt/reports': LABELS.ACCOUNTANT.REPORTS,
 
-        // Partner
-        '/admin/partner': LABELS.PARTNER.DASHBOARD,
-        '/admin/partner/dashboard': LABELS.PARTNER.DASHBOARD,
-        '/admin/partner/my-projects': LABELS.PARTNER.MY_PROJECTS,
-        '/admin/partner/upload-evidence': LABELS.PARTNER.UPLOAD_EVIDENCE,
-        '/admin/partner/materials': LABELS.PARTNER.MATERIALS,
-        '/admin/partner/labor': LABELS.PARTNER.LABOR,
-        '/admin/partner/payments': LABELS.PARTNER.PAYMENTS,
+        // Partner — role disabled in Wave 1 (gap-analysis 2026-05-08)
     };
 
     const breadcrumbItems = [

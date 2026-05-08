@@ -36,12 +36,9 @@ import Quotation from '../pages/pm/CRM/Quotation';
 import PipelineSettings from '../pages/pm/CRM/PipelineSettings';
 
 // V3 PM Construction Pages
-import PMProjectList from '../pages/pm/Construction/ProjectList';
-import PMProjectDetail from '../pages/pm/Construction/ProjectDetail';
-import PMProjectCreate from '../pages/pm/Construction/ProjectCreate';
-import PhotoApproval from '../pages/pm/Construction/PhotoApproval';
-import EvidenceQueue from '../pages/pm/Construction/EvidenceQueue';
-import TemplateChecklist from '../pages/pm/Construction/TemplateChecklist';
+// Construction module — legacy IA redirected to /admin/ql/journeys/* in Wave 1 (gap-analysis 2026-05-08, ROLE-QL-01).
+// Page sources kept on disk under src/pages/pm/Construction/ as backlog for Wave 4-5 feature migration.
+// Only the components still referenced by other (non-construction) routes are imported here.
 import MaterialPlan from '../pages/pm/Construction/MaterialPlan';
 import ProjectFinance from '../pages/pm/Construction/ProjectFinance';
 import ProjectFinanceList from '../pages/pm/Construction/ProjectFinanceList';
@@ -81,9 +78,9 @@ import ThreadInbox from '../pages/public/portal/ThreadInbox';
 import ThreadDetail from '../pages/public/portal/ThreadDetail';
 
 // V3 Supervisor Pages
-import SupervisorChecklist from '../pages/worker/Checklist';
-import SupervisorEvidenceUpload from '../pages/worker/EvidenceUpload';
-const SupervisorIncidentReport = lazy(() => import('../pages/worker/IncidentReport'));
+import SupervisorChecklist from '../pages/giam-sat/Checklist';
+import SupervisorEvidenceUpload from '../pages/giam-sat/EvidenceUpload';
+const SupervisorIncidentReport = lazy(() => import('../pages/giam-sat/IncidentReport'));
 const ProjectDiary = lazy(() => import('../pages/giam-sat/ProjectDiary'));
 const MaterialReceipt = lazy(() => import('../pages/giam-sat/MaterialReceipt'));
 const SharedProfilePage = lazy(() => import('../pages/shared/ProfilePage'));
@@ -132,7 +129,6 @@ const DocumentationPage = lazy(() => import('../pages/public/DocumentationCenter
 
 // Layouts
 import { PMLayout } from '../layouts/PMLayout';
-import { PartnerLayout } from '../layouts/PartnerLayout';
 import { Login } from '../pages/shared/Login/LoginEntry';
 import { NotFound } from '../pages/shared/NotFound';
 import './App.css';
@@ -214,6 +210,49 @@ const LegacyAdminPrefixRedirect = () => {
 
     const targetPath = buildAdminRoleRoute(legacyPrefix, remainingSegments.join('/'));
     return <Navigate to={`${targetPath}${location.search}${location.hash}`} replace />;
+};
+
+/**
+ * Wave 1 — gap-analysis 2026-05-08, ROLE-QL-01.
+ * `/admin/ql/construction/*` is legacy. The journey-centric IA is `/admin/ql/journeys/*`.
+ * Map well-known sub-paths to their journeys equivalents; unknown sub-paths fall back to the journeys list.
+ */
+const ConstructionLegacyRedirect = () => {
+    const location = useLocation();
+    const segments = location.pathname.split('/').filter(Boolean); // ['admin', 'ql', 'construction', ...]
+    const after = segments.slice(3); // strip 'admin/ql/construction'
+    const search = location.search;
+    const hash = location.hash;
+
+    let target = '/admin/ql/journeys';
+
+    if (after[0] === 'projects') {
+        if (!after[1] || after[1] === 'create') {
+            // /projects or /projects/create → journeys list (no journey-create page in Wave 1)
+            target = '/admin/ql/journeys';
+        } else {
+            const id = after[1];
+            const sub = after[2];
+            if (sub === 'finance') {
+                target = `/admin/ql/journeys/${id}?tab=GRP_10_PAYMENT`;
+            } else if (sub === 'materials') {
+                target = `/admin/ql/journeys/${id}?tab=GRP_MATERIALS`;
+            } else {
+                // /projects/:id or /projects/:id/edit → journey detail
+                target = `/admin/ql/journeys/${id}`;
+            }
+        }
+    } else if (after[0] === 'evidence') {
+        // No 1:1 equivalent yet — backlog Wave 4-5.
+        target = '/admin/ql/journeys';
+    } else if (after[0] === 'templates') {
+        target = '/admin/ql/settings/customer-journey';
+    }
+
+    // Preserve query/hash unless we already injected our own ?tab=
+    const hasOwnQuery = target.includes('?');
+    const finalTarget = hasOwnQuery ? `${target}${hash}` : `${target}${search}${hash}`;
+    return <Navigate to={finalTarget} replace />;
 };
 
 function App() {
@@ -317,19 +356,12 @@ function App() {
                                                 <Route path="pipeline-settings" element={<PipelineSettings />} />
                                             </Route>
 
-                                            {/* --- Construction Module (PM) --- */}
-                                            <Route path="construction">
-                                                <Route index element={<Navigate to="/admin/ql/construction/projects" replace />} />
-                                                <Route path="projects" element={<PMProjectList />} />
-                                                <Route path="projects/create" element={<PMProjectCreate />} />
-                                                <Route path="projects/:id/edit" element={<PMProjectCreate />} />
-                                                <Route path="projects/:id" element={<PMProjectDetail />} />
-                                                <Route path="projects/:id/finance" element={<ProjectFinance />} />
-                                                <Route path="projects/:id/materials" element={<MaterialPlan />} />
-                                                <Route path="evidence" element={<EvidenceQueue />} />
-                                                <Route path="evidence/:id" element={<PhotoApproval />} />
-                                                <Route path="templates" element={<TemplateChecklist />} />
-                                            </Route>
+                                            {/* --- Construction Module (PM) — legacy IA, redirected to /admin/ql/journeys/*
+                                                 (Wave 1, gap-analysis 2026-05-08, ROLE-QL-01).
+                                                 Page components (PMProjectList, ProjectFinance, EvidenceQueue, PhotoApproval,
+                                                 TemplateChecklist, MaterialPlan) are intentionally retained on disk —
+                                                 Wave 4-5 backlog for migrating their unique features into Journey360. --- */}
+                                            <Route path="construction/*" element={<ConstructionLegacyRedirect />} />
 
                                             {/* --- Inventory & Assets (PM view) --- */}
                                             <Route path="inventory">
@@ -455,18 +487,12 @@ function App() {
                                             <Route path="execution" element={<KTExecution />} />
                                             <Route path="journeys/:journeyId" element={<JourneyDetail360 />} />
                                             <Route path="profile" element={<SharedProfilePage />} />
-                                            <Route path="inventory/stock-out" element={<OutboundForm />} />
-                                            <Route path="inventory/history" element={<InventoryHistory />} />
-                                            <Route path="inventory/order/:id" element={<StockOrderDetail />} />
-                                            <Route path="assets/allocation" element={<AllocationForm />} />
-                                            <Route path="expenditures/payment-requests" element={<PaymentRequestList />} />
+                                            {/* Wave 1 trim — removed inventory/stock-out, inventory/history, inventory/order/:id,
+                                                assets/allocation, expenditures/payment-requests (over-scope for KYT, gap-analysis ROLE-KYT-03). */}
                                         </Route>
 
-                                        {/* PARTNER ROUTES */}
-                                        <Route path="partner/*" element={<PartnerLayout />}>
-                                            <Route index element={<Navigate to="/admin/partner/dashboard" replace />} />
-                                            <Route path="profile" element={<SharedProfilePage />} />
-                                        </Route>
+                                        {/* PARTNER ROUTES — disabled in Wave 1 (gap-analysis 2026-05-08, ROLE-PA-01/02) */}
+                                        <Route path="partner/*" element={<Navigate to="/notfound" replace />} />
                                     </Route>
 
                                     {/* Default + 404 */}

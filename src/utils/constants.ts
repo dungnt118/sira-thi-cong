@@ -94,17 +94,7 @@ export const LABELS = {
         PROFIT_LOSS: 'Lãi/Lỗ',
     },
 
-    // Partner (Outsource Leader) Menu
-    PARTNER: {
-        DASHBOARD: 'Tổng Quan',
-        MY_PROJECTS: 'Dự Án Của Tôi',
-        UPLOAD_EVIDENCE: 'Tải Minh Chứng',
-        MATERIALS: 'Vật Liệu',
-        LABOR: 'Nhân Công',
-        PAYMENTS: 'Thanh Toán',
-        QUALITY_ISSUES: 'Vấn Đề Chất Lượng',
-        PROGRESS_UPDATE: 'Cập Nhật Tiến Độ',
-    },
+    // Partner (Outsource Leader) Menu — role disabled in Wave 1 (gap-analysis 2026-05-08)
 
     // Actions
     CREATE: 'Tạo Mới',

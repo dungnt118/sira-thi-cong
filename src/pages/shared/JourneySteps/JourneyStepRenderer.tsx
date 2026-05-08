@@ -8,7 +8,8 @@ import Step03Survey from './Step03Survey';
 import Step04SolutionOrchestration from './Step04SolutionOrchestration';
 import Step05QuoteOrchestration from './Step05QuoteOrchestration';
 import Step06SettlementOrchestration from './Step06SettlementOrchestration';
-import Step07Advance from './Step07Advance';
+// Step07Advance was removed in Wave 1 (gap-analysis 2026-05-08, W1-07).
+// Tạm ứng is rendered by Step10Payment with kindFilter='advance_deposit'.
 import Step08Construct from './Step08Construct';
 import Step09Acceptance from './Step09Acceptance';
 import Step10Payment from './Step10Payment';
@@ -94,7 +95,9 @@ export const JourneyStepRenderer: React.FC<JourneyStepRendererProps> = ({
             case 'S04_SOLUTION': return <Step04SolutionOrchestration {...commonProps} />;
             case 'S05_QUOTE': return <Step05QuoteOrchestration {...commonProps} />;
             case 'S06_CONTRACT': return <Step06SettlementOrchestration {...commonProps} />;
-            case 'S07_ADVANCE': return <Step07Advance {...commonProps} />; // Keep for legacy potential but not in main sequence
+            // S07_ADVANCE removed (Wave 1, W1-07). Any lingering reference falls through to Step10Payment
+            // pre-filtered to advance_deposit so deeplinks keep working.
+            case 'S07_ADVANCE': return <Step10Payment {...commonProps} initialKindFilter="advance_deposit" />;
             case 'S08_CONSTRUCT': return <Step08Construct {...commonProps} />;
             case 'S09_ACCEPTANCE': return <Step09Acceptance {...commonProps} />;
             case 'S10_PAYMENT': return <Step10Payment {...commonProps} />;

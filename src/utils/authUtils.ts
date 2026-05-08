@@ -92,8 +92,7 @@ export const getRolePathPrefix = (role: string | undefined | null): string => {
         case 'KYT':
         case 'KY-THUAT':
             return 'kyt';
-        case 'PARTNER':
-            return 'partner';
+        // PARTNER role disabled in Wave 1 — legacy users fall through to guest (forces re-login / not-found).
         default:
             return role.toLowerCase();
     }

@@ -93,7 +93,7 @@ import {
     JOURNEY_STEP_SEQUENCE,
     headerStepKeyToStandardProcedureGroupCd
 } from '../../../utils/journeyStepConfirmation';
-import { mockJourneyTemplates } from '../../../data/journeyMockData';
+// `mockJourneyTemplates` removed in Wave 1 (gap-analysis 2026-05-08, UX-J360 contract) — see deriveJourneyStepsFromSetting.
 import { journeyDocumentService } from '../../../services/core-contracts/services/journeyDocument.service';
 import { IJourneyDocument } from '../../../services/core-contracts/types/journeyDocument.types';
 import { IJourneyStepLog } from '../../../services/core-contracts/types/journeyStepLog.types';
@@ -390,6 +390,65 @@ const JOURNEY_STEP_ORDER_INDEX = CUSTOMER_JOURNEY_SETTING_STEP_CODES.reduce<Reco
     return acc;
 }, {});
 
+/**
+ * Canonical mapping from CustomerJourneySetting step_code to standardProcedureGroupCd
+ * used by tab/role gating throughout this page. Replaces the runtime dependency on
+ * `mockJourneyTemplates` (Wave 1, gap-analysis 2026-05-08, UX-J360 contract).
+ */
+const STEP_CODE_TO_GROUP_CODE: Record<JourneyHeaderStepCode, string> = {
+    lead_new: 'GRP_01_INFO',
+    consult_contact: 'GRP_02_CONTACT',
+    site_survey: 'GRP_03_SURVEY',
+    solution_design: 'GRP_04_SOLUTION',
+    quotation: 'GRP_05_QUOTE',
+    contract: 'GRP_06_CONTRACT',
+    execution: 'GRP_08_CONSTRUCT',
+    final_acceptance: 'GRP_09_ACCEPTANCE',
+    payment: 'GRP_10_PAYMENT',
+    maintenance: 'GRP_11_MAINTAIN',
+    warranty: 'GRP_12_WARRANTY',
+    after_sales: 'GRP_13_CARE',
+};
+
+type DerivedJourneyStep = {
+    step_code: JourneyHeaderStepCode;
+    /** Human-readable label, taken from CustomerJourneySetting.steps[].goal when present, else step_code. */
+    step_name: string;
+    standardProcedureGroupCd: string;
+    roleConfigurations: Array<{ roleId: string; isEditable: boolean; isKeyRole: boolean }>;
+};
+
+/**
+ * Derive the per-step role/permission shape that JourneyDetail360 consumes
+ * (`standardProcedureGroupCd`, `roleConfigurations`) directly from
+ * CustomerJourneySetting. When the setting is unavailable, return a default
+ * 12-step skeleton with empty roleConfigurations so non-PM users see nothing
+ * editable until backend setting is published — safer than silently using
+ * stale mock data.
+ */
+const deriveJourneyStepsFromSetting = (
+    setting: ICustomerJourneySetting | null,
+): DerivedJourneyStep[] => {
+    return CUSTOMER_JOURNEY_SETTING_STEP_CODES.map((stepCode) => {
+        const settingStep = setting?.steps?.find((s) => s.step_code === stepCode);
+        const roleConfigurations = (settingStep?.roles ?? []).map((r) => {
+            const code = (r.role || (r.idx_role as { title?: string } | undefined)?.title || '').toString().trim();
+            const editable = permissionsAllowDocumentActions(r.permissions);
+            // Treat 'commit' (Chịu trách nhiệm) as the "key role" that can finalize the step.
+            const keyRole = (r.permissions ?? []).some(
+                (p) => String(p).toLowerCase().trim() === 'commit',
+            );
+            return { roleId: code, isEditable: editable, isKeyRole: keyRole };
+        });
+        return {
+            step_code: stepCode,
+            step_name: settingStep?.goal || stepCode,
+            standardProcedureGroupCd: STEP_CODE_TO_GROUP_CODE[stepCode],
+            roleConfigurations,
+        };
+    });
+};
+
 /** Quan hệ tích lũy giữa current_step của Journey và tab chức năng trên màn hình 360. */
 const JOURNEY_TAB_ACCESS_RULES: JourneyTabAccessRule[] = [
     { key: 'GRP_01_INFO', minStepCode: 'lead_new', currentStepCode: 'lead_new', roleGroupCode: 'GRP_01_INFO', alwaysVisible: true },
@@ -403,7 +462,9 @@ const JOURNEY_TAB_ACCESS_RULES: JourneyTabAccessRule[] = [
     { key: 'GRP_MATERIALS', minStepCode: 'quotation', roleGroupCode: 'GRP_05_QUOTE' },
     { key: 'GRP_05_QUOTE', minStepCode: 'quotation', currentStepCode: 'quotation', roleGroupCode: 'GRP_05_QUOTE' },
     { key: 'GRP_06_CONTRACT', minStepCode: 'contract', currentStepCode: 'contract', roleGroupCode: 'GRP_06_CONTRACT' },
-    { key: 'GRP_07_DEPOSIT', minStepCode: 'contract', roleGroupCode: 'GRP_07_DEPOSIT' },
+    // GRP_07_DEPOSIT removed in Wave 1 (gap-analysis 2026-05-08, W1-07).
+    // Tạm ứng / Đặt cọc is now a section inside the Payment tab (GRP_10_PAYMENT)
+    // — classified by PaymentMilestone.kind, not by step.
     { key: 'GRP_ACCEPTANCE', minStepCode: 'final_acceptance', currentStepCode: 'final_acceptance', roleGroupCode: 'GRP_09_ACCEPTANCE', alternateRoleGroupCodes: ['GRP_08_CONSTRUCT'] },
     { key: 'GRP_10_PAYMENT', minStepCode: 'payment', currentStepCode: 'payment', roleGroupCode: 'GRP_10_PAYMENT' },
     { key: 'GRP_11_MAINTAIN', minStepCode: 'maintenance', currentStepCode: 'maintenance', roleGroupCode: 'GRP_11_MAINTAIN' },
@@ -418,7 +479,7 @@ const STEP_PRIORITY_TABS: Record<string, string[]> = {
     site_survey: ['GRP_03_SURVEY'],
     solution_design: ['GRP_04_SOLUTION'],
     quotation: ['GRP_ESTIMATE', 'GRP_05_QUOTE'],
-    contract: ['GRP_06_CONTRACT', 'GRP_07_DEPOSIT'],
+    contract: ['GRP_06_CONTRACT'],
     execution: ['GRP_08_CONSTRUCT'],
     final_acceptance: ['GRP_ACCEPTANCE'],
     payment: ['GRP_10_PAYMENT'],
@@ -718,11 +779,10 @@ const JourneyDetail360: React.FC = () => {
         };
     }, []);
 
-    // Resolve template/steps
-    const template = mockJourneyTemplates.find(t => t.id === 'default') || mockJourneyTemplates[0];
-    const journeySteps = template?.steps || [];
+    // Step state derived from `journey.current_step` (independent of CustomerJourneySetting).
     const currentStepCode = journey?.current_step || 'lead_new';
     const currentHeaderStepIndex = HEADER_STEP_CONFIG.findIndex((step) => step.key === currentStepCode);
+    // `journeySteps` is computed from CustomerJourneySetting via useMemo below — see lines after state declarations.
 
     const [showDispatchWorkModal, setShowDispatchWorkModal] = useState(false);
     const [showPriorityModal, setShowPriorityModal] = useState(false);
@@ -751,6 +811,20 @@ const JourneyDetail360: React.FC = () => {
     const [createWorkTaskForm] = Form.useForm();
     const [resetStepCode, setResetStepCode] = useState<string | null>(null);
     const [modal, modalContextHolder] = Modal.useModal();
+
+    /**
+     * Derive `journeySteps` (with `standardProcedureGroupCd` + `roleConfigurations`)
+     * directly from CustomerJourneySetting. Wave 1 (gap-analysis 2026-05-08, UX-J360
+     * contract): replaces the previous runtime dependency on `mockJourneyTemplates`.
+     * If the setting hasn't loaded yet, this returns a 12-step skeleton with empty
+     * `roleConfigurations` — non-PM users see read-only until the real setting arrives,
+     * PM users still see everything because their access is computed from the canonical
+     * group codes regardless of role configurations.
+     */
+    const journeySteps = useMemo(
+        () => deriveJourneyStepsFromSetting(customerJourneySetting),
+        [customerJourneySetting],
+    );
 
     const openDispatchWorkModal = () => {
         if (!journey) return;
@@ -1355,100 +1429,6 @@ const JourneyDetail360: React.FC = () => {
         );
     };
 
-    const tabItems = [
-        // 1. Tab Tổng quan (GRP_01_INFO) + Dự án data
-        {
-            key: 'GRP_01_INFO',
-            label: <span><FormOutlined /> Tổng quan</span>,
-            children: renderTabContent('GRP_01_INFO', 'S01_INFO'),
-        },
-        // 2. Tab Tạo lịch hẹn (GRP_02_CONTACT)
-        {
-            key: 'GRP_02_CONTACT',
-            label: <span><CalendarOutlined /> Lịch hẹn</span>,
-            children: renderTabContent('GRP_02_CONTACT', 'S02_CONSULT'),
-        },
-        // 3. Tab Khảo sát (GRP_03_SURVEY)
-        {
-            key: 'GRP_03_SURVEY',
-            label: <span><FileSearchOutlined /> Khảo sát</span>,
-            children: renderTabContent('GRP_03_SURVEY', 'S03_SURVEY'),
-        },
-        // 4. Tab Dự toán (GRP_04_SOLUTION)
-        {
-            key: 'GRP_04_SOLUTION',
-            label: <span><CalculatorOutlined /> Dự toán</span>,
-            children: renderTabContent('GRP_04_SOLUTION', 'S04_SOLUTION'),
-        },
-        // 5. Tab Nhân công
-        {
-            key: 'GRP_LABOR',
-            label: <span><TeamOutlined /> Nhân công</span>,
-            children: <StepLabor journeyId={journey._id} isEditable={userRoleConfig.editableGroupCodes.includes('GRP_05_QUOTE') || role === 'QL'} />,
-        },
-        // 6. Tab Báo giá/HĐ (GRP_05_QUOTE)
-        {
-            key: 'GRP_05_QUOTE',
-            label: <span><FileTextOutlined /> Báo giá/HĐ</span>,
-            children: renderTabContent('GRP_05_QUOTE', 'S05_QUOTE'),
-        },
-        // 7. Tab Vật tư
-        {
-            key: 'GRP_MATERIALS',
-            label: <span><BoxPlotOutlined /> Vật tư</span>,
-            children: <StepMaterials journeyId={journey._id} isEditable={userRoleConfig.editableGroupCodes.includes('GRP_05_QUOTE') || role === 'QL'} />,
-        },
-        // 9. Tab Thanh toán (GRP_07_DEPOSIT or GRP_10_PAYMENT)
-        {
-            key: 'GRP_07_DEPOSIT',
-            label: <span><DollarOutlined /> Thanh toán</span>,
-            children: renderTabContent('GRP_07_DEPOSIT', 'S07_ADVANCE'),
-        },
-        // 11. Tab Phát sinh (GRP_08_CONSTRUCT)
-        {
-            key: 'GRP_08_CONSTRUCT',
-            label: <span><ExclamationCircleOutlined /> Nhật ký</span>,
-            children: renderTabContent('GRP_08_CONSTRUCT', 'S08_CONSTRUCT'),
-        },
-        // 12. Tab Tài liệu (GRP_09_ACCEPTANCE or GRP_08_CONSTRUCT)
-        {
-            key: 'GRP_ACCEPTANCE',
-            label: <span><PaperClipOutlined /> Bàn giao</span>,
-            children: renderTabContent('GRP_09_ACCEPTANCE', 'S09_ACCEPTANCE'),
-        },
-        // 12b. Tab Tài liệu công trình - công khai, không giới hạn quyền
-        {
-            key: 'GRP_DOCUMENTS',
-            label: <span><PaperClipOutlined /> Tài liệu công trình</span>,
-            children: (
-                <JourneyDocumentsTab
-                    journeyId={journey._id}
-                    isEditable={canCreateJourneyDocument}
-                    journeyCurrentStep={journey.current_step}
-                />
-            ),
-        },
-    ].filter(item => {
-        // Tab Tổng quan (GRP_01_INFO) luôn hiển thị cho tất cả vai trò
-        if (item.key === 'GRP_01_INFO') return true;
-
-        // Tab Nhật ký (GRP_08_CONSTRUCT) luôn hiển thị công khai cho tất cả vai trò
-        if (item.key === 'GRP_08_CONSTRUCT') return true;
-
-        // Tab Tài liệu công trình luôn hiển thị công khai cho tất cả vai trò
-        if (item.key === 'GRP_DOCUMENTS') return true;
-
-        // Filter tabs based on user visibility
-        if (item.key === 'LOG') return role === 'QL' || role === 'KD';
-
-        // Custom keys that don't match standardProcedureGroupCd exactly
-        if (item.key === 'GRP_LABOR') return userRoleConfig.allowedGroupCodes.includes('GRP_05_QUOTE') || role === 'QL' || role === 'KD';
-        if (item.key === 'GRP_MATERIALS') return userRoleConfig.allowedGroupCodes.includes('GRP_05_QUOTE') || role === 'QL' || role === 'KD';
-        if (item.key === 'GRP_ACCEPTANCE') return userRoleConfig.allowedGroupCodes.includes('GRP_09_ACCEPTANCE') || userRoleConfig.allowedGroupCodes.includes('GRP_08_CONSTRUCT');
-
-        return userRoleConfig.allowedGroupCodes.includes(item.key);
-    });
-
     const canEditQuoteResources = userRoleConfig.editableGroupCodes.includes('GRP_05_QUOTE') || isPmManager;
     const stagedTabItems = JOURNEY_TAB_ACCESS_RULES
         .map((rule) => {
@@ -1523,12 +1503,8 @@ const JourneyDetail360: React.FC = () => {
                         label: <span><AuditOutlined /> Hợp đồng</span>,
                         children: renderTabContent('GRP_06_CONTRACT', 'S06_CONTRACT', 'contract'),
                     };
-                case 'GRP_07_DEPOSIT':
-                    return {
-                        key: rule.key,
-                        label: <span><DollarOutlined /> Tạm ứng</span>,
-                        children: renderTabContent('GRP_07_DEPOSIT', 'S07_ADVANCE', undefined, { canFinalize: false }),
-                    };
+                // 'GRP_07_DEPOSIT' tab removed in Wave 1 (gap-analysis 2026-05-08, W1-07).
+                // Tạm ứng now lives inside the Payment tab as a kind filter section.
                 case 'GRP_08_CONSTRUCT':
                     return {
                         key: rule.key,

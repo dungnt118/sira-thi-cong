@@ -8,8 +8,7 @@ import {
     CustomerServiceOutlined,
     ProjectOutlined,
     SafetyOutlined,
-    DollarOutlined,
-    TeamOutlined
+    DollarOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '@/store/hooks';
@@ -40,7 +39,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
         { key: 'KYT', title: 'Kỹ Thuật', icon: <ProjectOutlined />, path: '/admin/kyt/dashboard', color: '#13a8a8' },
         { key: 'GS', title: 'Giám Sát', icon: <SafetyOutlined />, path: '/admin/gs/dashboard', color: '#52c41a' },
         { key: 'KT', title: 'Kế Toán', icon: <DollarOutlined />, path: '/admin/kt/dashboard', color: '#fa8c16' },
-        { key: 'PARTNER', title: 'Đối Tác', icon: <TeamOutlined />, path: '/admin/partner/dashboard', color: '#13c2c2' },
+        // PARTNER role disabled in Wave 1 (gap-analysis 2026-05-08)
     ];
 
     const handleSwitch = (roleKey: string, path: string) => {

@@ -5,7 +5,7 @@ export { default as Step03Survey } from './Step03Survey';
 export { default as Step04Solution } from './Step04Solution';
 export { default as Step05Quote } from './Step05Quote';
 export { default as Step06Contract } from './Step06Contract';
-export { default as Step07Advance } from './Step07Advance';
+// Step07Advance removed in Wave 1 (gap-analysis 2026-05-08, W1-07) — Tạm ứng now lives inside Step10Payment.
 export { default as Step08Construct } from './Step08Construct';
 export { default as Step09Acceptance } from './Step09Acceptance';
 export { default as Step10Payment } from './Step10Payment';

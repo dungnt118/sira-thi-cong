@@ -9,7 +9,6 @@ import {
     SafetyOutlined,
     SettingOutlined,
     SwapOutlined,
-    TeamOutlined,
     UserOutlined
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
@@ -41,8 +40,8 @@ export const UserMenu: React.FC<UserMenuProps> = ({
         { key: 'KD', title: 'Kinh doanh (Sale)', icon: <CustomerServiceOutlined />, path: '/admin/kd/dashboard', color: '#eb2f96' },
         { key: 'KYT', title: 'Kỹ thuật', icon: <ProjectOutlined />, path: '/admin/kyt/dashboard', color: '#13a8a8' },
         { key: 'GS', title: 'Giám sát', icon: <SafetyOutlined />, path: '/admin/gs/dashboard', color: '#52c41a' },
-        { key: 'KT', title: 'Kế toán', icon: <DollarOutlined />, path: '/admin/kt/dashboard', color: '#fa8c16' },
-        { key: 'PARTNER', title: 'Đối tác', icon: <TeamOutlined />, path: '/admin/partner/dashboard', color: '#13c2c2' }
+        { key: 'KT', title: 'Kế toán', icon: <DollarOutlined />, path: '/admin/kt/dashboard', color: '#fa8c16' }
+        // PARTNER role disabled in Wave 1 (gap-analysis 2026-05-08)
     ];
 
     const handleSwitch = (roleKey: string, path: string) => {

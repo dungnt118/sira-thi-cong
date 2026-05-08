@@ -25,6 +25,7 @@ export const FIND_PAYMENTMILESTONE_DTO = gql`
         amount
         due_date
         status
+        kind
         amount_received_total
         remaining_amount
         receipt_count
@@ -73,6 +74,7 @@ export const QUERY_PAYMENTMILESTONES_DTO = gql`
         amount
         due_date
         status
+        kind
         amount_received_total
         remaining_amount
         receipt_count

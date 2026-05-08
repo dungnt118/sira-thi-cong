@@ -19,6 +19,8 @@ export interface IPaymentMilestone {
   amount?: number;
   due_date?: string | Date;
   status?: PaymentMilestoneStatusEnum;
+  /** Loại đợt thanh toán — phân loại theo bản chất nghiệp vụ, độc lập với journey_step_code. */
+  kind?: PaymentMilestoneKindEnum;
   amount_received_total?: number;
   remaining_amount?: number;
   receipt_count?: number;
@@ -55,6 +57,7 @@ export interface ICreatePaymentMilestoneInput {
   amount?: number;
   due_date?: string | Date;
   status?: PaymentMilestoneStatusEnum2;
+  kind?: PaymentMilestoneKindEnum;
   amount_received_total?: number;
   remaining_amount?: number;
   receipt_count?: number;
@@ -81,3 +84,17 @@ export type PaymentMilestoneJourneyStepCodeEnum = 'lead_new' | 'consult_contact'
 export type PaymentMilestoneStatusEnum = 'pending' | 'partially_paid' | 'paid' | 'overdue';
 export type PaymentMilestoneJourneyStepCodeEnum2 = 'lead_new' | 'consult_contact' | 'site_survey' | 'solution_design' | 'quotation' | 'contract' | 'execution' | 'final_acceptance' | 'payment' | 'maintenance' | 'warranty' | 'after_sales';
 export type PaymentMilestoneStatusEnum2 = 'pending' | 'partially_paid' | 'paid' | 'overdue';
+/**
+ * Loại đợt thanh toán (phân loại nghiệp vụ, độc lập với journey_step_code).
+ * - advance_deposit: Tạm ứng / Đặt cọc đầu kỳ (có thể phát sinh ở nhiều bước theo lịch hợp đồng).
+ * - progress_payment: Thanh toán theo tiến độ thi công (mặc định).
+ * - retention: Giữ lại bảo hành (5–10% sau bàn giao, giải ngân khi hết hạn BH).
+ * - final_settlement: Quyết toán / Thanh lý hợp đồng.
+ * - other: Khác (escape hatch).
+ */
+export type PaymentMilestoneKindEnum =
+    | 'advance_deposit'
+    | 'progress_payment'
+    | 'retention'
+    | 'final_settlement'
+    | 'other';
