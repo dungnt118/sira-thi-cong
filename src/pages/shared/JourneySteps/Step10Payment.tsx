@@ -27,6 +27,7 @@ import {
     DollarOutlined,
     EditOutlined,
     EyeOutlined,
+    FileTextOutlined,
     InfoCircleOutlined,
     PlusOutlined,
     SaveOutlined,
@@ -45,6 +46,10 @@ import {
 import { IPaymentReceipt } from '../../../services/core-contracts/types/paymentReceipt.types';
 import { RecordReceiptModal } from '../../../components/journey/RecordReceiptModal';
 import { buildFilter } from '@/utils/filterBuilder';
+import IssueInvoiceModal from '../../accountant/SalesInvoice/components/IssueInvoiceModal';
+import { ISalesInvoice } from '../../../services/core-contracts/types/salesInvoice.types';
+import SendConfirmationModal from '../../accountant/Debt/components/SendConfirmationModal';
+import { IDebtConfirmation } from '../../../services/core-contracts/types/debtConfirmation.types';
 
 const { TextArea } = Input;
 const { Text, Title } = Typography;
@@ -145,6 +150,12 @@ export const Step10Payment: React.FC<Step10PaymentProps> = ({
 
     // W3-03 — Receipt state
     const [receiptModalMilestone, setReceiptModalMilestone] = useState<IPaymentMilestone | null>(null);
+    // Wave 4 W4-04 — KT issue invoice flow inline với Step10Payment.
+    const [invoiceModalReceiptId, setInvoiceModalReceiptId] = useState<string | null>(null);
+    const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
+    // Wave 4 W4-05 — KT debt confirmation flow inline.
+    const [debtModalMilestoneId, setDebtModalMilestoneId] = useState<string | null>(null);
+    const [isDebtModalOpen, setIsDebtModalOpen] = useState(false);
     /** Receipts per milestone _id — lazy loaded when row is expanded */
     const [receiptsMap, setReceiptsMap] = useState<Record<string, IPaymentReceipt[]>>({});
     const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
@@ -338,26 +349,66 @@ export const Step10Payment: React.FC<Step10PaymentProps> = ({
                   {
                       title: '',
                       key: 'actions',
-                      width: 130,
-                      render: (_: any, record: IPaymentMilestone) => (
-                          <Space size={4}>
-                              <Tooltip title="Ghi nhận thu tiền cho đợt này">
-                                  <Button
-                                      size="small"
-                                      type="primary"
-                                      ghost
-                                      icon={<PlusOutlined />}
-                                      onClick={(e) => {
-                                          e.stopPropagation();
-                                          setReceiptModalMilestone(record);
-                                      }}
-                                      disabled={record.status === 'paid'}
-                                  >
-                                      Ghi nhận thu
-                                  </Button>
-                              </Tooltip>
-                          </Space>
-                      ),
+                      width: 320,
+                      render: (_: any, record: IPaymentMilestone) => {
+                          const hasReceipts = (record.amount_received_total ?? 0) > 0;
+                          const remaining = record.remaining_amount ?? Math.max(0, (record.amount ?? 0) - (record.amount_received_total ?? 0));
+                          const isOverdue = record.due_date
+                              && new Date(record.due_date as any).getTime() < Date.now()
+                              && remaining > 0
+                              && record.status !== 'paid';
+                          return (
+                              <Space size={4} wrap>
+                                  <Tooltip title="Ghi nhận thu tiền cho đợt này">
+                                      <Button
+                                          size="small"
+                                          type="primary"
+                                          ghost
+                                          icon={<PlusOutlined />}
+                                          onClick={(e) => {
+                                              e.stopPropagation();
+                                              setReceiptModalMilestone(record);
+                                          }}
+                                          disabled={record.status === 'paid'}
+                                      >
+                                          Ghi nhận thu
+                                      </Button>
+                                  </Tooltip>
+                                  {/* Wave 4 W4-04: KT xuất hoá đơn từ phiếu thu của đợt này. */}
+                                  {hasReceipts && (
+                                      <Tooltip title="Xuất hoá đơn VAT từ phiếu thu của đợt này">
+                                          <Button
+                                              size="small"
+                                              icon={<FileTextOutlined />}
+                                              onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  setInvoiceModalReceiptId(null);
+                                                  setIsInvoiceModalOpen(true);
+                                              }}
+                                          >
+                                              Xuất HĐ
+                                          </Button>
+                                      </Tooltip>
+                                  )}
+                                  {/* Wave 4 W4-05: tạo biên bản xác nhận công nợ cho milestone quá hạn còn nợ. */}
+                                  {isOverdue && (
+                                      <Tooltip title="Tạo biên bản xác nhận công nợ với khách hàng">
+                                          <Button
+                                              size="small"
+                                              danger
+                                              onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  setDebtModalMilestoneId(record._id);
+                                                  setIsDebtModalOpen(true);
+                                              }}
+                                          >
+                                              XN công nợ
+                                          </Button>
+                                      </Tooltip>
+                                  )}
+                              </Space>
+                          );
+                      },
                   },
               ]
             : []),
@@ -625,6 +676,38 @@ export const Step10Payment: React.FC<Step10PaymentProps> = ({
                     onSuccess={handleReceiptSuccess}
                 />
             )}
+
+            {/* Wave 4 W4-04 — Issue invoice modal (filter receipts theo journey hiện tại) */}
+            <IssueInvoiceModal
+                open={isInvoiceModalOpen}
+                invoice={null}
+                journeyId={journeyId}
+                initialReceiptId={invoiceModalReceiptId ?? undefined}
+                onClose={() => {
+                    setIsInvoiceModalOpen(false);
+                    setInvoiceModalReceiptId(null);
+                }}
+                onSuccess={(_saved: ISalesInvoice) => {
+                    setIsInvoiceModalOpen(false);
+                    setInvoiceModalReceiptId(null);
+                }}
+            />
+
+            {/* Wave 4 W4-05 — Send debt confirmation modal */}
+            <SendConfirmationModal
+                open={isDebtModalOpen}
+                confirmation={null}
+                journeyId={journeyId}
+                initialMilestoneId={debtModalMilestoneId ?? undefined}
+                onClose={() => {
+                    setIsDebtModalOpen(false);
+                    setDebtModalMilestoneId(null);
+                }}
+                onSuccess={(_saved: IDebtConfirmation) => {
+                    setIsDebtModalOpen(false);
+                    setDebtModalMilestoneId(null);
+                }}
+            />
         </Card>
     );
 };

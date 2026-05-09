@@ -36,7 +36,7 @@ const JourneyUpsertDrawer: React.FC<JourneyUpsertDrawerProps> = ({
             onClose={onCancel}
             open={open}
             maskClosable={false}
-            destroyOnClose
+            destroyOnHidden
             placement="right"
         >
             <JourneyForm

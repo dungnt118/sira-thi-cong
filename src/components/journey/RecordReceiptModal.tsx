@@ -151,7 +151,7 @@ export const RecordReceiptModal: React.FC<RecordReceiptModalProps> = ({
             onCancel={handleClose}
             footer={null}
             width={520}
-            destroyOnClose
+            destroyOnHidden
         >
             {/* Tóm tắt milestone */}
             <Alert

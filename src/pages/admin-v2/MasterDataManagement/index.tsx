@@ -415,7 +415,7 @@ const MasterDataManagement: React.FC = () => {
                 onCancel={() => setIsItemModalOpen(false)}
                 confirmLoading={itemSubmitting}
                 width={700}
-                destroyOnClose
+                destroyOnHidden
             >
                 <Form form={itemForm} layout="vertical">
                     <Form.Item name="category" label="Danh mục (Enum)" rules={[{ required: true }]}>

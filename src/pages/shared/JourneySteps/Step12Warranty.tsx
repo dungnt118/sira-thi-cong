@@ -354,7 +354,7 @@ export const Step12Warranty: React.FC<Step12WarrantyProps> = ({
                 onCancel={() => { form.resetFields(); setAddCaseOpen(false); }}
                 footer={null}
                 width={480}
-                destroyOnClose
+                destroyOnHidden
             >
                 <Form
                     form={form}

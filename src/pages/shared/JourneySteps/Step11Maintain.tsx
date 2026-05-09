@@ -426,7 +426,7 @@ export const Step11Maintain: React.FC<Step11MaintainProps> = ({
                 onCancel={() => { caseForm.resetFields(); setAddCaseOpen(false); }}
                 footer={null}
                 width={480}
-                destroyOnClose
+                destroyOnHidden
             >
                 <Form
                     form={caseForm}
@@ -473,7 +473,7 @@ export const Step11Maintain: React.FC<Step11MaintainProps> = ({
                 onCancel={() => { visitForm.resetFields(); setAddVisitOpen(false); setSelectedCase(null); }}
                 footer={null}
                 width={440}
-                destroyOnClose
+                destroyOnHidden
             >
                 <Form
                     form={visitForm}

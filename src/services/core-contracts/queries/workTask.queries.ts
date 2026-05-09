@@ -42,6 +42,8 @@ export const FIND_WORKTASK_DTO = gql`
           min_count
           note
         }
+        min_photos
+        review_status
       }
     }
   }
@@ -89,6 +91,8 @@ export const QUERY_WORKTASKS_DTO = gql`
           min_count
           note
         }
+        min_photos
+        review_status
       }
     }
   }

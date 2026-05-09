@@ -321,7 +321,7 @@ const AssetAllocationDetail: React.FC = () => {
                 onCancel={() => setIsSignatureModalOpen(false)}
                 footer={null}
                 width={isMobile ? 'calc(100vw - 24px)' : 450}
-                destroyOnClose
+                destroyOnHidden
             >
                 <SignaturePad
                     onSave={handleSign}

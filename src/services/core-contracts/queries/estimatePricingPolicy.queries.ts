@@ -74,6 +74,7 @@ export const FIND_ESTIMATEPRICINGPOLICY_DTO = gql`
           effect_value
           note
         }
+        template_rules
       }
     }
   }
@@ -153,6 +154,7 @@ export const QUERY_ESTIMATEPRICINGPOLICYS_DTO = gql`
           effect_value
           note
         }
+        template_rules
       }
     }
   }

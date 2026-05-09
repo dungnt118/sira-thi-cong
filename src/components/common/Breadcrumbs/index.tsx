@@ -53,6 +53,42 @@ export const Breadcrumbs: React.FC = () => {
         '/admin/kt/payment-tracking': LABELS.ACCOUNTANT.PAYMENT_TRACKING,
         '/admin/kt/reports': LABELS.ACCOUNTANT.REPORTS,
 
+        // Wave 4 W4-04 — Sales Invoice (Hoá đơn VAT)
+        '/admin/kt/sales': 'Doanh thu',
+        '/admin/kt/sales/invoices': 'Hoá đơn bán hàng',
+
+        // Wave 4 W4-05 — Debt Confirmation + Collection
+        '/admin/kt/debt': 'Công nợ',
+        '/admin/kt/debt/confirmations': 'Xác nhận công nợ',
+        '/admin/kt/debt/collection': 'Bảng nhắc thu hồi',
+
+        // Wave 4 W4-02b — Cash Book
+        '/admin/kt/finance': 'Thanh toán',
+        '/admin/kt/finance/milestones': 'Theo dõi đợt thanh toán',
+        '/admin/kt/finance/cashbook': 'Sổ quỹ',
+        '/admin/kt/finance/report': 'Báo cáo tài chính',
+
+        // Wave 4 W4-03 — KT Reports detail pages
+        '/admin/kt/reports/pnl': 'Báo cáo Lãi/Lỗ',
+        '/admin/kt/reports/cashflow': 'Báo cáo Dòng tiền',
+        '/admin/kt/reports/ar-aging': 'AR Aging — Tuổi nợ phải thu',
+        '/admin/kt/reports/ap-outstanding': 'AP — Công nợ phải trả',
+
+        // Wave 3-4 — Other KT modules
+        '/admin/kt/inventory': 'QL Vật tư',
+        '/admin/kt/inventory/materials': 'Danh mục vật tư',
+        '/admin/kt/inventory/distributors': 'Nhà phân phối',
+        '/admin/kt/inventory/stock-out': 'Phiếu xuất kho',
+        '/admin/kt/inventory/stock-in': 'Phiếu nhập kho',
+        '/admin/kt/inventory/history': 'Lịch sử xuất/nhập',
+        '/admin/kt/expenditures': 'Khoản chi',
+        '/admin/kt/expenditures/payment-requests': 'Yêu cầu chi',
+        '/admin/kt/expenditures/company-bank-accounts': 'Tài khoản công ty',
+        '/admin/kt/expenditures/beneficiary-contacts': 'Tài khoản thụ hưởng',
+        '/admin/kt/warranty': 'Bảo hành',
+        '/admin/kt/warranty/cards': 'Phiếu bảo hành',
+        '/admin/kt/warranty/schedule': 'Lịch nhắc bảo hành',
+
         // Partner — role disabled in Wave 1 (gap-analysis 2026-05-08)
     };
 

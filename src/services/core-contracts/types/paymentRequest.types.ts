@@ -47,6 +47,9 @@ export interface IPaymentRequest {
   payment_proof_note?: string;
   createdBy?: any;
   rejected_by?: any;
+  // Wave 4 Phase 0 — link sang đợt thu cụ thể (thay reference_code workaround Wave 2 W2-02).
+  payment_milestone_id?: string;
+  idx_payment_milestone_id?: IndexedContentItem;
 }
 
 export interface ICreatePaymentRequestInput {
@@ -87,6 +90,8 @@ export interface ICreatePaymentRequestInput {
   payment_proof_note?: string;
   createdBy?: any;
   rejected_by?: any;
+  // Wave 4 Phase 0 — link sang đợt thu cụ thể (thay reference_code workaround Wave 2 W2-02).
+  payment_milestone_id?: string;
 }
 
 export type IPaymentRequestListResponse = ApiListResponse<IPaymentRequest>

@@ -447,7 +447,7 @@ const AssetsDashboard: React.FC = () => {
                 open={isGroupModalOpen}
                 onOk={handleSaveGroup}
                 onCancel={() => setIsGroupModalOpen(false)}
-                destroyOnClose
+                destroyOnHidden
             >
                 <Form form={groupForm} layout="vertical">
                     <Form.Item name="name" label="Tên Nhóm tài sản" rules={[{ required: true, message: 'Vui lòng nhập tên nhóm' }]}>
@@ -473,7 +473,7 @@ const AssetsDashboard: React.FC = () => {
                 onOk={handleSaveAsset}
                 onCancel={() => setIsAssetModalOpen(false)}
                 width={isMobile ? 'calc(100vw - 24px)' : 700}
-                destroyOnClose
+                destroyOnHidden
             >
                 <Form form={assetForm} layout="vertical">
                     <Row gutter={16}>

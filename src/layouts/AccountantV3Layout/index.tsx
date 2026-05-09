@@ -11,6 +11,8 @@ import {
     BarChartOutlined,
     ToolOutlined,
     BankOutlined,
+    FileTextOutlined,
+    AuditOutlined,
 } from '@ant-design/icons';
 import { BaseLayout } from '../shared/BaseLayout';
 import { AppBrandLogo } from '../../components/common/AppBrandLogo';
@@ -51,6 +53,7 @@ const menuItems: MenuProps['items'] = [
         label: 'Thanh toán',
         children: [
             { key: '/admin/kt/finance/milestones', label: 'Theo dõi đợt TT' },
+            { key: '/admin/kt/finance/cashbook', label: 'Sổ quỹ' },
             { key: '/admin/kt/finance/report', label: 'Báo cáo tài chính' },
         ],
     },
@@ -62,6 +65,25 @@ const menuItems: MenuProps['items'] = [
             { key: '/admin/kt/expenditures/payment-requests', label: 'Yêu cầu chi' },
             { key: '/admin/kt/expenditures/company-bank-accounts', label: 'Tài khoản Công ty' },
             { key: '/admin/kt/expenditures/beneficiary-contacts', label: 'Tài khoản thụ hưởng' },
+        ],
+    },
+    {
+        // Wave 4 W4-04 — Hoá đơn VAT
+        key: '/admin/kt/sales',
+        icon: <FileTextOutlined />,
+        label: 'Doanh thu',
+        children: [
+            { key: '/admin/kt/sales/invoices', label: 'Hoá đơn bán hàng' },
+        ],
+    },
+    {
+        // Wave 4 W4-05 — Công nợ phải thu
+        key: '/admin/kt/debt',
+        icon: <AuditOutlined />,
+        label: 'Công nợ',
+        children: [
+            { key: '/admin/kt/debt/confirmations', label: 'Xác nhận công nợ' },
+            { key: '/admin/kt/debt/collection', label: 'Bảng nhắc thu hồi' },
         ],
     },
     {
@@ -77,6 +99,15 @@ const menuItems: MenuProps['items'] = [
         key: '/admin/kt/reports',
         icon: <BarChartOutlined />,
         label: 'Báo cáo',
+    },
+    {
+        // Wave 8 W8-04 — KT one-time tools
+        key: '/admin/kt/tools',
+        icon: <ToolOutlined />,
+        label: 'Công cụ',
+        children: [
+            { key: '/admin/kt/tools/backfill-payment-link', label: 'Backfill Link Đợt thu' },
+        ],
     },
 ];
 
@@ -102,7 +133,7 @@ const AccountantSidebar: React.FC = () => {
                     theme="dark"
                     mode="inline"
                     selectedKeys={[location.pathname]}
-                    defaultOpenKeys={['/admin/kt/inventory', '/admin/kt/assets', '/admin/kt/finance', '/admin/kt/warranty', '/admin/kt/expenditures']}
+                    defaultOpenKeys={['/admin/kt/inventory', '/admin/kt/assets', '/admin/kt/finance', '/admin/kt/warranty', '/admin/kt/expenditures', '/admin/kt/sales', '/admin/kt/debt', '/admin/kt/tools']}
                     items={menuItems}
                     onClick={e => navigate(e.key)}
                 />

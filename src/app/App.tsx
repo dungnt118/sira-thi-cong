@@ -110,6 +110,19 @@ import CompanyBankAccountList from '../pages/accountant/Expenditures/CompanyBank
 import BeneficiaryContactList from '../pages/accountant/Expenditures/BeneficiaryContactList';
 import WarrantyCardsList from '../pages/accountant/Warranty/WarrantyCardsList';
 import WarrantySchedule from '../pages/accountant/Warranty/WarrantySchedule';
+// Wave 4 — KT finance modules
+import SalesInvoiceList from '../pages/accountant/SalesInvoice/SalesInvoiceList';
+import DebtConfirmationList from '../pages/accountant/Debt/DebtConfirmationList';
+import DebtCollectionBoard from '../pages/accountant/Debt/DebtCollectionBoard';
+import CashBookList from '../pages/accountant/CashBook/CashBookList';
+// Wave 4 W4-03 — KT Reports module
+import ReportsLanding from '../pages/accountant/Reports/ReportsLanding';
+import PnLReport from '../pages/accountant/Reports/PnLReport';
+import CashFlowReport from '../pages/accountant/Reports/CashFlowReport';
+import ARAgingReport from '../pages/accountant/Reports/ARAgingReport';
+import APOutstandingReport from '../pages/accountant/Reports/APOutstandingReport';
+// Wave 7 W7-03 — KT data backfill tool
+import BackfillPaymentRequestLink from '../pages/accountant/Tools/BackfillPaymentRequestLink';
 
 // V4 Ky Thuat Pages
 import KyThuatLayout from '../layouts/KyThuatLayout';
@@ -476,13 +489,36 @@ function App() {
                                             <Route path="finance">
                                                 <Route index element={<Navigate to="/admin/kt/finance/milestones" replace />} />
                                                 <Route path="milestones" element={<PaymentDashboard />} />
+                                                <Route path="cashbook" element={<CashBookList />} />
                                                 <Route path="report" element={<ComingSoon title="Báo cáo Tài chính" />} />
                                             </Route>
                                             <Route path="warranty">
                                                 <Route path="cards" element={<WarrantyCardsList />} />
                                                 <Route path="schedule" element={<WarrantySchedule />} />
                                             </Route>
-                                            <Route path="reports" element={<ComingSoon title="Báo cáo Tổng hợp" />} />
+                                            {/* Wave 4 W4-04 — Sales Invoice (Hoá đơn VAT) */}
+                                            <Route path="sales">
+                                                <Route index element={<Navigate to="/admin/kt/sales/invoices" replace />} />
+                                                <Route path="invoices" element={<SalesInvoiceList />} />
+                                            </Route>
+                                            {/* Wave 4 W4-05 — Debt Confirmation + Collection */}
+                                            <Route path="debt">
+                                                <Route index element={<Navigate to="/admin/kt/debt/confirmations" replace />} />
+                                                <Route path="confirmations" element={<DebtConfirmationList />} />
+                                                <Route path="collection" element={<DebtCollectionBoard />} />
+                                            </Route>
+                                            {/* Wave 4 W4-03 — KT Reports module */}
+                                            <Route path="reports">
+                                                <Route index element={<ReportsLanding />} />
+                                                <Route path="pnl" element={<PnLReport />} />
+                                                <Route path="cashflow" element={<CashFlowReport />} />
+                                                <Route path="ar-aging" element={<ARAgingReport />} />
+                                                <Route path="ap-outstanding" element={<APOutstandingReport />} />
+                                            </Route>
+                                            {/* Wave 7 W7-03 — KT one-time backfill tools */}
+                                            <Route path="tools">
+                                                <Route path="backfill-payment-link" element={<BackfillPaymentRequestLink />} />
+                                            </Route>
                                             <Route path="expenditures">
                                                 <Route index element={<Navigate to="/admin/kt/expenditures/payment-requests" replace />} />
                                                 <Route path="payment-requests" element={<PaymentRequestList />} />

@@ -166,7 +166,7 @@ const LaborPriceConfig: React.FC = () => {
                 open={isModalVisible}
                 onCancel={() => setIsModalVisible(false)}
                 onOk={() => form.submit()}
-                destroyOnClose
+                destroyOnHidden
             >
                 <Form
                     form={form}

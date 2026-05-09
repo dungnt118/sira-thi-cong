@@ -467,7 +467,7 @@ export const Step06Contract: React.FC<Step06ContractProps> = ({
                 }}
                 footer={null}
                 width={560}
-                destroyOnClose
+                destroyOnHidden
             >
                 <Form
                     form={createForm}

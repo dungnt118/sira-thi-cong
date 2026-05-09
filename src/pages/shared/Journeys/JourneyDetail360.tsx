@@ -17,6 +17,7 @@ import {
     FormOutlined,
     HistoryOutlined,
     InboxOutlined,
+    LineChartOutlined,
     MessageOutlined,
     NodeIndexOutlined,
     PaperClipOutlined,
@@ -91,6 +92,9 @@ import { MyTasksTab } from './components/MyTasksTab';
 import { AuthorizedUserSelect } from '../../../components/authorizedusers/AuthorizedUser';
 import { MasterDataSelect } from '../../../components/common/MasterDataSelect';
 import { JourneyDocumentsTab } from '../../../components/journey/JourneyDocumentsTab';
+// Wave 4 W4-02 + W4-01 — Cost Ledger + P&L tabs.
+import JourneyCostLedger from './components/JourneyCostLedger';
+import PnLTab from './components/PnLTab';
 import JourneyUpsertDrawer from '../../../components/journey/JourneyUpsertDrawer';
 import { StepWorkTaskList } from '../../../components/journey/StepWorkTaskList';
 import { WorkTaskActionModals, type WorkTaskActionDialogContext } from '../../../components/journey/WorkTaskActionModals';
@@ -479,6 +483,9 @@ const JOURNEY_TAB_ACCESS_RULES: JourneyTabAccessRule[] = [
     { key: 'GRP_11_MAINTAIN', minStepCode: 'maintenance', currentStepCode: 'maintenance', roleGroupCode: 'GRP_11_MAINTAIN' },
     { key: 'GRP_12_WARRANTY', minStepCode: 'warranty', currentStepCode: 'warranty', roleGroupCode: 'GRP_12_WARRANTY' },
     { key: 'GRP_13_CARE', minStepCode: 'after_sales', currentStepCode: 'after_sales', roleGroupCode: 'GRP_13_CARE' },
+    // Wave 4 W4-01 + W4-02 — Cost Ledger + P&L tabs (cross-step finance views, QL/KT only).
+    { key: 'COST_LEDGER', minStepCode: 'execution', alwaysVisible: true, roleGroupCode: 'GRP_10_PAYMENT' },
+    { key: 'PNL', minStepCode: 'final_acceptance', alwaysVisible: true, roleGroupCode: 'GRP_10_PAYMENT' },
 ];
 
 /** Ánh xạ các tab được ưu tiên (highlight) theo từng bước hiện tại của Journey. */
@@ -1568,6 +1575,20 @@ const JourneyDetail360: React.FC = () => {
                         key: rule.key,
                         label: <span><UserOutlined /> Chăm sóc</span>,
                         children: renderTabContent('GRP_13_CARE', 'S13_CARE', 'after_sales'),
+                    };
+                // Wave 4 W4-02 — Cost Ledger tab (cross-step finance view).
+                case 'COST_LEDGER':
+                    return {
+                        key: rule.key,
+                        label: <span><DollarOutlined /> Sổ chi phí</span>,
+                        children: <JourneyCostLedger journeyId={journey._id} />,
+                    };
+                // Wave 4 W4-01 — P&L tab.
+                case 'PNL':
+                    return {
+                        key: rule.key,
+                        label: <span><LineChartOutlined /> Lãi/Lỗ</span>,
+                        children: <PnLTab journeyId={journey._id} />,
                     };
                 default:
                     return null;
@@ -2897,7 +2918,7 @@ const JourneyDetail360: React.FC = () => {
                 }}
                 onOk={() => void handleSubmitNewWorkTask()}
                 okText="Tạo"
-                destroyOnClose
+                destroyOnHidden
                 width={480}
             >
                 <Form

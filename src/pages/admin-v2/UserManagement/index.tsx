@@ -569,7 +569,7 @@ const UserManagement: React.FC = () => {
                 confirmLoading={passwordSubmitting}
                 okText="Cập nhật mật khẩu"
                 cancelText="Hủy"
-                destroyOnClose
+                destroyOnHidden
             >
                 <Form form={passwordForm} layout="vertical">
                     <Form.Item
@@ -613,7 +613,7 @@ const UserManagement: React.FC = () => {
                 width={700}
                 okText="Lưu thông tin"
                 cancelText="Hủy"
-                destroyOnClose
+                destroyOnHidden
             >
                 <Form form={form} layout="vertical" initialValues={{ roles: [] }}>
                     <Row gutter={16}>

@@ -122,7 +122,7 @@ export const CreateStockOrderRequestModal: React.FC<CreateStockOrderRequestModal
             onCancel={onCancel}
             onOk={() => form.submit()}
             confirmLoading={isSubmitting}
-            destroyOnClose
+            destroyOnHidden
             width={780}
             okText="Gửi duyệt"
         >

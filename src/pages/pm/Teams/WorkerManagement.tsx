@@ -246,7 +246,7 @@ const WorkerManagement: React.FC = () => {
                 okText="Xác nhận"
                 cancelText="Hủy"
                 style={{ top: 20 }}
-                destroyOnClose
+                destroyOnHidden
             >
                 <Form form={form} layout="vertical">
                     <Row gutter={[24, 0]}>

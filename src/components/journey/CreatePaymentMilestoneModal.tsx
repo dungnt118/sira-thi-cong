@@ -140,7 +140,7 @@ export const CreatePaymentMilestoneModal: React.FC<CreatePaymentMilestoneModalPr
             onCancel={onCancel}
             onOk={() => form.submit()}
             confirmLoading={isSubmitting}
-            destroyOnClose
+            destroyOnHidden
             width={640}
             okText="Tạo đợt"
         >

@@ -74,7 +74,7 @@ const MaintenanceTicketModal: React.FC<MaintenanceTicketModalProps> = ({
             onOk={handleOk}
             onCancel={onCancel}
             width={isMobile ? 'calc(100vw - 24px)' : 600}
-            destroyOnClose
+            destroyOnHidden
         >
             <Form form={form} layout="vertical">
                 <Form.Item name="asset_id" label="ID Tài sản" hidden>

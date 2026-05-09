@@ -54,7 +54,7 @@ export default function CreateSubThreadDrawer({
             width={420}
             open={open}
             onClose={onClose}
-            destroyOnClose
+            destroyOnHidden
             footer={
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
                     <Button onClick={onClose}>Hủy</Button>

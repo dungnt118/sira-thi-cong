@@ -96,7 +96,7 @@ const CustomerUpsertDrawer: React.FC<CustomerUpsertDrawerProps> = ({
             width={680}
             open={open}
             onClose={onCancel}
-            destroyOnClose
+            destroyOnHidden
             extra={
                 <Space>
                     <Button onClick={onCancel}>Hủy</Button>

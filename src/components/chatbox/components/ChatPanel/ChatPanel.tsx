@@ -598,7 +598,7 @@ export default function ChatPanel({
                         Thêm thành viên
                     </Button>,
                 ]}
-                destroyOnClose
+                destroyOnHidden
                 width={460}
             >
                 <List
@@ -684,7 +684,7 @@ export default function ChatPanel({
                 okText="Chèn vào nội dung"
                 cancelText="Hủy"
                 okButtonProps={{ disabled: !linkUrl.trim() }}
-                destroyOnClose
+                destroyOnHidden
             >
                 <Input
                     prefix={<LinkOutlined />}

@@ -432,7 +432,7 @@ const TeamDetail: React.FC = () => {
                 width={800}
                 okText="Xác nhận"
                 cancelText="Hủy"
-                destroyOnClose
+                destroyOnHidden
             >
                 <Form
                     form={workerForm}

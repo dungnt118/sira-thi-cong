@@ -1,0 +1,87 @@
+Exported to schema_analysis.txt
+ype: Nested
+Nested Count: 8
+Nested Fields (8):
+  - standardized_buckets.bucket_code: Text
+  - standardized_buckets.bucket_name: Text
+  - standardized_buckets.rate_pct: Number
+  - standardized_buckets.base_amount: Number
+  - standardized_buckets.amount: Number
+  - standardized_buckets.formula_source: Text
+  - standardized_buckets.sort_order: Number
+  - standardized_buckets.note: Text
+
+=== direct_cost_groups ===
+Type: Nested
+Nested Count: 13
+Nested Fields (13):
+  - direct_cost_groups.template_id: ObjectId
+  - direct_cost_groups.name: Text
+  - direct_cost_groups.quantity: Number
+  - direct_cost_groups.unit: Text
+  - direct_cost_groups.material_amount: Number
+  - direct_cost_groups.labor_amount: Number
+  - direct_cost_groups.other_amount: Number
+  - direct_cost_groups.subtotal: Number
+  - direct_cost_groups.note: Text
+  - direct_cost_groups.components: Nested
+    -- direct_cost_groups.components.type: Text
+    -- direct_cost_groups.components.material_id: ObjectId
+    -- direct_cost_groups.components.labor_price_config_id: ObjectId
+    -- direct_cost_groups.components.calc_mode: Text
+    -- direct_cost_groups.components.quantity: Number
+    -- direct_cost_groups.components.unit: Text
+    -- direct_cost_groups.components.unit_price: Number
+    -- direct_cost_groups.components.line_total: Number
+    -- direct_cost_groups.components.formula_code: Text
+    -- direct_cost_groups.components.formula_snapshot: Text
+    -- direct_cost_groups.components.note: Text
+    -- direct_cost_groups.components.item_code: Text
+    -- direct_cost_groups.components.item_name: Text
+    -- direct_cost_groups.components.item_spec: Text
+    -- direct_cost_groups.components.brand_name: Text
+    -- direct_cost_groups.components.source_type: Text
+    -- direct_cost_groups.components.source_ref_label: Text
+    -- direct_cost_groups.components.quantity_per_unit: Number
+    -- direct_cost_groups.components.expanded_quantity: Number
+    -- direct_cost_groups.components.waste_pct: Number
+    -- direct_cost_groups.components.cost_note: Text
+    -- quote_category_id: ObjectId
+  - direct_cost_groups.group_code: Text
+  - direct_cost_groups.template_name_snapshot: Text
+  - direct_cost_groups.cost_basis_note: Text
+
+=== labor_breakdown ===
+Type: Object
+Nested Count: 9
+Nested Fields (9):
+  - labor_breakdown.outsource_labor: Number
+  - labor_breakdown.internal_fixed_salary: Number
+  - labor_breakdown.technical_commission: Number
+  - labor_breakdown.supervisor_commission: Number
+  - labor_breakdown.labor_total: Number
+  - labor_breakdown.note: Text
+  - labor_breakdown.role_allocation_total: Number
+  - labor_breakdown.sale_related_excluded: Number
+  - labor_breakdown.management_related_excluded: Number
+
+=== role_cost_allocations ===
+Type: Nested
+Nested Count: 11
+Nested Fields (11):
+  - role_cost_allocations.bucket_code: Text
+  - role_cost_allocations.role_code: Text
+  - role_cost_allocations.usernames: AuthorizedUsers
+  - role_cost_allocations.headcount: Number
+  - role_cost_allocations.work_days: Number
+  - role_cost_allocations.calc_mode: Text
+  - role_cost_allocations.unit_rate: Number
+  - role_cost_allocations.allocation_pct: Number
+  - role_cost_allocations.amount: Number
+  - role_cost_allocations.formula_snapshot: Text
+  - role_cost_allocations.note: Text
+
+=== KEY SUMMARY PROPERTIES ===
+total_estimate_cost: Number
+version_no: Number
+status: Text

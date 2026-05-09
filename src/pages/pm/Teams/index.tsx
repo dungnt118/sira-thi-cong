@@ -511,7 +511,7 @@ const Teams: React.FC = () => {
                 okText={editingCompany ? 'Cập nhật' : 'Tạo mới'}
                 cancelText="Hủy"
                 width={720}
-                destroyOnClose
+                destroyOnHidden
             >
                 <Form form={companyForm} layout="vertical">
                     <Divider orientation="left" plain style={{ fontSize: 13 }}>Thông tin cơ bản</Divider>

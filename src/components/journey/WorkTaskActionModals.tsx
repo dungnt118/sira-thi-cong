@@ -437,7 +437,7 @@ export const WorkTaskActionModals: React.FC<WorkTaskActionModalsProps> = ({
                 okText="Lưu"
                 cancelText="Hủy"
                 confirmLoading={submitting}
-                destroyOnClose
+                destroyOnHidden
                 width={560}
                 afterOpenChange={(opened) => {
                     if (opened && journey && fieldEntries.length) {

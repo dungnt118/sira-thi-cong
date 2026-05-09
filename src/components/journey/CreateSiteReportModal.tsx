@@ -60,7 +60,7 @@ export const CreateSiteReportModal: React.FC<CreateSiteReportModalProps> = ({
             onOk={() => form.submit()}
             confirmLoading={isSubmitting}
             width={700}
-            destroyOnClose
+            destroyOnHidden
         >
             <Form
                 form={form}

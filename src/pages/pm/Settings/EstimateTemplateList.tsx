@@ -249,7 +249,7 @@ export const EstimateTemplateList: React.FC = () => {
                 cancelText="Hủy"
                 confirmLoading={submitting}
                 width={960}
-                destroyOnClose
+                destroyOnHidden
             >
                 <Form
                     form={form}

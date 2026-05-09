@@ -187,7 +187,7 @@ export const CreateJourneyDocumentModal: React.FC<CreateJourneyDocumentModalProp
             onOk={handleOk}
             confirmLoading={isSubmitting}
             width={600}
-            destroyOnClose
+            destroyOnHidden
         >
             <Form form={form} layout="vertical">
                 <Form.Item label="Mô tả tài liệu" name="description" rules={[{ required: true, message: 'Vui lòng nhập mô tả' }]}>

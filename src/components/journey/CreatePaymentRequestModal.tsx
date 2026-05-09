@@ -118,7 +118,7 @@ export const CreatePaymentRequestModal: React.FC<CreatePaymentRequestModalProps>
             onCancel={onCancel}
             onOk={() => form.submit()}
             confirmLoading={isSubmitting}
-            destroyOnClose
+            destroyOnHidden
             width={680}
             okText="Gửi duyệt"
         >

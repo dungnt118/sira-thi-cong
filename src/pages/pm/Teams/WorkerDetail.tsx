@@ -327,7 +327,7 @@ const WorkerDetail: React.FC = () => {
                 style={{ top: 20 }}
                 okText="Lưu thay đổi"
                 cancelText="Hủy"
-                destroyOnClose
+                destroyOnHidden
             >
                 <Form form={form} layout="vertical">
                     <Row gutter={16}>

@@ -135,7 +135,7 @@ export const JourneyEstimateList: React.FC = () => {
                 onCancel={() => setIsModalVisible(false)}
                 footer={[<Button key="close" onClick={() => setIsModalVisible(false)}>Đóng</Button>]}
                 width={800}
-                destroyOnClose
+                destroyOnHidden
             >
                 {viewingEstimate && (
                     <div>

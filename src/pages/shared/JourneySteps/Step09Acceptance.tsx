@@ -672,7 +672,7 @@ export const Step09Acceptance: React.FC<Step09AcceptanceProps> = ({
                 onCancel={() => { setCreateAcceptanceOpen(false); createAcceptanceForm.resetFields(); }}
                 footer={null}
                 width={560}
-                destroyOnClose
+                destroyOnHidden
             >
                 <Form
                     form={createAcceptanceForm}
@@ -716,7 +716,7 @@ export const Step09Acceptance: React.FC<Step09AcceptanceProps> = ({
                 onCancel={() => { setAddIssueOpen(false); addIssueForm.resetFields(); }}
                 footer={null}
                 width={560}
-                destroyOnClose
+                destroyOnHidden
             >
                 <Form
                     form={addIssueForm}

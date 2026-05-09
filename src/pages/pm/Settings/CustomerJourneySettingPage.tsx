@@ -1060,7 +1060,7 @@ const CustomerJourneySettingPage: React.FC = () => {
                         width="min(92vw, 360px)"
                         onClose={() => setStepsDrawerOpen(false)}
                         open={stepsDrawerOpen}
-                        destroyOnClose={false}
+                        destroyOnHidden={false}
                     >
                         <div style={{ paddingBottom: 16 }}>{stepsListNode}</div>
                     </Drawer>

@@ -830,7 +830,7 @@ const CollaboratorDetail: React.FC = () => {
                 okText={editingWorker ? 'Cập nhật' : 'Thêm'}
                 cancelText="Hủy"
                 width={500}
-                destroyOnClose
+                destroyOnHidden
             >
                 <Form form={workerForm} layout="vertical">
                     <Row gutter={16}>

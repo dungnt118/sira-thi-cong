@@ -576,7 +576,7 @@ const PaymentRequestDetailModal: React.FC<PaymentRequestDetailModalProps> = ({
             width="95%"
             style={{ maxWidth: 900 }}
             maskClosable={false}
-            destroyOnClose
+            destroyOnHidden
         >
             {request && (
                 <div style={{ marginBottom: 16, padding: '0 12px' }}>
@@ -871,7 +871,7 @@ const PaymentRequestDetailModal: React.FC<PaymentRequestDetailModalProps> = ({
             onCancel={() => setIsPreviewModalOpen(false)}
             width={1000}
             title={previewFile?.name}
-            destroyOnClose
+            destroyOnHidden
         >
             {previewFile && (
                 <div style={{ height: '70vh' }}>

@@ -53,6 +53,8 @@ export const FIND_PAYMENTREQUEST_DTO = gql`
         payment_proof_note
         createdBy
         rejected_by
+        payment_milestone_id
+        idx_payment_milestone_id
       }
     }
   }
@@ -111,6 +113,8 @@ export const QUERY_PAYMENTREQUESTS_DTO = gql`
         payment_proof_note
         createdBy
         rejected_by
+        payment_milestone_id
+        idx_payment_milestone_id
       }
     }
   }

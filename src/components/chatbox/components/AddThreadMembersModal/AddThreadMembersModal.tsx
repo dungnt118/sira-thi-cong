@@ -61,7 +61,7 @@ export default function AddThreadMembersModal({
             okText="Gửi lời mời"
             cancelText="Hủy"
             confirmLoading={submitting}
-            destroyOnClose
+            destroyOnHidden
             width={560}
             className="add-thread-members-modal"
         >

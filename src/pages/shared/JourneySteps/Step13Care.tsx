@@ -390,7 +390,7 @@ export const Step13Care: React.FC<Step13CareProps> = ({
                 onCancel={() => { taskForm.resetFields(); setAddTaskOpen(false); }}
                 footer={null}
                 width={460}
-                destroyOnClose
+                destroyOnHidden
             >
                 <Form
                     form={taskForm}
@@ -431,7 +431,7 @@ export const Step13Care: React.FC<Step13CareProps> = ({
                 onCancel={() => { reminderForm.resetFields(); setAddReminderOpen(false); }}
                 footer={null}
                 width={460}
-                destroyOnClose
+                destroyOnHidden
             >
                 <Form
                     form={reminderForm}
