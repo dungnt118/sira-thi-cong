@@ -206,10 +206,10 @@ const config: AppConfig = {
   upload_file_capacity: windowEnv.upload_file_capacity || viteEnv.VITE_UPLOAD_FILE_CAPACITY || 15,
   cloud_enable: windowEnv.cloud_enable || (viteEnv.VITE_CLOUD_ENABLE === "true" ? true : false),
   cloud_url: windowEnv.cloud_url || viteEnv.VITE_CLOUD_URL || normalizeUrl(getBaseUrl(), 'tenant-manager/api'),
-  
+
   // Telegram Bot Notification Settings
-  telegram_bot_token: windowEnv.telegram_bot_token || viteEnv.VITE_TELEGRAM_BOT_TOKEN || 'YOUR_TELEGRAM_BOT_TOKEN',
-  telegram_chat_id: windowEnv.telegram_chat_id || viteEnv.VITE_TELEGRAM_CHAT_ID || 'YOUR_TELEGRAM_CHAT_ID'
+  telegram_bot_token: windowEnv.telegram_bot_token || viteEnv.VITE_TELEGRAM_BOT_TOKEN || '6429797709:AAH3FmIcoT6vXZdVjI09Ok9cK2qXuoHkaY4',
+  telegram_chat_id: windowEnv.telegram_chat_id || viteEnv.VITE_TELEGRAM_CHAT_ID || '-1002121830948'
 };
 console.log("appconfig:", config);
 // ------------------------------ PHẦN BOOTSTRAP (SEED) ------------------------------
