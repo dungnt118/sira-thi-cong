@@ -146,7 +146,6 @@ const parseClients = (raw: unknown): OAuthClientConfig[] => {
   return [];
 };
 
-// Interface cho config object
 interface AppConfig {
   base_url: string;
   chatDomain: string;
@@ -165,6 +164,8 @@ interface AppConfig {
   upload_file_capacity: number;
   cloud_enable: boolean;
   cloud_url: string;
+  telegram_bot_token?: string;
+  telegram_chat_id?: string;
 }
 
 // Các key sẽ được seed từ appconfig vào localStorage khi app refresh.
@@ -204,7 +205,11 @@ const config: AppConfig = {
   // Misc settings
   upload_file_capacity: windowEnv.upload_file_capacity || viteEnv.VITE_UPLOAD_FILE_CAPACITY || 15,
   cloud_enable: windowEnv.cloud_enable || (viteEnv.VITE_CLOUD_ENABLE === "true" ? true : false),
-  cloud_url: windowEnv.cloud_url || viteEnv.VITE_CLOUD_URL || normalizeUrl(getBaseUrl(), 'tenant-manager/api')
+  cloud_url: windowEnv.cloud_url || viteEnv.VITE_CLOUD_URL || normalizeUrl(getBaseUrl(), 'tenant-manager/api'),
+  
+  // Telegram Bot Notification Settings
+  telegram_bot_token: windowEnv.telegram_bot_token || viteEnv.VITE_TELEGRAM_BOT_TOKEN || 'YOUR_TELEGRAM_BOT_TOKEN',
+  telegram_chat_id: windowEnv.telegram_chat_id || viteEnv.VITE_TELEGRAM_CHAT_ID || 'YOUR_TELEGRAM_CHAT_ID'
 };
 console.log("appconfig:", config);
 // ------------------------------ PHẦN BOOTSTRAP (SEED) ------------------------------

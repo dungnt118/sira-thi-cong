@@ -460,7 +460,7 @@ const createApolloClientInstance = () => {
         },
       },
     }),
-    defaultOptions,
+    defaultOptions: defaultOptions as any,
   });
 };
 

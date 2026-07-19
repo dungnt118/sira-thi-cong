@@ -25,6 +25,7 @@ import type { ICompanyBankAccount } from '@/services/core-contracts/types/compan
 import type { IBeneficiaryBankContact } from '@/services/core-contracts/types/beneficiaryBankContact.types';
 import moment from 'moment';
 import VietQRSection from './VietQRSection';
+import { sendTelegramNotification } from '@/utils/telegram';
 
 const { Option } = Select;
 const { Text, Title } = Typography;
@@ -183,8 +184,9 @@ const PaymentRequestDetailModal: React.FC<PaymentRequestDetailModalProps> = ({
             }
 
             if (request) {
-                await paymentRequestService.updatePaymentRequest(request._id, values);
+                const updated = await paymentRequestService.updatePaymentRequest(request._id, values);
                 message.success('Cập nhật yêu cầu thành công');
+                sendTelegramNotification('update', { ...request, ...values });
             } else {
                 // Auto create contact if manual info is provided without a selected ID
                 if (!values.beneficiary_bank_contact_id && values.beneficiary_account_number_snapshot) {
@@ -208,8 +210,9 @@ const PaymentRequestDetailModal: React.FC<PaymentRequestDetailModalProps> = ({
                 values.requested_by = user?.username || 'unknown';
                 values.submitted_at = new Date().toISOString();
                 
-                await paymentRequestService.createPaymentRequest(values as ICreatePaymentRequestInput);
+                const created = await paymentRequestService.createPaymentRequest(values as ICreatePaymentRequestInput);
                 message.success('Tạo yêu cầu chi mới thành công');
+                sendTelegramNotification('create', created);
             }
 
             onSuccess();
@@ -232,6 +235,7 @@ const PaymentRequestDetailModal: React.FC<PaymentRequestDetailModalProps> = ({
                 approved_by: user?.display_name || user?.username || 'Approver'
             });
             message.success(`Đã phê duyệt yêu cầu ${request.code}`);
+            sendTelegramNotification('approve', { ...request, status: 'approved' });
             onSuccess();
             onClose();
         } catch (error) {
@@ -253,6 +257,7 @@ const PaymentRequestDetailModal: React.FC<PaymentRequestDetailModalProps> = ({
                 rejection_reason: values.rejection_reason
             });
             message.success('Đã từ chối yêu cầu chi');
+            sendTelegramNotification('reject', { ...request, status: 'rejected', rejection_reason: values.rejection_reason });
             setIsRejecting(false);
             onSuccess();
             onClose();
@@ -279,6 +284,12 @@ const PaymentRequestDetailModal: React.FC<PaymentRequestDetailModalProps> = ({
                 payment_proof_files: values.payment_proof_files
             });
             message.success(`Đã xác nhận chi tiền`);
+            sendTelegramNotification('pay', { 
+                ...request, 
+                status: 'paid', 
+                bank_transaction_ref: values.bank_transaction_ref,
+                payment_proof_note: values.payment_proof_note
+            });
             setIsConfirmingPay(false);
             onSuccess();
             onClose();
