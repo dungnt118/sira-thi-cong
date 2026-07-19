@@ -15,10 +15,11 @@ import {
     AccountBookOutlined, TeamOutlined, PropertySafetyOutlined,
     SwapOutlined, InfoCircleOutlined, ThunderboltOutlined,
     FieldTimeOutlined, DollarOutlined, PaperClipOutlined,
-    FileImageOutlined, EyeOutlined, DownloadOutlined, ArrowRightOutlined
+    FileImageOutlined, EyeOutlined, DownloadOutlined, ArrowRightOutlined, QrcodeOutlined
 } from '@ant-design/icons';
 import { useAuth } from '@/hooks/useAuth';
 import PaymentRequestDetailModal from './components/PaymentRequestDetailModal';
+import VietQRSection from './components/VietQRSection';
 import { paymentRequestService } from '@/services/core-contracts/services/paymentRequest.service';
 import { companyBankAccountService } from '@/services/core-contracts/services/companyBankAccount.service';
 import { beneficiaryBankContactService } from '@/services/core-contracts/services/beneficiaryBankContact.service';
@@ -87,6 +88,9 @@ const PaymentRequestList: React.FC = () => {
 
     const [previewFile, setPreviewFile] = useState<any>(null);
     const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+
+    const [qrPreviewRequest, setQrPreviewRequest] = useState<IPaymentRequest | null>(null);
+    const [isQrModalOpen, setIsQrModalOpen] = useState(false);
 
     const isImageFile = (file: any) => {
         if (!file?.name) return false;
@@ -381,7 +385,20 @@ const PaymentRequestList: React.FC = () => {
                 const canEdit = isAccountant || (isOwner && record.status === 'draft');
 
                 return (
-                    <Space size={4}>
+                    <Space size={4} onClick={(e) => e.stopPropagation()}>
+                        {record.beneficiary_account_number_snapshot && (
+                            <Tooltip title="Xem mã QR & Chia sẻ nhanh">
+                                <Button 
+                                    icon={<QrcodeOutlined style={{ color: '#52c41a' }} />} 
+                                    size="small" 
+                                    type="text" 
+                                    onClick={() => {
+                                        setQrPreviewRequest(record);
+                                        setIsQrModalOpen(true);
+                                    }} 
+                                />
+                            </Tooltip>
+                        )}
                         <Tooltip title="Xem chi tiết & Xử lý">
                             <Button 
                                 icon={<EyeOutlined />} 
@@ -586,9 +603,20 @@ const PaymentRequestList: React.FC = () => {
                                 <div style={{ fontWeight: 'bold', color: '#1890ff', fontSize: 15 }}>
                                     {record.amount?.toLocaleString('vi-VN')} <span style={{ fontSize: 11, fontWeight: 'normal' }}>{record.currency?.toUpperCase() || 'VND'}</span>
                                 </div>
-                                <Space>
+                                <Space onClick={(e) => e.stopPropagation()}>
+                                    {record.beneficiary_account_number_snapshot && (
+                                        <Button 
+                                            size="small" 
+                                            icon={<QrcodeOutlined style={{ color: '#52c41a' }} />} 
+                                            type="text" 
+                                            onClick={() => {
+                                                setQrPreviewRequest(record);
+                                                setIsQrModalOpen(true);
+                                            }}
+                                        />
+                                    )}
                                     {renderFileCell(record.supporting_files || [])}
-                                    <Button size="small" icon={<ArrowRightOutlined />} type="text" />
+                                    <Button size="small" icon={<EyeOutlined />} type="text" onClick={() => handleOpenModal(record)} />
                                 </Space>
                             </div>
                         </Card>
@@ -663,6 +691,35 @@ const PaymentRequestList: React.FC = () => {
                         height="100%" 
                         style={{ border: 'none', background: '#f5f5f5' }} 
                     />
+                )}
+            </Modal>
+
+            {/* Modal xem nhanh QR Code độc lập */}
+            <Modal
+                title={`Mã thanh toán QR — ${qrPreviewRequest?.code || 'Chi tiết chuyển khoản'}`}
+                open={isQrModalOpen}
+                onCancel={() => setIsQrModalOpen(false)}
+                footer={[
+                    <Button key="close" onClick={() => setIsQrModalOpen(false)}>Đóng</Button>
+                ]}
+                width={600}
+                destroyOnClose
+            >
+                {qrPreviewRequest && qrPreviewRequest.beneficiary_account_number_snapshot ? (
+                    <div style={{ padding: '8px 0' }}>
+                        <VietQRSection 
+                            bankName={qrPreviewRequest.beneficiary_bank_name_snapshot}
+                            accountNo={qrPreviewRequest.beneficiary_account_number_snapshot}
+                            accountName={qrPreviewRequest.beneficiary_name_snapshot}
+                            amount={qrPreviewRequest.amount}
+                            description={qrPreviewRequest.code || 'CHUYEN KHOAN'}
+                            requestId={qrPreviewRequest._id}
+                        />
+                    </div>
+                ) : (
+                    <div style={{ textAlign: 'center', padding: '24px 0' }}>
+                        <Text type="secondary" italic>Yêu cầu chi này chưa có thông tin tài khoản thụ hưởng để tạo mã QR.</Text>
+                    </div>
                 )}
             </Modal>
         </div>

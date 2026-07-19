@@ -24,6 +24,7 @@ import type { IPaymentRequest, ICreatePaymentRequestInput } from '@/services/cor
 import type { ICompanyBankAccount } from '@/services/core-contracts/types/companyBankAccount.types';
 import type { IBeneficiaryBankContact } from '@/services/core-contracts/types/beneficiaryBankContact.types';
 import moment from 'moment';
+import VietQRSection from './VietQRSection';
 
 const { Option } = Select;
 const { Text, Title } = Typography;
@@ -75,8 +76,9 @@ const PaymentRequestDetailModal: React.FC<PaymentRequestDetailModalProps> = ({
     
     const isOwner = request?.requested_by === user?.username || (request as any)?.createdBy === user?.username;
     
-    // Form can edit if it's new (null request), or if it's draft and user is owner
-    const canEdit = !request || (request.status === 'draft' && isOwner) || isAccountant;
+    // Form can edit if it's new (null request), or if it's draft/pending_approval AND user is owner or accountant
+    const isEditableStatus = !request || request.status === 'draft' || request.status === 'pending_approval';
+    const canEdit = !request || (isEditableStatus && (isOwner || isAccountant));
     // Detail View mode (hide inputs, show Descriptions)
     const isDetailMode = !!request && !canEdit;
 
@@ -512,6 +514,19 @@ const PaymentRequestDetailModal: React.FC<PaymentRequestDetailModalProps> = ({
                             <Descriptions.Item label="Chi nhánh">{request.beneficiary_branch_snapshot || '-'}</Descriptions.Item>
                         </Descriptions>
                     </Col>
+
+                    {request.beneficiary_account_number_snapshot && (
+                        <Col span={24}>
+                            <VietQRSection 
+                                bankName={request.beneficiary_bank_name_snapshot}
+                                accountNo={request.beneficiary_account_number_snapshot}
+                                accountName={request.beneficiary_name_snapshot}
+                                amount={request.amount}
+                                description={request.code || 'CHUYEN KHOAN'}
+                                requestId={request._id}
+                            />
+                        </Col>
+                    )}
                     
                     {request.status === 'paid' && (
                         <Col span={24}>
@@ -794,7 +809,6 @@ const PaymentRequestDetailModal: React.FC<PaymentRequestDetailModalProps> = ({
                     <Form.Item name="request_date" hidden><Input /></Form.Item>
                 </Form>
             )}
-            {isDetailMode && renderReadOnlyView()}
         </Modal>
 
         {/* Modal nhập lý do từ chối */}
@@ -830,6 +844,18 @@ const PaymentRequestDetailModal: React.FC<PaymentRequestDetailModalProps> = ({
             okButtonProps={{ loading: saving }}
             width={600}
         >
+            {request && request.beneficiary_account_number_snapshot && (
+                <div style={{ marginBottom: 16 }}>
+                    <VietQRSection 
+                        bankName={request.beneficiary_bank_name_snapshot}
+                        accountNo={request.beneficiary_account_number_snapshot}
+                        accountName={request.beneficiary_name_snapshot}
+                        amount={request.amount}
+                        description={request.code || 'CHUYEN KHOAN'}
+                        requestId={request._id}
+                    />
+                </div>
+            )}
             <Form form={confirmPayForm} layout="vertical" style={{ marginTop: 16 }}>
                 <Row gutter={16}>
                     <Col span={24}>

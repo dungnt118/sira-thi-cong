@@ -1,8 +1,7 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import {
     Card, Row, Col, Button, Typography, InputNumber, Alert,
-    Table, Tag, Statistic, Divider, Space, Progress, Modal, Input,
+    Table, Tag, Statistic, Divider, Space, Progress, Modal, Input, Grid, Select
 } from 'antd';
 import {
     ArrowLeftOutlined, CheckCircleOutlined, ExclamationCircleOutlined,
@@ -22,6 +21,7 @@ import type { Material, MaterialStandard, StockRequest, StockRequestItem } from 
 import type { Project } from '../../../types/legacy-project';
 
 const { Title, Text } = Typography;
+const { useBreakpoint } = Grid;
 
 type RequestRow = StockRequestItem & { key: string };
 
@@ -35,6 +35,8 @@ const STATUS_CFG = {
 const MaterialPlan: React.FC = () => {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
+    const screens = useBreakpoint();
+    const isMobile = !screens.sm;
 
     const [mockProjects] = useLocalStorageData<Project[]>(demoDataService.KEYS.PROJECTS, defaultProjects);
     const [mockMaterials] = useLocalStorageData<Material[]>(demoDataService.KEYS.MATERIALS, defaultMaterials);
@@ -46,26 +48,31 @@ const MaterialPlan: React.FC = () => {
     const [saved, setSaved] = useState(false);
 
     // ── Section 1: Material standards ──────────────────────────
-    if (!project) return <div>Không tìm thấy dự án</div>;
+    const [quantities, setQuantities] = useState<Record<string, number>>({});
+
+    if (!project) return <div style={{ padding: 24, textAlign: 'center' }}><Alert message="Không tìm thấy dự án" type="error" /></div>;
 
     const standards = mockStandards.filter(s => s.constructionType === project.type);
-    const [quantities, setQuantities] = useState<Record<string, number>>(
-        Object.fromEntries(
-            standards.map(s => [s.materialId, Math.ceil(project.areaM2 * s.usagePerM2)])
-        )
-    );
+    
+    // Khởi tạo quantities nếu chưa có
+    const getQty = (materialId: string, usagePerM2: number) => {
+        if (quantities[materialId] !== undefined) return quantities[materialId];
+        return Math.ceil((project.areaM2 || 0) * (usagePerM2 ?? 0));
+    };
 
     const items = standards.map(s => {
         const mat = mockMaterials.find(m => m.id === s.materialId);
-        const needed = quantities[s.materialId] ?? Math.ceil(project.areaM2 * s.usagePerM2);
+        const needed = getQty(s.materialId, s.usagePerM2 || 0);
         const stock = mat?.currentStock ?? 0;
         const enough = stock >= needed;
+        const unit = mat ? (mat.name.includes('lít') ? 'lít' : mat.unit) : 'kg';
+        
         return {
             materialId: s.materialId,
-            materialName: s.materialName,
-            unit: mat ? (mat.name.includes('lít') ? 'lít' : mat.unit) : 'kg',
-            standard: s.usagePerM2,
-            standardQty: Math.ceil(project.areaM2 * s.usagePerM2),
+            materialName: s.materialName || '',
+            unit,
+            standard: s.usagePerM2 || 0,
+            standardQty: Math.ceil((project.areaM2 || 0) * (s.usagePerM2 || 0)),
             qty: needed,
             stock,
             enough,
@@ -83,15 +90,16 @@ const MaterialPlan: React.FC = () => {
         Modal.confirm({
             title: '✅ Xác nhận định mức?',
             content: (
-                <div>
+                <div style={{ marginTop: 12 }}>
                     <p>Định mức sau khi xác nhận sẽ được gửi cho <strong>Kế toán</strong> để tạo phiếu xuất kho.</p>
                     {hasShortage && (
-                        <Alert message="⚠️ Một số vật tư tồn kho không đủ. Kế toán sẽ xử lý bổ sung." type="warning" showIcon />
+                        <Alert message="⚠️ Một số vật tư tồn kho không đủ. Kế toán sẽ xử lý bổ sung." type="warning" showIcon style={{ marginTop: 8 }} />
                     )}
                 </div>
             ),
             onOk: () => setSaved(true),
             okText: 'Xác nhận',
+            cancelText: 'Hủy'
         });
     };
 
@@ -101,7 +109,7 @@ const MaterialPlan: React.FC = () => {
     const [reqSubmitting, setReqSubmitting] = useState(false);
     const [reqSubmitted, setReqSubmitted] = useState(false);
 
-    // Combine mock data + locally submitted requests for this project
+    // Lọc lịch sử yêu cầu của dự án này
     const projectRequests = mockStockRequests.filter(r => r.type === 'REQUEST_OUT' && r.projectId === project.id);
 
     const handleAutoFillRequest = () => {
@@ -123,7 +131,7 @@ const MaterialPlan: React.FC = () => {
 
     const handleAddRow = () => setReqRows(prev => [...prev, {
         key: `row-${Date.now()}`,
-        materialId: '', materialName: '', unit: 'kg', requested: 0,
+        materialId: '', materialName: '', unit: 'kg', requested: 0, note: 'Thêm thủ công'
     }]);
 
     const handleRemoveRow = (key: string) => setReqRows(prev => prev.filter(r => r.key !== key));
@@ -141,14 +149,13 @@ const MaterialPlan: React.FC = () => {
         await new Promise(r => setTimeout(r, 800));
         setReqSubmitting(false);
 
-        // Build a new local request record and prepend to history immediately
         const newReq: StockRequest = {
             id: `YCR-LOCAL-${Date.now()}`,
             code: `YC-OUT-${String(mockStockRequests.length + 1).padStart(3, '0')}-NEW`,
             type: 'REQUEST_OUT',
             requestedBy: 'Nguyễn Văn PM',
             projectId: project.id,
-            projectName: project.name,
+            projectName: project.name || '',
             items: reqRows.map(({ key: _k, ...rest }) => rest),
             reason: reqReason,
             status: 'PENDING',
@@ -160,7 +167,7 @@ const MaterialPlan: React.FC = () => {
         Modal.success({
             title: '✅ Đã gửi yêu cầu xuất kho!',
             content: (
-                <div>
+                <div style={{ marginTop: 12 }}>
                     <p>Yêu cầu đã được gửi đến <strong>Kế toán Phạm Thị A</strong>.</p>
                     <p>Kế toán sẽ kiểm tra tồn kho và tạo Phiếu Xuất chính thức.</p>
                 </div>
@@ -174,70 +181,119 @@ const MaterialPlan: React.FC = () => {
         {
             title: 'Vật tư',
             dataIndex: 'materialName',
+            key: 'materialName',
+            width: isMobile ? 120 : 200,
             render: (name: string) => <Text strong>{name}</Text>,
         },
         {
-            title: 'Định mức',
+            title: 'Định mức chuẩn',
+            key: 'standard',
+            width: isMobile ? 150 : 220,
             render: (_: unknown, r: typeof items[0]) => (
                 <Text type="secondary" style={{ fontSize: 12 }}>
-                    {project.areaM2}m² × {r.standard} = <strong>{r.standardQty} {r.unit}</strong>
+                    {(project.areaM2 || 0)}m² × {r.standard} = <strong>{r.standardQty} {r.unit}</strong>
                 </Text>
             ),
         },
         {
-            title: 'Số lượng (có thể điều chỉnh)',
+            title: 'Số lượng đề xuất',
+            key: 'qty',
+            width: 160,
             render: (_: unknown, r: typeof items[0]) => (
                 <InputNumber
-                    value={r.qty} min={0} addonAfter={r.unit} style={{ width: 150 }}
+                    value={r.qty} 
+                    min={0} 
+                    addonAfter={r.unit} 
+                    style={{ width: '100%' }}
                     onChange={v => setQuantities(prev => ({ ...prev, [r.materialId]: v ?? 0 }))}
                 />
             ),
         },
         {
-            title: 'Tồn kho',
+            title: 'Khả dụng trong kho',
+            key: 'stock',
+            width: 180,
             render: (_: unknown, r: typeof items[0]) => (
                 <div>
-                    <Text style={{ color: r.enough ? '#52c41a' : '#ff4d4f' }}>{r.stock} {r.unit}</Text>
+                    <Text style={{ color: r.enough ? '#52c41a' : '#ff4d4f', fontWeight: 600 }}>{r.stock} {r.unit}</Text>
                     <Tag color={r.enough ? 'success' : 'error'} style={{ marginLeft: 8, fontSize: 10 }}>
-                        {r.enough ? '✅ Đủ kho' : `⚠️ Thiếu ${r.shortage} ${r.unit}`}
+                        {r.enough ? '✅ Đủ kho' : `⚠️ Thiếu ${r.shortage}`}
                     </Tag>
                 </div>
             ),
         },
         {
-            title: 'Chi phí ước tính',
+            title: 'Chi phí dự kiến',
+            key: 'totalCost',
+            width: 140,
             render: (_: unknown, r: typeof items[0]) => (
-                <Text strong style={{ color: '#1976D2' }}>{r.totalCost.toLocaleString('vi-VN')} đ</Text>
+                <Text strong style={{ color: '#1890ff' }}>{r.totalCost.toLocaleString('vi-VN')} đ</Text>
             ),
         },
     ];
 
     const reqRowColumns = [
         {
-            title: 'Vật tư',
-            render: (_: unknown, r: RequestRow) => (
-                <Text strong>{r.materialName || '—'}</Text>
-            ),
+            title: 'Vật tư yêu cầu',
+            key: 'materialName',
+            render: (_: unknown, r: RequestRow) => {
+                // Nếu dòng được thêm thủ công thì hiển thị Dropdown Select vật tư
+                if (r.key.startsWith('row-')) {
+                    return (
+                        <Select
+                            style={{ width: '100%', minWidth: 160 }}
+                            placeholder="Chọn vật tư..."
+                            value={r.materialId || undefined}
+                            onChange={(val) => {
+                                const mat = mockMaterials.find(m => m.id === val);
+                                if (mat) {
+                                    setReqRows(prev => prev.map(i => i.key === r.key ? {
+                                        ...i,
+                                        materialId: mat.id,
+                                        materialName: mat.name,
+                                        unit: (mat.name.includes('lít') ? 'lít' : mat.unit) as any,
+                                        note: `Kho còn: ${mat.currentStock} ${mat.unit}`
+                                    } : i));
+                                }
+                            }}
+                        >
+                            {mockMaterials.map(m => (
+                                <Select.Option key={m.id} value={m.id}>
+                                    {m.name} (Tồn: {m.currentStock})
+                                </Select.Option>
+                            ))}
+                        </Select>
+                    );
+                }
+                return <Text strong>{r.materialName || '—'}</Text>;
+            },
         },
         {
             title: 'SL yêu cầu',
-            width: 160,
+            key: 'requested',
+            width: 150,
             render: (_: unknown, r: RequestRow) => (
                 <InputNumber
-                    value={r.requested} min={0} addonAfter={r.unit} style={{ width: '100%' }}
+                    value={r.requested} 
+                    min={0} 
+                    addonAfter={r.unit} 
+                    style={{ width: '100%' }}
+                    disabled={!r.materialId}
                     onChange={v => setReqRows(prev => prev.map(i => i.key === r.key ? { ...i, requested: v ?? 0 } : i))}
                 />
             ),
         },
         {
-            title: 'Ghi chú',
+            title: 'Ghi chú / Tình trạng',
+            key: 'note',
             render: (_: unknown, r: RequestRow) => (
                 <Text type="secondary" style={{ fontSize: 12 }}>{r.note}</Text>
             ),
         },
         {
-            title: '',
-            width: 40,
+            title: 'Xóa',
+            key: 'delete',
+            width: 50,
             render: (_: unknown, r: RequestRow) => (
                 <Button danger size="small" icon={<DeleteOutlined />} onClick={() => handleRemoveRow(r.key)} />
             ),
@@ -248,13 +304,17 @@ const MaterialPlan: React.FC = () => {
         {
             title: 'Mã YC',
             dataIndex: 'code',
+            key: 'code',
+            width: 120,
             render: (v: string) => <Text strong>{v}</Text>,
         },
         {
             title: 'Trạng thái',
             dataIndex: 'status',
+            key: 'status',
+            width: 160,
             render: (v: keyof typeof STATUS_CFG) => (
-                <Tag color={STATUS_CFG[v].color as string}
+                <Tag color={STATUS_CFG[v].color}
                     icon={v === 'PENDING' ? <ClockCircleOutlined /> : v === 'CONVERTED' ? <SyncOutlined spin /> : <CheckCircleOutlined />}>
                     {STATUS_CFG[v].label}
                 </Tag>
@@ -262,10 +322,11 @@ const MaterialPlan: React.FC = () => {
         },
         {
             title: 'Vật tư yêu cầu',
+            key: 'items',
             render: (_: unknown, r: typeof projectRequests[0]) => (
                 <Space wrap size={4}>
-                    {r.items.map(i => (
-                        <Tag key={i.materialId} style={{ fontSize: 11 }}>
+                    {r.items.map((i, index) => (
+                        <Tag key={`${i.materialId}-${index}`} style={{ fontSize: 11 }}>
                             {i.materialName}: {i.requested} {i.unit}
                         </Tag>
                     ))}
@@ -273,84 +334,93 @@ const MaterialPlan: React.FC = () => {
             ),
         },
         {
-            title: 'Phiếu XK',
+            title: 'Mã Phiếu XK',
+            key: 'convertedOrderId',
+            width: 130,
             render: (_: unknown, r: typeof projectRequests[0]) =>
                 r.convertedOrderId
                     ? <Tag color="blue">{r.convertedOrderId}</Tag>
                     : <Text type="secondary" style={{ fontSize: 11 }}>—</Text>,
         },
         {
-            title: 'Kế toán phản hồi',
+            title: 'KT phản hồi',
+            key: 'reviewNote',
+            width: 160,
             render: (_: unknown, r: typeof projectRequests[0]) => (
-                <Text style={{ fontSize: 11, color: r.reviewNote ? '#52c41a' : '#999' }}>
+                <Text style={{ fontSize: 11, color: r.reviewNote ? '#52c41a' : '#555' }}>
                     {r.reviewNote ?? '—'}
                 </Text>
             ),
         },
         {
             title: 'Ngày tạo',
+            key: 'createdAt',
+            width: 100,
             render: (_: unknown, r: typeof projectRequests[0]) => (
-                <Text type="secondary" style={{ fontSize: 11 }}>{r.createdAt.split('T')[0]}</Text>
+                <Text type="secondary" style={{ fontSize: 11 }}>{(r.createdAt || '').split('T')[0]}</Text>
             ),
         },
     ];
 
     return (
-        <div>
+        <div style={{ padding: isMobile ? '8px' : '0' }}>
             {/* Header */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
-                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(`/ql/construction/projects/${project.id}`)}>
-                    Chi tiết dự án
+            <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'flex-start' : 'center', gap: 16, marginBottom: 20 }}>
+                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(-1)}>
+                    Quay lại
                 </Button>
                 <div style={{ flex: 1 }}>
-                    <Title level={4} style={{ margin: 0 }}>📦 Định mức Vật tư Dự án</Title>
-                    <Text type="secondary">{project.code} – {project.name}</Text>
+                    <Title level={4} style={{ margin: 0, fontSize: isMobile ? 18 : 20 }}>📦 Định mức Vật tư Dự án</Title>
+                    <Text type="secondary" style={{ fontSize: isMobile ? 12 : 14 }}>{project.code} – {project.name}</Text>
                 </div>
-                <Space>
-                    {saved
-                        ? <Tag color="success" style={{ padding: '4px 12px' }}>✅ Đã xác nhận – Kế toán đang xử lý</Tag>
-                        : <Button type="primary" icon={<CheckCircleOutlined />} onClick={handleConfirm}>
-                            ✅ Xác nhận định mức
+                <Space style={{ width: isMobile ? '100%' : 'auto', marginTop: isMobile ? 8 : 0 }}>
+                    {saved ? (
+                        <Tag color="success" style={{ padding: '6px 16px', fontSize: 12, borderRadius: 6, margin: 0 }}>
+                            ✅ Đã xác nhận – Kế toán đang xử lý
+                        </Tag>
+                    ) : (
+                        <Button 
+                            type="primary" 
+                            icon={<CheckCircleOutlined />} 
+                            onClick={handleConfirm}
+                            style={{ height: 36, borderRadius: 6, width: isMobile ? '100%' : 'auto' }}
+                        >
+                            Xác nhận định mức
                         </Button>
-                    }
+                    )}
                 </Space>
             </div>
 
             {/* KPI Banner */}
-            <Row gutter={16} style={{ marginBottom: 16 }}>
-                <Col span={6}>
-                    <Card size="small">
-                        <Statistic title="Diện tích" value={project.areaM2} suffix="m²" valueStyle={{ color: '#1976D2' }} />
+            <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
+                <Col xs={12} sm={6}>
+                    <Card size="small" style={{ borderRadius: 8, boxShadow: '0 2px 6px rgba(0,0,0,0.02)' }}>
+                        <Statistic title="Diện tích" value={project.areaM2} suffix="m²" valueStyle={{ color: '#1890ff', fontSize: isMobile ? 18 : 22, fontWeight: 700 }} />
                     </Card>
                 </Col>
-                <Col span={6}>
-                    <Card size="small">
-                        <Statistic title="Loại thi công" value={project.type} valueStyle={{ fontSize: 14 }} />
+                <Col xs={12} sm={6}>
+                    <Card size="small" style={{ borderRadius: 8, boxShadow: '0 2px 6px rgba(0,0,0,0.02)' }}>
+                        <Statistic title="Loại thi công" value={project.type} valueStyle={{ fontSize: isMobile ? 13 : 15, fontWeight: 600 }} />
                     </Card>
                 </Col>
-                <Col span={6}>
-                    <Card size="small">
+                <Col xs={12} sm={6}>
+                    <Card size="small" style={{ borderRadius: 8, boxShadow: '0 2px 6px rgba(0,0,0,0.02)' }}>
                         <Statistic
-                            title="Chi phí VT ước tính"
+                            title="Chi phí ước tính"
                             value={totalCost}
                             formatter={v => `${Number(v).toLocaleString('vi-VN')} đ`}
-                            valueStyle={{ color: '#1976D2', fontSize: 16 }}
+                            valueStyle={{ color: '#1890ff', fontSize: isMobile ? 14 : 16, fontWeight: 700 }}
                         />
                     </Card>
                 </Col>
-                <Col span={6}>
-                    <Card size="small" style={{ borderColor: hasShortage ? '#ff4d4f' : '#52c41a' }}>
+                <Col xs={12} sm={6}>
+                    <Card size="small" style={{ borderColor: hasShortage ? '#ff4d4f' : '#52c41a', borderRadius: 8, boxShadow: '0 2px 6px rgba(0,0,0,0.02)' }}>
                         {hasShortage ? (
                             <Statistic title="Tình trạng kho" value="Thiếu vật tư"
-                                prefix={<ExclamationCircleOutlined />} valueStyle={{ color: '#ff4d4f', fontSize: 14 }} />
+                                prefix={<ExclamationCircleOutlined />} valueStyle={{ color: '#ff4d4f', fontSize: isMobile ? 13 : 15, fontWeight: 600 }} />
                         ) : (
                             <Statistic title="Tình trạng kho" value="Đủ vật tư"
-                                prefix={<CheckCircleOutlined />} valueStyle={{ color: '#52c41a', fontSize: 14 }} />
-                        )}
-                        {projectRequests.some(r => r.status === 'PENDING') && (
-                            <Tag color="warning" style={{ fontSize: 10, marginTop: 4 }}>
-                                <ClockCircleOutlined /> {projectRequests.filter(r => r.status === 'PENDING').length} YC đang chờ KT
-                            </Tag>
+                                prefix={<CheckCircleOutlined />} valueStyle={{ color: '#52c41a', fontSize: isMobile ? 13 : 15, fontWeight: 600 }} />
                         )}
                     </Card>
                 </Col>
@@ -358,146 +428,178 @@ const MaterialPlan: React.FC = () => {
 
             {hasShortage && (
                 <Alert
-                    message={`⚠️ ${shortageItems.length} vật tư tồn kho không đủ cho định mức dự án. Hãy tạo Yêu cầu Xuất kho bên dưới.`}
-                    type="warning" showIcon style={{ marginBottom: 16 }}
+                    message={`Tồn kho đang thiếu ${shortageItems.length} loại vật tư theo định mức. Hãy gửi Đề nghị Xuất kho bên dưới.`}
+                    type="warning" 
+                    showIcon 
+                    style={{ marginBottom: 16, borderRadius: 6 }}
                 />
             )}
 
             {/* Material standards table */}
-            <Card title="📋 Bảng định mức vật tư" style={{ marginBottom: 16 }}>
+            <Card 
+                title="📋 Bảng định mức vật tư" 
+                style={{ marginBottom: 16, borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}
+                bodyStyle={{ padding: isMobile ? 8 : 16 }}
+            >
                 <Alert
-                    message="💡 Định mức tự động tính từ diện tích × hệ số chuẩn. Bạn có thể điều chỉnh số lượng thủ công nếu cần."
-                    type="info" showIcon style={{ marginBottom: 12 }}
+                    message="Định mức tự động tính = Diện tích × Hệ số định mức. Bạn có thể tự điền điều chỉnh cột Đề xuất."
+                    type="info" 
+                    showIcon 
+                    style={{ marginBottom: 12, borderRadius: 6 }}
                 />
                 <Table
-                    dataSource={items} columns={stdColumns} rowKey="materialId"
-                    pagination={false} size="middle"
+                    dataSource={items} 
+                    columns={stdColumns} 
+                    rowKey="materialId"
+                    pagination={false} 
+                    size={isMobile ? "small" : "middle"}
+                    scroll={{ x: 'max-content' }}
                     rowClassName={r => r.enough ? '' : 'ant-table-row-selected'}
                 />
             </Card>
 
             {/* Stock comparison visual */}
-            <Card title="📊 So sánh Định mức vs Tồn kho" style={{ marginBottom: 16 }}>
+            <Card title="📊 So sánh Định mức vs Tồn kho" style={{ marginBottom: 24, borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
                 {items.map(item => (
                     <div key={item.materialId} style={{ marginBottom: 16 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                            <Text strong>{item.materialName}</Text>
-                            <Space>
-                                <Text type="secondary" style={{ fontSize: 12 }}>
-                                    Cần: {item.qty} {item.unit} | Kho: {item.stock} {item.unit}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4, flexWrap: 'wrap', gap: 4 }}>
+                            <Text strong style={{ fontSize: isMobile ? 12 : 14 }}>{item.materialName}</Text>
+                            <Space wrap size={4}>
+                                <Text type="secondary" style={{ fontSize: 11 }}>
+                                    Định mức: {item.qty} {item.unit} | Kho: {item.stock} {item.unit}
                                 </Text>
-                                <Tag color={item.enough ? 'success' : 'error'} style={{ fontSize: 10 }}>
-                                    {item.enough ? '✅ OK' : '⚠️ Thiếu'}
+                                <Tag color={item.enough ? 'success' : 'error'} style={{ fontSize: 10, margin: 0 }}>
+                                    {item.enough ? 'Đủ kho' : `Thiếu ${item.shortage}`}
                                 </Tag>
                             </Space>
                         </div>
                         <Progress
                             percent={Math.min(100, Math.round((item.stock / item.qty) * 100))}
-                            status={item.enough ? 'success' : 'exception'} size="small"
-                            format={pct => `${pct}%`}
+                            status={item.enough ? 'success' : 'exception'} 
+                            size="small"
+                            format={() => `${item.stock}/${item.qty} ${item.unit}`}
                         />
                     </div>
                 ))}
-                <Divider />
-                <Row justify="end">
-                    <Col>
-                        <Text>Tổng chi phí vật tư dự kiến: </Text>
-                        <Text strong style={{ fontSize: 18, color: '#1976D2' }}>
-                            {totalCost.toLocaleString('vi-VN')} VNĐ
-                        </Text>
-                    </Col>
-                </Row>
+                <Divider style={{ margin: '16px 0' }} />
+                <div style={{ textAlign: 'right' }}>
+                    <Text type="secondary">Tổng chi phí vật tư dự kiến: </Text>
+                    <Text strong style={{ fontSize: isMobile ? 16 : 20, color: '#1890ff' }}>
+                        {totalCost.toLocaleString('vi-VN')} VNĐ
+                    </Text>
+                </div>
             </Card>
 
-            {/* ════════════════════════════════════════════════════════
-                SECTION 2 – Yêu cầu Xuất kho cho dự án này
-            ════════════════════════════════════════════════════════ */}
-            <Divider orientation="left" style={{ fontWeight: 700, color: '#1976D2', borderColor: '#1976D2' }}>
-                📤 Yêu cầu Xuất kho
+            {/* SECTION 2 – Yêu cầu Xuất kho */}
+            <Divider orientation="left" style={{ fontWeight: 700, color: '#1890ff', borderColor: '#1890ff', margin: '24px 0 16px' }}>
+                📤 Yêu cầu Xuất kho bổ sung
             </Divider>
 
             <Alert
-                type="info" showIcon style={{ marginBottom: 16 }}
-                message="PM tạo yêu cầu tại đây → Kế toán nhận, xét duyệt và tạo Phiếu Xuất chính thức → Thợ ký nhận → Tồn kho trừ."
+                type="info" 
+                showIcon 
+                style={{ marginBottom: 16, borderRadius: 6 }}
+                message="Quy trình: PM tạo yêu cầu -> Kế toán phê duyệt & xuất kho -> Thợ ký nhận trên ứng dụng."
             />
 
             <Card
-                title="➕ Tạo Yêu cầu Xuất kho mới"
+                title="➕ Đề xuất vật tư xuất kho"
                 extra={
-                    <Space>
+                    <Space size={isMobile ? 'small' : 'middle'} wrap>
                         <Button
+                            type="dashed"
                             icon={<BulbOutlined />}
                             onClick={handleAutoFillRequest}
                             disabled={shortageItems.length === 0}
-                            title={shortageItems.length === 0 ? 'Tồn kho đủ, không cần yêu cầu' : ''}
+                            style={{ height: 32, borderRadius: 6 }}
                         >
-                            💡 Tự động điền VT còn thiếu ({shortageItems.length} loại)
+                            {isMobile ? 'Tự điền' : `💡 Tự điền thiếu (${shortageItems.length})`}
                         </Button>
-                        <Button icon={<PlusOutlined />} onClick={handleAddRow}>Thêm thủ công</Button>
+                        <Button icon={<PlusOutlined />} onClick={handleAddRow} style={{ height: 32, borderRadius: 6 }}>
+                            Thêm dòng
+                        </Button>
                     </Space>
                 }
-                style={{ marginBottom: 16 }}
+                style={{ marginBottom: 16, borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}
+                bodyStyle={{ padding: isMobile ? 8 : 16 }}
             >
                 {reqSubmitted && (
-                    <Alert type="success" showIcon message="✅ Yêu cầu đã gửi thành công!" style={{ marginBottom: 12 }} />
+                    <Alert type="success" showIcon message="Yêu cầu gửi đi thành công" style={{ marginBottom: 12, borderRadius: 6 }} />
                 )}
 
                 {reqRows.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '20px 0', color: '#999' }}>
-                        <div style={{ fontSize: 32, marginBottom: 8 }}>📦</div>
-                        <Text type="secondary">
-                            Nhấn <strong>"💡 Tự động điền"</strong> để điền các VT đang thiếu, hoặc{' '}
-                            <strong>"Thêm thủ công"</strong> để tự chọn.
+                    <div style={{ textAlign: 'center', padding: '32px 0', color: '#8c8c8c' }}>
+                        <div style={{ fontSize: 36, marginBottom: 8 }}>📦</div>
+                        <Text type="secondary" style={{ fontSize: 13 }}>
+                            Chưa có vật tư yêu cầu. Nhấp <strong>"Tự điền thiếu"</strong> hoặc <strong>"Thêm dòng"</strong>.
                         </Text>
                     </div>
                 ) : (
                     <Table
-                        dataSource={reqRows} columns={reqRowColumns}
-                        rowKey="key" pagination={false} size="small"
+                        dataSource={reqRows} 
+                        columns={reqRowColumns}
+                        rowKey="key" 
+                        pagination={false} 
+                        size="small"
+                        scroll={{ x: 'max-content' }}
                         style={{ marginBottom: 12 }}
                     />
                 )}
 
-                <Divider style={{ margin: '12px 0' }} />
-                <Row gutter={12} align="bottom">
-                    <Col flex="auto">
-                        <Text strong style={{ display: 'block', marginBottom: 4 }}>Lý do yêu cầu *</Text>
+                <Divider style={{ margin: '16px 0' }} />
+                <Row gutter={[12, 12]} align="bottom">
+                    <Col xs={24} md={18}>
+                        <Text strong style={{ display: 'block', marginBottom: 6, fontSize: 13 }}>Lý do yêu cầu xuất kho *</Text>
                         <Input.TextArea
-                            rows={2} value={reqReason} onChange={e => setReqReason(e.target.value)}
-                            placeholder="VD: Cần xuất vật tư cho bước 7 tuần này, hiện kho thiếu Primer..."
+                            rows={isMobile ? 2 : 3} 
+                            value={reqReason} 
+                            onChange={e => setReqReason(e.target.value)}
+                            placeholder="Nhập lý do chi tiết (Ví dụ: Cần xuất cho giai đoạn mài sàn bê tông tuần này...)"
+                            style={{ borderRadius: 6 }}
                         />
                     </Col>
-                    <Col>
+                    <Col xs={24} md={6}>
                         <Button
-                            type="primary" size="large" icon={<SendOutlined />}
-                            loading={reqSubmitting} onClick={handleSubmitRequest}
+                            type="primary" 
+                            icon={<SendOutlined />}
+                            loading={reqSubmitting} 
+                            onClick={handleSubmitRequest}
                             disabled={reqRows.length === 0}
+                            style={{ width: '100%', height: 40, borderRadius: 6 }}
                         >
-                            📤 Gửi đến Kế toán
+                            Gửi yêu cầu (Kế toán)
                         </Button>
                     </Col>
                 </Row>
             </Card>
 
-            {/* History of requests for this project */}
+            {/* History of requests */}
             <Card
                 title={
-                    <Space>
-                        <span>📋 Lịch sử Yêu cầu Xuất kho của dự án</span>
+                    <Space wrap>
+                        <span>📋 Lịch sử Yêu cầu Xuất kho dự án</span>
                         {projectRequests.filter(r => r.status === 'PENDING').length > 0 && (
-                            <Tag color="warning">
-                                {projectRequests.filter(r => r.status === 'PENDING').length} đang chờ KT duyệt
+                            <Tag color="warning" style={{ margin: 0 }}>
+                                {projectRequests.filter(r => r.status === 'PENDING').length} đang chờ xử lý
                             </Tag>
                         )}
                     </Space>
                 }
+                style={{ borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}
+                bodyStyle={{ padding: isMobile ? 8 : 16 }}
             >
                 {projectRequests.length === 0 ? (
-                    <Text type="secondary">Chưa có yêu cầu xuất kho nào cho dự án này.</Text>
+                    <div style={{ textAlign: 'center', padding: '16px 0' }}>
+                        <Text type="secondary" italic>Chưa có yêu cầu xuất kho nào.</Text>
+                    </div>
                 ) : (
                     <Table
-                        dataSource={projectRequests} columns={historyColumns}
-                        rowKey="id" pagination={false} size="small"
+                        dataSource={projectRequests} 
+                        columns={historyColumns}
+                        rowKey="id" 
+                        pagination={{ pageSize: 5, size: 'small' }} 
+                        size="small"
+                        scroll={{ x: 'max-content' }}
                     />
                 )}
             </Card>

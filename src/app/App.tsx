@@ -142,6 +142,7 @@ import ProductListing from '../pages/public/ProductListing';
 import ProjectListing from '../pages/public/ProjectListing';
 import PolicyPage from '../pages/public/PolicyPage';
 import ContactPage from '../pages/public/ContactPage';
+import PublicPaymentRequestPay from '../pages/public/PaymentRequestPay';
 const DocumentationPage = lazy(() => import('../pages/public/DocumentationCenterPage'));
 
 // Layouts
@@ -303,6 +304,8 @@ function App() {
                                     <Route path="/portal/:token/documents" element={<PortalDocuments />} />
                                     <Route path="/portal/:token/threads" element={<ThreadInbox />} />
                                     <Route path="/portal/:token/threads/:threadId" element={<ThreadDetail />} />
+                                    
+                                    <Route path="/public/pay/:id" element={<PublicPaymentRequestPay />} />
                                     
                                     <Route path="/" element={elsagaService.getAccessToken() ? <RootRedirect /> : <LandingPage />} />
                                     <Route path="/article/:slug" element={<ArticleDetail />} />

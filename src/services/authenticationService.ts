@@ -203,23 +203,27 @@ class elsagaService extends FuseUtils.EventEmitter {
             console.log("login with:", loginUrl, request)
             fetch(loginUrl, request)
                 .then(res => {
-
                     if (res.ok) {
                         return res.json();
                     } else {
                         reject(`Request rejected with status ${res.status}`);
                         this.setSession(null);//xóa localStorage
                         this.emit('onAutoLogout', 'Tài khoản không hợp lệ hoặc đã bị vô hiệu')
-                        closeLoading && closeLoading()
+                        closeLoading && closeLoading();
+                        return null;
                     }
                 })
                 .then((data: any) => {
-                    console.log("cloud login session data:", data)
-                    this.setSession(data);
-                    resolve(data)
+                    if (data) {
+                        console.log("cloud login session data:", data)
+                        this.setSession(data);
+                        resolve(data);
+                    }
                 })
                 .catch((error: any) => {
-                    console.log(error);
+                    console.error('Cloud login fetch error:', error);
+                    closeLoading && closeLoading();
+                    reject('Không thể kết nối tới máy chủ đám mây hoặc chứng chỉ bảo mật không hợp lệ (SSL Error). Vui lòng thử lại sau!');
                 });
         })
     }
@@ -275,16 +279,21 @@ class elsagaService extends FuseUtils.EventEmitter {
                                 history.push("/login")
                             }
                         }) as any)
-                        closeLoading && closeLoading()
+                        closeLoading && closeLoading();
+                        return null;
                     }
                 })
                 .then((data: any) => {
-                    set(AUTH_FLOW, 'password');
-                    this.setSession(data);
-                    resolve(data)
+                    if (data) {
+                        set(AUTH_FLOW, 'password');
+                        this.setSession(data);
+                        resolve(data);
+                    }
                 })
                 .catch((error: any) => {
-                    console.log(error);
+                    console.error('OAuth token fetch error:', error);
+                    closeLoading && closeLoading();
+                    reject('Không thể kết nối tới máy chủ hoặc chứng chỉ bảo mật không hợp lệ (SSL Error). Vui lòng kiểm tra lại đường truyền!');
                 });
         });
     };
